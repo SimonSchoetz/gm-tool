@@ -19,7 +19,7 @@ export default function RootLayout({
           <h1 className='text-center p-8'>The Game Master&apos;s Tool</h1>
         </header>
 
-        <div className='flex-grow flex flex-col justify-center items-center'>
+        <div className='py-4 flex-grow flex flex-col justify-center items-center'>
           {children}
         </div>
 
