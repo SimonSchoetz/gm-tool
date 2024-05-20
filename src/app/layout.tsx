@@ -1,4 +1,4 @@
-import Footer from './components/Footer';
+import Footer from '@/components/Footer';
 import './styles.scss';
 
 export const metadata = {
@@ -16,10 +16,12 @@ export default function RootLayout({
     <html lang='en' className='h-full'>
       <body className='flex flex-col h-full bg-slate-100'>
         <header>
-          <h1 className='text-center'>The Game Master&apos;s Tool</h1>
+          <h1 className='text-center p-8'>The Game Master&apos;s Tool</h1>
         </header>
 
-        <div className='flex-grow'>{children}</div>
+        <div className='flex-grow flex flex-col justify-center items-center'>
+          {children}
+        </div>
 
         <Footer />
       </body>
