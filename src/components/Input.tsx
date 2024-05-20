@@ -1,12 +1,11 @@
 'use client';
 
-import { SetAction } from '@/app/types';
-import { HTMLInputTypeAttribute, useState } from 'react';
+import { HTMLInputTypeAttribute, use, useState } from 'react';
 
-type Props = {
-  type: HTMLInputTypeAttribute;
+export type InputProps = {
   value: string;
-  setValue: SetAction<string>;
+  onValueChange: (value: string) => any;
+  type?: HTMLInputTypeAttribute;
   placeholder?: string;
   label?: string;
   name?: string;
@@ -15,11 +14,11 @@ type Props = {
 const Input = ({
   type = 'text',
   value,
-  setValue,
+  onValueChange,
   placeholder,
   label,
   name,
-}: Props) => {
+}: InputProps) => {
   const [focused, setFocused] = useState(false);
 
   const labelColor = focused ? 'text-slate-950' : 'text-slate-600';
@@ -30,7 +29,7 @@ const Input = ({
       <input
         type={type}
         value={value}
-        onChange={({ target }) => setValue(target.value)}
+        onChange={({ target }) => onValueChange(target.value)}
         className='border border-slate-400 rounded-lg px-2 py-1 w-full outline-slate-950'
         placeholder={placeholder}
         name={name}
