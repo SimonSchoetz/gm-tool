@@ -7,22 +7,6 @@ export default function RegistrationPage() {
     console.log(data);
   };
 
-  const formInputFields: FormInputFields[] = [
-    {
-      name: 'email',
-      label: 'Email',
-      placeholder: 'Email',
-      type: 'email',
-      value: '',
-    },
-    {
-      name: 'displayName',
-      label: 'Display Name',
-      placeholder: 'Display Name',
-      type: 'text',
-      value: '',
-    },
-  ];
   return (
     <>
       <h2 className='text-center'>Create a new account</h2>
@@ -31,3 +15,20 @@ export default function RegistrationPage() {
     </>
   );
 }
+
+const formInputFields: FormInputFields[] = [
+  {
+    name: 'email',
+    label: 'Email',
+    placeholder: 'Email',
+    type: 'email',
+    value: '',
+  },
+  {
+    name: 'displayName',
+    label: 'Display Name',
+    placeholder: 'Display Name',
+    type: 'text',
+    value: '',
+  },
+];

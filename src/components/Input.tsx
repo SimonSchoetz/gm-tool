@@ -4,7 +4,7 @@ import { HTMLInputTypeAttribute, use, useState } from 'react';
 
 export type InputProps = {
   value: string;
-  onValueChange: (value: string) => any;
+  onChange: (value: string) => any;
   type?: HTMLInputTypeAttribute;
   placeholder?: string;
   label?: string;
@@ -14,7 +14,7 @@ export type InputProps = {
 const Input = ({
   type = 'text',
   value,
-  onValueChange,
+  onChange,
   placeholder,
   label,
   name,
@@ -29,7 +29,7 @@ const Input = ({
       <input
         type={type}
         value={value}
-        onChange={({ target }) => onValueChange(target.value)}
+        onChange={({ target }) => onChange(target.value)}
         className='border border-slate-400 rounded-lg px-2 py-1 w-full outline-slate-950'
         placeholder={placeholder}
         name={name}
