@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Input, { InputProps } from './Input';
+import Button from './Button';
 
 export type FormInputFields = Omit<InputProps, 'onChange'> & {
   name: string;
@@ -47,9 +48,9 @@ const Form = ({
   const hasValidFormData = Object.keys(formData).length;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
       {hasValidFormData ? getMappedInputs() : null}
-      <button type='submit'>Submit</button>
+      <Button type='submit' label='Create Account' />
     </form>
   );
 };

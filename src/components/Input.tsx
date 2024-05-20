@@ -1,6 +1,6 @@
 'use client';
 
-import { HTMLInputTypeAttribute, use, useState } from 'react';
+import { HTMLInputTypeAttribute, useState } from 'react';
 
 export type InputProps = {
   value: string;
