@@ -1,12 +1,6 @@
-import { newAdventureRequest } from '@/api/new-adventure-request';
+import * as DB from '@/api';
+import { assertIsString } from '@/util';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { redirect } from 'next/navigation';
-
-const assertIsString: (value: unknown) => asserts value is string = (value) => {
-  if (typeof value !== 'string') {
-    throw new Error('Value is not a string');
-  }
-};
 
 export const createNewAdventure = async (
   data: FormData,
@@ -17,7 +11,7 @@ export const createNewAdventure = async (
   assertIsString(name);
 
   try {
-    await newAdventureRequest({ name });
+    await DB.createNewAdventure({ name });
     router.push('/');
   } catch (error) {
     console.error('>>>>>>>>> | createNewAdventure | error:', error);
