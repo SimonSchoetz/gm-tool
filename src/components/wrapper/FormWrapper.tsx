@@ -2,9 +2,10 @@
 
 import { PropsWithChildren, useState } from 'react';
 import Button from '../Button';
+import { useRouter } from 'next/router';
 
 type FormWrapperProps = {
-  onSubmit: (formData: FormData) => Promise<string>;
+  onSubmit: (formData: FormData) => Promise<void>;
   buttonLabel: string;
 };
 
@@ -15,17 +16,19 @@ const FormWrapper = ({
 }: PropsWithChildren<FormWrapperProps>) => {
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     setSubmitting(true);
-    onSubmit(new FormData(e.currentTarget));
+    await onSubmit(new FormData(e.currentTarget));
     setSubmitting(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
       {children}
-      <Button type='submit' label={buttonLabel} />
+      <Button type='submit' label={buttonLabel} isLoading={submitting} />
     </form>
   );
 };
