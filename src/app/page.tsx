@@ -4,7 +4,11 @@ export default function MainPage() {
   return (
     <>
       <h2 className='text-center'>Welcome!</h2>
-      <AppLink layout={AppLinkLayout.BUTTON} url={'/sign-up'} title='Sign Up' />
+      <AppLink
+        layout={AppLinkLayout.BUTTON}
+        url={'/new-adventure'}
+        title='Create your fist adventure!'
+      />
     </>
   );
 }
