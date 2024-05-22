@@ -1,15 +1,19 @@
-export type ButtonProps = {
+import { ButtonHTMLAttributes, DetailedHTMLProps } from 'react';
+
+export type ButtonProps = DetailedHTMLProps<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> & {
   label: string;
-  type?: HTMLButtonElement['type'];
-  onClick?: () => void;
+  isLoading?: boolean;
 };
 
-const Button = ({ label, type, onClick }: ButtonProps) => {
+const Button = ({ label, ...buttonProps }: ButtonProps) => {
   return (
     <button
-      onClick={onClick}
-      type={type}
+      {...buttonProps}
       className='bg-slate-600 text-white rounded-xl px-4 py-2 hover:bg-slate-400 w-full'
+      disabled={buttonProps.disabled || buttonProps.isLoading}
     >
       {label}
     </button>
