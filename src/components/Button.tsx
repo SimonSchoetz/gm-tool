@@ -8,12 +8,12 @@ export type ButtonProps = DetailedHTMLProps<
   isLoading?: boolean;
 };
 
-const Button = ({ label, ...buttonProps }: ButtonProps) => {
+const Button = ({ label, isLoading, ...buttonProps }: ButtonProps) => {
   return (
     <button
       {...buttonProps}
       className='bg-slate-600 text-white rounded-xl px-4 py-2 hover:bg-slate-400 w-full'
-      disabled={buttonProps.disabled || buttonProps.isLoading}
+      disabled={buttonProps.disabled || isLoading}
     >
       {label}
     </button>
