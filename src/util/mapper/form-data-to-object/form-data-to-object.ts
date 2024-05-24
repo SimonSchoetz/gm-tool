@@ -1,6 +1,8 @@
-export const mapFormDataToObject = (
+import { TypedFormData } from '@/types/generics';
+
+export const mapFormDataToObject = <T>(
   formData: FormData
-): { [key: string]: FormDataEntryValue } => {
+): TypedFormData<T> => {
   const data = Object.fromEntries(formData.entries());
-  return data;
+  return data as TypedFormData<T>;
 };

@@ -10,7 +10,7 @@ describe('mapFormDataToObject', () => {
   it('should form an object from the form entries', () => {
     const formData = new FormData();
     formData.append('testKey', 'testValue');
-    const mappedFormData = mapFormDataToObject(formData);
+    const mappedFormData = mapFormDataToObject<{ testKey: string }>(formData);
 
     expect(Object.keys(mappedFormData)[0]).toEqual('testKey');
     expect(Object.values(mappedFormData)[0]).toEqual('testValue');
