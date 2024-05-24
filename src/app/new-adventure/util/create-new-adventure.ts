@@ -11,7 +11,7 @@ export const createNewAdventure = async (
   assertIsString(name);
 
   try {
-    await DB.createNewAdventure({ name });
+    await DB.createAdventure({ name });
     router.push('/');
   } catch (error) {
     console.error('>>>>>>>>> | createNewAdventure | error:', error);

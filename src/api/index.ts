@@ -1,1 +1,1 @@
-export * from './create-new-adventure';
+export * from './create-adventure';
