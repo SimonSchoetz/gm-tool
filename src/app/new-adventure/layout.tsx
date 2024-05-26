@@ -1,4 +1,4 @@
-export default function SignUpLayout({
+export default function NewAdventureLayout({
   children,
 }: {
   readonly children: React.ReactNode;

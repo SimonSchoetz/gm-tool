@@ -1,1 +1,1 @@
-export * from './create-new-adventure';
+export * from './assert-is-new-adventure-request-data';
