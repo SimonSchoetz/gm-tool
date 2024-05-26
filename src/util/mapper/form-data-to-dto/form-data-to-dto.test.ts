@@ -1,16 +1,16 @@
-import { mapFormDataToObject } from './form-data-to-object';
+import { mapFormDataToDto } from './form-data-to-dto';
 
-describe('mapFormDataToObject', () => {
+describe('mapFormDataToDto', () => {
   it('should return an empty object if the form data is empty', () => {
     const formData = new FormData();
-    const mappedFormData = mapFormDataToObject(formData);
+    const mappedFormData = mapFormDataToDto(formData);
 
     expect(Object.keys(mappedFormData).length).toEqual(0);
   });
   it('should form an object from the form entries', () => {
     const formData = new FormData();
     formData.append('testKey', 'testValue');
-    const mappedFormData = mapFormDataToObject<{ testKey: string }>(formData);
+    const mappedFormData = mapFormDataToDto(formData);
 
     expect(Object.keys(mappedFormData)[0]).toEqual('testKey');
     expect(Object.values(mappedFormData)[0]).toEqual('testValue');
@@ -19,7 +19,7 @@ describe('mapFormDataToObject', () => {
   it('should fail if the form data is not a FormData object', () => {
     const formData = {} as FormData;
     try {
-      mapFormDataToObject(formData);
+      mapFormDataToDto(formData);
       // If the function doesn't throw an error, fail the test
       expect(true).toBe(false);
     } catch (e) {
