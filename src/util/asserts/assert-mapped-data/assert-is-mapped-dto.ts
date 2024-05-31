@@ -1,21 +1,17 @@
-import { NewAdventureRequestData } from '@/types';
-
-const requestPrototype: Record<
-  keyof NewAdventureRequestData,
+export type MappedPrototype<T> = Record<
+  keyof T,
   { required: boolean; type: string }
-> = {
-  name: { required: true, type: 'string' },
-  description: { required: false, type: 'string' },
-};
+>;
 
-export const assertIsNewAdventureRequestData: (
-  mappedData: any
-) => asserts mappedData is NewAdventureRequestData = (mappedData) => {
+export const assertIsMappedDto: <T extends Record<string, any>>(
+  mappedData: T,
+  mappedPrototype: MappedPrototype<T>
+) => asserts mappedData is T = (mappedData, mappedPrototype) => {
   const mappedDataKeys = Object.keys(mappedData);
-  const prototypeKeys = Object.keys(requestPrototype);
+  const prototypeKeys = Object.keys(mappedPrototype);
 
   const requiredKeys = prototypeKeys.filter(
-    (key) => requestPrototype[key as keyof NewAdventureRequestData].required
+    (key) => mappedPrototype[key].required
   );
 
   const missingKeys = requiredKeys.filter(
@@ -36,8 +32,7 @@ export const assertIsNewAdventureRequestData: (
 
   mappedDataKeys.forEach((key) => {
     const valueType = typeof mappedData[key];
-    const expectedType =
-      requestPrototype[key as keyof NewAdventureRequestData].type;
+    const expectedType = mappedPrototype[key].type;
 
     if (valueType !== expectedType) {
       throw new Error(

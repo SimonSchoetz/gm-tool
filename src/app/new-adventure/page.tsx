@@ -1,15 +1,21 @@
 'use client';
 
 import Input from '@/components/Input';
-import FormWrapper from '@/components/wrapper/FormWrapper';
 import { mapFormDataToDto } from '@/util/mapper';
-import { assertIsNewAdventureRequestData } from './util';
 import { createAdventure } from './api';
+import { FormWrapper } from '@/components/wrapper';
+import { MappedPrototype, assertIsMappedDto } from '@/util';
+import { NewAdventureRequestData } from '@/types/requests';
+
+const requestPrototype: MappedPrototype<NewAdventureRequestData> = {
+  name: { required: true, type: 'string' },
+  description: { required: false, type: 'string' },
+};
 
 export default function NewAdventurePage() {
   const handleSubmit = async (data: FormData) => {
-    const reqData = mapFormDataToDto(data);
-    assertIsNewAdventureRequestData(reqData);
+    const reqData = mapFormDataToDto<NewAdventureRequestData>(data);
+    assertIsMappedDto<NewAdventureRequestData>(reqData, requestPrototype);
     await createAdventure(reqData).then((res) => {
       //go to adventure page
       console.log('New adventure created:', res);

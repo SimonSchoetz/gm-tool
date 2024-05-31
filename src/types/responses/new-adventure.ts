@@ -1,3 +1,3 @@
-export interface NewAdventureResponseData {
+export interface NewAdventureResponse {
   adventureId: string;
 }
