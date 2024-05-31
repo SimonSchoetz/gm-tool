@@ -13,8 +13,8 @@ The plan is to build a frontend with NextJS, NestJS for the backend and a NoSQL 
 
 ## Current Goal for Version 0.1
 
-- Set up Next JS by absolving a tutorial
-- Set up NoSQL database
+- Set up Next JS by absolving a tutorial :heavy_check_mark:
+- Set up NoSQL database :heavy_check_mark:
 - Complete first user story: The user should be able to write and save, overwrite and delete a text.
 
 ## Future Goals
@@ -26,6 +26,15 @@ npm install D jest jest-environment-jsdom @testing-library/react @testing-librar
 ```
 
 - SEO, e.g. via meta data functionalities given by nextjs
+
+## Random Ideas and Goals
+
+### Combat tracker
+
+- Combine dynamoDB with Elastic Search to stream the combat
+  - [General Idea](https://www.youtube.com/watch?v=OjppS4RWWt8&list=PL9nWRykSBSFi5QD8ssI0W5odL9S0309E2&index=6)
+  - [How to set up a stream](https://www.youtube.com/watch?v=RhLUyJxS8Tk&list=PL9nWRykSBSFi5QD8ssI0W5odL9S0309E2&index=7)
+- give Players access to their character to provide agency and enable them to help their dm managing the fight
 
 ## Decisions
 
