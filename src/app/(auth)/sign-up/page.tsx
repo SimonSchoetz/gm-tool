@@ -5,7 +5,7 @@ import { MaxWidthWrapper } from '@/components/wrapper';
 import FormWrapper from '@/components/wrapper/FormWrapper';
 import { SignUpRequestData } from '@/types/requests';
 import { SignUpResponse } from '@/types/responses';
-import { MappedPrototype, assertIsMappedDto } from '@/util';
+import { MappedPrototype, assertIsMappedDto } from '@/util/asserts';
 import { makePost } from '@/util/api';
 import { mapFormDataToDto } from '@/util/mapper';
 
