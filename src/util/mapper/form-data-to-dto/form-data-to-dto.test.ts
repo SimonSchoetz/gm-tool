@@ -1,16 +1,21 @@
 import { mapFormDataToDto } from './form-data-to-dto';
+type TestFormData = {
+  testKey: string;
+};
 
 describe('mapFormDataToDto', () => {
   it('should return an empty object if the form data is empty', () => {
+    //As of now, FormData is not properly supported in Jest, but it does what it should do
     const formData = new FormData();
-    const mappedFormData = mapFormDataToDto(formData);
+    const mappedFormData = mapFormDataToDto<TestFormData>(formData);
 
     expect(Object.keys(mappedFormData).length).toEqual(0);
   });
   it('should form an object from the form entries', () => {
+    //As of now, FormData is not properly supported in Jest, but it does what it should do
     const formData = new FormData();
     formData.append('testKey', 'testValue');
-    const mappedFormData = mapFormDataToDto(formData);
+    const mappedFormData = mapFormDataToDto<TestFormData>(formData);
 
     expect(Object.keys(mappedFormData)[0]).toEqual('testKey');
     expect(Object.values(mappedFormData)[0]).toEqual('testValue');
@@ -19,7 +24,7 @@ describe('mapFormDataToDto', () => {
   it('should fail if the form data is not a FormData object', () => {
     const formData = {} as FormData;
     try {
-      mapFormDataToDto(formData);
+      mapFormDataToDto<TestFormData>(formData);
       // If the function doesn't throw an error, fail the test
       expect(true).toBe(false);
     } catch (e) {

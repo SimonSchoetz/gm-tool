@@ -1,11 +1,13 @@
-export const mapFormDataToDto = (formData: FormData): Record<string, any> => {
+export const mapFormDataToDto = <T extends Record<string, any>>(
+  formData: FormData
+): T => {
   const mappedFormData = Object.fromEntries(formData.entries());
 
-  const dto: Record<string, any> = {};
+  const dto = {} as T;
 
   Object.keys(mappedFormData).forEach((key): void => {
     const value = mappedFormData[key];
-    dto[key] = value;
+    (dto as Record<string, any>)[key] = value;
   });
 
   return dto;
