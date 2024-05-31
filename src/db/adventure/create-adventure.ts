@@ -1,4 +1,6 @@
-import { NewAdventureRequestData } from '@/types';
+import 'server-only';
+
+import { NewAdventureRequestData } from '@/types/requests';
 import { dynamoDb } from '../dynamoDb';
 import {
   AttributeValue,
