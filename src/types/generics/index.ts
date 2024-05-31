@@ -1,2 +1,2 @@
-export * from './form-data.type';
-export * from './set-action.type';
+export * from './form-data';
+export * from './set-action';

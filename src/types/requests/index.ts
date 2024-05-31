@@ -1,1 +1,1 @@
-export * from './new-adventure.interface';
+export * from './new-adventure';
