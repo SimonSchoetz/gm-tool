@@ -15,7 +15,7 @@ const Input = ({ label, ...inputProps }: InputProps) => {
   const labelColor = focused ? 'text-slate-950' : 'text-slate-600';
 
   return (
-    <div>
+    <>
       {label ? <label className={`ml-2 ${labelColor}`}>{label}</label> : null}
       <input
         {...inputProps}
@@ -23,7 +23,7 @@ const Input = ({ label, ...inputProps }: InputProps) => {
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />
-    </div>
+    </>
   );
 };
 
