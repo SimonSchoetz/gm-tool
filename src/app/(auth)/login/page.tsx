@@ -30,7 +30,7 @@ export default function NewAdventurePage() {
     <>
       <MaxWidthWrapper>
         <h2 className='text-center'>Welcome Back!</h2>
-        <p>Please enter your Email to proceed</p>
+        <p className='text-center my-5'>Please enter your Email to proceed</p>
         <FormWrapper
           onSubmit={(data) => handleSubmit(data)}
           buttonLabel='Login'
