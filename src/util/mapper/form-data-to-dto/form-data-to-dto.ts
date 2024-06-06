@@ -6,8 +6,10 @@ export const mapFormDataToDto = <T extends Record<string, any>>(
   const dto = {} as T;
 
   Object.keys(mappedFormData).forEach((key): void => {
-    const value = mappedFormData[key];
-    (dto as Record<string, any>)[key] = value;
+    if (!key.includes('$ACTION_ID')) {
+      const value = mappedFormData[key];
+      (dto as Record<string, any>)[key] = value;
+    }
   });
 
   return dto;

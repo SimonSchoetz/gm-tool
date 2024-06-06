@@ -11,6 +11,7 @@ describe('mapFormDataToDto', () => {
 
     expect(Object.keys(mappedFormData).length).toEqual(0);
   });
+
   it('should form an object from the form entries', () => {
     //As of now, FormData is not properly supported in Jest, but it does what it should do
     const formData = new FormData();
@@ -21,6 +22,7 @@ describe('mapFormDataToDto', () => {
     expect(Object.values(mappedFormData)[0]).toEqual('testValue');
     expect(mappedFormData.testKey).toEqual('testValue');
   });
+
   it('should fail if the form data is not a FormData object', () => {
     const formData = {} as FormData;
     try {
@@ -31,5 +33,20 @@ describe('mapFormDataToDto', () => {
       // If the function throws an error, pass the test
       expect(true).toBe(true);
     }
+  });
+
+  it('should not map NextJS action IDs', () => {
+    //As of now, FormData is not properly supported in Jest, but it does what it should do
+    const formData = new FormData();
+    formData.append('action', 'testAction');
+    formData.append('$ACTION_ID_3560af0b8c0579bbbbf6db812169de02a86c0bbe', '');
+
+    const mappedFormData = mapFormDataToDto<TestFormData>(formData);
+
+    const keys = Object.keys(mappedFormData);
+    const hasActionIDKey = keys.includes(
+      '$ACTION_ID_3560af0b8c0579bbbbf6db812169de02a86c0bbe'
+    );
+    expect(hasActionIDKey).toBe(false);
   });
 });
