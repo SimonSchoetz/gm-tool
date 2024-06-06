@@ -4,7 +4,7 @@ export type MappedPrototype<T> = Record<
 >;
 
 export const assertIsMappedDto: <T extends Record<string, any>>(
-  mappedData: T,
+  mappedData: any,
   mappedPrototype: MappedPrototype<T>
 ) => asserts mappedData is T = (mappedData, mappedPrototype) => {
   const mappedDataKeys = Object.keys(mappedData);
