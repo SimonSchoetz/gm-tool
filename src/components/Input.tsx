@@ -7,9 +7,11 @@ export type InputProps = DetailedHTMLProps<
   HTMLInputElement
 > & {
   label?: string;
+  validationError?: string;
 };
 
-const Input = ({ label, ...inputProps }: InputProps) => {
+const Input = ({ label, validationError, ...inputProps }: InputProps) => {
+  console.log('>>>>>>>>> | Input | error:', validationError);
   const [focused, setFocused] = useState(false);
 
   const labelColor = focused ? 'text-slate-950' : 'text-slate-600';
