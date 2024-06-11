@@ -11,23 +11,9 @@ The plan is to build a frontend with NextJS, NestJS for the backend and a NoSQL 
 - build tools that help the during the sessions, like encounter tracker
 - save data like session prep data such as locations, (N)PCs and random tables, settings, ect.
 
-## Current Goal for Version 0.1
-
-- Set up Next JS by absolving a tutorial :heavy_check_mark:
-- Set up NoSQL database :heavy_check_mark:
-- Complete first user story: The user should be able to write and save, overwrite and delete a text.
-
-## Future Goals
-
-- implement unit tests with when I gathered enough knowledge about how nextjs works
-
-```cmd
-npm install D jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom
-```
+## Random Ideas and Goals
 
 - SEO, e.g. via meta data functionalities given by nextjs
-
-## Random Ideas and Goals
 
 ### Combat tracker
 
