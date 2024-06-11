@@ -1,45 +1,16 @@
-'use client';
-
 import Input from '@/components/Input';
-import { MaxWidthWrapper } from '@/components/wrapper';
-import FormWrapper from '@/components/wrapper/FormWrapper';
-import { SignUpRequestData } from '@/types/requests';
-import { SignUpResponse } from '@/types/responses';
-import { MappedPrototype, assertIsMappedDto } from '@/util/asserts';
-import { makePost } from '@/util/api';
-import { mapFormDataToDto } from '@/util/mapper';
+import { MaxWidthWrapper, FormWrapper } from '@/components/wrapper';
 
-const reqPrototype: MappedPrototype<SignUpRequestData> = {
-  email: { required: true, type: 'string' },
-  displayName: { required: true, type: 'string' },
-  createdAt: { required: true, type: 'string' },
-};
+import { submitSignUp } from '@/actions/formSubmits';
 
 export default function SignUpPage() {
-  const handleSubmit = async (data: FormData) => {
-    const reqData = mapFormDataToDto<SignUpRequestData>(data);
-
-    reqData.createdAt = new Date().toISOString();
-
-    assertIsMappedDto<SignUpRequestData>(reqData, reqPrototype);
-
-    makePost<SignUpRequestData, SignUpResponse>('/sign-up/api', reqData).then(
-      (res) => {
-        console.log('SignUp Try', res);
-      }
-    );
-  };
-
   return (
     <MaxWidthWrapper>
       <h2 className='text-center'>Sign Up!</h2>
       <p className='text-center my-5'>
         Please enter your date to create an account
       </p>
-      <FormWrapper
-        onSubmit={(data) => handleSubmit(data)}
-        buttonLabel='Sign Up'
-      >
+      <FormWrapper submitAction={submitSignUp} buttonLabel='Sign Up'>
         <Input
           name='email'
           id='email'

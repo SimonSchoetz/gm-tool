@@ -1,5 +1,4 @@
-export type SignUpRequestData = {
-  email: string;
-  displayName: string;
-  createdAt: string; // ISOString
-};
+import { SignUpSchema } from '@/schemas/requests';
+import { z } from 'zod';
+
+export type SignUpRequestData = z.infer<typeof SignUpSchema>;
