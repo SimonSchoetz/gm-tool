@@ -9,9 +9,15 @@ export type ButtonProps = DetailedHTMLProps<
 > & {
   label: string;
   isLoading?: boolean;
+  classNames?: string;
 };
 
-const Button = ({ label, isLoading, ...buttonProps }: ButtonProps) => {
+const Button = ({
+  label,
+  isLoading,
+  classNames = '',
+  ...buttonProps
+}: ButtonProps) => {
   const { pending } = useFormStatus();
   const loading = isLoading || pending;
   const disabled = buttonProps.disabled || loading;
@@ -20,6 +26,7 @@ const Button = ({ label, isLoading, ...buttonProps }: ButtonProps) => {
     <button
       {...buttonProps}
       className={`
+      ${classNames}
       bg-slate-600 
       text-white 
       rounded-xl 

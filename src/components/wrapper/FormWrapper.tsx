@@ -4,6 +4,8 @@ import {
   DetailedHTMLProps,
   FormHTMLAttributes,
   PropsWithChildren,
+  useEffect,
+  useState,
 } from 'react';
 import Button from '../Button';
 import { useFormState, useFormStatus } from 'react-dom';
@@ -32,6 +34,13 @@ const FormWrapper = ({
   submitAction,
 }: PropsWithChildren<FormWrapperProps>) => {
   const [state, formAction] = useFormState(submitAction, init);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    if ('error' in state) {
+      setHasError(true);
+    }
+  }, [state]);
 
   const mapErrorToChildProps = (child: React.ReactNode) => {
     const hasChildRelatedError =
@@ -53,11 +62,20 @@ const FormWrapper = ({
   };
 
   return (
-    <form action={formAction} className='flex flex-col gap-2'>
+    <form
+      action={formAction}
+      onChange={() => setHasError(false)}
+      className='flex flex-col gap-2'
+    >
       {React.Children.map(children, (child: React.ReactNode) =>
         mapErrorToChildProps(child)
       )}
-      <Button type='submit' label={buttonLabel} />
+      <Button
+        classNames='mt-4'
+        type='submit'
+        label={buttonLabel}
+        disabled={hasError}
+      />
     </form>
   );
 };
