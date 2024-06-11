@@ -8,7 +8,7 @@ export default function SignUpPage() {
     <MaxWidthWrapper>
       <h2 className='text-center'>Sign Up!</h2>
       <p className='text-center my-5'>
-        Please enter your date to create an account
+        Please fill in your data to create an account
       </p>
       <FormWrapper submitAction={submitSignUp} buttonLabel='Sign Up'>
         <Input

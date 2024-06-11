@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import Button from '../Button';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import React from 'react';
 
 type FormWrapperProps = DetailedHTMLProps<
@@ -70,6 +70,7 @@ const FormWrapper = ({
       {React.Children.map(children, (child: React.ReactNode) =>
         mapErrorToChildProps(child)
       )}
+
       <Button
         classNames='mt-4'
         type='submit'

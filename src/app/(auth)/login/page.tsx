@@ -1,7 +1,5 @@
 import Input from '@/components/Input';
-import { MaxWidthWrapper } from '@/components/wrapper';
-import FormWrapper from '@/components/wrapper/FormWrapper';
-
+import { MaxWidthWrapper, FormWrapper } from '@/components/wrapper';
 import { submitLogin } from '@/actions/formSubmits';
 
 export default function LoginPage() {
