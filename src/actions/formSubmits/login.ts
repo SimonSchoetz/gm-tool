@@ -2,18 +2,17 @@
 
 import { getUser } from '@/db/user';
 import { LoginSchema } from '@/schemas/requests';
+import { FormSubmitResponse } from '@/types/responses';
 import { assertIsFormData } from '@/util/asserts';
 import { mapFormDataToDto } from '@/util/mapper';
 import { mapZodErrorsToErrors } from '@/util/mapper';
 import { revalidatePath } from 'next/cache';
-import { ZodError, z } from 'zod';
+import { ZodError } from 'zod';
 
 export const submitLogin = async (
   _prevState: any,
   data: unknown
-): Promise<
-  { message: string } | { error: string | Record<string, string> }
-> => {
+): Promise<FormSubmitResponse> => {
   try {
     assertIsFormData(data);
 
@@ -26,6 +25,7 @@ export const submitLogin = async (
       return { error: 'User not found' };
     }
 
+    console.log('TODO: Set session and reroute');
     return { message: 'Success' };
   } catch (error) {
     if (error instanceof ZodError) {
