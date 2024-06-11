@@ -1,6 +1,7 @@
 'use client';
 
 import { DetailedHTMLProps, InputHTMLAttributes, useState } from 'react';
+import { ConditionWrapper } from './wrapper';
 
 export type InputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,
@@ -17,7 +18,9 @@ const Input = ({ label, validationError, ...inputProps }: InputProps) => {
 
   return (
     <>
-      {label ? <label className={`ml-2 ${labelColor}`}>{label}</label> : null}
+      <ConditionWrapper condition={!!label}>
+        <label className={`ml-2 ${labelColor}`}>{label}</label>
+      </ConditionWrapper>
       <input
         {...inputProps}
         className='border border-slate-400 rounded-lg px-2 py-1 w-full outline-slate-950'
