@@ -11,7 +11,6 @@ export type InputProps = DetailedHTMLProps<
 };
 
 const Input = ({ label, validationError, ...inputProps }: InputProps) => {
-  console.log('>>>>>>>>> | Input | error:', validationError);
   const [focused, setFocused] = useState(false);
 
   const labelColor = focused ? 'text-slate-950' : 'text-slate-600';

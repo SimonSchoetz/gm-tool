@@ -31,15 +31,13 @@ const FormWrapper = ({
   children,
   submitAction,
 }: PropsWithChildren<FormWrapperProps>) => {
-  const { pending } = useFormStatus();
-
   const [state, formAction] = useFormState(submitAction, init);
-  console.log('>>>>>>>>> | state:', state);
 
   const mapErrorToChildProps = (child: React.ReactNode) => {
-    const hasChildError = 'error' in state && typeof state.error !== 'string';
+    const hasChildRelatedError =
+      'error' in state && typeof state.error !== 'string';
 
-    if (!React.isValidElement(child) || !hasChildError) {
+    if (!React.isValidElement(child) || !hasChildRelatedError) {
       return child;
     }
 
@@ -59,12 +57,7 @@ const FormWrapper = ({
       {React.Children.map(children, (child: React.ReactNode) =>
         mapErrorToChildProps(child)
       )}
-      <Button
-        type='submit'
-        label={pending ? 'loading...' : buttonLabel}
-        isLoading={pending}
-        aria-disabled={pending}
-      />
+      <Button type='submit' label={buttonLabel} />
     </form>
   );
 };
