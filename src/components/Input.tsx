@@ -14,7 +14,21 @@ export type InputProps = DetailedHTMLProps<
 const Input = ({ label, validationError, ...inputProps }: InputProps) => {
   const [focused, setFocused] = useState(false);
 
-  const labelColor = focused ? 'text-slate-950' : 'text-slate-600';
+  const labelColor = focused
+    ? validationError
+      ? 'text-red-600'
+      : 'text-slate-950'
+    : validationError
+    ? 'text-red-500'
+    : 'text-slate-600';
+
+  const borderColor = validationError ? 'border-red-500' : 'border-slate-400';
+
+  const outlineColor = validationError
+    ? 'outline-red-600'
+    : 'outline-slate-950';
+
+  const errorMessageColor = focused ? 'text-red-600' : 'text-red-500';
 
   return (
     <>
@@ -23,10 +37,15 @@ const Input = ({ label, validationError, ...inputProps }: InputProps) => {
       </ConditionWrapper>
       <input
         {...inputProps}
-        className='border border-slate-400 rounded-lg px-2 py-1 w-full outline-slate-950'
+        className={`border ${borderColor} rounded-lg px-2 py-1 w-full ${outlineColor}`}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        aria-invalid={!!validationError}
+        aria-errormessage={validationError}
       />
+      <ConditionWrapper condition={!!validationError}>
+        <p className={`ml-2 ${errorMessageColor}`}>{validationError}</p>
+      </ConditionWrapper>
     </>
   );
 };
