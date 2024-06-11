@@ -33,7 +33,10 @@ export const submitSignUp = async (
     if (error instanceof DynamoDBServiceException) {
       if (error.name === 'ConditionalCheckFailedException') {
         return {
-          error: { email: 'An account with this email already exists.' },
+          error: {
+            email:
+              'Email already in use. Please use another email or contact the developer. Password reset self-service is not yet supported.',
+          },
         };
       }
     }
