@@ -32,7 +32,7 @@ const Button = ({
       rounded-xl 
       px-4 py-2 
       w-full
-      ${disabled ? '' : 'hover:bg-slate-400'}
+      ${disabled ? 'bg-slate-200' : 'hover:bg-slate-400'}
       `}
       disabled={disabled}
       aria-disabled={disabled}
