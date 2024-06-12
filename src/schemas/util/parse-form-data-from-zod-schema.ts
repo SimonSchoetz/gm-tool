@@ -1,5 +1,6 @@
-import { isFormData, assertIsFormData } from '@/util/asserts';
+import { assertIsFormData } from '@/util/asserts';
 import { mapFormDataToDto } from '@/util/mapper';
+import { isFormData } from '@/util/type-guards';
 import { z } from 'zod';
 
 export const parseFormDataFromZodSchema = <T extends z.ZodTypeAny>(

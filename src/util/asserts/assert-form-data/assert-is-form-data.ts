@@ -1,4 +1,4 @@
-import { isFormData } from './is-form-data';
+import { isFormData } from '@/util/type-guards';
 
 export const assertIsFormData: (data: unknown) => asserts data is FormData = (
   data
