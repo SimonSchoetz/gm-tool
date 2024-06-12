@@ -28,11 +28,11 @@ const Button = ({
       className={`
       ${classNames}
       bg-slate-600 
+      disabled:bg-slate-200
       text-white 
       rounded-xl 
       px-4 py-2 
       w-full
-      ${disabled ? 'bg-slate-200' : 'hover:bg-slate-400'}
       `}
       disabled={disabled}
       aria-disabled={disabled}
