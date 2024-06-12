@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.585.0",
+    "@hookform/resolvers": "^3.6.0",
     "dotenv": "^16.4.5",
     "next": "14.2.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.51.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
