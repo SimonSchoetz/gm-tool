@@ -4,7 +4,7 @@ import { isFormData } from '@/util/type-guards';
 import { z } from 'zod';
 import { SchemaName, getSchema } from '../get-schema/get-schema';
 
-export const parseFormDataFromZodSchema = <T extends z.ZodTypeAny>(
+export const parseDataWithZodSchema = <T extends z.ZodTypeAny>(
   data: unknown,
   schemaName: SchemaName
 ): z.infer<T> => {

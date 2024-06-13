@@ -28,6 +28,7 @@ export const getSchema = (schema: SchemaName): ZodTypeAny => {
     [SchemaName.SIGN_UP]: s.SignUpSchema,
     [SchemaName.LOGIN]: s.LoginSchema,
   };
+
   if (!map[schema]) {
     throw new Error(` Schema "${schema}" not found`);
   }
