@@ -1,8 +1,10 @@
 import { ZodEffects, ZodError, ZodObject, ZodTypeAny, z } from 'zod';
+import { SchemaName, getSchema } from '../get-schema';
 
 export const getKeysFromZodSchema = <T extends ZodTypeAny>(
-  schema: T
+  schemaName: SchemaName
 ): (keyof z.infer<T>)[] => {
+  const schema = getSchema(schemaName);
   if (schema instanceof ZodObject) {
     return Object.keys(schema.shape) as (keyof z.infer<T>)[];
   }

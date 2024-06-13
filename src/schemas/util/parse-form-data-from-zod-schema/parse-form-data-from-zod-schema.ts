@@ -2,11 +2,14 @@ import { assertIsFormData } from '@/util/asserts';
 import { mapFormDataToDto } from '@/util/mapper';
 import { isFormData } from '@/util/type-guards';
 import { z } from 'zod';
+import { SchemaName, getSchema } from '../get-schema/get-schema';
 
 export const parseFormDataFromZodSchema = <T extends z.ZodTypeAny>(
   data: unknown,
-  schema: T
+  schemaName: SchemaName
 ): z.infer<T> => {
+  const schema = getSchema(schemaName);
+
   try {
     if (isFormData(data)) {
       assertIsFormData(data);
