@@ -1,8 +1,7 @@
 'use server';
 
 import { createUser } from '@/db/user';
-import { SignUpSchema } from '@/schemas/requests';
-import { parseFormDataFromZodSchema } from '@/schemas/util';
+import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 
 import { FormSubmitResponse } from '@/types/responses';
 
@@ -14,7 +13,7 @@ export const submitSignUp = async (
   data: unknown
 ): Promise<FormSubmitResponse> => {
   try {
-    const validatedData = parseFormDataFromZodSchema(data, SignUpSchema);
+    const validatedData = parseDataWithZodSchema(data, SchemaName.SIGN_UP);
 
     await createUser(validatedData);
 
@@ -28,8 +27,7 @@ export const submitSignUp = async (
       if (error.name === 'ConditionalCheckFailedException') {
         return {
           error: {
-            email:
-              'Email already in use. Please use another email or contact the developer. Password reset self-service is not yet supported.',
+            email: 'Email already in use.',
           },
         };
       }

@@ -1,4 +1,4 @@
 import { SignUpSchema } from '@/schemas/requests';
 import { z } from 'zod';
 
-export type SignUpRequestData = z.infer<typeof SignUpSchema>;
+export type SignUpData = z.infer<typeof SignUpSchema>;
