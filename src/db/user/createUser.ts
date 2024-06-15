@@ -17,6 +17,7 @@ export const createUser = async (
     data,
     SchemaName.SIGN_UP
   );
+
   const { email, displayName, password } = validated;
 
   const params: PutItemCommandInput = {

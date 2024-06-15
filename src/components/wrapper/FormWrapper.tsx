@@ -1,81 +1,101 @@
 'use client';
 
-import {
+import React, {
   DetailedHTMLProps,
   FormHTMLAttributes,
   PropsWithChildren,
-  useEffect,
-  useState,
 } from 'react';
 import Button from '../Button';
-import { useFormState } from 'react-dom';
-import React from 'react';
+import { FieldValues, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { SchemaName, getKeysFromZodSchema, getSchema } from '@/schemas/util';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { isString } from '@/util/type-guards';
+import { FormSubmitResponse } from '@/types/responses';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
   HTMLFormElement
 > & {
   buttonLabel: string;
-  submitAction: (
-    prevState: any,
-    formData: unknown
-  ) => Promise<
-    { message: string } | { error: string | Record<string, string> }
-  >;
+  schemaName: SchemaName;
+  submitAction: (formData: unknown) => Promise<FormSubmitResponse>;
 };
 
-const init = {
-  message: '',
-};
+type ReactChild =
+  | React.ReactPortal
+  | React.ReactElement<unknown, string | React.JSXElementConstructor<any>>;
 
 const FormWrapper = ({
   buttonLabel,
-  children,
+  schemaName,
   submitAction,
+  children,
 }: PropsWithChildren<FormWrapperProps>) => {
-  const [state, formAction] = useFormState(submitAction, init);
-  const [hasError, setHasError] = useState(false);
+  const schemaInstance = getSchema(schemaName);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<z.infer<typeof schemaInstance>>({
+    resolver: zodResolver(schemaInstance),
+  });
 
-  useEffect(() => {
-    if ('error' in state) {
-      setHasError(true);
+  const mapChildren = (child: React.ReactNode) => {
+    if (React.isValidElement(child)) {
+      const schemaKeys = getKeysFromZodSchema(schemaName);
+      const childId: unknown = child?.props?.id;
+
+      if (isString(childId) && schemaKeys?.includes(childId)) {
+        return mapFormValidationProps(child, childId);
+      }
     }
-  }, [state]);
 
-  const mapErrorToChildProps = (child: React.ReactNode) => {
-    const hasChildRelatedError =
-      'error' in state && typeof state.error !== 'string';
+    return child;
+  };
 
-    if (!React.isValidElement(child) || !hasChildRelatedError) {
-      return child;
+  const mapFormValidationProps = (child: ReactChild, childId: string) => {
+    return {
+      ...child,
+      props: {
+        ...child.props,
+        ...register(childId),
+        validationError: errors[childId]?.message,
+      },
+    };
+  };
+
+  const onSubmit = async (values: FieldValues): Promise<void> => {
+    const res = await submitAction(values);
+    if ('error' in res) {
+      handleServerErrors(res.error);
     }
+    // TODO: handle success
+  };
+  const handleServerErrors = (errors: FormSubmitResponse['error']): void => {
+    if (!errors) return;
 
-    const childName = child?.props?.name;
-
-    const validationError = (state.error as Record<string, string>)?.[
-      childName
-    ];
-
-    return validationError
-      ? { ...child, props: { ...child.props, validationError } }
-      : child;
+    Object.keys(errors).forEach((key) => {
+      setError(key, {
+        message: errors[key],
+        type: 'custom',
+      });
+    });
   };
 
   return (
-    <form
-      action={formAction}
-      onChange={() => setHasError(false)}
-      className='flex flex-col gap-2'
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
       {React.Children.map(children, (child: React.ReactNode) =>
-        mapErrorToChildProps(child)
+        mapChildren(child)
       )}
 
       <Button
         classNames='mt-4'
         type='submit'
         label={buttonLabel}
-        disabled={hasError}
+        disabled={!!Object.keys(errors).length}
+        isLoading={isSubmitting}
       />
     </form>
   );

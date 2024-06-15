@@ -1,7 +1,6 @@
 'use client';
 
 import { ButtonHTMLAttributes, DetailedHTMLProps } from 'react';
-import { useFormStatus } from 'react-dom';
 
 export type ButtonProps = DetailedHTMLProps<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -18,9 +17,7 @@ const Button = ({
   classNames = '',
   ...buttonProps
 }: ButtonProps) => {
-  const { pending } = useFormStatus();
-  const loading = isLoading || pending;
-  const disabled = buttonProps.disabled || loading;
+  const disabled = buttonProps.disabled || isLoading;
 
   return (
     <button
@@ -37,7 +34,7 @@ const Button = ({
       disabled={disabled}
       aria-disabled={disabled}
     >
-      {loading ? 'Loading...' : label}
+      {isLoading ? 'Loading...' : label}
     </button>
   );
 };

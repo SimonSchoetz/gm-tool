@@ -2,6 +2,7 @@ import Input from '@/components/Input';
 import { MaxWidthWrapper, FormWrapper } from '@/components/wrapper';
 
 import { submitSignUp } from '@/actions/formSubmits';
+import { SchemaName } from '@/schemas/util';
 
 export default function SignUpPage() {
   return (
@@ -10,23 +11,31 @@ export default function SignUpPage() {
       <p className='text-center my-5'>
         Please fill in your data to create an account
       </p>
-      <FormWrapper submitAction={submitSignUp} buttonLabel='Sign Up'>
+      <FormWrapper
+        schemaName={SchemaName.SIGN_UP}
+        submitAction={submitSignUp}
+        buttonLabel='Sign Up'
+      >
         <Input
           name='email'
           id='email'
           placeholder='Email'
           label='Email'
           type='email'
-          required
-          autoFocus
         />
         <Input
-          name='displayName'
-          id='displayName'
-          placeholder='Display Name'
-          label='Display Name'
-          type='text'
-          required
+          name='password'
+          id='password'
+          placeholder='Password'
+          label='Password'
+          type='password'
+        />
+        <Input
+          name='confirmPassword'
+          id='confirmPassword'
+          placeholder='Confirm password'
+          label='Confirm password'
+          type='password'
         />
       </FormWrapper>
     </MaxWidthWrapper>

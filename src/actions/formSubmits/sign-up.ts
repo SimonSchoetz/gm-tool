@@ -1,6 +1,7 @@
 'use server';
 
 import { createUser } from '@/db/user';
+import { HttpStatusCode } from '@/enums';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 
 import { FormSubmitResponse } from '@/types/responses';
@@ -9,7 +10,6 @@ import { DynamoDBServiceException } from '@aws-sdk/client-dynamodb';
 import { ZodError } from 'zod';
 
 export const submitSignUp = async (
-  _prevState: any,
   data: unknown
 ): Promise<FormSubmitResponse> => {
   try {
@@ -17,15 +17,16 @@ export const submitSignUp = async (
 
     await createUser(validatedData);
 
-    return { message: 'Success' };
+    return { status: HttpStatusCode.CREATED };
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new Error('Could validate input data');
+      throw new Error('Could not validate input data');
     }
 
     if (error instanceof DynamoDBServiceException) {
       if (error.name === 'ConditionalCheckFailedException') {
         return {
+          status: HttpStatusCode.CONFLICT,
           error: {
             email: 'Email already in use.',
           },
@@ -33,6 +34,6 @@ export const submitSignUp = async (
       }
     }
 
-    throw new Error(`Unknown error during sign up: ${error}`);
+    throw new Error(`Unknown error during sign up`); //TODO: save error log in db
   }
 };
