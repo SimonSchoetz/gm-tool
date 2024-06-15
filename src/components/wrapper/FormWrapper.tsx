@@ -4,11 +4,17 @@ import React, {
   DetailedHTMLProps,
   FormHTMLAttributes,
   PropsWithChildren,
+  useEffect,
 } from 'react';
 import Button from '../Button';
 import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { SchemaName, getKeysFromZodSchema, getSchema } from '@/schemas/util';
+import {
+  SchemaName,
+  dirtyDoubleCheck,
+  getKeysFromZodSchema,
+  getSchema,
+} from '@/schemas/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/responses';
@@ -42,7 +48,7 @@ const FormWrapper = ({
     resolver: zodResolver(schemaInstance),
   });
 
-  const mapChildren = (child: React.ReactNode) => {
+  const mapChild = (child: React.ReactNode) => {
     if (React.isValidElement(child)) {
       const schemaKeys = getKeysFromZodSchema(schemaName);
       const childId: unknown = child?.props?.id;
@@ -84,11 +90,15 @@ const FormWrapper = ({
     });
   };
 
+  useEffect(() => {
+    // this should be thrown out and done with component tests
+    // where the test is checking if the schema matches the defined inputs
+    dirtyDoubleCheck(children, schemaName);
+  });
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
-      {React.Children.map(children, (child: React.ReactNode) =>
-        mapChildren(child)
-      )}
+      {React.Children.map(children, (child) => mapChild(child))}
 
       <Button
         classNames='mt-4'
