@@ -18,6 +18,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/responses';
+import { TokenPayload } from '@/actions/token';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -25,7 +26,8 @@ type FormWrapperProps = DetailedHTMLProps<
 > & {
   buttonLabel: string;
   schemaName: SchemaName;
-  submitAction: (formData: unknown) => Promise<FormSubmitResponse>;
+  submitAction: (data: unknown) => Promise<FormSubmitResponse>;
+  encrypt?: (data: TokenPayload, lifeSpan: string) => Promise<string>;
 };
 
 type ReactChild =
@@ -37,6 +39,7 @@ const FormWrapper = ({
   schemaName,
   submitAction,
   children,
+  encrypt,
 }: PropsWithChildren<FormWrapperProps>) => {
   const schemaInstance = getSchema(schemaName);
   const {
@@ -73,10 +76,16 @@ const FormWrapper = ({
   };
 
   const onSubmit = async (values: FieldValues): Promise<void> => {
-    const res = await submitAction(values);
+    let data: FieldValues | string = values;
+    if (encrypt) {
+      data = await encrypt(values, '1s');
+    }
+    const res = await submitAction(data);
+
     if ('error' in res) {
       handleServerErrors(res.error);
     }
+    console.log('Success sign up', res);
     // TODO: handle success
   };
   const handleServerErrors = (errors: FormSubmitResponse['error']): void => {
