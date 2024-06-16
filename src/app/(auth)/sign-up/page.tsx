@@ -3,6 +3,7 @@ import { MaxWidthWrapper, FormWrapper } from '@/components/wrapper';
 
 import { submitSignUp } from '@/actions/formSubmits';
 import { SchemaName } from '@/schemas/util';
+import { generateToken } from '@/actions/token';
 
 export default function SignUpPage() {
   return (
@@ -15,6 +16,7 @@ export default function SignUpPage() {
         schemaName={SchemaName.SIGN_UP}
         submitAction={submitSignUp}
         buttonLabel='Sign Up'
+        encrypt={generateToken}
       >
         <Input
           name='email'

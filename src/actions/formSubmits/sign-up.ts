@@ -8,12 +8,16 @@ import { FormSubmitResponse } from '@/types/responses';
 
 import { DynamoDBServiceException } from '@aws-sdk/client-dynamodb';
 import { ZodError } from 'zod';
+import { readToken } from '../token/read-token';
+import { assertIsString } from '@/util/asserts';
 
 export const submitSignUp = async (
   data: unknown
 ): Promise<FormSubmitResponse> => {
   try {
-    const validatedData = parseDataWithZodSchema(data, SchemaName.SIGN_UP);
+    assertIsString(data);
+    const decoded = await readToken(data);
+    const validatedData = parseDataWithZodSchema(decoded, SchemaName.SIGN_UP);
 
     await createUser(validatedData);
 
@@ -34,6 +38,6 @@ export const submitSignUp = async (
       }
     }
 
-    throw new Error(`Unknown error during sign up`); //TODO: save error log in db
+    throw new Error(`Unknown error during sign up: "${error}"`); //TODO: save error log in db
   }
 };
