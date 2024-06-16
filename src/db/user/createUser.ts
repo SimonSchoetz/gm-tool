@@ -9,6 +9,8 @@ import { dynamoDb } from '../dynamoDb';
 import { DbTable } from '@/enums';
 import { SignUpData } from '@/types/requests';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
+import { encryptPassword } from '@/util/encryption';
+import { generateId } from '@/util/helper';
 
 export const createUser = async (
   data: SignUpData
@@ -18,15 +20,15 @@ export const createUser = async (
     SchemaName.SIGN_UP
   );
 
-  const { email, displayName, password } = validated;
+  const { email, password } = validated;
+  const passwordHash = await encryptPassword(password);
 
   const params: PutItemCommandInput = {
     TableName: DbTable.USERS,
     Item: {
-      userId: { S: email }, //TODO: Create User ID
-      displayName: { S: displayName },
+      userId: { S: generateId() },
       createdAt: { S: new Date().toISOString() },
-      password: { S: password }, //TODO: Hash Password
+      password: { S: passwordHash },
       email: { S: email },
     },
     ConditionExpression: 'attribute_not_exists(#pk)',
