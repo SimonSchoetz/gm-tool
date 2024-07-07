@@ -1,20 +1,29 @@
 import 'server-only';
 
-import {
-  GetItemCommand,
-  GetItemCommandInput,
-  GetItemCommandOutput,
-} from '@aws-sdk/client-dynamodb';
+import { GetItemCommand, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { dynamoDb } from '../dynamoDb';
 import { DbTable } from '@/enums';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
-export const getUser = async (email: string): Promise<GetItemCommandOutput> => {
+import { User } from '@/types/user';
+import { assertIsUserData } from '@/util/asserts';
+
+export const getUser = async (email: string): Promise<User> => {
   const params: GetItemCommandInput = {
     TableName: DbTable.USERS,
-    Key: { userId: { S: email } },
+    Key: marshall({ email }),
   };
 
   const command = new GetItemCommand(params);
 
-  return await dynamoDb.send(command);
+  const commandOutput = await dynamoDb.send(command);
+
+  if (!commandOutput.Item) {
+    throw new Error(`User not found: ${email}`);
+  }
+  const user = unmarshall(commandOutput.Item);
+
+  assertIsUserData(user);
+
+  return user;
 };
