@@ -1,4 +1,4 @@
-import { LoginSchema } from '@/schemas/requests';
+import { LoginSchema } from '@/schemas/zod-schemas';
 import { z } from 'zod';
 
-export type LoginRequestData = z.infer<typeof LoginSchema>;
+export type LoginData = z.infer<typeof LoginSchema>;

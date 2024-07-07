@@ -5,4 +5,7 @@ export const LoginSchema = z.object({
     .string()
     .email({ message: 'Input is not a valid email' })
     .min(1, { message: 'Email is required' }),
+  password: z
+    .string()
+    .min(10, { message: 'Too short, use at least 10 characters.' }),
 });
