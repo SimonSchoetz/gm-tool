@@ -20,7 +20,7 @@ export const createUser = async (
     data,
     SchemaName.SIGN_UP
   );
-  marshall;
+
   const { email, password } = validated;
 
   const params: PutItemCommandInput = {
