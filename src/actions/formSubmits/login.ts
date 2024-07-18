@@ -1,6 +1,6 @@
 'use server';
 
-import { HttpStatusCode } from '@/enums';
+import { HttpStatusCode, Route } from '@/enums';
 import { FormSubmitResponse } from '@/types/responses';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token/read-token';
@@ -23,8 +23,10 @@ export const submitLogin = async (
 
     await setAuthCookie(user);
 
-    console.log('TODO: Set session token and reroute');
-    return { status: HttpStatusCode.ACCEPTED };
+    return {
+      status: HttpStatusCode.ACCEPTED,
+      redirectRoute: Route.HOME,
+    };
   } catch (error) {
     if (error instanceof ZodError) {
       throw new Error('Could not validate input data');

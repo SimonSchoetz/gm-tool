@@ -19,6 +19,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/responses';
 import { TokenPayload } from '@/actions/token';
+import { useRouter } from 'next/navigation';
+import { assertIsString } from '@/util/asserts';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -50,6 +52,7 @@ const FormWrapper = ({
   } = useForm<z.infer<typeof schemaInstance>>({
     resolver: zodResolver(schemaInstance),
   });
+  const router = useRouter();
 
   const mapChild = (child: React.ReactNode) => {
     if (React.isValidElement(child)) {
@@ -82,11 +85,12 @@ const FormWrapper = ({
     }
     const res = await submitAction(data);
 
-    if ('error' in res) {
+    if (res?.error) {
       handleServerErrors(res.error);
     }
-    console.log('Success sign up', res);
-    // TODO: handle success
+    if (res?.redirectRoute) {
+      handleRedirect(res.redirectRoute);
+    }
   };
   const handleServerErrors = (errors: FormSubmitResponse['error']): void => {
     if (!errors) return;
@@ -97,6 +101,13 @@ const FormWrapper = ({
         type: 'custom',
       });
     });
+  };
+
+  const handleRedirect = (
+    redirectRoute: FormSubmitResponse['redirectRoute']
+  ): void => {
+    assertIsString(redirectRoute);
+    router.push(redirectRoute);
   };
 
   useEffect(() => {
