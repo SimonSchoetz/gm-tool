@@ -23,3 +23,7 @@ const middlewares = composeMiddleware(middleWareFunctionList);
 export default function middleware(req: NextRequest) {
   return middlewares(req);
 }
+
+export const config = {
+  matcher: ['/((?!_next).*)'],
+};
