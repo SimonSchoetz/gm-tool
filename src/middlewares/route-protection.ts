@@ -1,22 +1,24 @@
-import { Route } from '@/enums';
+import { CookieName, Route } from '@/enums';
+import { redirectTo } from '@/util/router';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const exposedRoutes = ['/login', '/signup', '/'];
+const authRoutes = [Route.LOGIN, Route.SIGNUP];
+const unprotectedRoutes = [...authRoutes, Route.HOME];
 
-export const routeProtection = async (
-  req: NextRequest
-): Promise<NextResponse<unknown>> => {
-  const isExposedRoute = exposedRoutes.includes(req.nextUrl.pathname);
+export const routeProtection = (req: NextRequest): NextResponse<unknown> => {
+  const pathname = req.nextUrl.pathname as Route;
 
-  if (!isExposedRoute) {
-    // TODO: Add authentication logic
-    const isAuthorized = true;
+  const isProtectedRoute = !unprotectedRoutes.includes(pathname);
+  const isAuthRoute = authRoutes.includes(pathname);
+  const isAuthorized = cookies().get(CookieName.AUTH);
 
-    const loginRoute = new URL(Route.LOGIN, req.url);
+  if (isAuthRoute && isAuthorized) {
+    return redirectTo(req, Route.HOME);
+  }
 
-    if (!isAuthorized) {
-      return NextResponse.redirect(loginRoute);
-    }
+  if (isProtectedRoute && !isAuthorized) {
+    return redirectTo(req, Route.LOGIN);
   }
 
   return NextResponse.next();
