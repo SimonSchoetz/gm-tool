@@ -19,6 +19,7 @@ export enum SchemaName {
   SIGN_UP = 'signUp',
   LOGIN = 'login',
   USER = 'user',
+  AUTH_COOKIE_PAYLOAD = 'authCookiePayload',
 }
 
 export const getSchema = (schema: SchemaName): z.ZodTypeAny => {
@@ -28,6 +29,7 @@ export const getSchema = (schema: SchemaName): z.ZodTypeAny => {
     [SchemaName.SIGN_UP]: s.SignUpSchema,
     [SchemaName.LOGIN]: s.LoginSchema,
     [SchemaName.USER]: s.UserSchema,
+    [SchemaName.AUTH_COOKIE_PAYLOAD]: s.AuthCookiePayloadSchema,
   };
 
   if (!map[schema]) {
