@@ -1,16 +1,23 @@
+import { Route } from '@/enums';
 import { NextRequest, NextResponse } from 'next/server';
+
+const exposedRoutes = ['/login', '/signup', '/'];
 
 export const routeProtection = async (
   req: NextRequest
 ): Promise<NextResponse<unknown>> => {
-  console.log('>>>>>>>>> | routeProtection is running');
-  // Authentication logic
-  // const token = req.headers.get('Authorization');
+  const isExposedRoute = exposedRoutes.includes(req.nextUrl.pathname);
 
-  // if (!token) {
-  //   return new NextResponse('Unauthorized', { status: 401 });
-  // }
+  if (!isExposedRoute) {
+    // TODO: Add authentication logic
+    const isAuthorized = true;
 
-  // Continue to the next middleware or route handler
+    const loginRoute = new URL(Route.LOGIN, req.url);
+
+    if (!isAuthorized) {
+      return NextResponse.redirect(loginRoute);
+    }
+  }
+
   return NextResponse.next();
 };
