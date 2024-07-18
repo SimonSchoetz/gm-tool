@@ -6,8 +6,9 @@ import { LoginData } from '@/types/requests';
 
 import { validatePassword } from '@/util/encryption';
 import { getUser } from '../../db/user/getUser';
+import { User } from '@/types/user';
 
-export const verifyUser = async (data: LoginData): Promise<void> => {
+export const verifyUser = async (data: LoginData): Promise<User> => {
   const validated: LoginData = parseDataWithZodSchema(data, SchemaName.LOGIN);
 
   const { email, password } = validated;
@@ -21,4 +22,6 @@ export const verifyUser = async (data: LoginData): Promise<void> => {
       `Error during login: ${InternalErrorCode.PASSWORD_INCORRECT}`
     );
   }
+
+  return user;
 };
