@@ -7,6 +7,7 @@ import { readToken } from '../token/read-token';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 import { ZodError } from 'zod';
 import { verifyUser } from '../user';
+import { setAuthCookie } from '../cookies';
 
 export const submitLogin = async (
   data: unknown
@@ -18,7 +19,9 @@ export const submitLogin = async (
 
     const validatedData = parseDataWithZodSchema(decoded, SchemaName.LOGIN);
 
-    await verifyUser(validatedData);
+    const user = await verifyUser(validatedData);
+
+    await setAuthCookie(user);
 
     console.log('TODO: Set session token and reroute');
     return { status: HttpStatusCode.ACCEPTED };
