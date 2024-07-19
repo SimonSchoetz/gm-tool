@@ -1,6 +1,6 @@
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 
-export const isZodBasedType = <T>(
+export const isZodSchemaBasedType = <T>(
   data: unknown,
   schemaName: SchemaName
 ): data is T => {
