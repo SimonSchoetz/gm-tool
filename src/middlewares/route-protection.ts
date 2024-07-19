@@ -3,7 +3,7 @@ import { redirectTo } from '@/util/router';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const authRoutes = [Route.LOGIN, Route.SIGNUP];
+const authRoutes = [Route.LOGIN, Route.SIGN_UP];
 const unprotectedRoutes = [...authRoutes, Route.HOME];
 
 export const routeProtection = (req: NextRequest): NextResponse<unknown> => {
