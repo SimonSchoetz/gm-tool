@@ -1,7 +1,7 @@
 'use server';
 
-import { createUser } from '@/db/user';
-import { HttpStatusCode } from '@/enums';
+import { createUser, getUser } from '@/db/user';
+import { HttpStatusCode, Route } from '@/enums';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 
 import { FormSubmitResponse } from '@/types/responses';
@@ -10,6 +10,7 @@ import { DynamoDBServiceException } from '@aws-sdk/client-dynamodb';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
+import { setAuthCookie } from '../cookies';
 
 export const submitSignUp = async (
   data: unknown
@@ -21,7 +22,13 @@ export const submitSignUp = async (
 
     await createUser(validatedData);
 
-    return { status: HttpStatusCode.CREATED };
+    const user = await getUser(validatedData.email);
+    await setAuthCookie(user);
+
+    return {
+      status: HttpStatusCode.CREATED,
+      redirectRoute: Route.HOME,
+    };
   } catch (error) {
     if (error instanceof ZodError) {
       throw new Error('Could not validate input data');
