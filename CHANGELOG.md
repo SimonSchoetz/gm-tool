@@ -1,10 +1,18 @@
 # Changelog
 
-## [0.1.1] - in progress
+## [0.3.0] - in progress
 
-### 011-Goals
+### 030-Goals
 
-- Proper sign with password
+- Frontend component unit tests
+- Design groundwork
+- Accessibility groundwork
+
+## [0.2.0] - 2024-07-19
+
+### 020-Goals
+
+- Proper sign up with password
 - Secure authentication both on sign up and login
 - auth session with cookies
 
@@ -17,7 +25,7 @@
 - Complete first user story: The user should be able to write and save, overwrite and delete a text.
   -> completed with a registration and sign up form
 
-### 010Features
+### 010-Features
 
 - Dummy Sign Up page connected to DynamoDB users table
 - Dummy Login page connected to DynamoDB users table
