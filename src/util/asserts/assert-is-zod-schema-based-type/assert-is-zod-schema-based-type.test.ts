@@ -1,14 +1,16 @@
 import { SchemaName } from '@/schemas/util';
-import { assertByZodSchema } from './assert-by-zod-schema';
+import { assertIsZodSchemaBasedType } from './assert-is-zod-schema-based-type';
 import { User } from '@/types/user';
 
-describe('assertByZodSchema', () => {
+describe('assertIsZodSchemaBasedType', () => {
   it('should throw an error if the data is not valid', () => {
-    expect(() => assertByZodSchema<User>({}, SchemaName.USER)).toThrow();
+    expect(() =>
+      assertIsZodSchemaBasedType<User>({}, SchemaName.USER)
+    ).toThrow();
   });
   it('should not throw an error if the data is valid', () => {
     expect(() =>
-      assertByZodSchema<User>(
+      assertIsZodSchemaBasedType<User>(
         {
           email: 'test@example.com',
           userContentId: 'content123',

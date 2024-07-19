@@ -6,7 +6,7 @@ import { DbTable } from '@/enums';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { User } from '@/types/user';
-import { assertByZodSchema } from '@/util/asserts';
+import { assertIsZodSchemaBasedType } from '@/util/asserts';
 import { SchemaName } from '@/schemas/util';
 
 export const getUser = async (email: string): Promise<User> => {
@@ -24,7 +24,7 @@ export const getUser = async (email: string): Promise<User> => {
   }
   const user = unmarshall(commandOutput.Item);
 
-  assertByZodSchema<User>(user, SchemaName.USER);
+  assertIsZodSchemaBasedType<User>(user, SchemaName.USER);
 
   return user;
 };
