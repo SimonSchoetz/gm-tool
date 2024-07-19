@@ -8,6 +8,14 @@
 - Design groundwork
 - Accessibility groundwork
 
+## [0.2.1] - 2024-07-19
+
+### 021-Fixes
+
+- generic type guard and assert functions for zod schema based types
+- removing obsolete type guards and assert functions replace by generics
+- changing the barrel file strategy to avoid single-line index.ts files bloating up the file structure
+
 ## [0.2.0] - 2024-07-19
 
 ### 020-Goals
