@@ -1,5 +1,6 @@
 import Footer from '@/components/Footer';
 import './styles.scss';
+import Backdrop from '@/components/Backdrop';
 
 export const metadata = {
   title: "The Game Master's Tool",
@@ -14,16 +15,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en' className='h-full'>
-      <body className='flex flex-col h-full bg-slate-100'>
+      <body className='bg-gm-primary blueprint-grid-primary flex flex-col h-full'>
         <header>
-          <h1 className='text-center p-8'>The Game Master&apos;s Tool</h1>
+          <h1 className='text-center text-gm-primary-very-high-contrast p-8'>
+            The Game Master&apos;s Tool
+          </h1>
         </header>
 
-        <div className='py-4 flex-grow flex flex-col justify-center items-center'>
+        <div className='flex-grow flex items-center justify-center'>
           {children}
         </div>
 
         <Footer />
+
+        <Backdrop />
       </body>
     </html>
   );
