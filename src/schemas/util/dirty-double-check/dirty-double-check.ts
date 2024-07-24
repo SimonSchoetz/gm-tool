@@ -1,6 +1,6 @@
 import React from 'react';
-import { SchemaName } from '../get-schema';
-import { getKeysFromZodSchema } from '../get-keys-from-zod-schema';
+import { SchemaName } from '../get-schema/get-schema';
+import { getKeysFromZodSchema } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
 
 export const dirtyDoubleCheck = (
   children: React.ReactNode,

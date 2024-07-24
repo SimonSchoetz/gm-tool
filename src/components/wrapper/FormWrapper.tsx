@@ -92,6 +92,7 @@ const FormWrapper = ({
       handleRedirect(res.redirectRoute);
     }
   };
+
   const handleServerErrors = (errors: FormSubmitResponse['error']): void => {
     if (!errors) return;
 

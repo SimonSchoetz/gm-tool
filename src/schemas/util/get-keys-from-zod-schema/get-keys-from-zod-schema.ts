@@ -1,5 +1,5 @@
 import { ZodEffects, ZodError, ZodObject, ZodTypeAny, z } from 'zod';
-import { SchemaName, getSchema } from '../get-schema';
+import { SchemaName, getSchema } from '../get-schema/get-schema';
 
 export const getKeysFromZodSchema = <T extends ZodTypeAny>(
   schemaName: SchemaName
