@@ -1,6 +1,6 @@
 import Footer from '@/components/Footer';
 import './styles.scss';
-import Backdrop from '@/components/Backdrop';
+import { Backdrop } from '@/components/animations';
 
 export const metadata = {
   title: "The Game Master's Tool",
