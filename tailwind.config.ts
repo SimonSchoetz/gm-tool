@@ -9,7 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'gm-primary': '#000',
+        'gm-primary': '#031322',
+        'gm-primary-medium-contrast': '#2B4D57',
+        'gm-primary-high-contrast': '#399CBB',
+        'gm-primary-very-high-contrast': '#F8FBFB',
       },
     },
   },
