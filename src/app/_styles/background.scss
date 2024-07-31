@@ -1,9 +1,5 @@
-$color-transparent: transparent;
-$color-white-10: rgba(248, 251, 251, 0.1);
-$color-white-30: rgba(248, 251, 251, 0.3);
-
-$gradient-stops: #{$color-transparent} 24%, #{$color-white-10} 25%,
-  #{$color-transparent} 25%, #{$color-transparent} 74%, #{$color-white-30} 75%,
+$gradient-stops: #{$color-transparent} 24%, #{$color-bright-10} 25%,
+  #{$color-transparent} 25%, #{$color-transparent} 74%, #{$color-bright-30} 75%,
   #{$color-transparent} 75%;
 
 .blueprint-grid-primary {
