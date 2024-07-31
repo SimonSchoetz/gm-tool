@@ -24,7 +24,6 @@ export default function LoginPage() {
           label='Email'
           type='email'
           required
-          autoFocus
         />
         <Input
           name='password'
