@@ -1,3 +1,4 @@
+import { colors } from './src/util/styles';
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -9,11 +10,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'gm-primary': '#031322',
-        'gm-primary-medium-contrast': '#2B4D57',
-        'gm-primary-high-contrast': '#399CBB',
-        'gm-primary-very-high-contrast': '#F8FBFB',
+        'gm-primary': colors.dark.full,
+        'gm-primary-medium-contrast': colors.secondary.full,
+        'gm-primary-high-contrast': colors.accent.full,
+        'gm-primary-very-high-contrast': colors.bright.full,
       },
+    },
+    fontFamily: {
+      nuixyber: ['Nuixyber'],
     },
   },
   plugins: [],

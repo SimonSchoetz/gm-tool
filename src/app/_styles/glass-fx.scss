@@ -1,0 +1,6 @@
+.glass-fx {
+  background: $color-bright-10;
+  border: 1px solid $color-bright-50;
+  box-shadow: 0px 0px 2px 1px $color-dark-50 inset;
+  backdrop-filter: blur(2px);
+}
