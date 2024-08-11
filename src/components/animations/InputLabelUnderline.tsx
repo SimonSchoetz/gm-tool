@@ -54,7 +54,7 @@ const InputLabelUnderline = ({
           className={`bg-gm-primary-very-high-contrast relative`}
           style={{
             ...commonStyles,
-            height: '1px',
+            height: '1.3px',
             width: canAnimate ? `${labelWidth}px` : '0',
             transitionDelay: canAnimate ? '0s' : `${transitionTime}`,
           }}
@@ -66,10 +66,10 @@ const InputLabelUnderline = ({
             ...commonStyles,
             height: '1px',
             width: canAnimate ? `${16}px` : '0',
-            left: canAnimate ? `${-3}px` : '0',
+            left: canAnimate ? `${-3.3}px` : '0',
             transitionDelay: canAnimate ? `${transitionTime}` : '0s',
             transform: 'rotate(50deg)',
-            top: canAnimate ? `${1.6}px` : '-3.5px',
+            top: canAnimate ? `${1.8}px` : '-3.5px',
           }}
         ></span>
       </span>
