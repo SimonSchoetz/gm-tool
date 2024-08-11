@@ -5,17 +5,24 @@ import { CSSProperties, useEffect, useRef, useState } from 'react';
 type LabelConnectorProps = {
   focused: boolean;
   text?: string;
+  textSize?: string; // tailwind class
 };
 
-const InputLabelUnderline = ({ focused, text }: LabelConnectorProps) => {
-  const labelRef = useRef<HTMLLabelElement>(null);
+const InputLabelUnderline = ({
+  focused,
+  text,
+  textSize = '',
+}: LabelConnectorProps) => {
+  const textWidthRef = useRef<HTMLLabelElement>(null);
   const [labelWidth, setLabelWidth] = useState(0);
 
+  const canAnimate: boolean = focused && !!labelWidth;
+
   useEffect(() => {
-    if (labelRef.current) {
-      setLabelWidth(labelRef.current.offsetWidth);
+    if (textWidthRef.current) {
+      setLabelWidth(textWidthRef.current.offsetWidth);
     }
-  }, [labelRef]);
+  }, [textWidthRef]);
 
   const transitionTime = '0.1s';
   const topOffset = '-0.25rem';
@@ -28,7 +35,11 @@ const InputLabelUnderline = ({ focused, text }: LabelConnectorProps) => {
 
   const getTextWidth = () => {
     return (
-      <span aria-hidden className='absolute opacity-0' ref={labelRef}>
+      <span
+        aria-hidden
+        className={`absolute opacity-0 ${textSize}`}
+        ref={textWidthRef}
+      >
         {text}
       </span>
     );
@@ -38,29 +49,30 @@ const InputLabelUnderline = ({ focused, text }: LabelConnectorProps) => {
     <div className='relative'>
       {getTextWidth()}
 
-      <div className='absolute ml-4 flex'>
-        <div
+      <span className='absolute flex'>
+        <span
           className={`bg-gm-primary-very-high-contrast relative`}
           style={{
             ...commonStyles,
             height: '1px',
-            width: focused ? `${labelWidth}px` : '0',
-            transitionDelay: focused ? '0s' : `${transitionTime}`,
+            width: canAnimate ? `${labelWidth}px` : '0',
+            transitionDelay: canAnimate ? '0s' : `${transitionTime}`,
           }}
-        ></div>
-        <div
+        ></span>
+
+        <span
           className={`bg-gm-primary-very-high-contrast relative `}
           style={{
             ...commonStyles,
             height: '1px',
-            width: focused ? `${16}px` : '0',
-            left: focused ? `${-3}px` : '0',
-            transitionDelay: focused ? `${transitionTime}` : '0s',
+            width: canAnimate ? `${16}px` : '0',
+            left: canAnimate ? `${-3}px` : '0',
+            transitionDelay: canAnimate ? `${transitionTime}` : '0s',
             transform: 'rotate(50deg)',
-            top: focused ? `${1.6}px` : '-3.5px',
+            top: canAnimate ? `${1.6}px` : '-3.5px',
           }}
-        ></div>
-      </div>
+        ></span>
+      </span>
     </div>
   );
 };

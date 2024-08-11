@@ -24,10 +24,10 @@ const Input = ({ label, validationError, ...inputProps }: InputProps) => {
   return (
     <>
       <ConditionWrapper condition={!!label}>
-        <div className='relative'>
+        <div className='relative ml-4'>
           <label
             htmlFor={inputProps.id}
-            className={`ml-4 text-gm-primary-very-high-contrast`}
+            className={` text-gm-primary-very-high-contrast`}
           >
             {label}
 
