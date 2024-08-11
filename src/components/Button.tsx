@@ -1,6 +1,6 @@
 'use client';
 
-import { ButtonHTMLAttributes, DetailedHTMLProps } from 'react';
+import { ButtonHTMLAttributes, DetailedHTMLProps, useState } from 'react';
 
 export type ButtonProps = DetailedHTMLProps<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -17,22 +17,30 @@ const Button = ({
   classNames = '',
   ...buttonProps
 }: ButtonProps) => {
+  const [focused, setFocused] = useState(false);
   const disabled = buttonProps.disabled || isLoading;
 
   return (
     <button
       {...buttonProps}
       className={`
-      ${classNames}
-      bg-slate-600 
-      disabled:bg-slate-200
-      text-white 
-      rounded-xl 
-      px-4 py-2 
-      w-full
+        ${classNames}
+        glass-fx
+        rounded-xl 
+        px-4 py-2 
+        w-full
+        ${focused ? 'outline-1,  outline-none' : ''}
+        outline-gm-primary-very-high-contrast
+        text-white 
+        hover:border-gm-primary-very-high-contrast
+        hover:border-opacity-50
+        disabled:opacity-20
+        disabled:cursor-not-allowed
       `}
       disabled={disabled}
       aria-disabled={disabled}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
     >
       {isLoading ? 'Loading...' : label}
     </button>
