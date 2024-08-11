@@ -16,13 +16,7 @@ export default function RootLayout({
   return (
     <html lang='en' className='h-full'>
       <body className='bg-gm-primary blueprint-grid-primary flex flex-col h-full'>
-        <header>
-          <h1 className='text-center text-gm-primary-very-high-contrast p-8'>
-            The Game Master&apos;s Tool
-          </h1>
-        </header>
-
-        <div className='flex-grow flex items-center justify-center'>
+        <div className='light-source flex-grow flex items-center justify-center'>
           {children}
         </div>
 

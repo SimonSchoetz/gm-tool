@@ -8,3 +8,11 @@ $gradient-stops: transparent 24%, #{$color-bright-10} 25%, transparent 25%,
     linear-gradient(90deg, $gradient-stops);
   background-size: 100px 100px;
 }
+
+.light-source {
+  background: linear-gradient(
+    to bottom right,
+    $color-high-contrast-10,
+    $color-high-contrast-01
+  );
+}
