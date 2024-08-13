@@ -11,7 +11,7 @@ import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
   SchemaName,
-  dirtyDoubleCheck,
+  assertFormInputs,
   getKeysFromZodSchema,
   getSchema,
 } from '@/schemas/util';
@@ -114,7 +114,7 @@ const FormWrapper = ({
 
   useEffect(() => {
     if (isInDevMode()) {
-      dirtyDoubleCheck(children, schemaName);
+      assertFormInputs(children, schemaName);
     }
   });
 

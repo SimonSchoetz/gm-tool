@@ -2,7 +2,7 @@ import React from 'react';
 import { SchemaName } from '../get-schema/get-schema';
 import { getKeysFromZodSchema } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
 
-export const dirtyDoubleCheck = (
+export const assertFormInputs = (
   children: React.ReactNode,
   schemaName: SchemaName
 ) => {
