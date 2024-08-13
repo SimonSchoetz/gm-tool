@@ -21,7 +21,6 @@ import { FormSubmitResponse } from '@/types/responses';
 import { TokenPayload } from '@/actions/token';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
-import { isInDevMode } from '@/util/helper';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -113,7 +112,7 @@ const FormWrapper = ({
   };
 
   useEffect(() => {
-    if (isInDevMode()) {
+    if (process.env.NODE_ENV === 'development') {
       assertFormInputs(children, schemaName);
     }
   });
