@@ -28,6 +28,7 @@ const Input = ({ label, validationError, ...inputProps }: InputProps) => {
           <label
             htmlFor={inputProps.id}
             className={` text-gm-primary-very-high-contrast`}
+            data-testid='input-label'
           >
             {label}
 
@@ -53,6 +54,7 @@ const Input = ({ label, validationError, ...inputProps }: InputProps) => {
         aria-errormessage={validationError}
         aria-disabled={inputProps.disabled}
         disabled={inputProps.disabled}
+        data-testid='input-field'
       />
 
       <ConditionWrapper condition={!!validationError}>
