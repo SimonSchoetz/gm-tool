@@ -21,6 +21,7 @@ import { FormSubmitResponse } from '@/types/responses';
 import { TokenPayload } from '@/actions/token';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
+import { isInDevMode } from '@/util/helper';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -112,7 +113,7 @@ const FormWrapper = ({
   };
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (isInDevMode()) {
       dirtyDoubleCheck(children, schemaName);
     }
   });
