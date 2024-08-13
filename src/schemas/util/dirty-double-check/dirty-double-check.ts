@@ -6,18 +6,27 @@ export const dirtyDoubleCheck = (
   children: React.ReactNode,
   schemaName: SchemaName
 ) => {
-  if (!Array.isArray(children)) return;
-  const childrenIds = children?.map(
-    // @ts-ignore
-    (child) => React.isValidElement(child) && child?.props?.id
-  );
+  if (typeof children === 'undefined') return;
+
+  const childrenIds = [children]
+    .flat()
+    .map((child) => React.isValidElement(child) && child?.props?.id);
+
   const schemaKeys = getKeysFromZodSchema(schemaName);
 
-  if (!schemaKeys?.every((key) => childrenIds?.includes(key))) {
-    // show missing inputs in console
-    console.warn(
-      'Missing inputs:',
-      schemaKeys.filter((key) => !childrenIds.includes(key))
-    );
+  const missingInputs = schemaKeys.filter((key) => !childrenIds.includes(key));
+  const extraInputs = childrenIds.filter((id) => !schemaKeys.includes(id));
+  const hasDuplicateInputs = childrenIds.some(
+    (id, index, self) => self.indexOf(id) !== index
+  );
+
+  if (missingInputs.length) {
+    throw Error(`Missing inputs according to schema: ${missingInputs}`);
+  }
+  if (extraInputs.length) {
+    throw Error(`Extra inputs not according to schema: ${extraInputs}`);
+  }
+  if (hasDuplicateInputs) {
+    throw Error('Duplicate inputs detected');
   }
 };
