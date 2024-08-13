@@ -10,4 +10,14 @@
     box-shadow: 0px 0px 2px 1px $color-bright-20 inset;
     filter: drop-shadow(0 0 1rem $color-bright);
   }
+
+  &:disabled {
+    background: repeating-linear-gradient(
+      50deg,
+      rgba(255, 0, 0),
+      rgba(255, 0, 0) 10px,
+      rgba(255, 255, 255, 0) 10px,
+      rgba(255, 255, 255, 0) 20px
+    );
+  }
 }

@@ -36,7 +36,9 @@ const Button = ({
         hover:border-opacity-50
         disabled:opacity-20
         disabled:cursor-not-allowed
+        disabled:outline-none
       `}
+      type='submit'
       disabled={disabled}
       aria-disabled={disabled}
       onFocus={() => setFocused(true)}
