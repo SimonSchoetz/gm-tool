@@ -112,9 +112,9 @@ const FormWrapper = ({
   };
 
   useEffect(() => {
-    // this should be thrown out and done with component tests
-    // where the test is checking if the schema matches the defined inputs
-    dirtyDoubleCheck(children, schemaName);
+    if (process.env.NODE_ENV === 'development') {
+      dirtyDoubleCheck(children, schemaName);
+    }
   });
 
   return (
