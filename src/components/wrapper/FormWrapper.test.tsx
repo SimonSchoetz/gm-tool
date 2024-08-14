@@ -1,3 +1,11 @@
+import React from 'react';
+import '@testing-library/jest-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import FormWrapper from './FormWrapper';
+import { SchemaName } from '@/schemas/util';
+import Input from '../Input';
+
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -5,14 +13,6 @@ jest.mock('next/navigation', () => ({
     };
   },
 }));
-import React from 'react';
-import '@testing-library/jest-dom';
-
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import FormWrapper from './FormWrapper';
-import { SchemaName } from '@/schemas/util';
-import Input from '../Input';
 
 describe('FormWrapper', () => {
   it('renders the form with children', () => {
