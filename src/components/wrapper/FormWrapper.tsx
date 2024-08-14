@@ -73,7 +73,7 @@ const FormWrapper = ({
       props: {
         ...child.props,
         ...register(childId),
-        validationError: errors[childId]?.message,
+        validationerror: errors[childId]?.message,
       },
     };
   };
@@ -125,7 +125,7 @@ const FormWrapper = ({
         classNames='mt-4'
         type='submit'
         label={buttonLabel}
-        disabled={!!Object.keys(errors).length}
+        // disabled={!!Object.keys(errors).length}
         isLoading={isSubmitting}
       />
     </form>

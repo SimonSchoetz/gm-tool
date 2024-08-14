@@ -9,15 +9,15 @@ export type InputProps = DetailedHTMLProps<
   HTMLInputElement
 > & {
   label?: string;
-  validationError?: string;
+  validationerror?: string;
 };
 
-const Input = ({ label, validationError, ...inputProps }: InputProps) => {
+const Input = ({ label, validationerror, ...inputProps }: InputProps) => {
   const [focused, setFocused] = useState(false);
 
-  const borderColor = validationError ? 'border-red-500' : '';
+  const borderColor = validationerror ? 'border-red-500' : '';
 
-  const outlineColor = validationError
+  const outlineColor = validationerror
     ? 'outline-red-500'
     : 'outline-gm-primary-very-high-contrast';
 
@@ -50,15 +50,15 @@ const Input = ({ label, validationError, ...inputProps }: InputProps) => {
           hover:border-opacity-50`}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        aria-invalid={!!validationError}
-        aria-errormessage={validationError}
+        aria-invalid={!!validationerror}
+        aria-errormessage={validationerror}
         aria-disabled={inputProps.disabled}
         disabled={inputProps.disabled}
         data-testid='input-field'
       />
 
-      <ConditionWrapper condition={!!validationError}>
-        <p className={`ml-2 text-red-500`}>{validationError}</p>
+      <ConditionWrapper condition={!!validationerror}>
+        <p className={`ml-2 text-red-500`}>{validationerror}</p>
       </ConditionWrapper>
     </>
   );
