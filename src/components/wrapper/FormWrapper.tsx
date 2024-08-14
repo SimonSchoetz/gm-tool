@@ -81,7 +81,7 @@ const FormWrapper = ({
   const onSubmit = async (values: FieldValues): Promise<void> => {
     let data: FieldValues | string = values;
     if (encrypt) {
-      data = await encrypt(values, '1s');
+      data = await encrypt(values, '5s');
     }
     const res = await submitAction(data);
 
@@ -125,7 +125,7 @@ const FormWrapper = ({
         classNames='mt-4'
         type='submit'
         label={buttonLabel}
-        // disabled={!!Object.keys(errors).length}
+        disabled={!!Object.keys(errors).length}
         isLoading={isSubmitting}
       />
     </form>
