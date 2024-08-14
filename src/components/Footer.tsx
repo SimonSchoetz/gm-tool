@@ -1,7 +1,14 @@
+import { version } from '../../package.json';
+
 const Footer = () => {
   return (
-    <footer className='p-4 flex items-center justify-center bg-slate-100'>
-      Version 0.2.1
+    <footer
+      aria-label='Footer section'
+      aria-roledescription='This is the footer section.'
+      style={{ borderLeft: 0, borderRight: 0 }}
+      className='p-4 flex items-center justify-center glass-fx'
+    >
+      Version {version}
     </footer>
   );
 };
