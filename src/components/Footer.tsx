@@ -1,4 +1,4 @@
-import { version } from '../../package.json';
+import pkg from '../../package.json';
 
 const Footer = () => {
   return (
@@ -8,7 +8,7 @@ const Footer = () => {
       style={{ borderLeft: 0, borderRight: 0 }}
       className='p-4 flex items-center justify-center glass-fx'
     >
-      Version {version}
+      Version {pkg.version}
     </footer>
   );
 };
