@@ -40,13 +40,36 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={SchemaName.LOGIN}
         submitAction={mockOnSubmit}
-      >
-        <Input id='email' placeholder='Email' />
-        <Input id='password' placeholder='Password' type='password' />
-      </FormWrapper>
+      ></FormWrapper>
     );
 
     expect(screen.getByText('Submit')).toBeInTheDocument();
+  });
+
+  it('should have a disabled submit button when form is invalid', async () => {
+    const mockOnSubmit = jest.fn();
+    render(
+      <FormWrapper
+        buttonLabel='Submit'
+        schemaName={SchemaName.LOGIN}
+        submitAction={mockOnSubmit}
+      >
+        <Input id='email' placeholder='Email' value='test@example.com' />
+        <Input id='password' placeholder='Password' type='password' />
+      </FormWrapper>
+    );
+    const passwordInput = screen.getByPlaceholderText('Password');
+
+    userEvent.type(passwordInput, 'tooshort');
+    userEvent.click(screen.getByText('Submit'));
+
+    await waitFor(() => {
+      // For some reason, this check has to be here within this waitFor block
+      // in order to make the test pass
+      expect(screen.getByPlaceholderText('Password')).toHaveValue('tooshort');
+    });
+
+    expect(screen.getByText('Submit')).toBeDisabled();
   });
 
   it('calls onSubmit with form values when submitted', async () => {
