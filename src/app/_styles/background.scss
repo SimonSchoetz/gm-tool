@@ -1,5 +1,6 @@
-$gradient-stops: transparent 24%, #{$color-bright-10} 25%, transparent 25%,
-  transparent 74%, #{$color-bright-30} 75%, transparent 75%;
+$gradient-stops: transparent 24%, #{$color-high-contrast-10} 25%,
+  transparent 25%, transparent 74%, #{$color-high-contrast-30} 75%,
+  transparent 75%;
 
 .blueprint-grid-primary {
   width: 100%;
