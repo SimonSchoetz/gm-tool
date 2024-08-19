@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang='en' className='h-full'>
       <body className='bg-gm-primary blueprint-grid-primary flex flex-col h-full'>
-        <div className='light-source flex-grow flex items-center justify-center'>
+        <div className='light-source flex-grow flex flex-col h-full items-center justify-center'>
           {children}
         </div>
 

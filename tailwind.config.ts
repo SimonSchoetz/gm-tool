@@ -17,7 +17,7 @@ const config: Config = {
       },
     },
     fontFamily: {
-      nuixyber: ['Nuixyber'],
+      titillium: ['Titillium'],
     },
   },
   plugins: [],
