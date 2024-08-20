@@ -118,7 +118,11 @@ const FormWrapper = ({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className='flex flex-col gap-2'
+      aria-live='assertive'
+    >
       {React.Children.map(children, (child) => mapChild(child))}
 
       <Button

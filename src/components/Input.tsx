@@ -50,11 +50,13 @@ const Input = ({ label, validationerror, ...inputProps }: InputProps) => {
           hover:border-opacity-50`}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        aria-label={inputProps.id}
         aria-invalid={!!validationerror}
         aria-errormessage={validationerror}
         aria-disabled={inputProps.disabled}
         disabled={inputProps.disabled}
         data-testid='input-field'
+        title={`${inputProps.name} input field`}
       />
 
       <ConditionWrapper condition={!!validationerror}>
