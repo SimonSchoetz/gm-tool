@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.3.0] - in progress
+## [0.4.0] - in progress
+
+### 040-Goals
+
+- verify email
+
+## [0.3.0] - 2024-08-20
 
 ### 030-Goals
 
