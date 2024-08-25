@@ -6,6 +6,12 @@
 
 - verify email
 
+## [0.3.1] - 2024-08-25
+
+### 031-Patch
+
+- Replaced jwt package with jose
+
 ## [0.3.0] - 2024-08-20
 
 ### 030-Goals
