@@ -1,1 +1,2 @@
-export * from './generate-token';
+export { generateToken } from './generate-token';
+export { readToken } from './read-token';

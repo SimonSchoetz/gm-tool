@@ -16,12 +16,16 @@ export const setAuthCookie = async ({
     userContentId,
   };
 
-  const token = await generateToken(payload, '30d');
+  const expires = nowInXDays(7);
 
+  const token = await generateToken(payload, expires);
+
+  // Todo: Make it so Token expires after 1 week but is revived
+  // as long as there is user interaction
   cookies().set(CookieName.AUTH, token, {
     httpOnly: true,
     secure: true,
     maxAge: 60 * 60 * 24 * 30,
-    expires: nowInXDays(30),
+    expires,
   });
 };

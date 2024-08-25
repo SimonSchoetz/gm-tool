@@ -1,16 +1,23 @@
 'use server';
 
+import { TokenLifeSpan, TokenPayload } from '@/types/token';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
-import jwt from 'jsonwebtoken';
-
-export type TokenPayload = string | object | Buffer;
+import { SignJWT } from 'jose';
 
 export const generateToken = async (
   payload: TokenPayload,
-  lifeSpan: string // format '100' for 100ms, '1s' for 1 second, [s|m|h|d|y]
+  lifeSpan: TokenLifeSpan
 ): Promise<string> => {
-  const secret = parsedEnv.JWT_AUTH_SECRET;
-  assertIsString(secret);
-  return jwt.sign(payload, secret, { expiresIn: lifeSpan });
+  const authSecret = parsedEnv.TOKEN_AUTH_SECRET;
+  assertIsString(authSecret);
+  const secret = new TextEncoder().encode(authSecret);
+
+  const token = await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(lifeSpan)
+    .sign(secret);
+
+  return token;
 };

@@ -18,7 +18,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/responses';
-import { TokenPayload } from '@/actions/token';
+import { TokenPayload, TokenLifeSpan } from '@/types/token';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
 
@@ -29,7 +29,7 @@ type FormWrapperProps = DetailedHTMLProps<
   buttonLabel: string;
   schemaName: SchemaName;
   submitAction: (data: unknown) => Promise<FormSubmitResponse>;
-  encrypt?: (data: TokenPayload, lifeSpan: string) => Promise<string>;
+  encrypt?: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
 };
 
 type ReactChild =
