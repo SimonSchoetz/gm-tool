@@ -58,17 +58,7 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
     if (yChanged) {
       setAmountSquaresY(getAmountSquaresY());
     }
-    if (xChanged || yChanged) {
-      setIdList(ids);
-    }
-  }, [
-    getAmountSquaresX,
-    getAmountSquaresY,
-    amountSquaresX,
-    amountSquaresY,
-    ids,
-    setIdList,
-  ]);
+  }, [getAmountSquaresX, getAmountSquaresY, amountSquaresX, amountSquaresY]);
 
   useEffect(() => {
     window.addEventListener('resize', updateSquareMeasurements);
@@ -76,6 +66,10 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
       window.removeEventListener('resize', updateSquareMeasurements);
     };
   }, [updateSquareMeasurements]);
+
+  useEffect(() => {
+    setIdList(ids);
+  }, [ids, setIdList]);
 
   return (
     <div
