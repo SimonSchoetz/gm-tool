@@ -2,6 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+type SquarePosition = {
+  id: string;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
 const Backdrop = () => {
   const maxSize = 120;
 
@@ -24,9 +32,17 @@ const Backdrop = () => {
 
   const updateSquareMeasurements = useCallback(() => {
     setSquareSize(getSquareSize());
-    setAmountSquaresX(getAmountSquaresX());
-    setAmountSquaresY(getAmountSquaresY());
-  }, [getAmountSquaresX, getAmountSquaresY]);
+
+    const currentAmountX = getAmountSquaresX();
+    const currentAmountY = getAmountSquaresY();
+
+    if (currentAmountX !== amountSquaresX) {
+      setAmountSquaresX(getAmountSquaresX());
+    }
+    if (currentAmountY !== amountSquaresY) {
+      setAmountSquaresY(getAmountSquaresY());
+    }
+  }, [getAmountSquaresX, getAmountSquaresY, amountSquaresX, amountSquaresY]);
 
   useEffect(() => {
     window.addEventListener('resize', updateSquareMeasurements);
@@ -51,6 +67,27 @@ const Backdrop = () => {
     squareSize,
     maxSize,
   });
+
+  const [squarePositions, setSquarePositions] = useState<SquarePosition[]>([]);
+  console.log('>>>>>>>>> | Backdrop | squarePositions:', squarePositions);
+
+  const getSquarePositions = useCallback((): SquarePosition[] => {
+    //Todo: filter ids with algorithm that provides only the needed Ids for a path
+    return ids
+      .map<SquarePosition | null>((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+          const { top, right, bottom, left } = element.getBoundingClientRect();
+          return { id, top, right, bottom, left };
+        }
+        return null;
+      })
+      .filter(Boolean) as SquarePosition[];
+  }, [ids]);
+
+  useEffect(() => {
+    setSquarePositions(getSquarePositions());
+  }, [getSquarePositions]);
 
   return (
     <div
