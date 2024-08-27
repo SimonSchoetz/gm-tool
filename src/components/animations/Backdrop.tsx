@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const Backdrop = () => {
   const maxSize = 120;
@@ -35,9 +35,19 @@ const Backdrop = () => {
     };
   }, [updateSquareMeasurements]);
 
+  const ids = useMemo(() => {
+    const ids: string[] = [];
+    // extra row prevents a too wide gap in specific window width
+    for (let rowNum = 0; rowNum < amountSquaresY + 1; rowNum++) {
+      for (let colNum = 0; colNum < amountSquaresX; colNum++) {
+        ids.push(`${rowNum}-${colNum}`);
+      }
+    }
+    return ids;
+  }, [amountSquaresX, amountSquaresY]);
+
   const squares = getSquares({
-    amountSquaresX,
-    amountSquaresY,
+    ids,
     squareSize,
     maxSize,
   });
@@ -69,37 +79,23 @@ const Backdrop = () => {
 export default Backdrop;
 
 type SquaresConfig = {
-  amountSquaresX: number;
-  amountSquaresY: number;
+  ids: string[];
   squareSize: number;
   maxSize: number;
 };
 
-const getSquares = ({
-  amountSquaresX,
-  amountSquaresY,
-  squareSize,
-  maxSize,
-}: SquaresConfig) => {
-  const squares = [];
-  for (let rowNum = 0; rowNum < amountSquaresY; rowNum++) {
-    for (let colNum = 0; colNum < amountSquaresX; colNum++) {
-      const identifier = `${rowNum}-${colNum}`;
-
-      squares.push(
-        <div
-          id={identifier}
-          key={identifier}
-          style={{
-            width: `${squareSize}px`,
-            height: `${squareSize}px`,
-            maxWidth: `${maxSize}px`,
-            maxHeight: `${maxSize}px`,
-          }}
-          className=' bg-gm-primary'
-        ></div>
-      );
-    }
-  }
-  return <>{squares}</>;
+const getSquares = ({ ids, squareSize, maxSize }: SquaresConfig) => {
+  return ids.map((id) => (
+    <div
+      id={id}
+      key={id}
+      style={{
+        width: `${squareSize}px`,
+        height: `${squareSize}px`,
+        maxWidth: `${maxSize}px`,
+        maxHeight: `${maxSize}px`,
+      }}
+      className='bg-gm-primary'
+    ></div>
+  ));
 };
