@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPathSquareIds } from './helper';
-type SquarePosition = {
-  id: string;
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-};
+import { mapPathCoordinates } from './helper/mapPathCoordinates';
 
 type BackdropBeamProps = {
   idList: string[];
@@ -14,22 +8,33 @@ type BackdropBeamProps = {
 
 const BackdropBeam = ({ idList }: BackdropBeamProps) => {
   const [squarePositions, setSquarePositions] = useState<SquarePosition[]>([]);
-
+  const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>(
+    []
+  );
   useEffect(() => {
     const pathSquareIds = getPathSquareIds(idList);
     const positionsForPathSquares = getSquarePositions(pathSquareIds);
-    console.log(
-      '>>>>>>>>> | useEffect | positionsForPathSquares:',
-      positionsForPathSquares
-    );
 
     setSquarePositions(positionsForPathSquares);
   }, [idList]);
 
+  useEffect(() => {
+    if (squarePositions.length) {
+      setCoordinates(mapPathCoordinates(squarePositions));
+    }
+  }, [squarePositions]);
   return <div>Enter</div>;
 };
 
 export default BackdropBeam;
+
+export type SquarePosition = {
+  id: string;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
 
 const getSquarePositions = (idList: string[]): SquarePosition[] => {
   return idList

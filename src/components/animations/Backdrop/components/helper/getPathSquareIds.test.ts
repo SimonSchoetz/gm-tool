@@ -51,30 +51,19 @@ describe('getPathSquareIds', () => {
         previousColNum = colNum;
       });
     });
-    it('when consecutive rows are the same the column must have changed', () => {
+
+    it('should only move horizontal or vertical and never diagonal', () => {
       let previousColNum: number = 0;
       let previousRowNum: number = 0;
 
       idList.forEach((el) => {
         const [rowNum, colNum] = el.split('-').map(Number);
+
         if (rowNum === previousRowNum) {
           expect(colNum !== previousColNum).toBe(true);
-          expect(colNum === previousColNum).toBe(false);
         }
-        previousColNum = colNum;
-        previousRowNum = rowNum;
-      });
-    });
-
-    it('when consecutive rows are different the column must not have changed', () => {
-      let previousColNum: number = 0;
-      let previousRowNum: number = 0;
-
-      idList.forEach((el) => {
-        const [rowNum, colNum] = el.split('-').map(Number);
         if (rowNum !== previousRowNum) {
           expect(colNum === previousColNum).toBe(true);
-          expect(colNum !== previousColNum).toBe(false);
         }
         previousColNum = colNum;
         previousRowNum = rowNum;

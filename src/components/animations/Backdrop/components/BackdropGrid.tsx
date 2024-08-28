@@ -35,9 +35,9 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
 
   const ids = useMemo(() => {
     const ids: string[] = [];
-    // extra row prevents a too wide gap in specific window width
-    for (let rowNum = 0; rowNum < amountSquaresY + 1; rowNum++) {
-      for (let colNum = 0; colNum < amountSquaresX; colNum++) {
+    // extra rows prevent a too wide gap at specific window widths
+    for (let rowNum = 0; rowNum < amountSquaresY + 2; rowNum++) {
+      for (let colNum = 1; colNum < amountSquaresX; colNum++) {
         ids.push(`${rowNum}-${colNum}`);
       }
     }
@@ -61,6 +61,7 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   }, [getAmountSquaresX, getAmountSquaresY, amountSquaresX, amountSquaresY]);
 
   useEffect(() => {
+    //can this run only when eventlistener is not reporting any change anymore?
     window.addEventListener('resize', updateSquareMeasurements);
     return () => {
       window.removeEventListener('resize', updateSquareMeasurements);
