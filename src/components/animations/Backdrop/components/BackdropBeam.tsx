@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { getPathSquareIds } from './helper';
 import { mapPathCoordinates } from './helper/mapPathCoordinates';
 import { ConditionWrapper } from '@/components/wrapper';
@@ -21,34 +21,27 @@ const BackdropBeam = ({ idList }: BackdropBeamProps) => {
   const [duration, setDuration] = useState<number>(100);
 
   useEffect(() => {
-    const pathSquareIds = getPathSquareIds(idList);
-    const positionsForPathSquares = getSquarePositions(pathSquareIds);
+    const updateSquarePositions = async () => {
+      while (true) {
+        const pathSquareIds = getPathSquareIds(idList);
+        const positionsForPathSquares = getSquarePositions(pathSquareIds);
 
-    setSquarePositions(positionsForPathSquares);
-  }, [idList]);
-
-  useEffect(() => {
-    const updateCoordinates = async () => {
-      while (squarePositions.length) {
-        console.log(
-          '>>>>>>>>> | updateCoordinates | squarePositions:',
-          squarePositions.length
-        );
-        const newCoordinates = mapPathCoordinates(squarePositions);
-        console.log(
-          '>>>>>>>>> | updateCoordinates | newCoordinates:',
-          newCoordinates.length
-        );
-        setCoordinates(newCoordinates);
-        setDuration(3000 / newCoordinates.length);
+        setSquarePositions(positionsForPathSquares);
 
         const randomDelay = Math.random() * 10000 + 5000;
         await new Promise((resolve) => setTimeout(resolve, randomDelay));
       }
     };
 
+    updateSquarePositions();
+  }, [idList]);
+
+  useEffect(() => {
     if (squarePositions.length) {
-      updateCoordinates(); // Start the update process
+      const newCoordinates = mapPathCoordinates(squarePositions);
+
+      setCoordinates(newCoordinates);
+      setDuration(3000 / newCoordinates.length);
     }
   }, [squarePositions]);
 
@@ -110,7 +103,7 @@ const getBeam = (position: { x: number; y: number }, duration: number) => {
           transitionTimingFunction: 'linear',
           transitionDuration: `${duration}ms`,
           transitionDelay: `${index}ms`,
-          opacity: `${1 - 0.01 * index}`,
+          opacity: `${1 - 0.008 * index}`,
           borderColor: colors.secondary.full,
         }}
       />
