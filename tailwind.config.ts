@@ -13,6 +13,7 @@ const config: Config = {
         'gm-primary': colors.dark.full,
         'gm-primary-medium-contrast': colors.secondary.full,
         'gm-primary-high-contrast': colors.accent.full,
+        'gm-primary-high-contrast-10': colors.accent['10'],
         'gm-primary-very-high-contrast': colors.bright.full,
       },
     },

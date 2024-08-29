@@ -1,6 +1,11 @@
 import Footer from '@/components/Footer';
 import './styles.scss';
-import { Backdrop } from '@/components/animations';
+import dynamic from 'next/dynamic';
+
+const Backdrop = dynamic(
+  () => import('./../components/animations/Backdrop/Backdrop'),
+  { ssr: false }
+);
 
 export const metadata = {
   title: "The Game Master's Tool",
@@ -15,8 +20,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en' className='h-full'>
-      <body className='bg-gm-primary blueprint-grid-primary flex flex-col h-full'>
-        <div className='light-source flex-grow flex flex-col h-full items-center justify-center'>
+      <body className='bg-gm-primary flex flex-col h-full'>
+        <div
+          className='
+            light-source
+            h-full
+            flex-grow flex flex-col items-center justify-center
+            px-2
+          '
+        >
           {children}
         </div>
 
