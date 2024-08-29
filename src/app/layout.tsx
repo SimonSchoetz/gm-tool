@@ -21,7 +21,14 @@ export default function RootLayout({
   return (
     <html lang='en' className='h-full'>
       <body className='bg-gm-primary flex flex-col h-full'>
-        <div className='light-source flex-grow flex flex-col h-full items-center justify-center'>
+        <div
+          className='
+            light-source
+            h-full
+            flex-grow flex flex-col items-center justify-center
+            px-2
+          '
+        >
           {children}
         </div>
 

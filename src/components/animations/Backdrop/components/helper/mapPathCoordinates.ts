@@ -11,9 +11,8 @@ export const mapPathCoordinates = (
     return { y: position.top, x: position[startPosition] + offset };
   });
 
-  console.log('>>>>>>>>> | squarePositions:', squarePositions);
   const lastEl = squarePositions.at(-1)!;
-  console.log('>>>>>>>>> | lastEl:', lastEl);
+
   mappedPositions.push({ y: lastEl.bottom, x: lastEl[startPosition] + offset });
 
   return mappedPositions;
