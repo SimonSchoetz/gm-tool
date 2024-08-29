@@ -6,6 +6,12 @@
 
 - verify email
 
+## [0.3.2] - 2024-08-25
+
+### 032-Patch
+
+- Animated background grid
+
 ## [0.3.1] - 2024-08-25
 
 ### 031-Patch
