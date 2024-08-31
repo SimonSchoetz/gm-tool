@@ -1,5 +1,3 @@
-'use client';
-
 import {
   useState,
   useCallback,
@@ -61,7 +59,6 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   }, [getAmountSquaresX, getAmountSquaresY, amountSquaresX, amountSquaresY]);
 
   useEffect(() => {
-    //can this run only when eventlistener is not reporting any change anymore?
     window.addEventListener('resize', updateSquareMeasurements);
     return () => {
       window.removeEventListener('resize', updateSquareMeasurements);

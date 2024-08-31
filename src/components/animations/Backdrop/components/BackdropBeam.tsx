@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getPathSquareIds } from './helper';
-import { mapPathCoordinates } from './helper/mapPathCoordinates';
+import { getPathSquareIds, getSquarePositions, SquarePosition } from './helper';
+import { mapPathCoordinates } from './helper';
 import { ConditionWrapper } from '@/components/wrapper';
 import { colors } from '@/util/styles';
 
@@ -58,35 +58,14 @@ const BackdropBeam = ({ idList }: BackdropBeamProps) => {
 
   return (
     <ConditionWrapper condition={!!nextPosition}>
-      {getBeam(nextPosition, duration)}
+      {renderBeam(nextPosition, duration)}
     </ConditionWrapper>
   );
 };
 
 export default BackdropBeam;
 
-export type SquarePosition = {
-  id: string;
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-};
-
-const getSquarePositions = (idList: string[]): SquarePosition[] => {
-  return idList
-    .map<SquarePosition | null>((id) => {
-      const element = document.getElementById(id);
-      if (element) {
-        const { top, right, bottom, left } = element.getBoundingClientRect();
-        return { id, top, right, bottom, left };
-      }
-      return null;
-    })
-    .filter(Boolean) as SquarePosition[];
-};
-
-const getBeam = (position: { x: number; y: number }, duration: number) => {
+const renderBeam = (position: { x: number; y: number }, duration: number) => {
   return Array.from({ length: duration }, (_, index) => {
     return (
       <div

@@ -1,4 +1,4 @@
-import { SquarePosition } from '../BackdropBeam';
+import { SquarePosition } from './getSquarePositions';
 
 export const mapPathCoordinates = (
   squarePositions: SquarePosition[]
