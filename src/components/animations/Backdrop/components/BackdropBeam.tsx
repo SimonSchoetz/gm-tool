@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getPathSquareIds, getSquarePositions, SquarePosition } from './helper';
-import { mapPathCoordinates } from './helper';
-import { ConditionWrapper } from '@/components/wrapper';
+import {
+  getPathSquareIds,
+  getSquarePositions,
+  SquarePosition,
+  mapPathCoordinates,
+} from './helper';
 import { colors } from '@/util/styles';
 
 type BackdropBeamProps = {
@@ -13,27 +16,28 @@ const BackdropBeam = ({ idList }: BackdropBeamProps) => {
   const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>(
     []
   );
-  const [nextPosition, setNextPosition] = useState<{
-    x: number;
-    y: number;
-  }>({ x: -100, y: 0 });
-
   const [duration, setDuration] = useState<number>(100);
 
   useEffect(() => {
+    let isMounted = true;
+
     const updateSquarePositions = async () => {
-      while (true) {
+      while (isMounted) {
         const pathSquareIds = getPathSquareIds(idList);
         const positionsForPathSquares = getSquarePositions(pathSquareIds);
 
         setSquarePositions(positionsForPathSquares);
 
-        const randomDelay = Math.random() * 10000 + 5000;
+        const randomDelay = Math.random() * 15000 + 5000;
         await new Promise((resolve) => setTimeout(resolve, randomDelay));
       }
     };
 
     updateSquarePositions();
+
+    return () => {
+      isMounted = false;
+    };
   }, [idList]);
 
   useEffect(() => {
@@ -45,36 +49,41 @@ const BackdropBeam = ({ idList }: BackdropBeamProps) => {
     }
   }, [squarePositions]);
 
+  return <LightBeam coordinates={coordinates} duration={duration} />;
+};
+
+export default BackdropBeam;
+
+type LightBeamProps = {
+  coordinates: { x: number; y: number }[];
+  duration: number;
+};
+
+const LightBeam = ({ coordinates, duration }: LightBeamProps) => {
+  const [nextPosition, setNextPosition] = useState<{
+    x: number;
+    y: number;
+  }>({ x: -100, y: 0 });
+
   useEffect(() => {
-    const updatePixelPosition = async () => {
+    const stepThroughPixelPositions = async () => {
       for (const coordinate of coordinates) {
         setNextPosition(coordinate);
         await new Promise((resolve) => setTimeout(resolve, duration));
       }
       setNextPosition({ x: -100, y: 0 });
     };
-    updatePixelPosition();
+    stepThroughPixelPositions();
   }, [coordinates, duration]);
 
-  return (
-    <ConditionWrapper condition={!!nextPosition}>
-      {renderBeam(nextPosition, duration)}
-    </ConditionWrapper>
-  );
-};
-
-export default BackdropBeam;
-
-const renderBeam = (position: { x: number; y: number }, duration: number) => {
   return Array.from({ length: duration }, (_, index) => {
     return (
       <div
-        className='beam'
         key={index}
         style={{
           position: 'absolute',
-          left: `${position?.x}px`,
-          top: `${position?.y}px`,
+          left: `${nextPosition?.x}px`,
+          top: `${nextPosition?.y}px`,
           width: '.5px',
           height: '.5px',
           border: 'solid .5px',
@@ -82,7 +91,7 @@ const renderBeam = (position: { x: number; y: number }, duration: number) => {
           transitionTimingFunction: 'linear',
           transitionDuration: `${duration}ms`,
           transitionDelay: `${index}ms`,
-          opacity: `${1 - 0.008 * index}`,
+          opacity: `${1 - 0.01 * index}`,
           borderColor: colors.secondary.full,
         }}
       />
