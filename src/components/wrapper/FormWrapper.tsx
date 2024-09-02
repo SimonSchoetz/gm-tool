@@ -32,10 +32,6 @@ type FormWrapperProps = DetailedHTMLProps<
   encrypt?: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
 };
 
-type ReactChild =
-  | React.ReactPortal
-  | React.ReactElement<unknown, string | React.JSXElementConstructor<any>>;
-
 const FormWrapper = ({
   buttonLabel,
   schemaName,
@@ -67,7 +63,7 @@ const FormWrapper = ({
     return child;
   };
 
-  const mapFormValidationProps = (child: ReactChild, childId: string) => {
+  const mapFormValidationProps = (child: JSX.Element, childId: string) => {
     return {
       ...child,
       props: {
@@ -112,6 +108,7 @@ const FormWrapper = ({
   };
 
   useEffect(() => {
+    //eslint-disable-next-line no-process-env
     if (process.env.NODE_ENV === 'development') {
       assertFormInputs(children, schemaName);
     }
