@@ -4,6 +4,6 @@
     // "next/typescript"
   ],
   "rules": {
-    "no-process-env": "error" // Or "error" depending on how strict you want it
+    "no-process-env": "error"
   }
 }
