@@ -12,11 +12,12 @@ import { SignUpData } from '@/types/requests';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 import { encryptPassword } from '@/util/encryption';
 import { generateId } from '@/util/helper';
+import { User } from '@/types/user';
 
 export const createUser = async (
   data: SignUpData
 ): Promise<PutItemCommandOutput> => {
-  const validated: SignUpData = parseDataWithZodSchema(
+  const validated = parseDataWithZodSchema<SignUpData>(
     data,
     SchemaName.SIGN_UP
   );
@@ -30,7 +31,8 @@ export const createUser = async (
       userContentId: generateId(),
       createdAt: new Date().toISOString(),
       passwordHash: await encryptPassword(password),
-    }),
+      emailVerified: generateId(),
+    } satisfies User),
     ConditionExpression: 'attribute_not_exists(#pk)',
     ExpressionAttributeNames: {
       '#pk': 'email',

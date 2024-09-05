@@ -6,6 +6,7 @@ export const UserSchema = z.object({
   userContentId: z.string().min(1),
   createdAt: z.string().min(1),
   passwordHash: z.string().min(1),
+  emailVerified: z.string().min(1),
 });
 
 export const userTestData: User = {
@@ -13,4 +14,5 @@ export const userTestData: User = {
   userContentId: 'test',
   createdAt: 'test',
   passwordHash: 'test',
+  emailVerified: 'verified',
 };
