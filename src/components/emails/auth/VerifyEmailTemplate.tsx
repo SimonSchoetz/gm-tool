@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Html, Button, Head, Body } from '@react-email/components';
 import { parsedEnv } from '@/util/helper';
 import { colors } from '@/util/styles';
+import { Route } from '@/enums';
 
 type VerifyEmailTemplateProps = {
   token: string;
@@ -10,7 +11,8 @@ type VerifyEmailTemplateProps = {
 export const VerifyEmail: React.FC<Readonly<VerifyEmailTemplateProps>> = ({
   token,
 }) => {
-  const url = `${parsedEnv.HOST}/verify-email?token=${token}`;
+  const url = `${parsedEnv.HOST}${Route.VERIFY_EMAIL}?token=${token}`;
+
   return (
     <Html lang='en' dir='ltr'>
       <Head>
