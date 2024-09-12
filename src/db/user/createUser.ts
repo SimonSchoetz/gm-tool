@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDb } from '../dynamoDb';
-import { DbTable } from '@/enums';
+import { DbTable, EmailVerificationState } from '@/enums';
 import { SignUpData } from '@/types/requests';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 import { encryptPassword } from '@/util/encryption';
@@ -31,7 +31,7 @@ export const createUser = async (
       userContentId: generateId(),
       createdAt: new Date().toISOString(),
       passwordHash: await encryptPassword(password),
-      emailVerified: generateId(),
+      emailVerified: EmailVerificationState.NOT_VERIFIED,
     } satisfies User),
     ConditionExpression: 'attribute_not_exists(#pk)',
     ExpressionAttributeNames: {
