@@ -14,12 +14,13 @@ export const TestSchemaZEffects = z
   .refine((val) => val);
 
 export enum SchemaName {
-  TEST_Z_OBJECT = 'testZObject',
-  TEST_Z_EFFECTS = 'testZEffects',
-  SIGN_UP = 'signUp',
-  LOGIN = 'login',
-  USER = 'user',
   AUTH_COOKIE_PAYLOAD = 'authCookiePayload',
+  LOGIN = 'login',
+  SIGN_UP = 'signUp',
+  TEST_Z_EFFECTS = 'testZEffects',
+  TEST_Z_OBJECT = 'testZObject',
+  USER = 'user',
+  VERIFICATION_EMAIL = 'verificationEmail',
 }
 
 export const getSchema = (schema: SchemaName): z.ZodTypeAny => {
@@ -30,6 +31,7 @@ export const getSchema = (schema: SchemaName): z.ZodTypeAny => {
     [SchemaName.LOGIN]: s.LoginSchema,
     [SchemaName.USER]: s.UserSchema,
     [SchemaName.AUTH_COOKIE_PAYLOAD]: s.AuthCookiePayloadSchema,
+    [SchemaName.VERIFICATION_EMAIL]: s.VerificationEmailSchema,
   };
 
   if (!map[schema]) {
