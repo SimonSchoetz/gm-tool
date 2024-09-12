@@ -97,7 +97,7 @@ describe('mapPathCoordinates', () => {
 
   it('should not generate diagonal coordinate points', () => {
     let prevCoordinate: { x: number; y: number };
-    mappedCoordinates.forEach((coordinate, i) => {
+    mappedCoordinates.forEach((coordinate) => {
       if (prevCoordinate) {
         expect(
           prevCoordinate.x === coordinate.x || prevCoordinate.y === coordinate.y

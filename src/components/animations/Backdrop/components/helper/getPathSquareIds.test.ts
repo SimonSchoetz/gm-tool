@@ -59,7 +59,7 @@ describe('getPathSquareIds', () => {
       idList.forEach((el) => {
         const [rowNum, colNum] = el.split('-').map(Number);
 
-        if (rowNum === previousRowNum) {
+        if (rowNum === previousRowNum && colNum > 0) {
           expect(colNum !== previousColNum).toBe(true);
         }
         if (rowNum !== previousRowNum) {

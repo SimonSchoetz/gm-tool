@@ -1,4 +1,4 @@
-import { ZodError, z } from 'zod';
+import { ZodError } from 'zod';
 import { parseDataWithZodSchema } from './parse-data-with-zod-schema';
 import { FieldValues } from 'react-hook-form';
 import { SchemaName } from '../get-schema/get-schema';
@@ -21,7 +21,6 @@ describe('parseDataWithZodSchema', () => {
   });
   it('should throw instance of zod error', () => {
     const data = { name: 'test', age: '10' } as FieldValues;
-    const schema = z.object({ name: z.string(), age: z.number() });
     try {
       parseDataWithZodSchema(data, SchemaName.TEST_Z_OBJECT);
     } catch (error) {
