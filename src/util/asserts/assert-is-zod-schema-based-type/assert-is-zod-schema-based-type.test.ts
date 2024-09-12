@@ -1,6 +1,7 @@
 import { SchemaName } from '@/schemas/util';
 import { assertIsZodSchemaBasedType } from './assert-is-zod-schema-based-type';
 import { User } from '@/types/user';
+import { userTestData } from '@/schemas/zod-schemas';
 
 describe('assertIsZodSchemaBasedType', () => {
   it('should throw an error if the data is not valid', () => {
@@ -10,15 +11,7 @@ describe('assertIsZodSchemaBasedType', () => {
   });
   it('should not throw an error if the data is valid', () => {
     expect(() =>
-      assertIsZodSchemaBasedType<User>(
-        {
-          email: 'test@example.com',
-          userContentId: 'content123',
-          createdAt: '2022-01-01T00:00:00Z',
-          passwordHash: 'hashedPassword',
-        },
-        SchemaName.USER
-      )
+      assertIsZodSchemaBasedType<User>(userTestData, SchemaName.USER)
     ).not.toThrow();
   });
 });
