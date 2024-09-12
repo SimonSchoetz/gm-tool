@@ -8,8 +8,9 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { User } from '@/types/user';
 import { assertIsZodSchemaBasedType } from '@/util/asserts';
 import { SchemaName } from '@/schemas/util';
+import { cache } from 'react';
 
-export const getUser = async (email: string): Promise<User> => {
+export const getUser = cache(async (email: string): Promise<User> => {
   const params: GetItemCommandInput = {
     TableName: DbTable.USERS,
     Key: marshall({ email }),
@@ -26,5 +27,19 @@ export const getUser = async (email: string): Promise<User> => {
 
   assertIsZodSchemaBasedType<User>(user, SchemaName.USER);
 
+  return getUserDTO(user);
+});
+
+const getUserDTO = (user: User): User => {
+  // taintUniqueValue(
+  //   'Do not expose password hash to client',
+  //   user,
+  //   user.passwordHash
+  // );
+  // taintUniqueValue(
+  //   'Do not expose email verification state to client',
+  //   user,
+  //   user.emailVerified
+  // );
   return user;
 };
