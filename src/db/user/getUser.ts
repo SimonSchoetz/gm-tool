@@ -2,7 +2,7 @@ import 'server-only';
 
 import { GetItemCommand, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { dynamoDb } from '../dynamoDb';
-import { DbTable } from '@/enums';
+import { DbTable, InternalErrorCode } from '@/enums';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { User } from '@/types/user';
@@ -21,7 +21,9 @@ export const getUser = cache(async (email: string): Promise<User> => {
   const commandOutput = await dynamoDb.send(command);
 
   if (!commandOutput.Item) {
-    throw new Error(`User not found: ${email}`);
+    throw new Error(
+      `Error with email: ${email} - ${InternalErrorCode.USER_NOT_FOUND}`
+    );
   }
   const user = unmarshall(commandOutput.Item);
 

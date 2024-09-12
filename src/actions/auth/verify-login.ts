@@ -6,6 +6,7 @@ import { LoginData } from '@/types/requests';
 
 import { validatePassword } from '@/util/encryption';
 import { getUser } from '../../db/user/getUser';
+import { User } from '@/types/user';
 
 export const verifyLogin = async (data: LoginData): Promise<void> => {
   const validated = parseDataWithZodSchema<LoginData>(data, SchemaName.LOGIN);
@@ -14,17 +15,28 @@ export const verifyLogin = async (data: LoginData): Promise<void> => {
 
   const user = await getUser(email);
 
-  if (user.email !== EmailVerificationState.VERIFIED) {
-    throw new Error(getLoginErrorMessage(InternalErrorCode.EMAIL_NOT_VERIFIED));
-  }
+  await checkPassword(password, user.passwordHash);
 
-  const isPasswordValid = await validatePassword(password, user.passwordHash);
+  checkEmailVerification(user.emailVerified);
+};
+
+const checkPassword = async (
+  password: string,
+  hash: User['passwordHash']
+): Promise<void> => {
+  const isPasswordValid = await validatePassword(password, hash);
 
   if (!isPasswordValid) {
-    throw new Error(getLoginErrorMessage(InternalErrorCode.PASSWORD_INCORRECT));
+    throw new Error(getErrorMessage(InternalErrorCode.PASSWORD_INCORRECT));
   }
 };
 
-const getLoginErrorMessage = (error: InternalErrorCode): string => {
+const checkEmailVerification = (state: EmailVerificationState): void => {
+  if (state !== EmailVerificationState.VERIFIED) {
+    throw new Error(getErrorMessage(InternalErrorCode.EMAIL_NOT_VERIFIED));
+  }
+};
+
+const getErrorMessage = (error: InternalErrorCode): string => {
   return `Error during login: ${error}`;
 };

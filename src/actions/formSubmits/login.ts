@@ -46,6 +46,15 @@ export const submitLogin = async (
           redirectRoute: Route.VERIFY_EMAIL,
         };
       }
+      if (isLoginError(error.message)) {
+        return {
+          status: HttpStatusCode.UNAUTHORIZED,
+          error: {
+            password: 'Email or password incorrect',
+          },
+        };
+      }
+
       throw new Error(error.message);
     }
 
@@ -54,4 +63,11 @@ export const submitLogin = async (
 
   // revalidatePath('/login'); thats just an example for when I want to show up added elements
   // in a list so it gets cached again
+};
+
+const isLoginError = (error: string): boolean => {
+  return (
+    error.includes(InternalErrorCode.PASSWORD_INCORRECT) ||
+    error.includes(InternalErrorCode.USER_NOT_FOUND)
+  );
 };
