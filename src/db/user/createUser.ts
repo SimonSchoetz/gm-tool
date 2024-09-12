@@ -7,16 +7,17 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { dynamoDb } from '../dynamoDb';
-import { DbTable } from '@/enums';
+import { DbTable, EmailVerificationState } from '@/enums';
 import { SignUpData } from '@/types/requests';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 import { encryptPassword } from '@/util/encryption';
 import { generateId } from '@/util/helper';
+import { User } from '@/types/user';
 
 export const createUser = async (
   data: SignUpData
 ): Promise<PutItemCommandOutput> => {
-  const validated: SignUpData = parseDataWithZodSchema(
+  const validated = parseDataWithZodSchema<SignUpData>(
     data,
     SchemaName.SIGN_UP
   );
@@ -30,7 +31,8 @@ export const createUser = async (
       userContentId: generateId(),
       createdAt: new Date().toISOString(),
       passwordHash: await encryptPassword(password),
-    }),
+      emailVerified: EmailVerificationState.NOT_VERIFIED,
+    } satisfies User),
     ConditionExpression: 'attribute_not_exists(#pk)',
     ExpressionAttributeNames: {
       '#pk': 'email',

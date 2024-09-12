@@ -8,6 +8,6 @@ export const assertIsZodSchemaBasedType: <T>(
   const isExpectedData = isZodSchemaBasedType(data, schemaName);
 
   if (!isExpectedData) {
-    throw new Error(`Expected ${schemaName} data , got: ${data}`);
+    throw new Error(`Expected ${schemaName} data, got: ${data}`);
   }
 };

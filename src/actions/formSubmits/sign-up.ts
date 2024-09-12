@@ -1,6 +1,6 @@
 'use server';
 
-import { createUser, getUser } from '@/db/user';
+import { createUser } from '@/db/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 
@@ -10,7 +10,8 @@ import { DynamoDBServiceException } from '@aws-sdk/client-dynamodb';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
-import { setAuthCookie } from '../cookies';
+import { SignUpData } from '@/types/requests';
+import { sendEmailVerificationEmail } from '../emails/send-email-verification-email';
 
 export const submitSignUp = async (
   data: unknown
@@ -18,16 +19,18 @@ export const submitSignUp = async (
   try {
     assertIsString(data);
     const decoded = await readToken(data);
-    const validatedData = parseDataWithZodSchema(decoded, SchemaName.SIGN_UP);
+    const validatedData = parseDataWithZodSchema<SignUpData>(
+      decoded,
+      SchemaName.SIGN_UP
+    );
 
     await createUser(validatedData);
 
-    const user = await getUser(validatedData.email);
-    await setAuthCookie(user);
+    sendEmailVerificationEmail(validatedData.email);
 
     return {
       status: HttpStatusCode.CREATED,
-      redirectRoute: Route.HOME,
+      redirectRoute: Route.VERIFY_EMAIL,
     };
   } catch (error) {
     if (error instanceof ZodError) {

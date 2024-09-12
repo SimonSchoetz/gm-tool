@@ -3,3 +3,4 @@ export * from './db-table';
 export * from './internal-error-codes';
 export * from './routes';
 export * from './cookie-names';
+export * from './email';

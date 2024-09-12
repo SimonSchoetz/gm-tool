@@ -5,20 +5,20 @@ import { generateToken } from '../token';
 import { cookies } from 'next/headers';
 import { nowInXDays } from '@/util/helper';
 import { CookieName } from '@/enums';
-import { AuthCookiePayload } from '@/types/cookies';
+import { AuthCookieTokenPayload } from '@/types/token/payloads';
 
 export const setAuthCookie = async ({
   email,
   userContentId,
 }: User): Promise<void> => {
-  const payload: AuthCookiePayload = {
+  const payload = {
     email,
     userContentId,
   };
 
   const expires = nowInXDays(7);
 
-  const token = await generateToken(payload, expires);
+  const token = await generateToken<AuthCookieTokenPayload>(payload, expires);
 
   // Todo: Make it so Token expires after 1 week but is revived
   // as long as there is user interaction

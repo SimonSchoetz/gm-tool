@@ -4,7 +4,7 @@ import { redirectTo } from '@/util/router';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const authRoutes = [Route.LOGIN, Route.SIGN_UP];
+const authRoutes = [Route.LOGIN, Route.SIGN_UP, Route.VERIFY_EMAIL];
 const unprotectedRoutes = [...authRoutes, Route.HOME];
 
 export const routeProtection = async (

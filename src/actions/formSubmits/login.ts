@@ -1,13 +1,15 @@
 'use server';
 
-import { HttpStatusCode, Route } from '@/enums';
+import { HttpStatusCode, InternalErrorCode, Route } from '@/enums';
 import { FormSubmitResponse } from '@/types/responses';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token/read-token';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 import { ZodError } from 'zod';
-import { verifyUser } from '../user';
+import { verifyLogin } from '../auth';
 import { setAuthCookie } from '../cookies';
+import { getUser } from '@/db/user';
+import { LoginData } from '@/types/requests';
 
 export const submitLogin = async (
   data: unknown
@@ -17,9 +19,14 @@ export const submitLogin = async (
 
     const decoded = await readToken(data);
 
-    const validatedData = parseDataWithZodSchema(decoded, SchemaName.LOGIN);
+    const validatedData = parseDataWithZodSchema<LoginData>(
+      decoded,
+      SchemaName.LOGIN
+    );
 
-    const user = await verifyUser(validatedData);
+    await verifyLogin(validatedData);
+
+    const user = await getUser(validatedData.email);
 
     await setAuthCookie(user);
 
@@ -33,6 +40,21 @@ export const submitLogin = async (
     }
 
     if (error instanceof Error) {
+      if (error.message.includes(InternalErrorCode.EMAIL_NOT_VERIFIED)) {
+        return {
+          status: HttpStatusCode.UNAUTHORIZED,
+          redirectRoute: Route.VERIFY_EMAIL,
+        };
+      }
+      if (isLoginError(error.message)) {
+        return {
+          status: HttpStatusCode.UNAUTHORIZED,
+          error: {
+            password: 'Email or password incorrect',
+          },
+        };
+      }
+
       throw new Error(error.message);
     }
 
@@ -41,4 +63,11 @@ export const submitLogin = async (
 
   // revalidatePath('/login'); thats just an example for when I want to show up added elements
   // in a list so it gets cached again
+};
+
+const isLoginError = (error: string): boolean => {
+  return (
+    error.includes(InternalErrorCode.PASSWORD_INCORRECT) ||
+    error.includes(InternalErrorCode.USER_NOT_FOUND)
+  );
 };
