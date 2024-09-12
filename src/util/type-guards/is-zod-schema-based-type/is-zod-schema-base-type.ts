@@ -7,7 +7,7 @@ export const isZodSchemaBasedType = <T>(
   try {
     parseDataWithZodSchema(data, schemaName);
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 };

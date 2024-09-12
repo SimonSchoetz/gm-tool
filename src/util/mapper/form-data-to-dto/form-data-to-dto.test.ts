@@ -29,7 +29,8 @@ describe('mapFormDataToDto', () => {
       mapFormDataToDto<TestFormData>(formData);
       // If the function doesn't throw an error, fail the test
       expect(true).toBe(false);
-    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_err) {
       // If the function throws an error, pass the test
       expect(true).toBe(true);
     }

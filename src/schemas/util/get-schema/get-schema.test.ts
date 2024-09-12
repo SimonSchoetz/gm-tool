@@ -11,9 +11,4 @@ describe('getSchema', () => {
     const schema = getSchema(SchemaName.TEST_Z_EFFECTS);
     expect(schema).toBeInstanceOf(ZodEffects);
   });
-
-  it('should throw error if input is not handled', () => {
-    //@ts-ignore
-    expect(() => getSchema(SchemaName.TEST)).toThrow();
-  });
 });

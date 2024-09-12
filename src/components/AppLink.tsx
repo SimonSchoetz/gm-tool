@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
 export enum AppLinkLayout {
-  TEXT = 'text',
   BUTTON = 'button',
+  TEXT = 'text',
 }
 
 type Props = {
