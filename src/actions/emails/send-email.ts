@@ -1,6 +1,6 @@
 'use server';
 
-import { EmailFrom } from '@/enums';
+import { EmailSender } from '@/enums';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
 import { ReactNode } from 'react';
@@ -12,8 +12,8 @@ type SendEmailResponse = {
   error?: string;
 };
 
-type EmailData = {
-  from: EmailFrom;
+export type EmailData = {
+  from: EmailSender;
   to: string;
   subject: string;
   template: ReactNode;
