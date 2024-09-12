@@ -1,6 +1,6 @@
 'use server';
 
-import { InternalErrorCode } from '@/enums';
+import { EmailVerificationState, InternalErrorCode } from '@/enums';
 import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
 import { LoginData } from '@/types/requests';
 
@@ -14,11 +14,17 @@ export const verifyLogin = async (data: LoginData): Promise<void> => {
 
   const user = await getUser(email);
 
+  if (user.email !== EmailVerificationState.VERIFIED) {
+    throw new Error(getLoginErrorMessage(InternalErrorCode.EMAIL_NOT_VERIFIED));
+  }
+
   const isPasswordValid = await validatePassword(password, user.passwordHash);
 
   if (!isPasswordValid) {
-    throw new Error(
-      `Error during login: ${InternalErrorCode.PASSWORD_INCORRECT}`
-    );
+    throw new Error(getLoginErrorMessage(InternalErrorCode.PASSWORD_INCORRECT));
   }
+};
+
+const getLoginErrorMessage = (error: InternalErrorCode): string => {
+  return `Error during login: ${error}`;
 };

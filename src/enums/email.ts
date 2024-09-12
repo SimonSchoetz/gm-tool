@@ -3,3 +3,8 @@ export enum EmailSender {
   NO_REPLY = 'no-reply@gm-tool.com',
   SUPPORT = 'support@gm-tool.com',
 }
+
+export enum EmailVerificationState {
+  NOT_VERIFIED = 'notVerified',
+  VERIFIED = 'verified',
+}
