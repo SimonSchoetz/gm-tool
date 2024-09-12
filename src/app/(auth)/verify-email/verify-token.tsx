@@ -19,7 +19,7 @@ const VerifyToken: React.FC<VerifyTokenProps> = ({ token }) => {
     const verify = async () => {
       const emailVerified = token && (await verifyEmail(token));
       if (emailVerified && !emailVerified?.success) {
-        // setError(emailVerified.message);
+        setError(emailVerified.message);
       }
     };
     if (token) {

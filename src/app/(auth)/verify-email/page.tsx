@@ -10,7 +10,6 @@ interface VerifyEmailPageProps {
 
 const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
   const title = 'Verify email';
-  console.log('>>>>>>>>> | searchParams:', searchParams);
   const token = 'token' in searchParams && searchParams.token;
 
   return (
@@ -30,9 +29,9 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
 
           <ConditionWrapper condition={!token}>
             <p className='text-center my-5'>
-              We sent you a verification email. To the ADHD gang: It&apos;s just
-              a button but be warned: it will expire in 15 minutes so don&apos;t
-              get too distracted!
+              We sent you a verification email on registration. To the ADHD
+              gang: It&apos;s just a button but be warned: it will expire in 15
+              minutes so don&apos;t get too distracted!
             </p>
             <p className='text-center my-5'>
               You can&apos;t find any? Not even in your spam folder? You can try
