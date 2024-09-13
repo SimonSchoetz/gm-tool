@@ -1,0 +1,13 @@
+.light-source {
+  background: linear-gradient(170deg, var(--gm-primary-10) 10%, transparent 30%),
+    linear-gradient(140deg, var(--gm-primary-10) 10%, transparent 40%),
+    linear-gradient(145deg, var(--gm-primary-10) 10%, transparent 70%),
+    linear-gradient(120deg, var(--gm-primary-10) 10%, transparent 70%);
+}
+
+.light-source-dim {
+  background: linear-gradient(170deg, var(--gm-primary-05) 5%, transparent 10%),
+    linear-gradient(140deg, var(--gm-primary-05) 5%, transparent 20%),
+    linear-gradient(145deg, var(--gm-primary-05) 5%, transparent 50%),
+    linear-gradient(120deg, var(--gm-primary-05) 5%, transparent 90%);
+}

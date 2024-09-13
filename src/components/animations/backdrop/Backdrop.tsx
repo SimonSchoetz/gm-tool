@@ -17,7 +17,7 @@ const Backdrop = () => {
         width: '100vw',
         height: '100vh',
         opacity: fadeIn ? 1 : 0,
-        transition: 'opacity 1s ease-in-out',
+        transition: 'opacity .1s ease-in-out',
       }}
       className='overflow-hidden absolute -z-10'
     >

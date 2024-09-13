@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer';
 import './styles.scss';
 import dynamic from 'next/dynamic';
+import { LightSource } from '@/components/animations';
 
 const Backdrop = dynamic(
   () => import('../components/animations/backdrop/Backdrop'),
@@ -21,18 +22,13 @@ export default function RootLayout({
   return (
     <html lang='en' className='h-full'>
       <body className='bg-gm-bg flex flex-col h-full'>
-        <div
-          className='
-            light-source
-            h-full
-            flex-grow flex flex-col items-center justify-center
-            px-2
-          '
-        >
+        <div className=' h-full flex-grow flex flex-col items-center justify-center px-2'>
           {children}
         </div>
 
         <Footer />
+
+        <LightSource intensity='bright' />
 
         <Backdrop />
       </body>
