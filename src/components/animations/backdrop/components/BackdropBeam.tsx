@@ -5,6 +5,7 @@ import {
   SquarePosition,
   mapPathCoordinates,
 } from './helper';
+import { ConditionWrapper } from '@/components/wrapper';
 
 type BackdropBeamProps = {
   idList: string[];
@@ -63,18 +64,34 @@ const LightBeam = ({ coordinates, duration }: LightBeamProps) => {
     x: number;
     y: number;
   }>({ x: -100, y: 0 });
+  const [isLastCoordinateReached, setIsLastCoordinateReached] = useState(false);
 
   useEffect(() => {
     const stepThroughPixelPositions = async () => {
+      setIsLastCoordinateReached(false);
       for (const coordinate of coordinates) {
         setNextPosition(coordinate);
         await new Promise((resolve) => setTimeout(resolve, duration));
       }
+      setIsLastCoordinateReached(true);
       setNextPosition({ x: -100, y: 0 });
     };
     stepThroughPixelPositions();
   }, [coordinates, duration]);
 
+  return (
+    <ConditionWrapper condition={!isLastCoordinateReached}>
+      <BeamParticles duration={duration} nextPosition={nextPosition} />
+    </ConditionWrapper>
+  );
+};
+
+type BeamParticlesProps = {
+  duration: number;
+  nextPosition: { x: number; y: number };
+};
+
+const BeamParticles = ({ duration, nextPosition }: BeamParticlesProps) => {
   return Array.from({ length: duration }, (_, index) => {
     return (
       <div
