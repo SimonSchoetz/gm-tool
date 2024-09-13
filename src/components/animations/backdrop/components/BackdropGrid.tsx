@@ -13,6 +13,8 @@ export type BackdropGridProps = {
 
 const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   const maxSize = 120;
+  // extra rows prevent a too wide gap at specific window widths
+  const amountExtraRows = 5;
 
   const getSquareSize = (): number => {
     return Math.min(window.innerWidth / 8, maxSize);
@@ -33,8 +35,8 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
 
   const ids = useMemo(() => {
     const ids: string[] = [];
-    // extra rows prevent a too wide gap at specific window widths
-    for (let rowNum = 0; rowNum < amountSquaresY + 2; rowNum++) {
+
+    for (let rowNum = 0; rowNum < amountSquaresY + amountExtraRows; rowNum++) {
       for (let colNum = 1; colNum < amountSquaresX; colNum++) {
         ids.push(`${rowNum}-${colNum}`);
       }
@@ -66,7 +68,9 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   }, [updateSquareMeasurements]);
 
   useEffect(() => {
-    setIdList(ids);
+    // subtract extra rows
+    const amountExtraSquares = amountSquaresX * (amountExtraRows - 1);
+    setIdList(ids.slice(0, -amountExtraSquares));
   }, [ids, setIdList]);
 
   return (
@@ -111,7 +115,7 @@ const getSquares = ({ ids, squareSize, maxSize }: SquaresConfig) => {
         maxWidth: `${maxSize}px`,
         maxHeight: `${maxSize}px`,
       }}
-      className='grid grid-rows-2 grid-cols-2 gap-[1px]'
+      className='bg-gm-bg-50 grid grid-rows-2 grid-cols-2 gap-[1px]'
     >
       <div className='bg-gm-bg'></div>
       <div className='bg-gm-bg'></div>
@@ -120,12 +124,3 @@ const getSquares = ({ ids, squareSize, maxSize }: SquaresConfig) => {
     </div>
   ));
 };
-/**
- * .parent {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-grid-template-rows: repeat(2, 1fr);
-grid-column-gap: 1px;
-grid-row-gap: 1px;
-}
- */
