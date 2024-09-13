@@ -3,7 +3,7 @@ import './styles.scss';
 import dynamic from 'next/dynamic';
 
 const Backdrop = dynamic(
-  () => import('./../components/animations/Backdrop/Backdrop'),
+  () => import('../components/animations/backdrop/Backdrop'),
   { ssr: false }
 );
 
