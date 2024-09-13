@@ -1,10 +1,21 @@
 # Changelog
 
-## [0.4.0] - in progress
+## [0.5.0] - in progress
+
+### possible 050-Goals
+
+- Landing page with logo and favicon
+- replace dynamodb with convex
+- Lazy DM steps saved in local storage
+- proof of concept for session pdf export
+
+## [0.4.0] - 2024-09-13
 
 ### 040-Goals
 
-- verify email
+- verify email on registration and possibility to request a new one
+- linter fixed and enhanced to enhance code quality
+- more sophisticated styling and animations to add depth and detail
 
 ## [0.3.2] - 2024-08-25
 
