@@ -1,3 +1,22 @@
+:root {
+  --light-state: paused;
+}
+
+@keyframes lightSourceLightOn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.light-on-animation {
+  opacity: 1;
+  animation: lightSourceLightOn 0.3s ease-in;
+  animation-play-state: var(--light-state);
+}
+
 .light-source {
   background: linear-gradient(170deg, var(--gm-primary-10) 10%, transparent 30%),
     linear-gradient(140deg, var(--gm-primary-10) 10%, transparent 40%),
