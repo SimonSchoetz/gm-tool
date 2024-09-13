@@ -1,17 +1,17 @@
 'use client';
 
+import { DivProps } from '@/app/_types';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 
 type LabelConnectorProps = {
   focused: boolean;
   text?: string;
-  textSize?: string; // tailwind class
-};
+} & DivProps;
 
 const InputLabelUnderline = ({
   focused,
   text,
-  textSize = '',
+  ...props
 }: LabelConnectorProps) => {
   const textWidthRef = useRef<HTMLLabelElement>(null);
   const [labelWidth, setLabelWidth] = useState(0);
@@ -37,7 +37,7 @@ const InputLabelUnderline = ({
     return (
       <span
         aria-hidden
-        className={`absolute opacity-0 ${textSize}`}
+        className={`absolute opacity-0 ${props.className}`}
         ref={textWidthRef}
       >
         {text}

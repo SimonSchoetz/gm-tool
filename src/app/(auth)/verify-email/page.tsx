@@ -1,6 +1,9 @@
-import { ConditionWrapper, GlassPanel } from '@/components/wrapper';
+import {
+  ConditionWrapper,
+  ContentContainer,
+  GlassPanel,
+} from '@/components/wrapper';
 import VerifyToken from './verify-token';
-import { InputLabelUnderline } from '@/components/animations';
 import RequestNewVerificationEmailForm from './request-new-verification-email-form';
 import { isString } from '@/util/type-guards';
 
@@ -13,11 +16,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
   const token = 'token' in searchParams && searchParams.token;
 
   return (
-    <>
-      <div className='mb-2 ml-8'>
-        <h2>{title}</h2>
-        <InputLabelUnderline focused={true} text={title} textSize='text-4xl' />
-      </div>
+    <ContentContainer title={title}>
       <GlassPanel>
         <ConditionWrapper condition={isString(token)}>
           <VerifyToken token={token as string} />
@@ -29,6 +28,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
             It&apos;s just a button but be warned: it will expire in 15 minutes
             so don&apos;t get too distracted!
           </p>
+
           <p className='text-center my-5'>
             You can&apos;t find any? Not even in your spam folder? You can try
             again and enter your email below. If an account with your email
@@ -38,7 +38,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
           <RequestNewVerificationEmailForm />
         </ConditionWrapper>
       </GlassPanel>
-    </>
+    </ContentContainer>
   );
 };
 

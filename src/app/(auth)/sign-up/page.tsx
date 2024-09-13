@@ -1,20 +1,18 @@
 import Input from '@/components/Input';
-import { FormWrapper, GlassPanel } from '@/components/wrapper';
+import {
+  ContentContainer,
+  FormWrapper,
+  GlassPanel,
+} from '@/components/wrapper';
 import { submitSignUp } from '@/actions/formSubmits';
 import { SchemaName } from '@/schemas/util';
 import { generateToken } from '@/actions/token';
-import { InputLabelUnderline } from '@/components/animations';
 
 export default function SignUpPage() {
   const title = 'Sign Up';
 
   return (
-    <>
-      <div className='mb-2 ml-8'>
-        <h2>{title}</h2>
-        <InputLabelUnderline focused={true} text={title} textSize='text-4xl' />
-      </div>
-
+    <ContentContainer title={title}>
       <GlassPanel>
         <p className='text-center my-5'>
           Please fill in your data to create an account
@@ -49,6 +47,6 @@ export default function SignUpPage() {
           />
         </FormWrapper>
       </GlassPanel>
-    </>
+    </ContentContainer>
   );
 }
