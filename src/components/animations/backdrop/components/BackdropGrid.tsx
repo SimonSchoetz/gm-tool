@@ -71,7 +71,7 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
     // subtract extra rows
     const amountExtraSquares = amountSquaresX * (amountExtraRows - 1);
     setIdList(ids.slice(0, -amountExtraSquares));
-  }, [ids, setIdList]);
+  }, [ids, setIdList, amountSquaresX]);
 
   return (
     <div

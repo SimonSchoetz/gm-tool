@@ -10,15 +10,15 @@
 }
 
 .glass-fx {
-  background: var(--gm-primary-01);
-  border: 1px solid var(--gm-primary-10);
   animation: glassFxLightsOn 0.3s ease-in;
   animation-play-state: var(--light-state);
+  background: var(--gm-primary-01);
+  border: 1px solid var(--gm-primary-10);
   border-top-color: var(--gm-fg-20);
   border-left-color: var(--gm-fg-20);
-
   box-shadow: 0px 0px 2px 1px var(--gm-bg-30) inset;
   backdrop-filter: blur(2px);
+
   &:focus {
     background: var(--gm-bg-50);
     box-shadow: 0px 0px 2px 1px var(--gm-fg-20) inset;
@@ -30,8 +30,8 @@
       50deg,
       rgba(255, 0, 0),
       rgba(255, 0, 0) 10px,
-      rgba(255, 255, 255, 0) 10px,
-      rgba(255, 255, 255, 0) 20px
+      transparent 10px,
+      transparent 20px
     );
   }
 }
