@@ -21,7 +21,7 @@ const LightSource = ({ intensity, ...props }: Readonly<LightSourceProps>) => {
         opacity: fadeIn ? 1 : 0,
         transition: 'opacity .3s ease-in',
       }}
-      className={`${intensityClass} ${props.className} absolute top-0 left-0 w-full h-full`}
+      className={`${intensityClass} ${props.className} absolute top-0 left-0 w-full h-full -z-[9]`}
     ></div>
   );
 };

@@ -1,6 +1,5 @@
 import Input from '@/components/Input';
-import { FormWrapper } from '@/components/wrapper';
-import { LightSource } from '@/components/animations';
+import { FormWrapper, GlassPanel } from '@/components/wrapper';
 import { submitSignUp } from '@/actions/formSubmits';
 import { SchemaName } from '@/schemas/util';
 import { generateToken } from '@/actions/token';
@@ -16,9 +15,7 @@ export default function SignUpPage() {
         <InputLabelUnderline focused={true} text={title} textSize='text-4xl' />
       </div>
 
-      <div className='glass-fx p-8 pb-12'>
-        <LightSource intensity='dim' />
-
+      <GlassPanel>
         <p className='text-center my-5'>
           Please fill in your data to create an account
         </p>
@@ -51,7 +48,7 @@ export default function SignUpPage() {
             type='password'
           />
         </FormWrapper>
-      </div>
+      </GlassPanel>
     </>
   );
 }

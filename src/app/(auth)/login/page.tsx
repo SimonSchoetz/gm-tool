@@ -1,5 +1,5 @@
 import Input from '@/components/Input';
-import { FormWrapper } from '@/components/wrapper';
+import { FormWrapper, GlassPanel } from '@/components/wrapper';
 import { submitLogin } from '@/actions/formSubmits';
 import { SchemaName } from '@/schemas/util';
 import { generateToken } from '@/actions/token';
@@ -15,7 +15,7 @@ export default function LoginPage() {
         <InputLabelUnderline focused={true} text={title} textSize='text-4xl' />
       </div>
 
-      <div className='glass-fx p-8 pb-12'>
+      <GlassPanel>
         <p className='text-center my-5'>
           Please enter your email and password to proceed
         </p>
@@ -43,7 +43,7 @@ export default function LoginPage() {
             type='password'
           />
         </FormWrapper>
-      </div>
+      </GlassPanel>
     </>
   );
 }
