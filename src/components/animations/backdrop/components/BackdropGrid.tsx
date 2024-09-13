@@ -77,7 +77,7 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
         left: `-${(squareSize + amountSquaresX) / 2}px`,
       }}
       className='
-          bg-gm-primary-high-contrast-10 
+          bg-gm-primary-10 
           w-[120vw] h-[120vh]  
           flex flex-wrap gap-[1px]
           absolute
@@ -111,7 +111,21 @@ const getSquares = ({ ids, squareSize, maxSize }: SquaresConfig) => {
         maxWidth: `${maxSize}px`,
         maxHeight: `${maxSize}px`,
       }}
-      className='bg-gm-primary'
-    ></div>
+      className='grid grid-rows-2 grid-cols-2 gap-[1px]'
+    >
+      <div className='bg-gm-bg'></div>
+      <div className='bg-gm-bg'></div>
+      <div className='bg-gm-bg'></div>
+      <div className='bg-gm-bg'></div>
+    </div>
   ));
 };
+/**
+ * .parent {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+grid-template-rows: repeat(2, 1fr);
+grid-column-gap: 1px;
+grid-row-gap: 1px;
+}
+ */

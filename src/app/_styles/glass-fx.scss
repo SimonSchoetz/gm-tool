@@ -1,14 +1,14 @@
 .glass-fx {
-  background: $color-high-contrast-01;
-  border: 1px solid $color-bright-20;
-  border-bottom-color: $color-high-contrast-10;
-  border-right-color: $color-high-contrast-10;
-  box-shadow: 0px 0px 2px 1px $color-dark-30 inset;
+  background: var(--gm-primary-01);
+  border: 1px solid var(--gm-fg-20);
+  border-bottom-color: var(--gm-primary-10);
+  border-right-color: var(--gm-primary-10);
+  box-shadow: 0px 0px 2px 1px var(--gm-bg-30) inset;
   backdrop-filter: blur(2px);
   &:focus {
-    background: $color-dark-50;
-    box-shadow: 0px 0px 2px 1px $color-bright-20 inset;
-    filter: drop-shadow(0 0 1rem $color-bright);
+    background: var(--gm-bg-50);
+    box-shadow: 0px 0px 2px 1px var(--gm-fg-20) inset;
+    filter: drop-shadow(0 0 1rem var(--gm-fg));
   }
 
   &:disabled {

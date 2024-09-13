@@ -1,25 +1,40 @@
-$color-bright: #f8fbfb;
-$color-bright-01: #f8fbfb01;
-$color-bright-05: #f8fbfb10;
-$color-bright-10: #f8fbfb1a;
-$color-bright-20: #f8fbfb33;
-$color-bright-30: #f8fbfb4d;
-$color-bright-50: #f8fbfb80;
+/*
+ * keep in sync with tailwind.config
+*/
+:root {
+  //foreground
+  --gm-fg: #f8fbfb;
+  --gm-fg-01: #f8fbfb01;
+  --gm-fg-05: #f8fbfb10;
+  --gm-fg-10: #f8fbfb1a;
+  --gm-fg-20: #f8fbfb33;
+  --gm-fg-30: #f8fbfb4d;
+  --gm-fg-50: #f8fbfb80;
 
-$color-dark: #031322;
-$color-dark-01: #03132201;
-$color-dark-05: #03132210;
-$color-dark-10: #0313221a;
-$color-dark-20: #03132233;
-$color-dark-30: #0313224d;
-$color-dark-50: #03132280;
+  //background
+  --gm-bg: #031322;
+  --gm-bg-01: #03132201;
+  --gm-bg-05: #03132210;
+  --gm-bg-10: #0313221a;
+  --gm-bg-20: #03132233;
+  --gm-bg-30: #0313224d;
+  --gm-bg-50: #03132280;
 
-$color-high-contrast: #399cbb;
-$color-high-contrast-01: #399dbb01;
-$color-high-contrast-05: #399dbb10;
-$color-high-contrast-10: #399cbb1a;
-$color-high-contrast-20: #399cbb33;
-$color-high-contrast-30: #399cbb4d;
-$color-high-contrast-50: #399cbb80;
+  //primary
+  --gm-primary: #399cbb;
+  --gm-primary-01: #399cbb01;
+  --gm-primary-05: #399cbb10;
+  --gm-primary-10: #399cbb1a;
+  --gm-primary-20: #399cbb33;
+  --gm-primary-30: #399cbb4d;
+  --gm-primary-50: #399cbb80;
 
-$color-medium-contrast: #2b4d57;
+  // secondary
+  --gm-secondary: #2b4d57;
+  --gm-secondary-01: #2b4d5701;
+  --gm-secondary-05: #2b4d5710;
+  --gm-secondary-10: #2b4d571a;
+  --gm-secondary-20: #2b4d5733;
+  --gm-secondary-30: #2b4d574d;
+  --gm-secondary-50: #2b4d5780;
+}

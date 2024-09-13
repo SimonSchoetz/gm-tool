@@ -5,7 +5,6 @@ import {
   SquarePosition,
   mapPathCoordinates,
 } from './helper';
-import { colors } from '@/util/styles';
 
 type BackdropBeamProps = {
   idList: string[];
@@ -92,7 +91,7 @@ const LightBeam = ({ coordinates, duration }: LightBeamProps) => {
           transitionDuration: `${duration}ms`,
           transitionDelay: `${index}ms`,
           opacity: `${1 - 0.01 * index}`,
-          borderColor: colors.secondary.full,
+          borderColor: 'var(--gm-secondary)',
         }}
       />
     );

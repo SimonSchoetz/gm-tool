@@ -1,7 +1,7 @@
 .light-source {
   background: linear-gradient(
     to bottom right,
-    $color-high-contrast-30,
+    var(--gm-primary-30),
     transparent
   );
 }
@@ -9,7 +9,7 @@
 .light-source-dim {
   background: linear-gradient(
     to bottom right,
-    $color-high-contrast-05,
+    var(--gm-primary-05),
     transparent
   );
 }

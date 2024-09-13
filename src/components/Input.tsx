@@ -17,9 +17,7 @@ const Input = ({ label, validationerror, ...inputProps }: InputProps) => {
 
   const borderColor = validationerror ? 'border-red-500' : '';
 
-  const outlineColor = validationerror
-    ? 'outline-red-500'
-    : 'outline-gm-primary-very-high-contrast';
+  const outlineColor = validationerror ? 'outline-red-500' : 'outline-gm-fg';
 
   return (
     <>
@@ -27,7 +25,7 @@ const Input = ({ label, validationerror, ...inputProps }: InputProps) => {
         <div className='relative ml-4'>
           <label
             htmlFor={inputProps.id}
-            className={` text-gm-primary-very-high-contrast`}
+            className={` text-gm-fg`}
             data-testid='input-label'
           >
             {label}
@@ -46,7 +44,7 @@ const Input = ({ label, validationerror, ...inputProps }: InputProps) => {
           ${focused ? outlineColor : ''} 
           disabled:opacity-20
           disabled:cursor-not-allowed
-          hover:border-gm-primary-very-high-contrast
+          hover:border-gm-fg
           hover:border-opacity-50`}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}

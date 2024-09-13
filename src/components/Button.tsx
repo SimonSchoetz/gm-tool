@@ -30,9 +30,9 @@ const Button = ({
         px-4 py-2 
         w-full
         ${focused ? 'outline-none  -outline-offset-1 outline-1' : ''}
-        outline-gm-primary-very-high-contrast
+        outline-gm-fg
         text-white 
-        hover:border-gm-primary-very-high-contrast
+        hover:border-gm-fg
         hover:border-opacity-50
         disabled:opacity-20
         disabled:cursor-not-allowed

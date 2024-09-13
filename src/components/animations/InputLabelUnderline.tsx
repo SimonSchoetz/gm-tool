@@ -51,7 +51,7 @@ const InputLabelUnderline = ({
 
       <span className='absolute flex'>
         <span
-          className={`bg-gm-primary-very-high-contrast relative`}
+          className={`bg-gm-fg relative`}
           style={{
             ...commonStyles,
             height: '1.3px',
@@ -61,7 +61,7 @@ const InputLabelUnderline = ({
         ></span>
 
         <span
-          className={`bg-gm-primary-very-high-contrast relative `}
+          className={`bg-gm-fg relative `}
           style={{
             ...commonStyles,
             height: '1px',
