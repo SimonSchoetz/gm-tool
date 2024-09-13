@@ -20,17 +20,16 @@ export default function RootLayout({
   readonly children: React.ReactNode;
 }) {
   return (
-    <html lang='en' className='h-full'>
-      <body className='bg-gm-bg flex flex-col h-full'>
-        <div className=' h-full flex-grow flex flex-col items-center justify-center px-2'>
+    <html lang='en' className='h-full relative'>
+      <body className='bg-gm-bg flex flex-col min-h-full'>
+        <LightSource intensity='bright' />
+        <Backdrop />
+
+        <div className='flex-grow flex flex-col items-center justify-center px-2'>
           {children}
         </div>
 
         <Footer />
-
-        <LightSource intensity='bright' />
-
-        <Backdrop />
       </body>
     </html>
   );

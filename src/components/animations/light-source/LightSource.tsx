@@ -1,10 +1,11 @@
 'use client';
 
-import { DetailedHTMLProps, HTMLAttributes, useEffect, useState } from 'react';
+import { DivProps } from '@/app/_types';
+import { useEffect, useState } from 'react';
 
 type LightSourceProps = {
   intensity: 'bright' | 'dim';
-} & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+} & DivProps;
 
 const LightSource = ({ intensity, ...props }: Readonly<LightSourceProps>) => {
   const [fadeIn, setFadeIn] = useState<boolean>(false);
@@ -21,7 +22,7 @@ const LightSource = ({ intensity, ...props }: Readonly<LightSourceProps>) => {
         opacity: fadeIn ? 1 : 0,
         transition: 'opacity .3s ease-in',
       }}
-      className={`${intensityClass} ${props.className} absolute top-0 left-0 w-full h-full -z-[9]`}
+      className={`${intensityClass} fixed top-0 left-0 w-full h-full -z-[9] ${props.className}`}
     ></div>
   );
 };
