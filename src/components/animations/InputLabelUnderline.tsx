@@ -2,15 +2,18 @@
 
 import { DivProps } from '@/app/_types';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
+import { ConditionWrapper } from '../wrapper';
 
 type LabelConnectorProps = {
   focused: boolean;
   text?: string;
+  withShadow?: boolean;
 } & DivProps;
 
 const InputLabelUnderline = ({
   focused,
   text,
+  withShadow = false,
   ...props
 }: LabelConnectorProps) => {
   const textWidthRef = useRef<HTMLLabelElement>(null);
@@ -25,12 +28,14 @@ const InputLabelUnderline = ({
   }, [textWidthRef]);
 
   const transitionTime = '0.1s';
-  const topOffset = '-0.25rem';
+  const topOffset = '-4px';
 
   const commonStyles: CSSProperties = {
     top: topOffset,
     transition: `${transitionTime}`,
     transitionTimingFunction: 'linear',
+    position: 'relative',
+    backgroundColor: 'var(--gm-fg)',
   };
 
   const getTextWidth = () => {
@@ -45,33 +50,67 @@ const InputLabelUnderline = ({
     );
   };
 
+  const renderHorizontalLine = (styles?: CSSProperties) => {
+    return (
+      <span
+        style={{
+          ...commonStyles,
+          height: '1.3px',
+          width: canAnimate ? `${labelWidth}px` : '0',
+          transitionDelay: canAnimate ? '0s' : `${transitionTime}`,
+          ...styles,
+        }}
+      ></span>
+    );
+  };
+
+  const renderConnector = (styles?: CSSProperties) => {
+    return (
+      <span
+        style={{
+          ...commonStyles,
+          height: '1px',
+          width: canAnimate ? `${16}px` : '0',
+          left: canAnimate ? `${-3.3}px` : '0',
+          transitionDelay: canAnimate ? `${transitionTime}` : '0s',
+          transform: 'rotate(50deg)',
+          top: canAnimate ? `${1.8}px` : '-3.5px',
+          ...styles,
+        }}
+      ></span>
+    );
+  };
+
+  const renderUnderLine = () => {
+    return (
+      <span className='absolute flex'>
+        {renderHorizontalLine()}
+        {renderConnector()}
+      </span>
+    );
+  };
+
+  const renderDropShadow = () => {
+    const shadowStyles: CSSProperties = {
+      backgroundColor: 'var(--gm-bg)',
+      filter: 'blur(1.5px)',
+    };
+    return (
+      <span className='absolute flex -z-[1] left-[5px] top-[3px]'>
+        {renderHorizontalLine(shadowStyles)}
+        {renderConnector(shadowStyles)}
+      </span>
+    );
+  };
   return (
     <div className='relative'>
       {getTextWidth()}
 
       <span className='absolute flex'>
-        <span
-          className={`bg-gm-fg relative`}
-          style={{
-            ...commonStyles,
-            height: '1.3px',
-            width: canAnimate ? `${labelWidth}px` : '0',
-            transitionDelay: canAnimate ? '0s' : `${transitionTime}`,
-          }}
-        ></span>
-
-        <span
-          className={`bg-gm-fg relative `}
-          style={{
-            ...commonStyles,
-            height: '1px',
-            width: canAnimate ? `${16}px` : '0',
-            left: canAnimate ? `${-3.3}px` : '0',
-            transitionDelay: canAnimate ? `${transitionTime}` : '0s',
-            transform: 'rotate(50deg)',
-            top: canAnimate ? `${1.8}px` : '-3.5px',
-          }}
-        ></span>
+        {renderUnderLine()}
+        <ConditionWrapper condition={withShadow}>
+          {renderDropShadow()}
+        </ConditionWrapper>
       </span>
     </div>
   );
