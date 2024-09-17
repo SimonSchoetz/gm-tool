@@ -1,4 +1,3 @@
-import { UserSchema } from '@/schemas/zod-schemas';
-import { z } from 'zod';
+import { AppUserData } from '../api/types';
 
-export type User = z.infer<typeof UserSchema>;
+export type User = AppUserData;

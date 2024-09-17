@@ -1,13 +1,13 @@
 import { assertIsFormData } from '@/util/asserts';
 import { mapFormDataToDto } from '@/util/mapper';
 import { isFormData } from '@/util/type-guards';
-import { SchemaName, getSchema } from '../get-schema/get-schema';
+import { ValidatorName, getValidator } from '../get-validator/get-validator';
 
-export const parseDataWithZodSchema = <T>(
+export const parseDataWithZodValidator = <T>(
   data: unknown,
-  schemaName: SchemaName
+  schemaName: ValidatorName
 ): T => {
-  const schema = getSchema(schemaName);
+  const schema = getValidator(schemaName);
 
   if (isFormData(data)) {
     assertIsFormData(data);

@@ -10,11 +10,11 @@ import Button from '../Button';
 import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
-  SchemaName,
+  ValidatorName,
   assertFormInputs,
-  getKeysFromZodSchema,
-  getSchema,
-} from '@/schemas/util';
+  getKeysFromZodValidator,
+  getValidator,
+} from '@/validators/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/responses';
@@ -27,7 +27,7 @@ type FormWrapperProps = DetailedHTMLProps<
   HTMLFormElement
 > & {
   buttonLabel: string;
-  schemaName: SchemaName;
+  schemaName: ValidatorName;
   submitAction: (data: unknown) => Promise<FormSubmitResponse>;
   encrypt?: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
 };
@@ -39,7 +39,7 @@ const FormWrapper = ({
   children,
   encrypt,
 }: PropsWithChildren<FormWrapperProps>) => {
-  const schemaInstance = getSchema(schemaName);
+  const schemaInstance = getValidator(schemaName);
   const {
     register,
     handleSubmit,
@@ -52,7 +52,7 @@ const FormWrapper = ({
 
   const mapChild = (child: React.ReactNode) => {
     if (React.isValidElement(child)) {
-      const schemaKeys = getKeysFromZodSchema(schemaName);
+      const schemaKeys = getKeysFromZodValidator(schemaName);
       const childId: unknown = child?.props?.id;
 
       if (isString(childId) && schemaKeys?.includes(childId)) {

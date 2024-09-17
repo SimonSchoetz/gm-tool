@@ -1,14 +1,14 @@
 import { ZodEffects, ZodObject } from 'zod';
-import { SchemaName, getSchema } from './get-schema';
+import { ValidatorName, getValidator } from './get-validator';
 
-describe('getSchema', () => {
+describe('getValidator', () => {
   it('should return a ZodObject', () => {
-    const schema = getSchema(SchemaName.TEST_Z_OBJECT);
+    const schema = getValidator(ValidatorName.TEST_Z_OBJECT);
     expect(schema).toBeInstanceOf(ZodObject);
   });
 
   it('should return a ZodEffects', () => {
-    const schema = getSchema(SchemaName.TEST_Z_EFFECTS);
+    const schema = getValidator(ValidatorName.TEST_Z_EFFECTS);
     expect(schema).toBeInstanceOf(ZodEffects);
   });
 });

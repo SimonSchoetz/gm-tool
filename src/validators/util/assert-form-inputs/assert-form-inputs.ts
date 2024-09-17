@@ -1,10 +1,10 @@
 import React from 'react';
-import { SchemaName } from '../get-schema/get-schema';
-import { getKeysFromZodSchema } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
+import { ValidatorName } from '../get-validator/get-validator';
+import { getKeysFromZodValidator } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
 
 export const assertFormInputs = (
   children: React.ReactNode,
-  schemaName: SchemaName
+  schemaName: ValidatorName
 ) => {
   if (typeof children === 'undefined') return;
 
@@ -12,7 +12,7 @@ export const assertFormInputs = (
     .flat()
     .map((child) => React.isValidElement(child) && child?.props?.id);
 
-  const schemaKeys = getKeysFromZodSchema(schemaName);
+  const schemaKeys = getKeysFromZodValidator(schemaName);
 
   const missingInputs = schemaKeys.filter((key) => !childrenIds.includes(key));
   const extraInputs = childrenIds.filter((id) => !schemaKeys.includes(id));

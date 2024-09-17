@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const VerificationEmailSchema = z.object({
+export const verificationEmailValidator = z.object({
   email: z
     .string()
     .email({ message: 'Input is not a valid email' })

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const LoginSchema = z.object({
+export const LoginValidator = z.object({
   email: z
     .string()
     .email({ message: 'Input is not a valid email' })
