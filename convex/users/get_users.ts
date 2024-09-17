@@ -2,7 +2,7 @@ import { DbTable } from '@/enums';
 import { zQuery } from '../helper';
 import { zid } from 'convex-helpers/server/zod';
 import { getOneFrom } from 'convex-helpers/server/relationships';
-import { zDbUserData } from '../../api/validators';
+import { zDbUserData } from '@/api/validators';
 
 export const getUserByEmail = zQuery({
   output: zDbUserData.nullable(),

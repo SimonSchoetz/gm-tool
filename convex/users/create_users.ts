@@ -3,7 +3,7 @@ import { DbTable, HttpStatusCode } from '@/enums';
 import { getUserByEmail } from './get_users';
 import { zInternalMutation, zMutation } from '../helper';
 import { z } from 'zod';
-import { zDbUserData } from '../../api/validators';
+import { zDbUserData } from '@/api/validators';
 
 const createUserArgs = zDbUserData.pick({
   email: true,
