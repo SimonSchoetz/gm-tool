@@ -11,10 +11,11 @@ export const verifyEmail = async (
   try {
     const { email, verifyEmailHash } =
       await readToken<VerifyEmailTokenPayload>(token);
-    const { emailVerified } = await getUserByEmail(email);
+
+    const { emailVerified, id } = await getUserByEmail(email);
 
     if (verifyEmailHash === emailVerified) {
-      updateUser(email, {
+      updateUser(id, {
         emailVerified: EmailVerificationState.VERIFIED,
       });
     }
