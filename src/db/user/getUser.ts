@@ -1,47 +1,24 @@
 import 'server-only';
 
-import { GetItemCommand, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
-import { dynamoDb } from '../dynamoDb';
-import { DbTable, InternalErrorCode } from '@/enums';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-
 import { User } from '@/types/user';
-import { assertIsZodSchemaBasedType } from '@/util/asserts';
-import { SchemaName } from '@/schemas/util';
 import { cache } from 'react';
+import { convexDb, users } from '../convexDb';
+import { mapToAppDto } from '../util';
+import { AppUserData, DbUserData, UserDto } from '../../api/types';
+import { EmailVerificationState } from '@/enums';
 
-export const getUser = cache(async (email: string): Promise<User> => {
-  const params: GetItemCommandInput = {
-    TableName: DbTable.USERS,
-    Key: marshall({ email }),
-  };
-
-  const command = new GetItemCommand(params);
-
-  const commandOutput = await dynamoDb.send(command);
-
-  if (!commandOutput.Item) {
-    throw new Error(
-      `Error with email: ${email} - ${InternalErrorCode.USER_NOT_FOUND}`
-    );
+export const getUserByEmail = cache(async (email: string): Promise<User> => {
+  const res = await convexDb.query(users.getUserByEmail, { email });
+  if (!res) {
+    throw new Error(`User with email '${email}' not found`);
   }
-  const user = unmarshall(commandOutput.Item);
-
-  assertIsZodSchemaBasedType<User>(user, SchemaName.USER);
-
-  return getUserDTO(user);
+  return mapUserDto(res);
 });
 
-const getUserDTO = (user: User): User => {
-  // taintUniqueValue(
-  //   'Do not expose password hash to client',
-  //   user,
-  //   user.passwordHash
-  // );
-  // taintUniqueValue(
-  //   'Do not expose email verification state to client',
-  //   user,
-  //   user.emailVerified
-  // );
-  return user;
+const mapUserDto = (res: DbUserData): AppUserData => {
+  const appData = mapToAppDto<UserDto>(res);
+  return {
+    ...appData,
+    emailVerified: res.emailVerified as EmailVerificationState,
+  };
 };
