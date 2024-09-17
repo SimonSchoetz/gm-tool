@@ -1,6 +1,6 @@
 'use server';
 
-import { getUser, updateUser } from '@/db/user';
+import { getUserByEmail, updateUser } from '@/db/user';
 import { readToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/token/payloads';
 import { EmailVerificationState } from '@/enums';
@@ -9,10 +9,9 @@ export const verifyEmail = async (
   token: string
 ): Promise<{ success: boolean; message?: string }> => {
   try {
-    const { email, verifyEmailHash } = await readToken<VerifyEmailTokenPayload>(
-      token
-    );
-    const { emailVerified } = await getUser(email);
+    const { email, verifyEmailHash } =
+      await readToken<VerifyEmailTokenPayload>(token);
+    const { emailVerified } = await getUserByEmail(email);
 
     if (verifyEmailHash === emailVerified) {
       updateUser(email, {

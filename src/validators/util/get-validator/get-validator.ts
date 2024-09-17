@@ -21,7 +21,10 @@ export enum ValidatorName {
   TEST_Z_OBJECT = 'testZObject',
   VERIFICATION_EMAIL = 'verificationEmail',
 }
-
+/**
+ * not to myself: Yeah it seems a bit over-engineered but this is
+ * the only way I saw for now to make it work with the form-wrapper
+ */
 export const getValidator = (schema: ValidatorName): z.ZodTypeAny => {
   const map: Record<ValidatorName, z.ZodTypeAny> = {
     [ValidatorName.TEST_Z_OBJECT]: testValidatorZObject,
