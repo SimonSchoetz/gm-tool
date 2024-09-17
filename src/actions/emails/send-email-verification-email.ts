@@ -1,29 +1,24 @@
 'server only';
 
-import { getUser } from '@/db/user';
+import { getUserByEmail } from '@/db/user';
 import { generateToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/token/payloads';
 import { EmailData, sendEmail } from './send-email';
 import { EmailSender } from '@/enums';
 import { VerifyEmail } from '@/components/emails/auth';
-import { assertIsZodSchemaBasedType } from '@/util/asserts';
-import { User } from '@/types/user';
-import { SchemaName } from '@/schemas/util';
 
 export const sendEmailVerificationEmail = async (
   userEmail: string
 ): Promise<void> => {
   try {
-    const user = await getUser(userEmail);
-
-    assertIsZodSchemaBasedType<User>(user, SchemaName.USER);
+    const user = await getUserByEmail(userEmail);
 
     const { email, emailVerified } = user;
 
     const payload = { email, verifyEmailHash: emailVerified };
     const emailVerificationToken = await generateToken<VerifyEmailTokenPayload>(
       payload,
-      '15min'
+      '1day'
     );
 
     sendEmail(getVerifyEmailData(emailVerificationToken, userEmail));
