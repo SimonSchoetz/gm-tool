@@ -1,19 +1,22 @@
 'use server';
 
 import { EmailVerificationState, InternalErrorCode } from '@/enums';
-import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
+import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { LoginData } from '@/types/requests';
 
 import { validatePassword } from '@/util/encryption';
-import { getUser } from '../../db/user/getUser';
+import { getUserByEmail } from '../../db/user/getUser';
 import { User } from '@/types/user';
 
 export const verifyLogin = async (data: LoginData): Promise<void> => {
-  const validated = parseDataWithZodSchema<LoginData>(data, SchemaName.LOGIN);
+  const validated = parseDataWithZodValidator<LoginData>(
+    data,
+    ValidatorName.LOGIN
+  );
 
   const { email, password } = validated;
 
-  const user = await getUser(email);
+  const user = await getUserByEmail(email);
 
   await checkPassword(password, user.passwordHash);
 

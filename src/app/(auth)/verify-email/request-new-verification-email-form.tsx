@@ -2,12 +2,12 @@ import { submitRequestNewVerificationEmail } from '@/actions/formSubmits';
 import { generateToken } from '@/actions/token';
 import Input from '@/components/Input';
 import { FormWrapper } from '@/components/wrapper';
-import { SchemaName } from '@/schemas/util';
+import { ValidatorName } from '@/validators/util';
 
 const RequestNewVerificationEmailForm = () => {
   return (
     <FormWrapper
-      schemaName={SchemaName.VERIFICATION_EMAIL}
+      schemaName={ValidatorName.VERIFICATION_EMAIL}
       submitAction={submitRequestNewVerificationEmail}
       buttonLabel='Get verification email'
       encrypt={generateToken}

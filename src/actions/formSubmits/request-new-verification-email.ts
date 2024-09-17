@@ -1,7 +1,7 @@
 'use server';
 
 import { HttpStatusCode, Route } from '@/enums';
-import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
+import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { FormSubmitResponse } from '@/types/responses';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
@@ -16,9 +16,9 @@ export const submitRequestNewVerificationEmail = async (
     assertIsString(data);
     const decoded = await readToken(data);
 
-    const { email } = parseDataWithZodSchema<VerificationEmailData>(
+    const { email } = parseDataWithZodValidator<VerificationEmailData>(
       decoded,
-      SchemaName.VERIFICATION_EMAIL
+      ValidatorName.VERIFICATION_EMAIL
     );
 
     await sendEmailVerificationEmail(email);

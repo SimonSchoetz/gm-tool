@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FormWrapper from './FormWrapper';
-import { SchemaName } from '@/schemas/util';
+import { ValidatorName } from '@/validators/util';
 import Input from '../Input';
 
 jest.mock('next/navigation', () => ({
@@ -21,7 +21,7 @@ describe('FormWrapper', () => {
     render(
       <FormWrapper
         buttonLabel='Submit'
-        schemaName={SchemaName.LOGIN}
+        schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
       >
         <Input id='email' placeholder='Email' />
@@ -38,7 +38,7 @@ describe('FormWrapper', () => {
     render(
       <FormWrapper
         buttonLabel='Submit'
-        schemaName={SchemaName.LOGIN}
+        schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
       ></FormWrapper>
     );
@@ -51,7 +51,7 @@ describe('FormWrapper', () => {
     render(
       <FormWrapper
         buttonLabel='Submit'
-        schemaName={SchemaName.LOGIN}
+        schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
       >
         <Input id='email' placeholder='Email' value='test@example.com' />
@@ -72,7 +72,7 @@ describe('FormWrapper', () => {
     render(
       <FormWrapper
         buttonLabel='Submit'
-        schemaName={SchemaName.LOGIN}
+        schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
       >
         <Input id='email' placeholder='Email' value='test@example.com' />
@@ -99,7 +99,7 @@ describe('FormWrapper', () => {
     render(
       <FormWrapper
         buttonLabel='Submit'
-        schemaName={SchemaName.LOGIN}
+        schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
       >
         <Input
@@ -139,7 +139,7 @@ describe('FormWrapper', () => {
     render(
       <FormWrapper
         buttonLabel='Submit'
-        schemaName={SchemaName.LOGIN}
+        schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
         encrypt={mockEncryption}
       >

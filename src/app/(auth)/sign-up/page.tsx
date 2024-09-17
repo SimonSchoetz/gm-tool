@@ -5,7 +5,7 @@ import {
   GlassPanel,
 } from '@/components/wrapper';
 import { submitSignUp } from '@/actions/formSubmits';
-import { SchemaName } from '@/schemas/util';
+import { ValidatorName } from '@/validators/util';
 import { generateToken } from '@/actions/token';
 
 export default function SignUpPage() {
@@ -19,7 +19,7 @@ export default function SignUpPage() {
         </p>
 
         <FormWrapper
-          schemaName={SchemaName.SIGN_UP}
+          schemaName={ValidatorName.SIGN_UP}
           submitAction={submitSignUp}
           buttonLabel='Sign Up'
           encrypt={generateToken}

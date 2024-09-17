@@ -2,11 +2,10 @@
 
 import { createUser } from '@/db/user';
 import { HttpStatusCode, Route } from '@/enums';
-import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
+import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 
 import { FormSubmitResponse } from '@/types/responses';
 
-import { DynamoDBServiceException } from '@aws-sdk/client-dynamodb';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
@@ -19,9 +18,9 @@ export const submitSignUp = async (
   try {
     assertIsString(data);
     const decoded = await readToken(data);
-    const validatedData = parseDataWithZodSchema<SignUpData>(
+    const validatedData = parseDataWithZodValidator<SignUpData>(
       decoded,
-      SchemaName.SIGN_UP
+      ValidatorName.SIGN_UP
     );
 
     await createUser(validatedData);
@@ -37,8 +36,8 @@ export const submitSignUp = async (
       throw new Error('Could not validate input data');
     }
 
-    if (error instanceof DynamoDBServiceException) {
-      if (error.name === 'ConditionalCheckFailedException') {
+    if (error instanceof Error) {
+      if (error.message.includes('Email already in use.')) {
         return {
           status: HttpStatusCode.CONFLICT,
           error: {

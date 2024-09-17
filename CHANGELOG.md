@@ -1,13 +1,18 @@
 # Changelog
 
-## [0.5.0] - in progress
+## [0.6.0] - in progress
 
-### possible 050-Goals
+### 060-possible-Goals
 
 - Landing page with logo and favicon
-- replace dynamodb with convex
 - Lazy DM steps saved in local storage
 - proof of concept for session pdf export
+
+## [0.5.0] - 2024-09-17
+
+### 050-Goals
+
+- replace dynamodb with convex
 
 ## [0.4.0] - 2024-09-13
 

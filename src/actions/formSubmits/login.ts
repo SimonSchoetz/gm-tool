@@ -4,11 +4,11 @@ import { HttpStatusCode, InternalErrorCode, Route } from '@/enums';
 import { FormSubmitResponse } from '@/types/responses';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token/read-token';
-import { SchemaName, parseDataWithZodSchema } from '@/schemas/util';
+import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { verifyLogin } from '../auth';
 import { setAuthCookie } from '../cookies';
-import { getUser } from '@/db/user';
+import { getUserByEmail } from '@/db/user';
 import { LoginData } from '@/types/requests';
 
 export const submitLogin = async (
@@ -19,14 +19,14 @@ export const submitLogin = async (
 
     const decoded = await readToken(data);
 
-    const validatedData = parseDataWithZodSchema<LoginData>(
+    const validatedData = parseDataWithZodValidator<LoginData>(
       decoded,
-      SchemaName.LOGIN
+      ValidatorName.LOGIN
     );
 
     await verifyLogin(validatedData);
 
-    const user = await getUser(validatedData.email);
+    const user = await getUserByEmail(validatedData.email);
 
     await setAuthCookie(user);
 

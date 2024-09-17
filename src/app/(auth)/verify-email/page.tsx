@@ -25,8 +25,8 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
         <ConditionWrapper condition={!token}>
           <p className='text-center my-5'>
             We sent you a verification email on registration. To the ADHD gang:
-            It&apos;s just a button but be warned: it will expire in 15 minutes
-            so don&apos;t get too distracted!
+            It&apos;s just a button but be warned: it will expire in one day so
+            don&apos;t get too distracted!
           </p>
 
           <p className='text-center my-5'>

@@ -1,4 +1,4 @@
-import { VerificationEmailSchema } from '@/schemas/zod-schemas';
+import { verificationEmailValidator } from '@/validators/form-data-validators';
 import { z } from 'zod';
 
-export type VerificationEmailData = z.infer<typeof VerificationEmailSchema>;
+export type VerificationEmailData = z.infer<typeof verificationEmailValidator>;
