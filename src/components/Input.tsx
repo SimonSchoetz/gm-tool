@@ -64,7 +64,7 @@ const Input = ({ label, errorMsg, ...inputProps }: InputProps) => {
         title={`${inputProps.name} input field`}
       />
       <ConditionWrapper condition={!!errorMsg}>
-        <p className={`ml-2 text-red-500`}>{errorMsg}</p>
+        <p className={`ml-2 text-gm-error`}>{errorMsg}</p>
       </ConditionWrapper>
     </>
   );
