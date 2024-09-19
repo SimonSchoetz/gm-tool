@@ -39,6 +39,9 @@ const config: Config = {
         'gm-secondary-20': 'var(--gm-secondary-20)',
         'gm-secondary-30': 'var(--gm-secondary-30)',
         'gm-secondary-50': 'var(--gm-secondary-50)',
+        'gm-error': 'var(--gm-error)',
+        'gm-warn': 'var(--gm-warn)',
+        'gm-success': 'var(--gm-success)',
       },
     },
     fontFamily: {
