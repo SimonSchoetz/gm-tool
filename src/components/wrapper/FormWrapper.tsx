@@ -18,7 +18,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/responses';
-import { TokenPayload, TokenLifeSpan } from '@/types/token';
+import { TokenPayload, TokenLifeSpan } from '@/types/actions/token';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
 

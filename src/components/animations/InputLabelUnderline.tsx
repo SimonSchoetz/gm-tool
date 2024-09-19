@@ -1,6 +1,6 @@
 'use client';
 
-import { DivProps } from '@/app/_types';
+import { DivProps } from '@/types/app';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { ConditionWrapper } from '../wrapper';
 
