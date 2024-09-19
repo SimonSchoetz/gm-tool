@@ -11,16 +11,12 @@ describe('Input component', () => {
   });
 
   it('displays validation error message', () => {
-    render(
-      <Input label='Test Label' validationerror='This field is required' />
-    );
+    render(<Input label='Test Label' errorMsg='This field is required' />);
     expect(screen.getByText('This field is required')).toBeInTheDocument();
   });
 
   it('highlights input field with red border on validation error', () => {
-    render(
-      <Input label='Test Label' validationerror='This field is required' />
-    );
+    render(<Input label='Test Label' errorMsg='This field is required' />);
     expect(screen.getByTestId('input-field')).toHaveClass('border-red-500');
   });
 

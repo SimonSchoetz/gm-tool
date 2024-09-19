@@ -18,10 +18,14 @@ const Button = ({
   ...buttonProps
 }: ButtonProps) => {
   const [focused, setFocused] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const disabled = buttonProps.disabled || isLoading;
 
   return (
     <button
+      style={{
+        border: hovered ? '1px solid var(--gm-fg) !important' : '',
+      }}
       {...buttonProps}
       className={`
         ${classNames}
@@ -29,10 +33,10 @@ const Button = ({
         rounded-xl 
         px-4 py-2 
         w-full
-        ${focused ? 'outline-none  -outline-offset-1 outline-1' : ''}
+        outline-none  -outline-offset-1 outline-0
+        ${focused || hovered ? 'outline-gm-fg outline-1' : ''}
         outline-gm-fg
-        text-white 
-        hover:border-gm-fg
+        text-gm-fg 
         hover:border-opacity-50
         disabled:opacity-20
         disabled:cursor-not-allowed
@@ -43,6 +47,8 @@ const Button = ({
       aria-disabled={disabled}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {isLoading ? 'Loading...' : label}
     </button>

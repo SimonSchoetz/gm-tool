@@ -28,8 +28,8 @@
   &:disabled {
     background: repeating-linear-gradient(
       50deg,
-      rgba(255, 0, 0),
-      rgba(255, 0, 0) 10px,
+      var(--gm-error),
+      var(--gm-error) 10px,
       transparent 10px,
       transparent 20px
     );

@@ -69,7 +69,7 @@ const FormWrapper = ({
       props: {
         ...child.props,
         ...register(childId),
-        validationerror: errors[childId]?.message,
+        errorMsg: errors[childId]?.message,
       },
     };
   };
