@@ -8,7 +8,7 @@ import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { verifyLogin } from '../auth';
 import { setAuthCookie } from '../cookies';
-import { getUserByEmail } from '@/db/user';
+import { getUserByEmail } from '@/api/user';
 import { LoginData } from '@/types/requests';
 
 export const submitLogin = async (

@@ -7,7 +7,7 @@ import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
 import { VerificationEmailData } from '@/types/requests';
-import { sendEmailVerificationEmail } from '../emails/send-email-verification-email';
+import { sendEmailVerificationEmail } from '../emails';
 
 export const submitRequestNewVerificationEmail = async (
   data: unknown

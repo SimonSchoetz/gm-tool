@@ -1,19 +1,15 @@
 'use server';
 
-import { User } from '@/types/user';
 import { generateToken } from '../token';
 import { cookies } from 'next/headers';
 import { nowInXDays } from '@/util/helper';
 import { CookieName } from '@/enums';
-import { AuthCookieTokenPayload } from '@/types/token/payloads';
+import { AuthCookieTokenPayload } from '../../types/actions/token';
+import { User } from '@/types/app/user';
 
-export const setAuthCookie = async ({
-  email,
-  userContentId,
-}: User): Promise<void> => {
+export const setAuthCookie = async ({ id }: User): Promise<void> => {
   const payload = {
-    email,
-    userContentId,
+    userId: id,
   };
 
   const expires = nowInXDays(7);

@@ -1,16 +1,14 @@
 'use server';
 
-import { createUser } from '@/db/user';
+import { createUser } from '@/api/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
-
 import { FormSubmitResponse } from '@/types/responses';
-
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
 import { SignUpData } from '@/types/requests';
-import { sendEmailVerificationEmail } from '../emails/send-email-verification-email';
+import { sendEmailVerificationEmail } from '../emails';
 
 export const submitSignUp = async (
   data: unknown

@@ -1,11 +1,12 @@
 'server only';
 
-import { getUserByEmail } from '@/db/user';
+import { getUserByEmail } from '@/api/user';
 import { generateToken } from '../token';
-import { VerifyEmailTokenPayload } from '@/types/token/payloads';
-import { EmailData, sendEmail } from './send-email';
+import { VerifyEmailTokenPayload } from '@/types/actions/token';
+import { sendEmail } from './send-email';
 import { EmailSender } from '@/enums';
 import { VerifyEmail } from '@/components/emails/auth';
+import { EmailData } from '@/types/actions/email';
 
 export const sendEmailVerificationEmail = async (
   userEmail: string

@@ -1,6 +1,6 @@
 'use server';
 
-import { TokenPayload } from '@/types/token';
+import { TokenPayload } from '../../types/actions/token';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
 import { jwtVerify } from 'jose';

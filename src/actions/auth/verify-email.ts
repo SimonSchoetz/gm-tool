@@ -1,9 +1,9 @@
 'use server';
 
-import { getUserByEmail, updateUser } from '@/db/user';
+import { getUserByEmail, updateUser } from '@/api/user';
 import { readToken } from '../token';
-import { VerifyEmailTokenPayload } from '@/types/token/payloads';
 import { EmailVerificationState } from '@/enums';
+import { VerifyEmailTokenPayload } from '@/types/actions';
 
 export const verifyEmail = async (
   token: string

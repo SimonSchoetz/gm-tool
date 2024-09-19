@@ -1,22 +1,14 @@
 'use server';
 
-import { EmailSender } from '@/enums';
+import { EmailData } from '@/types/actions/email';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
-import { ReactNode } from 'react';
 import { Resend } from 'resend';
 
 type SendEmailResponse = {
   success: boolean;
   createdEmailId?: string;
   error?: string;
-};
-
-export type EmailData = {
-  from: EmailSender;
-  to: string;
-  subject: string;
-  template: ReactNode;
 };
 
 const resend = new Resend(parsedEnv.RESEND_API_KEY);
