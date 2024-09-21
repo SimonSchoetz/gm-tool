@@ -13,6 +13,12 @@
 - Better navigation between auth pages
 - Password reset page
 
+## [0.5.1] - 2024-09-21
+
+### 051-Patch
+
+- custom 404 page
+
 ## [0.5.0] - 2024-09-17
 
 ### 050-Goals
