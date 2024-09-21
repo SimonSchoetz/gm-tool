@@ -8,10 +8,12 @@ import { useState, useEffect } from 'react';
 import RequestNewVerificationEmailForm from './request-new-verification-email-form';
 import { Countdown } from '@/components/animations';
 
-type VerifyTokenProps = {
+type VerifyEmailVerificationTokenProps = {
   token: string;
 };
-const VerifyToken: React.FC<VerifyTokenProps> = ({ token }) => {
+const VerifyEmailVerificationToken: React.FC<
+  VerifyEmailVerificationTokenProps
+> = ({ token }) => {
   const [error, setError] = useState<string>();
   const router = useRouter();
 
@@ -62,4 +64,4 @@ const VerifyToken: React.FC<VerifyTokenProps> = ({ token }) => {
   );
 };
 
-export default VerifyToken;
+export default VerifyEmailVerificationToken;

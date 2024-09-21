@@ -3,7 +3,7 @@ import {
   ContentContainer,
   GlassPanel,
 } from '@/components/wrapper';
-import VerifyToken from './verify-token';
+import VerifyEmailVerificationToken from './verify-token';
 import RequestNewVerificationEmailForm from './request-new-verification-email-form';
 import { isString } from '@/util/type-guards';
 import { NextPage } from 'next';
@@ -20,7 +20,7 @@ const VerifyEmailPage: NextPage<VerifyEmailPageProps> = ({ searchParams }) => {
     <ContentContainer title={title}>
       <GlassPanel>
         <ConditionWrapper condition={isString(token)}>
-          <VerifyToken token={token as string} />
+          <VerifyEmailVerificationToken token={token as string} />
         </ConditionWrapper>
 
         <ConditionWrapper condition={!token}>
