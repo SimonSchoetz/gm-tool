@@ -26,7 +26,7 @@ describe('Input component', () => {
   });
 
   it('displays the correct aria attributes', () => {
-    render(<Input id='Test Input' />);
+    render(<Input name='Test Input' />);
     expect(screen.getByTestId('input-field')).toHaveAttribute(
       'aria-label',
       'Test Input'

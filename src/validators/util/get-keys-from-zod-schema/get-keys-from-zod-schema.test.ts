@@ -9,11 +9,6 @@ describe('getKeysFromZodValidator', () => {
 
   it('should return an array of keys if it is a ZodEffects', () => {
     const keys = getKeysFromZodValidator(ValidatorName.TEST_Z_EFFECTS);
-    expect(keys).toEqual(['name', 'age']);
-  });
-
-  it('should return an array of keys also when optional keys are present', () => {
-    const keys = getKeysFromZodValidator(ValidatorName.TEST_Z_EFFECTS);
     expect(keys).toEqual(['name', 'age', 'optionalField']);
   });
 });
