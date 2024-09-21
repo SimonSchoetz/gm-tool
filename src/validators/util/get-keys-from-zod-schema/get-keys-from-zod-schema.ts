@@ -1,10 +1,13 @@
 import { ZodEffects, ZodObject, ZodTypeAny, z } from 'zod';
-import { ValidatorName, getValidator } from '../get-validator/get-validator';
+import {
+  ValidatorName,
+  getFormDataValidator,
+} from '../get-validator/get-validator';
 
 export const getKeysFromZodValidator = <T extends ZodTypeAny>(
   schemaName: ValidatorName
 ): (keyof z.infer<T>)[] => {
-  const schema = getValidator(schemaName);
+  const schema = getFormDataValidator(schemaName);
   if (schema instanceof ZodObject) {
     return Object.keys(schema.shape) as (keyof z.infer<T>)[];
   }

@@ -15,8 +15,8 @@ export const testValidatorZEffects = z
   .refine((val) => val);
 
 export enum ValidatorName {
-  AUTH_COOKIE_PAYLOAD = 'authCookiePayload',
   LOGIN = 'login',
+  PASSWORD_RESET = 'passwordReset',
   SIGN_UP = 'signUp',
   TEST_Z_EFFECTS = 'testZEffects',
   TEST_Z_OBJECT = 'testZObject',
@@ -26,14 +26,14 @@ export enum ValidatorName {
  * not to myself: Yeah it seems a bit over-engineered but this is
  * the only way I saw for now to make it work with the form-wrapper
  */
-export const getValidator = (schema: ValidatorName): z.ZodTypeAny => {
+export const getFormDataValidator = (schema: ValidatorName): z.ZodTypeAny => {
   const map: Record<ValidatorName, z.ZodTypeAny> = {
     [ValidatorName.TEST_Z_OBJECT]: testValidatorZObject,
     [ValidatorName.TEST_Z_EFFECTS]: testValidatorZEffects,
     [ValidatorName.SIGN_UP]: v.signUpValidator,
     [ValidatorName.LOGIN]: v.LoginValidator,
-    [ValidatorName.AUTH_COOKIE_PAYLOAD]: v.authCookiePayloadValidator,
     [ValidatorName.VERIFICATION_EMAIL]: v.verificationEmailValidator,
+    [ValidatorName.PASSWORD_RESET]: v.passwordResetValidator,
   };
 
   if (!map[schema]) {

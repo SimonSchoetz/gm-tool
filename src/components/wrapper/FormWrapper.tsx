@@ -14,7 +14,7 @@ import {
   ValidatorName,
   assertFormInputs,
   getKeysFromZodValidator,
-  getValidator,
+  getFormDataValidator,
 } from '@/validators/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
@@ -45,7 +45,7 @@ const FormWrapper = ({
 
   const router = useRouter();
 
-  const schemaInstance = getValidator(schemaName);
+  const schemaInstance = getFormDataValidator(schemaName);
   const {
     register,
     handleSubmit,
