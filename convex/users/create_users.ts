@@ -3,10 +3,11 @@ import { DbTable, HttpStatusCode } from '@/enums';
 import { getUserByEmail } from './get_users';
 import { zInternalMutation, zMutation } from '../helper';
 import { z } from 'zod';
-import { zDbUserData } from '@/api/validators';
+import { zUserDto } from '@/api/validators';
 import { ConvexError } from 'convex/values';
 
-const createUserArgs = zDbUserData.pick({
+const createUserArgs = zUserDto.pick({
+  userName: true,
   email: true,
   passwordHash: true,
   emailVerified: true,

@@ -35,6 +35,13 @@ export default function SignUpPage() {
           encrypt={generateToken}
         >
           <Input
+            name='userName'
+            id='userName'
+            placeholder='User name'
+            label='User name'
+            type='text'
+          />
+          <Input
             name='email'
             id='email'
             placeholder='Email'

@@ -1,8 +1,10 @@
+import { zUserDto } from '@/api/validators';
 import { z } from 'zod';
 
 export const signUpValidator = z
   .object({
-    email: z.string().email(),
+    userName: zUserDto.shape.userName,
+    email: zUserDto.shape.email,
     password: z
       .string()
       .min(10, { message: 'Too short, use at least 10 characters.' }),
