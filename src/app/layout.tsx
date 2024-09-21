@@ -14,11 +14,7 @@ export const metadata = {
     "The Game Master's Tool is your ultimate companion for organizing tabletop RPG games. Plan campaigns, manage characters, and create immersive experiences for your players. Start mastering your game today!",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  readonly children: React.ReactNode;
-}) {
+const RootLayout = ({ children }: { readonly children: React.ReactNode }) => {
   return (
     <html lang='en' className='h-full relative'>
       <body className='bg-gm-bg flex flex-col min-h-full'>
@@ -33,4 +29,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

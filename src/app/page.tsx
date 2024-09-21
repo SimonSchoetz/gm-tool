@@ -1,8 +1,9 @@
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import { GlassPanel } from '@/components/wrapper';
 import { Route } from '@/enums';
+import { NextPage } from 'next';
 
-export default function MainPage() {
+const MainPage: NextPage = () => {
   return (
     <GlassPanel className='flex flex-col gap-8 items-center justify-center max-w-screen-sm w-full'>
       <h2 className='text-center mb-8'>THE GAME MASTER&apos;S TOOLKIT</h2>
@@ -26,4 +27,6 @@ export default function MainPage() {
       />
     </GlassPanel>
   );
-}
+};
+
+export default MainPage;

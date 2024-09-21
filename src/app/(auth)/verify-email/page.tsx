@@ -6,12 +6,13 @@ import {
 import VerifyToken from './verify-token';
 import RequestNewVerificationEmailForm from './request-new-verification-email-form';
 import { isString } from '@/util/type-guards';
+import { NextPage } from 'next';
 
 interface VerifyEmailPageProps {
   searchParams: URLSearchParams;
 }
 
-const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ searchParams }) => {
+const VerifyEmailPage: NextPage<VerifyEmailPageProps> = ({ searchParams }) => {
   const title = 'Verify email';
   const token = 'token' in searchParams && searchParams.token;
 

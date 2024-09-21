@@ -3,7 +3,7 @@ import { GlassPanel } from '@/components/wrapper';
 import { Route } from '@/enums';
 import { NextPage } from 'next';
 
-const NotFound: NextPage = () => {
+const NotFoundPage: NextPage = () => {
   return (
     <GlassPanel className='flex flex-col gap-8 items-center justify-center max-w-screen-sm w-full'>
       <h1>404</h1>
@@ -20,4 +20,4 @@ const NotFound: NextPage = () => {
   );
 };
 
-export default NotFound;
+export default NotFoundPage;

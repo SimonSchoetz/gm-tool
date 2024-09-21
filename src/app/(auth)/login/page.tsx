@@ -9,8 +9,9 @@ import { ValidatorName } from '@/validators/util';
 import { generateToken } from '@/actions/token';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import { Route } from '@/enums';
+import { NextPage } from 'next';
 
-export default function LoginPage() {
+const LoginPage: NextPage = () => {
   const title = 'Login';
 
   return (
@@ -62,4 +63,6 @@ export default function LoginPage() {
       </GlassPanel>
     </ContentContainer>
   );
-}
+};
+
+export default LoginPage;
