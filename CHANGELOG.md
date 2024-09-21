@@ -1,12 +1,17 @@
 # Changelog
 
-## [0.6.0] - in progress
-
-### 060-possible-Goals
+## Backlog
 
 - Landing page with logo and favicon
 - Lazy DM steps saved in local storage
 - proof of concept for session pdf export
+
+## [0.6.0] - in progress
+
+### 060-Goals
+
+- Better navigation between auth pages
+- Password reset page
 
 ## [0.5.0] - 2024-09-17
 
