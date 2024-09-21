@@ -5,8 +5,8 @@ import { getOneFrom } from 'convex-helpers/server/relationships';
 import { zDbUserData } from '@/api/validators';
 
 export const getUserByEmail = zQuery({
-  output: zDbUserData.nullable(),
   args: { email: zDbUserData.shape.email },
+  output: zDbUserData.nullable(),
   handler: async (ctx, args) => {
     return await getOneFrom(
       ctx.db,

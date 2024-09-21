@@ -4,6 +4,7 @@ import { getUserByEmail } from './get_users';
 import { zInternalMutation, zMutation } from '../helper';
 import { z } from 'zod';
 import { zDbUserData } from '@/api/validators';
+import { ConvexError } from 'convex/values';
 
 const createUserArgs = zDbUserData.pick({
   email: true,
@@ -20,7 +21,7 @@ export const createUser = zMutation({
   }),
   handler: async (ctx, args: CreateUserDTO) => {
     if (await emailAlreadyInUse(ctx, args)) {
-      throw new Error('Email already in use.');
+      throw new ConvexError('Email already in use.');
     }
     // ctx.auth.getUserIdentity()
     await ctx.db.insert(DbTable.USERS, args);
