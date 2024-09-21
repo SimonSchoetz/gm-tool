@@ -4,7 +4,12 @@ import { redirectTo } from '@/util/router';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const authRoutes = [Route.LOGIN, Route.SIGN_UP, Route.VERIFY_EMAIL];
+const authRoutes = [
+  Route.LOGIN,
+  Route.SIGN_UP,
+  Route.VERIFY_EMAIL,
+  Route.PASSWORD_RESET,
+];
 const unprotectedRoutes = [...authRoutes, Route.HOME];
 
 export const routeProtection = async (
@@ -13,6 +18,12 @@ export const routeProtection = async (
   const pathname = req.nextUrl.pathname as Route;
 
   const isProtectedRoute = !unprotectedRoutes.includes(pathname);
+  const isUnknownRoute = !Object.values(Route).includes(pathname);
+
+  if (isUnknownRoute) {
+    return NextResponse.rewrite(new URL(Route.NOT_FOUND, req.url));
+  }
+
   const authCookie = cookies().get(CookieName.AUTH);
 
   if (!authCookie) {
