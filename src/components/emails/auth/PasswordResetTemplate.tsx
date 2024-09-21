@@ -7,27 +7,34 @@ import EmailGlassPanel from '../components/EmailGlassPanel';
 import EmailButton from '../components/EmailButton';
 import { FCProps } from '@/types/app';
 
-type VerifyEmailTemplateProps = {
+type PasswordResetTemplateProps = {
   token: string;
 };
 
-export const VerifyEmailTemplate: FCProps<VerifyEmailTemplateProps> = ({
+export const PasswordResetTemplate: FCProps<PasswordResetTemplateProps> = ({
   token,
 }) => {
-  const url = `${parsedEnv.HOST}${Route.VERIFY_EMAIL}?token=${token}`;
+  const url = `${parsedEnv.HOST}${Route.PASSWORD_RESET}?token=${token}`;
 
   return (
     <Html lang='en' dir='ltr'>
       <Head>
-        <title>Verify email</title>
+        <title>Password reset</title>
       </Head>
       <EmailBodyWrapper>
         <EmailGlassPanel>
           <h2>Almost done!</h2>
 
-          <p>Please click the button below to verify your email</p>
+          <p>
+            Please click the button below to continue with your password reset
+          </p>
 
-          <EmailButton label='Verify Email' url={url} />
+          <EmailButton label='Reset password' url={url} />
+
+          <p>
+            If you did not request a password reset, please ignore this email
+            and your password will stay the same.
+          </p>
         </EmailGlassPanel>
       </EmailBodyWrapper>
     </Html>
