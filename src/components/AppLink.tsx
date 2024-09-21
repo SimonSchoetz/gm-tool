@@ -1,6 +1,8 @@
 import { FCProps } from '@/types/app';
 import Link from 'next/link';
 import { DetailedHTMLProps, LinkHTMLAttributes } from 'react';
+import Button from './Button';
+import { ConditionWrapper } from './wrapper';
 
 export enum AppLinkLayout {
   BUTTON = 'button',
@@ -18,14 +20,13 @@ type Props = DetailedHTMLProps<
 const AppLink: FCProps<Props> = ({
   title,
   layout = AppLinkLayout.LINK,
-  className,
+  className = '',
   href,
   ...props
 }) => {
   const layoutMap: Record<AppLinkLayout, string> = {
     [AppLinkLayout.LINK]: 'text-gm-fg-50 hover:text-gm-fg hover:underline',
-    [AppLinkLayout.BUTTON]:
-      'bg-gm-fg text-gm-bg rounded-xl px-4 py-2 hover:bg-gm-primary',
+    [AppLinkLayout.BUTTON]: '',
   };
 
   return (
@@ -34,7 +35,13 @@ const AppLink: FCProps<Props> = ({
       className={`inline-block ${layoutMap[layout]} ${className ?? ''}`}
       href={href ?? '#'}
     >
-      {title}
+      <ConditionWrapper condition={layout === AppLinkLayout.BUTTON}>
+        <Button label={title} className={className} />
+      </ConditionWrapper>
+
+      <ConditionWrapper condition={layout === AppLinkLayout.LINK}>
+        {title}
+      </ConditionWrapper>
     </Link>
   );
 };
