@@ -1,34 +1,35 @@
+import { FCProps } from '@/types/app';
 import Link from 'next/link';
+import { DetailedHTMLProps, LinkHTMLAttributes } from 'react';
 
 export enum AppLinkLayout {
   BUTTON = 'button',
-  TEXT = 'text',
+  LINK = 'link',
 }
 
-type Props = {
-  url: string;
+type Props = DetailedHTMLProps<
+  LinkHTMLAttributes<HTMLAnchorElement>,
+  HTMLAnchorElement
+> & {
   title: string;
   layout?: AppLinkLayout;
-  external?: boolean;
 };
 
-const AppLink = ({
-  url,
+const AppLink: FCProps<Props> = ({
   title,
-  layout = AppLinkLayout.TEXT,
-  external,
-}: Props) => {
+  layout = AppLinkLayout.LINK,
+  ...props
+}) => {
   const layoutMap: Record<AppLinkLayout, string> = {
-    [AppLinkLayout.TEXT]: 'text-slate-600 underline hover:text-slate-400',
+    [AppLinkLayout.LINK]: 'text-gm-fg underline hover:text-gm-primary',
     [AppLinkLayout.BUTTON]:
-      'bg-slate-600 text-white rounded-xl px-4 py-2 hover:bg-slate-400',
+      'bg-gm-fg text-gm-bg rounded-xl px-4 py-2 hover:bg-gm-primary',
   };
 
   return (
     <Link
-      className={layoutMap[layout]}
-      href={url}
-      target={external ? '_blank' : ''}
+      className={`${layoutMap[layout]} ${props.className ?? ''}`}
+      href={props.href ?? '#'}
     >
       {title}
     </Link>
