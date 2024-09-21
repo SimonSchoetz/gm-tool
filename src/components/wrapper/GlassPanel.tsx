@@ -1,9 +1,14 @@
 import { PropsWithChildren } from 'react';
 import { LightSource } from '../animations';
+import { DivProps, FCProps } from '@/types/app';
 
-const GlassPanel: React.FC<PropsWithChildren> = ({ children }) => {
+const GlassPanel: FCProps<PropsWithChildren<DivProps>> = ({
+  children,
+  className,
+  ...props
+}) => {
   return (
-    <div className='glass-fx p-8 pb-12'>
+    <div {...props} className={`glass-fx p-8 pb-12 ${className ?? ''}`}>
       {children}
       <LightSource intensity='dim' />
     </div>
