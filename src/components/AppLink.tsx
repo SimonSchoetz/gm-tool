@@ -21,14 +21,15 @@ const AppLink: FCProps<Props> = ({
   ...props
 }) => {
   const layoutMap: Record<AppLinkLayout, string> = {
-    [AppLinkLayout.LINK]: 'text-gm-fg underline hover:text-gm-primary',
+    [AppLinkLayout.LINK]: 'text-gm-fg-50 hover:text-gm-fg hover:underline',
     [AppLinkLayout.BUTTON]:
       'bg-gm-fg text-gm-bg rounded-xl px-4 py-2 hover:bg-gm-primary',
   };
 
   return (
     <Link
-      className={`${layoutMap[layout]} ${props.className ?? ''}`}
+      {...props}
+      className={`inline-block ${layoutMap[layout]} ${props.className ?? ''}`}
       href={props.href ?? '#'}
     >
       {title}
