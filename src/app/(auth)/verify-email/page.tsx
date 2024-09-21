@@ -3,7 +3,7 @@ import {
   ContentContainer,
   GlassPanel,
 } from '@/components/wrapper';
-import VerifyEmailVerificationToken from './verify-token';
+import VerifyEmailVerificationToken from './verify-email-verification-token';
 import RequestNewVerificationEmailForm from './request-new-verification-email-form';
 import { isString } from '@/util/type-guards';
 import { NextPage } from 'next';
