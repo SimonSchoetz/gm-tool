@@ -6,7 +6,7 @@ import { FormSubmitResponse } from '@/types/responses';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
-import { VerificationEmailData } from '@/types/requests';
+import { VerificationEmailFormData } from '@/types/form-data-dto';
 import { sendEmailVerificationEmail } from '../emails';
 
 export const submitRequestNewVerificationEmail = async (
@@ -16,7 +16,7 @@ export const submitRequestNewVerificationEmail = async (
     assertIsString(data);
     const decoded = await readToken(data);
 
-    const { email } = parseDataWithZodValidator<VerificationEmailData>(
+    const { email } = parseDataWithZodValidator<VerificationEmailFormData>(
       decoded,
       ValidatorName.VERIFICATION_EMAIL
     );

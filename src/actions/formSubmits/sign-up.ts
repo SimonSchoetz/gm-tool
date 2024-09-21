@@ -7,7 +7,7 @@ import { FormSubmitResponse } from '@/types/responses';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
-import { SignUpData } from '@/types/requests';
+import { SignUpFormData } from '@/types/form-data-dto';
 import { sendEmailVerificationEmail } from '../emails';
 
 export const submitSignUp = async (
@@ -16,7 +16,7 @@ export const submitSignUp = async (
   try {
     assertIsString(data);
     const decoded = await readToken(data);
-    const validatedData = parseDataWithZodValidator<SignUpData>(
+    const validatedData = parseDataWithZodValidator<SignUpFormData>(
       decoded,
       ValidatorName.SIGN_UP
     );

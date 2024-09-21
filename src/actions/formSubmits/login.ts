@@ -9,7 +9,7 @@ import { ZodError } from 'zod';
 import { verifyLogin } from '../auth';
 import { setAuthCookie } from '../cookies';
 import { getUserByEmail } from '@/api/user';
-import { LoginData } from '@/types/requests';
+import { LoginFormData } from '@/types/form-data-dto';
 
 export const submitLogin = async (
   data: unknown
@@ -19,7 +19,7 @@ export const submitLogin = async (
 
     const decoded = await readToken(data);
 
-    const validatedData = parseDataWithZodValidator<LoginData>(
+    const validatedData = parseDataWithZodValidator<LoginFormData>(
       decoded,
       ValidatorName.LOGIN
     );
