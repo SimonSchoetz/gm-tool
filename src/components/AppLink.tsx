@@ -18,6 +18,8 @@ type Props = DetailedHTMLProps<
 const AppLink: FCProps<Props> = ({
   title,
   layout = AppLinkLayout.LINK,
+  className,
+  href,
   ...props
 }) => {
   const layoutMap: Record<AppLinkLayout, string> = {
@@ -29,8 +31,8 @@ const AppLink: FCProps<Props> = ({
   return (
     <Link
       {...props}
-      className={`inline-block ${layoutMap[layout]} ${props.className ?? ''}`}
-      href={props.href ?? '#'}
+      className={`inline-block ${layoutMap[layout]} ${className ?? ''}`}
+      href={href ?? '#'}
     >
       {title}
     </Link>

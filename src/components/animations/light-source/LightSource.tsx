@@ -7,7 +7,11 @@ type LightSourceProps = {
   intensity: 'bright' | 'dim';
 } & DivProps;
 
-const LightSource = ({ intensity, ...props }: Readonly<LightSourceProps>) => {
+const LightSource = ({
+  intensity,
+  className,
+  ...props
+}: Readonly<LightSourceProps>) => {
   useEffect(() => {
     document.documentElement.style.setProperty('--light-state', 'running');
   }, []);
@@ -19,7 +23,8 @@ const LightSource = ({ intensity, ...props }: Readonly<LightSourceProps>) => {
 
   return (
     <div
-      className={`${intensityClass} ${localClassNames} ${props.className}`}
+      {...props}
+      className={`${intensityClass} ${localClassNames} ${className}`}
     ></div>
   );
 };

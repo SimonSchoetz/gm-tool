@@ -14,7 +14,7 @@ const InputLabelUnderline = ({
   focused,
   text,
   withShadow = false,
-  ...props
+  className,
 }: LabelConnectorProps) => {
   const textWidthRef = useRef<HTMLLabelElement>(null);
   const [labelWidth, setLabelWidth] = useState(0);
@@ -42,7 +42,7 @@ const InputLabelUnderline = ({
     return (
       <span
         aria-hidden
-        className={`absolute opacity-0 ${props.className}`}
+        className={`absolute opacity-0 ${className}`}
         ref={textWidthRef}
       >
         {text}
