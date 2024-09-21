@@ -52,6 +52,13 @@ export default function LoginPage() {
             required
           />
         </FormWrapper>
+
+        <AppLink
+          className='mt-10'
+          title='Password reset'
+          href={Route.PASSWORD_RESET}
+          layout={AppLinkLayout.LINK}
+        />
       </GlassPanel>
     </ContentContainer>
   );
