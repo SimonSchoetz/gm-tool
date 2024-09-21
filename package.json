@@ -3,7 +3,7 @@
   "version": "0.5.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail \"npm run dev:frontend\" \"npm run dev:db\"",
+    "dev": "concurrently --kill-others-on-fail --names app,db -c blue,cyan \"npm:dev:frontend\" \"npm:dev:db\"",
     "dev:frontend": "next dev",
     "dev:db": "npx convex dev",
     "dev:secure": "next dev --experimental-https",
