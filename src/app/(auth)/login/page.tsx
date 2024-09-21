@@ -7,6 +7,8 @@ import {
 import { submitLogin } from '@/actions/formSubmits';
 import { ValidatorName } from '@/validators/util';
 import { generateToken } from '@/actions/token';
+import AppLink, { AppLinkLayout } from '@/components/AppLink';
+import { Route } from '@/enums';
 
 export default function LoginPage() {
   const title = 'Login';
@@ -14,9 +16,17 @@ export default function LoginPage() {
   return (
     <ContentContainer title={title}>
       <GlassPanel>
-        <p className='text-center my-5'>
-          Please enter your email and password to proceed
-        </p>
+        <div className='text-center my-5'>
+          <p>Please enter your email and password to proceed.</p>
+          <p>
+            Or{' '}
+            <AppLink
+              title='create an account &rarr;'
+              href={Route.SIGN_UP}
+              layout={AppLinkLayout.LINK}
+            />
+          </p>
+        </div>
 
         <FormWrapper
           schemaName={ValidatorName.LOGIN}
@@ -39,6 +49,7 @@ export default function LoginPage() {
             placeholder='Password'
             label='Password'
             type='password'
+            required
           />
         </FormWrapper>
       </GlassPanel>
