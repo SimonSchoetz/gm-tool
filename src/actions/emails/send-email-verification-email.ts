@@ -5,7 +5,7 @@ import { generateToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/actions/token';
 import { sendEmail } from './send-email';
 import { EmailSender } from '@/enums';
-import { VerifyEmail } from '@/components/emails/auth';
+import { VerifyEmailTemplate } from '@/components/emails/auth';
 import { EmailData } from '@/types/actions/email';
 
 export const sendEmailVerificationEmail = async (
@@ -16,13 +16,17 @@ export const sendEmailVerificationEmail = async (
 
     const { email, emailVerified } = user;
 
-    const payload = { email, verifyEmailHash: emailVerified };
+    const payload = {
+      email,
+      verifyEmailHash: emailVerified,
+    } satisfies VerifyEmailTokenPayload;
+
     const emailVerificationToken = await generateToken<VerifyEmailTokenPayload>(
       payload,
       '1day'
     );
 
-    sendEmail(getVerifyEmailData(emailVerificationToken, userEmail));
+    sendEmail(getEmailConfig(emailVerificationToken, userEmail));
   } catch (err) {
     if (err instanceof Error) {
       throw new Error(err.message);
@@ -31,11 +35,11 @@ export const sendEmailVerificationEmail = async (
   }
 };
 
-const getVerifyEmailData = (token: string, email: string): EmailData => {
+const getEmailConfig = (token: string, email: string): EmailData => {
   return {
     from: EmailSender.NO_REPLY,
     to: email,
     subject: 'GM-Tool: Please verify your email',
-    template: VerifyEmail({ token }),
+    template: VerifyEmailTemplate({ token }),
   };
 };
