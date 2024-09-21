@@ -5,6 +5,7 @@ import React, {
   FormHTMLAttributes,
   PropsWithChildren,
   useEffect,
+  useState,
 } from 'react';
 import Button from '../Button';
 import { FieldValues, useForm } from 'react-hook-form';
@@ -21,6 +22,7 @@ import { FormSubmitResponse } from '@/types/responses';
 import { TokenPayload, TokenLifeSpan } from '@/types/actions/token';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
+import ConditionWrapper from './ConditionWrapper';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -39,6 +41,10 @@ const FormWrapper = ({
   children,
   encrypt,
 }: PropsWithChildren<FormWrapperProps>) => {
+  const [hasRequiredFields, setHasRequiredFields] = useState(false);
+
+  const router = useRouter();
+
   const schemaInstance = getValidator(schemaName);
   const {
     register,
@@ -48,7 +54,6 @@ const FormWrapper = ({
   } = useForm<z.infer<typeof schemaInstance>>({
     resolver: zodResolver(schemaInstance),
   });
-  const router = useRouter();
 
   const mapChild = (child: React.ReactNode) => {
     if (React.isValidElement(child)) {
@@ -64,6 +69,12 @@ const FormWrapper = ({
   };
 
   const mapFormValidationProps = (child: JSX.Element, childId: string) => {
+    const isRequired = child.props.required;
+
+    if (isRequired && !hasRequiredFields) {
+      setHasRequiredFields(true);
+    }
+
     return {
       ...child,
       props: {
@@ -121,6 +132,10 @@ const FormWrapper = ({
       aria-live='assertive'
     >
       {React.Children.map(children, (child) => mapChild(child))}
+
+      <ConditionWrapper condition={hasRequiredFields}>
+        <p className='ml-4 text-sm text-gm-error'>Required*</p>
+      </ConditionWrapper>
 
       <Button
         classNames='mt-4'

@@ -23,18 +23,20 @@ const Input = ({ label, errorMsg, ...inputProps }: InputProps) => {
   const hoveredBorderStyling = `1px solid var(--gm-${errorMsg ? 'error' : 'fg'})
       !important`;
 
+  const composedLabel = composeLabel(label, !!inputProps.required);
+
   return (
     <>
-      <ConditionWrapper condition={!!label}>
+      <ConditionWrapper condition={!!composedLabel}>
         <div className='relative ml-4'>
           <label
             htmlFor={inputProps.id}
             className={`text-gm-fg`}
             data-testid='input-label'
           >
-            {label}
+            {composedLabel}
 
-            <InputLabelUnderline focused={focused} text={label} />
+            <InputLabelUnderline focused={focused} text={composedLabel} />
           </label>
         </div>
       </ConditionWrapper>
@@ -55,13 +57,14 @@ const Input = ({ label, errorMsg, ...inputProps }: InputProps) => {
         onBlur={() => setFocused(false)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        aria-label={inputProps.id}
-        aria-invalid={!!errorMsg}
-        aria-errormessage={errorMsg}
-        aria-disabled={inputProps.disabled}
         disabled={inputProps.disabled}
         data-testid='input-field'
         title={`${inputProps.name} input field`}
+        aria-label={inputProps.name}
+        aria-invalid={!!errorMsg}
+        aria-errormessage={errorMsg}
+        aria-disabled={inputProps.disabled}
+        aria-required={inputProps.required}
       />
       <ConditionWrapper condition={!!errorMsg}>
         <p className={`ml-2 text-gm-error`}>{errorMsg}</p>
@@ -71,3 +74,16 @@ const Input = ({ label, errorMsg, ...inputProps }: InputProps) => {
 };
 
 export default Input;
+
+const composeLabel = (label?: string, isRequired?: boolean) => {
+  if (!label) return '';
+
+  return isRequired ? (
+    <>
+      <span>{label}</span>
+      <span className='text-gm-error'> *</span>
+    </>
+  ) : (
+    label
+  );
+};

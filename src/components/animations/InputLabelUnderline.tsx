@@ -6,7 +6,7 @@ import { ConditionWrapper } from '../wrapper';
 
 type LabelConnectorProps = {
   focused: boolean;
-  text?: string;
+  text?: string | JSX.Element;
   withShadow?: boolean;
 } & DivProps;
 
