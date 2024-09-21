@@ -138,7 +138,7 @@ const FormWrapper = ({
       </ConditionWrapper>
 
       <Button
-        classNames='mt-4'
+        className='mt-4'
         type='submit'
         label={buttonLabel}
         disabled={!!Object.keys(errors).length}
