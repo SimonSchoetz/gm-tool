@@ -10,6 +10,7 @@ export const testValidatorZEffects = z
   .object({
     name: z.string(),
     age: z.coerce.number(),
+    optionalField: z.number().optional(),
   })
   .refine((val) => val);
 

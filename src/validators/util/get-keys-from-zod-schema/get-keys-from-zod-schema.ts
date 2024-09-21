@@ -1,4 +1,4 @@
-import { ZodEffects, ZodError, ZodObject, ZodTypeAny, z } from 'zod';
+import { ZodEffects, ZodObject, ZodTypeAny, z } from 'zod';
 import { ValidatorName, getValidator } from '../get-validator/get-validator';
 
 export const getKeysFromZodValidator = <T extends ZodTypeAny>(
@@ -9,13 +9,7 @@ export const getKeysFromZodValidator = <T extends ZodTypeAny>(
     return Object.keys(schema.shape) as (keyof z.infer<T>)[];
   }
   if (schema instanceof ZodEffects) {
-    try {
-      schema.parse({});
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return error.issues.map((issue) => issue.path[0] as keyof z.infer<T>);
-      }
-    }
+    return Object.keys(schema._def.schema.shape) as (keyof z.infer<T>)[];
   }
 
   throw new Error('Unexpected schema type');
