@@ -1,4 +1,4 @@
-import { submitPasswordReset } from '@/actions/formSubmits/password-reset';
+import { submitPasswordReset } from '@/actions/formSubmits';
 import { generateToken } from '@/actions/token';
 import Input from '@/components/Input';
 import { GlassPanel, FormWrapper } from '@/components/wrapper';
