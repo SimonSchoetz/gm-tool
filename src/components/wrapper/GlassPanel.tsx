@@ -4,11 +4,11 @@ import { DivProps, FCProps } from '@/types/app';
 
 const GlassPanel: FCProps<PropsWithChildren<DivProps>> = ({
   children,
-  className,
+  className = '',
   ...props
 }) => {
   return (
-    <div {...props} className={`glass-fx p-8 pb-12 ${className ?? ''}`}>
+    <div {...props} className={`glass-fx p-8 pb-12 ${className}`}>
       {children}
       <LightSource intensity='dim' />
     </div>

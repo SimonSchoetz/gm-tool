@@ -9,7 +9,7 @@ type LightSourceProps = {
 
 const LightSource = ({
   intensity,
-  className,
+  className = '',
   ...props
 }: Readonly<LightSourceProps>) => {
   useEffect(() => {

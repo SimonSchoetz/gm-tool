@@ -14,7 +14,7 @@ const InputLabelUnderline = ({
   focused,
   text,
   withShadow = false,
-  className,
+  className = '',
 }: LabelConnectorProps) => {
   const textWidthRef = useRef<HTMLLabelElement>(null);
   const [labelWidth, setLabelWidth] = useState(0);

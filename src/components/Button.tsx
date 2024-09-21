@@ -1,5 +1,6 @@
 'use client';
 
+import { FCProps } from '@/types/app';
 import { ButtonHTMLAttributes, DetailedHTMLProps, useState } from 'react';
 
 export type ButtonProps = DetailedHTMLProps<
@@ -8,15 +9,14 @@ export type ButtonProps = DetailedHTMLProps<
 > & {
   label: string;
   isLoading?: boolean;
-  classNames?: string;
 };
 
-const Button = ({
+const Button: FCProps<ButtonProps> = ({
   label,
   isLoading,
-  classNames = '',
+  className = '',
   ...buttonProps
-}: ButtonProps) => {
+}) => {
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const disabled = buttonProps.disabled || isLoading;
@@ -28,7 +28,7 @@ const Button = ({
       }}
       {...buttonProps}
       className={`
-        ${classNames}
+        ${className}
         glass-fx
         rounded-xl 
         px-4 py-2 
