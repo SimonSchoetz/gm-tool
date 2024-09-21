@@ -1,5 +1,5 @@
 import { ZodEffects, ZodObject } from 'zod';
-import { ValidatorName, getFormDataValidator } from './get-validator';
+import { ValidatorName, getFormDataValidator } from './get-form-data-validator';
 
 describe('getFormDataValidator', () => {
   it('should return a ZodObject', () => {

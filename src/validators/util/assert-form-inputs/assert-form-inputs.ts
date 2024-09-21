@@ -1,5 +1,5 @@
 import React from 'react';
-import { ValidatorName } from '../get-validator/get-validator';
+import { ValidatorName } from '../get-form-data-validator/get-form-data-validator';
 import { getKeysFromZodValidator } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
 
 export const assertFormInputs = (

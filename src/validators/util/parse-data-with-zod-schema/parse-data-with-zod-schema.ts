@@ -4,7 +4,7 @@ import { isFormData } from '@/util/type-guards';
 import {
   ValidatorName,
   getFormDataValidator,
-} from '../get-validator/get-validator';
+} from '../get-form-data-validator/get-form-data-validator';
 
 export const parseDataWithZodValidator = <T>(
   data: unknown,

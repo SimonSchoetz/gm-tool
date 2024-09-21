@@ -37,7 +37,7 @@ export const getFormDataValidator = (schema: ValidatorName): z.ZodTypeAny => {
   };
 
   if (!map[schema]) {
-    throw new Error(` Validator "${schema}" not found`);
+    throw new Error(`Validator "${schema}" not found`);
   }
 
   return map[schema] as z.ZodTypeAny;

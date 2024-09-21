@@ -1,7 +1,7 @@
 import { ZodError } from 'zod';
 import { parseDataWithZodValidator } from './parse-data-with-zod-schema';
 import { FieldValues } from 'react-hook-form';
-import { ValidatorName } from '../get-validator/get-validator';
+import { ValidatorName } from '../get-form-data-validator/get-form-data-validator';
 
 describe('parseDataWithZodValidator', () => {
   it('should just pass', () => {

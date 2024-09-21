@@ -2,7 +2,7 @@ import { ZodEffects, ZodObject, ZodTypeAny, z } from 'zod';
 import {
   ValidatorName,
   getFormDataValidator,
-} from '../get-validator/get-validator';
+} from '../get-form-data-validator/get-form-data-validator';
 
 export const getKeysFromZodValidator = <T extends ZodTypeAny>(
   schemaName: ValidatorName
