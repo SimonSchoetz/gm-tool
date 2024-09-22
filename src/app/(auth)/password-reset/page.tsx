@@ -1,4 +1,8 @@
-import { ConditionWrapper, ContentContainer } from '@/components/wrapper';
+import {
+  ConditionWrapper,
+  ContentContainer,
+  GlassPanel,
+} from '@/components/wrapper';
 import { NextPage } from 'next';
 import RequestPasswordResetTokenEmailForm from './request-password-reset-token-email-form';
 
@@ -14,9 +18,11 @@ const PasswordResetPage: NextPage<PasswordResetPageProps> = ({
 
   return (
     <ContentContainer title={title}>
-      <ConditionWrapper condition={!token}>
-        <RequestPasswordResetTokenEmailForm />
-      </ConditionWrapper>
+      <GlassPanel>
+        <ConditionWrapper condition={!token}>
+          <RequestPasswordResetTokenEmailForm />
+        </ConditionWrapper>
+      </GlassPanel>
     </ContentContainer>
   );
 };
