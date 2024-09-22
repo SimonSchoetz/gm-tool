@@ -32,6 +32,7 @@ type FormWrapperProps = DetailedHTMLProps<
   schemaName: ValidatorName;
   submitAction: (data: unknown) => Promise<FormSubmitResponse>;
   encrypt?: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
+  additionalFormData?: Record<string, unknown>;
 };
 
 const FormWrapper = ({
@@ -40,6 +41,7 @@ const FormWrapper = ({
   submitAction,
   children,
   encrypt,
+  additionalFormData,
 }: PropsWithChildren<FormWrapperProps>) => {
   const [hasRequiredFields, setHasRequiredFields] = useState(false);
 
@@ -88,7 +90,7 @@ const FormWrapper = ({
   const onSubmit = async (values: FieldValues): Promise<void> => {
     let data: FieldValues | string = values;
     if (encrypt) {
-      data = await encrypt(values, '5s');
+      data = await encrypt({ ...values, ...additionalFormData }, '5s');
     }
     const res = await submitAction(data);
 
