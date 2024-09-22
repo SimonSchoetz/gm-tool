@@ -4,21 +4,21 @@ import { FormSubmitResponse } from '@/types/responses';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
-import { PasswordResetFormData } from '@/types/form-data-dto';
+import { PasswordResetFormEmailData } from '@/types/form-data-dto';
 import { HttpStatusCode } from '@/enums';
 import { ZodError } from 'zod';
 import { sendPasswordResetEmail } from '../emails';
 
-export const submitPasswordReset = async (
+export const submitRequestPasswordResetEmail = async (
   data: unknown
 ): Promise<FormSubmitResponse> => {
   try {
     assertIsString(data);
     const decoded = await readToken(data);
 
-    const { email } = parseDataWithZodValidator<PasswordResetFormData>(
+    const { email } = parseDataWithZodValidator<PasswordResetFormEmailData>(
       decoded,
-      ValidatorName.PASSWORD_RESET
+      ValidatorName.PASSWORD_RESET_EMAIL
     );
 
     await sendPasswordResetEmail(email);

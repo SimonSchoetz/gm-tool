@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const passwordResetValidator = z.object({
+export const passwordResetEmailValidator = z.object({
   email: z
     .string()
     .email({ message: 'Input is not a valid email' })

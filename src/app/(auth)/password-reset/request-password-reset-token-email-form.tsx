@@ -1,4 +1,4 @@
-import { submitPasswordReset } from '@/actions/formSubmits';
+import { submitRequestPasswordResetEmail } from '@/actions/formSubmits';
 import { generateToken } from '@/actions/token';
 import Input from '@/components/Input';
 import { FormWrapper } from '@/components/wrapper';
@@ -8,8 +8,8 @@ import { ValidatorName } from '@/validators/util';
 const RequestPasswordResetTokenEmailForm: FCProps = () => {
   return (
     <FormWrapper
-      schemaName={ValidatorName.PASSWORD_RESET}
-      submitAction={submitPasswordReset}
+      schemaName={ValidatorName.PASSWORD_RESET_EMAIL}
+      submitAction={submitRequestPasswordResetEmail}
       buttonLabel='Get password reset token'
       encrypt={generateToken}
     >

@@ -1,4 +1,6 @@
-import { passwordResetValidator } from '@/validators/form-data-validators';
+import { passwordResetEmailValidator } from '@/validators/form-data-validators';
 import { z } from 'zod';
 
-export type PasswordResetFormData = z.infer<typeof passwordResetValidator>;
+export type PasswordResetFormEmailData = z.infer<
+  typeof passwordResetEmailValidator
+>;
