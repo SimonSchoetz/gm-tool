@@ -6,7 +6,7 @@
 - Lazy DM steps saved in local storage
 - proof of concept for session pdf export
 
-## [0.6.0] - in progress
+## [0.6.0] - 24-09-22
 
 ### 060-Goals
 
