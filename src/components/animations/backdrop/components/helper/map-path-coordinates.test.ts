@@ -1,4 +1,4 @@
-import { mapPathCoordinates } from './mapPathCoordinates';
+import { mapPathCoordinates } from './map-path-coordinates';
 
 const testData = [
   {

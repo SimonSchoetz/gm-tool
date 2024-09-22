@@ -1,4 +1,4 @@
-import { SquarePosition } from './getSquarePositions';
+import { SquarePosition } from './get-square-positions';
 
 export const mapPathCoordinates = (
   squarePositions: SquarePosition[]

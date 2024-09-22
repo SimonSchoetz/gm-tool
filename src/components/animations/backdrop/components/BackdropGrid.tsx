@@ -121,10 +121,9 @@ const getSquares = ({ ids, squareSize, maxSize }: SquaresConfig) => {
       }}
       className='bg-gm-bg-50 grid grid-rows-2 grid-cols-2 gap-[1px]'
     >
-      <div className='bg-gm-bg'></div>
-      <div className='bg-gm-bg'></div>
-      <div className='bg-gm-bg'></div>
-      <div className='bg-gm-bg'></div>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className='bg-gm-bg'></div>
+      ))}
     </div>
   ));
 };

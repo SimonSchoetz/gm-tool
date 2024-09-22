@@ -1,4 +1,4 @@
-import { decideDirection } from './decideDirection';
+import { decideDirection } from './decide-direction';
 
 describe('decideDirection', () => {
   it('should go down when last direction is null', () => {

@@ -1,4 +1,4 @@
-import { decideDirection } from './decideDirection';
+import { decideDirection } from './decide-direction';
 
 export const getPathSquareIds = (idList: string[]): string[] => {
   const lastId = idList.at(-1);
