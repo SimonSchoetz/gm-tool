@@ -1,6 +1,6 @@
 {
   "name": "gm-tool",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "scripts": {
     "dev": "concurrently --kill-others-on-fail --names app,db -c blue,cyan \"npm:dev:frontend\" \"npm:dev:db\"",
