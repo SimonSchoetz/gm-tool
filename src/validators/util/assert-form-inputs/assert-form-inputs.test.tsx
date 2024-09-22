@@ -19,6 +19,17 @@ describe('assertFormInputs', () => {
     );
   });
 
+  it('should not an error when missing input is in additionalFormData', () => {
+    const password = React.createElement('password', { id: 'password' });
+    const confirmPassword = React.createElement('confirmPassword', {
+      id: 'confirmPassword',
+    });
+    const children = [password, confirmPassword];
+    expect(() =>
+      assertFormInputs(children, ValidatorName.NEW_PASSWORD, ['token'])
+    ).not.toThrow();
+  });
+
   it('should work even if there is only one child (not an array))', () => {
     const children = passwordInput;
     expect(() => assertFormInputs(children, exampleValidator)).toThrow(

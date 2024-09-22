@@ -88,11 +88,14 @@ const FormWrapper = ({
   };
 
   const onSubmit = async (values: FieldValues): Promise<void> => {
-    let data: FieldValues | string = values;
+    const data: FieldValues = { ...values, ...additionalFormData };
+
+    let encryptedData: string = '';
     if (encrypt) {
-      data = await encrypt({ ...values, ...additionalFormData }, '5s');
+      encryptedData = await encrypt(data, '5s');
     }
-    const res = await submitAction(data);
+
+    const res = await submitAction(encryptedData || data);
 
     if (res?.error) {
       handleServerErrors(res.error);
@@ -123,7 +126,11 @@ const FormWrapper = ({
   useEffect(() => {
     //eslint-disable-next-line no-process-env
     if (process.env.NODE_ENV === 'development') {
-      assertFormInputs(children, schemaName);
+      assertFormInputs(
+        children,
+        schemaName,
+        Object.keys(additionalFormData || {})
+      );
     }
   });
 

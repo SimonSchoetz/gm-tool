@@ -1,10 +1,12 @@
 import React from 'react';
 import { ValidatorName } from '../get-form-data-validator/get-form-data-validator';
 import { getKeysFromZodValidator } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
+import { assertIsString } from '@/util/asserts';
 
 export const assertFormInputs = (
   children: React.ReactNode,
-  schemaName: ValidatorName
+  schemaName: ValidatorName,
+  additionalFormDataKeys: string[]
 ) => {
   if (typeof children === 'undefined') return;
 
@@ -14,7 +16,10 @@ export const assertFormInputs = (
 
   const schemaKeys = getKeysFromZodValidator(schemaName);
 
-  const missingInputs = schemaKeys.filter((key) => !childrenIds.includes(key));
+  const missingInputs = schemaKeys.filter((key) => {
+    assertIsString(key);
+    return !childrenIds.includes(key) && !additionalFormDataKeys.includes(key);
+  });
   const extraInputs = childrenIds.filter((id) => !schemaKeys.includes(id));
   const hasDuplicateInputs = childrenIds.some(
     (id, index, self) => self.indexOf(id) !== index
