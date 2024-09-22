@@ -3,6 +3,7 @@ import { decideDirection } from './decideDirection';
 export const getPathSquareIds = (idList: string[]): string[] => {
   const lastId = idList.at(-1);
   if (!lastId) return [];
+
   const [amountRows, amountCol] = lastId.split('-').map(Number);
   const startCol = getRandomStartColumn(amountCol);
   const curatedList: string[] = [];

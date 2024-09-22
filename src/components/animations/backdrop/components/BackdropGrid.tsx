@@ -6,6 +6,7 @@ import {
   Dispatch,
   SetStateAction,
 } from 'react';
+import { getIdListWithoutExtraRows } from './helper';
 
 export type BackdropGridProps = {
   setIdList: Dispatch<SetStateAction<string[]>>;
@@ -68,9 +69,12 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   }, [updateSquareMeasurements]);
 
   useEffect(() => {
-    // subtract extra rows
-    const amountExtraSquares = amountSquaresX * (amountExtraRows - 1);
-    setIdList(ids.slice(0, -amountExtraSquares));
+    const idsWithoutExtraRows = getIdListWithoutExtraRows(
+      ids,
+      amountExtraRows - 1
+    );
+
+    setIdList(idsWithoutExtraRows);
   }, [ids, setIdList, amountSquaresX]);
 
   return (

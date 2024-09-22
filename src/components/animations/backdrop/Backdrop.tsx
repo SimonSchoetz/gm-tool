@@ -23,6 +23,10 @@ const Backdrop = () => {
     >
       <BackdropGrid setIdList={setIdList} />
       <BackdropBeam idList={idList} />
+      <BackdropBeam idList={idList} />
+      <BackdropBeam idList={idList} />
+      <BackdropBeam idList={idList} />
+      <BackdropBeam idList={idList} />
     </div>
   );
 };
