@@ -3,10 +3,10 @@ import { ValidatorName } from '../get-form-data-validator/get-form-data-validato
 import { getKeysFromZodValidator } from '../get-keys-from-zod-schema/get-keys-from-zod-schema';
 import { assertIsString } from '@/util/asserts';
 
-export const assertFormInputs = (
+export const assertFormShape = (
   children: React.ReactNode,
   schemaName: ValidatorName,
-  additionalFormDataKeys: string[]
+  additionalFormDataKeys: string[] = []
 ) => {
   if (typeof children === 'undefined') return;
 

@@ -12,7 +12,7 @@ import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
   ValidatorName,
-  assertFormInputs,
+  assertFormShape,
   getKeysFromZodValidator,
   getFormDataValidator,
 } from '@/validators/util';
@@ -126,7 +126,7 @@ const FormWrapper = ({
   useEffect(() => {
     //eslint-disable-next-line no-process-env
     if (process.env.NODE_ENV === 'development') {
-      assertFormInputs(
+      assertFormShape(
         children,
         schemaName,
         Object.keys(additionalFormData || {})
