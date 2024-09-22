@@ -1,6 +1,6 @@
 'use server';
 
-import { HttpStatusCode, InternalErrorCode, Route } from '@/enums';
+import { HttpStatusCode, ErrorReference, Route } from '@/enums';
 import { FormSubmitResponse } from '@/types/responses';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token/read-token';
@@ -40,7 +40,7 @@ export const submitLogin = async (
     }
 
     if (error instanceof Error) {
-      if (error.message.includes(InternalErrorCode.EMAIL_NOT_VERIFIED)) {
+      if (error.message.includes(ErrorReference.EMAIL_NOT_VERIFIED)) {
         return {
           status: HttpStatusCode.UNAUTHORIZED,
           redirectRoute: Route.VERIFY_EMAIL,
@@ -67,7 +67,7 @@ export const submitLogin = async (
 
 const isLoginError = (error: string): boolean => {
   return (
-    error.includes(InternalErrorCode.PASSWORD_INCORRECT) ||
-    error.includes(InternalErrorCode.USER_NOT_FOUND)
+    error.includes(ErrorReference.PASSWORD_INCORRECT) ||
+    error.includes(ErrorReference.USER_NOT_FOUND)
   );
 };

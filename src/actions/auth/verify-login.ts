@@ -1,6 +1,6 @@
 'use server';
 
-import { EmailVerificationState, InternalErrorCode } from '@/enums';
+import { EmailVerificationState, ErrorReference } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { LoginFormData } from '@/types/form-data-dto';
 
@@ -30,16 +30,16 @@ const checkPassword = async (
   const isPasswordValid = await validatePassword(password, hash);
 
   if (!isPasswordValid) {
-    throw new Error(getErrorMessage(InternalErrorCode.PASSWORD_INCORRECT));
+    throw new Error(getErrorMessage(ErrorReference.PASSWORD_INCORRECT));
   }
 };
 
 const checkEmailVerification = (state: EmailVerificationState): void => {
   if (state !== EmailVerificationState.VERIFIED) {
-    throw new Error(getErrorMessage(InternalErrorCode.EMAIL_NOT_VERIFIED));
+    throw new Error(getErrorMessage(ErrorReference.EMAIL_NOT_VERIFIED));
   }
 };
 
-const getErrorMessage = (error: InternalErrorCode): string => {
+const getErrorMessage = (error: ErrorReference): string => {
   return `Error during login: ${error}`;
 };

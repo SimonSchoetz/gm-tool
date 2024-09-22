@@ -4,7 +4,7 @@ import { cache } from 'react';
 import { convexDb, users } from '../convexDb';
 import { mapToAppDto } from '../util';
 import { AppUserData, DbUserData, UserDto } from '../../types/api';
-import { DbTable, EmailVerificationState, InternalErrorCode } from '@/enums';
+import { DbTable, EmailVerificationState, ErrorReference } from '@/enums';
 import { Id } from '../../../convex/_generated/dataModel';
 
 export const getUserByEmail = cache(
@@ -13,7 +13,7 @@ export const getUserByEmail = cache(
       email,
     });
     if (!res) {
-      throw new Error(`${InternalErrorCode.USER_NOT_FOUND}: email '${email}'`);
+      throw new Error(`${ErrorReference.USER_NOT_FOUND}: email '${email}'`);
     }
     return mapUserDto(res);
   }
@@ -25,7 +25,7 @@ export const getUserById = cache(
       userId: userId as Id<DbTable.USERS>,
     });
     if (!res) {
-      throw new Error(`${InternalErrorCode.USER_NOT_FOUND}: id '${userId}'`);
+      throw new Error(`${ErrorReference.USER_NOT_FOUND}: id '${userId}'`);
     }
     return mapUserDto(res);
   }
