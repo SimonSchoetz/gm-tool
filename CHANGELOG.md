@@ -6,6 +6,13 @@
 - Lazy DM steps saved in local storage
 - proof of concept for session pdf export
 
+## [0.6.1] - 24-09-22
+
+### 061-Patch
+
+- Backdrop beam randomized colors
+- Fixed backdrop beam usage of columns
+
 ## [0.6.0] - 24-09-22
 
 ### 060-Goals
