@@ -16,6 +16,7 @@ export const testValidatorZEffects = z
 
 export enum ValidatorName {
   LOGIN = 'login',
+  NEW_PASSWORD = 'newPassword',
   PASSWORD_RESET_EMAIL = 'passwordResetEmail',
   SIGN_UP = 'signUp',
   TEST_Z_EFFECTS = 'testZEffects',
@@ -34,6 +35,7 @@ export const getFormDataValidator = (schema: ValidatorName): z.ZodTypeAny => {
     [ValidatorName.LOGIN]: v.LoginValidator,
     [ValidatorName.VERIFICATION_EMAIL]: v.verificationEmailValidator,
     [ValidatorName.PASSWORD_RESET_EMAIL]: v.passwordResetEmailValidator,
+    [ValidatorName.NEW_PASSWORD]: v.newPasswordValidator,
   };
 
   if (!map[schema]) {
