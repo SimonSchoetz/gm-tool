@@ -90,12 +90,12 @@ const FormWrapper = ({
   const onSubmit = async (values: FieldValues): Promise<void> => {
     const data: FieldValues = { ...values, ...additionalFormData };
 
-    let encryptedData: string = '';
+    let encryptedData: string | undefined;
     if (encrypt) {
-      encryptedData = await encrypt(data, '5s');
+      encryptedData = await encrypt({ ...data }, '5s');
     }
 
-    const res = await submitAction(encryptedData || data);
+    const res = await submitAction(encryptedData ?? data);
 
     if (res?.error) {
       handleServerErrors(res.error);

@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { parsedEnv } from '@/util/helper';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api';

@@ -1,3 +1,2 @@
-export * from './send-email';
-export * from './send-password-reset-email';
-export * from './send-email-verification-email';
+export { sendPasswordResetEmail } from './send-password-reset-email';
+export { sendEmailVerificationEmail } from './send-email-verification-email';

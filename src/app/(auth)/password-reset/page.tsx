@@ -5,6 +5,8 @@ import {
 } from '@/components/wrapper';
 import { NextPage } from 'next';
 import RequestPasswordResetTokenEmailForm from './request-password-reset-token-email-form';
+import NewPasswordForm from './new-password-form';
+import { isString } from '@/util/type-guards';
 
 interface PasswordResetPageProps {
   searchParams: URLSearchParams;
@@ -21,6 +23,10 @@ const PasswordResetPage: NextPage<PasswordResetPageProps> = ({
       <GlassPanel>
         <ConditionWrapper condition={!token}>
           <RequestPasswordResetTokenEmailForm />
+        </ConditionWrapper>
+
+        <ConditionWrapper condition={isString(token)}>
+          <NewPasswordForm token={token as string} />
         </ConditionWrapper>
       </GlassPanel>
     </ContentContainer>
