@@ -22,11 +22,9 @@ const Backdrop = () => {
       className='overflow-hidden fixed -z-10'
     >
       <BackdropGrid setIdList={setIdList} />
-      <BackdropBeam idList={idList} />
-      <BackdropBeam idList={idList} />
-      <BackdropBeam idList={idList} />
-      <BackdropBeam idList={idList} />
-      <BackdropBeam idList={idList} />
+      {Array.from({ length: 3 }).map((_, index) => (
+        <BackdropBeam idList={idList} key={index} />
+      ))}
     </div>
   );
 };

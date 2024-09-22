@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   getPathSquareIds,
   getSquarePositions,
@@ -92,6 +92,14 @@ type BeamParticlesProps = {
 };
 
 const BeamParticles = ({ duration, nextPosition }: BeamParticlesProps) => {
+  const colorShades = ['', '-20', '-30', '-50'];
+  const pickRandomColorShade = () => {
+    return colorShades[Math.floor(Math.random() * colorShades.length)];
+  };
+  const borderColor = useMemo(() => {
+    return `var(--gm-primary${pickRandomColorShade()})`;
+  }, []);
+
   return Array.from({ length: duration }, (_, index) => {
     return (
       <div
@@ -108,7 +116,7 @@ const BeamParticles = ({ duration, nextPosition }: BeamParticlesProps) => {
           transitionDuration: `${duration}ms`,
           transitionDelay: `${index}ms`,
           opacity: `${1 - 0.01 * index}`,
-          borderColor: 'var(--gm-secondary)',
+          borderColor,
         }}
       />
     );
