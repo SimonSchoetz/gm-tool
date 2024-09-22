@@ -21,11 +21,10 @@ const RootLayout = ({ children }: { readonly children: React.ReactNode }) => {
         <LightSource intensity='bright' />
         <Backdrop />
 
-        <div className='flex-grow flex flex-col items-center justify-center px-2'>
+        <div className='flex-grow flex flex-col items-center justify-between'>
           {children}
+          <Footer />
         </div>
-
-        <Footer />
       </body>
     </html>
   );
