@@ -1,3 +1,3 @@
-import { AppUserData } from '../api';
+import { AppUserData } from '../api/db';
 
 export type User = AppUserData;

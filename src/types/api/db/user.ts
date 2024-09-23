@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { zUserDto } from '../../api/db/validators';
-import { AppData, DbData } from './generics';
 import { EmailVerificationState } from '@/enums';
+import { zUserDto } from '@/api/db/validators';
+import { AppData, DbData } from './generics';
 
 /**
  * should only be used in api

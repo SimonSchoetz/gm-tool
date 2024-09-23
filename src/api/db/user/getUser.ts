@@ -3,7 +3,7 @@ import 'server-only';
 import { cache } from 'react';
 import { convexDb, users } from '../convexDb';
 import { mapToAppDto } from '../util';
-import { AppUserData, DbUserData, UserDto } from '../../../types/api';
+import { AppUserData, DbUserData, UserDto } from '../../../types/api/db';
 import { DbTable, EmailVerificationState, ErrorReference } from '@/enums';
 import { Id } from '../../../../convex/_generated/dataModel';
 
