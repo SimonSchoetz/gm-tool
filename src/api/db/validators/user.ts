@@ -14,3 +14,10 @@ export const zAppUserData = zMapDbToAppData(zUserDto).extend({
 });
 
 export const zDbUserData = zMapAppToDbData(zUserDto);
+
+export const zCreateUserDto = zUserDto.pick({
+  userName: true,
+  email: true,
+  passwordHash: true,
+  emailVerified: true,
+});

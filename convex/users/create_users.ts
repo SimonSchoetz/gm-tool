@@ -3,24 +3,16 @@ import { DbTable, HttpStatusCode } from '@/enums';
 import { getUserByEmail } from './get_users';
 import { zInternalMutation, zMutation } from '../helper';
 import { z } from 'zod';
-import { zUserDto } from '@/api/db/validators';
+import { zCreateUserDto } from '@/api/db/validators';
 import { ConvexError } from 'convex/values';
-
-const createUserArgs = zUserDto.pick({
-  userName: true,
-  email: true,
-  passwordHash: true,
-  emailVerified: true,
-});
-
-export type CreateUserDTO = z.infer<typeof createUserArgs>;
+import { CreateUserDto } from '@/types/api/db';
 
 export const createUser = zMutation({
-  args: createUserArgs.shape,
+  args: zCreateUserDto.shape,
   output: z.object({
     status: z.number(),
   }),
-  handler: async (ctx, args: CreateUserDTO) => {
+  handler: async (ctx, args: CreateUserDto) => {
     if (await emailAlreadyInUse(ctx, args)) {
       throw new ConvexError('Email already in use.');
     }
@@ -32,7 +24,7 @@ export const createUser = zMutation({
 });
 
 const emailAlreadyInUse = zInternalMutation({
-  args: { email: createUserArgs.shape.email },
+  args: { email: zCreateUserDto.shape.email },
   output: z.boolean(),
   handler: async (ctx, args) => {
     const existing = await getUserByEmail(ctx, args);
