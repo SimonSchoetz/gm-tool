@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { zUserDto } from '../../api/validators';
+import { zUserDto } from '../../api/db/validators';
 import { AppData, DbData } from './generics';
 import { EmailVerificationState } from '@/enums';
 

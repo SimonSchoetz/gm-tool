@@ -5,7 +5,7 @@ import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { LoginFormData } from '@/types/form-data-dto';
 
 import { validatePassword } from '@/util/encryption';
-import { getUserByEmail } from '../../api/user/getUser';
+import { getUserByEmail } from '../../api/db/user/getUser';
 import { User } from '@/types/app/user';
 
 export const verifyLogin = async (data: LoginFormData): Promise<void> => {

@@ -1,6 +1,6 @@
 'use server';
 
-import { getUserByEmail } from '@/api/user';
+import { getUserByEmail } from '@/api/db/user';
 import { generateToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/actions/token';
 import { sendEmail } from './send-email';

@@ -3,7 +3,7 @@ import { DbTable, HttpStatusCode } from '@/enums';
 import { getUserByEmail } from './get_users';
 import { zInternalMutation, zMutation } from '../helper';
 import { z } from 'zod';
-import { zUserDto } from '@/api/validators';
+import { zUserDto } from '@/api/db/validators';
 import { ConvexError } from 'convex/values';
 
 const createUserArgs = zUserDto.pick({

@@ -1,6 +1,6 @@
 'use server';
 
-import { getUserByEmail, updateUser } from '@/api/user';
+import { getUserByEmail, updateUser } from '@/api/db/user';
 import { readToken } from '../token';
 import { EmailVerificationState } from '@/enums';
 import { VerifyEmailTokenPayload } from '@/types/actions';

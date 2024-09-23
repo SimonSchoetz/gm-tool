@@ -3,9 +3,9 @@ import 'server-only';
 import { cache } from 'react';
 import { convexDb, users } from '../convexDb';
 import { mapToAppDto } from '../util';
-import { AppUserData, DbUserData, UserDto } from '../../types/api';
+import { AppUserData, DbUserData, UserDto } from '../../../types/api';
 import { DbTable, EmailVerificationState, ErrorReference } from '@/enums';
-import { Id } from '../../../convex/_generated/dataModel';
+import { Id } from '../../../../convex/_generated/dataModel';
 
 export const getUserByEmail = cache(
   async (email: AppUserData['email']): Promise<AppUserData> => {

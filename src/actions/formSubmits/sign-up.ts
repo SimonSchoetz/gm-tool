@@ -1,6 +1,6 @@
 'use server';
 
-import { createUser } from '@/api/user';
+import { createUser } from '@/api/db/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { FormSubmitResponse } from '@/types/responses';

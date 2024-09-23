@@ -1,4 +1,4 @@
-import { zUserDto } from '@/api/validators';
+import { zUserDto } from '@/api/db/validators';
 import { z } from 'zod';
 
 export const signUpValidator = z

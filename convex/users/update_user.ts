@@ -1,5 +1,5 @@
 import { zMutation } from '../helper';
-import { zUserDto } from '@/api/validators';
+import { zUserDto } from '@/api/db/validators';
 import { zid } from 'convex-helpers/server/zod';
 import { DbTable, HttpStatusCode } from '@/enums';
 import { getUserById } from './get_users';

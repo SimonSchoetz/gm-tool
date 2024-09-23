@@ -6,7 +6,7 @@ import { FormSubmitResponse } from '@/types/responses';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
-import { getUserByEmail, updateUser } from '@/api/user';
+import { getUserByEmail, updateUser } from '@/api/db/user';
 import { ZodError } from 'zod';
 import { encryptPassword } from '@/util/encryption';
 
