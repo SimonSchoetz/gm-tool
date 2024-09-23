@@ -1,6 +1,6 @@
 import { FCProps } from '@/types/app';
 import { PropsWithChildren } from 'react';
-import { glassFX, lightSourceDim } from './styles';
+import { glassFX, lightSourceDim } from '../styles';
 
 const EmailGlassPanel: FCProps<PropsWithChildren> = ({
   children,

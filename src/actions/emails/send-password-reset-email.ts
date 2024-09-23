@@ -3,14 +3,12 @@
 import { getUserByEmail } from '@/api/db/user';
 import { generateToken } from '../token';
 import { PasswordResetTokenPayload } from '@/types/actions/token';
-import { sendEmail } from './send-email';
-import { EmailSender } from '@/enums';
-import { EmailData } from '@/types/actions/email';
-import { PasswordResetTemplate } from '@/components/emails/auth';
+import { resendSendPasswordResetEmail } from '@/api/email';
+import { EmailResponse } from '@/types/api/email';
 
 export const sendPasswordResetEmail = async (
   userEmail: string
-): Promise<void> => {
+): Promise<EmailResponse> => {
   try {
     const user = await getUserByEmail(userEmail);
 
@@ -23,20 +21,11 @@ export const sendPasswordResetEmail = async (
       '1day'
     );
 
-    sendEmail(getEmailConfig(restPasswordToken, userEmail));
+    return await resendSendPasswordResetEmail(restPasswordToken, userEmail);
   } catch (err) {
     if (err instanceof Error) {
       throw new Error(err.message);
     }
     throw err;
   }
-};
-
-const getEmailConfig = (token: string, email: string): EmailData => {
-  return {
-    from: EmailSender.NO_REPLY,
-    to: email,
-    subject: 'GM-Tool: Password reset',
-    template: PasswordResetTemplate({ token }),
-  };
 };

@@ -1,15 +1,10 @@
 'use server';
 
-import { EmailData } from '@/types/actions/email';
+import { EmailConfig } from '@/types/api/email';
+import { EmailResponse } from '@/types/api/email';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
 import { Resend } from 'resend';
-
-type SendEmailResponse = {
-  success: boolean;
-  createdEmailId?: string;
-  error?: string;
-};
 
 const resend = new Resend(parsedEnv.RESEND_API_KEY);
 
@@ -18,7 +13,7 @@ export const sendEmail = async ({
   to,
   subject,
   template,
-}: EmailData): Promise<SendEmailResponse> => {
+}: EmailConfig): Promise<EmailResponse> => {
   const { data, error } = await resend.emails.send({
     from,
     to,

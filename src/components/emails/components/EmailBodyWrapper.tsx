@@ -1,7 +1,7 @@
 import { FCProps } from '@/types/app';
 import { Body } from '@react-email/components';
 import { PropsWithChildren } from 'react';
-import { emailColors as colors, lightSource } from './styles';
+import { emailColors as colors, lightSource } from '../styles';
 
 const BodyWrapper: FCProps<PropsWithChildren> = ({ children, ...props }) => {
   return (

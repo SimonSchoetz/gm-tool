@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Html, Head } from '@react-email/components';
 import { parsedEnv } from '@/util/helper';
 import { Route } from '@/enums';
-import EmailBodyWrapper from '../components/EmailBodyWrapper';
-import EmailGlassPanel from '../components/EmailGlassPanel';
-import EmailButton from '../components/EmailButton';
 import { FCProps } from '@/types/app';
+import EmailBodyWrapper from '../../components/EmailBodyWrapper';
+import EmailButton from '../../components/EmailButton';
+import EmailGlassPanel from '../../components/EmailGlassPanel';
 
 type VerifyEmailTemplateProps = {
   token: string;

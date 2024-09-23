@@ -1,7 +1,7 @@
 import { EmailSender } from '@/enums';
 import { ReactNode } from 'react';
 
-export type EmailData = {
+export type EmailConfig = {
   from: EmailSender;
   to: string;
   subject: string;

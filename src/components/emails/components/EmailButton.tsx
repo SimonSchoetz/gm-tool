@@ -1,6 +1,6 @@
 import { FCProps } from '@/types/app';
 import { Button } from '@react-email/components';
-import { glassFX } from './styles';
+import { glassFX } from '../styles';
 
 type Props = {
   label: string;
