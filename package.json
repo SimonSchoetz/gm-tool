@@ -9,6 +9,8 @@
     "dev:secure": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
+    "db:logout": "npx convex logout",
+    "db:login": "npx convex login",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
