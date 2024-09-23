@@ -1,3 +1,5 @@
+'server-only';
+
 import { PasswordResetTemplate } from '@/components/emails/templates';
 import { EmailSender } from '@/enums';
 import { sendEmail } from './resend-send-email';

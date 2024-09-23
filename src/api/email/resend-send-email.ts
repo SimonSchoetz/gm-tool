@@ -1,7 +1,6 @@
-'use server';
+'server-only';
 
-import { EmailConfig } from '@/types/api/email';
-import { EmailResponse } from '@/types/api/email';
+import { EmailConfig, EmailResponse } from '@/types/api/email';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
 import { Resend } from 'resend';
