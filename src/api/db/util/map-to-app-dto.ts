@@ -1,4 +1,4 @@
-import { AppData, DbData } from '@/types/api/generics';
+import { AppData, DbData } from '@/types/api/db/generics';
 
 export const mapToAppDto = <T>(dbData: DbData<T>): AppData<T> => {
   const { _id, _creationTime, ...rest } = dbData;
