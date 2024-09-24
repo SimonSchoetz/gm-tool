@@ -1,7 +1,7 @@
 'use server';
 
 import { HttpStatusCode, ErrorReference, Route } from '@/enums';
-import { FormSubmitResponse } from '@/types/responses';
+import { FormSubmitResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token/read-token';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';

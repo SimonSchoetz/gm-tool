@@ -18,8 +18,8 @@ import {
 } from '@/validators/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
-import { FormSubmitResponse } from '@/types/responses';
-import { TokenPayload, TokenLifeSpan } from '@/types/actions/token';
+import { FormSubmitResponse } from '@/types/app';
+import { TokenPayload, TokenLifeSpan } from '@/types/actions';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
 import ConditionWrapper from './ConditionWrapper';

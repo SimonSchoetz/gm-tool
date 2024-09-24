@@ -2,7 +2,7 @@
 
 import { HttpStatusCode, ErrorReference, Route } from '@/enums';
 import { NewPasswordFormData } from '@/types/form-data-dto/new-password';
-import { FormSubmitResponse } from '@/types/responses';
+import { FormSubmitResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';

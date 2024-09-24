@@ -3,7 +3,7 @@
 import { createUser } from '@/api/db/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
-import { FormSubmitResponse } from '@/types/responses';
+import { FormSubmitResponse } from '@/types/app';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';

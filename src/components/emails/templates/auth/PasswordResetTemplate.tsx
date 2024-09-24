@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Html, Head } from '@react-email/components';
+import { Html, Head, Heading } from '@react-email/components';
 import { parsedEnv } from '@/util/helper';
 import { Route } from '@/enums';
 import { FCProps } from '@/types/app';
@@ -20,6 +20,7 @@ export const PasswordResetTemplate: FCProps<PasswordResetTemplateProps> = ({
     <Html lang='en' dir='ltr'>
       <Head>
         <title>Password reset</title>
+        <Heading>Password reset</Heading>
       </Head>
       <EmailBodyWrapper>
         <EmailGlassPanel>

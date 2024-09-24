@@ -1,6 +1,6 @@
 'use server';
 
-import { FormSubmitResponse } from '@/types/responses';
+import { FormSubmitResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
