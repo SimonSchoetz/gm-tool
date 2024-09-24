@@ -17,8 +17,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.585.0",
-    "@aws-sdk/util-dynamodb": "^3.598.0",
     "@hookform/resolvers": "^3.6.0",
     "@react-email/components": "^0.0.24",
     "@react-email/tailwind": "^0.1.0",
