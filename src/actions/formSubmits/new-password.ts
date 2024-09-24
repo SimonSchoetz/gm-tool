@@ -1,7 +1,7 @@
 'use server';
 
 import { HttpStatusCode, ErrorReference, Route } from '@/enums';
-import { NewPasswordFormData } from '@/types/form-data-dto/new-password';
+import { NewPasswordFormData } from '@/types/actions';
 import { FormSubmitResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';

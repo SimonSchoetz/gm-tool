@@ -7,7 +7,7 @@ import { FormSubmitResponse } from '@/types/app';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
-import { SignUpFormData } from '@/types/form-data-dto';
+import { SignUpFormData } from '@/types/actions';
 import { sendEmailVerificationEmail } from '../emails';
 
 export const submitSignUp = async (
@@ -23,7 +23,7 @@ export const submitSignUp = async (
 
     await createUser(validatedData);
 
-    sendEmailVerificationEmail(validatedData.email);
+    await sendEmailVerificationEmail(validatedData.email);
 
     return {
       status: HttpStatusCode.CREATED,

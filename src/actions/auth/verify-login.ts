@@ -2,7 +2,7 @@
 
 import { EmailVerificationState, ErrorReference } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
-import { LoginFormData } from '@/types/form-data-dto';
+import { LoginFormData } from '@/types/actions/form-data-dto';
 
 import { validatePassword } from '@/util/encryption';
 import { getUserByEmail } from '../../api/db/user/getUser';

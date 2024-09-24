@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { EmailVerificationState, HttpStatusCode } from '@/enums';
-import { SignUpFormData } from '@/types/form-data-dto';
+import { SignUpFormData } from '@/types/actions';
 import { encryptPassword } from '@/util/encryption';
 import { convexDb, users } from '../convexDb';
 import { CreateUserDto } from '@/types/api/db';

@@ -4,7 +4,7 @@ import { FormSubmitResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
-import { PasswordResetFormEmailData } from '@/types/form-data-dto';
+import { PasswordResetFormEmailData } from '@/types/actions';
 import { HttpStatusCode } from '@/enums';
 import { ZodError } from 'zod';
 import { sendPasswordResetEmail } from '../emails';

@@ -6,7 +6,7 @@ import { FormSubmitResponse } from '@/types/app';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
-import { VerificationEmailFormData } from '@/types/form-data-dto';
+import { VerificationEmailFormData } from '@/types/actions';
 import { sendEmailVerificationEmail } from '../emails';
 
 export const submitRequestNewVerificationEmail = async (

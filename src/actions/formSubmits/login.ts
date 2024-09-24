@@ -9,7 +9,7 @@ import { ZodError } from 'zod';
 import { verifyLogin } from '../auth';
 import { setAuthCookie } from '../cookies';
 import { getUserByEmail } from '@/api/db/user';
-import { LoginFormData } from '@/types/form-data-dto';
+import { LoginFormData } from '@/types/actions/form-data-dto';
 
 export const submitLogin = async (
   data: unknown
