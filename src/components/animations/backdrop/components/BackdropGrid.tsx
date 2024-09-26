@@ -16,23 +16,24 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   const maxSize = 120;
   // extra rows prevent a too wide gap at specific window widths
   const amountExtraRows = 5;
-
   const getSquareSize = (): number => {
     return Math.min(window.innerWidth / 8, maxSize);
   };
 
-  const [squareSize, setSquareSize] = useState(getSquareSize());
-
-  const getAmountSquaresX = useCallback((): number => {
+  const getAmountSquaresX = useCallback((squareSize: number): number => {
     return Math.ceil((window.innerWidth * 1.2) / squareSize);
-  }, [squareSize]);
+  }, []);
 
-  const getAmountSquaresY = useCallback((): number => {
+  const getAmountSquaresY = useCallback((squareSize: number): number => {
     return Math.ceil(window.innerHeight / squareSize);
-  }, [squareSize]);
+  }, []);
 
-  const [amountSquaresX, setAmountSquaresX] = useState(getAmountSquaresX());
-  const [amountSquaresY, setAmountSquaresY] = useState(getAmountSquaresY());
+  const [amountSquaresX, setAmountSquaresX] = useState(
+    getAmountSquaresX(getSquareSize())
+  );
+  const [amountSquaresY, setAmountSquaresY] = useState(
+    getAmountSquaresY(getSquareSize())
+  );
 
   const ids = useMemo(() => {
     const ids: string[] = [];
@@ -46,24 +47,33 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
   }, [amountSquaresX, amountSquaresY]);
 
   const updateSquareMeasurements = useCallback(() => {
-    setSquareSize(getSquareSize());
-
-    const currentAmountX = getAmountSquaresX();
-    const currentAmountY = getAmountSquaresY();
+    const squareSize = getSquareSize();
+    const currentAmountX = getAmountSquaresX(squareSize);
+    const currentAmountY = getAmountSquaresY(squareSize);
     const xChanged = currentAmountX !== amountSquaresX;
     const yChanged = currentAmountY !== amountSquaresY;
 
     if (xChanged) {
-      setAmountSquaresX(getAmountSquaresX());
+      setAmountSquaresX(currentAmountX);
     }
     if (yChanged) {
-      setAmountSquaresY(getAmountSquaresY());
+      setAmountSquaresY(currentAmountY);
     }
-  }, [getAmountSquaresX, getAmountSquaresY, amountSquaresX, amountSquaresY]);
+  }, [
+    getAmountSquaresX,
+    getAmountSquaresY,
+    amountSquaresX,
+    amountSquaresY,
+    getSquareSize,
+  ]);
 
   useEffect(() => {
+    // also detects de orientation change on mobile devices
+    window.addEventListener('innerWidth', updateSquareMeasurements);
+    // resizing on desktop
     window.addEventListener('resize', updateSquareMeasurements);
     return () => {
+      window.addEventListener('innerWidth', updateSquareMeasurements);
       window.removeEventListener('resize', updateSquareMeasurements);
     };
   }, [updateSquareMeasurements]);
@@ -81,8 +91,8 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
     <div
       style={{
         //        square size + amount of gaps
-        top: `-${(squareSize + amountSquaresY) / 2}px`,
-        left: `-${(squareSize + amountSquaresX) / 2}px`,
+        top: `-${(getSquareSize() + amountSquaresY) / 2}px`,
+        left: `-${(getSquareSize() + amountSquaresX) / 2}px`,
       }}
       className='
           bg-gm-primary-10 
@@ -93,7 +103,7 @@ const BackdropGrid = ({ setIdList }: BackdropGridProps) => {
     >
       {getSquares({
         ids,
-        squareSize,
+        squareSize: getSquareSize(),
         maxSize,
       })}
     </div>
