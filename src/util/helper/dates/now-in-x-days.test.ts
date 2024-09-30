@@ -5,7 +5,7 @@ describe('nowInXDays', () => {
     const now = new Date();
     const newDate = nowInXDays(30);
     const expectedDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    expectedDate.setMilliseconds(0);
+    expectedDate.setUTCMilliseconds(0);
     expect(newDate).toEqual(expectedDate);
   });
 });
