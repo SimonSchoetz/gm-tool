@@ -24,6 +24,7 @@ export default [
       ],
       'custom-rules/sort-enums': 'error',
       'no-process-env': 'error',
+      'no-restricted-imports': ['error', '..'],
     },
   },
 ];
