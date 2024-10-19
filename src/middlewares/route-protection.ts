@@ -39,7 +39,7 @@ export const routeProtection = async (
        * My first plan was to delete the faulty cookie but this is not so easily handled,
        * hence just the redirect to the login which can overwrite the cookie on success
        */
-      return redirectTo(req, Route.LOGIN);
+      return redirectTo(req, Route.LOGIN); // needs to go to a error page that deletes the cookie
     }
 
     if (authRoutes.includes(pathname)) {

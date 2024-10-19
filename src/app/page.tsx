@@ -12,6 +12,8 @@ const MainPage: NextPage = () => {
 
         <p>Create an account to get started</p>
 
+        {/* Show Logout if user is logged in */}
+
         <AppLink
           layout={AppLinkLayout.BUTTON}
           href={Route.SIGN_UP}
