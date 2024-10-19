@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import Button from '../Button';
 import { FieldValues, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import {
   ValidatorName,
   assertFormShape,
@@ -47,14 +46,14 @@ const FormWrapper = ({
 
   const router = useRouter();
 
-  const schemaInstance = getFormDataValidator(schemaName);
+  const validator = getFormDataValidator(schemaName);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm<z.infer<typeof schemaInstance>>({
-    resolver: zodResolver(schemaInstance),
+  } = useForm({
+    resolver: zodResolver(validator),
   });
 
   const mapChild = (child: React.ReactNode) => {
