@@ -79,6 +79,12 @@ const LightBeam = ({ coordinates, duration }: LightBeamProps) => {
     stepThroughPixelPositions();
   }, [coordinates, duration]);
 
+  const [currentCoordinates, setCurrentCoordinates] = useState(coordinates);
+  if (JSON.stringify(currentCoordinates) !== JSON.stringify(coordinates)) {
+    setCurrentCoordinates(coordinates);
+    return null;
+  }
+
   return (
     <ConditionWrapper condition={!isLastCoordinateReached}>
       <BeamParticles duration={duration} nextPosition={nextPosition} />
