@@ -22,6 +22,7 @@ import { TokenPayload, TokenLifeSpan } from '@/types/actions';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
 import ConditionWrapper from './ConditionWrapper';
+import { generateToken } from '@/actions/token';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -30,7 +31,7 @@ type FormWrapperProps = DetailedHTMLProps<
   buttonLabel: string;
   schemaName: ValidatorName;
   submitAction: (data: unknown) => Promise<FormSubmitResponse>;
-  encrypt?: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
+  encrypt: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
   additionalFormData?: Record<string, unknown>;
 };
 
@@ -89,12 +90,9 @@ const FormWrapper = ({
   const onSubmit = async (values: FieldValues): Promise<void> => {
     const data: FieldValues = { ...values, ...additionalFormData };
 
-    let encryptedData: string | undefined;
-    if (encrypt) {
-      encryptedData = await encrypt({ ...data }, '5s');
-    }
+    const encryptedData = await generateToken({ ...data }, '5s');
 
-    const res = await submitAction(encryptedData ?? data);
+    const res = await submitAction(encryptedData);
 
     if (res?.error) {
       handleServerErrors(res.error);

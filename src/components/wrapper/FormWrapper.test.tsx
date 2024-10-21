@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import FormWrapper from './FormWrapper';
 import { ValidatorName } from '@/validators/util';
 import Input from '../Input';
-
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -15,14 +14,19 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('FormWrapper', () => {
+  const mockEncryption = jest.fn(async (values) => {
+    return JSON.stringify(values);
+  });
+  const mockOnSubmit = jest.fn(async (values) => {
+    return Promise.resolve(values);
+  });
   it('renders the form with children', () => {
-    const mockOnSubmit = jest.fn();
-
     render(
       <FormWrapper
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
+        encrypt={mockEncryption}
       >
         <Input id='email' placeholder='Email' />
         <Input id='password' placeholder='Password' type='password' />
@@ -34,12 +38,12 @@ describe('FormWrapper', () => {
   });
 
   it('renders a submit button', () => {
-    const mockOnSubmit = jest.fn();
     render(
       <FormWrapper
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
+        encrypt={mockEncryption}
       ></FormWrapper>
     );
 
@@ -47,12 +51,12 @@ describe('FormWrapper', () => {
   });
 
   it('should have a disabled submit button when form is invalid', async () => {
-    const mockOnSubmit = jest.fn();
     render(
       <FormWrapper
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
+        encrypt={mockEncryption}
       >
         <Input id='email' placeholder='Email' value='test@example.com' />
         <Input id='password' placeholder='Password' type='password' />
@@ -68,12 +72,12 @@ describe('FormWrapper', () => {
     });
   });
   it('should provide error messages if form is invalid', async () => {
-    const mockOnSubmit = jest.fn();
     render(
       <FormWrapper
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
+        encrypt={mockEncryption}
       >
         <Input id='email' placeholder='Email' value='test@example.com' />
         <Input id='password' placeholder='Password' type='password' />
@@ -92,15 +96,12 @@ describe('FormWrapper', () => {
   });
 
   it('calls onSubmit with form values when submitted', async () => {
-    const mockOnSubmit = jest.fn(async (values) => {
-      return Promise.resolve(values);
-    });
-
     render(
       <FormWrapper
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
+        encrypt={mockEncryption}
       >
         <Input
           id='email'
@@ -121,21 +122,15 @@ describe('FormWrapper', () => {
     userEvent.click(screen.getByText('Submit'));
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123',
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        JSON.stringify({
+          email: 'test@example.com',
+          password: 'password123',
+        })
+      );
     });
   });
   it('should encrypt data when encryption function is provided provided', async () => {
-    const mockEncryption = jest.fn(async (values) => {
-      return JSON.stringify(values);
-    });
-
-    const mockOnSubmit = jest.fn(async (values) => {
-      return Promise.resolve(values);
-    });
-
     render(
       <FormWrapper
         buttonLabel='Submit'
