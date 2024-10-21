@@ -1,3 +1,3 @@
 export * from './verify-email';
-export * from './auth-cookie';
+export * from './session-cookie';
 export * from './password-reset';

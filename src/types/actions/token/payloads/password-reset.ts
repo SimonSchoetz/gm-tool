@@ -1,5 +1,3 @@
 import { User } from '@/types/app/user';
 
-export type PasswordResetTokenPayload = {
-  email: User['email'];
-};
+export type PasswordResetTokenPayload = Pick<User, 'email'>;
