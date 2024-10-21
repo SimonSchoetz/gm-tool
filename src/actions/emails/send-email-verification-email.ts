@@ -4,7 +4,7 @@ import { getUserByEmail } from '@/api/db/user';
 import { generateToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/actions/token';
 import { EmailResponse } from '@/types/api/email';
-import { resendSendEmailVerificationEmail } from '@/api/email/resend-send-email-verification-email';
+import { resendSendEmailVerificationEmail } from '@/api/email';
 
 export const sendEmailVerificationEmail = async (
   userEmail: string
