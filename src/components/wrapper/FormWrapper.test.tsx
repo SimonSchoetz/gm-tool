@@ -14,9 +14,6 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('FormWrapper', () => {
-  const mockEncryption = jest.fn(async (values) => {
-    return JSON.stringify(values);
-  });
   const mockOnSubmit = jest.fn(async (values) => {
     return Promise.resolve(values);
   });
@@ -26,7 +23,6 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
-        encrypt={mockEncryption}
       >
         <Input id='email' placeholder='Email' />
         <Input id='password' placeholder='Password' type='password' />
@@ -43,7 +39,6 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
-        encrypt={mockEncryption}
       ></FormWrapper>
     );
 
@@ -56,7 +51,6 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
-        encrypt={mockEncryption}
       >
         <Input id='email' placeholder='Email' value='test@example.com' />
         <Input id='password' placeholder='Password' type='password' />
@@ -77,7 +71,6 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
-        encrypt={mockEncryption}
       >
         <Input id='email' placeholder='Email' value='test@example.com' />
         <Input id='password' placeholder='Password' type='password' />
@@ -101,7 +94,6 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
-        encrypt={mockEncryption}
       >
         <Input
           id='email'
@@ -136,7 +128,6 @@ describe('FormWrapper', () => {
         buttonLabel='Submit'
         schemaName={ValidatorName.LOGIN}
         submitAction={mockOnSubmit}
-        encrypt={mockEncryption}
       >
         <Input
           id='email'

@@ -6,7 +6,6 @@ import {
 } from '@/components/wrapper';
 import { submitLogin } from '@/actions/formSubmits';
 import { ValidatorName } from '@/validators/util';
-import { generateToken } from '@/actions/token';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import { Route } from '@/enums';
 import { NextPage } from 'next';
@@ -33,7 +32,6 @@ const LoginPage: NextPage = () => {
           schemaName={ValidatorName.LOGIN}
           submitAction={submitLogin}
           buttonLabel='Login'
-          encrypt={generateToken}
         >
           <Input
             name='email'

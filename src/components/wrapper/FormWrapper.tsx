@@ -18,7 +18,6 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
 import { FormSubmitResponse } from '@/types/app';
-import { TokenPayload, TokenLifeSpan } from '@/types/actions';
 import { useRouter } from 'next/navigation';
 import { assertIsString } from '@/util/asserts';
 import ConditionWrapper from './ConditionWrapper';
@@ -31,7 +30,6 @@ type FormWrapperProps = DetailedHTMLProps<
   buttonLabel: string;
   schemaName: ValidatorName;
   submitAction: (data: unknown) => Promise<FormSubmitResponse>;
-  encrypt: (data: TokenPayload, lifeSpan: TokenLifeSpan) => Promise<string>;
   additionalFormData?: Record<string, unknown>;
 };
 
@@ -40,7 +38,6 @@ const FormWrapper = ({
   schemaName,
   submitAction,
   children,
-  encrypt,
   additionalFormData,
 }: PropsWithChildren<FormWrapperProps>) => {
   const [hasRequiredFields, setHasRequiredFields] = useState(false);

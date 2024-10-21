@@ -1,7 +1,6 @@
 'use client';
 
 import { submitNewPassword } from '@/actions/formSubmits';
-import { generateToken } from '@/actions/token';
 import Input from '@/components/Input';
 import { FormWrapper } from '@/components/wrapper';
 import { FCProps } from '@/types/app';
@@ -15,7 +14,6 @@ const NewPasswordForm: FCProps<Props> = ({ token }) => {
       schemaName={ValidatorName.NEW_PASSWORD}
       submitAction={submitNewPassword}
       buttonLabel='Reset password'
-      encrypt={generateToken}
       additionalFormData={{ token }}
     >
       <Input
