@@ -7,7 +7,7 @@ import { readToken } from '../token/read-token';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { verifyLogin } from '../auth';
-import { setAuthCookie } from '../cookies';
+import { setSessionCookie } from '../cookies';
 import { getUserByEmail } from '@/api/db/user';
 import { LoginFormData } from '@/types/actions/form-data-dto';
 
@@ -28,7 +28,7 @@ export const submitLogin = async (
 
     const user = await getUserByEmail(validatedData.email);
 
-    await setAuthCookie(user);
+    await setSessionCookie(user);
 
     return {
       status: HttpStatusCode.ACCEPTED,

@@ -10,3 +10,6 @@ const envValidator = z.object({
 
 //eslint-disable-next-line no-process-env
 export const parsedEnv = envValidator.parse(process.env);
+
+//eslint-disable-next-line no-process-env
+export const currentEnv = process.env.NODE_ENV;

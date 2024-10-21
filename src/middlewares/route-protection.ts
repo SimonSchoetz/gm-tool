@@ -1,7 +1,6 @@
 import { readToken } from '@/actions/token';
 import { CookieName, Route } from '@/enums';
 import { redirectTo } from '@/util/router';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const authRoutes = [
@@ -24,22 +23,21 @@ export const routeProtection = async (
     return NextResponse.rewrite(new URL(Route.NOT_FOUND, req.url));
   }
 
-  const authCookie = cookies().get(CookieName.AUTH);
+  const sessionCookie = req.cookies.get(CookieName.SESSION);
 
-  if (!authCookie) {
+  if (!sessionCookie) {
     if (isProtectedRoute) {
       return redirectTo(req, Route.LOGIN);
     }
   }
 
-  if (authCookie) {
-    const canConfirmUser = await confirmToken(authCookie.value);
+  if (sessionCookie) {
+    const canConfirmUser = await confirmToken(sessionCookie.value);
     if (!canConfirmUser) {
-      /**
-       * My first plan was to delete the faulty cookie but this is not so easily handled,
-       * hence just the redirect to the login which can overwrite the cookie on success
-       */
-      return redirectTo(req, Route.LOGIN); // needs to go to a error page that deletes the cookie
+      const res = redirectTo(req, Route.LOGIN);
+      res.cookies.delete(CookieName.SESSION);
+
+      return res;
     }
 
     if (authRoutes.includes(pathname)) {

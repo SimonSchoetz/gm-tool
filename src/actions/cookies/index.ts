@@ -1,2 +1,2 @@
-export { setAuthCookie } from './set-auth-cookie';
+export { setSessionCookie } from './set-session-cookie';
 export { deleteCookie } from './delete-cookie';
