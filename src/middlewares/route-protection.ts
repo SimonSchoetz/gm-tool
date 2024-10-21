@@ -1,6 +1,6 @@
 import { readToken } from '@/actions/token';
 import { CookieName, Route } from '@/enums';
-import { redirectTo } from '@/util/router';
+import { redirectTo } from '@/util/app';
 import { NextRequest, NextResponse } from 'next/server';
 
 const authRoutes = [

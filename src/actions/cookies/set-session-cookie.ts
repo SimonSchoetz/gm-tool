@@ -9,7 +9,7 @@ import { User } from '@/types/app/user';
 
 export const setSessionCookie = async (user: User): Promise<void> => {
   const payload = {
-    id: user.id,
+    userId: user.id,
     email: user.email,
     userName: user.userName,
   };
