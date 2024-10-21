@@ -1,3 +1,6 @@
 import { User } from '@/types/app/user';
 
-export type VerifyEmailTokenPayload = Pick<User, 'email' | 'emailVerified'>;
+export type VerifyEmailTokenPayload = {
+  email: User['email'];
+  verifyEmailHash: User['emailVerified'];
+};
