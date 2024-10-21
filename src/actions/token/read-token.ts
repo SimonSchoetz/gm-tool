@@ -8,7 +8,7 @@ import { JOSEError } from 'jose/errors';
 
 export const readToken = async <T extends TokenPayload>(
   token: string
-): Promise<(T & { expiresAt: Date | null }) | null> => {
+): Promise<T & { expiresAt: Date | null | 'expired' }> => {
   try {
     const authSecret = parsedEnv.TOKEN_AUTH_SECRET;
     assertIsString(authSecret);
@@ -22,11 +22,9 @@ export const readToken = async <T extends TokenPayload>(
     return { ...(payload as T), expiresAt };
   } catch (error) {
     if (error instanceof JOSEError) {
-      const isExpired = error.code === 'ERR_JWT_EXPIRED';
-
-      if (isExpired) return null;
-
-      throw new Error(`Invalid token: ${error.code}`);
+      const errorMessage =
+        error.code === 'ERR_JWT_EXPIRED' ? 'expired' : error.code;
+      throw new Error(`Invalid token: ${errorMessage}`);
     }
     throw new Error('Invalid token');
   }

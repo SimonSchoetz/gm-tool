@@ -6,10 +6,11 @@ import { cookies } from 'next/headers';
 export const getSession =
   async (): Promise<SessionCookieTokenPayload | null> => {
     const session = cookies().get(CookieName.SESSION)?.value;
+    if (!session) return null;
 
-    if (!session) {
+    try {
+      return await readToken<SessionCookieTokenPayload>(session);
+    } catch {
       return null;
     }
-
-    return await readToken<SessionCookieTokenPayload>(session);
   };
