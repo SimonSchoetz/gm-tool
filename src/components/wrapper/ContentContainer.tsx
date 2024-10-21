@@ -1,11 +1,12 @@
 import { PropsWithChildren } from 'react';
 import { InputLabelUnderline } from '../animations';
+import { FCProps } from '@/types/app';
 
 type ContentContainerProps = PropsWithChildren<{
   title: string;
 }>;
 
-const ContentContainer: React.FC<ContentContainerProps> = ({
+const ContentContainer: FCProps<ContentContainerProps> = ({
   children,
   title,
 }) => {
