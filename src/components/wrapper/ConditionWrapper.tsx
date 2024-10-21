@@ -4,7 +4,7 @@ const ConditionWrapper = ({
   children,
   condition,
 }: PropsWithChildren<{ condition: boolean }>) => {
-  return <>{condition ? children : null}</>;
+  return condition ? children : <></>;
 };
 
 export default ConditionWrapper;
