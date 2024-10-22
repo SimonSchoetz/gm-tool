@@ -4,7 +4,7 @@ import {
   FormWrapper,
   GlassPanel,
 } from '@/components/wrapper';
-import { submitLogin } from '@/actions/formSubmits';
+import { submitLogin } from '@/actions/auth';
 import { ValidatorName } from '@/validators/util';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import { Route } from '@/enums';

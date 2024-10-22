@@ -17,7 +17,10 @@ import type {
 } from "convex/server";
 import type * as helper_index from "../helper/index.js";
 import type * as helper_zod from "../helper/zod.js";
+import type * as sessions_create_session from "../sessions/create_session.js";
+import type * as sessions_index from "../sessions/index.js";
 import type * as tables_index from "../tables/index.js";
+import type * as tables_sessions_table from "../tables/sessions_table.js";
 import type * as tables_users_table from "../tables/users_table.js";
 import type * as users_create_users from "../users/create_users.js";
 import type * as users_get_users from "../users/get_users.js";
@@ -35,7 +38,10 @@ import type * as users_update_user from "../users/update_user.js";
 declare const fullApi: ApiFromModules<{
   "helper/index": typeof helper_index;
   "helper/zod": typeof helper_zod;
+  "sessions/create_session": typeof sessions_create_session;
+  "sessions/index": typeof sessions_index;
   "tables/index": typeof tables_index;
+  "tables/sessions_table": typeof tables_sessions_table;
   "tables/users_table": typeof tables_users_table;
   "users/create_users": typeof users_create_users;
   "users/get_users": typeof users_get_users;

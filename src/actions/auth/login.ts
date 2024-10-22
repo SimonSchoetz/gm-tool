@@ -6,7 +6,7 @@ import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
-import { setSessionCookie } from '../cookies';
+import { initSession } from './session';
 import { getUserByEmail } from '@/api/db/user';
 import { LoginFormData } from '@/types/actions';
 import { validatePassword } from '@/util/encryption';
@@ -52,7 +52,7 @@ export const submitLogin = async (
       };
     }
 
-    await setSessionCookie(user);
+    await initSession(user);
 
     return {
       status: HttpStatusCode.ACCEPTED,

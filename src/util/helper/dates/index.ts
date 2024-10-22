@@ -1,1 +1,1 @@
-export * from './now-in-x-days';
+export * from './get-date-from-now-in-duration';
