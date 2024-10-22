@@ -5,7 +5,7 @@ import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ServerActionResponse } from '@/types/app';
 import { ZodError } from 'zod';
-import { readToken } from '../token/read-token';
+import { readToken } from '../token';
 import { assertIsString } from '@/util/asserts';
 import { SignUpFormData } from '@/types/actions';
 import { sendEmailVerificationEmail } from '../emails';

@@ -1,4 +1,4 @@
-import { submitLogout } from '@/actions/formSubmits';
+import { submitLogout } from '@/actions/auth';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import Button from '@/components/Button';
 import { ConditionWrapper, GlassPanel } from '@/components/wrapper';

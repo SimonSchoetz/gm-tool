@@ -3,12 +3,12 @@
 import { HttpStatusCode, Route, EmailVerificationState } from '@/enums';
 import { ServerActionResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
-import { readToken } from '../token/read-token';
+import { readToken } from '../token';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { setSessionCookie } from '../cookies';
 import { getUserByEmail } from '@/api/db/user';
-import { LoginFormData } from '@/types/actions/form-data-dto';
+import { LoginFormData } from '@/types/actions';
 import { validatePassword } from '@/util/encryption';
 
 export const submitLogin = async (
