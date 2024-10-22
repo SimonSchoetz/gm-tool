@@ -17,9 +17,8 @@ import {
 } from '@/validators/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
-import { FormSubmitResponse } from '@/types/app';
+import { ServerActionResponse } from '@/types/app';
 import { useRouter } from 'next/navigation';
-import { assertIsString } from '@/util/asserts';
 import ConditionWrapper from './ConditionWrapper';
 import { generateToken } from '@/actions/token';
 
@@ -29,7 +28,7 @@ type FormWrapperProps = DetailedHTMLProps<
 > & {
   buttonLabel: string;
   schemaName: ValidatorName;
-  submitAction: (data: unknown) => Promise<FormSubmitResponse>;
+  submitAction: (data: unknown) => Promise<ServerActionResponse>;
   additionalFormData?: Record<string, unknown>;
 };
 
@@ -41,6 +40,7 @@ const FormWrapper = ({
   additionalFormData,
 }: PropsWithChildren<FormWrapperProps>) => {
   const [hasRequiredFields, setHasRequiredFields] = useState(false);
+  const [message, setMessage] = useState<string>('');
 
   const router = useRouter();
 
@@ -95,11 +95,14 @@ const FormWrapper = ({
       handleServerErrors(res.error);
     }
     if (res?.redirectRoute) {
-      handleRedirect(res.redirectRoute);
+      router.push(res.redirectRoute);
+    }
+    if (res?.message) {
+      setMessage(res.message);
     }
   };
 
-  const handleServerErrors = (errors: FormSubmitResponse['error']): void => {
+  const handleServerErrors = (errors: ServerActionResponse['error']): void => {
     if (!errors) return;
 
     Object.keys(errors).forEach((key) => {
@@ -108,13 +111,6 @@ const FormWrapper = ({
         type: 'custom',
       });
     });
-  };
-
-  const handleRedirect = (
-    redirectRoute: FormSubmitResponse['redirectRoute']
-  ): void => {
-    assertIsString(redirectRoute);
-    router.push(redirectRoute);
   };
 
   useEffect(() => {
@@ -147,6 +143,10 @@ const FormWrapper = ({
         disabled={!!Object.keys(errors).length}
         isLoading={isSubmitting}
       />
+
+      <ConditionWrapper condition={!!message}>
+        <p className='ml-4 text-sm'>{message}</p>
+      </ConditionWrapper>
     </form>
   );
 };

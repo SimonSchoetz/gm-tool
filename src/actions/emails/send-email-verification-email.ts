@@ -3,35 +3,47 @@
 import { getUserByEmail } from '@/api/db/user';
 import { generateToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/actions/token';
-import { EmailResponse } from '@/types/api/email';
 import { resendSendEmailVerificationEmail } from '@/api/email';
+import { ServerActionResponse } from '@/types/app';
+import { HttpStatusCode } from '@/enums';
 
 export const sendEmailVerificationEmail = async (
   userEmail: string
-): Promise<EmailResponse> => {
-  try {
-    const user = await getUserByEmail(userEmail);
+): Promise<ServerActionResponse> => {
+  const user = await getUserByEmail(userEmail);
 
-    const { email, emailVerified } = user;
-
-    const payload = {
-      email,
-      verifyEmailHash: emailVerified,
-    } satisfies VerifyEmailTokenPayload;
-
-    const emailVerificationToken = await generateToken<VerifyEmailTokenPayload>(
-      payload,
-      '1day'
-    );
-
-    return await resendSendEmailVerificationEmail(
-      emailVerificationToken,
-      userEmail
-    );
-  } catch (err) {
-    if (err instanceof Error) {
-      throw new Error(err.message);
-    }
-    throw err;
+  if (!user) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      error: { message: 'User not found' },
+    };
   }
+
+  const { email, emailVerified } = user;
+
+  const payload = {
+    email,
+    verifyEmailHash: emailVerified,
+  } satisfies VerifyEmailTokenPayload;
+
+  const emailVerificationToken = await generateToken<VerifyEmailTokenPayload>(
+    payload,
+    '1day'
+  );
+
+  const res = await resendSendEmailVerificationEmail(
+    emailVerificationToken,
+    userEmail
+  );
+
+  if (!res.success) {
+    return {
+      status: HttpStatusCode.BAD_REQUEST,
+      message: `Failed to send email verification email: ${res.error}`,
+    };
+  }
+
+  return {
+    status: HttpStatusCode.OK,
+  };
 };

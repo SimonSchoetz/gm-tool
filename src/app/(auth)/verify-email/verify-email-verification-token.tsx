@@ -19,10 +19,10 @@ const VerifyEmailVerificationToken: React.FC<
 
   useEffect(() => {
     const verify = async () => {
-      const emailVerified = await verifyEmail(token);
+      const res = await verifyEmail(token);
 
-      if (emailVerified && !emailVerified?.success) {
-        setError(emailVerified.message);
+      if ('message' in res) {
+        setError(res.message);
       }
     };
 

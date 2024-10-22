@@ -1,6 +1,6 @@
 'use server';
 
-import { FormSubmitResponse } from '@/types/app';
+import { ServerActionResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
@@ -11,7 +11,7 @@ import { sendPasswordResetEmail } from '../emails';
 
 export const submitRequestPasswordResetEmail = async (
   data: unknown
-): Promise<FormSubmitResponse> => {
+): Promise<ServerActionResponse> => {
   try {
     assertIsString(data);
     const decoded = await readToken(data);
@@ -21,25 +21,27 @@ export const submitRequestPasswordResetEmail = async (
       ValidatorName.PASSWORD_RESET_EMAIL
     );
 
-    await sendPasswordResetEmail(email);
+    const res = await sendPasswordResetEmail(email);
+
+    if (res.status !== HttpStatusCode.OK) {
+      return res;
+    }
 
     return {
       status: HttpStatusCode.OK,
+      message: 'Check your email!',
     };
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new Error('Could not validate input data');
+      return {
+        status: HttpStatusCode.BAD_REQUEST,
+        message: 'Could not validate input data',
+      };
     }
 
-    if (error instanceof Error) {
-      if (error.message.includes('User not found')) {
-        return {
-          status: HttpStatusCode.CONFLICT,
-          error: { email: `We don't recognize this email` },
-        };
-      }
-    }
-
-    throw new Error(`Unknown error during password reset request: "${error}"`); //TODO: save error log in db
+    return {
+      status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+      message: `Unknown error during password reset request: "${error}"`,
+    };
   }
 };

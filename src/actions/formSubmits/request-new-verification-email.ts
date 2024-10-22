@@ -2,7 +2,7 @@
 
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
-import { FormSubmitResponse } from '@/types/app';
+import { ServerActionResponse } from '@/types/app';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
@@ -11,7 +11,7 @@ import { sendEmailVerificationEmail } from '../emails';
 
 export const submitRequestNewVerificationEmail = async (
   data: unknown
-): Promise<FormSubmitResponse> => {
+): Promise<ServerActionResponse> => {
   try {
     assertIsString(data);
     const decoded = await readToken(data);
@@ -21,7 +21,11 @@ export const submitRequestNewVerificationEmail = async (
       ValidatorName.VERIFICATION_EMAIL
     );
 
-    await sendEmailVerificationEmail(email);
+    const res = await sendEmailVerificationEmail(email);
+
+    if (res.status !== HttpStatusCode.OK) {
+      return res;
+    }
 
     return {
       status: HttpStatusCode.OK,
@@ -29,20 +33,15 @@ export const submitRequestNewVerificationEmail = async (
     };
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new Error('Could not validate input data');
+      return {
+        status: HttpStatusCode.BAD_REQUEST,
+        message: 'Could not validate input data',
+      };
     }
 
-    if (error instanceof Error) {
-      if (error.message.includes('User not found')) {
-        return {
-          status: HttpStatusCode.CONFLICT,
-          error: { email: `We don't recognize this email` },
-        };
-      }
-    }
-
-    throw new Error(
-      `Unknown error during verification email request: "${error}"`
-    ); //TODO: save error log in db
+    return {
+      status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+      message: `Unknown error during verification email request: "${error}"`,
+    };
   }
 };

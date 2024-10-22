@@ -3,7 +3,7 @@
 import { createUser } from '@/api/db/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
-import { FormSubmitResponse } from '@/types/app';
+import { ServerActionResponse } from '@/types/app';
 import { ZodError } from 'zod';
 import { readToken } from '../token/read-token';
 import { assertIsString } from '@/util/asserts';
@@ -12,7 +12,7 @@ import { sendEmailVerificationEmail } from '../emails';
 
 export const submitSignUp = async (
   data: unknown
-): Promise<FormSubmitResponse> => {
+): Promise<ServerActionResponse> => {
   try {
     assertIsString(data);
     const decoded = await readToken(data);
@@ -31,7 +31,10 @@ export const submitSignUp = async (
     };
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new Error('Could not validate input data');
+      return {
+        status: HttpStatusCode.BAD_REQUEST,
+        message: 'Could not validate input data',
+      };
     }
 
     if (error instanceof Error) {
@@ -45,6 +48,9 @@ export const submitSignUp = async (
       }
     }
 
-    throw new Error(`Unknown error during sign up: "${error}"`); //TODO: save error log in db
+    return {
+      status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+      message: `Unknown error during sign up: "${error}"`,
+    };
   }
 };

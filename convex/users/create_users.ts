@@ -16,7 +16,6 @@ export const createUser = zMutation({
     if (await emailAlreadyInUse(ctx, args)) {
       throw new ConvexError('Email already in use.');
     }
-    // ctx.auth.getUserIdentity()
     await ctx.db.insert(DbTable.USERS, args);
 
     return { status: HttpStatusCode.CREATED };

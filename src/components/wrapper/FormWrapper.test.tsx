@@ -122,39 +122,4 @@ describe('FormWrapper', () => {
       );
     });
   });
-  it('should encrypt data when encryption function is provided provided', async () => {
-    render(
-      <FormWrapper
-        buttonLabel='Submit'
-        schemaName={ValidatorName.LOGIN}
-        submitAction={mockOnSubmit}
-      >
-        <Input
-          id='email'
-          name='email'
-          placeholder='Email'
-          value='test@example.com'
-        />
-        <Input
-          id='password'
-          name='password'
-          placeholder='Password'
-          type='password'
-          value='password123'
-        />
-      </FormWrapper>
-    );
-
-    userEvent.click(screen.getByText('Submit'));
-
-    await waitFor(() => {
-      expect(mockEncryption).toHaveBeenCalledWith(
-        {
-          email: 'test@example.com',
-          password: 'password123',
-        },
-        '5s'
-      );
-    });
-  });
 });

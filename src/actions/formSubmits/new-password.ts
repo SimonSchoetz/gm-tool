@@ -1,8 +1,8 @@
 'use server';
 
-import { HttpStatusCode, ErrorReference, Route } from '@/enums';
+import { HttpStatusCode, Route } from '@/enums';
 import { NewPasswordFormData } from '@/types/actions';
-import { FormSubmitResponse } from '@/types/app';
+import { ServerActionResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
@@ -12,7 +12,7 @@ import { encryptPassword } from '@/util/encryption';
 
 export const submitNewPassword = async (
   data: unknown
-): Promise<FormSubmitResponse> => {
+): Promise<ServerActionResponse> => {
   try {
     assertIsString(data);
     const decoded = await readToken(data);
@@ -25,9 +25,18 @@ export const submitNewPassword = async (
     const { email } = await readToken(token);
     assertIsString(email);
 
-    const { id } = await getUserByEmail(email);
+    const user = await getUserByEmail(email);
 
-    await updateUser(id, { passwordHash: await encryptPassword(password) });
+    if (!user) {
+      return {
+        status: HttpStatusCode.NOT_FOUND,
+        error: { message: 'User not found' },
+      };
+    }
+
+    await updateUser(user.id, {
+      passwordHash: await encryptPassword(password),
+    });
 
     return {
       status: HttpStatusCode.OK,
@@ -35,15 +44,15 @@ export const submitNewPassword = async (
     };
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new Error('Could not validate input data');
+      return {
+        status: HttpStatusCode.BAD_REQUEST,
+        message: 'Could not validate input data',
+      };
     }
 
-    if (error instanceof Error) {
-      if (error.message.includes('User not found')) {
-        throw new Error(`Error: ${ErrorReference.USER_NOT_FOUND}`);
-      }
-    }
-
-    throw new Error(`Unknown error during sign up: "${error}"`); //TODO: save error log in db
+    return {
+      status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+      message: `Unknown error during new password: "${error}"`,
+    };
   }
 };

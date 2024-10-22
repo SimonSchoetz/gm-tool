@@ -1,12 +1,10 @@
 'use server';
 
 import { HttpStatusCode, Route, CookieName } from '@/enums';
-import { FormSubmitResponse } from '@/types/app';
+import { ServerActionResponse } from '@/types/app';
 import { deleteCookie } from '../cookies';
 
-export const submitLogout = async (
-  data: unknown
-): Promise<FormSubmitResponse> => {
+export const submitLogout = async (): Promise<ServerActionResponse> => {
   try {
     deleteCookie(CookieName.SESSION);
     return {

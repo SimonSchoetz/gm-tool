@@ -4,28 +4,38 @@ import { getUserByEmail } from '@/api/db/user';
 import { generateToken } from '../token';
 import { PasswordResetTokenPayload } from '@/types/actions/token';
 import { resendSendPasswordResetEmail } from '@/api/email';
-import { EmailResponse } from '@/types/api/email';
+import { ServerActionResponse } from '@/types/app';
+import { HttpStatusCode } from '@/enums';
 
 export const sendPasswordResetEmail = async (
   userEmail: string
-): Promise<EmailResponse> => {
-  try {
-    const user = await getUserByEmail(userEmail);
+): Promise<ServerActionResponse> => {
+  const user = await getUserByEmail(userEmail);
 
-    const { email } = user;
-
-    const payload = { email } satisfies PasswordResetTokenPayload;
-
-    const restPasswordToken = await generateToken<PasswordResetTokenPayload>(
-      payload,
-      '1day'
-    );
-
-    return await resendSendPasswordResetEmail(restPasswordToken, userEmail);
-  } catch (err) {
-    if (err instanceof Error) {
-      throw new Error(err.message);
-    }
-    throw err;
+  if (!user) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'User not found',
+    };
   }
+
+  const payload = { email: user.email } satisfies PasswordResetTokenPayload;
+
+  const restPasswordToken = await generateToken<PasswordResetTokenPayload>(
+    payload,
+    '1day'
+  );
+
+  const res = await resendSendPasswordResetEmail(restPasswordToken, userEmail);
+
+  if (!res.success) {
+    return {
+      status: HttpStatusCode.BAD_REQUEST,
+      message: `Failed to send password reset email: ${res.error}`,
+    };
+  }
+
+  return {
+    status: HttpStatusCode.OK,
+  };
 };

@@ -2,35 +2,47 @@
 
 import { getUserByEmail, updateUser } from '@/api/db/user';
 import { readToken } from '../token';
-import { EmailVerificationState } from '@/enums';
+import { EmailVerificationState, HttpStatusCode } from '@/enums';
 import { VerifyEmailTokenPayload } from '@/types/actions';
+import { ServerActionResponse } from '@/types/app';
 
 export const verifyEmail = async (
   token: string
-): Promise<{ success: boolean; message?: string }> => {
+): Promise<ServerActionResponse> => {
   try {
     const { email, verifyEmailHash } =
       await readToken<VerifyEmailTokenPayload>(token);
 
-    const { emailVerified, id } = await getUserByEmail(email);
+    const user = await getUserByEmail(email);
 
-    if (verifyEmailHash === emailVerified) {
-      updateUser(id, {
-        emailVerified: EmailVerificationState.VERIFIED,
-      });
+    if (!user) {
+      return {
+        status: HttpStatusCode.NOT_FOUND,
+        message: 'User does not exist',
+      };
     }
 
-    return {
-      success: true,
-    };
+    if (verifyEmailHash !== user.emailVerified) {
+      return {
+        status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+        message: 'Faulty verification',
+      };
+    }
+
+    return await updateUser(user.id, {
+      emailVerified: EmailVerificationState.VERIFIED,
+    });
   } catch (error) {
     if (error instanceof Error) {
       const { message } = error;
       if (message.includes('expired')) {
-        return { success: false, message: 'Token expired' };
+        return { status: HttpStatusCode.BAD_REQUEST, message: 'Token expired' };
       }
 
-      return { success: false, message: `Unknown error: ${error.message}` };
+      return {
+        status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+        message: `Unknown error: ${error.message}`,
+      };
     }
 
     throw error;

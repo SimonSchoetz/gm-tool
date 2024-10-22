@@ -9,12 +9,8 @@ export const updateUser = async (
   userId: string,
   userData: Partial<UserDto>
 ): Promise<{ status: HttpStatusCode }> => {
-  const res = await convexDb.mutation(users.updateUser, {
+  return await convexDb.mutation(users.updateUser, {
     userId: userId as Id<DbTable.USERS>,
     userData,
   });
-  if (!res) {
-    throw new Error(`User with id '${userId}' not found`);
-  }
-  return res;
 };

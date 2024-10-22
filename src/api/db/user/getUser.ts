@@ -4,30 +4,24 @@ import { cache } from 'react';
 import { convexDb, users } from '../convexDb';
 import { mapToAppDto } from '../util';
 import { AppUserData, DbUserData, UserDto } from '../../../types/api/db';
-import { DbTable, EmailVerificationState, ErrorReference } from '@/enums';
+import { DbTable, EmailVerificationState } from '@/enums';
 import { Id } from '../../../../convex/_generated/dataModel';
 
 export const getUserByEmail = cache(
-  async (email: AppUserData['email']): Promise<AppUserData> => {
-    const res: DbUserData | null = await convexDb.query(users.getUserByEmail, {
+  async (email: AppUserData['email']): Promise<AppUserData | null> => {
+    const res = await convexDb.query(users.getUserByEmail, {
       email,
     });
-    if (!res) {
-      throw new Error(`${ErrorReference.USER_NOT_FOUND}: email '${email}'`);
-    }
-    return mapUserDto(res);
+    return res ? mapUserDto(res) : null;
   }
 );
 
 export const getUserById = cache(
-  async (userId: AppUserData['id']): Promise<AppUserData> => {
-    const res: DbUserData | null = await convexDb.query(users.getUserById, {
+  async (userId: AppUserData['id']): Promise<AppUserData | null> => {
+    const res = await convexDb.query(users.getUserById, {
       userId: userId as Id<DbTable.USERS>,
     });
-    if (!res) {
-      throw new Error(`${ErrorReference.USER_NOT_FOUND}: id '${userId}'`);
-    }
-    return mapUserDto(res);
+    return res ? mapUserDto(res) : null;
   }
 );
 

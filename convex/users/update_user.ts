@@ -19,7 +19,7 @@ export const updateUser = zMutation({
     const existingUser = await getUserById(ctx, { userId });
 
     if (!existingUser) {
-      throw new Error('User not found');
+      return { status: HttpStatusCode.NOT_FOUND };
     }
 
     await ctx.db.patch(userId, userData);
