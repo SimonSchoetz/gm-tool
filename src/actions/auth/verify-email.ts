@@ -1,6 +1,6 @@
 'use server';
 
-import { getUserByEmail, updateUser } from '@/api/db/user';
+import { dbGetUserByEmail, dbUpdateUser } from '@/api/db/user';
 import { readToken } from '../token';
 import { EmailVerificationState, HttpStatusCode } from '@/enums';
 import { VerifyEmailTokenPayload } from '@/types/actions';
@@ -13,7 +13,7 @@ export const verifyEmail = async (
     const { email, verifyEmailHash } =
       await readToken<VerifyEmailTokenPayload>(token);
 
-    const user = await getUserByEmail(email);
+    const user = await dbGetUserByEmail(email);
 
     if (!user) {
       return {
@@ -29,7 +29,7 @@ export const verifyEmail = async (
       };
     }
 
-    return await updateUser(user.id, {
+    return await dbUpdateUser(user.id, {
       emailVerified: EmailVerificationState.VERIFIED,
     });
   } catch (error) {

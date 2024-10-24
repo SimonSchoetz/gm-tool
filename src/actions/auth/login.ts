@@ -7,7 +7,7 @@ import { readToken } from '../token';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { initSession } from './session';
-import { getUserByEmail } from '@/api/db/user';
+import { dbGetUserByEmail } from '@/api/db/user';
 import { LoginFormData } from '@/types/actions';
 import { validatePassword } from '@/util/encryption';
 
@@ -24,7 +24,7 @@ export const submitLogin = async (
       ValidatorName.LOGIN
     );
 
-    const user = await getUserByEmail(email);
+    const user = await dbGetUserByEmail(email);
 
     if (!user) {
       return {

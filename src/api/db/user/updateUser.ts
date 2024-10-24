@@ -5,7 +5,7 @@ import { convexDb, users } from '../convexDb';
 import { Id } from '../../../../convex/_generated/dataModel';
 import { UserDto } from '@/types/api/db';
 
-export const updateUser = async (
+export const dbUpdateUser = async (
   userId: string,
   userData: Partial<UserDto>
 ): Promise<{ status: HttpStatusCode }> => {

@@ -6,7 +6,7 @@ import { ServerActionResponse } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
-import { getUserByEmail, updateUser } from '@/api/db/user';
+import { dbGetUserByEmail, dbUpdateUser } from '@/api/db/user';
 import { ZodError } from 'zod';
 import { encryptPassword } from '@/util/encryption';
 
@@ -25,7 +25,7 @@ export const submitNewPassword = async (
     const { email } = await readToken(token);
     assertIsString(email);
 
-    const user = await getUserByEmail(email);
+    const user = await dbGetUserByEmail(email);
 
     if (!user) {
       return {
@@ -34,7 +34,7 @@ export const submitNewPassword = async (
       };
     }
 
-    await updateUser(user.id, {
+    await dbUpdateUser(user.id, {
       passwordHash: await encryptPassword(password),
     });
 

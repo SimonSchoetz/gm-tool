@@ -15,7 +15,7 @@ type CreateSessionData = {
 
 type RefreshToken = string;
 
-export const createSession = async (
+export const dbCreateSession = async (
   data: CreateSessionData
 ): Promise<RefreshToken> => {
   const expiresAt = getDateFromNowInDuration({ days: 7 });
@@ -31,7 +31,7 @@ export const createSession = async (
 
   const dto = {
     refreshToken,
-
+    userId: data.userId,
     expiresAt: expiresAt.toISOString(),
   } satisfies CreateSessionDto;
 

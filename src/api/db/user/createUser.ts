@@ -6,7 +6,7 @@ import { encryptPassword } from '@/util/encryption';
 import { convexDb, users } from '../convexDb';
 import { CreateUserDto } from '@/types/api/db';
 
-export const createUser = async (
+export const dbCreateUser = async (
   data: SignUpFormData
 ): Promise<{ status: HttpStatusCode }> => {
   const { email, password, userName } = data;

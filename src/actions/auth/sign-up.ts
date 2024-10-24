@@ -1,6 +1,6 @@
 'use server';
 
-import { createUser } from '@/api/db/user';
+import { dbCreateUser } from '@/api/db/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ServerActionResponse } from '@/types/app';
@@ -21,7 +21,7 @@ export const submitSignUp = async (
       ValidatorName.SIGN_UP
     );
 
-    await createUser(validatedData);
+    await dbCreateUser(validatedData);
 
     await sendEmailVerificationEmail(validatedData.email);
 
