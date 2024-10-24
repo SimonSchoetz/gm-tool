@@ -1,6 +1,6 @@
 'use server';
 
-import { getUserByEmail } from '@/api/db/user';
+import { dbGetUserByEmail } from '@/api/db/user';
 import { generateToken } from '../token';
 import { PasswordResetTokenPayload } from '@/types/actions/token';
 import { resendSendPasswordResetEmail } from '@/api/email';
@@ -10,7 +10,7 @@ import { HttpStatusCode } from '@/enums';
 export const sendPasswordResetEmail = async (
   userEmail: string
 ): Promise<ServerActionResponse> => {
-  const user = await getUserByEmail(userEmail);
+  const user = await dbGetUserByEmail(userEmail);
 
   if (!user) {
     return {
