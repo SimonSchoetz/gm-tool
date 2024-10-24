@@ -14,19 +14,23 @@ export const initSession = async (
   const sessionId = generateId();
   const fingerprint = createFingerprint();
 
-  const refreshToken = await dbCreateSession({
+  const sessionToken = await dbCreateSession({
     fingerprint,
     sessionId,
     userId: user.id,
   });
 
-  await setCookie(
-    CookieName.SESSION,
-    refreshToken,
-    getDateFromNowInDuration({ hours: 6 })
-  );
+  await setLocalSession(sessionToken);
 
   return {
     status: HttpStatusCode.OK,
   };
+};
+
+export const setLocalSession = async (sessionToken: string): Promise<void> => {
+  setCookie(
+    CookieName.SESSION,
+    sessionToken,
+    getDateFromNowInDuration({ hours: 6 })
+  );
 };

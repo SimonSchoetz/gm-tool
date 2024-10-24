@@ -1,3 +1,3 @@
 export * from './redirect-to';
-export * from './session';
+export * from './get-local-session';
 export * from './create-fingerprint';
