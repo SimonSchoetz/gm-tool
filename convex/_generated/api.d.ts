@@ -15,6 +15,8 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as cron_jobs_sessions from "../cron_jobs/sessions.js";
+import type * as crons from "../crons.js";
 import type * as helper_index from "../helper/index.js";
 import type * as helper_zod from "../helper/zod.js";
 import type * as sessions_create_session from "../sessions/create_session.js";
@@ -38,6 +40,8 @@ import type * as users_update_user from "../users/update_user.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "cron_jobs/sessions": typeof cron_jobs_sessions;
+  crons: typeof crons;
   "helper/index": typeof helper_index;
   "helper/zod": typeof helper_zod;
   "sessions/create_session": typeof sessions_create_session;

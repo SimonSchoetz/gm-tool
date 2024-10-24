@@ -4,4 +4,4 @@ import { defineTable } from 'convex/server';
 
 export const sessionsTable = defineTable(zodToConvex(zCreateSessionDto))
   .index('by_userId', ['userId'])
-  .index('by_sessionToken', ['sessionToken']);
+  .index('by_expiresAt', ['expiresAt']);
