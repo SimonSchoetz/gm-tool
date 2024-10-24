@@ -7,8 +7,8 @@ export const zSessionDto = z.object({
   expiresAt: z.string().min(1), // ISO string,
 });
 
-export const zAppSessionDto = zMapDbToAppData(zSessionDto);
+export const zAppSessionData = zMapDbToAppData(zSessionDto);
 
-export const zDbSessionDto = zMapAppToDbData(zSessionDto);
+export const zDbSessionData = zMapAppToDbData(zSessionDto);
 
 export const zCreateSessionDto = zSessionDto;

@@ -18,6 +18,8 @@ import type {
 import type * as helper_index from "../helper/index.js";
 import type * as helper_zod from "../helper/zod.js";
 import type * as sessions_create_session from "../sessions/create_session.js";
+import type * as sessions_delete_session from "../sessions/delete_session.js";
+import type * as sessions_get_session from "../sessions/get_session.js";
 import type * as sessions_index from "../sessions/index.js";
 import type * as tables_index from "../tables/index.js";
 import type * as tables_sessions_table from "../tables/sessions_table.js";
@@ -39,6 +41,8 @@ declare const fullApi: ApiFromModules<{
   "helper/index": typeof helper_index;
   "helper/zod": typeof helper_zod;
   "sessions/create_session": typeof sessions_create_session;
+  "sessions/delete_session": typeof sessions_delete_session;
+  "sessions/get_session": typeof sessions_get_session;
   "sessions/index": typeof sessions_index;
   "tables/index": typeof tables_index;
   "tables/sessions_table": typeof tables_sessions_table;

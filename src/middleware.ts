@@ -2,7 +2,11 @@ import { HttpStatusCode } from '@/enums';
 import { NextRequest, NextResponse } from 'next/server';
 import * as mw from './middlewares';
 
-const middleWareFunctionList = [mw.routeProtection, mw.csrfProtection];
+const middleWareFunctionList = [
+  mw.routeProtection,
+  mw.csrfProtection,
+  mw.session,
+];
 
 const composeMiddleware = (
   middlewares: Array<(req: NextRequest) => NextResponse | Promise<NextResponse>>

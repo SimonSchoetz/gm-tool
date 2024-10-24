@@ -1,4 +1,5 @@
 import { submitLogout } from '@/actions/auth';
+import { getSessionById } from '@/actions/auth/session';
 import { getUserById } from '@/actions/user';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import Button from '@/components/Button';
@@ -8,7 +9,8 @@ import { getLocalSession } from '@/util/app';
 import { NextPage } from 'next';
 
 const MainPage: NextPage = async () => {
-  const session = await getLocalSession();
+  const payload = await getLocalSession();
+  const session = payload && (await getSessionById(payload.sessionId));
 
   const user = session && (await getUserById(session?.userId));
 

@@ -63,7 +63,7 @@ export const submitLogin = async (
       throw new Error('Could not validate input data');
     }
 
-    throw new Error(`Unknown error during login`); //TODO: save error log in db
+    throw new Error(`Unknown error during login: ${error}`); //TODO: save error log in db
   }
 
   // revalidatePath('/login'); thats just an example for when I want to show up added elements

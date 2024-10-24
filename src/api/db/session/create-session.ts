@@ -5,25 +5,24 @@ import { CreateSessionDto } from '@/types/api/db/session';
 import { User } from '@/types/app/user';
 import { getDateFromNowInDuration } from '@/util/helper';
 import { generateToken } from '@/actions/token';
-import { SessionTokenPayload } from '@/types/actions';
+import { LocalSessionTokenPayload, SessionTokenPayload } from '@/types/actions';
 
 type CreateSessionData = {
   fingerprint: string;
-  sessionId: string;
+
   userId: User['id'];
 };
 
-type SessionToken = string;
+type SessionID = string;
 
 export const dbCreateSession = async (
   data: CreateSessionData
-): Promise<SessionToken> => {
+): Promise<{ sessionId: SessionID }> => {
   const expiresAt = getDateFromNowInDuration({ days: 7 });
 
   const sessionToken = await generateToken<SessionTokenPayload>(
     {
       fingerprint: data.fingerprint,
-      sessionId: data.sessionId,
       userId: data.userId,
     },
     expiresAt
@@ -35,7 +34,7 @@ export const dbCreateSession = async (
     expiresAt: expiresAt.toISOString(),
   } satisfies CreateSessionDto;
 
-  await convexDb.mutation(sessions.createSession, dto);
+  const { id } = await convexDb.mutation(sessions.createSession, dto);
 
-  return sessionToken;
+  return { sessionId: id };
 };

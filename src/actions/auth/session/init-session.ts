@@ -2,33 +2,36 @@ import { CookieName, HttpStatusCode } from '@/enums';
 import { ServerActionResponse } from '@/types/app';
 import { setCookie } from '../../cookies';
 import { User } from '@/types/app/user';
-import { generateId, getDateFromNowInDuration } from '@/util/helper';
+import { getDateFromNowInDuration } from '@/util/helper';
 import { dbCreateSession } from '@/api/db/session';
 import { createFingerprint } from '@/util/app';
+import { generateToken } from '@/actions/token';
+import { LocalSessionTokenPayload } from '@/types/actions';
 
 export const initSession = async (
   user: User
 ): Promise<ServerActionResponse> => {
-  const sessionId = generateId();
   const fingerprint = createFingerprint();
 
-  const sessionToken = await dbCreateSession({
+  const { sessionId } = await dbCreateSession({
     fingerprint,
-    sessionId,
     userId: user.id,
   });
 
-  await setLocalSession(sessionToken);
+  await setLocalSession(sessionId);
 
   return {
     status: HttpStatusCode.OK,
   };
 };
 
-export const setLocalSession = async (sessionToken: string): Promise<void> => {
-  setCookie(
-    CookieName.SESSION,
-    sessionToken,
-    getDateFromNowInDuration({ hours: 6 })
+export const setLocalSession = async (id: string): Promise<void> => {
+  const lifeSpan = getDateFromNowInDuration({ hours: 6 });
+
+  const localSessionToken = await generateToken<LocalSessionTokenPayload>(
+    { sessionId: id },
+    lifeSpan
   );
+
+  setCookie(CookieName.SESSION, localSessionToken, lifeSpan);
 };
