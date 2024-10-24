@@ -9,8 +9,6 @@ import { createFingerprint } from '@/util/app';
 export const initSession = async (
   user: User
 ): Promise<ServerActionResponse> => {
-  // get sessions and clean up
-
   const sessionId = generateId();
   const fingerprint = createFingerprint();
 

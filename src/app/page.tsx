@@ -1,13 +1,16 @@
 import { submitLogout } from '@/actions/auth';
+import { getUserById } from '@/actions/user';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import Button from '@/components/Button';
 import { ConditionWrapper, GlassPanel } from '@/components/wrapper';
 import { Route } from '@/enums';
-import { getSession } from '@/util/app';
+import { getLocalSession } from '@/util/app';
 import { NextPage } from 'next';
 
 const MainPage: NextPage = async () => {
-  const session = await getSession();
+  const session = await getLocalSession();
+
+  const user = session && (await getUserById(session?.userId));
 
   return (
     <>
@@ -16,7 +19,7 @@ const MainPage: NextPage = async () => {
         <h2 className='text-center mb-8'>THE GAME MASTER&apos;S TOOLKIT</h2>
 
         <ConditionWrapper condition={!!session}>
-          <p>Hey {session?.userName || session?.email}!</p>
+          <p>Hey {user?.userName || user?.email}!</p>
           <form action={submitLogout}>
             <Button label='Log out' type='submit' />
           </form>
