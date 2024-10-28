@@ -4,16 +4,16 @@ import { DbTable } from '@/enums';
 import { zDbSessionData } from '@/api/db/validators';
 import { getOneFrom } from 'convex-helpers/server/relationships';
 
-export const getSessionByToken = zQuery({
+export const getSessionByUserId = zQuery({
   args: { sessionToken: zDbSessionData.shape.sessionToken },
   output: zDbSessionData.nullable(),
   handler: async (ctx, args) => {
     return await getOneFrom(
       ctx.db,
       DbTable.SESSIONS,
-      'by_sessionToken',
+      'by_userId',
       args.sessionToken,
-      'sessionToken'
+      'userId'
     );
   },
 });
