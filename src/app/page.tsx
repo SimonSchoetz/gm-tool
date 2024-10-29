@@ -1,11 +1,11 @@
 import { submitLogout } from '@/actions/auth';
-import { getSessionById } from '@/actions/auth/session';
+import { getSessionById } from '@/actions/session';
 import { getUserById } from '@/actions/user';
 import AppLink, { AppLinkLayout } from '@/components/AppLink';
 import Button from '@/components/Button';
 import { ConditionWrapper, GlassPanel } from '@/components/wrapper';
 import { Route } from '@/enums';
-import { getLocalSession } from '@/util/app';
+import { getLocalSession } from '@/util/session';
 import { NextPage } from 'next';
 
 const MainPage: NextPage = async () => {

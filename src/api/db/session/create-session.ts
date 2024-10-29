@@ -3,35 +3,18 @@
 import { convexDb, sessions } from '../convexDb';
 import { CreateSessionDto } from '@/types/api/db/session';
 import { User } from '@/types/app/user';
-import { getDateFromNowInDuration } from '@/util/helper';
-import { generateToken } from '@/actions/token';
-import { LocalSessionTokenPayload, SessionTokenPayload } from '@/types/actions';
+import { createSessionToken } from '@/util/session';
 
 type CreateSessionData = {
-  fingerprint: string;
-
   userId: User['id'];
 };
 
-type SessionID = string;
-
 export const dbCreateSession = async (
   data: CreateSessionData
-): Promise<{ sessionId: SessionID }> => {
-  const expiresAt = getDateFromNowInDuration({ days: 7 });
-
-  const sessionToken = await generateToken<SessionTokenPayload>(
-    {
-      fingerprint: data.fingerprint,
-      userId: data.userId,
-    },
-    expiresAt
-  );
-
+): Promise<{ sessionId: string }> => {
   const dto = {
-    sessionToken,
+    sessionToken: await createSessionToken(data.userId, { days: 14 }),
     userId: data.userId,
-    expiresAt: expiresAt.toISOString(),
   } satisfies CreateSessionDto;
 
   const { id } = await convexDb.mutation(sessions.createSession, dto);

@@ -1,6 +1,7 @@
-import { convexDb, sessions } from '../convexDb';
+'server-only';
+
+import { convexDb, sessions, Id } from '../convexDb';
 import { DbTable, HttpStatusCode } from '@/enums';
-import { Id } from '../../../../convex/_generated/dataModel';
 
 export const dbDeleteSession = async (
   sessionId: string
