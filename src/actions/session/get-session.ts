@@ -1,3 +1,5 @@
+'use server';
+
 import { dbGetSessionById } from '@/api/db/session';
 import { AppSessionData } from '@/types/api/db/session';
 
