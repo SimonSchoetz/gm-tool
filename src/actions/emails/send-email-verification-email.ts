@@ -1,6 +1,6 @@
 'use server';
 
-import { dbGetUserByEmail } from '@/api/db/user';
+import { getUserByEmail } from '../user';
 import { generateToken } from '../token';
 import { VerifyEmailTokenPayload } from '@/types/actions/token';
 import { resendSendEmailVerificationEmail } from '@/api/email';
@@ -10,7 +10,7 @@ import { HttpStatusCode } from '@/enums';
 export const sendEmailVerificationEmail = async (
   userEmail: string
 ): Promise<ServerActionResponse> => {
-  const user = await dbGetUserByEmail(userEmail);
+  const user = await getUserByEmail(userEmail);
 
   if (!user) {
     return {

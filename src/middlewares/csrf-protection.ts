@@ -10,7 +10,7 @@ export const csrfProtection = async (
   if (req.method !== 'GET') {
     const originHeader = req.headers.get('Origin');
     const hostHeader =
-      req.headers.get('host') || req.headers.get('x-forwarded-host');
+      req.headers.get('host') ?? req.headers.get('x-forwarded-host');
 
     const errorRes = new NextResponse(null, {
       status: 403,

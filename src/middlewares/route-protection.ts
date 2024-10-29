@@ -32,8 +32,9 @@ export const routeProtection = async (
   }
 
   if (sessionCookie) {
-    const canConfirmUser = await confirmToken(sessionCookie.value);
-    if (!canConfirmUser) {
+    const isValidSession = await confirmToken(sessionCookie.value);
+
+    if (!isValidSession) {
       const res = redirectTo(req, Route.LOGIN);
       res.cookies.delete(CookieName.SESSION);
 

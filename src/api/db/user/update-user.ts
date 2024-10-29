@@ -1,8 +1,7 @@
 import 'server-only';
 
 import { DbTable, HttpStatusCode } from '@/enums';
-import { convexDb, users } from '../convexDb';
-import { Id } from '../../../../convex/_generated/dataModel';
+import { convexDb, users, Id } from '../convexDb';
 import { UserDto } from '@/types/api/db';
 
 export const dbUpdateUser = async (

@@ -15,4 +15,11 @@ describe('getDateFromNowInDuration', () => {
     expectedDate.setUTCMilliseconds(0);
     expect(newDate).toEqual(expectedDate);
   });
+  it('should return a date in the past', () => {
+    const now = new Date();
+    const expectedDate = new Date(now.getTime() - 60 * 60 * 1000);
+    expectedDate.setUTCMilliseconds(0);
+    const newDate = getDateFromNowInDuration({ hours: -1 });
+    expect(newDate).toEqual(expectedDate);
+  });
 });

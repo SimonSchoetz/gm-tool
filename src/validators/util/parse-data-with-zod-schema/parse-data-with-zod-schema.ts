@@ -8,9 +8,9 @@ import {
 
 export const parseDataWithZodValidator = <T>(
   data: unknown,
-  schemaName: ValidatorName
+  validatorName: ValidatorName
 ): T => {
-  const schema = getFormDataValidator(schemaName);
+  const schema = getFormDataValidator(validatorName);
 
   if (isFormData(data)) {
     assertIsFormData(data);

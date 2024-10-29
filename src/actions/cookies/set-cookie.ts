@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { currentEnv } from '@/util/helper';
+import { getCookieConfig } from '@/util/helper';
 import { CookieName } from '@/enums';
 
 export const setCookie = async (
@@ -9,11 +9,5 @@ export const setCookie = async (
   payload: string,
   expires: Date
 ): Promise<void> => {
-  cookies().set(cookieName, payload, {
-    httpOnly: true,
-    secure: currentEnv === 'production',
-    sameSite: 'lax',
-    expires,
-    path: '/',
-  });
+  cookies().set(cookieName, payload, getCookieConfig(expires));
 };

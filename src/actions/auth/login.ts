@@ -7,9 +7,9 @@ import { readToken } from '../token';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { initSession } from './session';
-import { dbGetUserByEmail } from '@/api/db/user';
 import { LoginFormData } from '@/types/actions';
 import { validatePassword } from '@/util/encryption';
+import { getUserByEmail } from '../user';
 
 export const submitLogin = async (
   data: unknown
@@ -24,7 +24,7 @@ export const submitLogin = async (
       ValidatorName.LOGIN
     );
 
-    const user = await dbGetUserByEmail(email);
+    const user = await getUserByEmail(email);
 
     if (!user) {
       return {
@@ -63,9 +63,8 @@ export const submitLogin = async (
       throw new Error('Could not validate input data');
     }
 
-    throw new Error(`Unknown error during login: ${error}`); //TODO: save error log in db
+    throw error;
   }
 
   // revalidatePath('/login'); thats just an example for when I want to show up added elements
-  // in a list so it gets cached again
 };

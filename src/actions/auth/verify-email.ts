@@ -1,10 +1,11 @@
 'use server';
 
-import { dbGetUserByEmail, dbUpdateUser } from '@/api/db/user';
+import { dbUpdateUser } from '@/api/db/user';
 import { readToken } from '../token';
 import { EmailVerificationState, HttpStatusCode } from '@/enums';
 import { VerifyEmailTokenPayload } from '@/types/actions';
 import { ServerActionResponse } from '@/types/app';
+import { getUserByEmail } from '../user';
 
 export const verifyEmail = async (
   token: string
@@ -13,7 +14,7 @@ export const verifyEmail = async (
     const { email, verifyEmailHash } =
       await readToken<VerifyEmailTokenPayload>(token);
 
-    const user = await dbGetUserByEmail(email);
+    const user = await getUserByEmail(email);
 
     if (!user) {
       return {

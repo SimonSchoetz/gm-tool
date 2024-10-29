@@ -4,7 +4,6 @@ import { zMapAppToDbData, zMapDbToAppData } from './util';
 export const zSessionDto = z.object({
   sessionToken: z.string().min(1),
   userId: z.string().min(1),
-  expiresAt: z.string().min(1), // ISO string,
 });
 
 export const zAppSessionData = zMapDbToAppData(zSessionDto);
