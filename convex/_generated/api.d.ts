@@ -23,6 +23,7 @@ import type * as sessions_create_session from "../sessions/create_session.js";
 import type * as sessions_delete_session from "../sessions/delete_session.js";
 import type * as sessions_get_session from "../sessions/get_session.js";
 import type * as sessions_index from "../sessions/index.js";
+import type * as sessions_update_session from "../sessions/update_session.js";
 import type * as tables_index from "../tables/index.js";
 import type * as tables_sessions_table from "../tables/sessions_table.js";
 import type * as tables_users_table from "../tables/users_table.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   "sessions/delete_session": typeof sessions_delete_session;
   "sessions/get_session": typeof sessions_get_session;
   "sessions/index": typeof sessions_index;
+  "sessions/update_session": typeof sessions_update_session;
   "tables/index": typeof tables_index;
   "tables/sessions_table": typeof tables_sessions_table;
   "tables/users_table": typeof tables_users_table;
