@@ -1,6 +1,6 @@
+@forward '_styles/index';
+@forward '../components/animations/index.scss';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import '_styles/index';
-@import '../components/animations/index.scss';

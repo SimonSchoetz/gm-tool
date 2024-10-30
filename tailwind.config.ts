@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 /**
- * keep in sanc with src/app/_styles/colors.scss
+ * keep in sync with src/app/_styles/colors.scss
  */
 const config: Config = {
   content: [
