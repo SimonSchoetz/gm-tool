@@ -14,6 +14,11 @@ const MainPage: NextPage = async () => {
 
   const user = session && (await getUserById(session?.userId));
 
+  const formAction = async () => {
+    'use server';
+    await submitLogout();
+  };
+
   return (
     <>
       <header></header>
@@ -22,7 +27,7 @@ const MainPage: NextPage = async () => {
 
         <ConditionWrapper condition={!!session}>
           <p>Hey {user?.userName || user?.email}!</p>
-          <form action={submitLogout}>
+          <form action={formAction}>
             <Button label='Log out' type='submit' />
           </form>
         </ConditionWrapper>
