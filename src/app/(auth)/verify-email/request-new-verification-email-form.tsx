@@ -1,4 +1,4 @@
-import { submitRequestNewVerificationEmail } from '@/actions/formSubmits';
+import { submitRequestNewVerificationEmail } from '@/actions/auth';
 import Input from '@/components/Input';
 import { FormWrapper } from '@/components/wrapper';
 import { ValidatorName } from '@/validators/util';

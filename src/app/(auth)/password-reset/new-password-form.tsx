@@ -1,6 +1,6 @@
 'use client';
 
-import { submitNewPassword } from '@/actions/formSubmits';
+import { submitNewPassword } from '@/actions/auth';
 import Input from '@/components/Input';
 import { FormWrapper } from '@/components/wrapper';
 import { FCProps } from '@/types/app';

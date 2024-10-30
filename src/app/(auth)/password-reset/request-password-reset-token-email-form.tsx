@@ -1,4 +1,4 @@
-import { submitRequestPasswordResetEmail } from '@/actions/formSubmits';
+import { submitRequestPasswordResetEmail } from '@/actions/auth';
 import Input from '@/components/Input';
 import { FormWrapper } from '@/components/wrapper';
 import { FCProps } from '@/types/app';
