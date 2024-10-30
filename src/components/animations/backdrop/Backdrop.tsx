@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BackdropGrid } from './components';
 import dynamic from 'next/dynamic';
+
+const BackdropGrid = dynamic(() => import('./components/BackdropGrid'), {
+  ssr: false,
+});
 
 const BackdropBeam = dynamic(() => import('./components/BackdropBeam'), {
   ssr: false,
