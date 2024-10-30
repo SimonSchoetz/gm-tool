@@ -6,6 +6,12 @@
 - Lazy DM steps saved in local storage
 - proof of concept for session pdf export
 
+## [0.6.2] - 24-10-30
+
+### 062-Patch
+
+- login session with cookie and session token management
+
 ## [0.6.1] - 24-09-22
 
 ### 061-Patch
