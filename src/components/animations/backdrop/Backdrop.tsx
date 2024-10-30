@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BackdropBeam, BackdropGrid } from './components';
+import { BackdropGrid } from './components';
+import dynamic from 'next/dynamic';
+
+const BackdropBeam = dynamic(() => import('./components/BackdropBeam'), {
+  ssr: false,
+});
 
 const Backdrop = () => {
   const [idList, setIdList] = useState<string[]>([]);

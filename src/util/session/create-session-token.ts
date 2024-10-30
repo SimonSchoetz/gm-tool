@@ -9,7 +9,7 @@ export const createSessionToken = async (
   lifeSpan: DurationLikeObject
 ): Promise<string> => {
   const expiresAt = getDateFromNowInDuration(lifeSpan);
-  const fingerprint = createFingerprint();
+  const fingerprint = await createFingerprint();
   return await generateToken<SessionTokenPayload>(
     {
       fingerprint,

@@ -12,7 +12,7 @@ interface PasswordResetPageProps {
   searchParams: URLSearchParams;
 }
 
-const PasswordResetPage: NextPage<PasswordResetPageProps> = ({
+const PasswordResetPage: NextPage<PasswordResetPageProps> = async ({
   searchParams,
 }) => {
   const title = 'Password reset';

@@ -67,8 +67,8 @@ const tryRefreshSessionOrLogout = async (
   return NextResponse.next();
 };
 
-const assertIsSameFingerprint = (fingerprint: string): void => {
-  if (fingerprint !== createFingerprint()) {
+const assertIsSameFingerprint = async (fingerprint: string): Promise<void> => {
+  if (fingerprint !== (await createFingerprint())) {
     throw new Error();
   }
 };

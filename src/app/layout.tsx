@@ -1,12 +1,7 @@
 import Footer from '@/components/Footer';
 import './styles.scss';
-import dynamic from 'next/dynamic';
-import { LightSource } from '@/components/animations';
 
-const Backdrop = dynamic(
-  () => import('../components/animations/backdrop/Backdrop'),
-  { ssr: false }
-);
+import { Backdrop, LightSource } from '@/components/animations';
 
 export const metadata = {
   title: "The Game Master's Tool",

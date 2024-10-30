@@ -12,7 +12,9 @@ interface VerifyEmailPageProps {
   searchParams: URLSearchParams;
 }
 
-const VerifyEmailPage: NextPage<VerifyEmailPageProps> = ({ searchParams }) => {
+const VerifyEmailPage: NextPage<VerifyEmailPageProps> = async ({
+  searchParams,
+}) => {
   const title = 'Verify email';
   const token = 'token' in searchParams && searchParams.token;
 

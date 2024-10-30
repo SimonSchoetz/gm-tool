@@ -6,6 +6,7 @@ import React, {
   PropsWithChildren,
   useEffect,
   useState,
+  type JSX,
 } from 'react';
 import Button from '../Button';
 import { FieldValues, useForm } from 'react-hook-form';
@@ -57,7 +58,8 @@ const FormWrapper = ({
   const mapChild = (child: React.ReactNode) => {
     if (React.isValidElement(child)) {
       const schemaKeys = getKeysFromZodValidator(schemaName);
-      const childId: unknown = child?.props?.id;
+
+      const childId = (child as { props?: { id?: string } })?.props?.id;
 
       if (isString(childId) && schemaKeys?.includes(childId)) {
         return mapFormValidationProps(child, childId);

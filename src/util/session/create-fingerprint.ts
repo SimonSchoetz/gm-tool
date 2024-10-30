@@ -1,8 +1,8 @@
 import { headers } from 'next/headers';
 
-export const createFingerprint = (): string => {
+export const createFingerprint = async (): Promise<string> => {
   // use convex provider for fingerprint
-  const headersList = headers();
+  const headersList = await headers();
 
   const userAgent = headersList.get('user-agent') ?? 'unknown user agent';
 

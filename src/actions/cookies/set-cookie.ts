@@ -9,5 +9,5 @@ export const setCookie = async (
   payload: string,
   expires: Date
 ): Promise<void> => {
-  cookies().set(cookieName, payload, getCookieConfig(expires));
+  (await cookies()).set(cookieName, payload, getCookieConfig(expires));
 };
