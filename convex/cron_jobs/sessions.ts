@@ -7,11 +7,11 @@ export const cleanupSessions = zInternalMutation({
   args: {},
   output: z.object({ status: z.number() }),
   handler: async (ctx) => {
-    const now = new Date().toISOString();
+    const oneMonthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
     const expiredSessions = await ctx.db
       .query(DbTable.SESSIONS)
-      .withIndex('by_expiresAt', (q) => q.lt('expiresAt', now))
+      .filter((q) => q.lt(q.field('_creationTime'), oneMonthAgo))
       .collect();
 
     for (const session of expiredSessions) {
