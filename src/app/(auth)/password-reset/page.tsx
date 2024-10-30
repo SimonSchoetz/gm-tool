@@ -7,14 +7,15 @@ import { NextPage } from 'next';
 import RequestPasswordResetTokenEmailForm from './request-password-reset-token-email-form';
 import NewPasswordForm from './new-password-form';
 import { isString } from '@/util/type-guards';
+import { AsyncSearchParams } from '@/types/app';
 
-interface PasswordResetPageProps {
-  searchParams: URLSearchParams;
-}
+type PasswordResetPageProps = {
+  searchParams: AsyncSearchParams;
+};
 
-const PasswordResetPage: NextPage<PasswordResetPageProps> = async ({
-  searchParams,
-}) => {
+const PasswordResetPage: NextPage<PasswordResetPageProps> = async (props) => {
+  const searchParams = await props.searchParams;
+
   const title = 'Password reset';
   const token = 'token' in searchParams && searchParams.token;
 

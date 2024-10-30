@@ -10,9 +10,10 @@ export const assertFormShape = (
 ) => {
   if (typeof children === 'undefined') return;
 
-  const childrenIds = [children]
-    .flat()
-    .map((child) => React.isValidElement(child) && child?.props?.id);
+  const childrenIds = React.Children.toArray(children)
+    .filter(React.isValidElement)
+    .map((child) => (child.props as { id?: string })?.id)
+    .filter((id): id is string => typeof id === 'string');
 
   const schemaKeys = getKeysFromZodValidator(schemaName);
 

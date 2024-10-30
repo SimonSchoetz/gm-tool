@@ -7,14 +7,15 @@ import VerifyEmailVerificationToken from './verify-email-verification-token';
 import RequestNewVerificationEmailForm from './request-new-verification-email-form';
 import { isString } from '@/util/type-guards';
 import { NextPage } from 'next';
+import { AsyncSearchParams } from '@/types/app';
 
 interface VerifyEmailPageProps {
-  searchParams: URLSearchParams;
+  searchParams: AsyncSearchParams;
 }
 
-const VerifyEmailPage: NextPage<VerifyEmailPageProps> = async ({
-  searchParams,
-}) => {
+const VerifyEmailPage: NextPage<VerifyEmailPageProps> = async (props) => {
+  const searchParams = await props.searchParams;
+
   const title = 'Verify email';
   const token = 'token' in searchParams && searchParams.token;
 
