@@ -18,5 +18,5 @@ export const setLocalSession = async (
     expiresAt
   );
 
-  setCookie(CookieName.SESSION, localSessionToken, expiresAt);
+  await setCookie(CookieName.SESSION, localSessionToken, expiresAt);
 };
