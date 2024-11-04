@@ -4,7 +4,7 @@ import { EmailVerificationState, HttpStatusCode } from '@/enums';
 import { SignUpFormData } from '@/types/actions';
 import { encryptPassword } from '@/util/encryption';
 import { convexDb, users } from '../convexDb';
-import { CreateUserDto } from '@/types/api/db';
+import { getSignature } from '../util/get-signature';
 
 export const dbCreateUser = async (
   data: SignUpFormData
@@ -16,7 +16,8 @@ export const dbCreateUser = async (
     email,
     passwordHash: await encryptPassword(password),
     emailVerified: EmailVerificationState.NOT_VERIFIED,
-  } satisfies CreateUserDto;
+    signature: await getSignature(),
+  };
 
   return await convexDb.mutation(users.createUser, signUpFormData);
 };
