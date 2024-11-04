@@ -49,11 +49,12 @@ const getErrorRes = () => {
 const setSessionSignature = async (
   req: NextRequest
 ): Promise<NextResponse<unknown> | void> => {
-  const lifespan = getDateFromNowInDuration({ hours: 1 });
   const signatureToken = req.cookies.get(CookieName.SESSION_SIGNATURE);
-  const token = await generateToken({}, lifespan);
 
   if (!signatureToken) {
+    const lifespan = getDateFromNowInDuration({ hours: 1 });
+    const token = await generateToken({}, lifespan);
+
     const res = NextResponse.redirect(req.url);
     res.cookies.set(
       CookieName.SESSION_SIGNATURE,
