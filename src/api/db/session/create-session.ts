@@ -1,9 +1,9 @@
 'server-only';
 
 import { convexDb, sessions } from '../convexDb';
-import { CreateSessionDto } from '@/types/api/db/session';
 import { User } from '@/types/app/user';
 import { createSessionToken } from '@/util/session';
+import { getSignature } from '../util/get-signature';
 
 type CreateSessionData = {
   userId: User['id'];
@@ -15,7 +15,8 @@ export const dbCreateSession = async (
   const dto = {
     sessionToken: await createSessionToken(data.userId, { days: 14 }),
     userId: data.userId,
-  } satisfies CreateSessionDto;
+    signature: await getSignature(),
+  };
 
   const { id } = await convexDb.mutation(sessions.createSession, dto);
 
