@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
 
 export const createFingerprint = async (): Promise<string> => {
-  // use convex provider for fingerprint
   const headersList = await headers();
 
   const userAgent = headersList.get('user-agent') ?? 'unknown user agent';
@@ -9,7 +8,7 @@ export const createFingerprint = async (): Promise<string> => {
   const forwardedFor = headersList.get('x-forwarded-for');
   const ip = forwardedFor
     ? forwardedFor.split(',')[0].trim()
-    : headersList.get('x-real-ip') || 'unknown ip';
+    : headersList.get('x-real-ip') ?? 'unknown ip';
 
   return `${userAgent} | ${ip}`;
 };

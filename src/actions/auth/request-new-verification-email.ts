@@ -5,7 +5,7 @@ import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ServerActionResponse, SubmitData } from '@/types/app';
 import { ZodError } from 'zod';
 import { VerificationEmailFormData } from '@/types/actions';
-import { sendEmailVerificationEmail } from '../emails';
+import { sendEmailVerificationEmail } from '../_util/emails';
 
 export const submitRequestNewVerificationEmail = async (
   data: SubmitData

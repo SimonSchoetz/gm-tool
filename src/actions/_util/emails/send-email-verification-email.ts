@@ -1,7 +1,7 @@
 'server-only';
 
-import { getUserByEmail } from '../user';
-import { generateToken } from '../token';
+import { getUserByEmail } from '../../user';
+import { generateToken } from '../../token';
 import { VerifyEmailTokenPayload } from '@/types/actions/token';
 import { resendSendEmailVerificationEmail } from '@/api/email';
 import { ServerActionResponse } from '@/types/app';

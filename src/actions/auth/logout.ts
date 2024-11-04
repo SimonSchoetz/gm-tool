@@ -2,7 +2,7 @@
 
 import { HttpStatusCode, Route, CookieName } from '@/enums';
 import { ServerActionResponse } from '@/types/app';
-import { deleteCookie } from '../cookies';
+import { deleteCookie } from '../_util/cookies';
 import { deleteSession } from '../session';
 import { getLocalSession } from '@/util/session';
 

@@ -5,7 +5,7 @@ import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
 import { PasswordResetFormEmailData } from '@/types/actions';
 import { HttpStatusCode } from '@/enums';
 import { ZodError } from 'zod';
-import { sendPasswordResetEmail } from '../emails';
+import { sendPasswordResetEmail } from '../_util/emails';
 
 export const submitRequestPasswordResetEmail = async (
   data: SubmitData
