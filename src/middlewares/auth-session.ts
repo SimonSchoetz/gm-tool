@@ -11,10 +11,10 @@ import { zAppSessionData } from '@/api/db/validators';
 import { AppSessionData } from '@/types/api/db';
 import { bumpSession } from '@/actions/auth/session';
 
-export const session = async (
+export const authSession = async (
   req: NextRequest
 ): Promise<NextResponse<unknown>> => {
-  const sessionCookie = req.cookies.get(CookieName.SESSION);
+  const sessionCookie = req.cookies.get(CookieName.AUTH_SESSION);
 
   if (!sessionCookie) {
     return NextResponse.next();
@@ -81,7 +81,7 @@ const assertIsSessionData: (
 
 const removeLocalSession = (req: NextRequest): NextResponse<unknown> => {
   const res = redirectTo(req, Route.LOGIN);
-  res.cookies.delete(CookieName.SESSION);
+  res.cookies.delete(CookieName.AUTH_SESSION);
   return res;
 };
 
@@ -105,7 +105,7 @@ const getResponse = async (
 ): Promise<NextResponse<unknown>> => {
   const res = NextResponse.redirect(url);
   res.cookies.set(
-    CookieName.SESSION,
+    CookieName.AUTH_SESSION,
     await generateLocalSessionToken(sessionId, hours),
     getCookieConfig(getDateFromNowInDuration({ hours }))
   );

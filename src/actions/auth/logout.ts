@@ -11,7 +11,7 @@ export const submitLogout = async (): Promise<ServerActionResponse> => {
     const localSession = await getLocalSession();
     await deleteSession(localSession!.sessionId);
 
-    await deleteCookie(CookieName.SESSION);
+    await deleteCookie(CookieName.AUTH_SESSION);
 
     return {
       status: HttpStatusCode.ACCEPTED,

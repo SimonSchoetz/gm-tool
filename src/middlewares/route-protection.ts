@@ -23,7 +23,7 @@ export const routeProtection = async (
     return NextResponse.rewrite(new URL(Route.NOT_FOUND, req.url));
   }
 
-  const sessionCookie = req.cookies.get(CookieName.SESSION);
+  const sessionCookie = req.cookies.get(CookieName.AUTH_SESSION);
 
   if (!sessionCookie) {
     if (isProtectedRoute) {
@@ -36,7 +36,7 @@ export const routeProtection = async (
 
     if (!isValidSession) {
       const res = redirectTo(req, Route.LOGIN);
-      res.cookies.delete(CookieName.SESSION);
+      res.cookies.delete(CookieName.AUTH_SESSION);
 
       return res;
     }

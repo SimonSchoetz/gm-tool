@@ -1,3 +1,3 @@
 export enum CookieName {
-  SESSION = 'session',
+  AUTH_SESSION = 'auth_session',
 }

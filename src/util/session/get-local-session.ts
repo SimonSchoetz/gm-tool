@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 export const getLocalSession =
   async (): Promise<LocalSessionTokenPayload | null> => {
     try {
-      const session = (await cookies()).get(CookieName.SESSION)?.value;
+      const session = (await cookies()).get(CookieName.AUTH_SESSION)?.value;
       return await readToken<LocalSessionTokenPayload>(session ?? '');
     } catch {
       return null;
