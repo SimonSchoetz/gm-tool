@@ -4,12 +4,12 @@ import { LocalSessionTokenPayload, SessionTokenPayload } from '@/types/actions';
 import { getCookieConfig, getDateFromNowInDuration } from '@/util/helper';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { createFingerprint } from '@/util/session';
+import { createFingerprint, createSessionToken } from '@/util/session';
 import { redirectTo } from '@/util/app';
 import { deleteSession, getSessionById } from '@/actions/session';
 import { zAppSessionData } from '@/api/db/validators';
 import { AppSessionData } from '@/types/api/db';
-import { bumpSession } from '@/actions/auth/session';
+import { dbUpdateSession } from '@/api/db/session';
 
 export const authSession = async (
   req: NextRequest
@@ -50,7 +50,10 @@ const tryRefreshSessionOrLogout = async (
     assertIsSameFingerprint(decodedToken.fingerprint);
 
     if (expiresInLessThanXHours(decodedToken.expiresAt, 2)) {
-      await bumpSession(dbSession.id, dbSession.userId);
+      await dbUpdateSession(dbSession.id, {
+        sessionToken: await createSessionToken(dbSession.userId, { hours: 6 }),
+      });
+
       return await getResponse(req.url, dbSession.id, 4);
     }
 

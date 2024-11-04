@@ -1,4 +1,4 @@
-'use server';
+'server-only';
 
 import { cookies } from 'next/headers';
 import { CookieName } from '@/enums';

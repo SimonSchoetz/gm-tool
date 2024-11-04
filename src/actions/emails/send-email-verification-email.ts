@@ -1,4 +1,4 @@
-'use server';
+'server-only';
 
 import { getUserByEmail } from '../user';
 import { generateToken } from '../token';
