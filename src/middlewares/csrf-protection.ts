@@ -1,6 +1,6 @@
 // based on this article: https://lucia-auth.com/sessions/cookies/nextjs
 
-import { generateToken, readToken } from '@/actions/token';
+import { generateAuthToken, readToken } from '@/actions/token';
 import { CookieName, HttpStatusCode } from '@/enums';
 import { getCookieConfig, getDateFromNowInDuration } from '@/util/helper';
 import { NextResponse } from 'next/server';
@@ -53,7 +53,7 @@ const setSessionSignature = async (
 
   if (!signatureToken) {
     const lifespan = getDateFromNowInDuration({ hours: 1 });
-    const token = await generateToken({}, lifespan);
+    const token = await generateAuthToken({}, lifespan);
 
     const res = NextResponse.redirect(req.url);
     res.cookies.set(

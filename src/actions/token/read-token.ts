@@ -10,7 +10,7 @@ export const readToken = async <T extends TokenPayload>(
   token: string
 ): Promise<T & { expiresAt: Date; createdAt: Date }> => {
   try {
-    const authSecret = parsedEnv.TOKEN_AUTH_SECRET;
+    const authSecret = parsedEnv.AUTH_TOKEN_SECRET;
     assertIsString(authSecret);
 
     const secret = new TextEncoder().encode(authSecret);

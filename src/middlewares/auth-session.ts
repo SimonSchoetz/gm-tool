@@ -1,4 +1,4 @@
-import { generateToken, readToken } from '@/actions/token';
+import { generateAuthToken, readToken } from '@/actions/token';
 import { CookieName, Route } from '@/enums';
 import { LocalSessionTokenPayload, SessionTokenPayload } from '@/types/actions';
 import { getCookieConfig, getDateFromNowInDuration } from '@/util/helper';
@@ -98,7 +98,7 @@ const getResponse = async (
   hours: number
 ): Promise<NextResponse<unknown>> => {
   const lifespan = getDateFromNowInDuration({ hours });
-  const token = await generateToken<LocalSessionTokenPayload>(
+  const token = await generateAuthToken<LocalSessionTokenPayload>(
     { sessionId },
     lifespan
   );
