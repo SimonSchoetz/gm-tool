@@ -7,10 +7,11 @@ import { jwtVerify } from 'jose';
 import { JOSEError } from 'jose/errors';
 
 export const readToken = async <T extends TokenPayload>(
-  token: string
+  token: string,
+  envKey: keyof typeof parsedEnv
 ): Promise<T & { expiresAt: Date; createdAt: Date }> => {
   try {
-    const authSecret = parsedEnv.AUTH_TOKEN_SECRET;
+    const authSecret = parsedEnv[envKey];
     assertIsString(authSecret);
 
     const secret = new TextEncoder().encode(authSecret);

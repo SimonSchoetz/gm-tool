@@ -1,4 +1,4 @@
-import { generateAuthToken } from '@/actions/token';
+import { generateToken } from '@/actions/token';
 import { createFingerprint } from './create-fingerprint';
 import { SessionTokenPayload } from '@/types/actions';
 import { getDateFromNowInDuration } from '../helper';
@@ -10,11 +10,12 @@ export const createSessionToken = async (
 ): Promise<string> => {
   const expiresAt = getDateFromNowInDuration(lifeSpan);
   const fingerprint = await createFingerprint();
-  return await generateAuthToken<SessionTokenPayload>(
+  return await generateToken<SessionTokenPayload>(
     {
       fingerprint,
       userId,
     },
-    expiresAt
+    expiresAt,
+    'AUTH_TOKEN_SECRET'
   );
 };

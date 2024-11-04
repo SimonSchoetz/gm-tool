@@ -16,7 +16,7 @@ import { dbCreateSession } from '@/api/db/session';
 import { User } from '@/types/app/user';
 import { DurationLikeObject } from 'luxon';
 import { getDateFromNowInDuration } from '@/util/helper';
-import { generateAuthToken } from '../token';
+import { generateToken } from '../token';
 import { setCookie } from '../_util/cookies';
 
 export const submitLogin = async (
@@ -89,9 +89,10 @@ const setLocalSession = async (
 ): Promise<void> => {
   const expiresAt = getDateFromNowInDuration(lifeSpan);
 
-  const localSessionToken = await generateAuthToken<LocalSessionTokenPayload>(
+  const localSessionToken = await generateToken<LocalSessionTokenPayload>(
     { sessionId },
-    expiresAt
+    expiresAt,
+    'AUTH_TOKEN_SECRET'
   );
 
   await setCookie(CookieName.AUTH_SESSION, localSessionToken, expiresAt);

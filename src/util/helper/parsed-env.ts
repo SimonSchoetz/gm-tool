@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
 const envValidator = z.object({
-  HOST: z.string().min(1),
-  AUTH_TOKEN_SECRET: z.string().min(1),
-  RESEND_API_KEY: z.string().min(1),
-  CONVEX_DEPLOYMENT: z.string().min(1),
-  NEXT_PUBLIC_CONVEX_URL: z.string().min(1),
+  HOST: z.string().optional(),
+  AUTH_TOKEN_SECRET: z.string().optional(),
+  RESEND_API_KEY: z.string().optional(),
+  CONVEX_DEPLOYMENT: z.string().optional(),
+  NEXT_PUBLIC_CONVEX_URL: z.string().optional(),
+  SESSION_SIGNATURE_SECRET: z.string().optional(),
 });
 
 //eslint-disable-next-line no-process-env

@@ -1,4 +1,4 @@
-import { generateAuthToken, readToken } from '@/actions/token';
+import { generateToken, readToken } from '@/actions/token';
 import { CookieName, Route } from '@/enums';
 import { LocalSessionTokenPayload, SessionTokenPayload } from '@/types/actions';
 import { getCookieConfig, getDateFromNowInDuration } from '@/util/helper';
@@ -21,7 +21,8 @@ export const authSession = async (
   }
 
   const localSession = await readToken<LocalSessionTokenPayload>(
-    sessionCookie.value
+    sessionCookie.value,
+    'AUTH_TOKEN_SECRET'
   );
 
   const sessionIsOlderThan15Minutes =
@@ -44,7 +45,8 @@ const tryRefreshSessionOrLogout = async (
     assertIsSessionData(dbSession);
 
     const decodedToken = await readToken<SessionTokenPayload>(
-      dbSession.sessionToken
+      dbSession.sessionToken,
+      'AUTH_TOKEN_SECRET'
     );
 
     assertIsSameFingerprint(decodedToken.fingerprint);
@@ -98,9 +100,10 @@ const getResponse = async (
   hours: number
 ): Promise<NextResponse<unknown>> => {
   const lifespan = getDateFromNowInDuration({ hours });
-  const token = await generateAuthToken<LocalSessionTokenPayload>(
+  const token = await generateToken<LocalSessionTokenPayload>(
     { sessionId },
-    lifespan
+    lifespan,
+    'AUTH_TOKEN_SECRET'
   );
 
   const res = NextResponse.redirect(url);

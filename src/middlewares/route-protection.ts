@@ -51,7 +51,7 @@ export const routeProtection = async (
 
 const confirmToken = async (token: string): Promise<boolean> => {
   try {
-    await readToken(token);
+    await readToken(token, 'AUTH_TOKEN_SECRET');
     return true;
   } catch (err) {
     if (err instanceof Error && err.message === 'Invalid token') {

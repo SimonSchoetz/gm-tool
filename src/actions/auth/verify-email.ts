@@ -11,8 +11,10 @@ export const verifyEmail = async (
   token: string
 ): Promise<ServerActionResponse> => {
   try {
-    const { email, verifyEmailHash } =
-      await readToken<VerifyEmailTokenPayload>(token);
+    const { email, verifyEmailHash } = await readToken<VerifyEmailTokenPayload>(
+      token,
+      'AUTH_TOKEN_SECRET'
+    );
 
     const user = await getUserByEmail(email);
 

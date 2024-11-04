@@ -20,7 +20,7 @@ export const submitNewPassword = async (
       ValidatorName.NEW_PASSWORD
     );
     assertIsString(token);
-    const { email } = await readToken(token);
+    const { email } = await readToken(token, 'AUTH_TOKEN_SECRET');
     assertIsString(email);
 
     const user = await getUserByEmail(email);
