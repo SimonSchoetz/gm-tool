@@ -18,10 +18,9 @@ import {
 } from '@/validators/util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isString } from '@/util/type-guards';
-import { ServerActionResponse } from '@/types/app';
+import { ServerActionResponse, SubmitData } from '@/types/app';
 import { useRouter } from 'next/navigation';
 import ConditionWrapper from './ConditionWrapper';
-import { generateToken } from '@/actions/token';
 
 type FormWrapperProps = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
@@ -29,8 +28,8 @@ type FormWrapperProps = DetailedHTMLProps<
 > & {
   buttonLabel: string;
   schemaName: ValidatorName;
-  submitAction: (data: unknown) => Promise<ServerActionResponse>;
-  additionalFormData?: Record<string, unknown>;
+  submitAction: (data: SubmitData) => Promise<ServerActionResponse>;
+  additionalFormData?: SubmitData;
 };
 
 const FormWrapper = ({
@@ -89,9 +88,7 @@ const FormWrapper = ({
   const onSubmit = async (values: FieldValues): Promise<void> => {
     const data: FieldValues = { ...values, ...additionalFormData };
 
-    const encryptedData = await generateToken({ ...data }, '5s');
-
-    const res = await submitAction(encryptedData);
+    const res = await submitAction(data);
 
     if (res?.error) {
       handleServerErrors(res.error);

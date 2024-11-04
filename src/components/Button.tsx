@@ -23,6 +23,7 @@ const Button: FCProps<ButtonProps> = ({
 
   return (
     <button
+      aria-label={label}
       style={{
         border: hovered ? '1px solid var(--gm-fg) !important' : '',
       }}

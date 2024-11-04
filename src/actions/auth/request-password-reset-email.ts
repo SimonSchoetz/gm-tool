@@ -1,8 +1,6 @@
 'use server';
 
-import { ServerActionResponse } from '@/types/app';
-import { assertIsString } from '@/util/asserts';
-import { readToken } from '../token';
+import { ServerActionResponse, SubmitData } from '@/types/app';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
 import { PasswordResetFormEmailData } from '@/types/actions';
 import { HttpStatusCode } from '@/enums';
@@ -10,14 +8,11 @@ import { ZodError } from 'zod';
 import { sendPasswordResetEmail } from '../emails';
 
 export const submitRequestPasswordResetEmail = async (
-  data: unknown
+  data: SubmitData
 ): Promise<ServerActionResponse> => {
   try {
-    assertIsString(data);
-    const decoded = await readToken(data);
-
     const { email } = parseDataWithZodValidator<PasswordResetFormEmailData>(
-      decoded,
+      data,
       ValidatorName.PASSWORD_RESET_EMAIL
     );
 

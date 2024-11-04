@@ -26,7 +26,7 @@ const MainPage: NextPage = async () => {
         <h2 className='text-center mb-8'>THE GAME MASTER&apos;S TOOLKIT</h2>
 
         <ConditionWrapper condition={!!session}>
-          <p>Hey {user?.userName || user?.email}!</p>
+          <p>Hey {user?.userName ?? user?.email}!</p>
           <form action={formAction}>
             <Button label='Log out' type='submit' />
           </form>

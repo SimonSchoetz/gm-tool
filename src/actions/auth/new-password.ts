@@ -2,7 +2,7 @@
 
 import { HttpStatusCode, Route } from '@/enums';
 import { NewPasswordFormData } from '@/types/actions';
-import { ServerActionResponse } from '@/types/app';
+import { ServerActionResponse, SubmitData } from '@/types/app';
 import { assertIsString } from '@/util/asserts';
 import { readToken } from '../token';
 import { parseDataWithZodValidator, ValidatorName } from '@/validators/util';
@@ -12,14 +12,11 @@ import { encryptPassword } from '@/util/encryption';
 import { getUserByEmail } from '../user';
 
 export const submitNewPassword = async (
-  data: unknown
+  data: SubmitData
 ): Promise<ServerActionResponse> => {
   try {
-    assertIsString(data);
-    const decoded = await readToken(data);
-
     const { token, password } = parseDataWithZodValidator<NewPasswordFormData>(
-      decoded,
+      data,
       ValidatorName.NEW_PASSWORD
     );
     assertIsString(token);

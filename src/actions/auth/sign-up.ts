@@ -3,21 +3,17 @@
 import { dbCreateUser } from '@/api/db/user';
 import { HttpStatusCode, Route } from '@/enums';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
-import { ServerActionResponse } from '@/types/app';
+import { ServerActionResponse, SubmitData } from '@/types/app';
 import { ZodError } from 'zod';
-import { readToken } from '../token';
-import { assertIsString } from '@/util/asserts';
 import { SignUpFormData } from '@/types/actions';
 import { sendEmailVerificationEmail } from '../emails';
 
 export const submitSignUp = async (
-  data: unknown
+  data: SubmitData
 ): Promise<ServerActionResponse> => {
   try {
-    assertIsString(data);
-    const decoded = await readToken(data);
     const validatedData = parseDataWithZodValidator<SignUpFormData>(
-      decoded,
+      data,
       ValidatorName.SIGN_UP
     );
 

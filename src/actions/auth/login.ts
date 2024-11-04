@@ -1,9 +1,7 @@
 'use server';
 
 import { HttpStatusCode, Route, EmailVerificationState } from '@/enums';
-import { ServerActionResponse } from '@/types/app';
-import { assertIsString } from '@/util/asserts';
-import { readToken } from '../token';
+import { ServerActionResponse, SubmitData } from '@/types/app';
 import { ValidatorName, parseDataWithZodValidator } from '@/validators/util';
 import { ZodError } from 'zod';
 import { initSession } from './session';
@@ -12,15 +10,11 @@ import { validatePassword } from '@/util/encryption';
 import { getUserByEmail } from '../user';
 
 export const submitLogin = async (
-  data: unknown
+  data: SubmitData
 ): Promise<ServerActionResponse> => {
   try {
-    assertIsString(data);
-
-    const decoded = await readToken(data);
-
     const { email, password } = parseDataWithZodValidator<LoginFormData>(
-      decoded,
+      data,
       ValidatorName.LOGIN
     );
 

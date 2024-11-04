@@ -89,26 +89,19 @@ const expiresInLessThanXHours = (date: Date, hours: number): boolean => {
   return date < getDateFromNowInDuration({ hours });
 };
 
-const generateLocalSessionToken = async (
-  sessionId: string,
-  hours: number
-): Promise<string> =>
-  await generateToken<LocalSessionTokenPayload>(
-    { sessionId },
-    getDateFromNowInDuration({ hours })
-  );
-
 const getResponse = async (
   url: string,
   sessionId: string,
   hours: number
 ): Promise<NextResponse<unknown>> => {
-  const res = NextResponse.redirect(url);
-  res.cookies.set(
-    CookieName.AUTH_SESSION,
-    await generateLocalSessionToken(sessionId, hours),
-    getCookieConfig(getDateFromNowInDuration({ hours }))
+  const lifespan = getDateFromNowInDuration({ hours });
+  const token = await generateToken<LocalSessionTokenPayload>(
+    { sessionId },
+    lifespan
   );
+
+  const res = NextResponse.redirect(url);
+  res.cookies.set(CookieName.AUTH_SESSION, token, getCookieConfig(lifespan));
 
   return res;
 };
