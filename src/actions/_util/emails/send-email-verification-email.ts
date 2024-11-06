@@ -19,11 +19,10 @@ export const sendEmailVerificationEmail = async (
     };
   }
 
-  const { email, emailVerified } = user;
+  const { email } = user;
 
   const payload = {
     email,
-    verifyEmailHash: emailVerified,
   } satisfies VerifyEmailTokenPayload;
 
   const emailVerificationToken = await generateToken<VerifyEmailTokenPayload>(

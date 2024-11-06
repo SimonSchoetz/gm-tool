@@ -11,7 +11,7 @@ export const verifyEmail = async (
   token: string
 ): Promise<ServerActionResponse> => {
   try {
-    const { email, verifyEmailHash } = await readToken<VerifyEmailTokenPayload>(
+    const { email } = await readToken<VerifyEmailTokenPayload>(
       token,
       'AUTH_TOKEN_SECRET'
     );
@@ -22,13 +22,6 @@ export const verifyEmail = async (
       return {
         status: HttpStatusCode.NOT_FOUND,
         message: 'User does not exist',
-      };
-    }
-
-    if (verifyEmailHash !== user.emailVerified) {
-      return {
-        status: HttpStatusCode.INTERNAL_SERVER_ERROR,
-        message: 'Faulty verification',
       };
     }
 
