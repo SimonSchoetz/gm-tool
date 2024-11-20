@@ -1,14 +1,17 @@
 import 'server-only';
 
-import { EmailVerificationState, HttpStatusCode } from '@/enums';
+import { DbTable, EmailVerificationState, HttpStatusCode } from '@/enums';
 import { SignUpFormData } from '@/types/actions';
 import { encryptPassword } from '@/util/encryption';
-import { convexDb, users } from '../convexDb';
+import { convexDb, Id, users } from '../convexDb';
 import { getSignature } from '../util/get-signature';
 
 export const dbCreateUser = async (
   data: SignUpFormData
-): Promise<{ status: HttpStatusCode }> => {
+): Promise<{
+  status: HttpStatusCode;
+  id: Id<DbTable.USERS>;
+}> => {
   const { email, password, userName } = data;
 
   const signUpFormData = {
