@@ -1,6 +1,6 @@
 'use server';
 
-import { TokenLifeSpan, TokenPayload } from '../../types/actions/token';
+import { TokenLifeSpan, TokenPayload } from '@/types/actions/token';
 import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
 import { SignJWT } from 'jose';

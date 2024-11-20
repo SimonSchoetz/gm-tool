@@ -1,6 +1,6 @@
 'use server';
 
-import { TokenPayload } from '../../types/actions/token';
+import { TokenPayload } from '@/types/actions/token';
 import { parsedEnv } from '@/util/helper';
 import { jwtVerify } from 'jose';
 import { JOSEError } from 'jose/errors';
