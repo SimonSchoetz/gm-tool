@@ -2,6 +2,7 @@ import Footer from '@/components/Footer';
 import './styles.scss';
 
 import { Backdrop, LightSource } from '@/components/animations';
+import { ConvexClientProvider } from '@/components/ConvexClientProvider';
 
 export const metadata = {
   title: "The Game Master's Tool",
@@ -15,9 +16,8 @@ const RootLayout = ({ children }: { readonly children: React.ReactNode }) => {
       <body className='bg-gm-bg flex flex-col min-h-full'>
         <LightSource intensity='bright' />
         <Backdrop />
-
-        <div className='flex-grow flex flex-col items-center justify-between'>
-          {children}
+        <div className='flex-grow flex flex-col items-center justify-between mx-2'>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
           <Footer />
         </div>
       </body>
