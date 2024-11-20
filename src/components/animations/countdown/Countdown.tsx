@@ -35,7 +35,7 @@ const Countdown: React.FC<Readonly<CountdownProps>> = ({
     <ConditionWrapper condition={countdown > 0}>
       <p
         className='text-center text-6xl countdown-animation'
-        aria-live='assertive'
+        aria-live='polite'
         key={countdown}
       >
         {countdown}
