@@ -2,7 +2,11 @@
 
 import { generateToken, readToken } from '@/actions/token';
 import { CookieName, HttpStatusCode } from '@/enums';
-import { getCookieConfig, getDateFromNowInDuration } from '@/util/helper';
+import {
+  generateId,
+  getCookieConfig,
+  getDateFromNowInDuration,
+} from '@/util/helper';
 import { NextResponse } from 'next/server';
 
 import type { NextRequest } from 'next/server';
@@ -52,14 +56,21 @@ const setSessionSignature = async (
   const signatureToken = req.cookies.get(CookieName.SESSION_SIGNATURE);
 
   if (!signatureToken) {
+    const duration = getDateFromNowInDuration({ hours: 1 });
     const token = await generateToken(
-      {},
-      getDateFromNowInDuration({ hours: 8 }),
+      {
+        id: generateId(),
+      },
+      duration,
       'SESSION_SIGNATURE_SECRET'
     );
 
     const res = NextResponse.redirect(req.url);
-    res.cookies.set(CookieName.SESSION_SIGNATURE, token, getCookieConfig(null));
+    res.cookies.set(
+      CookieName.SESSION_SIGNATURE,
+      token,
+      getCookieConfig(duration)
+    );
     return res;
   }
 };
