@@ -1,7 +1,7 @@
 import { zInternalMutation } from '../helper';
 import { z } from 'zod';
 import { DbTable } from '@/enums';
-import { deleteSession } from '../sessions';
+import { deleteSessionIntern } from '../sessions';
 
 export const cleanupSessions = zInternalMutation({
   args: {},
@@ -15,7 +15,9 @@ export const cleanupSessions = zInternalMutation({
       .collect();
 
     for (const session of expiredSessions) {
-      await deleteSession(ctx, { sessionId: session._id });
+      await deleteSessionIntern(ctx, {
+        sessionId: session._id,
+      });
     }
 
     return { status: 200 };
