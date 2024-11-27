@@ -1,6 +1,6 @@
 import { HttpStatusCode } from '@/enums';
 import { NextRequest, NextResponse } from 'next/server';
-import * as mw from './middlewares';
+import * as mw from '@/middlewares';
 
 // order is important
 const middleWareFunctionList = [
