@@ -17,7 +17,8 @@ export const routeProtection = async (
   const pathname = req.nextUrl.pathname as Route;
 
   const isProtectedRoute = !unprotectedRoutes.includes(pathname);
-  const isUnknownRoute = !Object.values(Route).includes(pathname);
+  const isUnknownRoute =
+    !Object.values(Route).includes(pathname) || pathname === Route.NOT_FOUND;
 
   if (isUnknownRoute) {
     return NextResponse.rewrite(new URL(Route.NOT_FOUND, req.url));
