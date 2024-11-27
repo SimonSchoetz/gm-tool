@@ -1,6 +1,6 @@
 // based on this article: https://lucia-auth.com/sessions/cookies/nextjs
 
-import { generateToken, readToken } from '@/actions/token';
+import { generateAuthToken, readToken } from '@/actions/token';
 import { CookieName, HttpStatusCode } from '@/enums';
 import {
   generateId,
@@ -57,7 +57,7 @@ const setSessionSignature = async (
 
   if (!signatureToken) {
     const duration = getDateFromNowInDuration({ hours: 1 });
-    const token = await generateToken(
+    const token = await generateAuthToken(
       {
         id: generateId(),
       },

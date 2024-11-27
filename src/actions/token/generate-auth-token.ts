@@ -5,7 +5,7 @@ import { assertIsString } from '@/util/asserts';
 import { parsedEnv } from '@/util/helper';
 import { SignJWT } from 'jose';
 
-export const generateToken = async <T extends TokenPayload>(
+export const generateAuthToken = async <T extends TokenPayload>(
   payload: T,
   lifeSpan: TokenLifeSpan,
   envKey: keyof typeof parsedEnv

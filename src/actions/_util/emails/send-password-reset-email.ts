@@ -1,7 +1,7 @@
 'server-only';
 
 import { getUserByEmail } from '../../user';
-import { generateToken } from '../../token';
+import { generateAuthToken } from '../../token';
 import { PasswordResetTokenPayload } from '@/types/actions/token';
 import { resendSendPasswordResetEmail } from '@/api/email';
 import { ServerActionResponse } from '@/types/app';
@@ -21,9 +21,9 @@ export const sendPasswordResetEmail = async (
 
   const payload = { email: user.email } satisfies PasswordResetTokenPayload;
 
-  const restPasswordToken = await generateToken<PasswordResetTokenPayload>(
+  const restPasswordToken = await generateAuthToken<PasswordResetTokenPayload>(
     payload,
-    '1day',
+    '30days',
     'AUTH_TOKEN_SECRET'
   );
 
