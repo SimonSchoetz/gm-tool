@@ -21,7 +21,7 @@ const MainPage: NextPage = async () => {
 
   return (
     <>
-      <header></header>
+      <header>TEST CHANGE FOR N8N</header>
       <GlassPanel className='flex flex-col gap-8 items-center justify-center max-w-screen-sm w-full'>
         <h2 className='text-center mb-8'>THE GAME MASTER&apos;S TOOLKIT</h2>
 
