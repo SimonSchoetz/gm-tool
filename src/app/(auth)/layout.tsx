@@ -16,7 +16,7 @@ export default function Layout({
 
   return (
     <>
-      <header className='w-full  p-4 flex justify-between backdrop-blur-[2px] bg-gm-primary-20 sticky top-0 mb-8'>
+      <header className='w-full p-4 flex justify-between backdrop-blur-[2px] bg-gm-primary-20 sticky top-0 mb-8'>
         <AppLink href='/' title='Home' />
 
         <ConditionWrapper condition={isSignUp}>
