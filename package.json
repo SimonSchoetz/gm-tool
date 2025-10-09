@@ -1,0 +1,17 @@
+{
+  "name": "gm-tool",
+  "version": "1.0.0",
+  "description": "Mono repo of the GM-Tool project",
+  "homepage": "https://github.com/SimonSchoetz/gm-tool#readme",
+  "bugs": {
+    "url": "https://github.com/SimonSchoetz/gm-tool/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimonSchoetz/gm-tool.git"
+  },
+  "author": "Simon Schötz",
+  "scripts": {
+    "test": "test"
+  }
+}
