@@ -51,7 +51,14 @@ npm run web                # Vite only in browser
 - use modern arrow function syntax
 - never return undefined, it should be an indicator for errors
 - avoid using `any` as type
-- descriptive function/variable names over comments
+- Use descriptive names instead of comments
+  ❌ BAD: `const data = await fetch(); // Get user data`
+  ✅ GOOD: `const userData = await fetchUserData();`
+- Use modern JavaScript operators for cleaner code:
+  ❌ BAD: `const x = value !== undefined ? value : defaultValue`
+  ✅ GOOD: `const x = value ?? defaultValue`
+  ❌ BAD: `if (obj && obj.prop && obj.prop.nested) { ... }`
+  ✅ GOOD: `if (obj?.prop?.nested) { ... }`
 - use single quotes
 - multiple array/object items in new lines
 
