@@ -22,7 +22,7 @@ global.confirm = mockConfirm;
 describe('App Component', () => {
   const mockSessions = [
     {
-      id: 1,
+      id: 'test-id-1',
       title: 'First Session',
       description: 'First description',
       session_date: '2025-10-13',
@@ -30,7 +30,7 @@ describe('App Component', () => {
       created_at: '2025-10-13T10:00:00Z',
     },
     {
-      id: 2,
+      id: 'test-id-2',
       title: 'Second Session',
       description: 'Second description',
       session_date: '2025-10-12',
@@ -39,11 +39,25 @@ describe('App Component', () => {
     },
   ];
 
+  const mockPaginatedResponse = {
+    data: mockSessions,
+    total: 2,
+    limit: 20,
+    offset: 0,
+    hasMore: false,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockConfirm.mockReturnValue(true);
     (database.initDatabase as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [],
+      total: 0,
+      limit: 20,
+      offset: 0,
+      hasMore: false,
+    });
   });
 
   describe('Initialization', () => {
@@ -58,7 +72,7 @@ describe('App Component', () => {
     });
 
     it('should initialize database and load sessions on mount', async () => {
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
 
       render(<App />);
 
@@ -85,7 +99,7 @@ describe('App Component', () => {
 
   describe('Session List Display', () => {
     it('should display sessions after loading', async () => {
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
 
       render(<App />);
 
@@ -96,7 +110,13 @@ describe('App Component', () => {
     });
 
     it('should display empty state when no sessions exist', async () => {
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: [],
+        total: 0,
+        limit: 20,
+        offset: 0,
+        hasMore: false,
+      });
 
       render(<App />);
 
@@ -106,7 +126,7 @@ describe('App Component', () => {
     });
 
     it('should display session count', async () => {
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
 
       render(<App />);
 
@@ -119,8 +139,7 @@ describe('App Component', () => {
   describe('Create Session', () => {
     it('should create new session with form data', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-      (session.create as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+      (session.create as ReturnType<typeof vi.fn>).mockResolvedValue('new-test-id');
 
       render(<App />);
 
@@ -150,8 +169,7 @@ describe('App Component', () => {
 
     it('should clear form after successful creation', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-      (session.create as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+      (session.create as ReturnType<typeof vi.fn>).mockResolvedValue('new-test-id');
 
       render(<App />);
 
@@ -174,7 +192,7 @@ describe('App Component', () => {
   describe('Update Session', () => {
     it('should populate form when edit button is clicked', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
 
       render(<App />);
 
@@ -196,7 +214,7 @@ describe('App Component', () => {
 
     it('should update session with modified data', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
       (session.update as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
       render(<App />);
@@ -216,7 +234,7 @@ describe('App Component', () => {
       await user.click(updateButton);
 
       await waitFor(() => {
-        expect(session.update).toHaveBeenCalledWith(1, {
+        expect(session.update).toHaveBeenCalledWith('test-id-1', {
           title: 'Updated Session',
           description: 'First description',
           session_date: '2025-10-13',
@@ -227,7 +245,7 @@ describe('App Component', () => {
 
     it('should cancel edit and clear form', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
 
       render(<App />);
 
@@ -252,7 +270,7 @@ describe('App Component', () => {
   describe('Delete Session', () => {
     it('should delete session when confirmed', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
       (session.remove as ReturnType<typeof vi.fn>).mockResolvedValue(null);
       mockConfirm.mockReturnValue(true);
 
@@ -268,13 +286,13 @@ describe('App Component', () => {
       expect(mockConfirm).toHaveBeenCalledWith('Are you sure you want to delete this session?');
 
       await waitFor(() => {
-        expect(session.remove).toHaveBeenCalledWith(1);
+        expect(session.remove).toHaveBeenCalledWith('test-id-1');
       });
     });
 
     it('should not delete session when cancelled', async () => {
       const user = userEvent.setup();
-      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockPaginatedResponse);
       mockConfirm.mockReturnValue(false);
 
       render(<App />);

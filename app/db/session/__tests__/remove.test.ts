@@ -28,16 +28,16 @@ describe('remove', () => {
   it('should delete session by id', async () => {
     mockExecute.mockResolvedValue({});
 
-    await remove(1);
+    await remove('test-id-1');
 
     expect(mockExecute).toHaveBeenCalledWith(
       'DELETE FROM sessions WHERE id = $1',
-      [1]
+      ['test-id-1']
     );
   });
 
   it('should throw error when id is invalid', async () => {
-    await expect(remove(0)).rejects.toThrow('Valid session ID is required');
-    await expect(remove(-1)).rejects.toThrow('Valid session ID is required');
+    await expect(remove('')).rejects.toThrow('Valid session ID is required');
+    await expect(remove('   ')).rejects.toThrow('Valid session ID is required');
   });
 });

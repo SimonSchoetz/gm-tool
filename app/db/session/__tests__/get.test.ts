@@ -28,18 +28,18 @@ describe('get', () => {
 
   it('should return session by id', async () => {
     const mockSession: Session = {
-      id: 1,
+      id: 'test-id-1',
       title: 'Test Session',
       description: 'Test Description',
     };
 
     mockSelect.mockResolvedValue([mockSession]);
 
-    const session = await get(1);
+    const session = await get('test-id-1');
 
     expect(mockSelect).toHaveBeenCalledWith(
       'SELECT * FROM sessions WHERE id = $1',
-      [1]
+      ['test-id-1']
     );
     expect(session).toEqual(mockSession);
   });
@@ -47,13 +47,13 @@ describe('get', () => {
   it('should return null when session not found', async () => {
     mockSelect.mockResolvedValue([]);
 
-    const session = await get(999);
+    const session = await get('non-existent-id');
 
     expect(session).toBeNull();
   });
 
   it('should throw error when id is invalid', async () => {
-    await expect(get(0)).rejects.toThrow('Valid session ID is required');
-    await expect(get(-1)).rejects.toThrow('Valid session ID is required');
+    await expect(get('')).rejects.toThrow('Valid session ID is required');
+    await expect(get('   ')).rejects.toThrow('Valid session ID is required');
   });
 });

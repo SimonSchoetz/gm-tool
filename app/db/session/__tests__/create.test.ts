@@ -13,6 +13,10 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
   },
 }));
 
+vi.mock('../../../util', () => ({
+  generateId: vi.fn(() => 'test-generated-id'),
+}));
+
 import { create } from '../create';
 
 describe('create', () => {
@@ -26,7 +30,7 @@ describe('create', () => {
     vi.resetModules();
   });
 
-  it('should insert session with all fields', async () => {
+  it('should insert session with all fields and return generated ID', async () => {
     const mockSession: Session = {
       title: 'Test Session',
       description: 'Test Description',
@@ -34,20 +38,22 @@ describe('create', () => {
       notes: 'Test notes',
     };
 
-    mockExecute.mockResolvedValue({ lastInsertId: 1 });
+    mockExecute.mockResolvedValue({});
 
     const sessionId = await create(mockSession);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (title, description, session_date, notes) VALUES ($1, $2, $3, $4)',
+      'INSERT INTO sessions (id, title, description, session_date, notes) VALUES ($1, $2, $3, $4, $5)',
       [
+        'test-generated-id',
         'Test Session',
         'Test Description',
         '2025-10-13',
         'Test notes',
       ]
     );
-    expect(sessionId).toBe(1);
+    expect(sessionId).toBe('test-generated-id');
+    expect(typeof sessionId).toBe('string');
   });
 
   it('should insert session with only required fields', async () => {
@@ -55,20 +61,22 @@ describe('create', () => {
       title: 'Minimal Session',
     };
 
-    mockExecute.mockResolvedValue({ lastInsertId: 2 });
+    mockExecute.mockResolvedValue({});
 
     const sessionId = await create(mockSession);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (title, description, session_date, notes) VALUES ($1, $2, $3, $4)',
+      'INSERT INTO sessions (id, title, description, session_date, notes) VALUES ($1, $2, $3, $4, $5)',
       [
+        'test-generated-id',
         'Minimal Session',
         null,
         null,
         null,
       ]
     );
-    expect(sessionId).toBe(2);
+    expect(sessionId).toBe('test-generated-id');
+    expect(typeof sessionId).toBe('string');
   });
 
   it('should throw error when title is empty', async () => {

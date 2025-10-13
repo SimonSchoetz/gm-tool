@@ -2,10 +2,10 @@ import { getDatabase } from '../database';
 import type { Session } from './types';
 
 export const update = async (
-  id: number,
+  id: string,
   session: Partial<Session>
 ): Promise<void> => {
-  if (!id || id <= 0) {
+  if (!id || typeof id !== 'string' || id.trim() === '') {
     throw new Error('Valid session ID is required');
   }
 

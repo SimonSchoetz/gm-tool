@@ -8,7 +8,7 @@ function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -36,8 +36,8 @@ function App() {
   async function loadSessions() {
     try {
       setLoading(true);
-      const data = await session.getAll();
-      setSessions(data);
+      const result = await session.getAll();
+      setSessions(result.data);
     } catch (error) {
       console.error('Failed to load sessions:', error);
     } finally {
@@ -61,7 +61,7 @@ function App() {
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     if (confirm('Are you sure you want to delete this session?')) {
       try {
         await session.remove(id);

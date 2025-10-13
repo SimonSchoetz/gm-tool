@@ -19,7 +19,7 @@ export const initDatabase = async () => {
 
       await database.execute(`
         CREATE TABLE IF NOT EXISTS sessions (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id TEXT PRIMARY KEY,
           title TEXT NOT NULL,
           description TEXT,
           session_date TEXT,

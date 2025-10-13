@@ -1,8 +1,8 @@
 import { getDatabase } from '../database';
 import type { Session } from './types';
 
-export const get = async (id: number): Promise<Session | null> => {
-  if (!id || id <= 0) {
+export const get = async (id: string): Promise<Session | null> => {
+  if (!id || typeof id !== 'string' || id.trim() === '') {
     throw new Error('Valid session ID is required');
   }
 

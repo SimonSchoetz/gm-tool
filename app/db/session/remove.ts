@@ -1,7 +1,7 @@
 import { getDatabase } from '../database';
 
-export const remove = async (id: number): Promise<void> => {
-  if (!id || id <= 0) {
+export const remove = async (id: string): Promise<void> => {
+  if (!id || typeof id !== 'string' || id.trim() === '') {
     throw new Error('Valid session ID is required');
   }
 
