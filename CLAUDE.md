@@ -4,20 +4,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repo
 
-This is a mono repo containing all projects regarding the GM-Tool project
+This is a mono repo containing all projects regarding the GM-Tool project. So far it contains:
 
-### Archive (`archive/`)
+- `_archive/`
+- `app/`
+
+## Archive (`_archive/`)
 
 Contains an old web project which was more of a playground. It should be ignored by Claude unless stated otherwise.
 
-### App (`app/`)
+## App (`app/`)
 
 Project to build the app I want for my personal use without constraints like accessibility concerns.
 
-# Development Commands
+### Tech Stack
 
-### Running the application
+- **Frontend**: React + TypeScript + Vite
+- **Backend**: Tauri (Rust)
+- **Database**: SQLite
+- **Styling**: TBD
+
+### App Structure (`app/`)
+
+app/
+├── src/ # React frontend source
+├── db/ # SQLite database
+├── src-tauri/ # Rust backend (Tauri)
+│ └── src/
+└── public/ # Static assets
+
+### Development Commands
+
+#### Running the application
 
 ```bash
-npm run dev                # starts local tauri app
+npm run dev                # Local Tauri environment
+npm run web                # Vite only in browser
 ```
+
+### Code styles and convention
+
+#### Coding style
+
+- typescript first
+- types over interfaces
+- use modern arrow function syntax
+- never return undefined, it should be an indicator for errors
+- avoid using `any` as type
+- descriptive function/variable names over comments
+- use single quotes
+- multiple array/object items in new lines
+
+#### Conventions
+
+- keep modules small for better separation of concerns
+- Error handling: TBD
