@@ -13,6 +13,7 @@
   "author": "Simon Schötz",
   "scripts": {
     "test": "test",
-    "dev": "cd app && npm run local dev"
+    "dev": "cd app && npm run dev",
+    "web": "cd app && npm run web"
   }
 }
