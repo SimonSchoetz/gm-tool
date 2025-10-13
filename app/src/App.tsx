@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { initDatabase, getAllSessions, createSession, updateSession, deleteSession, Session } from "./db/database";
+import { initDatabase, getAllSessions, createSession, updateSession, deleteSession, Session } from "@db/database";
 import "./App.css";
 
 function App() {

@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "com.simonschoetz.tauri-app",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm run web",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "width": 1920,
+        "height": 1080
       }
     ],
     "security": {
