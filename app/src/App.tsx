@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
-import { initDatabase, getAllSessions, createSession, updateSession, deleteSession, Session } from "@db/database";
-import "./App.css";
+import { useState, useEffect } from 'react';
+import { initDatabase } from '@db/database';
+import * as session from '@db/session';
+import type { Session } from '@db/session';
+import './App.css';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -34,10 +36,10 @@ function App() {
   async function loadSessions() {
     try {
       setLoading(true);
-      const data = await getAllSessions();
+      const data = await session.getAll();
       setSessions(data);
     } catch (error) {
-      console.error("Failed to load sessions:", error);
+      console.error('Failed to load sessions:', error);
     } finally {
       setLoading(false);
     }
@@ -47,42 +49,42 @@ function App() {
     e.preventDefault();
     try {
       if (editingId) {
-        await updateSession(editingId, formData);
+        await session.update(editingId, formData);
         setEditingId(null);
       } else {
-        await createSession(formData);
+        await session.create(formData);
       }
-      setFormData({ title: "", description: "", session_date: "", notes: "" });
+      setFormData({ title: '', description: '', session_date: '', notes: '' });
       await loadSessions();
     } catch (error) {
-      console.error("Failed to save session:", error);
+      console.error('Failed to save session:', error);
     }
   }
 
   async function handleDelete(id: number) {
-    if (confirm("Are you sure you want to delete this session?")) {
+    if (confirm('Are you sure you want to delete this session?')) {
       try {
-        await deleteSession(id);
+        await session.remove(id);
         await loadSessions();
       } catch (error) {
-        console.error("Failed to delete session:", error);
+        console.error('Failed to delete session:', error);
       }
     }
   }
 
-  function handleEdit(session: Session) {
-    setEditingId(session.id!);
+  function handleEdit(sessionData: Session) {
+    setEditingId(sessionData.id!);
     setFormData({
-      title: session.title,
-      description: session.description || "",
-      session_date: session.session_date || "",
-      notes: session.notes || "",
+      title: sessionData.title,
+      description: sessionData.description || '',
+      session_date: sessionData.session_date || '',
+      notes: sessionData.notes || '',
     });
   }
 
   function handleCancel() {
     setEditingId(null);
-    setFormData({ title: "", description: "", session_date: "", notes: "" });
+    setFormData({ title: '', description: '', session_date: '', notes: '' });
   }
 
   if (loading) {

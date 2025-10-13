@@ -3,17 +3,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import * as database from '@db/database';
+import * as session from '@db/session';
 
-// Mock the database module
 vi.mock('@db/database', () => ({
   initDatabase: vi.fn(),
-  getAllSessions: vi.fn(),
-  createSession: vi.fn(),
-  updateSession: vi.fn(),
-  deleteSession: vi.fn(),
 }));
 
-// Mock window.confirm
+vi.mock('@db/session', () => ({
+  getAll: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  remove: vi.fn(),
+}));
+
 const mockConfirm = vi.fn();
 global.confirm = mockConfirm;
 
@@ -41,13 +43,13 @@ describe('App Component', () => {
     vi.clearAllMocks();
     mockConfirm.mockReturnValue(true);
     (database.initDatabase as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
   });
 
   describe('Initialization', () => {
     it('should render loading state initially', () => {
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockImplementation(
-        () => new Promise(() => {}) // Never resolves
+      (session.getAll as ReturnType<typeof vi.fn>).mockImplementation(
+        () => new Promise(() => {})
       );
 
       render(<App />);
@@ -56,13 +58,13 @@ describe('App Component', () => {
     });
 
     it('should initialize database and load sessions on mount', async () => {
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
 
       render(<App />);
 
       await waitFor(() => {
         expect(database.initDatabase).toHaveBeenCalledOnce();
-        expect(database.getAllSessions).toHaveBeenCalledOnce();
+        expect(session.getAll).toHaveBeenCalledOnce();
       });
     });
 
@@ -83,7 +85,7 @@ describe('App Component', () => {
 
   describe('Session List Display', () => {
     it('should display sessions after loading', async () => {
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
 
       render(<App />);
 
@@ -94,7 +96,7 @@ describe('App Component', () => {
     });
 
     it('should display empty state when no sessions exist', async () => {
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
 
       render(<App />);
 
@@ -104,7 +106,7 @@ describe('App Component', () => {
     });
 
     it('should display session count', async () => {
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
 
       render(<App />);
 
@@ -117,8 +119,8 @@ describe('App Component', () => {
   describe('Create Session', () => {
     it('should create new session with form data', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-      (database.createSession as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (session.create as ReturnType<typeof vi.fn>).mockResolvedValue(1);
 
       render(<App />);
 
@@ -137,7 +139,7 @@ describe('App Component', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(database.createSession).toHaveBeenCalledWith({
+        expect(session.create).toHaveBeenCalledWith({
           title: 'New Session',
           description: 'New Description',
           session_date: '',
@@ -148,8 +150,8 @@ describe('App Component', () => {
 
     it('should clear form after successful creation', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-      (database.createSession as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (session.create as ReturnType<typeof vi.fn>).mockResolvedValue(1);
 
       render(<App />);
 
@@ -172,7 +174,7 @@ describe('App Component', () => {
   describe('Update Session', () => {
     it('should populate form when edit button is clicked', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
 
       render(<App />);
 
@@ -194,8 +196,8 @@ describe('App Component', () => {
 
     it('should update session with modified data', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
-      (database.updateSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.update as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
       render(<App />);
 
@@ -214,7 +216,7 @@ describe('App Component', () => {
       await user.click(updateButton);
 
       await waitFor(() => {
-        expect(database.updateSession).toHaveBeenCalledWith(1, {
+        expect(session.update).toHaveBeenCalledWith(1, {
           title: 'Updated Session',
           description: 'First description',
           session_date: '2025-10-13',
@@ -225,7 +227,7 @@ describe('App Component', () => {
 
     it('should cancel edit and clear form', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
 
       render(<App />);
 
@@ -250,8 +252,8 @@ describe('App Component', () => {
   describe('Delete Session', () => {
     it('should delete session when confirmed', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
-      (database.deleteSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.remove as ReturnType<typeof vi.fn>).mockResolvedValue(null);
       mockConfirm.mockReturnValue(true);
 
       render(<App />);
@@ -266,13 +268,13 @@ describe('App Component', () => {
       expect(mockConfirm).toHaveBeenCalledWith('Are you sure you want to delete this session?');
 
       await waitFor(() => {
-        expect(database.deleteSession).toHaveBeenCalledWith(1);
+        expect(session.remove).toHaveBeenCalledWith(1);
       });
     });
 
     it('should not delete session when cancelled', async () => {
       const user = userEvent.setup();
-      (database.getAllSessions as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
+      (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue(mockSessions);
       mockConfirm.mockReturnValue(false);
 
       render(<App />);
@@ -285,7 +287,7 @@ describe('App Component', () => {
       await user.click(deleteButtons[0]);
 
       expect(mockConfirm).toHaveBeenCalled();
-      expect(database.deleteSession).not.toHaveBeenCalled();
+      expect(session.remove).not.toHaveBeenCalled();
     });
   });
 });
