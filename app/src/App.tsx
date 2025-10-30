@@ -3,6 +3,7 @@ import { initDatabase } from '@db/database';
 import * as session from '@db/session';
 import type { Session } from '@db/session';
 import { SessionForm, SessionList } from '@/features/sessions';
+import Backdrop from './components/Backdrop';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -88,12 +89,12 @@ function App() {
   }
 
   if (loading) {
-    return <div className="container">Loading...</div>;
+    return <div className='container'>Loading...</div>;
   }
 
   if (error) {
     return (
-      <div className="container">
+      <div className='container'>
         <h1>Error</h1>
         <p style={{ color: 'red' }}>{error}</p>
         <p>Check the browser console for more details</p>
@@ -102,7 +103,8 @@ function App() {
   }
 
   return (
-    <main className="container">
+    <main className='container'>
+      <Backdrop />
       <h1>GM Tool - Session Manager</h1>
 
       <SessionForm
