@@ -1,20 +1,24 @@
 :root {
-  /* Colors - Light Mode */
-  --color-text: #0f0f0f;
-  --color-text-secondary: #666;
-  --color-text-muted: #888;
-  --color-background: #f6f6f6;
-  --color-surface: #ffffff;
-  --color-border: #ddd;
-  --color-border-light: #eee;
+  /* Colors - Based on GM Tool archive palette */
+  --color-text: #f8fbfb;
+  --color-text-secondary: #b8c9cc;
+  --color-text-muted: #7a8f94;
+  --color-background: #031322;
+  --color-surface: #0a1f31;
+  --color-border: #2b4d57;
+  --color-border-light: #1a3540;
 
   /* Brand Colors */
-  --color-primary: #646cff;
-  --color-primary-hover: #535bf2;
-  --color-secondary: #999;
-  --color-secondary-hover: #777;
-  --color-danger: #ff4444;
-  --color-danger-hover: #cc0000;
+  --color-primary: #399cbb;
+  --color-primary-hover: #2d7d97;
+  --color-secondary: #2b4d57;
+  --color-secondary-hover: #1f3840;
+  --color-danger: #d02530;
+  --color-danger-hover: #a51d26;
+  --color-success: #77ee1b;
+  --color-success-hover: #5fc215;
+  --color-warning: #f4d301;
+  --color-warning-hover: #c5a901;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -38,29 +42,12 @@
   --radius-lg: 12px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
 
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-base: 0.25s ease;
   --transition-slow: 0.35s ease;
-}
-
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-text: #f6f6f6;
-    --color-text-secondary: #ccc;
-    --color-text-muted: #aaa;
-    --color-background: #2f2f2f;
-    --color-surface: #1a1a1a;
-    --color-border: #444;
-    --color-border-light: #333;
-
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
-  }
 }
