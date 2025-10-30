@@ -1,11 +1,10 @@
 import { getDatabase } from '../database';
 import { generateId } from '../../util';
-import type { Session } from './types';
+import { createSessionSchema } from './schema';
+import type { CreateSessionInput } from './types';
 
-export const create = async (session: Session): Promise<string> => {
-  if (!session.title || session.title.trim() === '') {
-    throw new Error('Session title is required');
-  }
+export const create = async (data: CreateSessionInput): Promise<string> => {
+  const validated = createSessionSchema.parse(data);
 
   const id = generateId();
   const db = await getDatabase();
@@ -13,10 +12,10 @@ export const create = async (session: Session): Promise<string> => {
     'INSERT INTO sessions (id, title, description, session_date, notes) VALUES ($1, $2, $3, $4, $5)',
     [
       id,
-      session.title,
-      session.description || null,
-      session.session_date || null,
-      session.notes || null,
+      validated.title,
+      validated.description ?? null,
+      validated.session_date ?? null,
+      validated.notes ?? null,
     ]
   );
   return id;

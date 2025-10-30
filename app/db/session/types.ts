@@ -1,12 +1,13 @@
-export type Session = {
-  id?: string;
-  title: string;
-  description?: string;
-  session_date?: string;
-  notes?: string;
-  created_at?: string;
-  updated_at?: string;
-};
+import z from 'zod';
+import {
+  sessionSchema,
+  createSessionSchema,
+  updateSessionSchema,
+} from './schema';
+
+export type Session = z.infer<typeof sessionSchema>;
+export type CreateSessionInput = z.infer<typeof createSessionSchema>;
+export type UpdateSessionInput = z.infer<typeof updateSessionSchema>;
 
 export type PaginationParams = {
   limit?: number;

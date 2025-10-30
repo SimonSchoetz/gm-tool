@@ -1,38 +1,41 @@
 import { getDatabase } from '../database';
-import type { Session } from './types';
+import { updateSessionSchema } from './schema';
+import type { UpdateSessionInput } from './types';
 
 export const update = async (
   id: string,
-  session: Partial<Session>
+  data: UpdateSessionInput
 ): Promise<void> => {
   if (!id || typeof id !== 'string' || id.trim() === '') {
     throw new Error('Valid session ID is required');
   }
 
-  if (session.title !== undefined && session.title.trim() === '') {
-    throw new Error('Session title cannot be empty');
-  }
+  const validated = updateSessionSchema.parse(data);
 
   const db = await getDatabase();
   const fields: string[] = [];
   const values: unknown[] = [];
   let paramIndex = 1;
 
-  if (session.title !== undefined) {
+  if (validated.title !== undefined) {
     fields.push(`title = $${paramIndex++}`);
-    values.push(session.title);
+    values.push(validated.title);
   }
-  if (session.description !== undefined) {
+  if (validated.description !== undefined) {
     fields.push(`description = $${paramIndex++}`);
-    values.push(session.description);
+    values.push(validated.description);
   }
-  if (session.session_date !== undefined) {
+  if (validated.session_date !== undefined) {
     fields.push(`session_date = $${paramIndex++}`);
-    values.push(session.session_date);
+    values.push(validated.session_date);
   }
-  if (session.notes !== undefined) {
+  if (validated.notes !== undefined) {
     fields.push(`notes = $${paramIndex++}`);
-    values.push(session.notes);
+    values.push(validated.notes);
+  }
+
+  if (fields.length === 0) {
+    return;
   }
 
   fields.push('updated_at = CURRENT_TIMESTAMP');
