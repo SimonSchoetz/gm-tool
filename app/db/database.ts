@@ -1,4 +1,5 @@
 import Database from '@tauri-apps/plugin-sql';
+import { tableSchemas } from './schemas';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
@@ -17,18 +18,10 @@ export const initDatabase = async () => {
       const database = await Database.load('sqlite:gm_tool.db');
       console.log('Database loaded successfully');
 
-      await database.execute(`
-        CREATE TABLE IF NOT EXISTS sessions (
-          id TEXT PRIMARY KEY,
-          title TEXT NOT NULL,
-          description TEXT,
-          session_date TEXT,
-          notes TEXT,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-      console.log('Sessions table created/verified');
+      for (const { name, sql } of tableSchemas) {
+        await database.execute(sql);
+        console.log(`${name.charAt(0).toUpperCase() + name.slice(1)} table created/verified`);
+      }
 
       db = database;
       return database;

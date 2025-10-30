@@ -7,6 +7,18 @@ db/
 ├── database.ts
 └── session/
 
+## Database Schema
+
+**Core Tables:**
+
+- `adventures` - Main adventure/campaign records
+- `sessions` - Individual game sessions (many-to-one with adventures)
+
+**Relationships:**
+
+- Adventures (1) → (∞) Sessions via `sessions.adventure_id`
+- Cascade delete: removing an adventure deletes its sessions
+
 ## Conventions
 
 - 1 function -> 1 file
@@ -14,6 +26,10 @@ db/
 - export via barrel file
 - Defensive input validation with clear error messages.
 - tests should mirror the file structure
+- all tables have at least the following columns:
+  - `id` as PK (created with nanoid)
+  - `created_at`
+  - `updated_at`
 
 ## Naming
 

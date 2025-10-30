@@ -9,13 +9,14 @@ export const create = async (data: CreateSessionInput): Promise<string> => {
   const id = generateId();
   const db = await getDatabase();
   await db.execute(
-    'INSERT INTO sessions (id, title, description, session_date, notes) VALUES ($1, $2, $3, $4, $5)',
+    'INSERT INTO sessions (id, title, description, session_date, notes, adventure_id) VALUES ($1, $2, $3, $4, $5, $6)',
     [
       id,
       validated.title,
       validated.description ?? null,
       validated.session_date ?? null,
       validated.notes ?? null,
+      validated.adventure_id,
     ]
   );
   return id;

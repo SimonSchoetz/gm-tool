@@ -33,6 +33,10 @@ export const update = async (
     fields.push(`notes = $${paramIndex++}`);
     values.push(validated.notes);
   }
+  if (validated.adventure_id !== undefined) {
+    fields.push(`adventure_id = $${paramIndex++}`);
+    values.push(validated.adventure_id);
+  }
 
   if (fields.length === 0) {
     return;

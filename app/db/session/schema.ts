@@ -11,6 +11,7 @@ export const sessionSchema = z.object({
   description: z.string().optional(),
   session_date: z.string().optional(),
   notes: z.string().optional(),
+  adventure_id: z.string().min(1, 'Adventure ID is required'),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
 });
@@ -33,5 +34,6 @@ export const updateSessionSchema = z
     description: z.string().optional(),
     session_date: z.string().optional(),
     notes: z.string().optional(),
+    adventure_id: z.string().optional(),
   })
   .partial();

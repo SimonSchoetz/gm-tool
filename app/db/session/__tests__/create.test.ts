@@ -36,6 +36,7 @@ describe('create', () => {
       description: 'Test Description',
       session_date: '2025-10-13',
       notes: 'Test notes',
+      adventure_id: 'test-adventure-id',
     };
 
     mockExecute.mockResolvedValue({});
@@ -43,13 +44,14 @@ describe('create', () => {
     const sessionId = await create(mockSession);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, title, description, session_date, notes) VALUES ($1, $2, $3, $4, $5)',
+      'INSERT INTO sessions (id, title, description, session_date, notes, adventure_id) VALUES ($1, $2, $3, $4, $5, $6)',
       [
         'test-generated-id',
         'Test Session',
         'Test Description',
         '2025-10-13',
         'Test notes',
+        'test-adventure-id',
       ]
     );
     expect(sessionId).toBe('test-generated-id');
@@ -59,6 +61,7 @@ describe('create', () => {
   it('should insert session with only required fields', async () => {
     const mockSession: Session = {
       title: 'Minimal Session',
+      adventure_id: 'test-adventure-id',
     };
 
     mockExecute.mockResolvedValue({});
@@ -66,13 +69,14 @@ describe('create', () => {
     const sessionId = await create(mockSession);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, title, description, session_date, notes) VALUES ($1, $2, $3, $4, $5)',
+      'INSERT INTO sessions (id, title, description, session_date, notes, adventure_id) VALUES ($1, $2, $3, $4, $5, $6)',
       [
         'test-generated-id',
         'Minimal Session',
         null,
         null,
         null,
+        'test-adventure-id',
       ]
     );
     expect(sessionId).toBe('test-generated-id');
@@ -80,18 +84,28 @@ describe('create', () => {
   });
 
   it('should throw error when title is empty', async () => {
-    const mockSession: Session = {
+    const mockSession = {
       title: '',
+      adventure_id: 'test-adventure-id',
     };
 
     await expect(create(mockSession)).rejects.toThrow('Session title is required');
   });
 
   it('should throw error when title is only whitespace', async () => {
-    const mockSession: Session = {
+    const mockSession = {
       title: '   ',
+      adventure_id: 'test-adventure-id',
     };
 
     await expect(create(mockSession)).rejects.toThrow('Session title is required');
+  });
+
+  it('should throw error when adventure_id is missing', async () => {
+    const mockSession = {
+      title: 'Test Session',
+    };
+
+    await expect(create(mockSession)).rejects.toThrow();
   });
 });
