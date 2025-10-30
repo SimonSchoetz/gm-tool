@@ -1,10 +1,10 @@
 import { getDatabase } from '../database';
 import { generateId } from '../../util';
-import { createAdventureSchema } from './schema';
+import { adventureTable } from './schema';
 import type { CreateAdventureInput } from './types';
 
 export const create = async (data: CreateAdventureInput): Promise<string> => {
-  const validated = createAdventureSchema.parse(data);
+  const validated = adventureTable.createSchema.parse(data);
 
   const id = generateId();
   const db = await getDatabase();

@@ -1,13 +1,9 @@
 import z from 'zod';
-import {
-  adventureSchema,
-  createAdventureSchema,
-  updateAdventureSchema,
-} from './schema';
+import { adventureTable } from './schema';
 
-export type Adventure = z.infer<typeof adventureSchema>;
-export type CreateAdventureInput = z.infer<typeof createAdventureSchema>;
-export type UpdateAdventureInput = z.infer<typeof updateAdventureSchema>;
+export type Adventure = z.infer<typeof adventureTable.zodSchema>;
+export type CreateAdventureInput = z.infer<typeof adventureTable.createSchema>;
+export type UpdateAdventureInput = z.infer<typeof adventureTable.updateSchema>;
 
 export type PaginationParams = {
   limit?: number;

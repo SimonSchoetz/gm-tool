@@ -1,10 +1,10 @@
 import { getDatabase } from '../database';
 import { generateId } from '../../util';
-import { createSessionSchema } from './schema';
+import { sessionTable } from './schema';
 import type { CreateSessionInput } from './types';
 
 export const create = async (data: CreateSessionInput): Promise<string> => {
-  const validated = createSessionSchema.parse(data);
+  const validated = sessionTable.createSchema.parse(data);
 
   const id = generateId();
   const db = await getDatabase();

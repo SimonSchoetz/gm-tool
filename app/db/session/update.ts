@@ -1,5 +1,5 @@
 import { getDatabase } from '../database';
-import { updateSessionSchema } from './schema';
+import { sessionTable } from './schema';
 import type { UpdateSessionInput } from './types';
 
 export const update = async (
@@ -10,7 +10,7 @@ export const update = async (
     throw new Error('Valid session ID is required');
   }
 
-  const validated = updateSessionSchema.parse(data);
+  const validated = sessionTable.updateSchema.parse(data);
 
   const db = await getDatabase();
   const fields: string[] = [];

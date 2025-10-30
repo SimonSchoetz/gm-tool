@@ -1,39 +1,61 @@
 import { z } from 'zod';
+import { defineTable } from '../util';
 
-export const sessionSchema = z.object({
-  id: z.string().optional(),
-  title: z
-    .string()
-    .min(1, 'Session title is required')
-    .refine((val) => val.trim().length > 0, {
-      message: 'Session title is required',
-    }),
-  description: z.string().optional(),
-  session_date: z.string().optional(),
-  notes: z.string().optional(),
-  adventure_id: z.string().min(1, 'Adventure ID is required'),
-  created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+export const sessionTable = defineTable({
+  name: 'sessions',
+  columns: {
+    id: {
+      type: 'TEXT',
+      primaryKey: true,
+      zod: z.string().optional(),
+    },
+    title: {
+      type: 'TEXT',
+      notNull: true,
+      zod: z
+        .string()
+        .min(1, 'Session title is required')
+        .refine((val) => val.trim().length > 0, {
+          message: 'Session title is required',
+        }),
+      updateZod: z
+        .string()
+        .min(1)
+        .refine((val) => val.trim().length > 0, {
+          message: 'Session title cannot be empty',
+        }),
+    },
+    description: {
+      type: 'TEXT',
+      zod: z.string().optional(),
+    },
+    session_date: {
+      type: 'TEXT',
+      zod: z.string().optional(),
+    },
+    notes: {
+      type: 'TEXT',
+      zod: z.string().optional(),
+    },
+    adventure_id: {
+      type: 'TEXT',
+      notNull: true,
+      foreignKey: {
+        table: 'adventures',
+        column: 'id',
+        onDelete: 'CASCADE',
+      },
+      zod: z.string().min(1, 'Adventure ID is required'),
+    },
+    created_at: {
+      type: 'TEXT',
+      default: 'CURRENT_TIMESTAMP',
+      zod: z.string().optional(),
+    },
+    updated_at: {
+      type: 'TEXT',
+      default: 'CURRENT_TIMESTAMP',
+      zod: z.string().optional(),
+    },
+  },
 });
-
-export const createSessionSchema = sessionSchema.omit({
-  id: true,
-  created_at: true,
-  updated_at: true,
-});
-
-export const updateSessionSchema = z
-  .object({
-    title: z
-      .string()
-      .min(1)
-      .refine((val) => val.trim().length > 0, {
-        message: 'Session title cannot be empty',
-      })
-      .optional(),
-    description: z.string().optional(),
-    session_date: z.string().optional(),
-    notes: z.string().optional(),
-    adventure_id: z.string().optional(),
-  })
-  .partial();

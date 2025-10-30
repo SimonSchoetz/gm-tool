@@ -1,5 +1,5 @@
 import { getDatabase } from '../database';
-import { updateAdventureSchema } from './schema';
+import { adventureTable } from './schema';
 import type { UpdateAdventureInput } from './types';
 
 export const update = async (
@@ -10,7 +10,7 @@ export const update = async (
     throw new Error('Valid adventure ID is required');
   }
 
-  const validated = updateAdventureSchema.parse(data);
+  const validated = adventureTable.updateSchema.parse(data);
 
   const db = await getDatabase();
   const fields: string[] = [];

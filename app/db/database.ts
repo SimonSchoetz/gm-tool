@@ -1,5 +1,6 @@
 import Database from '@tauri-apps/plugin-sql';
-import { tableSchemas } from './schemas';
+import { adventureTable } from './adventure/schema';
+import { sessionTable } from './session/schema';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
@@ -18,9 +19,18 @@ export const initDatabase = async () => {
       const database = await Database.load('sqlite:gm_tool.db');
       console.log('Database loaded successfully');
 
+      const tableSchemas = [
+        { name: 'adventures', sql: adventureTable.createTableSQL },
+        { name: 'sessions', sql: sessionTable.createTableSQL },
+      ];
+
       for (const { name, sql } of tableSchemas) {
         await database.execute(sql);
-        console.log(`${name.charAt(0).toUpperCase() + name.slice(1)} table created/verified`);
+        console.log(
+          `${
+            name.charAt(0).toUpperCase() + name.slice(1)
+          } table created/verified`
+        );
       }
 
       db = database;
