@@ -17,6 +17,7 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./src/*"],
       "@db/*": ["./db/*"]
     },
 

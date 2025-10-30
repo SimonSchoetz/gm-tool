@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { initDatabase } from '@db/database';
 import * as session from '@db/session';
 import type { Session } from '@db/session';
-import './App.css';
+import { SessionForm, SessionList } from '@/features/sessions';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -10,10 +10,10 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    session_date: "",
-    notes: "",
+    title: '',
+    description: '',
+    session_date: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -22,12 +22,12 @@ function App() {
 
   async function initDB() {
     try {
-      console.log("App: Starting DB initialization");
+      console.log('App: Starting DB initialization');
       await initDatabase();
-      console.log("App: DB initialized, loading sessions");
+      console.log('App: DB initialized, loading sessions');
       await loadSessions();
     } catch (error) {
-      console.error("Failed to initialize database:", error);
+      console.error('Failed to initialize database:', error);
       setError(`Database error: ${error}`);
       setLoading(false);
     }
@@ -105,67 +105,19 @@ function App() {
     <main className="container">
       <h1>GM Tool - Session Manager</h1>
 
-      <form onSubmit={handleSubmit} className="session-form">
-        <input
-          type="text"
-          placeholder="Session Title *"
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        />
-        <input
-          type="date"
-          value={formData.session_date}
-          onChange={(e) => setFormData({ ...formData, session_date: e.target.value })}
-        />
-        <textarea
-          placeholder="Session Notes"
-          value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          rows={4}
-        />
-        <div className="form-buttons">
-          <button type="submit">{editingId ? "Update" : "Create"} Session</button>
-          {editingId && (
-            <button type="button" onClick={handleCancel}>
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
+      <SessionForm
+        formData={formData}
+        isEditing={editingId !== null}
+        onSubmit={handleSubmit}
+        onChange={setFormData}
+        onCancel={handleCancel}
+      />
 
-      <div className="sessions-list">
-        <h2>Sessions ({sessions.length})</h2>
-        {sessions.length === 0 ? (
-          <p>No sessions yet. Create your first session above!</p>
-        ) : (
-          sessions.map((session) => (
-            <div key={session.id} className="session-card">
-              <h3>{session.title}</h3>
-              {session.description && <p className="description">{session.description}</p>}
-              {session.session_date && (
-                <p className="date">Date: {new Date(session.session_date).toLocaleDateString()}</p>
-              )}
-              {session.notes && (
-                <div className="notes">
-                  <strong>Notes:</strong>
-                  <p>{session.notes}</p>
-                </div>
-              )}
-              <div className="session-actions">
-                <button onClick={() => handleEdit(session)}>Edit</button>
-                <button onClick={() => handleDelete(session.id!)}>Delete</button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      <SessionList
+        sessions={sessions}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </main>
   );
 }

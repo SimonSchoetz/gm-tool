@@ -1,0 +1,13 @@
+.session-form {
+  margin-bottom: var(--spacing-xl);
+}
+
+.session-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}

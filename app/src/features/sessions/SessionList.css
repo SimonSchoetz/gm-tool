@@ -1,0 +1,9 @@
+.sessions-list {
+  margin-top: var(--spacing-xl);
+}
+
+.empty-state {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--spacing-xl);
+}
