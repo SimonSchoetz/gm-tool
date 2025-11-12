@@ -1,5 +1,5 @@
 import type { Session } from '@db/session';
-import { Button, Card } from '@/components';
+import { Button, GlassPanel } from '@/components';
 import './SessionCard.css';
 
 type SessionCardProps = {
@@ -10,35 +10,35 @@ type SessionCardProps = {
 
 const SessionCard = ({ session, onEdit, onDelete }: SessionCardProps) => {
   return (
-    <Card className="session-card">
+    <GlassPanel className='session-card'>
       <h3>{session.title}</h3>
       {session.description && (
-        <p className="session-description">{session.description}</p>
+        <p className='session-description'>{session.description}</p>
       )}
       {session.session_date && (
-        <p className="session-date">
+        <p className='session-date'>
           Date: {new Date(session.session_date).toLocaleDateString()}
         </p>
       )}
       {session.notes && (
-        <div className="session-notes">
+        <div className='session-notes'>
           <strong>Notes:</strong>
           <p>{session.notes}</p>
         </div>
       )}
-      <div className="session-actions">
-        <Button size="small" onClick={() => onEdit(session)}>
+      <div className='session-actions'>
+        <Button size='small' onClick={() => onEdit(session)}>
           Edit
         </Button>
         <Button
-          size="small"
-          variant="danger"
+          size='small'
+          variant='danger'
           onClick={() => onDelete(session.id!)}
         >
           Delete
         </Button>
       </div>
-    </Card>
+    </GlassPanel>
   );
 };
 

@@ -1,5 +1,5 @@
 import { FormEvent } from 'react';
-import { Button, Input, Textarea, Card } from '@/components';
+import { Button, Input, Textarea, GlassPanel } from '@/components';
 import './SessionForm.css';
 
 type SessionFormData = {
@@ -25,7 +25,7 @@ const SessionForm = ({
   onCancel,
 }: SessionFormProps) => {
   return (
-    <Card className='session-form'>
+    <GlassPanel className='session-form'>
       <form onSubmit={onSubmit}>
         <Input
           type='text'
@@ -66,7 +66,7 @@ const SessionForm = ({
           )}
         </div>
       </form>
-    </Card>
+    </GlassPanel>
   );
 };
 

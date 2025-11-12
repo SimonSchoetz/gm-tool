@@ -1,5 +1,6 @@
 .session-form {
   margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
 }
 
 .session-form form {

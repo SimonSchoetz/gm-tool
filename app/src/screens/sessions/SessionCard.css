@@ -1,6 +1,7 @@
 .session-card {
   margin-bottom: var(--spacing-md);
   text-align: left;
+  padding: var(--spacing-md);
 }
 
 .session-description {
