@@ -1,27 +1,32 @@
 :root {
-  /* Colors - Based on GM Tool archive palette */
-  --color-text: #f8fbfb;
-  --color-text-secondary: #b8c9cc;
-  --color-text-muted: #7a8f94;
-  --color-background: #031322;
-  --color-background-50: #03132280;
-  --color-surface: #0a1f31;
-  --color-border: #2b4d57;
-  --color-border-light: #1a3540;
-
   /* Brand Colors */
+  --color-primary: #399cbb;
   --color-primary: #399cbb;
   --color-primary-10: #399cbb1a;
   --color-primary-05: #399cbb0d;
   --color-primary-hover: #2d7d97;
   --color-secondary: #2b4d57;
   --color-secondary-hover: #1f3840;
+  --color-fg: #f8fbfb;
+  --color-fg-20: #f8fbfb33;
+  --color-fg-50: #f8fbfb80;
+  --color-bg: #031322;
+  --color-bg-30: #0313224d;
+  --color-bg-50: #03132280;
   --color-danger: #d02530;
   --color-danger-hover: #a51d26;
   --color-success: #77ee1b;
   --color-success-hover: #5fc215;
   --color-warning: #f4d301;
   --color-warning-hover: #c5a901;
+
+  /* Colors - Based on GM Tool archive palette */
+  --color-text: var(--color-fg);
+  --color-text-secondary: var(--color-primary);
+  --color-text-muted: #7a8f94;
+  --color-surface: #0a1f31;
+  --color-border: #2b4d57;
+  --color-border-light: #1a3540;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
