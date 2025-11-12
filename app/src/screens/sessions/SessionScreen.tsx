@@ -1,14 +1,10 @@
-import { useEffect, useState } from 'react';
-
-import { initDatabase } from '@db/database';
+import { useState } from 'react';
 import type { Session } from '@db/session';
-import * as session from '@db/session';
+import { useSessions } from '@/data/sessions';
 import { SessionForm, SessionList } from './components';
 
 const SessionScreen = () => {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { sessions, loading, error, createSession, updateSession, deleteSession } = useSessions();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -17,42 +13,16 @@ const SessionScreen = () => {
     notes: '',
   });
 
-  const initDB = async () => {
-    try {
-      console.log('App: Starting DB initialization');
-      await initDatabase();
-      console.log('App: DB initialized, loading sessions');
-      await loadSessions();
-    } catch (error) {
-      console.error('Failed to initialize database:', error);
-      setError(`Database error: ${error}`);
-      setLoading(false);
-    }
-  };
-
-  const loadSessions = async () => {
-    try {
-      setLoading(true);
-      const result = await session.getAll();
-      setSessions(result.data);
-    } catch (error) {
-      console.error('Failed to load sessions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (editingId) {
-        await session.update(editingId, formData);
+        await updateSession(editingId, formData);
         setEditingId(null);
       } else {
-        await session.create(formData);
+        await createSession(formData);
       }
       setFormData({ title: '', description: '', session_date: '', notes: '' });
-      await loadSessions();
     } catch (error) {
       console.error('Failed to save session:', error);
     }
@@ -60,8 +30,7 @@ const SessionScreen = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await session.remove(id);
-      await loadSessions();
+      await deleteSession(id);
     } catch (error) {
       console.error('Failed to delete session:', error);
     }
@@ -82,17 +51,13 @@ const SessionScreen = () => {
     setFormData({ title: '', description: '', session_date: '', notes: '' });
   };
 
-  useEffect(() => {
-    initDB();
-  }, []);
-
   if (loading) {
-    return <div className='container'>Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   if (error) {
     return (
-      <div className='container'>
+      <div>
         <h1>Error</h1>
         <p style={{ color: 'red' }}>{error}</p>
         <p>Check the browser console for more details</p>

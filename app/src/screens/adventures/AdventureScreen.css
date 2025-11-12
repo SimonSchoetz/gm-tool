@@ -1,13 +1,7 @@
-.adventure-screen {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.empty-state {
+.new-adventure-btn {
   width: 250px;
   height: 350px;
-  margin: 4rem auto;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,8 +10,20 @@
 }
 
 .plus-symbol {
+  transition: 0.3s ease;
+  color: var(--color-primary);
   font-size: 5rem;
   font-weight: 300;
-  color: var(--color-text);
   line-height: 1;
+  transform: scale(1) translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.new-adventure-btn:hover .plus-symbol {
+  transform: scale(2) translateZ(0);
+  text-shadow: 0 0 2rem var(--color-fg);
+  will-change: font-size;
+  color: var(--color-text);
 }
