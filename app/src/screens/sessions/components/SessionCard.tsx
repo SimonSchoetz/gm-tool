@@ -23,7 +23,7 @@ const SessionCard = ({ session, onEdit, onDelete }: SessionCardProps) => {
       {session.notes && (
         <div className='session-notes'>
           <strong>Notes:</strong>
-          <p>{session.notes}</p>
+          <p className='session-notes-text'>{session.notes}</p>
         </div>
       )}
       <div className='session-actions'>

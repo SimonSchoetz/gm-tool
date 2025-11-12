@@ -16,11 +16,7 @@ const AdventureScreen = () => {
     description: '',
   });
 
-  useEffect(() => {
-    initDB();
-  }, []);
-
-  async function initDB() {
+  const initDB = async () => {
     try {
       await initDatabase();
       await loadAdventures();
@@ -29,9 +25,9 @@ const AdventureScreen = () => {
       setError(`Database error: ${error}`);
       setLoading(false);
     }
-  }
+  };
 
-  async function loadAdventures() {
+  const loadAdventures = async () => {
     try {
       setLoading(true);
       const result = await adventure.getAll();
@@ -41,9 +37,9 @@ const AdventureScreen = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await adventure.create(formData);
@@ -53,12 +49,16 @@ const AdventureScreen = () => {
     } catch (error) {
       console.error('Failed to save adventure:', error);
     }
-  }
+  };
 
-  function handleCancel() {
+  const handleCancel = () => {
     setShowForm(false);
     setFormData({ title: '', description: '' });
-  }
+  };
+
+  useEffect(() => {
+    initDB();
+  }, []);
 
   if (loading) {
     return <div className='container'>Loading...</div>;
@@ -79,7 +79,6 @@ const AdventureScreen = () => {
       {adventures.length === 0 && !showForm && (
         <ActionCard className='empty-state' onClick={() => setShowForm(true)}>
           <div className='plus-symbol'>+</div>
-          <p>Create Adventure</p>
         </ActionCard>
       )}
 

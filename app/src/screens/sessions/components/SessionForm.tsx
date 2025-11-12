@@ -26,7 +26,7 @@ const SessionForm = ({
 }: SessionFormProps) => {
   return (
     <GlassPanel className='session-form'>
-      <form onSubmit={onSubmit}>
+      <form className='session-form-fields' onSubmit={onSubmit}>
         <Input
           type='text'
           placeholder='Session Title *'

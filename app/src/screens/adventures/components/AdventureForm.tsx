@@ -22,8 +22,8 @@ const AdventureForm = ({
 }: AdventureFormProps) => {
   return (
     <GlassPanel className='adventure-form'>
-      <h2>Create Adventure</h2>
-      <form onSubmit={onSubmit}>
+      <h2 className='adventure-form-title'>Create Adventure</h2>
+      <form className='adventure-form-fields' onSubmit={onSubmit}>
         <Input
           type='text'
           placeholder='Adventure Title *'

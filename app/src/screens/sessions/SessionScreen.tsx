@@ -17,11 +17,7 @@ const SessionScreen = () => {
     notes: '',
   });
 
-  useEffect(() => {
-    initDB();
-  }, []);
-
-  async function initDB() {
+  const initDB = async () => {
     try {
       console.log('App: Starting DB initialization');
       await initDatabase();
@@ -32,9 +28,9 @@ const SessionScreen = () => {
       setError(`Database error: ${error}`);
       setLoading(false);
     }
-  }
+  };
 
-  async function loadSessions() {
+  const loadSessions = async () => {
     try {
       setLoading(true);
       const result = await session.getAll();
@@ -44,9 +40,9 @@ const SessionScreen = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (editingId) {
@@ -60,18 +56,18 @@ const SessionScreen = () => {
     } catch (error) {
       console.error('Failed to save session:', error);
     }
-  }
+  };
 
-  async function handleDelete(id: string) {
+  const handleDelete = async (id: string) => {
     try {
       await session.remove(id);
       await loadSessions();
     } catch (error) {
       console.error('Failed to delete session:', error);
     }
-  }
+  };
 
-  function handleEdit(sessionData: Session) {
+  const handleEdit = (sessionData: Session) => {
     setEditingId(sessionData.id);
     setFormData({
       title: sessionData.title,
@@ -79,12 +75,16 @@ const SessionScreen = () => {
       session_date: sessionData.session_date || '',
       notes: sessionData.notes || '',
     });
-  }
+  };
 
-  function handleCancel() {
+  const handleCancel = () => {
     setEditingId(null);
     setFormData({ title: '', description: '', session_date: '', notes: '' });
-  }
+  };
+
+  useEffect(() => {
+    initDB();
+  }, []);
 
   if (loading) {
     return <div className='container'>Loading...</div>;

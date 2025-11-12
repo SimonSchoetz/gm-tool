@@ -4,7 +4,7 @@
   margin: 0 auto;
 }
 
-.adventure-screen .empty-state {
+.empty-state {
   width: 250px;
   height: 350px;
   margin: 4rem auto;
@@ -15,15 +15,9 @@
   gap: 1.5rem;
 }
 
-.adventure-screen .empty-state .plus-symbol {
+.plus-symbol {
   font-size: 5rem;
   font-weight: 300;
-  color: var(--gm-primary-70);
+  color: var(--color-text);
   line-height: 1;
-}
-
-.adventure-screen .empty-state p {
-  margin: 0;
-  color: var(--gm-primary-70);
-  font-size: 1.1rem;
 }

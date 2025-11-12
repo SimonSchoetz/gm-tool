@@ -3,7 +3,7 @@
   padding: var(--spacing-md);
 }
 
-.session-form form {
+.session-form-fields {
   display: flex;
   flex-direction: column;
 }

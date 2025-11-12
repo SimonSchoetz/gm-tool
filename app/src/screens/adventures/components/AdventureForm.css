@@ -3,18 +3,18 @@
   margin: 2rem auto;
 }
 
-.adventure-form h2 {
+.adventure-form-title {
   margin-bottom: 1.5rem;
-  color: var(--gm-primary-80);
+  color: var(--color-text-secondary);
 }
 
-.adventure-form form {
+.adventure-form-fields {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.adventure-form .form-buttons {
+.form-buttons {
   display: flex;
   gap: 1rem;
   margin-top: 0.5rem;
