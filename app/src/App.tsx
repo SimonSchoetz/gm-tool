@@ -3,7 +3,7 @@ import { initDatabase } from '@db/database';
 import * as session from '@db/session';
 import type { Session } from '@db/session';
 import { SessionForm, SessionList } from '@/features/sessions';
-import Backdrop from './components/Backdrop';
+import { Backdrop, LightSource } from './components';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -105,6 +105,8 @@ function App() {
   return (
     <main className='container'>
       <Backdrop />
+      <LightSource intensity='bright' />
+
       <h1>GM Tool - Session Manager</h1>
 
       <SessionForm

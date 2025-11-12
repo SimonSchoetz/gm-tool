@@ -1,9 +1,7 @@
-import { HTMLAttributes } from 'react';
 import './Card.css';
+import { DivProps } from '@/types/htmlProps';
 
-type CardProps = HTMLAttributes<HTMLDivElement>;
-
-const Card = ({ className = '', children, ...props }: CardProps) => {
+const Card = ({ className = '', children, ...props }: DivProps) => {
   const classNames = ['card', className].filter(Boolean).join(' ');
 
   return (
