@@ -5,6 +5,7 @@
 database
 db/
 ├── database.ts
+├── adventure/
 └── session/
 
 ## Database Schema
