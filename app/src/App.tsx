@@ -1,5 +1,5 @@
 import { Backdrop, LightSource } from './components';
-import { SessionScreen } from './screens';
+import { AdventureScreen } from './screens';
 import './App.css';
 
 function App() {
@@ -8,7 +8,7 @@ function App() {
       <Backdrop />
       <LightSource intensity='bright' />
       <div className='screens-container'>
-        <SessionScreen />
+        <AdventureScreen />
       </div>
     </main>
   );

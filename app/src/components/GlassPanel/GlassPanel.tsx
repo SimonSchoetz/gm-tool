@@ -1,15 +1,21 @@
 import LightSource from '../LightSource/LightSource';
-import './GlassPanel.css';
 import { DivProps } from '@/types/htmlProps';
+import { cn } from '@/util';
+import './GlassPanel.css';
 
-const GlassPanel = ({ className = '', children, ...props }: DivProps) => {
-  const classNames = ['glass-panel', 'glass-fx', className]
-    .filter(Boolean)
-    .join(' ');
+type GlassPanelProps = {
+  intensity?: 'dim' | 'bright';
+} & DivProps;
 
+const GlassPanel = ({
+  className = '',
+  children,
+  intensity = 'dim',
+  ...props
+}: GlassPanelProps) => {
   return (
-    <div className={`${classNames}`} {...props}>
-      <LightSource intensity='dim' />
+    <div className={cn('glass-panel', 'glass-fx', className)} {...props}>
+      <LightSource intensity={intensity} />
       {children}
     </div>
   );
