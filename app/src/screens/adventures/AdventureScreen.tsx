@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { ActionCard } from '@/components';
 import { useAdventures } from '@/data/adventures';
-import AdventureForm from './components/AdventureForm';
+import { NewAdventureBtn, AdventureForm } from './components';
 import './AdventureScreen.css';
 
 const AdventureScreen = () => {
@@ -30,23 +29,19 @@ const AdventureScreen = () => {
     );
   }
 
-  // Decide what to show
-  const shouldShowEmptyState = adventures.length === 0 && !showForm;
-  const shouldShowForm = showForm;
+  const showNewAdventureBtn = adventures.length === 0 && !showForm;
 
   return (
     <div className='content-center'>
-      {shouldShowEmptyState && (
-        <ActionCard
-          className='new-adventure-btn'
-          onClick={() => setShowForm(true)}
-        >
-          <div className='plus-symbol'>+</div>
-        </ActionCard>
+      {showNewAdventureBtn && (
+        <NewAdventureBtn onClick={() => setShowForm(true)} />
       )}
 
-      {shouldShowForm && (
-        <AdventureForm onSuccess={handleFormSuccess} onCancel={handleFormCancel} />
+      {showForm && (
+        <AdventureForm
+          onSuccess={handleFormSuccess}
+          onCancel={handleFormCancel}
+        />
       )}
     </div>
   );

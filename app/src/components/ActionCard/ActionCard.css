@@ -10,10 +10,6 @@
   filter: drop-shadow(0 0 1rem var(--color-fg));
 }
 
-.action-card:active {
-  transform: translateY(-2px);
-}
-
 .action-card:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
