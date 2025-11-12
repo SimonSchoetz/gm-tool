@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 import * as database from '@db/database';
 import * as adventure from '@db/adventure';
+import * as session from '@db/session';
 
 vi.mock('@db/database', () => ({
   initDatabase: vi.fn(),
@@ -10,6 +11,13 @@ vi.mock('@db/database', () => ({
 }));
 
 vi.mock('@db/adventure', () => ({
+  getAll: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  remove: vi.fn(),
+}));
+
+vi.mock('@db/session', () => ({
   getAll: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
@@ -52,6 +60,13 @@ describe('App Component', () => {
       offset: 0,
       hasMore: false,
     });
+    (session.getAll as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [],
+      total: 0,
+      limit: 20,
+      offset: 0,
+      hasMore: false,
+    });
   });
 
   describe('Initialization', () => {
@@ -63,8 +78,9 @@ describe('App Component', () => {
       render(<App />);
 
       await waitFor(() => {
-        expect(database.initDatabase).toHaveBeenCalledOnce();
+        expect(database.initDatabase).toHaveBeenCalledTimes(2); // Called by both AdventureProvider and SessionProvider
         expect(adventure.getAll).toHaveBeenCalledOnce();
+        expect(session.getAll).toHaveBeenCalledOnce();
       });
     });
 
