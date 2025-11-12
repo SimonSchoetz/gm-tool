@@ -1,12 +1,15 @@
 import { Backdrop, LightSource } from './components';
 import { SessionScreen } from './screens';
+import './App.css';
 
 function App() {
   return (
-    <main className='container'>
+    <main className='app'>
       <Backdrop />
       <LightSource intensity='bright' />
-      <SessionScreen />
+      <div className='screens-container'>
+        <SessionScreen />
+      </div>
     </main>
   );
 }
