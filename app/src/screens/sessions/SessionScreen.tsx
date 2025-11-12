@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import SessionForm from './SessionForm';
-import SessionList from './SessionList';
+
 import { initDatabase } from '@db/database';
 import type { Session } from '@db/session';
 import * as session from '@db/session';
+import { SessionForm, SessionList } from './components';
 
 const SessionScreen = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
