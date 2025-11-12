@@ -6,8 +6,5 @@ export const remove = async (id: string): Promise<void> => {
   }
 
   const db = await getDatabase();
-  await db.execute(
-    'DELETE FROM sessions WHERE id = $1',
-    [id]
-  );
+  await db.execute('DELETE FROM sessions WHERE id = $1', [id]);
 };

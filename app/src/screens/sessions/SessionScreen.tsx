@@ -63,18 +63,16 @@ const SessionScreen = () => {
   }
 
   async function handleDelete(id: string) {
-    if (confirm('Are you sure you want to delete this session?')) {
-      try {
-        await session.remove(id);
-        await loadSessions();
-      } catch (error) {
-        console.error('Failed to delete session:', error);
-      }
+    try {
+      await session.remove(id);
+      await loadSessions();
+    } catch (error) {
+      console.error('Failed to delete session:', error);
     }
   }
 
   function handleEdit(sessionData: Session) {
-    setEditingId(sessionData.id!);
+    setEditingId(sessionData.id);
     setFormData({
       title: sessionData.title,
       description: sessionData.description || '',

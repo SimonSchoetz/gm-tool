@@ -33,7 +33,7 @@ const SessionCard = ({ session, onEdit, onDelete }: SessionCardProps) => {
         <Button
           size='small'
           variant='danger'
-          onClick={() => onDelete(session.id!)}
+          onClick={() => onDelete(session.id)}
         >
           Delete
         </Button>

@@ -7,7 +7,7 @@ export const sessionTable = defineTable({
     id: {
       type: 'TEXT',
       primaryKey: true,
-      zod: z.string().optional(),
+      zod: z.string(),
     },
     title: {
       type: 'TEXT',
