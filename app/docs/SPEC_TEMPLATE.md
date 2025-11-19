@@ -7,9 +7,7 @@
 - Don't over-specify - leave room for implementation decisions
 - Reference existing patterns in the codebase when possible
 - Focus on the "what" and "why", not the "how"
--
-
---- **Delete this section after reading to keep Claude focused END**
+- --- **Delete this section after reading to keep Claude focused END**
 
 ## Purpose
 
@@ -38,7 +36,7 @@ type ComponentNameProps = {
 };
 ```
 
-Use the generic HtmlProps from `@/types`
+Use the generic HtmlProps from `@/types` when typing the component
 
 ## Behavior
 
