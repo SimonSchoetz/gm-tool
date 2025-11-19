@@ -1,4 +1,4 @@
-import { ActionCard, GlassPanel } from '@/components';
+import { ActionContainer, GlassPanel } from '@/components';
 import './NewAdventureBtn.css';
 import { useState } from 'react';
 import { cn } from '@/util';
@@ -17,14 +17,14 @@ const NewAdventureBtn = ({ onClick }: Props) => {
   };
 
   return (
-    <ActionCard
+    <ActionContainer
       className={cn('new-adventure-btn', isClicked && 'activated')}
       onClick={handleClick}
     >
       <GlassPanel className='plus-symbol-container'>
         <div className='plus-symbol'>+</div>
       </GlassPanel>
-    </ActionCard>
+    </ActionContainer>
   );
 };
 

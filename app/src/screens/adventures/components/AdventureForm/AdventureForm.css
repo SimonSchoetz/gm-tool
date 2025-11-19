@@ -1,6 +1,13 @@
 .adventure-form {
-  max-width: 600px;
-  margin: 2rem auto;
+  width: 100%;
+  max-width: 1200px;
+  padding: 1rem;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  gap: 1rem;
 }
 
 .adventure-form-title {

@@ -29,29 +29,40 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
   return (
     <GlassPanel className='adventure-form'>
       <h2 className='adventure-form-title'>Create Adventure</h2>
-      <form className='adventure-form-fields' onSubmit={handleSubmit}>
-        <Input
-          type='text'
-          placeholder='Adventure Title *'
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
-        <Textarea
-          placeholder='Description'
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          rows={4}
-        />
-        <div className='form-buttons'>
-          <Button type='submit'>Create Adventure</Button>
-          <Button type='button' variant='secondary' onClick={onCancel}>
-            Cancel
-          </Button>
+      <div className='body'>
+        <form className='adventure-form-fields' onSubmit={handleSubmit}>
+          <Input
+            type='text'
+            placeholder='Adventure Title *'
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+            required
+          />
+          <Textarea
+            placeholder='Description'
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            rows={4}
+          />
+          <div className='form-buttons'>
+            <Button type='submit'>Create Adventure</Button>
+            <Button type='button' variant='secondary' onClick={onCancel}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+
+        <div>
+          <p>
+            The name of the adventure and a brief description. You will be able
+            to start creating sessions in the next step.
+          </p>
         </div>
-      </form>
+      </div>
     </GlassPanel>
   );
 };

@@ -1,18 +1,18 @@
 import { DivProps } from '@/types/htmlProps';
 import { cn } from '@/util';
 import GlassPanel from '../GlassPanel/GlassPanel';
-import './ActionCard.css';
+import './ActionContainer.css';
 
-type ActionCardProps = {
+type ActionContainerProps = {
   onClick: () => void;
 } & Omit<DivProps, 'onClick'>;
 
-const ActionCard = ({
+const ActionContainer = ({
   onClick,
   className = '',
   children,
   ...props
-}: ActionCardProps) => {
+}: ActionContainerProps) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -34,4 +34,4 @@ const ActionCard = ({
   );
 };
 
-export default ActionCard;
+export default ActionContainer;
