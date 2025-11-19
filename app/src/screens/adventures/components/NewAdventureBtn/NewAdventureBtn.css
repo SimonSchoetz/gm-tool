@@ -1,4 +1,6 @@
 .new-adventure-btn {
+  --transition-duration-highlight: 0.3s;
+  --transition-duration-pressed: 0.5s;
   width: 250px;
   min-height: 350px;
   height: 33vh;
@@ -10,19 +12,13 @@
   border-radius: var(--radius-xl); /* matches GlassPanel */
 }
 
-.new-adventure-btn:hover {
-  background: rgba(var(--color-bg-rgb), 0.5);
-  box-shadow: 0px 0px 2px 1px rgba(var(--color-fg-rgb), 0.2) inset;
-  filter: drop-shadow(0 0 1rem var(--color-fg));
-}
-
 .new-adventure-btn:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .plus-symbol {
-  transition: 0.3s ease;
+  transition: var(--transition-duration-highlight) ease;
   color: var(--color-primary);
   font-size: 5rem;
   font-weight: 300;
@@ -34,11 +30,18 @@
 }
 
 .plus-symbol-container {
+  transition: var(--transition-duration-highlight) ease;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.plus-symbol-container:hover {
+  background: rgba(var(--color-bg-rgb), 0.7);
+  box-shadow: 0px 0px 2px 1px rgba(var(--color-fg-rgb), 0.2) inset;
+  filter: drop-shadow(0 0 1rem var(--color-fg));
 }
 
 .new-adventure-btn:hover .plus-symbol {
@@ -49,7 +52,7 @@
 }
 
 .activated {
-  transition: 0.5s ease-out;
+  transition: var(--transition-duration-pressed) ease-out;
   opacity: 0;
   transform: scale(1.5) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);
