@@ -21,7 +21,7 @@ const ActionCard = ({
   };
 
   return (
-    <GlassPanel
+    <div
       className={cn('action-card', className)}
       onClick={onClick}
       onKeyDown={handleKeyDown}
@@ -30,7 +30,7 @@ const ActionCard = ({
       {...props}
     >
       {children}
-    </GlassPanel>
+    </div>
   );
 };
 
