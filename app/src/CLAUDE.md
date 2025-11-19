@@ -4,25 +4,26 @@
 
 database
 src/
+├── **tests**
 ├── assets/
 ├── components/
 │ ├── ComponentA/
 │ │ ├── ComponentA.tsx
 │ │ └── ComponentA.css
 │ └── index.ts
-├── styles/
-│ ├── global.css
-│ ├── reset.css
-│ └── variables.css
-├── test/
-├── util/
-├── types/
+├── data/
 ├── screens/
 │ ├── screenA/
 │ │ ├── ScreenA.tsx
 │ │ ├── ComponentA.css
 │ │ └── components/
 │ └── index.ts
+├── styles/
+│ ├── global.css
+│ ├── reset.css
+│ └── variables.css
+├── types/
+├── util/
 ├── App.css
 ├── App.tsx
 └── main.tsx

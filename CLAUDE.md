@@ -27,8 +27,11 @@ Project to build the app I want for my personal use without constraints like acc
 ### App Structure (`app/`)
 
 app/
-├── src/ # React frontend source
 ├── db/ # SQLite database
+│ └── CLAUDE.md
+├── docs/ # documentation like templates
+├── src/ # React frontend source
+│ └── CLAUDE.md
 ├── src-tauri/ # Rust backend (Tauri)
 │ └── src/
 └── public/ # Static assets
