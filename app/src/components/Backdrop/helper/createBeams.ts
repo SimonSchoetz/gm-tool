@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
 import { Beam, Grid } from '../types';
-import { convertHexToRgba } from './convertHexToRgba';
+import { rgbToRgba } from './rgbToRgba';
 import { generateZigzagPath } from './generateZigzagPath';
 import { getColor } from './getColor';
 import { getPathLength } from './getPathLength';
@@ -34,7 +34,7 @@ const drawBeams = (
       const opacity = Math.max(0, 1 - particle.age / particle.maxAge);
       const width = 1;
 
-      ctx.strokeStyle = convertHexToRgba(beam.color, opacity);
+      ctx.strokeStyle = rgbToRgba(beam.color, opacity);
       ctx.lineWidth = width;
 
       if (i > 0) {
@@ -47,7 +47,7 @@ const drawBeams = (
 
       //Draw a bright dot at the head
       if (i === beam.particles.length - 1) {
-        ctx.fillStyle = convertHexToRgba(beam.color, 1);
+        ctx.fillStyle = beam.color;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, width * 1.5, 0, Math.PI * 2);
         ctx.fill();

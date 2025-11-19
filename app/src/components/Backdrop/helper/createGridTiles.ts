@@ -10,12 +10,18 @@ export const createGridTiles = (
   const { squareSize, cols, rows, offsetX, offsetY } = gridRef.current;
 
   // Background
-  ctx.fillStyle = getColor('--color-primary-10');
+  const primaryRgb = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-primary-rgb')
+    .trim();
+  ctx.fillStyle = `rgba(${primaryRgb}, 0.1)`;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   // Draw grid squares
   const bgColor = getColor('--color-bg');
-  const bg50Color = getColor('--color-bg-50');
+  const bgRgb = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-bg-rgb')
+    .trim();
+  const bg50Color = `rgba(${bgRgb}, 0.5)`;
 
   for (let row = 0; row < rows + 1; row++) {
     for (let col = 0; col < cols; col++) {

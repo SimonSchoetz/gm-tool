@@ -1,32 +1,51 @@
 :root {
-  /* Brand Colors */
-  --color-primary: #399cbb;
-  --color-primary: #399cbb;
-  --color-primary-10: #399cbb1a;
-  --color-primary-05: #399cbb0d;
-  --color-primary-hover: #2d7d97;
-  --color-secondary: #2b4d57;
-  --color-secondary-hover: #1f3840;
-  --color-fg: #f8fbfb;
-  --color-fg-20: #f8fbfb33;
-  --color-fg-50: #f8fbfb80;
-  --color-bg: #031322;
-  --color-bg-30: #0313224d;
-  --color-bg-50: #03132280;
-  --color-danger: #d02530;
-  --color-danger-hover: #a51d26;
-  --color-success: #77ee1b;
-  --color-success-hover: #5fc215;
-  --color-warning: #f4d301;
-  --color-warning-hover: #c5a901;
+  /* Brand Colors - RGB channel values */
+  --color-primary-rgb: 57, 156, 187;
+  --color-primary: rgb(var(--color-primary-rgb));
+  --color-primary-hover-rgb: 45, 125, 151;
+  --color-primary-hover: rgb(var(--color-primary-hover-rgb));
+
+  --color-secondary-rgb: 43, 77, 87;
+  --color-secondary: rgb(var(--color-secondary-rgb));
+  --color-secondary-hover-rgb: 31, 56, 64;
+  --color-secondary-hover: rgb(var(--color-secondary-hover-rgb));
+
+  --color-fg-rgb: 248, 251, 251;
+  --color-fg: rgb(var(--color-fg-rgb));
+
+  --color-bg-rgb: 3, 19, 34;
+  --color-bg: rgb(var(--color-bg-rgb));
+
+  --color-danger-rgb: 208, 37, 48;
+  --color-danger: rgb(var(--color-danger-rgb));
+  --color-danger-hover-rgb: 165, 29, 38;
+  --color-danger-hover: rgb(var(--color-danger-hover-rgb));
+
+  --color-success-rgb: 119, 238, 27;
+  --color-success: rgb(var(--color-success-rgb));
+  --color-success-hover-rgb: 95, 194, 21;
+  --color-success-hover: rgb(var(--color-success-hover-rgb));
+
+  --color-warning-rgb: 244, 211, 1;
+  --color-warning: rgb(var(--color-warning-rgb));
+  --color-warning-hover-rgb: 197, 169, 1;
+  --color-warning-hover: rgb(var(--color-warning-hover-rgb));
 
   /* Colors - Based on GM Tool archive palette */
   --color-text: var(--color-fg);
   --color-text-secondary: var(--color-primary);
-  --color-text-muted: #7a8f94;
-  --color-surface: #0a1f31;
-  --color-border: #2b4d57;
-  --color-border-light: #1a3540;
+
+  --color-text-muted-rgb: 122, 143, 148;
+  --color-text-muted: rgb(var(--color-text-muted-rgb));
+
+  --color-surface-rgb: 10, 31, 49;
+  --color-surface: rgb(var(--color-surface-rgb));
+
+  --color-border-rgb: 43, 77, 87;
+  --color-border: rgb(var(--color-border-rgb));
+
+  --color-border-light-rgb: 26, 53, 64;
+  --color-border-light: rgb(var(--color-border-light-rgb));
 
   /* Spacing */
   --spacing-xs: 0.25rem;

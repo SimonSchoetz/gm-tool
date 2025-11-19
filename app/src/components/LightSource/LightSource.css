@@ -10,21 +10,21 @@
 .light-source-bright {
   background: linear-gradient(
       170deg,
-      var(--color-primary-10) 10%,
+      rgba(var(--color-primary-rgb), 0.1) 10%,
       transparent 30%
     ),
-    linear-gradient(140deg, var(--color-primary-10) 10%, transparent 40%),
-    linear-gradient(145deg, var(--color-primary-10) 10%, transparent 70%),
-    linear-gradient(120deg, var(--color-primary-10) 10%, transparent 70%);
+    linear-gradient(140deg, rgba(var(--color-primary-rgb), 0.1) 10%, transparent 40%),
+    linear-gradient(145deg, rgba(var(--color-primary-rgb), 0.1) 10%, transparent 70%),
+    linear-gradient(120deg, rgba(var(--color-primary-rgb), 0.1) 10%, transparent 70%);
 }
 
 .light-source-dim {
   background: linear-gradient(
       170deg,
-      var(--color-primary-05) 5%,
+      rgba(var(--color-primary-rgb), 0.05) 5%,
       transparent 10%
     ),
-    linear-gradient(140deg, var(--color-primary-05) 5%, transparent 20%),
-    linear-gradient(145deg, var(--color-primary-05) 5%, transparent 50%),
-    linear-gradient(120deg, var(--color-primary-05) 5%, transparent 90%);
+    linear-gradient(140deg, rgba(var(--color-primary-rgb), 0.05) 5%, transparent 20%),
+    linear-gradient(145deg, rgba(var(--color-primary-rgb), 0.05) 5%, transparent 50%),
+    linear-gradient(120deg, rgba(var(--color-primary-rgb), 0.05) 5%, transparent 90%);
 }

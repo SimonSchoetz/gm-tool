@@ -11,8 +11,8 @@
 }
 
 .new-adventure-btn:hover {
-  background: var(--color-bg-50);
-  box-shadow: 0px 0px 2px 1px var(--color-fg-20) inset;
+  background: rgba(var(--color-bg-rgb), 0.5);
+  box-shadow: 0px 0px 2px 1px rgba(var(--color-fg-rgb), 0.2) inset;
   filter: drop-shadow(0 0 1rem var(--color-fg));
 }
 

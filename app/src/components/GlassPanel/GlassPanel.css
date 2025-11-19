@@ -8,16 +8,16 @@
 }
 
 .glass-fx {
-  border: 1px solid var(--color-primary-10);
-  border-top-color: var(--color-fg-20);
-  border-left-color: var(--color-fg-20);
-  box-shadow: 0px 0px 2px 1px var(--color-bg-30) inset;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.1);
+  border-top-color: rgba(var(--color-fg-rgb), 0.2);
+  border-left-color: rgba(var(--color-fg-rgb), 0.2);
+  box-shadow: 0px 0px 2px 1px rgba(var(--color-bg-rgb), 0.3) inset;
   backdrop-filter: blur(5px);
 }
 
 .glass-fx:focus {
-  background: var(--color-bg-50);
-  box-shadow: 0px 0px 2px 1px var(--color-fg-20) inset;
+  background: rgba(var(--color-bg-rgb), 0.5);
+  box-shadow: 0px 0px 2px 1px rgba(var(--color-fg-rgb), 0.2) inset;
   filter: drop-shadow(0 0 1rem var(--color-fg));
 }
 
