@@ -13,6 +13,7 @@ const NewAdventureBtn = ({ onClick }: Props) => {
     setIsClicked(true);
     setTimeout(() => {
       onClick();
+      setIsClicked(false);
     }, 500);
   };
 

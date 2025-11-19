@@ -1,0 +1,69 @@
+.popup-overlay {
+  --duration: 0.5s;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--color-bg-rgb), 0.5);
+  backdrop-filter: blur(5px);
+  animation: fadeIn var(--transition-base);
+}
+
+.popup-overlay.closing {
+  animation: fadeOut var(--duration) ease-out;
+}
+
+.popup-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: plopIn var(--duration) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.popup-content.closing {
+  animation: plopOut var(--duration) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes plopIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes plopOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}

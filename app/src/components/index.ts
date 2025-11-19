@@ -4,4 +4,5 @@ export { default as Button } from './Button/Button';
 export { default as GlassPanel } from './GlassPanel/GlassPanel';
 export { default as Input } from './Input/Input';
 export { default as LightSource } from './LightSource/LightSource';
+export { default as PopUpContainer } from './PopUpContainer/PopUpContainer';
 export { default as Textarea } from './Textarea/Textarea';

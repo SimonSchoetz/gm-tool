@@ -3,7 +3,7 @@
   overflow: hidden;
 
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
   transition: box-shadow var(--transition-base);
 }
 

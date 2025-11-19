@@ -1,18 +1,23 @@
 import { useState } from 'react';
 import { useAdventures } from '@/data/adventures';
+import { PopUpContainer } from '@/components';
 import { NewAdventureBtn, AdventureForm } from './components';
 import './AdventureScreen.css';
 
 const AdventureScreen = () => {
   const { adventures, loading, error } = useAdventures();
-  const [showForm, setShowForm] = useState(false);
+  const [popUpState, setPopUpState] = useState<'open' | 'closed'>('closed');
+
+  const handleOpenForm = () => {
+    setPopUpState('open');
+  };
 
   const handleFormSuccess = () => {
-    setShowForm(false);
+    setPopUpState('closed');
   };
 
   const handleFormCancel = () => {
-    setShowForm(false);
+    setPopUpState('closed');
   };
 
   if (loading) {
@@ -29,20 +34,16 @@ const AdventureScreen = () => {
     );
   }
 
-  const showNewAdventureBtn = adventures.length === 0 && !showForm;
-
+  const showBtn = popUpState === 'closed';
   return (
     <div className='content-center'>
-      {showNewAdventureBtn && (
-        <NewAdventureBtn onClick={() => setShowForm(true)} />
-      )}
-
-      {showForm && (
+      {showBtn && <NewAdventureBtn onClick={handleOpenForm} />}
+      <PopUpContainer state={popUpState} setState={setPopUpState}>
         <AdventureForm
           onSuccess={handleFormSuccess}
           onCancel={handleFormCancel}
         />
-      )}
+      </PopUpContainer>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Button, Input, Textarea, GlassPanel } from '@/components';
+import { Button, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
 
@@ -27,7 +27,7 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
   };
 
   return (
-    <GlassPanel className='adventure-form'>
+    <div className='adventure-form'>
       <h2 className='adventure-form-title'>Create Adventure</h2>
       <div className='body'>
         <form className='adventure-form-fields' onSubmit={handleSubmit}>
@@ -63,7 +63,7 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
           </p>
         </div>
       </div>
-    </GlassPanel>
+    </div>
   );
 };
 
