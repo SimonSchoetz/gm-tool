@@ -1,11 +1,11 @@
-import { DivProps } from '@/types/htmlProps';
 import { cn } from '@/util';
-import GlassPanel from '../GlassPanel/GlassPanel';
+
 import './ActionContainer.css';
+import { HtmlProps } from '@/types';
 
 type ActionContainerProps = {
   onClick: () => void;
-} & Omit<DivProps, 'onClick'>;
+} & Omit<HtmlProps<'div'>, 'onClick'>;
 
 const ActionContainer = ({
   onClick,

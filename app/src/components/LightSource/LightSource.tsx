@@ -1,10 +1,10 @@
-import { DivProps } from '@/types/htmlProps';
+import { HtmlProps } from '@/types';
 import { useEffect } from 'react';
 import './LightSource.css';
 
 type LightSourceProps = {
   intensity: 'bright' | 'dim';
-} & DivProps;
+} & HtmlProps<'div'>;
 
 const LightSource = ({
   intensity,

@@ -1,11 +1,11 @@
 import LightSource from '../LightSource/LightSource';
-import { DivProps } from '@/types/htmlProps';
+import { HtmlProps } from '@/types';
 import { cn } from '@/util';
 import './GlassPanel.css';
 
 type GlassPanelProps = {
   intensity?: 'dim' | 'bright';
-} & DivProps;
+} & HtmlProps<'div'>;
 
 const GlassPanel = ({
   className = '',
