@@ -52,7 +52,7 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
             }
             rows={4}
           />
-          <FilePicker onSelect={handleFilePicker} />
+          <FilePicker onSelect={handleFilePicker} fileType='image' />
           <div className='form-buttons'>
             <Button type='submit'>Create Adventure</Button>
             <Button type='button' variant='secondary' onClick={onCancel}>

@@ -3,25 +3,27 @@ import { open } from '@tauri-apps/plugin-dialog';
 import Button from '../Button/Button';
 import './FilePicker.css';
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger';
-type ButtonSize = 'small' | 'medium' | 'large';
+const fileTypes: Record<string, string[]> = {
+  image: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+  document: ['.pdf', '.md'],
+};
+
+type ButtonProps = React.ComponentProps<typeof Button>;
 
 type FilePickerProps = {
-  accept?: string[];
+  fileType: keyof typeof fileTypes;
   multiple?: boolean;
   onSelect: (filePath: string | string[]) => void;
-  onError?: (error: Error) => void;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  variant?: ButtonProps['variant'];
+  size?: ButtonProps['size'];
   children?: React.ReactNode;
   disabled?: boolean;
 };
 
 const FilePicker = ({
-  accept,
+  fileType,
   multiple = false,
   onSelect,
-  onError,
   variant = 'secondary',
   size = 'medium',
   children = 'Choose File',
@@ -34,13 +36,14 @@ const FilePicker = ({
     setIsLoading(true);
 
     try {
+      const extensions = fileTypes[fileType];
       const selected = await open({
         multiple,
-        filters: accept
+        filters: extensions
           ? [
               {
                 name: 'Allowed Files',
-                extensions: accept,
+                extensions: extensions,
               },
             ]
           : undefined,
