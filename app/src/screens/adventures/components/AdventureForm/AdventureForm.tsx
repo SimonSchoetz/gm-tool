@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Button, Input, Textarea } from '@/components';
+import { Button, FilePicker, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
 
@@ -26,6 +26,10 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
     }
   };
 
+  const handleFilePicker = (input: unknown) => {
+    console.log('>>>>>>>>', input);
+  };
+
   return (
     <div className='adventure-form'>
       <h2 className='adventure-form-title'>Create Adventure</h2>
@@ -48,6 +52,7 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
             }
             rows={4}
           />
+          <FilePicker onSelect={handleFilePicker} />
           <div className='form-buttons'>
             <Button type='submit'>Create Adventure</Button>
             <Button type='button' variant='secondary' onClick={onCancel}>
