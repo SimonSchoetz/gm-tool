@@ -14,15 +14,17 @@ Enable users to upload and store images for adventures (and potentially other en
 - Windows: `C:\Users\<user>\AppData\Roaming\com.gm-tool.app\images/`
 - Linux: `~/.config/gm-tool/images/`
 
-**Database:** Store only the filename (not full path)
+**Database:** Dedicated `images` table with metadata, entities reference images by ID
 
 ### Data Flow
 
 1. **User selects image** → Frontend file picker
-2. **Frontend generates unique filename** → Uses existing `generateId()` util + extension
-3. **Frontend invokes Rust command** → Passes source path & target filename
-4. **Rust copies file** → To app data directory with new filename
-5. **Frontend stores filename in DB** → SQLite reference only
+2. **Frontend generates unique ID** → Uses existing `generateId()` util
+3. **Frontend extracts extension** → From source file path
+4. **Frontend invokes Rust command** → Passes source path, ID, and extension
+5. **Rust copies file** → To app data directory as `{id}.{extension}`
+6. **Frontend creates image record** → Insert into `images` table with metadata
+7. **Frontend references image** → Store `image_id` in entity table (e.g., adventures)
 
 ## File Naming Convention
 
@@ -41,11 +43,55 @@ Enable users to upload and store images for adventures (and potentially other en
 ## Database Schema
 
 ```sql
--- Example for adventures table
-ALTER TABLE adventures ADD COLUMN image_filename TEXT;
+-- Dedicated images table
+CREATE TABLE images (
+  id TEXT PRIMARY KEY,              -- nanoid (without extension)
+  file_extension TEXT NOT NULL,     -- 'jpg', 'png', 'webp', 'gif'
+  original_filename TEXT,           -- Optional: user's original filename
+  file_size INTEGER,                -- Optional: bytes
+  created_at INTEGER NOT NULL,      -- Unix timestamp
+  updated_at INTEGER NOT NULL       -- Unix timestamp
+);
 
--- Stores: "V1StGXR8_Z5jdHi6B-myT.jpg"
--- NOT full path, just filename
+-- Entity tables reference images
+CREATE TABLE adventures (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  image_id TEXT REFERENCES images(id),  -- Foreign key to images table
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+```
+
+**Filename on disk:** `{images.id}.{images.file_extension}`
+
+**Example:** Image with id `V1StGXR8_Z5jdHi6B-myT` and extension `jpg` → stored as `V1StGXR8_Z5jdHi6B-myT.jpg`
+
+### Schema Benefits
+
+- **Metadata tracking** - Upload date, original filename, file size
+- **Easier cleanup** - Query for orphaned images (no entity references)
+- **Image reuse** - Same image can be used by multiple entities
+- **Audit trail** - Track when each image was added
+- **Flexibility** - Add image features without modifying entity tables
+- **Separation of concerns** - Image lifecycle independent of entity lifecycle
+
+### Query Examples
+
+```sql
+-- Get adventure with image
+SELECT a.*, i.id as image_id, i.file_extension, i.created_at as image_created_at
+FROM adventures a
+LEFT JOIN images i ON a.image_id = i.id
+WHERE a.id = ?
+
+-- Find orphaned images (not referenced by any entity)
+SELECT * FROM images
+WHERE id NOT IN (
+  SELECT DISTINCT image_id FROM adventures WHERE image_id IS NOT NULL
+  -- Add UNION for other entity tables when they use images
+)
 ```
 
 ## Rust Backend (Tauri Commands)
@@ -54,15 +100,15 @@ ALTER TABLE adventures ADD COLUMN image_filename TEXT;
 
 ```rust
 #[tauri::command]
-async fn save_image(source_path: String, target_filename: String) -> Result<String, String>
+async fn save_image(source_path: String, id: String, extension: String) -> Result<(), String>
 ```
 
 **Responsibilities:**
 
 - Validate file extension (allowed: jpg, jpeg, png, webp, gif)
 - Ensure images directory exists
-- Copy file from source to app_data/images/{target_filename}
-- Return filename on success
+- Copy file from source to app_data/images/{id}.{extension}
+- Return success/error
 
 **Error handling:**
 
@@ -70,16 +116,16 @@ async fn save_image(source_path: String, target_filename: String) -> Result<Stri
 - Source file not found → Error
 - Copy failure → Error
 
-### Command: `get_image_path`
+### Command: `get_image_url`
 
 ```rust
 #[tauri::command]
-async fn get_image_path(filename: String) -> Result<String, String>
+async fn get_image_url(id: String, extension: String) -> Result<String, String>
 ```
 
 **Responsibilities:**
 
-- Convert filename to full local path
+- Construct full path: app_data/images/{id}.{extension}
 - Use Tauri's `convertFileSrc()` to make it frontend-accessible
 - Return URL that can be used in `<img src={} />`
 
@@ -87,14 +133,21 @@ async fn get_image_path(filename: String) -> Result<String, String>
 
 - File not found → Error
 
-### Optional: `delete_image`
+### Command: `delete_image`
 
 ```rust
 #[tauri::command]
-async fn delete_image(filename: String) -> Result<(), String>
+async fn delete_image(id: String, extension: String) -> Result<(), String>
 ```
 
-For cleanup when entities are deleted.
+**Responsibilities:**
+
+- Delete file from filesystem
+- Should be called when removing image from database
+
+**Error handling:**
+
+- File not found → Log warning but return success (already gone)
 
 ## Frontend Implementation
 
@@ -104,8 +157,10 @@ For cleanup when entities are deleted.
 // In src/util/ or dedicated image module
 
 type SaveImageResult = {
-  filename: string;
-  url: string;
+  id: string;
+  extension: string;
+  originalFilename: string;
+  fileSize: number;
 };
 
 export const saveImage = async (
@@ -114,30 +169,92 @@ export const saveImage = async (
   // 1. Generate ID
   const id = generateId();
 
-  // 2. Extract and validate extension
+  // 2. Extract original filename
+  const originalFilename = sourceFilePath.split('/').pop() || 'unknown';
+
+  // 3. Extract and validate extension
   const extension = sourceFilePath.split('.').pop()?.toLowerCase();
   const allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
   if (!extension || !allowed.includes(extension)) {
     throw new Error('Unsupported file type');
   }
 
-  // 3. Create target filename
-  const targetFilename = `${id}.${extension}`;
+  // 4. Get file size (optional, via Tauri fs API)
+  const fileSize = 0; // TODO: Get actual file size
 
-  // 4. Invoke Rust command
-  const filename = await invoke<string>('save_image', {
+  // 5. Invoke Rust command to copy file
+  await invoke('save_image', {
     sourcePath: sourceFilePath,
-    targetFilename,
+    id,
+    extension,
   });
 
-  // 5. Get display URL
-  const url = await invoke<string>('get_image_path', { filename });
-
-  return { filename, url };
+  // 6. Return data to insert into images table
+  return {
+    id,
+    extension,
+    originalFilename,
+    fileSize,
+  };
 };
 
-export const getImageUrl = async (filename: string): Promise<string> => {
-  return invoke<string>('get_image_path', { filename });
+export const getImageUrl = async (
+  id: string,
+  extension: string
+): Promise<string> => {
+  return invoke<string>('get_image_url', { id, extension });
+};
+
+export const deleteImage = async (
+  id: string,
+  extension: string
+): Promise<void> => {
+  await invoke('delete_image', { id, extension });
+};
+```
+
+### Database Operations
+
+```typescript
+// In db/image/ module (to be created)
+
+type Image = {
+  id: string;
+  file_extension: string;
+  original_filename: string | null;
+  file_size: number | null;
+  created_at: number;
+  updated_at: number;
+};
+
+export const createImage = async (data: SaveImageResult): Promise<Image> => {
+  const now = Date.now();
+  const image: Image = {
+    id: data.id,
+    file_extension: data.extension,
+    original_filename: data.originalFilename,
+    file_size: data.fileSize,
+    created_at: now,
+    updated_at: now,
+  };
+
+  // Insert into database
+  await db.run(
+    `INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [image.id, image.file_extension, image.original_filename, image.file_size, image.created_at, image.updated_at]
+  );
+
+  return image;
+};
+
+export const getImage = async (id: string): Promise<Image | null> => {
+  // Query from database
+};
+
+export const deleteImageRecord = async (id: string): Promise<void> => {
+  // Delete from database
+  // Also call deleteImage() utility to remove file
 };
 ```
 
@@ -147,7 +264,28 @@ export const getImageUrl = async (filename: string): Promise<string> => {
 // ImageUpload component to be created
 // Uses Tauri's dialog API for file picker
 // Calls saveImage utility
-// Emits filename to parent for DB storage
+// Creates image record in DB
+// Emits image ID to parent for entity reference
+```
+
+### Complete Flow Example
+
+```typescript
+// In AdventureForm component
+const handleImageUpload = async (sourceFilePath: string) => {
+  // 1. Save file and get metadata
+  const imageData = await saveImage(sourceFilePath);
+
+  // 2. Create image record in DB
+  const image = await createImage(imageData);
+
+  // 3. Store image_id in adventure
+  setFormData({ ...formData, image_id: image.id });
+
+  // 4. Get URL for preview
+  const url = await getImageUrl(image.id, image.file_extension);
+  setPreviewUrl(url);
+};
 ```
 
 ## Validation & Security
@@ -171,10 +309,12 @@ export const getImageUrl = async (filename: string): Promise<string> => {
 
 - [ ] Image compression before storage
 - [ ] Thumbnail generation
-- [ ] Orphaned image cleanup (images not referenced in DB)
+- [ ] Automated orphaned image cleanup task
 - [ ] Bulk image upload
 - [ ] Image cropping/editing
-- [ ] Support for other entity types (NPCs, locations, etc.)
+- [ ] Support for other entity types (NPCs, locations, items, etc.)
+- [ ] Image dimensions stored in DB
+- [ ] MIME type validation
 
 ## Testing Considerations
 
