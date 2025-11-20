@@ -12,8 +12,7 @@ type ButtonProps = React.ComponentProps<typeof Button>;
 
 type FilePickerProps = {
   fileType: keyof typeof fileTypes;
-  multiple?: boolean;
-  onSelect: (filePath: string | string[]) => void;
+  onSelect: (filePath: string) => void;
   variant?: ButtonProps['variant'];
   size?: ButtonProps['size'];
   children?: React.ReactNode;
@@ -22,7 +21,6 @@ type FilePickerProps = {
 
 const FilePicker = ({
   fileType,
-  multiple = false,
   onSelect,
   variant = 'secondary',
   size = 'medium',
@@ -38,7 +36,7 @@ const FilePicker = ({
     try {
       const extensions = fileTypes[fileType];
       const selected = await open({
-        multiple,
+        multiple: false,
         filters: extensions
           ? [
               {

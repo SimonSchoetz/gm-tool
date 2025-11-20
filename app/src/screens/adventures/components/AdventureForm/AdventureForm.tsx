@@ -1,33 +1,38 @@
 import { FormEvent, useState } from 'react';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import { Button, FilePicker, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
+import { CreateAdventureInput } from '@db/adventure';
 
 type AdventureFormProps = {
   onSuccess: () => void;
   onCancel: () => void;
 };
 
+type FormData = CreateAdventureInput & { imgFilePath: string };
+
 const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
   const { createAdventure } = useAdventures();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
+    imgFilePath: '',
   });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       await createAdventure(formData);
-      setFormData({ title: '', description: '' });
+      setFormData({ title: '', description: '', imgFilePath: '' });
       onSuccess();
     } catch (error) {
       console.error('Failed to create adventure:', error);
     }
   };
 
-  const handleFilePicker = (input: unknown) => {
-    console.log('>>>>>>>>', input);
+  const updateFormData = (value: Partial<FormData>) => {
+    setFormData({ ...formData, ...value });
   };
 
   return (
@@ -39,20 +44,19 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
             type='text'
             placeholder='Adventure Title *'
             value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
+            onChange={(e) => updateFormData({ title: e.target.value })}
             required
           />
           <Textarea
             placeholder='Description'
             value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
+            onChange={(e) => updateFormData({ description: e.target.value })}
             rows={4}
           />
-          <FilePicker onSelect={handleFilePicker} fileType='image' />
+          <FilePicker
+            onSelect={(e) => updateFormData({ imgFilePath: e })}
+            fileType='image'
+          />
           <div className='form-buttons'>
             <Button type='submit'>Create Adventure</Button>
             <Button type='button' variant='secondary' onClick={onCancel}>
@@ -62,6 +66,12 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
         </form>
 
         <div>
+          {formData.imgFilePath && (
+            <img
+              src={convertFileSrc(formData.imgFilePath)}
+              alt='Adventure preview'
+            />
+          )}
           <p>
             The name of the adventure and a brief description. You will be able
             to start creating sessions in the next step.
