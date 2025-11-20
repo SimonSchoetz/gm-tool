@@ -5,7 +5,7 @@ import './FilePicker.css';
 
 const fileTypes: Record<string, string[]> = {
   image: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-  document: ['.pdf', '.md'],
+  document: ['pdf', 'md'],
 };
 
 type ButtonProps = React.ComponentProps<typeof Button>;
@@ -54,7 +54,7 @@ const FilePicker = ({
       if (err instanceof Error) {
         setError(err.message);
       } else if (typeof err === 'string') {
-        setError(error);
+        setError(err);
       } else {
         setError(`Failed to open file picker: ${err}`);
       }

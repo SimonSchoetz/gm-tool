@@ -13,7 +13,7 @@ export const createGridTiles = (
   const primaryRgb = getComputedStyle(document.documentElement)
     .getPropertyValue('--color-primary-rgb')
     .trim();
-  ctx.fillStyle = `rgba(${primaryRgb}, 0.1)`;
+  ctx.fillStyle = `rgb(${primaryRgb}, 0.1)`;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   // Draw grid squares
@@ -21,7 +21,7 @@ export const createGridTiles = (
   const bgRgb = getComputedStyle(document.documentElement)
     .getPropertyValue('--color-bg-rgb')
     .trim();
-  const bg50Color = `rgba(${bgRgb}, 0.5)`;
+  const bg50Color = `rgb(${bgRgb}, 0.5)`;
 
   for (let row = 0; row < rows + 1; row++) {
     for (let col = 0; col < cols; col++) {

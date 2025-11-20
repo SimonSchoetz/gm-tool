@@ -171,6 +171,8 @@ export const saveImage = async (
 
   // 2. Extract original filename
   const originalFilename = sourceFilePath.split('/').pop() || 'unknown';
+  // probably needs Tauri's utilities like:
+  // const originalFilename = await basename(sourceFilePath);
 
   // 3. Extract and validate extension
   const extension = sourceFilePath.split('.').pop()?.toLowerCase();
@@ -242,7 +244,14 @@ export const createImage = async (data: SaveImageResult): Promise<Image> => {
   await db.run(
     `INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    [image.id, image.file_extension, image.original_filename, image.file_size, image.created_at, image.updated_at]
+    [
+      image.id,
+      image.file_extension,
+      image.original_filename,
+      image.file_size,
+      image.created_at,
+      image.updated_at,
+    ]
   );
 
   return image;

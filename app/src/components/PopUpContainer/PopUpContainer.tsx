@@ -24,10 +24,12 @@ const PopUpContainer = ({
       setIsOpen(true);
     } else {
       setIsClosing(true);
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setIsClosing(false);
         setIsOpen(false);
       }, 500);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [state]);
 
@@ -61,6 +63,7 @@ const PopUpContainer = ({
       onClick={handleOverlayClick}
       role='dialog'
       aria-modal='true'
+      aria-label='Popup dialog'
     >
       <GlassPanel
         className={cn('popup-content', isClosing && 'closing', className)}

@@ -65,14 +65,14 @@ npm run web                # Vite only in browser
 - use single quotes
 - multiple array/object items in new lines
 
-  ### Best Practices & Code Quality
+### Best Practices & Code Quality
 
-  - **Always suggest and implement best practices first**
-  - When multiple valid approaches exist, explain the tradeoffs and recommend the best option
-  - Proactively warn against anti-patterns, deprecated features, or "escape hatches" (like useImperativeHandle, useLayoutEffect, etc.)
-  - If a user requests an approach that goes against best practices, explain why it's not recommended and suggest the better alternative
-  - Don't just implement what's asked - guide toward the right solution
-  - Use SOLID principles where applicable
+- **Always suggest and implement best practices first**
+- When multiple valid approaches exist, explain the tradeoffs and recommend the best option
+- Proactively warn against anti-patterns, deprecated features, or "escape hatches" (like useImperativeHandle, useLayoutEffect, etc.)
+- If a user requests an approach that goes against best practices, explain why it's not recommended and suggest the better alternative
+- Don't just implement what's asked - guide toward the right solution
+- Use SOLID principles where applicable
 
 #### Conventions
 

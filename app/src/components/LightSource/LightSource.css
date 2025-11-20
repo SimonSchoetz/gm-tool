@@ -10,21 +10,45 @@
 .light-source-bright {
   background: linear-gradient(
       170deg,
-      rgba(var(--color-primary-rgb), 0.1) 10%,
+      rgb(var(--color-primary-rgb), 0.1) 10%,
       transparent 30%
     ),
-    linear-gradient(140deg, rgba(var(--color-primary-rgb), 0.1) 10%, transparent 40%),
-    linear-gradient(145deg, rgba(var(--color-primary-rgb), 0.1) 10%, transparent 70%),
-    linear-gradient(120deg, rgba(var(--color-primary-rgb), 0.1) 10%, transparent 70%);
+    linear-gradient(
+      140deg,
+      rgb(var(--color-primary-rgb), 0.1) 10%,
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      rgb(var(--color-primary-rgb), 0.1) 10%,
+      transparent 70%
+    ),
+    linear-gradient(
+      120deg,
+      rgb(var(--color-primary-rgb), 0.1) 10%,
+      transparent 70%
+    );
 }
 
 .light-source-dim {
   background: linear-gradient(
       170deg,
-      rgba(var(--color-primary-rgb), 0.05) 5%,
+      rgb(var(--color-primary-rgb), 0.05) 5%,
       transparent 10%
     ),
-    linear-gradient(140deg, rgba(var(--color-primary-rgb), 0.05) 5%, transparent 20%),
-    linear-gradient(145deg, rgba(var(--color-primary-rgb), 0.05) 5%, transparent 50%),
-    linear-gradient(120deg, rgba(var(--color-primary-rgb), 0.05) 5%, transparent 90%);
+    linear-gradient(
+      140deg,
+      rgb(var(--color-primary-rgb), 0.05) 5%,
+      transparent 20%
+    ),
+    linear-gradient(
+      145deg,
+      rgb(var(--color-primary-rgb), 0.05) 5%,
+      transparent 50%
+    ),
+    linear-gradient(
+      120deg,
+      rgb(var(--color-primary-rgb), 0.05) 5%,
+      transparent 90%
+    );
 }
