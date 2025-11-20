@@ -1,5 +1,4 @@
 export const rgbToRgba = (color: string, alpha: number): string => {
-  console.log('>>>>>>>>> | rgbToRgba | color:', color);
   // Extract RGB values from rgb() or rgba() format
   const rgbMatch = color.match(/\d+/g);
   if (rgbMatch && rgbMatch.length >= 3) {
