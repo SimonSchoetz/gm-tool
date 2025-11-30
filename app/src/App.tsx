@@ -3,6 +3,10 @@ import { AdventureScreen } from './screens';
 import { DataProvider } from './data/DataProvider';
 import './App.css';
 
+/**
+ * In the future, instead of rendering conditionally, we'll use TanStack Router
+ */
+
 function App() {
   return (
     <DataProvider>
