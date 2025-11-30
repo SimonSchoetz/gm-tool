@@ -1,9 +1,10 @@
 import { HtmlProps } from '@/types';
 import { useEffect } from 'react';
 import './LightSource.css';
+import { cn } from '@/util';
 
 type LightSourceProps = {
-  intensity: 'bright' | 'dim';
+  intensity: 'bright' | 'dim' | 'off';
 } & HtmlProps<'div'>;
 
 const LightSource = ({
@@ -18,9 +19,11 @@ const LightSource = ({
   const intensityClass =
     intensity === 'bright' ? 'light-source-bright' : 'light-source-dim';
 
+  if (intensity === 'off') return <></>;
+
   return (
     <div
-      className={`light-source ${intensityClass} ${className}`}
+      className={cn('light-source', intensityClass, className)}
       {...props}
     ></div>
   );
