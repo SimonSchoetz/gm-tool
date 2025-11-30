@@ -37,7 +37,7 @@ const AdventureScreen = () => {
   const showBtn = popUpState === 'closed';
   return (
     <div className='content-center'>
-      {showBtn && <AdventureBtn onClick={handleOpenForm} />}
+      {showBtn && <AdventureBtn onClick={handleOpenForm} type='create' />}
       <PopUpContainer state={popUpState} setState={setPopUpState}>
         <AdventureForm
           onSuccess={handleFormSuccess}

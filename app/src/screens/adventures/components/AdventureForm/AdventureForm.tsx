@@ -1,9 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
-import { Button, FilePicker, Input, Textarea } from '@/components';
+import { Button, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
 import { CreateAdventureInput } from '@db/adventure';
+import AdventureBtn from '../AdventureBtn/AdventureBtn';
 
 type AdventureFormProps = {
   onSuccess: () => void;
@@ -53,10 +54,6 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
             onChange={(e) => updateFormData({ description: e.target.value })}
             rows={4}
           />
-          <FilePicker
-            onSelect={(e) => updateFormData({ imgFilePath: e })}
-            fileType='image'
-          />
           <div className='form-buttons'>
             <Button type='submit'>Create Adventure</Button>
             <Button type='button' variant='secondary' onClick={onCancel}>
@@ -64,18 +61,26 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
             </Button>
           </div>
         </form>
-
         <div>
-          {formData.imgFilePath && (
-            <img
-              src={convertFileSrc(formData.imgFilePath)}
-              alt='Adventure preview'
-            />
-          )}
-          <p>
-            The name of the adventure and a brief description. You will be able
-            to start creating sessions in the next step.
-          </p>
+          <AdventureBtn
+            onClick={(e) => updateFormData({ imgFilePath: e })}
+            type='upload-img'
+          >
+            {formData.imgFilePath ? (
+              <img
+                src={convertFileSrc(formData.imgFilePath)}
+                alt='Adventure preview'
+              />
+            ) : (
+              <p
+                style={{
+                  textAlign: 'center',
+                }}
+              >
+                Click to upload cover image or drag&drop
+              </p>
+            )}
+          </AdventureBtn>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-.new-adventure-btn {
+.adventure-btn {
   --transition-duration-highlight: 0.3s;
   --transition-duration-pressed: 0.5s;
 }
@@ -15,20 +15,28 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.plus-symbol-container {
+.children-container {
   transition: var(--transition-duration-highlight) ease;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.plus-symbol-container:hover {
+.children-container img {
+  height: 100%;
+  width: auto;
+  object-fit: cover;
+  object-position: center;
+}
+
+.children-container:hover {
   background: rgb(var(--color-bg-rgb), 0.5);
 }
 
-.new-adventure-btn:hover .plus-symbol {
+.adventure-btn:hover .plus-symbol {
   transform: scale(2) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);
   will-change: font-size;
