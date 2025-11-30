@@ -1,5 +1,5 @@
 import { ActionContainer } from '@/components';
-import './NewAdventureBtn.css';
+import './AdventureBtn.css';
 import { useState } from 'react';
 import { cn } from '@/util';
 import AdventureFrame from '../AdventureFrame/AdventureFrame';
@@ -8,7 +8,7 @@ type Props = {
   onClick: () => void;
 };
 
-const NewAdventureBtn = ({ onClick }: Props) => {
+const AdventureBtn = ({ onClick }: Props) => {
   const [isClicked, setIsClicked] = useState<boolean>();
   const handleClick = () => {
     setIsClicked(true);
@@ -34,4 +34,4 @@ const NewAdventureBtn = ({ onClick }: Props) => {
   );
 };
 
-export default NewAdventureBtn;
+export default AdventureBtn;

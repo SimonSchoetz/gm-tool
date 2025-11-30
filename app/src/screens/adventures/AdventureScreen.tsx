@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAdventures } from '@/data/adventures';
 import { PopUpContainer } from '@/components';
-import { NewAdventureBtn, AdventureForm } from './components';
+import { AdventureBtn, AdventureForm } from './components';
 import './AdventureScreen.css';
 
 const AdventureScreen = () => {
@@ -37,7 +37,7 @@ const AdventureScreen = () => {
   const showBtn = popUpState === 'closed';
   return (
     <div className='content-center'>
-      {showBtn && <NewAdventureBtn onClick={handleOpenForm} />}
+      {showBtn && <AdventureBtn onClick={handleOpenForm} />}
       <PopUpContainer state={popUpState} setState={setPopUpState}>
         <AdventureForm
           onSuccess={handleFormSuccess}
