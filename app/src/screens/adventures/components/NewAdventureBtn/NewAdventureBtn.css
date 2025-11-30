@@ -1,20 +1,6 @@
 .new-adventure-btn {
   --transition-duration-highlight: 0.3s;
   --transition-duration-pressed: 0.5s;
-  width: 250px;
-  min-height: 350px;
-  height: 33vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  border-radius: var(--radius-xl); /* matches GlassPanel */
-}
-
-.new-adventure-btn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
 }
 
 .plus-symbol {
@@ -39,9 +25,7 @@
 }
 
 .plus-symbol-container:hover {
-  background: rgb(var(--color-bg-rgb), 0.7);
-  box-shadow: 0px 0px 2px 1px rgb(var(--color-fg-rgb), 0.2) inset;
-  filter: drop-shadow(0 0 1rem var(--color-fg));
+  background: rgb(var(--color-bg-rgb), 0.5);
 }
 
 .new-adventure-btn:hover .plus-symbol {

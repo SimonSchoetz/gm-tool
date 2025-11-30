@@ -1,7 +1,8 @@
-import { ActionContainer, GlassPanel } from '@/components';
+import { ActionContainer } from '@/components';
 import './NewAdventureBtn.css';
 import { useState } from 'react';
 import { cn } from '@/util';
+import AdventureFrame from '../AdventureFrame/AdventureFrame';
 
 type Props = {
   onClick: () => void;
@@ -19,15 +20,17 @@ const NewAdventureBtn = ({ onClick }: Props) => {
   };
 
   return (
-    <ActionContainer
+    <AdventureFrame
       className={cn('new-adventure-btn', isClicked && 'activated')}
-      onClick={handleClick}
-      aria-label='Create new adventure'
     >
-      <GlassPanel className='plus-symbol-container'>
+      <ActionContainer
+        className='plus-symbol-container'
+        onClick={handleClick}
+        aria-label='Create new adventure'
+      >
         <div className='plus-symbol'>+</div>
-      </GlassPanel>
-    </ActionContainer>
+      </ActionContainer>
+    </AdventureFrame>
   );
 };
 
