@@ -1,9 +1,7 @@
 .glass-panel {
   position: relative;
   overflow: hidden;
-
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-2xl);
   transition: box-shadow var(--transition-base);
 }
 
