@@ -1,0 +1,14 @@
+.adventure-frame {
+  width: 200px;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.adventure-frame:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
