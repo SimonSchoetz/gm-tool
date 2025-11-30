@@ -37,10 +37,11 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
   };
 
   return (
-    <div className='adventure-form'>
-      <h2 className='adventure-form-title'>Create Adventure</h2>
-      <div className='body'>
-        <form className='adventure-form-fields' onSubmit={handleSubmit}>
+    <div className='adventure-form-pop-up'>
+      <h2>Create Adventure</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div>
           <Input
             type='text'
             placeholder='Adventure Title *'
@@ -60,29 +61,28 @@ const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
               Cancel
             </Button>
           </div>
-        </form>
-        <div>
-          <AdventureBtn
-            onClick={(e) => updateFormData({ imgFilePath: e })}
-            type='upload-img'
-          >
-            {formData.imgFilePath ? (
-              <img
-                src={convertFileSrc(formData.imgFilePath)}
-                alt='Adventure preview'
-              />
-            ) : (
-              <p
-                style={{
-                  textAlign: 'center',
-                }}
-              >
-                Click to upload cover image or drag&drop
-              </p>
-            )}
-          </AdventureBtn>
         </div>
-      </div>
+
+        <AdventureBtn
+          onClick={(e) => updateFormData({ imgFilePath: e })}
+          type='upload-img'
+        >
+          {formData.imgFilePath ? (
+            <img
+              src={convertFileSrc(formData.imgFilePath)}
+              alt='Adventure preview'
+            />
+          ) : (
+            <p
+              style={{
+                textAlign: 'center',
+              }}
+            >
+              Click to upload cover image or drag&drop
+            </p>
+          )}
+        </AdventureBtn>
+      </form>
     </div>
   );
 };

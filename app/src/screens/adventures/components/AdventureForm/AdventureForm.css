@@ -1,23 +1,16 @@
-.adventure-form {
+.adventure-form-pop-up {
   width: 100%;
   max-width: 1200px;
   padding: 1rem;
 }
 
-.body {
-  display: grid;
-  grid-template-columns: 4fr 1fr;
-  gap: 1rem;
-}
-
-.adventure-form-title {
+.adventure-form-pop-up h2 {
   margin-bottom: 1.5rem;
   color: var(--color-text-secondary);
 }
-
-.adventure-form-fields {
-  display: flex;
-  flex-direction: column;
+.adventure-form-pop-up form {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
   gap: 1rem;
 }
 
