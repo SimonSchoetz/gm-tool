@@ -78,7 +78,7 @@ describe('App Component', () => {
       render(<App />);
 
       await waitFor(() => {
-        expect(database.initDatabase).toHaveBeenCalledTimes(2); // Called by both AdventureProvider and SessionProvider
+        expect(database.initDatabase).toHaveBeenCalledTimes(3); // Called by AdventureProvider, SessionProvider, and ImageProvider
         expect(adventure.getAll).toHaveBeenCalledOnce();
         expect(session.getAll).toHaveBeenCalledOnce();
       });

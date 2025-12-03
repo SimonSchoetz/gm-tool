@@ -17,6 +17,7 @@ describe('initDatabase', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
+    mockSelect.mockResolvedValue([]);
   });
 
   afterEach(() => {

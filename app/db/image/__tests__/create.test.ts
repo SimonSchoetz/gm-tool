@@ -23,6 +23,10 @@ vi.mock('../../util', async (importOriginal) => {
   };
 });
 
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: vi.fn(() => Promise.resolve(1024)),
+}));
+
 import { create } from '../create';
 
 describe('image.create', () => {
@@ -38,21 +42,14 @@ describe('image.create', () => {
 
   it('should create image with all fields', async () => {
     const input: CreateImageInput = {
-      file_extension: 'jpg',
-      original_filename: 'my-photo.jpg',
-      file_size: 1024,
+      filePath: '/path/to/my-photo.jpg',
     };
 
     const result = await create(input);
 
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-      [
-        expect.any(String),
-        'jpg',
-        'my-photo.jpg',
-        1024,
-      ]
+      [expect.any(String), 'jpg', 'my-photo.jpg', 1024]
     );
 
     expect(typeof result).toBe('string');
@@ -61,19 +58,14 @@ describe('image.create', () => {
 
   it('should create image with only required fields', async () => {
     const input: CreateImageInput = {
-      file_extension: 'png',
+      filePath: '/path/to/image.png',
     };
 
     const result = await create(input);
 
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-      [
-        expect.any(String),
-        'png',
-        null,
-        null,
-      ]
+      [expect.any(String), 'png', 'image.png', 1024]
     );
 
     expect(typeof result).toBe('string');
@@ -85,15 +77,18 @@ describe('image.create', () => {
 
     for (const ext of validExtensions) {
       vi.clearAllMocks();
+      mockExecute.mockResolvedValue({ lastInsertId: 0 });
+      mockSelect.mockResolvedValue([]);
+
       const input: CreateImageInput = {
-        file_extension: ext,
+        filePath: `/path/to/image.${ext}`,
       };
 
       const result = await create(input);
 
       expect(mockExecute).toHaveBeenCalledWith(
         'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-        [expect.any(String), ext, null, null]
+        [expect.any(String), ext, `image.${ext}`, 1024]
       );
       expect(typeof result).toBe('string');
       expect(result).toBeTruthy();
@@ -101,16 +96,18 @@ describe('image.create', () => {
   });
 
   it('should throw validation error for invalid file extension', async () => {
-    const input = {
-      file_extension: 'pdf',
+    const input: CreateImageInput = {
+      filePath: '/path/to/document.pdf',
     };
 
-    await expect(create(input as any)).rejects.toThrow();
+    await expect(create(input)).rejects.toThrow('Unsupported file extension');
   });
 
   it('should throw validation error for missing file_extension', async () => {
-    const input = {};
+    const input = {
+      filePath: '/path/to/file',
+    };
 
-    await expect(create(input as any)).rejects.toThrow();
+    await expect(create(input as any)).rejects.toThrow('Unsupported file extension');
   });
 });

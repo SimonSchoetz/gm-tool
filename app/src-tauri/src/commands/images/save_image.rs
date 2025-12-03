@@ -11,7 +11,7 @@ use tauri::Manager;
 /// * `extension` - File extension (jpg, jpeg, png, webp, gif)
 ///
 /// # Returns
-/// * `Ok(())` on success
+/// * `Ok(u64)` with file size in bytes on success
 /// * `Err(String)` with error message on failure
 #[tauri::command]
 pub async fn save_image(
@@ -19,7 +19,7 @@ pub async fn save_image(
     source_path: String,
     id: String,
     extension: String,
-) -> Result<(), String> {
+) -> Result<u64, String> {
     // Validate extension
     let valid_extensions = ["jpg", "jpeg", "png", "webp", "gif"];
     if !valid_extensions.contains(&extension.as_str()) {
@@ -40,15 +40,19 @@ pub async fn save_image(
     // Construct destination path
     let destination_path = images_dir.join(format!("{}.{}", id, extension));
 
-    // Check if source file exists
+    // Check if source file exists and get metadata
     let source = PathBuf::from(&source_path);
     if !source.exists() {
         return Err(format!("Source file does not exist: {}", source_path));
     }
 
+    let metadata = fs::metadata(&source)
+        .map_err(|e| format!("Failed to get file metadata: {}", e))?;
+    let file_size = metadata.len();
+
     // Copy file
     fs::copy(&source, &destination_path)
         .map_err(|e| format!("Failed to copy file: {}", e))?;
 
-    Ok(())
+    Ok(file_size)
 }

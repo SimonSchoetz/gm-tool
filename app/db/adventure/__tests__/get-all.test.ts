@@ -21,6 +21,7 @@ describe('getAll', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
+    mockSelect.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -38,6 +39,7 @@ describe('getAll', () => {
     ];
 
     mockSelect
+      .mockResolvedValueOnce([]) // Migration check
       .mockResolvedValueOnce([{ count: 15 }])
       .mockResolvedValueOnce(mockAdventures);
 

@@ -6,6 +6,26 @@ import { sessionTable } from './session/schema';
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
 
+const runMigrations = async (database: Database) => {
+  try {
+    // Check if image_id column exists in adventures table
+    const result = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('adventures') WHERE name = 'image_id'"
+    );
+
+    if (!result || result.length === 0) {
+      // Column doesn't exist, add it
+      await database.execute(
+        'ALTER TABLE adventures ADD COLUMN image_id TEXT REFERENCES images(id) ON DELETE SET NULL'
+      );
+      console.log('Migration: Added image_id column to adventures table');
+    }
+  } catch (error) {
+    console.error('Migration failed:', error);
+    throw error;
+  }
+};
+
 export const initDatabase = async () => {
   if (db) return db;
 
@@ -34,6 +54,9 @@ export const initDatabase = async () => {
           } table created/verified`
         );
       }
+
+      // Run migrations
+      await runMigrations(database);
 
       db = database;
       return database;

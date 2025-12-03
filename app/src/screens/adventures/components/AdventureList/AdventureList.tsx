@@ -1,6 +1,8 @@
 import { FCProps } from '@/types';
 import { Adventure } from '@db/adventure';
 import AdventureBtn from '../AdventureBtn/AdventureBtn';
+import { Image } from '@/components';
+import './AdventureList.css';
 
 type Props = {
   adventures: Adventure[];
@@ -8,17 +10,22 @@ type Props = {
 
 export const AdventureList: FCProps<Props> = ({ adventures }) => {
   return (
-    <div>
+    <>
       {adventures.map((adventure) => (
-        <AdventureBtn
-          key={adventure.id}
-          onClick={() => console.log('Navigate to /adventure.id')}
-          label={adventure.title}
-        >
-          {/* <img src={adventure?.imgFilePath} alt='Adventure preview' /> */}
-          <p>{adventure.title}</p>
-        </AdventureBtn>
+        <li key={adventure.id}>
+          <AdventureBtn
+            key={adventure.id}
+            onClick={() => console.log('Navigate to /adventure.id')}
+            label={adventure.title}
+          >
+            <p>{adventure.title}</p>
+            <Image
+              imageId={adventure.image_id}
+              alt={`${adventure.title} preview`}
+            />
+          </AdventureBtn>
+        </li>
       ))}
-    </div>
+    </>
   );
 };

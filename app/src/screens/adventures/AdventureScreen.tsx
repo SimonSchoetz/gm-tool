@@ -20,9 +20,13 @@ const AdventureScreen = () => {
   }
 
   return (
-    <div className='content-center adventure-list-container'>
-      <CreateAdventurePopUp />
-      <AdventureList adventures={adventures} />
+    <div>
+      <ul className='content-center adventure-list-container'>
+        <li key='new-adventure'>
+          <CreateAdventurePopUp />
+        </li>
+        <AdventureList adventures={adventures} />
+      </ul>
     </div>
   );
 };

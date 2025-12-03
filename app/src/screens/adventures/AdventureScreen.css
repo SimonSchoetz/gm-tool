@@ -1,4 +1,5 @@
 .adventure-list-container {
   gap: 1.5rem;
   flex-wrap: wrap;
+  list-style-type: none;
 }

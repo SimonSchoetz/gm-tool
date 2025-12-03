@@ -41,6 +41,7 @@ describe('getAll', () => {
     ];
 
     mockSelect
+      .mockResolvedValueOnce([]) // Migration check
       .mockResolvedValueOnce([{ count: 2 }])
       .mockResolvedValueOnce(mockSessions);
 

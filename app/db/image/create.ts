@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import { generateId } from '../../util';
 import { getDatabase } from '../database';
 import { CreateImageInput } from './types';
@@ -9,8 +10,6 @@ export const create = async ({
     throw new Error('filePath must be a string');
   }
 
-  // TODO: Call Rust command to save image file
-
   const extension = filePath.split('.').pop()?.toLowerCase() as
     | 'jpg'
     | 'jpeg'
@@ -18,15 +17,26 @@ export const create = async ({
     | 'webp'
     | 'gif';
 
+  if (!extension || !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)) {
+    throw new Error(`Unsupported file extension: ${extension}`);
+  }
+
   const originalFilename = filePath.split('/').pop() || undefined;
-  const fileSize = undefined; // TODO: Get actual file size
 
   const id = generateId();
-  const db = await getDatabase();
 
+  // Save the image file to app data directory and get file size
+  const fileSize = await invoke<number>('save_image', {
+    sourcePath: filePath,
+    id,
+    extension,
+  });
+
+  // Create database record
+  const db = await getDatabase();
   await db.execute(
     'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-    [id, extension, originalFilename ?? null, fileSize ?? null]
+    [id, extension, originalFilename ?? null, fileSize]
   );
 
   return id;
