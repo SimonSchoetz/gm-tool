@@ -12,7 +12,7 @@
   },
   "author": "Simon Schötz",
   "scripts": {
-    "test": "test",
+    "test": "cd app && npm run test",
     "dev": "cd app && npm run dev",
     "web": "cd app && npm run web"
   }
