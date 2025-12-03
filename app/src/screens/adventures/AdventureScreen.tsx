@@ -1,6 +1,6 @@
 import { useAdventures } from '@/data/adventures';
 import './AdventureScreen.css';
-import { CreateAdventurePopUp } from './components';
+import { AdventureList, CreateAdventurePopUp } from './components';
 
 const AdventureScreen = () => {
   const { adventures, loading, error } = useAdventures();
@@ -20,9 +20,10 @@ const AdventureScreen = () => {
   }
 
   return (
-    <>
+    <div className='content-center'>
       <CreateAdventurePopUp />
-    </>
+      <AdventureList adventures={adventures} />
+    </div>
   );
 };
 
