@@ -6,6 +6,7 @@ import type {
   UpdateAdventureInput,
 } from '@db/adventure';
 import * as adventure from '@db/adventure';
+import * as image from '@db/image';
 
 type AdventureContextType = {
   adventures: Adventure[];
@@ -21,7 +22,7 @@ export type CreateAdventureFormData = Omit<CreateAdventureInput, 'image_id'> & {
   imgFilePath?: string;
 };
 
-export type UpdateAdventureFormData = Omit<UpdateAdventureInput, 'image_id'> & {
+export type UpdateAdventureFormData = UpdateAdventureInput & {
   imgFilePath?: string;
 };
 
@@ -53,19 +54,19 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
   };
 
   const createAdventure = async (data: CreateAdventureFormData) => {
-    /**
-     * if filepath -> upload image first
-     */
-
-    const image_id = 'todo';
-
-    const dto: CreateAdventureInput = {
-      title: data.title,
-      description: data?.description,
-      image_id,
-    };
+    let image_id: string | null = null;
 
     try {
+      if (data.imgFilePath) {
+        image_id = await image.create({ filePath: data.imgFilePath });
+      }
+
+      const dto: CreateAdventureInput = {
+        title: data.title,
+        description: data?.description,
+        image_id,
+      };
+
       await adventure.create(dto);
       await loadAdventures();
     } catch (err) {
@@ -75,18 +76,25 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
   };
 
   const updateAdventure = async (id: string, data: UpdateAdventureFormData) => {
-    /**
-     * if filepath -> upload image first
-     */
+    let image_id: string | null | undefined = undefined;
 
-    const image_id = 'todo';
-
-    const dto: UpdateAdventureInput = {
-      title: data.title,
-      description: data?.description,
-      image_id,
-    };
     try {
+      if (data.imgFilePath && data.image_id) {
+        image_id = await image.replace(data.image_id, {
+          filePath: data.imgFilePath,
+        });
+      }
+
+      if (data.imgFilePath && !data.image_id) {
+        image_id = await image.create({ filePath: data.imgFilePath });
+      }
+
+      const dto: UpdateAdventureInput = {
+        title: data.title,
+        description: data?.description,
+        image_id,
+      };
+
       await adventure.update(id, dto);
       await loadAdventures();
     } catch (err) {
