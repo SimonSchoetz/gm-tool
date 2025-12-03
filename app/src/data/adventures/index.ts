@@ -1,2 +1,2 @@
-export { AdventureProvider } from './AdventureProvider';
-export { useAdventures } from './useAdventures';
+export * from './AdventureProvider';
+export * from './useAdventures';

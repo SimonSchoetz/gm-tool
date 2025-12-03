@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Adventure } from '../types';
+import type { CreateAdventureInput } from '../types';
 
 const mockExecute = vi.fn();
 const mockSelect = vi.fn();
@@ -33,7 +33,7 @@ describe('create', () => {
   });
 
   it('should insert adventure with all fields and return generated ID', async () => {
-    const mockAdventure: Adventure = {
+    const mockAdventure: CreateAdventureInput = {
       title: 'Test Adventure',
       description: 'Test Description',
     };
@@ -43,14 +43,14 @@ describe('create', () => {
     const adventureId = await create(mockAdventure);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO adventures (id, title, description) VALUES ($1, $2, $3)',
-      ['test-generated-id', 'Test Adventure', 'Test Description']
+      'INSERT INTO adventures (id, title, description, image_id) VALUES ($1, $2, $3, $4)',
+      ['test-generated-id', 'Test Adventure', 'Test Description', null]
     );
     expect(adventureId).toBe('test-generated-id');
   });
 
   it('should insert adventure with only required fields', async () => {
-    const mockAdventure: Adventure = {
+    const mockAdventure: CreateAdventureInput = {
       title: 'Test Adventure',
     };
 
@@ -59,8 +59,8 @@ describe('create', () => {
     const adventureId = await create(mockAdventure);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO adventures (id, title, description) VALUES ($1, $2, $3)',
-      ['test-generated-id', 'Test Adventure', null]
+      'INSERT INTO adventures (id, title, description, image_id) VALUES ($1, $2, $3, $4)',
+      ['test-generated-id', 'Test Adventure', null, null]
     );
     expect(adventureId).toBe('test-generated-id');
   });

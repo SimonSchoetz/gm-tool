@@ -11,10 +11,18 @@ type AdventureContextType = {
   adventures: Adventure[];
   loading: boolean;
   error: string | null;
-  createAdventure: (data: CreateAdventureInput) => Promise<void>;
+  createAdventure: (data: CreateAdventureFormData) => Promise<void>;
   updateAdventure: (id: string, data: UpdateAdventureInput) => Promise<void>;
   deleteAdventure: (id: string) => Promise<void>;
   refreshAdventures: () => Promise<void>;
+};
+
+export type CreateAdventureFormData = Omit<CreateAdventureInput, 'image_id'> & {
+  imgFilePath?: string;
+};
+
+export type UpdateAdventureFormData = Omit<UpdateAdventureInput, 'image_id'> & {
+  imgFilePath?: string;
 };
 
 export const AdventureContext = createContext<AdventureContextType | null>(
@@ -44,9 +52,21 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     }
   };
 
-  const createAdventure = async (data: CreateAdventureInput) => {
+  const createAdventure = async (data: CreateAdventureFormData) => {
+    /**
+     * if filepath -> upload image first
+     */
+
+    const image_id = 'todo';
+
+    const dto: CreateAdventureInput = {
+      title: data.title,
+      description: data?.description,
+      image_id,
+    };
+
     try {
-      await adventure.create(data);
+      await adventure.create(dto);
       await loadAdventures();
     } catch (err) {
       console.error('Failed to create adventure:', err);
@@ -54,9 +74,20 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     }
   };
 
-  const updateAdventure = async (id: string, data: UpdateAdventureInput) => {
+  const updateAdventure = async (id: string, data: UpdateAdventureFormData) => {
+    /**
+     * if filepath -> upload image first
+     */
+
+    const image_id = 'todo';
+
+    const dto: UpdateAdventureInput = {
+      title: data.title,
+      description: data?.description,
+      image_id,
+    };
     try {
-      await adventure.update(id, data);
+      await adventure.update(id, dto);
       await loadAdventures();
     } catch (err) {
       console.error('Failed to update adventure:', err);

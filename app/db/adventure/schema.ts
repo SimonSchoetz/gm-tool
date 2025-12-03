@@ -29,6 +29,15 @@ export const adventureTable = defineTable({
       type: 'TEXT',
       zod: z.string().optional(),
     },
+    image_id: {
+      type: 'TEXT',
+      foreignKey: {
+        table: 'images',
+        column: 'id',
+        onDelete: 'SET NULL',
+      },
+      zod: z.string().nullable().optional(),
+    },
     created_at: {
       type: 'TEXT',
       default: 'CURRENT_TIMESTAMP',

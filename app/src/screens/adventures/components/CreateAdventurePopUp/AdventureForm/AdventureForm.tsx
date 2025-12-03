@@ -6,11 +6,10 @@ import {
   useState,
 } from 'react';
 import { Button, Input, Textarea } from '@/components';
-import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
-import { CreateAdventureInput } from '@db/adventure';
 import { formObjectIsEmpty } from '@/util';
 import { UploadAdventureImgBtn } from './UploadAdventureImgBtn/UploadAdventureImgBtn';
+import { CreateAdventureFormData, useAdventures } from '@/data/adventures';
 
 type AdventureFormProps = {
   onSuccess: () => void;
@@ -18,15 +17,13 @@ type AdventureFormProps = {
   setHasValues: Dispatch<SetStateAction<boolean>>;
 };
 
-type FormData = CreateAdventureInput & { imgFilePath: string };
-
 const AdventureForm = ({
   onSuccess,
   onCancel,
   setHasValues,
 }: AdventureFormProps) => {
   const { createAdventure } = useAdventures();
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<CreateAdventureFormData>({
     title: '',
     description: '',
     imgFilePath: '',
@@ -43,7 +40,7 @@ const AdventureForm = ({
     }
   };
 
-  const updateFormData = (value: Partial<FormData>) => {
+  const updateFormData = (value: Partial<CreateAdventureFormData>) => {
     setFormData({ ...formData, ...value });
   };
 
