@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useImages } from '@/data/images';
 import { getImageUrl } from '@/util';
-import { FCProps } from '@/types';
+import { FCProps, HtmlProps } from '@/types';
 
 type Props = {
   imageId: string | null | undefined;
   alt: string;
-};
+} & HtmlProps<'img'>;
 
 export const Image: FCProps<Props> = ({ imageId, alt, ...props }) => {
   const { getImageById } = useImages();

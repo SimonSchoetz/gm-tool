@@ -2,6 +2,7 @@ import { FCProps } from '@/types';
 import { Adventure } from '@db/adventure';
 import AdventureBtn from '../AdventureBtn/AdventureBtn';
 import { Image } from '@/components';
+import './AdventureList.css';
 
 type Props = {
   adventures: Adventure[];
@@ -16,11 +17,13 @@ export const AdventureList: FCProps<Props> = ({ adventures }) => {
             key={adventure.id}
             onClick={() => console.log('Navigate to /adventure.id')}
             label={adventure.title}
+            className='adventure-preview'
           >
-            <p>{adventure.title}</p>
+            <p className='adventure-title'>{adventure.title}</p>
             <Image
               imageId={adventure.image_id}
               alt={`${adventure.title} preview`}
+              className='adventure-img'
             />
           </AdventureBtn>
         </li>
