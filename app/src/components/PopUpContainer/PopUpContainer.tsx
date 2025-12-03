@@ -7,6 +7,7 @@ import './PopUpContainer.css';
 type Props = {
   state: 'open' | 'closed';
   setState: Dispatch<SetStateAction<'open' | 'closed'>>;
+  enforceCancelBtn?: boolean;
 } & HtmlProps<'div'>;
 
 const PopUpContainer = ({
@@ -14,6 +15,7 @@ const PopUpContainer = ({
   setState,
   className = '',
   children,
+  enforceCancelBtn = false,
   ...props
 }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(state === 'open');
@@ -35,7 +37,7 @@ const PopUpContainer = ({
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && !enforceCancelBtn) {
         setState('closed');
       }
     };
@@ -47,10 +49,10 @@ const PopUpContainer = ({
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isOpen, setState]);
+  }, [isOpen, setState, enforceCancelBtn]);
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !enforceCancelBtn) {
       setState('closed');
     }
   };
