@@ -1,10 +1,17 @@
-import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { Button, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
 import { CreateAdventureInput } from '@db/adventure';
 import AdventureBtn from '../../AdventureBtn/AdventureBtn';
+import { formObjectIsEmpty } from '@/util';
 
 type AdventureFormProps = {
   onSuccess: () => void;
@@ -40,6 +47,10 @@ const AdventureForm = ({
   const updateFormData = (value: Partial<FormData>) => {
     setFormData({ ...formData, ...value });
   };
+
+  useEffect(() => {
+    setHasValues(!formObjectIsEmpty(formData));
+  }, [formData]);
 
   return (
     <div className='adventure-form-pop-up'>
