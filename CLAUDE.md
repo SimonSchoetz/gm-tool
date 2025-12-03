@@ -73,6 +73,11 @@ npm run web                # Vite only in browser
 - If a user requests an approach that goes against best practices, explain why it's not recommended and suggest the better alternative
 - Don't just implement what's asked - guide toward the right solution
 - Use SOLID principles where applicable
+- **DRY (Don't Repeat Yourself)**: Always reuse existing functions instead of duplicating logic
+  - If a function already exists that performs the needed operation, call it instead of reimplementing
+  - Compose complex operations from existing simple functions
+  - ❌ BAD: Duplicating database calls and state updates in multiple functions
+  - ✅ GOOD: Calling existing `createImage()` and `deleteImage()` within `replaceImage()`
 
 #### Conventions
 
