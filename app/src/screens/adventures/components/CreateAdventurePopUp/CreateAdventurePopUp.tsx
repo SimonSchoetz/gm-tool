@@ -3,28 +3,43 @@ import { FCProps, HtmlProps } from '@/types';
 import { useState } from 'react';
 import AdventureBtn from '../AdventureBtn/AdventureBtn';
 import AdventureForm from './AdventureForm/AdventureForm';
+import { cn } from '@/util';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
 const CreateAdventurePopUp: FCProps<HtmlProps<'div'>> = () => {
   const [popUpState, setPopUpState] = useState<PopUpState>('closed');
   const [hasValues, setHasValues] = useState(false);
+  const [hideBtn, setHideBtn] = useState(false);
 
   const handleOpenForm = () => {
-    setPopUpState('open');
+    setHideBtn(true);
+    const timeoutId = setTimeout(() => {
+      setPopUpState('open');
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handleCloseForm = () => {
+    setHideBtn(false);
+    setPopUpState('closed');
   };
 
   const handleFormSuccess = () => {
-    setPopUpState('closed');
+    handleCloseForm();
   };
 
   const handleFormCancel = () => {
-    setPopUpState('closed');
+    handleCloseForm();
   };
-  const showBtn = popUpState === 'closed';
+
   return (
-    <div className='content-center'>
-      {showBtn && <AdventureBtn onClick={handleOpenForm} type='create' />}
+    <>
+      <AdventureBtn
+        onClick={handleOpenForm}
+        type='create'
+        className={cn(hideBtn && 'activated')}
+      />
       <PopUpContainer
         state={popUpState}
         setState={setPopUpState}
@@ -36,7 +51,7 @@ const CreateAdventurePopUp: FCProps<HtmlProps<'div'>> = () => {
           setHasValues={setHasValues}
         />
       </PopUpContainer>
-    </div>
+    </>
   );
 };
 

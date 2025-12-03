@@ -23,22 +23,12 @@ export default AdventureBtn;
 
 type BtnProps = Omit<Props, 'type'>;
 
-const NewAdventureBtn = ({ onClick }: BtnProps) => {
-  const [isClicked, setIsClicked] = useState<boolean>();
-  const handleClick = () => {
-    setIsClicked(true);
-    const timeoutId = setTimeout(() => {
-      onClick();
-      setIsClicked(false);
-    }, 500);
-    return () => clearTimeout(timeoutId);
-  };
-
+const NewAdventureBtn = ({ onClick, className }: BtnProps) => {
   return (
-    <AdventureFrame className={cn('adventure-btn', isClicked && 'activated')}>
+    <AdventureFrame className={cn('adventure-btn', className)}>
       <ActionContainer
         className='children-container'
-        onClick={handleClick}
+        onClick={onClick}
         aria-label='Create new adventure'
       >
         <div className='plus-symbol'>+</div>
