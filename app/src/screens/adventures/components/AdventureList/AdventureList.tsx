@@ -2,7 +2,6 @@ import { FCProps } from '@/types';
 import { Adventure } from '@db/adventure';
 import AdventureBtn from '../AdventureBtn/AdventureBtn';
 import { Image } from '@/components';
-import './AdventureList.css';
 
 type Props = {
   adventures: Adventure[];
