@@ -31,7 +31,8 @@ describe('create', () => {
   });
 
   it('should insert session with all fields and return generated ID', async () => {
-    const mockSession: Session = {
+    const mockSession = {
+      id: 'test-session-id',
       title: 'Test Session',
       description: 'Test Description',
       session_date: '2025-10-13',
@@ -59,7 +60,8 @@ describe('create', () => {
   });
 
   it('should insert session with only required fields', async () => {
-    const mockSession: Session = {
+    const mockSession = {
+      id: 'test-session-id-2',
       title: 'Minimal Session',
       adventure_id: 'test-adventure-id',
     };

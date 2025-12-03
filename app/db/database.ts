@@ -1,4 +1,5 @@
 import Database from '@tauri-apps/plugin-sql';
+import { imageTable } from './image/schema';
 import { adventureTable } from './adventure/schema';
 import { sessionTable } from './session/schema';
 
@@ -20,6 +21,7 @@ export const initDatabase = async () => {
       console.log('Database loaded successfully');
 
       const tableSchemas = [
+        { name: 'images', sql: imageTable.createTableSQL },
         { name: 'adventures', sql: adventureTable.createTableSQL },
         { name: 'sessions', sql: sessionTable.createTableSQL },
       ];

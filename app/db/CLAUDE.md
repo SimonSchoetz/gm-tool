@@ -14,6 +14,7 @@ db/
 
 - `adventures` - Main adventure/campaign records
 - `sessions` - Individual game sessions (many-to-one with adventures)
+- `images` - Images uploaded by the user for e. g. adventure covers or character artwork
 
 **Relationships:**
 
