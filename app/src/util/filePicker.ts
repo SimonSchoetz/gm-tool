@@ -1,9 +1,5 @@
+import { FileTypes } from '@/types';
 import { open } from '@tauri-apps/plugin-dialog';
-
-export type FileTypes = {
-  image: ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-  document: ['pdf', 'md'];
-};
 
 const fileTypes: FileTypes = {
   image: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
