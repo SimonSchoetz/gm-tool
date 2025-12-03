@@ -1,0 +1,27 @@
+.plus-symbol {
+  transition: var(--transition-duration-highlight) ease;
+  color: var(--color-primary);
+  font-size: 5rem;
+  font-weight: 300;
+  line-height: 1;
+  transform: scale(1) translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.adventure-btn:hover .plus-symbol {
+  transform: scale(2) translateZ(0);
+  text-shadow: 0 0 1rem var(--color-primary);
+  will-change: font-size;
+  color: var(--color-text);
+}
+
+.activated {
+  transition: var(--transition-duration-pressed) ease-out;
+  opacity: 0;
+  transform: scale(1.5) translateZ(0);
+  text-shadow: 0 0 1rem var(--color-primary);
+  will-change: font-size;
+  color: var(--color-text);
+}

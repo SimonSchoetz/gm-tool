@@ -5,13 +5,12 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { convertFileSrc } from '@tauri-apps/api/core';
 import { Button, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
 import { CreateAdventureInput } from '@db/adventure';
-import AdventureBtn from '../../AdventureBtn/AdventureBtn';
 import { formObjectIsEmpty } from '@/util';
+import { UploadAdventureImgBtn } from './UploadAdventureImgBtn/UploadAdventureImgBtn';
 
 type AdventureFormProps = {
   onSuccess: () => void;
@@ -79,25 +78,9 @@ const AdventureForm = ({
           </div>
         </div>
 
-        <AdventureBtn
-          onClick={(e) => updateFormData({ imgFilePath: e })}
-          type='upload-img'
-        >
-          {formData.imgFilePath ? (
-            <img
-              src={convertFileSrc(formData.imgFilePath)}
-              alt='Adventure preview'
-            />
-          ) : (
-            <p
-              style={{
-                textAlign: 'center',
-              }}
-            >
-              Click to upload cover image or drag&drop
-            </p>
-          )}
-        </AdventureBtn>
+        <UploadAdventureImgBtn
+          onClick={(filePath) => updateFormData({ imgFilePath: filePath })}
+        />
       </form>
     </div>
   );
