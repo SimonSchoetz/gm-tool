@@ -1,19 +1,24 @@
-import { FormEvent, useState } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { Button, Input, Textarea } from '@/components';
 import { useAdventures } from '@/data/adventures';
 import './AdventureForm.css';
 import { CreateAdventureInput } from '@db/adventure';
-import AdventureBtn from '../AdventureBtn/AdventureBtn';
+import AdventureBtn from '../../AdventureBtn/AdventureBtn';
 
 type AdventureFormProps = {
   onSuccess: () => void;
   onCancel: () => void;
+  setHasValues: Dispatch<SetStateAction<boolean>>;
 };
 
 type FormData = CreateAdventureInput & { imgFilePath: string };
 
-const AdventureForm = ({ onSuccess, onCancel }: AdventureFormProps) => {
+const AdventureForm = ({
+  onSuccess,
+  onCancel,
+  setHasValues,
+}: AdventureFormProps) => {
   const { createAdventure } = useAdventures();
   const [formData, setFormData] = useState<FormData>({
     title: '',
