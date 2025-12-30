@@ -1,0 +1,63 @@
+.holo-fx-shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  mix-blend-mode: color-dodge;
+  opacity: 0;
+
+  /* Rainbow gradient */
+  background-image: repeating-linear-gradient(
+    -22deg,
+    rgba(174, 102, 202, 0.75) 0%,
+    rgba(228, 77, 72, 0.75) 14%,
+    rgba(216, 197, 55, 0.75) 28%,
+    rgba(124, 201, 62, 0.75) 42%,
+    rgba(80, 177, 170, 0.75) 56%,
+    rgba(136, 160, 255, 0.75) 70%,
+    rgba(176, 105, 204, 0.75) 84%,
+    rgba(174, 102, 202, 0.75) 100%
+  );
+  background-size: 100% 400%;
+  background-position: calc(50% + (var(--posx, 50%) - 50%) * 0.5)
+    calc(50% + (var(--posy, 50%) - 50%) * 0.5);
+
+  filter: brightness(calc(var(--hyp, 0) * 0.3 + 0.6)) contrast(2.3)
+    saturate(1.1);
+}
+
+.holo-fx-shimmer.active {
+  opacity: 0.4;
+}
+
+/* Shimmer highlight that follows cursor */
+.holo-fx-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-2xl);
+
+  background-image: radial-gradient(
+    farthest-corner ellipse at calc(var(--mx, 50%) * 0.5 + 25%)
+      calc(var(--my, 50%) * 0.5 + 25%),
+    rgba(255, 255, 255, 0.8) 5%,
+    rgba(55, 0, 55, 0.5) 25%,
+    rgba(55, 55, 55, 0.3) 90%
+  );
+  background-size: 200% 200%;
+
+  filter: brightness(calc(var(--hyp, 0) * 0.2 + 0.4)) contrast(0.85)
+    saturate(1.1);
+  mix-blend-mode: hard-light;
+}
+
+/* Subtle grain texture */
+.holo-fx-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-2xl);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+}

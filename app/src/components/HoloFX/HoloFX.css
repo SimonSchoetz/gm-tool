@@ -1,0 +1,20 @@
+.holo-fx {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  perspective: 200px;
+}
+
+.holo-fx__rotator {
+  position: relative;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s ease-out, box-shadow 0.5s ease;
+  border-radius: var(--radius-2xl);
+  /* box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.1); */
+}
+
+.holo-fx__rotator.active {
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease;
+  /* box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6),
+    0 0 20px 0 rgba(100, 200, 255, 0.3), 0 0 0 1px rgb(var(--color-fg-rgb), 0.7); */
+}

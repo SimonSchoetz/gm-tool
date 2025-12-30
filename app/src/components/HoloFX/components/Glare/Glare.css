@@ -1,0 +1,15 @@
+.holo-fx-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-2xl);
+
+  background: radial-gradient(
+    farthest-corner circle at var(--mx, 50%) var(--my, 50%),
+    var(--color-fg) 0%,
+    rgb(var(--color-fg-rgb), 0.7) 30%,
+    transparent 70%
+  );
+
+  mix-blend-mode: overlay;
+  opacity: calc(var(--hyp, 0) * 0.5 + 0.2);
+}
