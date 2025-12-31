@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   useCallback,
+  useEffect,
   type CSSProperties,
 } from 'react';
 import './HoloFX.css';
@@ -33,35 +34,60 @@ const initialState: CardState = {
 export const HoloFX: FCProps<Props> = ({ className, children, ...props }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<CardState>(initialState);
+  const rafIdRef = useRef<number | null>(null);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
 
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const w = rect.width;
-    const h = rect.height;
+    // Cancel any pending animation frame
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+    }
 
-    // Calculate percentages (0-100)
-    const mx = (x / w) * 100;
-    const my = (y / h) * 100;
+    // Schedule update for next animation frame
+    rafIdRef.current = requestAnimationFrame(() => {
+      if (!cardRef.current) return;
 
-    // Calculate rotation (±15 degrees max)
-    const maxRotation = 1;
-    const rx = ((my - 50) / 50) * -maxRotation;
-    const ry = ((mx - 50) / 50) * maxRotation;
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const w = rect.width;
+      const h = rect.height;
 
-    // Calculate hypotenuse (distance from center, normalized 0-1)
-    const centerX = mx - 50;
-    const centerY = my - 50;
-    const hyp = Math.min(Math.sqrt(centerX ** 2 + centerY ** 2) / 50, 1);
+      // Calculate percentages (0-100)
+      const mx = (x / w) * 100;
+      const my = (y / h) * 100;
 
-    setState({ mx, my, rx, ry, hyp, isActive: true });
+      // Calculate rotation (±15 degrees max)
+      const maxRotation = 1;
+      const rx = ((my - 50) / 50) * -maxRotation;
+      const ry = ((mx - 50) / 50) * maxRotation;
+
+      // Calculate hypotenuse (distance from center, normalized 0-1)
+      const centerX = mx - 50;
+      const centerY = my - 50;
+      const hyp = Math.min(Math.sqrt(centerX ** 2 + centerY ** 2) / 50, 1);
+
+      setState({ mx, my, rx, ry, hyp, isActive: true });
+    });
   }, []);
 
   const handleMouseLeave = useCallback(() => {
+    // Cancel any pending animation frame
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
     setState(initialState);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
   }, []);
 
   const cardVars = {
