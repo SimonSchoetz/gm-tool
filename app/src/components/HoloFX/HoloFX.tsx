@@ -108,8 +108,12 @@ export const HoloFX: FCProps<Props> = ({ className, children, ...props }) => {
     >
       <div className={cn('holo-fx__rotator', state.isActive ? 'active' : '')}>
         {children}
-        <Shimmer isActive={state.isActive} />
-        <Glare />
+        {state.isActive && (
+          <>
+            <Shimmer />
+            <Glare />
+          </>
+        )}
       </div>
     </div>
   );
