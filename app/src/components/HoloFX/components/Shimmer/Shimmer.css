@@ -5,8 +5,8 @@
   overflow: hidden;
   mix-blend-mode: color-dodge;
   opacity: 0;
+  pointer-events: none;
 
-  /* Rainbow gradient */
   background-image: repeating-linear-gradient(
     -22deg,
     rgba(174, 102, 202, 0.75) 0%,

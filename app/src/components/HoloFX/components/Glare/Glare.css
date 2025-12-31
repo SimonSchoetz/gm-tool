@@ -2,6 +2,7 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius-2xl);
+  pointer-events: none;
 
   background: radial-gradient(
     farthest-corner circle at var(--mx, 50%) var(--my, 50%),
