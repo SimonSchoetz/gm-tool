@@ -3,7 +3,6 @@ import {
   PropsWithChildren,
   useRef,
   useState,
-  useCallback,
   useEffect,
   type CSSProperties,
 } from 'react';
@@ -32,61 +31,61 @@ const initialState: CardState = {
 };
 
 export const HoloFX: FCProps<Props> = ({ className, children, ...props }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<CardState>(initialState);
-  const rafIdRef = useRef<number | null>(null);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-
-    // Cancel any pending animation frame
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-    }
-
-    // Schedule update for next animation frame
-    rafIdRef.current = requestAnimationFrame(() => {
-      if (!cardRef.current) return;
-
-      const rect = cardRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const w = rect.width;
-      const h = rect.height;
-
-      // Calculate percentages (0-100)
-      const mx = (x / w) * 100;
-      const my = (y / h) * 100;
-
-      // Calculate rotation (±15 degrees max)
-      const maxRotation = 1;
-      const rx = ((my - 50) / 50) * -maxRotation;
-      const ry = ((mx - 50) / 50) * maxRotation;
-
-      // Calculate hypotenuse (distance from center, normalized 0-1)
-      const centerX = mx - 50;
-      const centerY = my - 50;
-      const hyp = Math.min(Math.sqrt(centerX ** 2 + centerY ** 2) / 50, 1);
-
-      setState({ mx, my, rx, ry, hyp, isActive: true });
-    });
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    // Cancel any pending animation frame
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
-    setState(initialState);
-  }, []);
-
-  // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
+    const container = containerRef.current;
+    if (!container) return;
+
+    let rafId: number | null = null;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
       }
+
+      rafId = requestAnimationFrame(() => {
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const w = rect.width;
+        const h = rect.height;
+
+        const mx = (x / w) * 100;
+        const my = (y / h) * 100;
+
+        const maxRotation = 1;
+        const rx = ((my - 50) / 50) * -maxRotation;
+        const ry = ((mx - 50) / 50) * maxRotation;
+
+        const centerX = mx - 50;
+        const centerY = my - 50;
+        const hyp = Math.min(Math.sqrt(centerX ** 2 + centerY ** 2) / 50, 1);
+
+        setState({ mx, my, rx, ry, hyp, isActive: true });
+      });
+    };
+
+    const handleMouseLeave = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      setState(initialState);
+    };
+
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
@@ -102,11 +101,9 @@ export const HoloFX: FCProps<Props> = ({ className, children, ...props }) => {
 
   return (
     <div
-      ref={cardRef}
+      ref={containerRef}
       className={cn('holo-fx', className)}
       style={cardVars}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       {...props}
     >
       <div className={cn('holo-fx__rotator', state.isActive ? 'active' : '')}>
