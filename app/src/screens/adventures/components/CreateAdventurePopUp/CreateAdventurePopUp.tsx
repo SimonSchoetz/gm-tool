@@ -40,6 +40,7 @@ const CreateAdventurePopUp: FCProps<HtmlProps<'div'>> = () => {
         onClick={handleOpenForm}
         label='Create new adventure'
         className={cn(hideBtn && 'activated')}
+        withHoloFX={false}
       >
         <div className='plus-symbol'>+</div>
       </AdventureBtn>

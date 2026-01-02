@@ -28,7 +28,7 @@ const initialState: CardState = {
   isActive: false,
 };
 
-export const useHoloMovement = (
+export const useTiltFX = (
   containerRef: RefObject<HTMLElement | null>
 ): { cardVars: CardVars; isActive: boolean } => {
   const [state, setState] = useState<CardState>(initialState);

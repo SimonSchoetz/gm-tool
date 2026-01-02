@@ -3,14 +3,24 @@
   --transition-duration-pressed: 0.5s;
 }
 
-.children-container {
-  transition: var(--transition-duration-highlight) ease;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+.tilt-fx-container {
+  transform-style: preserve-3d;
+  perspective: 200px;
+  border-radius: var(--radius-2xl);
+}
+
+.tilt-fx {
+  position: relative;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s ease-out, box-shadow 0.5s ease;
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.tilt-fx.active {
+  transition: transform 0s, box-shadow 0s;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6),
+    0 0 20px 0 rgba(100, 200, 255, 0.3), 0 0 0 1px rgb(var(--color-fg-rgb), 0.7);
 }
 
 .children-container img {
@@ -20,6 +30,16 @@
   object-position: center;
 }
 
-.children-container:hover {
+.tilt-fx:hover {
+  border-radius: var(--radius-2xl);
   background: rgb(var(--color-bg-rgb), 0.5);
+}
+
+.holo-fx-container {
+  z-index: 2;
+  opacity: 0;
+}
+
+.holo-fx-container.active {
+  opacity: 1;
 }

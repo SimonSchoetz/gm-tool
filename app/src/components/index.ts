@@ -7,4 +7,4 @@ export { default as LightSource } from './LightSource/LightSource';
 export { default as PopUpContainer } from './PopUpContainer/PopUpContainer';
 export { default as Textarea } from './Textarea/Textarea';
 export * from './Image/Image';
-export * from './HoloFX/HoloFX.tsx';
+export * from './HoloFX';

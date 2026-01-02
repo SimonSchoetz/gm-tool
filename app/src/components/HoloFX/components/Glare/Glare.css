@@ -1,7 +1,6 @@
 .holo-fx-glare {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-2xl);
   pointer-events: none;
 
   background: radial-gradient(

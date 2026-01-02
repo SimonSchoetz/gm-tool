@@ -1,8 +1,6 @@
 .holo-fx-shimmer {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
   mix-blend-mode: color-dodge;
   opacity: 0.4;
   pointer-events: none;
@@ -32,7 +30,6 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius-2xl);
-
   background-image: radial-gradient(
     farthest-corner ellipse at calc(var(--mx, 50%) * 0.5 + 25%)
       calc(var(--my, 50%) * 0.5 + 25%),
