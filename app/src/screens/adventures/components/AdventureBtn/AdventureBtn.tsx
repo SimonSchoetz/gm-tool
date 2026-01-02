@@ -39,7 +39,7 @@ const AdventureBtn: FCProps<Props> = ({
         )}
       >
         <div className={cn('holo-fx-container', isActive && 'active')}>
-          <HoloFX />
+          <HoloFX shimmerContent={label} />
         </div>
         {children}
       </AdventureFrame>

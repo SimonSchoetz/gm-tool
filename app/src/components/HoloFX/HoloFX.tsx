@@ -1,9 +1,14 @@
+import { FCProps } from '@/types';
 import { Glare, Shimmer } from './components';
 
-export const HoloFX = () => {
+type Props = {
+  shimmerContent?: string;
+};
+
+export const HoloFX: FCProps<Props> = ({ shimmerContent }) => {
   return (
     <>
-      <Shimmer />
+      <Shimmer shimmerContent={shimmerContent} />
       <Glare />
     </>
   );

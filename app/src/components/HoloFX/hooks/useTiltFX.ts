@@ -7,6 +7,8 @@ type CardVars = {
   '--posy': string;
   '--rx': string;
   '--ry': string;
+  '--rx-num': number;
+  '--ry-num': number;
   '--hyp': string;
 } & CSSProperties;
 
@@ -95,6 +97,8 @@ export const useTiltFX = (
     '--posy': `${state.my}%`,
     '--rx': `${state.rx}deg`,
     '--ry': `${state.ry}deg`,
+    '--rx-num': state.rx,
+    '--ry-num': state.ry,
     '--hyp': String(state.hyp),
   };
 

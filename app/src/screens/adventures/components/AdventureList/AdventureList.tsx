@@ -15,11 +15,10 @@ export const AdventureList: FCProps<Props> = ({ adventures }) => {
         <li key={adventure.id}>
           <AdventureBtn
             key={adventure.id}
-            onClick={() => console.log('Navigate to /adventure.id')}
+            onClick={() => console.log(`Navigate to /${adventure.id}`)}
             label={adventure.title}
             className='adventure-preview'
           >
-            <p className='adventure-title'>{adventure.title}</p>
             <Image
               imageId={adventure.image_id}
               alt={`${adventure.title} preview`}
