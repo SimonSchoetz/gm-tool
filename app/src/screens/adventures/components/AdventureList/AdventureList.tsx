@@ -19,6 +19,9 @@ export const AdventureList: FCProps<Props> = ({ adventures }) => {
             label={adventure.title}
             className='adventure-preview'
           >
+            {!adventure.image_id && adventure.title && (
+              <p className='adventure-title'>{adventure.title}</p>
+            )}
             <Image
               imageId={adventure.image_id}
               alt={`${adventure.title} preview`}
