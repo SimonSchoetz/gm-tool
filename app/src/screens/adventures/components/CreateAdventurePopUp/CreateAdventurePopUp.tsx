@@ -2,7 +2,7 @@ import './CreateAdventurePopUp.css';
 import { PopUpContainer } from '@/components';
 import { FCProps, HtmlProps } from '@/types';
 import { useState } from 'react';
-import AdventureBtn from '../AdventureBtn/AdventureBtn';
+import { NewAdventureBtn } from '../NewAdventureBtn/NewAdventureBtn';
 import AdventureForm from './AdventureForm/AdventureForm';
 import { cn } from '@/util';
 
@@ -36,14 +36,13 @@ const CreateAdventurePopUp: FCProps<HtmlProps<'div'>> = () => {
 
   return (
     <>
-      <AdventureBtn
+      <NewAdventureBtn
         onClick={handleOpenForm}
         label='Create new adventure'
         className={cn(hideBtn && 'activated')}
-        withHoloFX={false}
       >
         <div className='plus-symbol'>+</div>
-      </AdventureBtn>
+      </NewAdventureBtn>
       <PopUpContainer
         state={popUpState}
         setState={setPopUpState}

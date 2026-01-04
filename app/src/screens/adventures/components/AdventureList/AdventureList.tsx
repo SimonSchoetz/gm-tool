@@ -1,6 +1,6 @@
 import { FCProps } from '@/types';
 import { Adventure } from '@db/adventure';
-import AdventureBtn from '../AdventureBtn/AdventureBtn';
+import { ToAdventureBtn } from '../ToAdventureBtn/ToAdventureBtn';
 import { Image } from '@/components';
 import './AdventureList.css';
 
@@ -13,9 +13,9 @@ export const AdventureList: FCProps<Props> = ({ adventures }) => {
     <>
       {adventures.map((adventure) => (
         <li key={adventure.id}>
-          <AdventureBtn
+          <ToAdventureBtn
             key={adventure.id}
-            onClick={() => console.log(`Navigate to /${adventure.id}`)}
+            to={`/adventures/${adventure.id}`}
             label={adventure.title}
             className='adventure-preview'
           >
@@ -27,7 +27,7 @@ export const AdventureList: FCProps<Props> = ({ adventures }) => {
               alt={`${adventure.title} preview`}
               className='adventure-img'
             />
-          </AdventureBtn>
+          </ToAdventureBtn>
         </li>
       ))}
     </>

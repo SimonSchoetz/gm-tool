@@ -1,5 +1,5 @@
-import { ActionContainer } from '@/components';
-import './AdventureBtn.css';
+import { Link } from '@tanstack/react-router';
+import './ToAdventureBtn.css';
 import { cn } from '@/util';
 import AdventureFrame from '../AdventureFrame/AdventureFrame';
 import { FCProps, HtmlProps } from '@/types';
@@ -7,27 +7,25 @@ import { useRef } from 'react';
 import { HoloFX, useTiltFX } from '@/components/HoloFX';
 
 type Props = {
-  onClick: (e?: any) => any;
+  to: string;
   label: string;
-  withHoloFX?: boolean;
 } & HtmlProps<'div'>;
 
-const AdventureBtn: FCProps<Props> = ({
-  onClick,
+export const ToAdventureBtn: FCProps<Props> = ({
+  to,
   label,
   className,
   children,
-  withHoloFX = true,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLAnchorElement>(null);
   const { cardVars, isActive } = useTiltFX(containerRef);
 
-  const HoloBtn = (
-    <ActionContainer
+  return (
+    <Link
+      to={to}
       ref={containerRef}
       style={cardVars}
-      className={cn('adventure-btn', 'tilt-fx-container')}
-      onClick={onClick}
+      className={cn('adventure-btn', 'tilt-fx-container', 'action-card')}
       aria-label={label}
     >
       <AdventureFrame
@@ -43,22 +41,6 @@ const AdventureBtn: FCProps<Props> = ({
         </div>
         {children}
       </AdventureFrame>
-    </ActionContainer>
+    </Link>
   );
-
-  const NoHoloBtn = (
-    <ActionContainer
-      className={cn('adventure-btn')}
-      onClick={onClick}
-      aria-label={label}
-    >
-      <AdventureFrame className={cn('children-container', className)}>
-        {children}
-      </AdventureFrame>
-    </ActionContainer>
-  );
-
-  return withHoloFX ? HoloBtn : NoHoloBtn;
 };
-
-export default AdventureBtn;

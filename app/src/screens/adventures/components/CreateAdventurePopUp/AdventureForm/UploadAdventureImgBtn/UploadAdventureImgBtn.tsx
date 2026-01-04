@@ -1,8 +1,8 @@
 import { filePicker } from '@/util';
 import { useState } from 'react';
-import AdventureBtn from '../../../AdventureBtn/AdventureBtn';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { FCProps } from '@/types';
+import { NewAdventureBtn } from '../../../NewAdventureBtn/NewAdventureBtn';
 
 export const UploadAdventureImgBtn: FCProps<{
   onClick: (filePath: string) => void;
@@ -32,7 +32,7 @@ export const UploadAdventureImgBtn: FCProps<{
   };
   return (
     <>
-      <AdventureBtn onClick={handleClick} label='Upload cover image'>
+      <NewAdventureBtn onClick={handleClick} label='Upload cover image'>
         {filePath ? (
           <img src={convertFileSrc(filePath)} alt='Adventure preview' />
         ) : (
@@ -41,10 +41,12 @@ export const UploadAdventureImgBtn: FCProps<{
               textAlign: 'center',
             }}
           >
-            Click to upload cover image or drag&drop
+            {isLoading
+              ? 'Loading...'
+              : 'Click to upload cover image or drag&drop'}
           </p>
         )}
-      </AdventureBtn>
+      </NewAdventureBtn>
       {error && error}
     </>
   );
