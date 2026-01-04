@@ -1,6 +1,6 @@
 import { useAdventures } from '@/data/adventures';
 import './AdventureScreen.css';
-import { AdventureList, CreateAdventurePopUp } from './components';
+import { CreateAdventurePopUp, ToAdventureBtn } from './components';
 
 const AdventureScreen = () => {
   const { adventures, loading, error } = useAdventures();
@@ -25,7 +25,15 @@ const AdventureScreen = () => {
         <li key='new-adventure'>
           <CreateAdventurePopUp />
         </li>
-        <AdventureList adventures={adventures} />
+
+        {adventures.map((adventure) => (
+          <li key={adventure.id}>
+            <ToAdventureBtn
+              adventure={adventure}
+              className='adventure-preview'
+            />
+          </li>
+        ))}
       </ul>
     </div>
   );

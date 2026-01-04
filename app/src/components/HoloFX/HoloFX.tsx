@@ -8,8 +8,8 @@ type Props = {
 export const HoloFX: FCProps<Props> = ({ shimmerContent }) => {
   return (
     <>
-      <Shimmer shimmerContent={shimmerContent} />
       <Glare />
+      <Shimmer shimmerContent={shimmerContent} />
     </>
   );
 };

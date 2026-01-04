@@ -16,7 +16,7 @@
     rgba(176, 105, 204, 0.25) 84%,
     rgba(174, 102, 202, 0.25) 100%
   );
-  background-size: 200% 200%;
+  background-size: 400% 200%;
   background-position: calc(50% + (var(--posx, 50%) - 50%) * 0.5)
     calc(50% + (var(--posy, 50%) - 50%) * 0.5);
 
