@@ -17,30 +17,34 @@ export const ToAdventureBtn: FCProps<Props> = ({
   className,
   children,
 }) => {
-  const containerRef = useRef<HTMLAnchorElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { cardVars, isActive } = useTiltFX(containerRef);
 
   return (
     <Link
       to={to}
-      ref={containerRef}
-      style={cardVars}
-      className={cn('adventure-btn', 'tilt-fx-container', 'action-card')}
+      className={cn('adventure-btn', 'action-card')}
       aria-label={label}
     >
-      <AdventureFrame
-        className={cn(
-          'children-container',
-          'tilt-fx',
-          isActive && 'active',
-          className
-        )}
+      <div
+        ref={containerRef}
+        style={cardVars}
+        className={cn('tilt-fx-container')}
       >
-        <div className={cn('holo-fx-container', isActive && 'active')}>
-          <HoloFX shimmerContent={label} />
-        </div>
-        {children}
-      </AdventureFrame>
+        <AdventureFrame
+          className={cn(
+            'children-container',
+            'tilt-fx',
+            isActive && 'active',
+            className
+          )}
+        >
+          <div className={cn('holo-fx-container', isActive && 'active')}>
+            <HoloFX shimmerContent={label} />
+          </div>
+          {children}
+        </AdventureFrame>
+      </div>
     </Link>
   );
 };

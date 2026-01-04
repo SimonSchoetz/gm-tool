@@ -6,6 +6,7 @@
   position: absolute;
   z-index: 1;
 }
+
 .adventure-title {
   padding: var(--spacing-md);
   z-index: 2;

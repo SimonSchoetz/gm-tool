@@ -1,3 +1,8 @@
+.adventure-btn {
+  text-decoration: none;
+  color: inherit;
+}
+
 .tilt-fx-container {
   transform-style: preserve-3d;
   perspective: 200px;
@@ -15,7 +20,7 @@
 }
 
 .tilt-fx.active {
-  transition: var(--transition-duration-highlight);
+  transition: 0s;
   box-shadow:
     0 10px 20px -5px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(0, 0, 0, 0.1),
