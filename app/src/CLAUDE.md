@@ -12,6 +12,7 @@ src/
 │ │ └── ComponentA.css
 │ └── index.ts
 ├── data/
+├── routes/
 ├── screens/
 │ ├── screenA/
 │ │ ├── ScreenA.tsx
