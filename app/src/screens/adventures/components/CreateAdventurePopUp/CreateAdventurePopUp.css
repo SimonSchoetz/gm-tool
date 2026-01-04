@@ -1,5 +1,5 @@
 .plus-symbol {
-  transition: var(--transition-duration-highlight) ease;
+  transition: var(--adventure-btn-hover) ease;
   color: var(--color-primary);
   font-size: 5rem;
   font-weight: 300;
@@ -18,7 +18,7 @@
 }
 
 .activated {
-  transition: var(--transition-duration-pressed) ease-out;
+  transition: var(--adventure-btn-active) ease-out;
   opacity: 0;
   transform: scale(1.5) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);

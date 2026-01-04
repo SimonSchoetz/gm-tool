@@ -12,7 +12,7 @@
 .tilt-fx {
   position: relative;
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: var(--transition-duration-pressed);
+  transition: var(--adventure-btn-active);
   border-radius: var(--radius-2xl);
   box-shadow:
     0 rgba(0, 0, 0, 0.5),
@@ -37,8 +37,7 @@
   width: auto;
   object-fit: cover;
   object-position: center;
-
-  transition: var(--transition-duration-pressed);
+  transition: var(--adventure-btn-active);
   filter: brightness(1) contrast(1) saturate(1);
 }
 
