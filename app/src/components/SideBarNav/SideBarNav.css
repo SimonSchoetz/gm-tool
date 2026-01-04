@@ -20,4 +20,12 @@ aside > * {
   height: 2rem;
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.fw-bw-btn.disabled {
+  opacity: 0.3;
+  filter: grayscale(1);
+  cursor: not-allowed;
+  pointer-events: none;
 }
