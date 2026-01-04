@@ -64,6 +64,7 @@
   --line-height-base: 24px;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
+  --font-weight-bold: 700;
 
   /* Border Radius */
   --radius-sm: 0.25rem;
