@@ -7,6 +7,13 @@
   transform-style: preserve-3d;
   perspective: 200px;
   border-radius: var(--radius-2xl);
+  filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0.5)) drop-shadow(0 0 0 rgba(0, 0, 0, 0.1));
+  transition: filter var(--adventure-btn-active);
+}
+
+.tilt-fx-container:has(.tilt-fx.active) {
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+  transition: filter 0s;
 }
 
 .tilt-fx {
@@ -14,17 +21,12 @@
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: var(--adventure-btn-active);
   border-radius: var(--radius-2xl);
-  box-shadow:
-    0 rgba(0, 0, 0, 0.5),
-    0 rgba(0, 0, 0, 0.1);
 }
 
 .tilt-fx.active {
   transition: 0s;
-  box-shadow:
-    0 10px 20px -5px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgb(var(--color-fg-rgb), 0.4);
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px rgb(var(--color-fg-rgb), 0.4);
 }
 
 .tilt-fx:hover {
