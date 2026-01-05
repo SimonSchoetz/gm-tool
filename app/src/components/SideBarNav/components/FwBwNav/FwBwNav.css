@@ -1,0 +1,24 @@
+.fw-bw-btn-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.fw-bw-btn {
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  transition: 0.2s ease;
+  color: var(--color-primary);
+}
+
+.fw-bw-btn:hover {
+  background-color: transparent;
+  background-color: var(--color-secondary);
+}
+
+.disabled {
+  opacity: 0.3;
+  filter: grayscale(1);
+  cursor: default;
+}
