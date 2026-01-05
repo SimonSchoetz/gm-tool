@@ -6,6 +6,7 @@ import { FCProps, HtmlProps } from '@/types';
 import { useRef } from 'react';
 import { HoloFX, useTiltFX, Image } from '@/components';
 import { Adventure } from '@db/adventure';
+import { Routes } from '@/routes';
 
 type Props = {
   adventure: Adventure;
@@ -14,10 +15,11 @@ type Props = {
 export const ToAdventureBtn: FCProps<Props> = ({ adventure, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { cardVars, isActive } = useTiltFX(containerRef);
+  const route = `${Routes.ADVENTURES}/${adventure.id}`;
 
   return (
     <Link
-      to={`/adventures/${adventure.id}` as string}
+      to={route}
       className={cn('adventure-btn', 'action-card')}
       aria-label={adventure.title}
     >
