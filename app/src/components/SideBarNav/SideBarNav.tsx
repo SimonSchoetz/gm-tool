@@ -4,6 +4,7 @@ import GlassPanel from '../GlassPanel/GlassPanel';
 import ActionContainer from '../ActionContainer/ActionContainer';
 import { useRouter } from '@tanstack/react-router';
 import { cn } from '@/util';
+import { Chevron } from '../icons';
 
 type Props = HtmlProps<'aside'>;
 
@@ -19,7 +20,9 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
   };
 
   const handleForward = () => {
+    console.log('handleForward');
     if (canGoForward) {
+      console.log('forward');
       router.history.forward();
     }
   };
@@ -28,27 +31,29 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
     <aside {...props}>
       <GlassPanel>
         <div className='fw-bw-btn-container'>
-          <ActionContainer onClick={handleBack}>
+          <ActionContainer onClick={handleBack} aria-disabled={!canGoBack}>
             <GlassPanel
+              intensity='bright'
               className={cn(
                 'fw-bw-btn',
                 'content-center',
                 !canGoBack && 'disabled'
               )}
             >
-              <span> &larr; </span>
+              <Chevron direction='left' />
             </GlassPanel>
           </ActionContainer>
 
-          <ActionContainer onClick={handleForward}>
+          <ActionContainer
+            onClick={handleForward}
+            aria-disabled={!canGoForward}
+            className={cn('content-center', !canGoForward && 'disabled')}
+          >
             <GlassPanel
-              className={cn(
-                'fw-bw-btn',
-                'content-center',
-                !canGoForward && 'disabled'
-              )}
+              intensity='bright'
+              className={cn('fw-bw-btn', 'content-center')}
             >
-              <span> &rarr; </span>
+              <Chevron direction='right' />
             </GlassPanel>
           </ActionContainer>
         </div>
