@@ -32,7 +32,7 @@ const drawBeams = (
     for (let i = beam.particles.length - 1; i >= 0; i--) {
       const particle = beam.particles[i];
       const opacity = Math.max(0, 1 - particle.age / particle.maxAge);
-      const width = 1;
+      const width = 0.5;
 
       ctx.strokeStyle = rgbToRgba(beam.color, opacity);
       ctx.lineWidth = width;
