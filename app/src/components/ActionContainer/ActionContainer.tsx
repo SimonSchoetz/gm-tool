@@ -5,10 +5,12 @@ import { HtmlProps } from '@/types';
 
 type ActionContainerProps = {
   onClick: () => void;
+  label: string;
 } & Omit<HtmlProps<'div'>, 'onClick'>;
 
 const ActionContainer = ({
   onClick,
+  label,
   className = '',
   children,
   ...props
@@ -27,6 +29,7 @@ const ActionContainer = ({
       onKeyDown={handleKeyDown}
       role='button'
       tabIndex={0}
+      aria-label={label}
       {...props}
     >
       {children}
