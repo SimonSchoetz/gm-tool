@@ -4,7 +4,7 @@ import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';
 import { useRouter } from '@tanstack/react-router';
 import './FwBwNav.css';
-
+import '../NavButton.css';
 type Props = HtmlProps<'div'>;
 
 export const FwBwNav: FCProps<Props> = () => {
@@ -19,39 +19,55 @@ export const FwBwNav: FCProps<Props> = () => {
   };
 
   const handleForward = () => {
-    console.log('handleForward');
     if (canGoForward) {
-      console.log('forward');
       router.history.forward();
     }
   };
+
   return (
     <div className='fw-bw-btn-container'>
-      <ActionContainer onClick={handleBack} aria-disabled={!canGoBack}>
-        <GlassPanel
-          intensity='bright'
-          className={cn(
-            'fw-bw-btn',
-            'content-center',
-            !canGoBack && 'disabled'
-          )}
-        >
-          <Chevron direction='left' />
-        </GlassPanel>
-      </ActionContainer>
+      <Button
+        navAction={handleBack}
+        label='Backward'
+        chevronDirection='left'
+        disabled={!canGoBack}
+      />
 
-      <ActionContainer
-        onClick={handleForward}
-        aria-disabled={!canGoForward}
-        className={cn('content-center', !canGoForward && 'disabled')}
-      >
-        <GlassPanel
-          intensity='bright'
-          className={cn('fw-bw-btn', 'content-center')}
-        >
-          <Chevron direction='right' />
-        </GlassPanel>
-      </ActionContainer>
+      <Button
+        navAction={handleForward}
+        label='Forward'
+        chevronDirection='right'
+        disabled={!canGoForward}
+      />
     </div>
+  );
+};
+
+const Button = ({
+  navAction,
+  label,
+  chevronDirection,
+  disabled,
+}: {
+  navAction: () => void;
+  label: string;
+  chevronDirection: 'left' | 'right';
+  disabled: boolean;
+}) => {
+  return (
+    <ActionContainer label={label} onClick={navAction} aria-disabled={disabled}>
+      <GlassPanel
+        intensity='bright'
+        radius='xl'
+        className={cn(
+          'nav-button',
+          'fw-bw-btn',
+          'content-center',
+          disabled && 'disabled'
+        )}
+      >
+        <Chevron direction={chevronDirection} />
+      </GlassPanel>
+    </ActionContainer>
   );
 };
