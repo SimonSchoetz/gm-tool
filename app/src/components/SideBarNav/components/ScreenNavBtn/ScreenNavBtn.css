@@ -1,0 +1,25 @@
+.screen-nav-btn {
+  text-decoration: none;
+}
+
+.screen-nav-btn-content {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.screen-nav-btn-content.active {
+  background-color: var(--color-bg);
+  cursor: default;
+}
+
+svg {
+  transform: rotate(0deg);
+  will-change: transform;
+  transition: transform 0.3s ease;
+}
+
+svg.active {
+  transform: rotate(-90deg);
+}
