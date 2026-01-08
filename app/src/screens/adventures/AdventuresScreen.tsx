@@ -1,8 +1,8 @@
 import { useAdventures } from '@/data/adventures';
-import './AdventureScreen.css';
+import './AdventuresScreen.css';
 import { CreateAdventurePopUp, ToAdventureBtn } from './components';
 
-const AdventureScreen = () => {
+export const AdventuresScreen = () => {
   const { adventures, loading, error } = useAdventures();
 
   if (loading) {
@@ -38,5 +38,3 @@ const AdventureScreen = () => {
     </div>
   );
 };
-
-export default AdventureScreen;

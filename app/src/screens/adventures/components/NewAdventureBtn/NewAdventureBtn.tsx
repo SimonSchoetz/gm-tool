@@ -19,7 +19,7 @@ export const NewAdventureBtn: FCProps<Props> = ({
     <ActionContainer
       className={cn('adventure-btn')}
       onClick={onClick}
-      aria-label={label}
+      label={label}
     >
       <AdventureFrame className={cn('children-container', className)}>
         {children}

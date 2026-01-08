@@ -3,8 +3,15 @@ import type { Session } from '@db/session';
 import { useSessions } from '@/data/sessions';
 import { SessionForm, SessionList } from './components';
 
-const SessionScreen = () => {
-  const { sessions, loading, error, createSession, updateSession, deleteSession } = useSessions();
+export const SessionScreen = () => {
+  const {
+    sessions,
+    loading,
+    error,
+    createSession,
+    updateSession,
+    deleteSession,
+  } = useSessions();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -83,5 +90,3 @@ const SessionScreen = () => {
     </div>
   );
 };
-
-export default SessionScreen;
