@@ -6,19 +6,16 @@ import './App.css';
 export const App = () => {
   return (
     <DataProvider>
+      <Backdrop />
+      <LightSource intensity='bright' />
+
       <main className='app'>
-        <Backdrop />
+        <SideBarNav />
 
-        <LightSource intensity='bright' />
+        <div className='screens-container'>
+          <Header />
 
-        <div className='app-container'>
-          <SideBarNav />
-
-          <div>
-            <Header />
-
-            <Outlet />
-          </div>
+          <Outlet />
         </div>
       </main>
     </DataProvider>

@@ -1,6 +1,5 @@
 aside {
   width: calc(15rem + 2rem);
-  padding: 1rem;
   z-index: 1000;
 }
 
