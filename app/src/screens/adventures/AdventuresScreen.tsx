@@ -1,6 +1,9 @@
 import { useAdventures } from '@/data/adventures';
 import './AdventuresScreen.css';
-import { CreateAdventurePopUp, ToAdventureBtn } from './components';
+import {
+  CreateAdventurePopUp,
+  ToAdventureBtn,
+} from '../../components/AdventureComponents';
 
 export const AdventuresScreen = () => {
   const { adventures, loading, error } = useAdventures();
