@@ -2,7 +2,7 @@ import { filePicker } from '@/util';
 import { useState } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { FCProps } from '@/types';
-import { NewAdventureBtn } from '../../../NewAdventureBtn/NewAdventureBtn';
+import { NewAdventureBtn } from '../NewAdventureBtn/NewAdventureBtn';
 
 export const UploadAdventureImgBtn: FCProps<{
   onClick: (filePath: string) => void;
