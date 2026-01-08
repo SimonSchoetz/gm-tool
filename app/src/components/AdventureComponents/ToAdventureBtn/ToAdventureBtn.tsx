@@ -4,7 +4,7 @@ import { cn } from '@/util';
 import AdventureFrame from '../AdventureFrame/AdventureFrame';
 import { FCProps, HtmlProps } from '@/types';
 import { useRef } from 'react';
-import { HoloFX, useTiltFX, Image } from '@/components';
+import { HoloFX, useTiltFX, ImageById } from '@/components';
 import { Adventure } from '@db/adventure';
 import { Routes } from '@/routes';
 
@@ -42,7 +42,7 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure, className }) => {
           {!adventure.image_id && adventure.title && (
             <p className='adventure-title'>{adventure.title}</p>
           )}
-          <Image
+          <ImageById
             imageId={adventure.image_id}
             alt={`${adventure.title} preview`}
             className={cn('adventure-img', isActive && 'active')}

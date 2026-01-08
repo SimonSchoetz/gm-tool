@@ -5,10 +5,9 @@ import { FCProps, HtmlProps } from '@/types';
 
 type Props = {
   imageId: string | null | undefined;
-  alt: string;
 } & HtmlProps<'img'>;
 
-export const Image: FCProps<Props> = ({ imageId, alt, ...props }) => {
+export const ImageById: FCProps<Props> = ({ imageId, ...props }) => {
   const { getImageById } = useImages();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,5 +44,5 @@ export const Image: FCProps<Props> = ({ imageId, alt, ...props }) => {
     return <div>Loading image...</div>;
   }
 
-  return <img src={imageUrl} alt={alt} {...props} />;
+  return <img src={imageUrl} {...props} />;
 };

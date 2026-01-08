@@ -6,7 +6,7 @@ export { default as Input } from './Input/Input';
 export { default as LightSource } from './LightSource/LightSource';
 export { default as PopUpContainer } from './PopUpContainer/PopUpContainer';
 export { default as Textarea } from './Textarea/Textarea';
-export * from './Image/Image';
+export * from './ImageById/ImageById.tsx';
 export * from './HoloFX';
 export * from './SideBarNav/SideBarNav';
 export * from './Header/Header.tsx';
