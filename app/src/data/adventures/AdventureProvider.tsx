@@ -12,6 +12,7 @@ type AdventureContextType = {
   adventures: Adventure[];
   loading: boolean;
   error: string | null;
+  getAdventure: (data: string) => Adventure;
   createAdventure: (data: CreateAdventureFormData) => Promise<void>;
   updateAdventure: (id: string, data: UpdateAdventureInput) => Promise<void>;
   deleteAdventure: (id: string) => Promise<void>;
@@ -51,6 +52,16 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getAdventure = (id: string) => {
+    const adventure = adventures.find((adv) => adv.id === id);
+    if (!adventure) {
+      const errorMsg = `Can't find adventure with id ${id}`;
+      console.error(errorMsg);
+      throw Error(errorMsg);
+    }
+    return adventure;
   };
 
   const createAdventure = async (data: CreateAdventureFormData) => {
@@ -135,6 +146,7 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     adventures,
     loading,
     error,
+    getAdventure,
     createAdventure,
     updateAdventure,
     deleteAdventure,
