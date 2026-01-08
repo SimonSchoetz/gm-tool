@@ -1,0 +1,8 @@
+header {
+  margin: var(--spacing-md);
+  margin-left: 0;
+}
+
+.header-content {
+  padding: var(--spacing-md);
+}

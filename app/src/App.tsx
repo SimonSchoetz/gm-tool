@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router';
-import { Backdrop, LightSource, SideBarNav } from './components';
+import { Backdrop, LightSource, SideBarNav, Header } from './components';
 import { DataProvider } from './data/DataProvider';
 import './App.css';
 
@@ -14,7 +14,11 @@ export const App = () => {
         <div className='app-container'>
           <SideBarNav />
 
-          <Outlet />
+          <div>
+            <Header />
+
+            <Outlet />
+          </div>
         </div>
       </main>
     </DataProvider>

@@ -9,3 +9,4 @@ export { default as Textarea } from './Textarea/Textarea';
 export * from './Image/Image';
 export * from './HoloFX';
 export * from './SideBarNav/SideBarNav';
+export * from './Header/Header.tsx';
