@@ -1,15 +1,37 @@
 import { filePicker } from '@/util';
-import { useState } from 'react';
-import { convertFileSrc } from '@tauri-apps/api/core';
+import { useEffect, useState } from 'react';
 import { FCProps } from '@/types';
 import { NewAdventureBtn } from '../NewAdventureBtn/NewAdventureBtn';
+import { ImageById } from '@/components';
+import { useAdventures } from '@/data/adventures';
 
 export const UploadAdventureImgBtn: FCProps<{
-  onClick: (filePath: string) => void;
-}> = ({ onClick }) => {
+  adventureId: string;
+}> = ({ adventureId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [filePath, setFilePath] = useState<string | null>(null);
+  const [imageId, setImageId] = useState<string>();
+
+  const { getAdventure, updateAdventure } = useAdventures();
+
+  useEffect(() => {
+    const getFromDb = async () => {
+      const adv = await getAdventure(adventureId);
+      setImageId(adv.image_id || '');
+    };
+    getFromDb();
+  }, []);
+
+  useEffect(() => {
+    /**
+     * when filepath changes
+     * -> upload image
+     * -> check for replace functionality -> must replace id in adventure and delete the old image to reduce waste
+     * -> update and refresh adventure
+     * -> setImageId
+     */
+  }, [filePath]);
 
   const handleClick = async () => {
     if (isLoading) return;
@@ -17,12 +39,10 @@ export const UploadAdventureImgBtn: FCProps<{
 
     try {
       const filePath = await filePicker('image');
-
       if (filePath === null) {
         return;
       } else {
         setFilePath(filePath);
-        onClick(filePath);
       }
     } catch (err) {
       setError(err?.toString());
@@ -33,8 +53,8 @@ export const UploadAdventureImgBtn: FCProps<{
   return (
     <>
       <NewAdventureBtn onClick={handleClick} label='Upload cover image'>
-        {filePath ? (
-          <img src={convertFileSrc(filePath)} alt='Adventure preview' />
+        {imageId ? (
+          <ImageById imageId={imageId} />
         ) : (
           <p
             style={{

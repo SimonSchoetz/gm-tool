@@ -1,26 +1,34 @@
-import { FCProps } from '@/types';
 import './AdventureScreen.css';
 import { GlassPanel, Input, Textarea } from '@/components';
 import { cn } from '@/util';
 import { useParams } from '@tanstack/react-router';
 import { UpdateAdventureFormData, useAdventures } from '@/data/adventures';
 import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
+import { Adventure } from '@db/adventure';
 
-type Props = object;
-
-export const AdventureScreen: FCProps<Props> = ({ ...props }) => {
+export const AdventureScreen = () => {
   const { adventureId } = useParams({ from: '/adventures/$adventureId' });
 
   const { getAdventure } = useAdventures();
-  const adventure = getAdventure(adventureId);
+
+  const [formData, setFormData] = useState<UpdateAdventureFormData>({
+    title: '',
+    description: '',
+  });
+
+  useEffect(() => {
+    const getFromDb = async () => {
+      const adv = await getAdventure(adventureId);
+      setFormData({
+        title: adv.title,
+        description: adv.description,
+      });
+    };
+    getFromDb();
+  }, []);
 
   const { updateAdventure } = useAdventures();
-  const [formData, setFormData] = useState<UpdateAdventureFormData>({
-    title: adventure.title ?? '',
-    description: adventure.description ?? '',
-    imgFilePath: adventure.image_id ?? '',
-  });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -38,7 +46,7 @@ export const AdventureScreen: FCProps<Props> = ({ ...props }) => {
   };
 
   return (
-    <GlassPanel className={cn('adventure-screen')} {...props}>
+    <GlassPanel className={cn('adventure-screen')}>
       <form onSubmit={handleSubmit}>
         <div>
           <Input
@@ -56,9 +64,7 @@ export const AdventureScreen: FCProps<Props> = ({ ...props }) => {
           />
         </div>
 
-        <UploadAdventureImgBtn
-          onClick={(filePath) => updateFormData({ imgFilePath: filePath })}
-        />
+        <UploadAdventureImgBtn adventureId={adventureId} />
       </form>
     </GlassPanel>
   );

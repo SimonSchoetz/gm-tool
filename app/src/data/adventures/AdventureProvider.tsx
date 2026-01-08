@@ -12,8 +12,8 @@ type AdventureContextType = {
   adventures: Adventure[];
   loading: boolean;
   error: string | null;
-  getAdventure: (data: string) => Adventure;
-  createAdventure: (data: CreateAdventureFormData) => Promise<void>;
+  getAdventure: (data: string) => Promise<Adventure>;
+  createAdventure: (data: CreateAdventureFormData) => Promise<string>;
   updateAdventure: (id: string, data: UpdateAdventureInput) => Promise<void>;
   deleteAdventure: (id: string) => Promise<void>;
   refreshAdventures: () => Promise<void>;
@@ -54,17 +54,27 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     }
   };
 
-  const getAdventure = (id: string) => {
-    const adventure = adventures.find((adv) => adv.id === id);
-    if (!adventure) {
+  const getAdventure = async (id: string) => {
+    // First try to find in current state
+    let foundAdventure = adventures.find((adv) => adv.id === id);
+
+    // If not found and state is empty, fetch directly from database
+    if (!foundAdventure && adventures.length === 0) {
+      foundAdventure = (await adventure.get(id)) ?? undefined;
+    }
+
+    if (!foundAdventure) {
       const errorMsg = `Can't find adventure with id ${id}`;
       console.error(errorMsg);
       throw Error(errorMsg);
     }
-    return adventure;
+
+    return foundAdventure;
   };
 
-  const createAdventure = async (data: CreateAdventureFormData) => {
+  const createAdventure = async (
+    data: CreateAdventureFormData
+  ): Promise<string> => {
     let image_id: string | null = null;
 
     try {
@@ -78,8 +88,7 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
         image_id,
       };
 
-      await adventure.create(dto);
-      await loadAdventures();
+      return await adventure.create(dto);
     } catch (err) {
       console.error('Failed to create adventure:', err);
       throw err;
