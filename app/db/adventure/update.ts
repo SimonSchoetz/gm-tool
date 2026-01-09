@@ -25,6 +25,10 @@ export const update = async (
     fields.push(`description = $${paramIndex++}`);
     values.push(validated.description);
   }
+  if (validated.image_id !== undefined) {
+    fields.push(`image_id = $${paramIndex++}`);
+    values.push(validated.image_id);
+  }
 
   if (fields.length === 0) {
     return;

@@ -1,29 +1,29 @@
-import { createContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { initDatabase } from '@db/database';
 import type {
   Adventure,
   CreateAdventureInput,
   UpdateAdventureInput,
 } from '@db/adventure';
-import * as adventure from '@db/adventure';
-import * as image from '@db/image';
+import * as adventureDb from '@db/adventure';
+import * as imageDb from '@db/image';
 
 type AdventureContextType = {
   adventures: Adventure[];
+  adventure: Adventure | null;
   loading: boolean;
   error: string | null;
+  setAdventure: (adventure: Adventure | null) => void;
+  loadAdventure: (id: string) => Promise<void>;
   getAdventure: (data: string) => Promise<Adventure>;
-  createAdventure: (data: CreateAdventureFormData) => Promise<string>;
+  handleAdventureUpdate: (field: UpdateAdventureData) => void;
+  createAdventure: () => Promise<string>;
   updateAdventure: (id: string, data: UpdateAdventureInput) => Promise<void>;
   deleteAdventure: (id: string) => Promise<void>;
   refreshAdventures: () => Promise<void>;
 };
 
-export type CreateAdventureFormData = Omit<CreateAdventureInput, 'image_id'> & {
-  imgFilePath?: string;
-};
-
-export type UpdateAdventureFormData = UpdateAdventureInput & {
+export type UpdateAdventureData = UpdateAdventureInput & {
   imgFilePath?: string;
 };
 
@@ -37,13 +37,16 @@ type AdventureProviderProps = {
 
 export const AdventureProvider = ({ children }: AdventureProviderProps) => {
   const [adventures, setAdventures] = useState<Adventure[]>([]);
+  const [adventure, setAdventure] = useState<Adventure | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadAdventures = async () => {
     try {
       setLoading(true);
-      const result = await adventure.getAll();
+      const result = await adventureDb.getAll();
       setAdventures(result.data);
       setError(null);
     } catch (err) {
@@ -60,7 +63,7 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
 
     // If not found and state is empty, fetch directly from database
     if (!foundAdventure && adventures.length === 0) {
-      foundAdventure = (await adventure.get(id)) ?? undefined;
+      foundAdventure = (await adventureDb.get(id)) ?? undefined;
     }
 
     if (!foundAdventure) {
@@ -72,51 +75,73 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     return foundAdventure;
   };
 
-  const createAdventure = async (
-    data: CreateAdventureFormData
-  ): Promise<string> => {
-    let image_id: string | null = null;
+  const loadAdventure = async (id: string): Promise<void> => {
+    const currentAdventure = await adventureDb.get(id);
+    if (currentAdventure) {
+      setAdventure(currentAdventure);
+    }
+  };
 
+  const handleAdventureUpdate = (data: UpdateAdventureData) => {
+    if (!adventure) return;
+
+    // Update state immediately (optimistic)
+    const updated = {
+      ...adventure,
+      ...data,
+    };
+    setAdventure(updated);
+
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Debounce DB save (500ms after last change)
+    debounceTimeoutRef.current = setTimeout(() => {
+      updateAdventure(adventure.id, data).catch((error) => {
+        console.error('Failed to auto-save adventure:', error);
+      });
+    }, 500);
+  };
+
+  const createAdventure = async (): Promise<string> => {
     try {
-      if (data.imgFilePath) {
-        image_id = await image.create({ filePath: data.imgFilePath });
-      }
-
       const dto: CreateAdventureInput = {
-        title: data.title,
-        description: data?.description,
-        image_id,
+        title: `New adventure ${new Date().toDateString()}`,
       };
 
-      return await adventure.create(dto);
+      return await adventureDb.create(dto);
     } catch (err) {
       console.error('Failed to create adventure:', err);
       throw err;
     }
   };
 
-  const updateAdventure = async (id: string, data: UpdateAdventureFormData) => {
+  const updateAdventure = async (id: string, data: UpdateAdventureData) => {
     let image_id: string | null | undefined = undefined;
 
     try {
       if (data.imgFilePath && data.image_id) {
-        image_id = await image.replace(data.image_id, {
+        image_id = await imageDb.replace(data.image_id, {
           filePath: data.imgFilePath,
         });
       }
 
       if (data.imgFilePath && !data.image_id) {
-        image_id = await image.create({ filePath: data.imgFilePath });
+        image_id = await imageDb.create({ filePath: data.imgFilePath });
       }
 
-      const dto: UpdateAdventureInput = {
-        title: data.title,
-        description: data?.description,
-        image_id,
-      };
+      // Remove imgFilePath (not a DB field) and override image_id if created/replaced
+      const { imgFilePath, ...dto } = data;
+      if (image_id !== undefined) {
+        dto.image_id = image_id;
+      }
 
-      await adventure.update(id, dto);
-      await loadAdventures();
+      await adventureDb.update(id, dto);
+
+      // Reload adventures list and current adventure to keep state in sync
+      await refreshAdventures(id);
     } catch (err) {
       console.error('Failed to update adventure:', err);
       throw err;
@@ -125,7 +150,7 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
 
   const deleteAdventure = async (id: string) => {
     try {
-      await adventure.remove(id);
+      await adventureDb.remove(id);
       await loadAdventures();
     } catch (err) {
       console.error('Failed to delete adventure:', err);
@@ -133,8 +158,11 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     }
   };
 
-  const refreshAdventures = async () => {
+  const refreshAdventures = async (id?: string) => {
     await loadAdventures();
+    if (id && adventure?.id === id) {
+      await loadAdventure(id);
+    }
   };
 
   useEffect(() => {
@@ -153,9 +181,13 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
 
   const value: AdventureContextType = {
     adventures,
+    adventure,
     loading,
     error,
     getAdventure,
+    loadAdventure,
+    setAdventure,
+    handleAdventureUpdate,
     createAdventure,
     updateAdventure,
     deleteAdventure,

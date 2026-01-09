@@ -1,38 +1,15 @@
 import { filePicker } from '@/util';
-import { useEffect, useState } from 'react';
-import { FCProps } from '@/types';
+import { useState } from 'react';
+
 import { NewAdventureBtn } from '../NewAdventureBtn/NewAdventureBtn';
 import { ImageById } from '@/components';
 import { useAdventures } from '@/data/adventures';
 
-export const UploadAdventureImgBtn: FCProps<{
-  adventureId: string;
-}> = ({ adventureId }) => {
+export const UploadAdventureImgBtn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
-  const [filePath, setFilePath] = useState<string | null>(null);
-  const [imageId, setImageId] = useState<string>();
 
-  const { getAdventure, updateAdventure } = useAdventures();
-
-  useEffect(() => {
-    const getFromDb = async () => {
-      const adv = await getAdventure(adventureId);
-      setImageId(adv.image_id || '');
-    };
-    getFromDb();
-  }, []);
-
-  useEffect(() => {
-    /**
-     * when filepath changes
-     * -> upload image
-     * -> check for replace functionality -> must replace id in adventure and delete the old image to reduce waste
-     * -> update and refresh adventure
-     * -> setImageId
-     */
-  }, [filePath]);
-
+  const { adventure, handleAdventureUpdate } = useAdventures();
   const handleClick = async () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -42,7 +19,10 @@ export const UploadAdventureImgBtn: FCProps<{
       if (filePath === null) {
         return;
       } else {
-        setFilePath(filePath);
+        handleAdventureUpdate({
+          image_id: adventure?.image_id,
+          imgFilePath: filePath,
+        });
       }
     } catch (err) {
       setError(err?.toString());
@@ -50,11 +30,12 @@ export const UploadAdventureImgBtn: FCProps<{
       setIsLoading(false);
     }
   };
+
   return (
     <>
       <NewAdventureBtn onClick={handleClick} label='Upload cover image'>
-        {imageId ? (
-          <ImageById imageId={imageId} />
+        {adventure?.image_id ? (
+          <ImageById imageId={adventure?.image_id} />
         ) : (
           <p
             style={{
