@@ -1,11 +1,13 @@
-import { AdventuresScreen } from '@/screens';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export enum Routes {
   HOME = '/',
   ADVENTURES = '/adventures',
+  ADVENTURE = '/adventure',
 }
 
 export const Route = createFileRoute(Routes.HOME)({
-  component: AdventuresScreen,
+  beforeLoad: () => {
+    throw redirect({ to: `${Routes.ADVENTURES}`, replace: true });
+  },
 });

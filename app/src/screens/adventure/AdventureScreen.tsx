@@ -5,9 +5,12 @@ import { useParams } from '@tanstack/react-router';
 import { useAdventures } from '@/data/adventures';
 import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
 import { useEffect } from 'react';
+import { Routes } from '@/routes';
 
 export const AdventureScreen = () => {
-  const { adventureId } = useParams({ from: '/adventures/$adventureId' });
+  const { adventureId } = useParams({
+    from: `${Routes.ADVENTURE}/$adventureId`,
+  });
 
   const { loadAdventure, adventure, setAdventure, handleAdventureUpdate } =
     useAdventures();

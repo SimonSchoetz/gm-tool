@@ -15,7 +15,7 @@ type Props = {
 export const ToAdventureBtn: FCProps<Props> = ({ adventure, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { cardVars, isActive } = useTiltFX(containerRef);
-  const route = `${Routes.ADVENTURES}/${adventure.id}`;
+  const route = `${Routes.ADVENTURE}/${adventure.id}`;
 
   return (
     <Link
