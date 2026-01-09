@@ -1,2 +1,23 @@
 .text-editor {
+  position: relative;
+}
+
+.editor-content {
+  font-size: var(--font-size-base);
+  outline: none;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  color: rgb(var(--color-fg-rgb), 0.5);
+  font-size: var(--font-size-base);
+  pointer-events: none;
+}
+
+.text-bold {
+  font-weight: var(--font-weight-bold);
+}
+.text-italic {
+  font-style: italic;
 }
