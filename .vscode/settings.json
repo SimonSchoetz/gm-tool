@@ -1,3 +1,9 @@
 {
-  "cSpell.words": ["Tauri", "TTRPGs"]
+  "cSpell.words": ["Tauri", "TTRPGs"],
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "lucide-react",
+    "lucide-preact",
+    "lucide-react-native",
+    "lucide-vue-next"
+  ]
 }
