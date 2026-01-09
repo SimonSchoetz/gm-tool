@@ -1,3 +1,14 @@
 .adventure-screen {
   padding: var(--spacing-md);
+  display: grid;
+  gap: var(--spacing-xl);
+  grid-template-columns: auto 1fr;
+}
+
+.title-input {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: var(--spacing-md) 0;
+  font-size: var(--font-size-2xl);
 }

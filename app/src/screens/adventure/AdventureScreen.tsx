@@ -6,6 +6,7 @@ import { useAdventures } from '@/data/adventures';
 import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
 import { useEffect } from 'react';
 import { Routes } from '@/routes';
+import { TextEditor } from '@/components/TextEditor/TextEditor';
 
 export const AdventureScreen = () => {
   const { adventureId } = useParams({
@@ -31,26 +32,25 @@ export const AdventureScreen = () => {
 
   return (
     <GlassPanel className={cn('adventure-screen')}>
+      <UploadAdventureImgBtn />
       <div>
-        <div>
-          <Input
-            type='text'
-            placeholder='Adventure Title *'
-            value={adventure.title}
-            onChange={(e) => handleAdventureUpdate({ title: e.target.value })}
-            required
-          />
-          <Textarea
-            placeholder='Description'
-            value={adventure.description ?? ''}
-            onChange={(e) =>
-              handleAdventureUpdate({ description: e.target.value })
-            }
-            rows={4}
-          />
-        </div>
-
-        <UploadAdventureImgBtn />
+        <Input
+          type='text'
+          placeholder='Adventure Title'
+          value={adventure.title}
+          onChange={(e) => handleAdventureUpdate({ title: e.target.value })}
+          className='title-input'
+          required
+        />
+        <TextEditor />
+        {/* <Textarea
+          placeholder='Description'
+          value={adventure.description ?? ''}
+          onChange={(e) =>
+            handleAdventureUpdate({ description: e.target.value })
+          }
+          rows={4}
+        /> */}
       </div>
     </GlassPanel>
   );
