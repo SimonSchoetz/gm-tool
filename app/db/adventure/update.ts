@@ -17,18 +17,12 @@ export const update = async (
   const values: unknown[] = [];
   let paramIndex = 1;
 
-  if (validated.title !== undefined) {
-    fields.push(`title = $${paramIndex++}`);
-    values.push(validated.title);
-  }
-  if (validated.description !== undefined) {
-    fields.push(`description = $${paramIndex++}`);
-    values.push(validated.description);
-  }
-  if (validated.image_id !== undefined) {
-    fields.push(`image_id = $${paramIndex++}`);
-    values.push(validated.image_id);
-  }
+  Object.entries(validated).forEach(([key, value]) => {
+    if (value !== undefined) {
+      fields.push(`${key} = $${paramIndex++}`);
+      values.push(value);
+    }
+  });
 
   if (fields.length === 0) {
     return;
