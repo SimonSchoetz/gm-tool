@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import App from '../App';
+import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
+
 import * as database from '@db/database';
 import * as adventure from '@db/adventure';
 import * as session from '@db/session';
+import { routeTree } from '@/routeTree.gen';
 
 vi.mock('@db/database', () => ({
   initDatabase: vi.fn(),
@@ -23,6 +25,12 @@ vi.mock('@db/session', () => ({
   update: vi.fn(),
   remove: vi.fn(),
 }));
+
+const renderAppWithRouter = () => {
+  const memoryHistory = createMemoryHistory({ initialEntries: ['/'] });
+  const router = createRouter({ routeTree, history: memoryHistory });
+  return render(<RouterProvider router={router} />);
+};
 
 describe('App Component', () => {
   const mockAdventures = [
@@ -75,7 +83,7 @@ describe('App Component', () => {
         mockPaginatedResponse
       );
 
-      render(<App />);
+      renderAppWithRouter();
 
       await waitFor(() => {
         expect(database.initDatabase).toHaveBeenCalledTimes(3); // Called by AdventureProvider, SessionProvider, and ImageProvider
@@ -90,7 +98,7 @@ describe('App Component', () => {
         new Error(errorMessage)
       );
 
-      render(<App />);
+      renderAppWithRouter();
 
       await waitFor(() => {
         expect(screen.getByText('Error')).toBeInTheDocument();
