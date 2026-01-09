@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # TanStack Router generated files
-routeTree.gen.ts
+src/routeTree.gen.ts
