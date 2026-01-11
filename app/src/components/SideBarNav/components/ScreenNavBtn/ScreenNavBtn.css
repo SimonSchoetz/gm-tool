@@ -1,17 +1,20 @@
-.screen-nav-btn {
-  text-decoration: none;
-}
-
 .screen-nav-btn-content {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
   justify-content: space-between;
   align-items: center;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.screen-nav-btn-content:hover {
+  color: var(--color-fg);
 }
 
 .screen-nav-btn-content.active {
-  background-color: var(--color-bg);
   cursor: default;
+  pointer-events: none;
+  color: var(--color-fg);
 }
 
 svg {

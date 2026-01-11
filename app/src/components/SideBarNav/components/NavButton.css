@@ -1,16 +1,4 @@
 .nav-button {
   font-size: var(--font-size-xl);
   transition: 0.2s ease;
-  color: var(--color-primary);
-}
-
-.nav-button:hover {
-  background-color: var(--color-bg);
-}
-
-.disabled {
-  opacity: 0.3;
-  filter: grayscale(1);
-  cursor: default;
-  background-color: var(--color-secondary);
 }
