@@ -1,5 +1,5 @@
 import './AdventureScreen.css';
-import { GlassPanel, Input, Textarea } from '@/components';
+import { GlassPanel, Input } from '@/components';
 import { cn } from '@/util';
 import { useParams } from '@tanstack/react-router';
 import { useAdventures } from '@/data/adventures';
@@ -33,7 +33,7 @@ export const AdventureScreen = () => {
   return (
     <GlassPanel className={cn('adventure-screen')}>
       <UploadAdventureImgBtn />
-      <div>
+      <div className={cn('text-edit-area')}>
         <Input
           type='text'
           placeholder='Adventure Title'
@@ -43,14 +43,6 @@ export const AdventureScreen = () => {
           required
         />
         <TextEditor />
-        {/* <Textarea
-          placeholder='Description'
-          value={adventure.description ?? ''}
-          onChange={(e) =>
-            handleAdventureUpdate({ description: e.target.value })
-          }
-          rows={4}
-        /> */}
       </div>
     </GlassPanel>
   );

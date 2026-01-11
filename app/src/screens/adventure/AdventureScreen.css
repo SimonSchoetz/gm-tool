@@ -12,3 +12,8 @@
   margin: var(--spacing-md) 0;
   font-size: var(--font-size-2xl);
 }
+
+.text-edit-area {
+  max-height: 100%;
+  overflow-y: scroll;
+}

@@ -10,6 +10,6 @@
 .screens-container {
   height: 100%;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto calc(95vh - 3 * var(--spacing-sm));
   gap: var(--spacing-sm);
 }
