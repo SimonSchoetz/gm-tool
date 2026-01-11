@@ -55,19 +55,19 @@ const Button = ({
   disabled: boolean;
 }) => {
   return (
-    <ActionContainer label={label} onClick={navAction} aria-disabled={disabled}>
-      <GlassPanel
-        intensity='bright'
-        radius='xl'
-        className={cn(
-          'nav-button',
-          'fw-bw-btn',
-          'content-center',
-          disabled && 'disabled'
-        )}
+    <GlassPanel
+      intensity='bright'
+      radius='xl'
+      className={cn('button', disabled && 'disabled')}
+    >
+      <ActionContainer
+        className={cn('content-center', 'fw-bw-btn')}
+        label={label}
+        onClick={navAction}
+        aria-disabled={disabled}
       >
         <Chevron direction={chevronDirection} />
-      </GlassPanel>
-    </ActionContainer>
+      </ActionContainer>
+    </GlassPanel>
   );
 };

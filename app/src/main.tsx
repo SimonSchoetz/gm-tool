@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import './styles/reset.css';
 import './styles/variables.css';
 import './styles/global.css';
+import './styles/button.css';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
