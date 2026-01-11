@@ -1,12 +1,7 @@
 .floating-toolbar {
   position: absolute;
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: var(--color-bg);
-  border: 1px solid rgb(var(--color-fg-rgb), 0.2);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  gap: var(--spacing-xs);
   transform: translateX(-50%);
   z-index: 1000;
   animation: fadeIn 0.2s ease-in-out;
@@ -21,8 +16,4 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
-}
-
-.floating-toolbar [data-active='true'] {
-  background: rgb(var(--color-fg-rgb), 0.5);
 }

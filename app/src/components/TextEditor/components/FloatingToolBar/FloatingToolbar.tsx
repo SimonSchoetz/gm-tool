@@ -1,20 +1,17 @@
-import { FCProps } from '@/types';
-import { BoldIcon, ItalicIcon } from 'lucide-react';
-import { ActionContainer } from '@/components';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   $getSelection,
   $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_LOW,
+  TextFormatType,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
-
-type Props = object;
+import { TextFormatBtn } from './components';
+import { textFormatBtns } from './textFormatConfig';
 
 const VERTICAL_GAP = 24;
 
@@ -23,12 +20,13 @@ type Position = {
   left: number;
 };
 
-export const FloatingToolbar: FCProps<Props> = ({ ...props }) => {
+export const FloatingToolbar = ({ ...props }) => {
   const [editor] = useLexicalComposerContext();
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
+  const [activeFormats, setActiveFormats] = useState<
+    Partial<Record<TextFormatType, boolean>>
+  >({});
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -57,9 +55,12 @@ export const FloatingToolbar: FCProps<Props> = ({ ...props }) => {
       return;
     }
 
-    // Update active states
-    setIsBold(selection.hasFormat('bold'));
-    setIsItalic(selection.hasFormat('italic'));
+    // Update active formats for all buttons
+    const formats: Partial<Record<TextFormatType, boolean>> = {};
+    textFormatBtns.forEach((btn) => {
+      formats[btn.formatType] = selection.hasFormat(btn.formatType);
+    });
+    setActiveFormats(formats);
 
     // Calculate position
     setPosition({
@@ -88,10 +89,6 @@ export const FloatingToolbar: FCProps<Props> = ({ ...props }) => {
     );
   }, [editor, updateToolbar]);
 
-  const handleFormat = (format: 'bold' | 'italic') => {
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
-  };
-
   if (!isVisible) {
     return null;
   }
@@ -105,20 +102,15 @@ export const FloatingToolbar: FCProps<Props> = ({ ...props }) => {
       }}
       {...props}
     >
-      <ActionContainer
-        label='Bold'
-        onClick={() => handleFormat('bold')}
-        data-active={isBold}
-      >
-        <BoldIcon size={18} />
-      </ActionContainer>
-      <ActionContainer
-        label='Italic'
-        onClick={() => handleFormat('italic')}
-        data-active={isItalic}
-      >
-        <ItalicIcon size={18} />
-      </ActionContainer>
+      {textFormatBtns.map((btn) => (
+        <TextFormatBtn
+          key={btn.formatType}
+          label={btn.label}
+          formatType={btn.formatType}
+          icon={btn.icon}
+          isActive={activeFormats[btn.formatType] ?? false}
+        />
+      ))}
     </div>,
     document.body
   );
