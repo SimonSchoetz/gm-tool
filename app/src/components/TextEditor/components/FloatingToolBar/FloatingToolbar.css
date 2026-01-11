@@ -5,6 +5,10 @@
   transform: translateX(-50%);
   z-index: 1000;
   animation: fadeIn 0.2s ease-in-out;
+
+  background-color: rgb(var(--color-bg-rgb), 1);
+  padding: 1px;
+  border-radius: var(--radius-md);
 }
 
 @keyframes fadeIn {
