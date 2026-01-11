@@ -16,13 +16,13 @@
   pointer-events: none;
   color: var(--color-fg);
 }
-
+/* 
 svg {
-  transform: rotate(0deg);
-  will-change: transform;
-  transition: transform 0.3s ease;
+  opacity: 0;
+  will-change: opacity;
+  transition: opacity var(--transition-fast);
 }
 
 svg.active {
-  transform: rotate(-90deg);
-}
+  opacity: 1;
+} */

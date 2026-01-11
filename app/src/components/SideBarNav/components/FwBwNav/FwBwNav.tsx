@@ -1,5 +1,5 @@
 import { ActionContainer, GlassPanel } from '@/components';
-import { Chevron } from '@/components/icons';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';
 import { useRouter } from '@tanstack/react-router';
@@ -66,7 +66,8 @@ const Button = ({
         onClick={navAction}
         aria-disabled={disabled}
       >
-        <Chevron direction={chevronDirection} />
+        {chevronDirection === 'left' && <ChevronLeftIcon />}
+        {chevronDirection === 'right' && <ChevronRightIcon />}
       </ActionContainer>
     </GlassPanel>
   );

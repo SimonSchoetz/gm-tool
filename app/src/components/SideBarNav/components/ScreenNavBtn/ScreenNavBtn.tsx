@@ -1,12 +1,11 @@
 import { GlassPanel } from '@/components';
-import { Chevron } from '@/components/icons';
 import { Routes } from '@/routes';
 import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';
 import { Link, useRouterState } from '@tanstack/react-router';
 import '../NavButton.css';
 import './ScreenNavBtn.css';
-
+import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 type Props = {
   label: string;
   targetRoute: Routes | string;
@@ -40,9 +39,9 @@ export const ScreenNavBtn: FCProps<Props> = ({
         className={cn('screen-nav-btn-content', 'content-center')}
         {...props}
       >
-        <Chevron direction='left' className={cn(isAtTarget && 'active')} />
+        <ChevronsLeftIcon className={cn(isAtTarget && 'active')} />
         <span>{label}</span>
-        <div></div>
+        <ChevronsRightIcon className={cn(isAtTarget && 'active')} />
       </Link>
     </GlassPanel>
   );
