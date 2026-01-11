@@ -12,7 +12,7 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
     <aside {...props}>
       <GlassPanel>
         <FwBwNav />
-        <ScreenNavBtn label='Adventures' targetRoute={Routes.HOME} />
+        <ScreenNavBtn label='Adventures' targetRoute={Routes.ADVENTURES} />
       </GlassPanel>
     </aside>
   );
