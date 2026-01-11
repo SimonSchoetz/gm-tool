@@ -83,4 +83,11 @@
   --transition-fast: 0.15s ease;
   --transition-base: 0.25s ease;
   --transition-slow: 0.35s ease;
+
+  /* button states */
+  --color-hover-bg: var(--color-bg);
+  --color-active-bg: rgb(var(--color-primary-rgb), 0.1);
+  --box-shadow-active:
+    -1px -1px 2px rgb(var(--color-primary-rgb), 0.4),
+    2px 2px 5px rgb(var(--color-bg-rgb), 0.5);
 }

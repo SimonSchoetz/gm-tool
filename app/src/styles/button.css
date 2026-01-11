@@ -1,0 +1,30 @@
+.button {
+  box-shadow: var(--box-shadow-active);
+  color: var(--color-primary);
+}
+
+.button:hover {
+  background-color: var(--color-hover-bg);
+  color: var(--color-fg);
+}
+
+.button.active {
+  color: var(--color-fg);
+  background-color: var(--color-active-bg);
+  box-shadow: var(--box-shadow-active);
+}
+
+.button.active:hover {
+  background-color: rgb(var(--color-hover-bg));
+}
+
+.button.disabled {
+  opacity: 0.3;
+  filter: grayscale(1);
+  cursor: default;
+  background-color: var(--color-secondary);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
