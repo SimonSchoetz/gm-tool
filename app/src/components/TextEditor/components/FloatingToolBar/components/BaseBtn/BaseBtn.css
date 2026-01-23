@@ -1,3 +1,8 @@
 .base-btn {
   padding: var(--spacing-sm);
 }
+
+.base-btn svg {
+  width: var(--font-size-lg);
+  height: var(--font-size-lg);
+}

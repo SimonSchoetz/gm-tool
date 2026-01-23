@@ -31,7 +31,7 @@ export const BaseBtn: FCProps<Props> = ({
         onClick={onClick}
         {...props}
       >
-        <Icon size={'var(--font-size-lg)'} />
+        <Icon />
       </ActionContainer>
     </GlassPanel>
   );
