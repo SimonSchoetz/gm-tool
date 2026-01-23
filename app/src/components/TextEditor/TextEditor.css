@@ -23,3 +23,28 @@
 .text-italic {
   font-style: italic;
 }
+
+.editor-heading-h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-fg);
+  padding: var(--spacing-xs) 0;
+}
+
+.editor-heading-h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-fg);
+}
+
+.editor-heading-h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-fg);
+}

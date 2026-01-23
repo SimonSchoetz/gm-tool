@@ -10,8 +10,8 @@ import {
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
-import { TextFormatBtn } from './components';
-import { textFormatBtns } from './textFormatConfig';
+import { TextFormatBtn, NodeTypeBtn } from './components';
+import { textFormatBtns, nodeTypeBtns } from './textFormatConfig';
 
 const VERTICAL_GAP = 24;
 
@@ -60,6 +60,7 @@ export const FloatingToolbar = ({ ...props }) => {
     textFormatBtns.forEach((btn) => {
       formats[btn.formatType] = selection.hasFormat(btn.formatType);
     });
+
     setActiveFormats(formats);
 
     // Calculate position
@@ -84,8 +85,8 @@ export const FloatingToolbar = ({ ...props }) => {
           updateToolbar();
           return false;
         },
-        COMMAND_PRIORITY_LOW
-      )
+        COMMAND_PRIORITY_LOW,
+      ),
     );
   }, [editor, updateToolbar]);
 
@@ -102,6 +103,14 @@ export const FloatingToolbar = ({ ...props }) => {
       }}
       {...props}
     >
+      {nodeTypeBtns.map((btn) => (
+        <NodeTypeBtn
+          key={btn.nodeType}
+          label={btn.label}
+          nodeType={btn.nodeType}
+          icon={btn.icon}
+        />
+      ))}
       {textFormatBtns.map((btn) => (
         <TextFormatBtn
           key={btn.formatType}
@@ -112,6 +121,6 @@ export const FloatingToolbar = ({ ...props }) => {
         />
       ))}
     </div>,
-    document.body
+    document.body,
   );
 };
