@@ -1,4 +1,3 @@
-import { ActionContainer, GlassPanel } from '@/components';
 import { FCProps } from '@/types';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -14,11 +13,12 @@ import {
   HeadingTagType,
 } from '@lexical/rich-text';
 import { LucideIcon } from 'lucide-react';
-import { cn } from '@/util';
+
 import './NodeTypeBtn.css';
 import { useCallback, useEffect, useState } from 'react';
 import { mergeRegister } from '@lexical/utils';
 import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW } from 'lexical';
+import { BaseBtn } from '../BaseBtn/BaseBtn';
 
 type NodeType = 'paragraph' | 'h1' | 'h2' | 'h3';
 
@@ -31,7 +31,7 @@ type NodeTypeBtnProps = {
 export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
   label,
   nodeType,
-  icon: Icon,
+  icon,
   ...props
 }) => {
   const [editor] = useLexicalComposerContext();
@@ -58,7 +58,6 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
   }, [isCurrentNodeType]);
 
   useEffect(() => {
-    // Check initial state on mount
     editor.getEditorState().read(handleStateUpdate);
 
     return mergeRegister(
@@ -100,20 +99,12 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
   };
 
   return (
-    <GlassPanel
-      data-active={isActive}
-      radius='md'
-      intensity={isActive ? 'bright' : 'off'}
-      className={cn('button', isActive && 'active')}
-    >
-      <ActionContainer
-        className='node-type-btn'
-        label={label}
-        onClick={handleNodeTypeChange}
-        {...props}
-      >
-        <Icon size={'var(--font-size-lg)'} />
-      </ActionContainer>
-    </GlassPanel>
+    <BaseBtn
+      label={label}
+      icon={icon}
+      isActive={isActive}
+      onClick={handleNodeTypeChange}
+      {...props}
+    />
   );
 };

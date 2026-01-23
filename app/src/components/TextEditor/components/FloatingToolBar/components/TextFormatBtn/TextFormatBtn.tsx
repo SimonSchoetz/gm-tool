@@ -1,4 +1,3 @@
-import { ActionContainer, GlassPanel } from '@/components';
 import { FCProps } from '@/types';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -11,9 +10,10 @@ import {
 } from 'lexical';
 import { LucideIcon } from 'lucide-react';
 import './TextFormatBtn.css';
-import { cn } from '@/util';
+
 import { useCallback, useEffect, useState } from 'react';
 import { mergeRegister } from '@lexical/utils';
+import { BaseBtn } from '../BaseBtn/BaseBtn';
 
 type TextFormatBtnProps = {
   label: string;
@@ -24,7 +24,7 @@ type TextFormatBtnProps = {
 export const TextFormatBtn: FCProps<TextFormatBtnProps> = ({
   label,
   formatType,
-  icon: Icon,
+  icon,
   ...props
 }) => {
   const [editor] = useLexicalComposerContext();
@@ -61,20 +61,12 @@ export const TextFormatBtn: FCProps<TextFormatBtnProps> = ({
   };
 
   return (
-    <GlassPanel
-      data-active={isActive}
-      radius='md'
-      intensity={isActive ? 'bright' : 'off'}
-      className={cn('button', isActive && 'active')}
-    >
-      <ActionContainer
-        className='text-format-btn'
-        label={label}
-        onClick={handleFormat}
-        {...props}
-      >
-        <Icon size={'var(--font-size-lg)'} />
-      </ActionContainer>
-    </GlassPanel>
+    <BaseBtn
+      label={label}
+      icon={icon}
+      isActive={isActive}
+      onClick={handleFormat}
+      {...props}
+    />
   );
 };
