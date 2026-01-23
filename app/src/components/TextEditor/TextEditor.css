@@ -1,16 +1,18 @@
 .text-editor {
   position: relative;
+  height: 100%;
 }
 
 .editor-content {
   font-size: var(--font-size-base);
   outline: none;
+  height: 100%;
 }
 
 .placeholder {
   position: absolute;
   inset: 0;
-  color: rgb(var(--color-fg-rgb), 0.5);
+  color: var(--color-text-muted);
   font-size: var(--font-size-base);
   pointer-events: none;
 }

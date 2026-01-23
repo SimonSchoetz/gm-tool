@@ -41,6 +41,7 @@ export const AdventureScreen = () => {
           className='title-input'
           required
         />
+
         <TextEditor
           value={adventure?.description || ''}
           textEditorId={`Adventure_${adventure.id}`}
