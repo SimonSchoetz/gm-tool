@@ -7,7 +7,6 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { FloatingToolbar } from './components';
 import { EditorThemeClasses, EditorState } from 'lexical';
@@ -70,7 +69,6 @@ export const TextEditor: FCProps<Props> = ({
         />
 
         <HistoryPlugin />
-        <AutoFocusPlugin />
         <OnChangePlugin onChange={handleChange} />
 
         <FloatingToolbar />
