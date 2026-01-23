@@ -10,13 +10,13 @@ type Props = object;
 
 export const Header: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
+  const { adventure } = useAdventures();
 
   const getHeading = (): string => {
     if (router.location.href === Routes.ADVENTURES) {
       return 'Adventures';
     }
     if (router.location.href.includes(Routes.ADVENTURE)) {
-      const { adventure } = useAdventures();
       return `${adventure?.title}`;
     }
     return 'GM Tool';
