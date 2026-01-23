@@ -24,6 +24,8 @@ export const FloatingToolbar = ({ ...props }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<Position>(initPosition);
   const [cursorPosition, setCursorPosition] = useState<Position>(initPosition);
+  const [selected, setSelected] = useState<string>('');
+  const [isFocused, setIsFocused] = useState(false);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -39,20 +41,29 @@ export const FloatingToolbar = ({ ...props }) => {
       return;
     }
 
-    // Check if there's actual text selected
     const selectedText = nativeSelection.toString();
     if (!selectedText || selectedText.length === 0) {
       setIsVisible(false);
       return;
     }
 
-    setPosition({
-      top: cursorPosition.top + window.scrollY,
-      left: cursorPosition.left + window.scrollX,
-    });
+    // Hide toolbar if editor is not focused
+    if (!isFocused) {
+      setIsVisible(false);
+      return;
+    }
+
+    if (selected !== selectedText) {
+      setSelected(selectedText);
+
+      setPosition({
+        top: cursorPosition.top + window.scrollY,
+        left: cursorPosition.left + window.scrollX,
+      });
+    }
 
     setIsVisible(true);
-  }, [cursorPosition]);
+  }, [cursorPosition, isFocused, selected]);
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -68,6 +79,29 @@ export const FloatingToolbar = ({ ...props }) => {
       document.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  useEffect(() => {
+    // Track editor focus state
+    const rootElement = editor.getRootElement();
+
+    const handleFocus = () => setIsFocused(true);
+    const handleBlur = () => {
+      setIsFocused(false);
+      setIsVisible(false);
+    };
+
+    if (rootElement) {
+      rootElement.addEventListener('focus', handleFocus);
+      rootElement.addEventListener('blur', handleBlur);
+    }
+
+    return () => {
+      if (rootElement) {
+        rootElement.removeEventListener('focus', handleFocus);
+        rootElement.removeEventListener('blur', handleBlur);
+      }
+    };
+  }, [editor]);
 
   useEffect(() => {
     return mergeRegister(
@@ -98,6 +132,7 @@ export const FloatingToolbar = ({ ...props }) => {
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
+      onMouseDown={(e) => e.preventDefault()}
       {...props}
     >
       {nodeTypeBtns.map((btn) => (
