@@ -20,3 +20,10 @@
     transform: translateX(-50%) translateY(40%);
   }
 }
+
+.divider {
+  width: 1px;
+  min-height: 100%;
+  margin: 0.25rem;
+  background-color: var(--color-primary);
+}

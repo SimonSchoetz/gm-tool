@@ -11,6 +11,7 @@ import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
 import { TextFormatBtn, NodeTypeBtn } from './components';
 import { textFormatBtns, nodeTypeBtns } from './textFormatConfig';
+import { cn } from '@/util';
 
 type Position = {
   top: number;
@@ -143,6 +144,7 @@ export const FloatingToolbar = ({ ...props }) => {
           icon={btn.icon}
         />
       ))}
+      <Divider />
       {textFormatBtns.map((btn) => (
         <TextFormatBtn
           key={btn.formatType}
@@ -154,4 +156,8 @@ export const FloatingToolbar = ({ ...props }) => {
     </div>,
     document.body,
   );
+};
+
+const Divider = () => {
+  return <div className={cn('divider')}></div>;
 };
