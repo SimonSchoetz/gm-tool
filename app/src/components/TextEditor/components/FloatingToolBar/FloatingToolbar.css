@@ -2,10 +2,9 @@
   position: absolute;
   display: flex;
   gap: var(--spacing-xs);
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(40%);
   z-index: 1000;
   animation: fadeIn 0.2s ease-in-out;
-
   background-color: rgb(var(--color-bg-rgb), 1);
   padding: 1px;
   border-radius: var(--radius-md);
@@ -14,10 +13,10 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-4px);
+    transform: translateX(-50%) translateY(0);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(40%);
   }
 }

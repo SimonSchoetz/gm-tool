@@ -12,17 +12,18 @@ import './FloatingToolbar.css';
 import { TextFormatBtn, NodeTypeBtn } from './components';
 import { textFormatBtns, nodeTypeBtns } from './textFormatConfig';
 
-const VERTICAL_GAP = 24;
-
 type Position = {
   top: number;
   left: number;
 };
 
+const initPosition: Position = { top: 0, left: 0 };
+
 export const FloatingToolbar = ({ ...props }) => {
   const [editor] = useLexicalComposerContext();
   const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
+  const [position, setPosition] = useState<Position>(initPosition);
+  const [cursorPosition, setCursorPosition] = useState<Position>(initPosition);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -45,22 +46,27 @@ export const FloatingToolbar = ({ ...props }) => {
       return;
     }
 
-    // Get native selection rect for positioning
-    const domRange = nativeSelection.getRangeAt(0);
-    const rect = domRange.getBoundingClientRect();
-
-    if (rect.width === 0 && rect.height === 0) {
-      setIsVisible(false);
-      return;
-    }
-
-    // Calculate position
     setPosition({
-      top: rect.top + window.scrollY + VERTICAL_GAP,
-      left: rect.left + window.scrollX + rect.width / 2,
+      top: cursorPosition.top + window.scrollY,
+      left: cursorPosition.left + window.scrollX,
     });
 
     setIsVisible(true);
+  }, [cursorPosition]);
+
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      setCursorPosition({
+        top: event.clientY,
+        left: event.clientX,
+      });
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   useEffect(() => {
