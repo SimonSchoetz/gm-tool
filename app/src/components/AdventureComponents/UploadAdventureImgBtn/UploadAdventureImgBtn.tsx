@@ -32,7 +32,7 @@ export const UploadAdventureImgBtn = () => {
   };
 
   return (
-    <>
+    <div>
       <NewAdventureBtn onClick={handleClick} label='Upload cover image'>
         {adventure?.image_id ? (
           <ImageById imageId={adventure?.image_id} />
@@ -49,6 +49,6 @@ export const UploadAdventureImgBtn = () => {
         )}
       </NewAdventureBtn>
       {error && error}
-    </>
+    </div>
   );
 };
