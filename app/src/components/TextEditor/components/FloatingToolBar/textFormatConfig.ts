@@ -2,12 +2,9 @@ import * as Icon from 'lucide-react';
 import { ComponentProps } from 'react';
 import { TextFormatBtn, NodeTypeBtn } from './components';
 
-type TextFormatBtnConfig = Omit<
-  ComponentProps<typeof TextFormatBtn>,
-  'isActive'
->;
+type TextFormatBtnConfig = ComponentProps<typeof TextFormatBtn>;
 
-type NodeTypeBtnConfig = Omit<ComponentProps<typeof NodeTypeBtn>, 'isActive'>;
+type NodeTypeBtnConfig = ComponentProps<typeof NodeTypeBtn>;
 
 export const textFormatBtns: TextFormatBtnConfig[] = [
   { label: 'Bold', formatType: 'bold', icon: Icon.BoldIcon },

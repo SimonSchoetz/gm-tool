@@ -6,7 +6,6 @@ import {
   $isRangeSelection,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_LOW,
-  TextFormatType,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
@@ -24,9 +23,6 @@ export const FloatingToolbar = ({ ...props }) => {
   const [editor] = useLexicalComposerContext();
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
-  const [activeFormats, setActiveFormats] = useState<
-    Partial<Record<TextFormatType, boolean>>
-  >({});
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -37,11 +33,14 @@ export const FloatingToolbar = ({ ...props }) => {
     }
 
     const nativeSelection = window.getSelection();
-    if (
-      !nativeSelection ||
-      nativeSelection.rangeCount === 0 ||
-      selection.isCollapsed()
-    ) {
+    if (!nativeSelection || nativeSelection.rangeCount === 0) {
+      setIsVisible(false);
+      return;
+    }
+
+    // Check if there's actual text selected
+    const selectedText = nativeSelection.toString();
+    if (!selectedText || selectedText.length === 0) {
       setIsVisible(false);
       return;
     }
@@ -54,14 +53,6 @@ export const FloatingToolbar = ({ ...props }) => {
       setIsVisible(false);
       return;
     }
-
-    // Update active formats for all buttons
-    const formats: Partial<Record<TextFormatType, boolean>> = {};
-    textFormatBtns.forEach((btn) => {
-      formats[btn.formatType] = selection.hasFormat(btn.formatType);
-    });
-
-    setActiveFormats(formats);
 
     // Calculate position
     setPosition({
@@ -117,7 +108,6 @@ export const FloatingToolbar = ({ ...props }) => {
           label={btn.label}
           formatType={btn.formatType}
           icon={btn.icon}
-          isActive={activeFormats[btn.formatType] ?? false}
         />
       ))}
     </div>,

@@ -16,7 +16,7 @@ import {
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/util';
 import './NodeTypeBtn.css';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { mergeRegister } from '@lexical/utils';
 import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW } from 'lexical';
 
@@ -37,48 +37,44 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
   const [editor] = useLexicalComposerContext();
   const [isActive, setIsActive] = useState<boolean>(false);
 
-  const updateActiveState = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const active = isCurrentNodeType(selection);
-        setIsActive(active);
-      }
-    });
-  };
+  const isCurrentNodeType = useCallback(
+    (selection: RangeSelection): boolean => {
+      const anchorNode = selection.anchor.getNode();
+      const element =
+        anchorNode.getKey() === 'root'
+          ? anchorNode
+          : anchorNode.getTopLevelElementOrThrow();
+
+      return $isHeadingNode(element) && element.getTag() === nodeType;
+    },
+    [nodeType],
+  );
+
+  const handleStateUpdate = useCallback(() => {
+    const selection = $getSelection();
+    if ($isRangeSelection(selection)) {
+      setIsActive(isCurrentNodeType(selection));
+    }
+  }, [isCurrentNodeType]);
 
   useEffect(() => {
+    // Check initial state on mount
+    editor.getEditorState().read(handleStateUpdate);
+
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            const active = isCurrentNodeType(selection);
-            setIsActive(active);
-          }
-        });
+        editorState.read(handleStateUpdate);
       }),
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         () => {
-          updateActiveState();
+          editor.getEditorState().read(handleStateUpdate);
           return false;
         },
         COMMAND_PRIORITY_LOW,
       ),
     );
-  }, [editor, nodeType]);
-
-  const isCurrentNodeType = (selection: RangeSelection): boolean => {
-    // Check the actual current node type at click time
-    const anchorNode = selection.anchor.getNode();
-    const element =
-      anchorNode.getKey() === 'root'
-        ? anchorNode
-        : anchorNode.getTopLevelElementOrThrow();
-
-    return $isHeadingNode(element) && element.getTag() === nodeType;
-  };
+  }, [editor, handleStateUpdate]);
 
   const toggleNodeType = (selection: RangeSelection): void => {
     const isCurrentlyTargetType = isCurrentNodeType(selection);
@@ -116,7 +112,7 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
         onClick={handleNodeTypeChange}
         {...props}
       >
-        <Icon size={'var(--font-size-base)'} />
+        <Icon size={'var(--font-size-lg)'} />
       </ActionContainer>
     </GlassPanel>
   );
