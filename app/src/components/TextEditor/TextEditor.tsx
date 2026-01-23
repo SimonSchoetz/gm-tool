@@ -8,10 +8,16 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { FloatingToolbar } from './components';
-import { EditorThemeClasses } from 'lexical';
+import { EditorThemeClasses, EditorState } from 'lexical';
+import { useState } from 'react';
 
-type Props = object;
+type Props = {
+  value: string;
+  textEditorId: string;
+  onChange: (value: string) => void;
+};
 
 const theme: EditorThemeClasses = {
   text: {
@@ -20,14 +26,35 @@ const theme: EditorThemeClasses = {
   },
 };
 
-const initialConfig = {
-  namespace: 'Adventure',
-  theme,
-  onError: (err: any) => console.log(err),
-  nodes: [HeadingNode],
-};
+export const TextEditor: FCProps<Props> = ({
+  value,
+  textEditorId,
+  onChange,
+  ...props
+}) => {
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
-export const TextEditor: FCProps<Props> = ({ ...props }) => {
+  const initialConfig = {
+    namespace: textEditorId,
+    theme,
+    onError: (err: any) => console.error('Lexical error:', err),
+    nodes: [HeadingNode],
+    editorState: value || undefined,
+  };
+
+  const handleChange = (editorState: EditorState) => {
+    // Skip onChange on first render to avoid triggering update with initial value
+    if (isFirstRender) {
+      setIsFirstRender(false);
+      return;
+    }
+
+    if (onChange) {
+      const json = JSON.stringify(editorState.toJSON());
+      onChange(json);
+    }
+  };
+
   return (
     <LexicalComposer initialConfig={initialConfig} {...props}>
       <div className='text-editor'>
@@ -39,6 +66,7 @@ export const TextEditor: FCProps<Props> = ({ ...props }) => {
 
         <HistoryPlugin />
         <AutoFocusPlugin />
+        <OnChangePlugin onChange={handleChange} />
 
         <FloatingToolbar />
       </div>

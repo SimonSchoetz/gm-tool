@@ -29,7 +29,6 @@ export const AdventureScreen = () => {
       <GlassPanel className={cn('adventure-screen')}>Loading...</GlassPanel>
     );
   }
-
   return (
     <GlassPanel className={cn('adventure-screen')}>
       <UploadAdventureImgBtn />
@@ -42,7 +41,11 @@ export const AdventureScreen = () => {
           className='title-input'
           required
         />
-        <TextEditor />
+        <TextEditor
+          value={adventure?.description || ''}
+          textEditorId={`Adventure_${adventure.id}`}
+          onChange={(description) => handleAdventureUpdate({ description })}
+        />
       </div>
     </GlassPanel>
   );

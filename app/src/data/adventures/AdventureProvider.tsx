@@ -28,7 +28,7 @@ export type UpdateAdventureData = UpdateAdventureInput & {
 };
 
 export const AdventureContext = createContext<AdventureContextType | null>(
-  null
+  null,
 );
 
 type AdventureProviderProps = {
