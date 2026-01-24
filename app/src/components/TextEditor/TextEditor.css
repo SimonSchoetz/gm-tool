@@ -1,6 +1,5 @@
 .text-editor {
   position: relative;
-  height: 100%;
 }
 
 .editor-content {
@@ -35,17 +34,17 @@
 .editor-heading-h1 {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-medium);
-  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg) 0;
 }
 
 .editor-heading-h2 {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-medium);
-  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md) 0;
 }
 
 .editor-heading-h3 {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
-  margin: var(--spacing-sm) 0;
+  padding: var(--spacing-sm) 0;
 }
