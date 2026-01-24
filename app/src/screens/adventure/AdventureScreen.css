@@ -16,5 +16,6 @@
   border: none;
   padding: 0;
   margin: var(--spacing-md) 0;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-medium);
 }
