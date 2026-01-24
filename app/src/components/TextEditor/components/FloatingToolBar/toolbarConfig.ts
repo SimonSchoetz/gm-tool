@@ -6,12 +6,25 @@ type TextFormatBtnConfig = ComponentProps<typeof TextFormatBtn>;
 
 type NodeTypeBtnConfig = ComponentProps<typeof NodeTypeBtn>;
 
+/**
+ * Styles must be added in TextEditor.tsx
+ */
 export const textFormatBtns: TextFormatBtnConfig[] = [
   { label: 'Bold', formatType: 'bold', icon: Icon.BoldIcon },
   {
     label: 'Italic',
     formatType: 'italic',
     icon: Icon.ItalicIcon,
+  },
+  {
+    label: 'Underline',
+    formatType: 'underline',
+    icon: Icon.UnderlineIcon,
+  },
+  {
+    label: 'Strikethrough',
+    formatType: 'strikethrough',
+    icon: Icon.StrikethroughIcon,
   },
 ];
 

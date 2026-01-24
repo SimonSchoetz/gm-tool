@@ -22,6 +22,8 @@ const theme: EditorThemeClasses = {
   text: {
     bold: 'text-bold',
     italic: 'text-italic',
+    underline: 'text-underline',
+    strikethrough: 'text-strikethrough',
   },
   heading: {
     h1: 'editor-heading-h1',

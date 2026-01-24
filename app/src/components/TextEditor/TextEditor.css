@@ -24,6 +24,14 @@
   font-style: italic;
 }
 
+.text-strikethrough {
+  text-decoration: line-through;
+}
+
+.text-underline {
+  text-decoration: underline;
+}
+
 .editor-heading-h1 {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
