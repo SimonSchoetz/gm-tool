@@ -10,7 +10,7 @@ import {
 import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
 import { TextFormatBtn, NodeTypeBtn } from './components';
-import { textFormatBtns, nodeTypeBtns } from './textFormatConfig';
+import { textFormatBtns, nodeTypeBtns } from './toolbarConfig';
 import { cn } from '@/util';
 
 type Position = {
