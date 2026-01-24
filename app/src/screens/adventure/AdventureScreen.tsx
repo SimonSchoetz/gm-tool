@@ -29,18 +29,43 @@ export const AdventureScreen = () => {
       <GlassPanel className={cn('adventure-screen')}>Loading...</GlassPanel>
     );
   }
+
+  const startDate =
+    adventure.created_at && new Date(adventure.created_at).toLocaleDateString();
+
   return (
     <GlassPanel className={cn('adventure-screen')}>
       <UploadAdventureImgBtn />
+
       <div className={cn('text-edit-area')}>
-        <Input
-          type='text'
-          placeholder='Adventure Title'
-          value={adventure.title}
-          onChange={(e) => handleAdventureUpdate({ title: e.target.value })}
-          className='title-input'
-          required
-        />
+        <div>
+          <Input
+            type='text'
+            placeholder='Adventure Title'
+            value={adventure.title}
+            onChange={(e) => handleAdventureUpdate({ title: e.target.value })}
+            className='title-input'
+            required
+          />
+
+          <ul className={cn('adventure-stats')}>
+            <li>
+              Started: <span>{startDate}</span>
+            </li>
+            <li>
+              Sessions: <span>0</span>
+            </li>
+            <li>
+              NPCs: <span>0</span>
+            </li>
+            <li>
+              PCs: <span>0</span>
+            </li>
+            <li>
+              Party Level: <span>0</span>
+            </li>
+          </ul>
+        </div>
 
         <TextEditor
           value={adventure?.description || ''}
