@@ -1,2 +1,2 @@
 export * from './TextFormatBtn/TextFormatBtn';
-export * from './NodeTypeBtn/NodeTypeBtn';
+export * from './HeadingBtn/HeadingBtn';

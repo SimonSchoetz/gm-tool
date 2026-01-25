@@ -1,10 +1,10 @@
 import * as Icon from 'lucide-react';
 import { ComponentProps } from 'react';
-import { TextFormatBtn, NodeTypeBtn } from './components';
+import { TextFormatBtn, HeadingBtn } from './components';
 
 type TextFormatBtnConfig = ComponentProps<typeof TextFormatBtn>;
 
-type NodeTypeBtnConfig = ComponentProps<typeof NodeTypeBtn>;
+type HeadingBtnConfig = ComponentProps<typeof HeadingBtn>;
 
 /**
  * Styles must be added in TextEditor.tsx
@@ -28,20 +28,20 @@ export const textFormatBtns: TextFormatBtnConfig[] = [
   },
 ];
 
-export const nodeTypeBtns: NodeTypeBtnConfig[] = [
+export const headingBtns: HeadingBtnConfig[] = [
   {
     label: 'Heading 1',
-    nodeType: 'h1',
+    headingType: 'h1',
     icon: Icon.Heading1Icon,
   },
   {
     label: 'Heading 2',
-    nodeType: 'h2',
+    headingType: 'h2',
     icon: Icon.Heading2Icon,
   },
   {
     label: 'Heading 3',
-    nodeType: 'h3',
+    headingType: 'h3',
     icon: Icon.Heading3Icon,
   },
 ];

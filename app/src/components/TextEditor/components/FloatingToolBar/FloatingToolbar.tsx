@@ -9,8 +9,8 @@ import {
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
-import { TextFormatBtn, NodeTypeBtn } from './components';
-import { textFormatBtns, nodeTypeBtns } from './toolbarConfig';
+import { TextFormatBtn, HeadingBtn } from './components';
+import { textFormatBtns, headingBtns } from './toolbarConfig';
 import { cn } from '@/util';
 
 type Position = {
@@ -136,11 +136,11 @@ export const FloatingToolbar = ({ ...props }) => {
       onMouseDown={(e) => e.preventDefault()}
       {...props}
     >
-      {nodeTypeBtns.map((btn) => (
-        <NodeTypeBtn
-          key={btn.nodeType}
+      {headingBtns.map((btn) => (
+        <HeadingBtn
+          key={btn.headingType}
           label={btn.label}
-          nodeType={btn.nodeType}
+          headingType={btn.headingType}
           icon={btn.icon}
         />
       ))}

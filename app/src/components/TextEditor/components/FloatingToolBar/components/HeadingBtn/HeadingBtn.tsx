@@ -14,30 +14,33 @@ import {
 } from '@lexical/rich-text';
 import { LucideIcon } from 'lucide-react';
 
-import './NodeTypeBtn.css';
+import './HeadingBtn.css';
 import { useCallback, useEffect, useState } from 'react';
 import { mergeRegister } from '@lexical/utils';
 import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW } from 'lexical';
 import { BaseBtn } from '../BaseBtn/BaseBtn';
 
-type NodeType = 'paragraph' | 'h1' | 'h2' | 'h3';
+/**
+ * Might need revision regarding 'paragraph' when implementing node type of list
+ */
+type HeadingType = 'paragraph' | 'h1' | 'h2' | 'h3';
 
-type NodeTypeBtnProps = {
+type HeadingBtnProps = {
   label: string;
-  nodeType: NodeType;
+  headingType: HeadingType;
   icon: LucideIcon;
 };
 
-export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
+export const HeadingBtn: FCProps<HeadingBtnProps> = ({
   label,
-  nodeType,
+  headingType,
   icon,
   ...props
 }) => {
   const [editor] = useLexicalComposerContext();
   const [isActive, setIsActive] = useState<boolean>(false);
 
-  const isCurrentNodeType = useCallback(
+  const isCurrentHeadingType = useCallback(
     (selection: RangeSelection): boolean => {
       const anchorNode = selection.anchor.getNode();
       const element =
@@ -45,17 +48,17 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
           ? anchorNode
           : anchorNode.getTopLevelElementOrThrow();
 
-      return $isHeadingNode(element) && element.getTag() === nodeType;
+      return $isHeadingNode(element) && element.getTag() === headingType;
     },
-    [nodeType],
+    [headingType],
   );
 
   const handleStateUpdate = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
-      setIsActive(isCurrentNodeType(selection));
+      setIsActive(isCurrentHeadingType(selection));
     }
-  }, [isCurrentNodeType]);
+  }, [isCurrentHeadingType]);
 
   useEffect(() => {
     editor.getEditorState().read(handleStateUpdate);
@@ -75,25 +78,25 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
     );
   }, [editor, handleStateUpdate]);
 
-  const toggleNodeType = (selection: RangeSelection): void => {
-    const isCurrentlyTargetType = isCurrentNodeType(selection);
+  const toggleHeadingType = (selection: RangeSelection): void => {
+    const isCurrentlyTargetType = isCurrentHeadingType(selection);
 
     if (isCurrentlyTargetType) {
       $setBlocksType(selection, () => $createParagraphNode());
-    } else if (nodeType === 'paragraph') {
+    } else if (headingType === 'paragraph') {
       $setBlocksType(selection, () => $createParagraphNode());
     } else {
       $setBlocksType(selection, () =>
-        $createHeadingNode(nodeType as HeadingTagType),
+        $createHeadingNode(headingType as HeadingTagType),
       );
     }
   };
-  const handleNodeTypeChange = () => {
+  const handleHeadingTypeChange = () => {
     editor.update(() => {
       const selection = $getSelection();
 
       if ($isRangeSelection(selection)) {
-        toggleNodeType(selection);
+        toggleHeadingType(selection);
       }
     });
   };
@@ -103,7 +106,7 @@ export const NodeTypeBtn: FCProps<NodeTypeBtnProps> = ({
       label={label}
       icon={icon}
       isActive={isActive}
-      onClick={handleNodeTypeChange}
+      onClick={handleHeadingTypeChange}
       {...props}
     />
   );
