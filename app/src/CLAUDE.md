@@ -16,7 +16,7 @@ src/
 ├── screens/
 │ ├── screenA/
 │ │ ├── ScreenA.tsx
-│ │ ├── ComponentA.css
+│ │ ├── ScreenA.css
 │ │ └── components/
 │ └── index.ts
 ├── styles/
@@ -24,7 +24,10 @@ src/
 │ ├── reset.css
 │ └── variables.css
 ├── types/
+│ ├── any.type.ts
 ├── util/
+│ ├── **tests**/
+│ └── utilA.ts
 ├── App.css
 ├── App.tsx
 └── main.tsx

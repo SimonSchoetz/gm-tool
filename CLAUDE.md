@@ -30,11 +30,12 @@ app/
 ├── db/ # SQLite database
 │ └── CLAUDE.md
 ├── docs/ # documentation like templates
+├── public/ # Static assets
 ├── src/ # React frontend source
 │ └── CLAUDE.md
 ├── src-tauri/ # Rust backend (Tauri)
-│ └── src/
-└── public/ # Static assets
+│ └── CLAUDE.md
+└── util/
 
 ### Development Commands
 
