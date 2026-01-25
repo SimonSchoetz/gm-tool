@@ -1,5 +1,5 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   $getSelection,
@@ -27,6 +27,7 @@ export const FloatingToolbar = ({ ...props }) => {
   const [cursorPosition, setCursorPosition] = useState<Position>(initPosition);
   const [selected, setSelected] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
+  const toolbarRef = useRef<HTMLDivElement>(null);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -48,12 +49,12 @@ export const FloatingToolbar = ({ ...props }) => {
       return;
     }
 
-    // Hide toolbar if editor is not focused
     if (!isFocused) {
       setIsVisible(false);
       return;
     }
 
+    // Calculate toolbar position
     if (selected !== selectedText) {
       setSelected(selectedText);
 
@@ -66,6 +67,7 @@ export const FloatingToolbar = ({ ...props }) => {
     setIsVisible(true);
   }, [cursorPosition, isFocused, selected]);
 
+  // Track mouse position
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       setCursorPosition({
@@ -81,8 +83,8 @@ export const FloatingToolbar = ({ ...props }) => {
     };
   }, []);
 
+  // Track editor focus state to hide toolbar when it's not focused
   useEffect(() => {
-    // Track editor focus state
     const rootElement = editor.getRootElement();
 
     const handleFocus = () => setIsFocused(true);
@@ -122,12 +124,43 @@ export const FloatingToolbar = ({ ...props }) => {
     );
   }, [editor, updateToolbar]);
 
+  // Adjust position based on actual toolbar width after render
+  useEffect(() => {
+    if (!isVisible || !toolbarRef.current) return;
+
+    const toolbar = toolbarRef.current;
+    const toolbarRect = toolbar.getBoundingClientRect();
+    const toolbarHalfWidth = toolbarRect.width / 2;
+    const PADDING = 12;
+
+    const viewportWidth = window.innerWidth;
+    let adjustedLeft = position.left;
+
+    // Check horizontal bounds (toolbar uses translateX(-50%))
+    const leftEdge = position.left - toolbarHalfWidth;
+    const rightEdge = position.left + toolbarHalfWidth;
+
+    if (leftEdge < PADDING) {
+      // Too far left
+      adjustedLeft = toolbarHalfWidth + PADDING;
+    } else if (rightEdge > viewportWidth - PADDING) {
+      // Too far right
+      adjustedLeft = viewportWidth - toolbarHalfWidth - PADDING;
+    }
+
+    // Only update if adjustment is needed
+    if (adjustedLeft !== position.left) {
+      setPosition({ ...position, left: adjustedLeft });
+    }
+  }, [isVisible, cursorPosition, selected]);
+
   if (!isVisible) {
     return null;
   }
 
   return createPortal(
     <div
+      ref={toolbarRef}
       className='floating-toolbar'
       style={{
         top: `${position.top}px`,
@@ -144,7 +177,9 @@ export const FloatingToolbar = ({ ...props }) => {
           icon={btn.icon}
         />
       ))}
+
       <Divider />
+
       {textFormatBtns.map((btn) => (
         <TextFormatBtn
           key={btn.formatType}
@@ -153,7 +188,9 @@ export const FloatingToolbar = ({ ...props }) => {
           icon={btn.icon}
         />
       ))}
+
       <Divider />
+
       {listBtns.map((btn) => (
         <ListBtn
           key={btn.listType}

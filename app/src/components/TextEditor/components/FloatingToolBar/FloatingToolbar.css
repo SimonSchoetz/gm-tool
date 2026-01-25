@@ -8,6 +8,7 @@
   background-color: rgb(var(--color-bg-rgb), 1);
   padding: 1px;
   border-radius: var(--radius-md);
+  width: max-content;
 }
 
 @keyframes fadeIn {
@@ -23,7 +24,6 @@
 
 .divider {
   width: 1px;
-  min-height: 100%;
   margin: 0.375rem 0.125rem;
   background-color: var(--color-primary);
 }
