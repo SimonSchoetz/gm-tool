@@ -6,8 +6,10 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
+import { ListNode, ListItemNode } from '@lexical/list';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { FloatingToolbar } from './components';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { useState } from 'react';
@@ -30,6 +32,14 @@ const theme: EditorThemeClasses = {
     h2: 'editor-heading-h2',
     h3: 'editor-heading-h3',
   },
+  list: {
+    ul: 'editor-list-ul',
+    ol: 'editor-list-ol',
+    listitem: 'editor-list-item',
+    nested: {
+      listitem: 'editor-nested-list-item',
+    },
+  },
 };
 
 export const TextEditor: FCProps<Props> = ({
@@ -44,7 +54,7 @@ export const TextEditor: FCProps<Props> = ({
     namespace: textEditorId,
     theme,
     onError: (err: any) => console.error('Lexical error:', err),
-    nodes: [HeadingNode],
+    nodes: [HeadingNode, ListNode, ListItemNode],
     editorState: value || undefined,
   };
 
@@ -71,6 +81,7 @@ export const TextEditor: FCProps<Props> = ({
         />
 
         <HistoryPlugin />
+        <ListPlugin />
         <OnChangePlugin onChange={handleChange} />
 
         <FloatingToolbar />

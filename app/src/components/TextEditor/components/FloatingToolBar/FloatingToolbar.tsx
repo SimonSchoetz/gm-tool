@@ -9,8 +9,8 @@ import {
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
-import { TextFormatBtn, HeadingBtn } from './components';
-import { textFormatBtns, headingBtns } from './toolbarConfig';
+import { TextFormatBtn, HeadingBtn, ListBtn } from './components';
+import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
 import { cn } from '@/util';
 
 type Position = {
@@ -150,6 +150,15 @@ export const FloatingToolbar = ({ ...props }) => {
           key={btn.formatType}
           label={btn.label}
           formatType={btn.formatType}
+          icon={btn.icon}
+        />
+      ))}
+      <Divider />
+      {listBtns.map((btn) => (
+        <ListBtn
+          key={btn.listType}
+          label={btn.label}
+          listType={btn.listType}
           icon={btn.icon}
         />
       ))}

@@ -16,6 +16,10 @@
   pointer-events: none;
 }
 
+/*
+    Text format styles
+*/
+
 .text-bold {
   font-weight: var(--font-weight-bold);
 }
@@ -30,6 +34,10 @@
 .text-underline {
   text-decoration: underline;
 }
+
+/*
+    Heading styles
+*/
 
 .editor-heading-h1 {
   font-size: var(--font-size-2xl);
@@ -47,4 +55,35 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
   padding: var(--spacing-sm) 0;
+}
+
+/*
+    List styles
+*/
+
+.editor-list-ul,
+.editor-list-ol {
+  margin: 0;
+  padding: 0;
+  list-style-position: inside;
+}
+
+.editor-list-ul {
+  list-style-type: disc;
+}
+
+.editor-list-ol {
+  list-style-type: decimal;
+}
+
+.editor-list-item {
+  margin: var(--spacing-xs) 0;
+}
+
+.editor-nested-list-item {
+  list-style-type: none;
+}
+
+.editor-nested-list-item:before {
+  content: '';
 }

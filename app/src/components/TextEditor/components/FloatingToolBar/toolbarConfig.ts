@@ -1,14 +1,13 @@
 import * as Icon from 'lucide-react';
 import { ComponentProps } from 'react';
-import { TextFormatBtn, HeadingBtn } from './components';
-
-type TextFormatBtnConfig = ComponentProps<typeof TextFormatBtn>;
-
-type HeadingBtnConfig = ComponentProps<typeof HeadingBtn>;
+import { TextFormatBtn, HeadingBtn, ListBtn } from './components';
 
 /**
  * Styles must be added in TextEditor.tsx
  */
+
+type TextFormatBtnConfig = ComponentProps<typeof TextFormatBtn>;
+
 export const textFormatBtns: TextFormatBtnConfig[] = [
   { label: 'Bold', formatType: 'bold', icon: Icon.BoldIcon },
   {
@@ -28,6 +27,8 @@ export const textFormatBtns: TextFormatBtnConfig[] = [
   },
 ];
 
+type HeadingBtnConfig = ComponentProps<typeof HeadingBtn>;
+
 export const headingBtns: HeadingBtnConfig[] = [
   {
     label: 'Heading 1',
@@ -43,5 +44,20 @@ export const headingBtns: HeadingBtnConfig[] = [
     label: 'Heading 3',
     headingType: 'h3',
     icon: Icon.Heading3Icon,
+  },
+];
+
+type ListBtnConfig = ComponentProps<typeof ListBtn>;
+
+export const listBtns: ListBtnConfig[] = [
+  {
+    label: 'Bullet List',
+    listType: 'bullet',
+    icon: Icon.ListIcon,
+  },
+  {
+    label: 'Numbered List',
+    listType: 'number',
+    icon: Icon.ListOrderedIcon,
   },
 ];
