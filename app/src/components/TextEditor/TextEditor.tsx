@@ -11,6 +11,8 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { UNORDERED_LIST, ORDERED_LIST } from '@lexical/markdown';
 import { FloatingToolbar } from './components';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { useState } from 'react';
@@ -84,6 +86,7 @@ export const TextEditor: FCProps<Props> = ({
         <HistoryPlugin />
         <ListPlugin />
         <TabIndentationPlugin />
+        <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST]} />
         <OnChangePlugin onChange={handleChange} />
 
         <FloatingToolbar />
