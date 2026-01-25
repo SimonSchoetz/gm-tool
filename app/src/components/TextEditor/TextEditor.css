@@ -63,9 +63,7 @@
 
 .editor-list-ul,
 .editor-list-ol {
-  margin: 0;
-  padding: 0;
-  list-style-position: inside;
+  padding-left: var(--spacing-lg);
 }
 
 .editor-list-ul {
@@ -76,14 +74,6 @@
   list-style-type: decimal;
 }
 
-.editor-list-item {
-  margin: var(--spacing-xs) 0;
-}
-
 .editor-nested-list-item {
   list-style-type: none;
-}
-
-.editor-nested-list-item:before {
-  content: '';
 }

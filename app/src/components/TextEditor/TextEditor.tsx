@@ -10,6 +10,7 @@ import { ListNode, ListItemNode } from '@lexical/list';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { FloatingToolbar } from './components';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { useState } from 'react';
@@ -82,6 +83,7 @@ export const TextEditor: FCProps<Props> = ({
 
         <HistoryPlugin />
         <ListPlugin />
+        <TabIndentationPlugin />
         <OnChangePlugin onChange={handleChange} />
 
         <FloatingToolbar />
