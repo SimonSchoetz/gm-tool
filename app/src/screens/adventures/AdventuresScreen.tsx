@@ -31,10 +31,7 @@ export const AdventuresScreen = () => {
 
         {adventures.map((adventure) => (
           <li key={adventure.id}>
-            <ToAdventureBtn
-              adventure={adventure}
-              className='adventure-preview'
-            />
+            <ToAdventureBtn adventure={adventure} />
           </li>
         ))}
       </ul>

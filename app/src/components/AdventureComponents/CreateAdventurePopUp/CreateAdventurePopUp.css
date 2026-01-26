@@ -18,7 +18,7 @@
 }
 
 .activated {
-  transition: var(--adventure-btn-active) ease-out;
+  transition: var(--holo-img-btn-active) ease-out;
   opacity: 0;
   transform: scale(1.5) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);

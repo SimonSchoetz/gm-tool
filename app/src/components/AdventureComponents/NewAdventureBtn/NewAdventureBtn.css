@@ -1,5 +1,5 @@
 .children-container {
-  transition: var(--adventure-btn-active);
+  transition: var(--holo-img-btn-active);
 }
 
 .children-container:hover {

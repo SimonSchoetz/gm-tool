@@ -1,10 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import './ToAdventureBtn.css';
-import { cn } from '@/util';
-import AdventureFrame from '../AdventureFrame/AdventureFrame';
+
 import { FCProps, HtmlProps } from '@/types';
-import { useRef } from 'react';
-import { HoloFX, useTiltFX, ImageById } from '@/components';
+
+import { HoloImg } from '@/components';
 import { Adventure } from '@db/adventure';
 import { Routes } from '@/routes';
 
@@ -12,43 +11,16 @@ type Props = {
   adventure: Adventure;
 } & HtmlProps<'div'>;
 
-export const ToAdventureBtn: FCProps<Props> = ({ adventure, className }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { cardVars, isActive } = useTiltFX(containerRef);
+export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
   const route = `${Routes.ADVENTURE}/${adventure.id}`;
 
   return (
     <Link
       to={route}
-      className={cn('adventure-btn', 'action-card')}
+      className={'to-adventure-link'}
       aria-label={adventure.title}
     >
-      <div
-        ref={containerRef}
-        style={cardVars}
-        className={cn('tilt-fx-container')}
-      >
-        <AdventureFrame
-          className={cn(
-            'children-container',
-            'tilt-fx',
-            isActive && 'active',
-            className
-          )}
-        >
-          <div className={cn('holo-fx-container', isActive && 'active')}>
-            <HoloFX shimmerContent={adventure.title} />
-          </div>
-          {!adventure.image_id && adventure.title && (
-            <p className='adventure-title'>{adventure.title}</p>
-          )}
-          <ImageById
-            imageId={adventure.image_id}
-            alt={`${adventure.title} preview`}
-            className={cn('adventure-img', isActive && 'active')}
-          />
-        </AdventureFrame>
-      </div>
+      <HoloImg image_id={adventure.image_id!} title={adventure.title} />
     </Link>
   );
 };
