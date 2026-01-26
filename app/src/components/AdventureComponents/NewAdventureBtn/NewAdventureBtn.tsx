@@ -1,28 +1,29 @@
 import { ActionContainer } from '@/components';
 import './NewAdventureBtn.css';
 import { cn } from '@/util';
-import AdventureFrame from '../AdventureFrame/AdventureFrame';
+
 import { FCProps, HtmlProps } from '@/types';
+import { useState } from 'react';
+import AdventureFrame from '../AdventureFrame/AdventureFrame';
 
-type Props = {
-  onClick: (e?: any) => any;
-  label: string;
-} & HtmlProps<'div'>;
+export const NewAdventureBtn: FCProps<HtmlProps<'div'>> = ({ className }) => {
+  const [hideBtn, setHideBtn] = useState(false);
 
-export const NewAdventureBtn: FCProps<Props> = ({
-  onClick,
-  label,
-  className,
-  children,
-}) => {
+  const handleOpenForm = () => {
+    setHideBtn(true);
+    const timeoutId = setTimeout(() => {}, 500);
+    return () => clearTimeout(timeoutId);
+  };
+
   return (
     <ActionContainer
-      className={cn('adventure-btn')}
-      onClick={onClick}
-      label={label}
+      onClick={handleOpenForm}
+      label={'Create new adventure'}
+      role='button'
+      className={cn('new-adventure-btn', hideBtn && 'activated')}
     >
-      <AdventureFrame className={cn('children-container', className)}>
-        {children}
+      <AdventureFrame className={cn(className)}>
+        <div className='plus-symbol'>+</div>
       </AdventureFrame>
     </ActionContainer>
   );

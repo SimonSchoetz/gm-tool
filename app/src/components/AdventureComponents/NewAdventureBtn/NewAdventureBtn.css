@@ -1,15 +1,33 @@
-.children-container {
-  transition: var(--holo-img-btn-active);
+.new-adventure-btn {
+  border-radius: var(--radius-2xl);
+}
+.new-adventure-btn:hover {
+  box-shadow: var(--box-shadow-active);
 }
 
-.children-container:hover {
-  transition: var(--adventure-btn-hover);
-  border: 1px solid rgb(var(--color-fg-rgb), 0.4);
+.new-adventure-btn:hover .plus-symbol {
+  transform: scale(2) translateZ(0);
+  text-shadow: 0 0 1rem var(--color-primary);
+  will-change: font-size;
+  color: var(--color-text);
+}
+.plus-symbol {
+  transition: var(--transition-hover-on) ease;
+  color: var(--color-primary);
+  font-size: 5rem;
+  font-weight: 300;
+  line-height: 1;
+  transform: scale(1) translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-.children-container img {
-  height: 100%;
-  width: auto;
-  object-fit: cover;
-  object-position: center;
+.activated {
+  transition: var(--transition-hover-off) ease-out;
+  opacity: 0;
+  transform: scale(1.5) translateZ(0);
+  text-shadow: 0 0 1rem var(--color-primary);
+  will-change: font-size;
+  color: var(--color-text);
 }

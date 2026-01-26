@@ -1,7 +1,7 @@
 import { useAdventures } from '@/data/adventures';
 import './AdventuresScreen.css';
 import {
-  CreateAdventurePopUp,
+  NewAdventureBtn,
   ToAdventureBtn,
 } from '../../components/AdventureComponents';
 
@@ -26,7 +26,7 @@ export const AdventuresScreen = () => {
     <div>
       <ul className='content-center adventure-list-container'>
         <li key='new-adventure'>
-          <CreateAdventurePopUp />
+          <NewAdventureBtn />
         </li>
 
         {adventures.map((adventure) => (

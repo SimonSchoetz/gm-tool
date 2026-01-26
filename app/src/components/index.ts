@@ -9,3 +9,4 @@ export * from './ImageById/ImageById.tsx';
 export * from './HoloFX';
 export * from './SideBarNav/SideBarNav';
 export * from './Header/Header.tsx';
+export * from './HoloImg/HoloImg.tsx';

@@ -2,9 +2,10 @@ import { FCProps, HtmlProps } from '@/types';
 import { useRef } from 'react';
 import { HoloFX, useTiltFX } from '../HoloFX';
 import { cn } from '@/util';
-import { AdventureFrame } from '../AdventureComponents';
+
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
+import AdventureFrame from '../AdventureComponents/AdventureFrame/AdventureFrame';
 
 type Props = {
   image_id: string;

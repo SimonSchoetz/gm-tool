@@ -1,9 +1,9 @@
-import { filePicker } from '@/util';
+import { cn, filePicker } from '@/util';
 import { useState } from 'react';
-
-import { NewAdventureBtn } from '../NewAdventureBtn/NewAdventureBtn';
-import { ImageById } from '@/components';
+import { ActionContainer, HoloImg } from '@/components';
 import { useAdventures } from '@/data/adventures';
+import AdventureFrame from '../AdventureFrame/AdventureFrame';
+import './UploadAdventureImgBtn.css';
 
 export const UploadAdventureImgBtn = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,21 +33,27 @@ export const UploadAdventureImgBtn = () => {
 
   return (
     <div>
-      <NewAdventureBtn onClick={handleClick} label='Upload cover image'>
-        {adventure?.image_id ? (
-          <ImageById imageId={adventure?.image_id} />
-        ) : (
-          <p
-            style={{
-              textAlign: 'center',
-            }}
-          >
-            {isLoading
-              ? 'Loading...'
-              : 'Click to upload cover image or drag&drop'}
-          </p>
-        )}
-      </NewAdventureBtn>
+      {adventure?.image_id ? (
+        <ActionContainer
+          onClick={handleClick}
+          label='Replace cover image'
+          role='button'
+        >
+          <HoloImg image_id={adventure.image_id} title={''} />
+        </ActionContainer>
+      ) : (
+        <ActionContainer onClick={handleClick} label='Upload cover image'>
+          <AdventureFrame className={cn('upload-adventure-img-btn')}>
+            <p
+              style={{
+                textAlign: 'center',
+              }}
+            >
+              {isLoading ? 'Loading...' : 'Click to upload cover image'}
+            </p>
+          </AdventureFrame>
+        </ActionContainer>
+      )}
       {error && error}
     </div>
   );

@@ -1,0 +1,9 @@
+.upload-adventure-img-btn {
+  box-shadow: none;
+  transition: box-shadow var(--transition-hover-off) ease;
+}
+
+.upload-adventure-img-btn:hover {
+  box-shadow: var(--box-shadow-active);
+  transition: box-shadow var(--transition-hover-on) ease;
+}

@@ -83,6 +83,8 @@
   --shadow-lg: 0 0.5rem 1.5rem rgb(0, 0, 0, 0.5);
 
   /* Transitions */
+  --transition-hover-on: 0.2s;
+  --transition-hover-off: 0.5s;
   --transition-fast: 0.2s;
   --transition-base: 0.5s;
   --transition-slow: 1s;
