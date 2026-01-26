@@ -6,15 +6,18 @@ import { Link, useRouterState } from '@tanstack/react-router';
 import '../NavButton.css';
 import './ScreenNavBtn.css';
 import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
+
 type Props = {
   label: string;
   targetRoute: Routes | string;
+  searchParams?: Record<string, string>;
   isDisabled?: boolean;
 } & HtmlProps<'a'>;
 
 export const ScreenNavBtn: FCProps<Props> = ({
   label,
   targetRoute,
+  searchParams,
   isDisabled = false,
   ...props
 }) => {
@@ -29,11 +32,12 @@ export const ScreenNavBtn: FCProps<Props> = ({
         'button',
         'nav-button',
         isDisabled && 'disabled',
-        isAtTarget && 'active'
+        isAtTarget && 'active',
       )}
     >
       <Link
         to={targetRoute}
+        search={searchParams}
         aria-disabled={isDisabled || isAtTarget}
         aria-label={`Navigate to ${label}`}
         className={cn('screen-nav-btn-content', 'content-center')}

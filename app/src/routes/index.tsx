@@ -4,6 +4,8 @@ export enum Routes {
   HOME = '/',
   ADVENTURES = '/adventures',
   ADVENTURE = '/adventure',
+  NPCS = '/npcs',
+  NPC = '/npc',
 }
 
 export const Route = createFileRoute(Routes.HOME)({
