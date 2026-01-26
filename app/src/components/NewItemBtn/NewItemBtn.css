@@ -1,26 +1,41 @@
-.new-adventure-btn {
+.new-item-btn {
   border-radius: var(--radius-2xl);
 }
-.new-adventure-btn:hover {
+.new-item-btn:hover {
   box-shadow: var(--box-shadow-active);
 }
 
-.new-adventure-btn:hover .plus-symbol {
+.new-item-btn:hover .adventure {
   transform: scale(2) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);
   will-change: font-size;
   color: var(--color-text);
 }
-.plus-symbol {
+
+.new-item-btn:hover .list-item {
+  transform: scale(1.2) translateZ(0);
+  text-shadow: 0 0 1rem var(--color-primary);
+  will-change: font-size;
+  color: var(--color-text);
+}
+.new-item-btn-label {
   transition: var(--transition-hover-on) ease;
   color: var(--color-primary);
-  font-size: 5rem;
-  font-weight: 300;
-  line-height: 1;
   transform: scale(1) translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
   -webkit-font-smoothing: antialiased;
+}
+.new-item-btn-label.adventure {
+  font-size: 5rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.new-item-btn-label.list-item {
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1;
 }
 
 .activated {

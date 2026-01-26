@@ -1,9 +1,7 @@
 import { useAdventures } from '@/data/adventures';
 import './AdventuresScreen.css';
-import {
-  NewAdventureBtn,
-  ToAdventureBtn,
-} from '../../components/AdventureComponents';
+import { ToAdventureBtn } from '../../components/AdventureComponents';
+import { NewItemBtn } from '@/components';
 
 export const AdventuresScreen = () => {
   const { adventures, loading, error } = useAdventures();
@@ -26,7 +24,11 @@ export const AdventuresScreen = () => {
     <div>
       <ul className='content-center adventure-list-container'>
         <li key='new-adventure'>
-          <NewAdventureBtn />
+          <NewItemBtn
+            type='adventure'
+            label='+'
+            onClick={() => console.log('new adventure clicked')}
+          />
         </li>
 
         {adventures.map((adventure) => (
