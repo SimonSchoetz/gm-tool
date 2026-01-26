@@ -7,7 +7,11 @@ type Props = React.ComponentProps<typeof GlassPanel>;
 
 const AdventureFrame = ({ className, children, ...props }: Props) => {
   return (
-    <GlassPanel className={cn('adventure-frame', className)} {...props}>
+    <GlassPanel
+      intensity='bright'
+      className={cn('adventure-frame', className)}
+      {...props}
+    >
       {children}
     </GlassPanel>
   );

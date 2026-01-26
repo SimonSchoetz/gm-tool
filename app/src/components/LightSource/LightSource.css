@@ -19,10 +19,10 @@
 
 .light-source-dim {
   background: radial-gradient(
-    ellipse 120% 100% at 90% 90%,
+    ellipse 280% 240% at 100% 100%,
     transparent 0%,
-    rgb(var(--color-primary-rgb), 0.1) 70%,
-    rgb(var(--color-primary-rgb), 0.2) 85%,
-    rgb(var(--color-primary-rgb), 0.3) 99%
+    rgb(var(--color-primary-rgb), 0.05) 70%,
+    rgb(var(--color-primary-rgb), 0.15) 85%,
+    rgb(var(--color-primary-rgb), 0.25) 99%
   );
 }
