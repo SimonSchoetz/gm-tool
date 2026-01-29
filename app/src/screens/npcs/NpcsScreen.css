@@ -1,5 +1,9 @@
 .npcs-screen {
-  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
 }
 
 .npc-table {
@@ -12,8 +16,7 @@
 .npc-list-item {
   padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  border: none;
+  grid-template-columns: repeat(5, 1fr);
   color: inherit;
   text-decoration: none;
 }

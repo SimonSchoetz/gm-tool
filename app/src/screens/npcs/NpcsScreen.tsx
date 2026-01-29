@@ -1,17 +1,23 @@
-import { Link, useSearch } from '@tanstack/react-router';
+import { Link, useParams } from '@tanstack/react-router';
 import { useAdventures } from '@/data/adventures';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
-import { ActionContainer, GlassPanel, NewItemBtn } from '@/components';
+import {
+  ActionContainer,
+  CustomScrollArea,
+  GlassPanel,
+  NewItemBtn,
+} from '@/components';
 import { ChevronDownIcon } from 'lucide-react';
 import './NpcsScreen.css';
 
 export const NpcsScreen = () => {
-  const { adventureId } = useSearch({
-    from: Routes.NPCS,
+  const { adventureId } = useParams({
+    from: '/adventure/$adventureId/npcs',
   });
 
   const { loadAdventure, adventure } = useAdventures();
+  console.log('>>>>>>>>> | NpcsScreen | adventure:', adventure?.title);
 
   useEffect(() => {
     if (adventureId) {
@@ -21,11 +27,43 @@ export const NpcsScreen = () => {
 
   return (
     <GlassPanel className='npcs-screen'>
-      <ul className='npc-table'>
-        <TableHeadRow />
-        <NewNPCButton />
-        <ListItem />
-      </ul>
+      <TableHeadRow />
+      <CustomScrollArea spacing={16}>
+        <ul className='npc-table'>
+          <NewNPCButton />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+          <ListItem />
+        </ul>
+      </CustomScrollArea>
     </GlassPanel>
   );
 };
@@ -48,18 +86,6 @@ const TableHeadRow = () => {
       <div>Avatar</div>
       <ActionContainer onClick={() => setSortBy('name')} label='Sort by name'>
         Name {sortBy === 'name' && <ChevronDownIcon />}
-      </ActionContainer>
-      <ActionContainer
-        onClick={() => setSortBy('adventure')}
-        label='Sort by adventure'
-      >
-        Adventure {sortBy === 'adventure' && <ChevronDownIcon />}
-      </ActionContainer>
-      <ActionContainer
-        onClick={() => setSortBy('origin')}
-        label='Sort by origin'
-      >
-        Origin {sortBy === 'origin' && <ChevronDownIcon />}
       </ActionContainer>
       <ActionContainer
         onClick={() => setSortBy('faction')}
@@ -89,12 +115,10 @@ const ListItem = () => {
       <GlassPanel intensity='bright'>
         <Link
           className='npc-list-item'
-          to={`${Routes.NPCS}` /* Will route to NPC screen */}
+          to={`${Routes.ADVENTURES}` /* Will route to NPC screen */}
         >
           <div>Image or Placeholder</div>
           <div>PC Name</div>
-          <div>Adventure they belong to</div>
-          <div>Where they appeared</div>
           <div>Faction they belong to</div>
           <div>When they were created</div>
           <div>When they have been last updated</div>

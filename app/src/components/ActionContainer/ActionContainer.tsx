@@ -24,7 +24,7 @@ const ActionContainer = ({
 
   return (
     <div
-      className={cn('action-card', className)}
+      className={cn('action-container', className)}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       role='button'

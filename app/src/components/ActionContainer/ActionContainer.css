@@ -1,5 +1,5 @@
-.action-card {
+.action-container {
   cursor: pointer;
-  transition: 0.3s ease;
-  user-select: none;
+  /* transition: 0.3s ease; */
+  /* user-select: none; */
 }

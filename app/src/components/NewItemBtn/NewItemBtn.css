@@ -18,6 +18,7 @@
   will-change: font-size;
   color: var(--color-text);
 }
+
 .new-item-btn-label {
   transition: var(--transition-hover-on) ease;
   color: var(--color-primary);
@@ -26,6 +27,7 @@
   backface-visibility: hidden;
   -webkit-font-smoothing: antialiased;
 }
+
 .new-item-btn-label.adventure {
   font-size: 5rem;
   font-weight: 300;

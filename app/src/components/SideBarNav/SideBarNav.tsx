@@ -11,6 +11,11 @@ type Props = HtmlProps<'aside'>;
 export const SideBarNav: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
 
+  // Extract adventureId from URL if it exists
+  const adventureIdMatch =
+    router.location.pathname.match(/\/adventure\/([^/]+)/);
+  const adventureId = adventureIdMatch?.[1];
+
   return (
     <aside {...props}>
       <GlassPanel>
@@ -19,20 +24,10 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
 
         <ScreenNavBtn
           label='NPCs'
-          targetRoute={Routes.NPCS}
-          searchParams={getPossibleAdventureIdSearchParam(
-            router.location.pathname,
-          )}
+          targetRoute={`/adventure/${adventureId}/npcs`}
+          isDisabled={!adventureId}
         />
       </GlassPanel>
     </aside>
   );
-};
-
-const getPossibleAdventureIdSearchParam = (
-  pathname: string,
-): Record<string, string> | undefined => {
-  const adventureIdMatch = pathname.match(/\/adventure\/([^/]+)/);
-  const adventureId = adventureIdMatch?.[1];
-  return (adventureId && { adventureId }) || undefined;
 };
