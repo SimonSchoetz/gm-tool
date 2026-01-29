@@ -12,7 +12,7 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
   const { adventure } = useAdventures();
 
-  const getHeading = (): string => {
+  const getMainRoute = (): string => {
     if (router.location.href === Routes.ADVENTURES) {
       return 'Adventures';
     }
@@ -20,6 +20,20 @@ export const Header: FCProps<Props> = ({ ...props }) => {
       return `${adventure?.title}`;
     }
     return 'GM Tool';
+  };
+
+  const getRouteLevel1 = (): string => {
+    if (router.location.href.includes(Routes.NPCS)) {
+      return ' > NPCs';
+    }
+    return '';
+  };
+
+  const getHeading = (): string => {
+    const mainRoute = getMainRoute();
+    const level1 = getRouteLevel1();
+
+    return mainRoute + level1;
   };
 
   return (

@@ -17,9 +17,9 @@ export const NpcsScreen = () => {
   });
 
   const { loadAdventure, adventure } = useAdventures();
-  console.log('>>>>>>>>> | NpcsScreen | adventure:', adventure?.title);
 
   useEffect(() => {
+    //get npcs by adventureID
     if (adventureId) {
       loadAdventure(adventureId);
     }
