@@ -1,5 +1,5 @@
 import './AdventureScreen.css';
-import { GlassPanel, Input } from '@/components';
+import { CustomScrollArea, GlassPanel, Input } from '@/components';
 import { cn } from '@/util';
 import { useParams } from '@tanstack/react-router';
 import { useAdventures } from '@/data/adventures';
@@ -36,43 +36,44 @@ export const AdventureScreen = () => {
   return (
     <GlassPanel className={cn('adventure-screen')}>
       <UploadAdventureImgBtn />
+      <CustomScrollArea>
+        <div className={cn('text-edit-area')}>
+          <div>
+            <Input
+              type='text'
+              placeholder='Adventure Title'
+              value={adventure.title}
+              onChange={(e) => handleAdventureUpdate({ title: e.target.value })}
+              className='title-input'
+              required
+            />
 
-      <div className={cn('text-edit-area')}>
-        <div>
-          <Input
-            type='text'
-            placeholder='Adventure Title'
-            value={adventure.title}
-            onChange={(e) => handleAdventureUpdate({ title: e.target.value })}
-            className='title-input'
-            required
+            <ul className={cn('adventure-stats')}>
+              <li>
+                Started: <span>{startDate}</span>
+              </li>
+              <li>
+                Sessions: <span>0</span>
+              </li>
+              <li>
+                NPCs: <span>0</span>
+              </li>
+              <li>
+                PCs: <span>0</span>
+              </li>
+              <li>
+                Party Level: <span>0</span>
+              </li>
+            </ul>
+          </div>
+
+          <TextEditor
+            value={adventure?.description || ''}
+            textEditorId={`Adventure_${adventure.id}`}
+            onChange={(description) => handleAdventureUpdate({ description })}
           />
-
-          <ul className={cn('adventure-stats')}>
-            <li>
-              Started: <span>{startDate}</span>
-            </li>
-            <li>
-              Sessions: <span>0</span>
-            </li>
-            <li>
-              NPCs: <span>0</span>
-            </li>
-            <li>
-              PCs: <span>0</span>
-            </li>
-            <li>
-              Party Level: <span>0</span>
-            </li>
-          </ul>
         </div>
-
-        <TextEditor
-          value={adventure?.description || ''}
-          textEditorId={`Adventure_${adventure.id}`}
-          onChange={(description) => handleAdventureUpdate({ description })}
-        />
-      </div>
+      </CustomScrollArea>
     </GlassPanel>
   );
 };
