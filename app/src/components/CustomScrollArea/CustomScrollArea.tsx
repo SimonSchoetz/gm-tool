@@ -15,7 +15,6 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   className,
   suppressContentEditableWarning,
   thumbMinHeight = 40,
-  scrollbarWidth = 8,
   spacing = 0,
   ...props
 }) => {
@@ -77,12 +76,11 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
 
       // Store scaling for drag calculations
       scalingRef.current = scaling;
-
-      // Apply styles with correct transform order: scale, matrix3d, translateZ
-      thumb.style.height = `${thumbHeight - spacing * 2}px`;
-      thumb.style.width = `${scrollbarWidth}px`;
+      const ROUNDING_OFFSET = 2;
+      thumb.style.height = `${thumbHeight - ROUNDING_OFFSET}px`;
       thumb.style.right = `-${spacing * 0.5}px`;
-      thumb.style.top = `-${spacing ? spacing * 2 : 2}px`;
+      thumb.style.top = `-${ROUNDING_OFFSET}px`;
+      // Apply styles with correct transform order: scale, matrix3d, translateZ
       thumb.style.transform = `
         scale(${1 / scaling})
         matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1)
@@ -108,7 +106,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
-  }, [isScrollNeeded, thumbMinHeight, scrollbarWidth, spacing]);
+  }, [isScrollNeeded, thumbMinHeight, spacing]);
 
   // Drag handlers
   const lastYRef = useRef<number>(0);
@@ -165,14 +163,14 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
           className={cn(
             'custom-scrollbar-thumb',
             !isHovered && !isDragging && 'custom-scrollbar-thumb--hidden',
-            isDragging && 'custom-scrollbar-thumb--dragging'
+            isDragging && 'custom-scrollbar-thumb--dragging',
           )}
           onMouseDown={handleThumbMouseDown}
         />
       )}
       <div
         ref={perspectiveRef}
-        style={{ padding: `${spacing}px` }}
+        style={{ paddingRight: `${isScrollNeeded ? 12 : 0}px` }}
         className='perspective-container'
       >
         {children}

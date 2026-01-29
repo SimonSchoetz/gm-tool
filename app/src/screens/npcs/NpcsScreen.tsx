@@ -28,7 +28,7 @@ export const NpcsScreen = () => {
   return (
     <GlassPanel className='npcs-screen'>
       <TableHeadRow />
-      <CustomScrollArea spacing={16}>
+      <CustomScrollArea>
         <ul className='npc-table'>
           <NewNPCButton />
           <ListItem />
