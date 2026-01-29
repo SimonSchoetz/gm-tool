@@ -12,16 +12,17 @@
   perspective-origin: top right;
   transform-style: preserve-3d;
   width: 100%;
-  position: absolute;
+  position: relative;
 }
 
 .custom-scrollbar-thumb {
   position: absolute;
   transform-origin: top right;
   pointer-events: auto;
+  z-index: 100;
   background: rgba(var(--color-primary-rgb), 0.5);
   border-radius: 1rem;
-  cursor: pointer;
+  cursor: grab;
   transition:
     opacity 0.3s ease,
     background 0.2s ease;
@@ -31,4 +32,19 @@
 .custom-scrollbar-thumb--hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+.custom-scrollbar-thumb:hover,
+.custom-scrollbar-thumb--dragging {
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+.custom-scrollbar-thumb--dragging {
+  cursor: grabbing;
+}
+
+.custom-scrollbar-thumb:hover {
+  background: var(--color-primary);
+  opacity: 1;
 }

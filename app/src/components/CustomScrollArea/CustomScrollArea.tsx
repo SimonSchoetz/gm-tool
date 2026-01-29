@@ -22,8 +22,10 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const perspectiveRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
+  const scalingRef = useRef<number>(1);
   const [isHovered, setIsHovered] = useState(false);
   const [isScrollNeeded, setIsScrollNeeded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Check if scroll is needed
   useEffect(() => {
@@ -73,6 +75,9 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       const maxTopOffset = viewport.height - thumbHeight;
       const scaling = maxTopOffset / maxScrollTop;
 
+      // Store scaling for drag calculations
+      scalingRef.current = scaling;
+
       // Apply styles with correct transform order: scale, matrix3d, translateZ
       thumb.style.height = `${thumbHeight - spacing * 2}px`;
       thumb.style.width = `${scrollbarWidth}px`;
@@ -105,6 +110,47 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
     };
   }, [isScrollNeeded, thumbMinHeight, scrollbarWidth, spacing]);
 
+  // Drag handlers
+  const lastYRef = useRef<number>(0);
+
+  const handleThumbMouseDown = (event: React.MouseEvent) => {
+    setIsDragging(true);
+    lastYRef.current = event.clientY;
+    event.preventDefault();
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const container = containerRef.current;
+    const thumb = thumbRef.current;
+    if (!container || !thumb) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const clientY = event.clientY;
+      const delta = clientY - lastYRef.current;
+      container.scrollTop += delta / scalingRef.current;
+      lastYRef.current = clientY;
+      event.preventDefault();
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'grabbing';
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [isDragging]);
+
   return (
     <div
       ref={containerRef}
@@ -113,20 +159,22 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       {...props}
     >
+      {isScrollNeeded && (
+        <div
+          ref={thumbRef}
+          className={cn(
+            'custom-scrollbar-thumb',
+            !isHovered && !isDragging && 'custom-scrollbar-thumb--hidden',
+            isDragging && 'custom-scrollbar-thumb--dragging'
+          )}
+          onMouseDown={handleThumbMouseDown}
+        />
+      )}
       <div
         ref={perspectiveRef}
         style={{ padding: `${spacing}px` }}
         className='perspective-container'
       >
-        {isScrollNeeded && (
-          <div
-            ref={thumbRef}
-            className={cn(
-              'custom-scrollbar-thumb',
-              !isHovered && 'custom-scrollbar-thumb--hidden',
-            )}
-          />
-        )}
         {children}
       </div>
     </div>
