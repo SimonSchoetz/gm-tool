@@ -5,14 +5,14 @@ import ActionContainer from '../ActionContainer/ActionContainer';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 
-type Props = { style?: 'danger' } & React.ComponentProps<
+type Props = { buttonStyle?: 'danger' } & React.ComponentProps<
   typeof ActionContainer
 >;
 
 export const Button: FCProps<Props> = ({
   onClick,
   label,
-  style,
+  buttonStyle,
   className,
   ...props
 }) => {
@@ -20,7 +20,7 @@ export const Button: FCProps<Props> = ({
     <ActionContainer
       className={cn(
         'button-wrapper',
-        style && `button-wrapper--${style}`,
+        buttonStyle && `button-wrapper--${buttonStyle}`,
         className,
       )}
       label={label}
@@ -28,7 +28,10 @@ export const Button: FCProps<Props> = ({
       {...props}
     >
       <GlassPanel
-        className={cn('label-wrapper', style && `label-wrapper--${style}`)}
+        className={cn(
+          'label-wrapper',
+          buttonStyle && `label-wrapper--${buttonStyle}`,
+        )}
         radius='xl'
       >
         {label}

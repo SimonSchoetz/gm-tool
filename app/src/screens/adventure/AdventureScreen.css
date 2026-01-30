@@ -66,11 +66,6 @@
 }
 
 .delete-adventure-dialog-input:focus {
-  background: linear-gradient(
-    0deg,
-    rgb(var(--color-danger-rgb), 0.2),
-    transparent
-  );
   color: var(--color-danger);
   border-bottom-color: var(--color-danger);
 }

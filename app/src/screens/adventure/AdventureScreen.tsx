@@ -53,7 +53,7 @@ export const AdventureScreen = () => {
           <Button
             label='Delete Adventure'
             onClick={() => setDeleteDialogState('open')}
-            style={'danger'}
+            buttonStyle={'danger'}
           />
         </aside>
 
@@ -118,15 +118,30 @@ const DeleteAdventureDialog = ({
   adventure,
   onDeletionConfirm,
 }: DeleteAdventureDialogProps) => {
+  const [intensity, setIntensity] = useState<number>(0);
   const confirmText = 'DELETE ADVENTURE';
+
   const handleInputChange = (input: string) => {
+    const targetSubString = confirmText.substring(0, input.length);
+    if (input === targetSubString) {
+      setIntensity((1 / confirmText.length) * input.length);
+    } else {
+      setIntensity(0);
+    }
+
     if (input === confirmText) {
       onDeletionConfirm();
     }
   };
 
   return (
-    <GlassPanel className={cn('delete-adventure-dialog')}>
+    <GlassPanel
+      className={cn('delete-adventure-dialog')}
+      style={{
+        boxShadow: `inset 0 -${intensity * 5}px ${intensity * 10}px rgb(var(--color-danger-hover-rgb), ${intensity / 2})`,
+        background: `radial-gradient(ellipse 50% 80% at 50% 100%, rgb(var(--color-danger-hover-rgb), ${intensity}), transparent)`,
+      }}
+    >
       <h1 className='delete-adventure-dialog-title'>
         Delete {adventure.title}
       </h1>
