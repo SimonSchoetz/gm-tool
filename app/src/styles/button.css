@@ -22,10 +22,9 @@
 }
 
 .button.disabled {
-  opacity: 0.3;
+  opacity: 0.5;
   filter: grayscale(1);
   cursor: default;
-  background-color: var(--color-secondary);
 }
 
 .button:active {

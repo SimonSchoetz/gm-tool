@@ -38,6 +38,7 @@ export const ScreenNavBtn: FCProps<Props> = ({
       <Link
         to={targetRoute}
         search={searchParams}
+        disabled={isDisabled}
         aria-disabled={isDisabled || isAtTarget}
         aria-label={`Navigate to ${label}`}
         className={cn('screen-nav-btn-content', 'content-center')}

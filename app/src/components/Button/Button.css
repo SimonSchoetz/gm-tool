@@ -11,8 +11,8 @@
 
 .label-wrapper:hover {
   color: var(--color-fg);
+  box-shadow: var(--box-shadow-active);
   transition: var(--transition-hover-on);
-  box-shadow: var(--box-shadow-active-danger);
 }
 
 .button-wrapper--danger:hover {
