@@ -4,14 +4,14 @@
   gap: var(--spacing-xs);
   transform: translateX(-50%) translateY(40%);
   z-index: 1000;
-  animation: fadeIn 0.2s ease-in-out;
+  animation: floatingToolbarFadeIn 0.2s ease-in-out;
   background-color: rgb(var(--color-bg-rgb), 1);
   padding: 1px;
   border-radius: var(--radius-md);
   width: max-content;
 }
 
-@keyframes fadeIn {
+@keyframes floatingToolbarFadeIn {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(0);

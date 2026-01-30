@@ -1,7 +1,6 @@
 import { useEffect, Dispatch, SetStateAction, useState } from 'react';
 import { HtmlProps } from '@/types';
 import { cn } from '@/util';
-import GlassPanel from '../GlassPanel/GlassPanel';
 import './PopUpContainer.css';
 
 type Props = {
