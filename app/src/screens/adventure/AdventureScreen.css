@@ -60,6 +60,7 @@
 
 .delete-adventure-dialog-input {
   background-color: transparent;
+  text-shadow: 0 0 5px var(--color-bg);
   text-align: center;
   border: none;
   border-bottom: 1px solid var(--color-primary);
