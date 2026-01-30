@@ -13,3 +13,4 @@ export * from './HoloImg/HoloImg.tsx';
 export * from './NewItemBtn/NewItemBtn.tsx';
 export * from './CustomScrollArea/CustomScrollArea';
 export * from './Button/Button.tsx';
+export * from './TextEditor/TextEditor.tsx';

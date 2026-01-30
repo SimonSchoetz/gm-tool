@@ -108,7 +108,7 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
   const createAdventure = async (): Promise<string> => {
     try {
       const dto: CreateAdventureInput = {
-        title: `New adventure ${new Date().toDateString()}`,
+        title: `New adventure ${new Date().toLocaleDateString()}`,
       };
 
       return await adventureDb.create(dto);

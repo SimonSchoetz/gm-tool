@@ -5,19 +5,21 @@ import {
   GlassPanel,
   Input,
   PopUpContainer,
+  TextEditor,
 } from '@/components';
 import { cn } from '@/util';
-import { useParams } from '@tanstack/react-router';
+import { useParams, useRouter } from '@tanstack/react-router';
 import { useAdventures } from '@/data/adventures';
-import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
-import { TextEditor } from '@/components/TextEditor/TextEditor';
 import { Adventure } from '@db/adventure';
+import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
 export const AdventureScreen = () => {
+  const router = useRouter();
+
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
@@ -25,8 +27,13 @@ export const AdventureScreen = () => {
     from: `${Routes.ADVENTURE}/$adventureId`,
   });
 
-  const { loadAdventure, adventure, setAdventure, handleAdventureUpdate } =
-    useAdventures();
+  const {
+    loadAdventure,
+    adventure,
+    setAdventure,
+    handleAdventureUpdate,
+    deleteAdventure,
+  } = useAdventures();
 
   useEffect(() => {
     loadAdventure(adventureId);
@@ -41,6 +48,11 @@ export const AdventureScreen = () => {
       <GlassPanel className={cn('adventure-screen')}>Loading...</GlassPanel>
     );
   }
+
+  const handleAdventureDelete = async () => {
+    await deleteAdventure(adventureId);
+    router.navigate({ to: `${Routes.ADVENTURES}` });
+  };
 
   const startDate =
     adventure.created_at && new Date(adventure.created_at).toLocaleDateString();
@@ -102,7 +114,7 @@ export const AdventureScreen = () => {
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteAdventureDialog
           adventure={adventure}
-          onDeletionConfirm={() => console.log('confirmed deletion')}
+          onDeletionConfirm={handleAdventureDelete}
         />
       </PopUpContainer>
     </>
