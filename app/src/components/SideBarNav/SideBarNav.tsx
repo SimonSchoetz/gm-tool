@@ -17,7 +17,7 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
   const adventureId = adventureIdMatch?.[1];
 
   return (
-    <aside {...props}>
+    <aside className='sidebar-nav' {...props}>
       <GlassPanel>
         <FwBwNav />
         <ScreenNavBtn label='Adventures' targetRoute={Routes.ADVENTURES} />
