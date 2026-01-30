@@ -35,7 +35,9 @@ export const AdventureScreen = () => {
 
   return (
     <GlassPanel className={cn('adventure-screen')}>
-      <UploadAdventureImgBtn />
+      <div>
+        <UploadAdventureImgBtn />
+      </div>
       <CustomScrollArea>
         <div className={cn('text-edit-area')}>
           <div>

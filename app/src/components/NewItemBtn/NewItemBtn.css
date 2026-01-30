@@ -1,9 +1,6 @@
 .new-item-btn {
   border-radius: var(--radius-2xl);
 }
-.new-item-btn:hover {
-  box-shadow: var(--box-shadow-active);
-}
 
 .new-item-btn:hover .adventure {
   transform: scale(2) translateZ(0);

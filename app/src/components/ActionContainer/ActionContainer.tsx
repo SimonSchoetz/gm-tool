@@ -6,6 +6,7 @@ import { HtmlProps } from '@/types';
 type ActionContainerProps = {
   onClick: () => void;
   label: string;
+  invisible?: boolean;
 } & Omit<HtmlProps<'button'>, 'onClick'>;
 
 const ActionContainer = ({
@@ -13,11 +14,12 @@ const ActionContainer = ({
   label,
   className = '',
   children,
+  invisible,
   ...props
 }: ActionContainerProps) => {
   return (
     <button
-      className={cn('action-container', 'button', className)}
+      className={cn('action-container', !invisible && 'button', className)}
       onClick={onClick}
       tabIndex={0}
       aria-label={label}

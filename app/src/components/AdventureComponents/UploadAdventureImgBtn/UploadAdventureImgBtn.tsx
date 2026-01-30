@@ -34,12 +34,21 @@ export const UploadAdventureImgBtn = () => {
   return (
     <div>
       {adventure?.image_id ? (
-        <ActionContainer onClick={handleClick} label='Replace cover image'>
+        <ActionContainer
+          className={cn('replace-adventure-img-btn')}
+          onClick={handleClick}
+          label='Replace cover image'
+          invisible
+        >
           <HoloImg image_id={adventure.image_id} title={''} />
         </ActionContainer>
       ) : (
-        <ActionContainer onClick={handleClick} label='Upload cover image'>
-          <AdventureFrame className={cn('upload-adventure-img-btn')}>
+        <ActionContainer
+          className={cn('upload-adventure-img-btn')}
+          onClick={handleClick}
+          label='Upload cover image'
+        >
+          <AdventureFrame>
             <p
               style={{
                 textAlign: 'center',
