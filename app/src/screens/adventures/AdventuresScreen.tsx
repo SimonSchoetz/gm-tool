@@ -2,9 +2,17 @@ import { useAdventures } from '@/data/adventures';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from '../../components/AdventureComponents';
 import { NewItemBtn } from '@/components';
+import { useRouter } from '@tanstack/react-router';
+import { Routes } from '@/routes';
 
 export const AdventuresScreen = () => {
-  const { adventures, loading, error } = useAdventures();
+  const router = useRouter();
+  const { adventures, loading, error, createAdventure } = useAdventures();
+
+  const handleAdventureCreation = async () => {
+    const newAdventureId = await createAdventure();
+    router.navigate({ to: `${Routes.ADVENTURE}/${newAdventureId}` });
+  };
 
   if (loading) {
     return <div className='content-center'>Loading...</div>;
@@ -27,7 +35,7 @@ export const AdventuresScreen = () => {
           <NewItemBtn
             type='adventure'
             label='+'
-            onClick={() => console.log('new adventure clicked')}
+            onClick={handleAdventureCreation}
           />
         </li>
 
