@@ -1,0 +1,24 @@
+.button-wrapper {
+  border-radius: var(--radius-xl);
+  width: 100%;
+}
+
+.label-wrapper {
+  padding: var(--spacing-sm);
+  color: var(--color-primary);
+  transition: var(--transition-hover-off);
+}
+
+.label-wrapper:hover {
+  color: var(--color-fg);
+  transition: var(--transition-hover-on);
+  box-shadow: var(--box-shadow-active-danger);
+}
+
+.button-wrapper--danger:hover {
+  background-color: var(--color-danger-hover-bg);
+}
+
+.label-wrapper--danger:hover {
+  color: var(--color-danger);
+}

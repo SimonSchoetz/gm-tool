@@ -30,3 +30,9 @@
 .adventure-stats span {
   color: var(--color-fg);
 }
+
+.adventure-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}

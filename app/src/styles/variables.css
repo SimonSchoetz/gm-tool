@@ -93,7 +93,11 @@
   /* button states */
   --color-hover-bg: rgb(var(--color-bg-rgb), 0.5);
   --color-active-bg: rgb(var(--color-primary-rgb), 0.1);
+  --color-danger-hover-bg: rgb(var(--color-danger-rgb), 0.1);
   --box-shadow-active:
     -1px -1px 2px rgb(var(--color-primary-rgb), 0.4),
+    2px 2px 5px rgb(var(--color-bg-rgb), 0.5);
+  --box-shadow-active-danger:
+    -1px -1px 2px rgb(var(--color-danger-rgb), 0.6),
     2px 2px 5px rgb(var(--color-bg-rgb), 0.5);
 }

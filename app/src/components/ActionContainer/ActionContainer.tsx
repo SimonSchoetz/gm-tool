@@ -7,7 +7,7 @@ type ActionContainerProps = {
   onClick: () => void;
   label: string;
   invisible?: boolean;
-} & Omit<HtmlProps<'button'>, 'onClick'>;
+} & HtmlProps<'button'>;
 
 const ActionContainer = ({
   onClick,

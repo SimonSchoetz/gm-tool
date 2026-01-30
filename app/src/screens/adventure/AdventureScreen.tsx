@@ -1,5 +1,5 @@
 import './AdventureScreen.css';
-import { CustomScrollArea, GlassPanel, Input } from '@/components';
+import { Button, CustomScrollArea, GlassPanel, Input } from '@/components';
 import { cn } from '@/util';
 import { useParams } from '@tanstack/react-router';
 import { useAdventures } from '@/data/adventures';
@@ -30,14 +30,25 @@ export const AdventureScreen = () => {
     );
   }
 
+  const handleDelete = (): void => {
+    // will open a pop up with dialog to confirm it really should delete the adventure with all its contents
+    console.log('delete clicked');
+  };
+
   const startDate =
     adventure.created_at && new Date(adventure.created_at).toLocaleDateString();
 
   return (
     <GlassPanel className={cn('adventure-screen')}>
-      <div>
+      <aside className='adventure-sidebar'>
         <UploadAdventureImgBtn />
-      </div>
+        <Button
+          label='Delete Adventure'
+          onClick={handleDelete}
+          style={'danger'}
+        />
+      </aside>
+
       <CustomScrollArea>
         <div className={cn('text-edit-area')}>
           <div>
