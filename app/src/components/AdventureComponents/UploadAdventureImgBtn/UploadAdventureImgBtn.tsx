@@ -40,7 +40,7 @@ export const UploadAdventureImgBtn = () => {
           label='Replace cover image'
           invisible
         >
-          <HoloImg image_id={adventure.image_id} title={''} />
+          <HoloImg image_id={adventure.image_id} title={adventure.title} />
         </ActionContainer>
       ) : (
         <ActionContainer
