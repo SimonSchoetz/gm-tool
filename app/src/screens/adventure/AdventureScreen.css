@@ -8,6 +8,7 @@
 .text-edit-area {
   display: grid;
   grid-template-rows: auto 1fr;
+  height: 100%;
 }
 
 .title-input {
