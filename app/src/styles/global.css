@@ -15,27 +15,3 @@ body {
   align-items: center;
   justify-content: center;
 }
-
-/*
-    Scrollbar
-*/
-
-::-webkit-scrollbar {
-  width: 1.5rem;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-  border: 0.5rem solid transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--color-primary-rgb), 0.5);
-  border-radius: 10rem;
-  border: 0.5rem solid transparent;
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
-  background-clip: padding-box;
-}

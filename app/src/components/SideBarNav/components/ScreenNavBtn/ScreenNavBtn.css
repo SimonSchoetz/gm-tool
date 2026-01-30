@@ -16,13 +16,3 @@
   pointer-events: none;
   color: var(--color-fg);
 }
-/* 
-svg {
-  opacity: 0;
-  will-change: opacity;
-  transition: opacity var(--transition-fast);
-}
-
-svg.active {
-  opacity: 1;
-} */

@@ -30,7 +30,6 @@ export const NewItemBtn: FCProps<Props> = ({
     <ActionContainer
       onClick={letAnimationPlayBeforeAction}
       label={'Create new adventure'}
-      role='button'
       className={cn('new-item-btn', hideBtn && 'activated')}
     >
       {type === 'adventure' && (

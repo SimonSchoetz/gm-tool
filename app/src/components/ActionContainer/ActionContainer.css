@@ -1,5 +1,6 @@
 .action-container {
   cursor: pointer;
-  /* transition: 0.3s ease; */
-  /* user-select: none; */
+  background-color: transparent;
+  border: none;
+  color: inherit;
 }

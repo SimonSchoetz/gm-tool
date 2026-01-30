@@ -1,11 +1,14 @@
 .button {
-  box-shadow: var(--box-shadow-active);
   color: var(--color-primary);
+  background-color: transparent;
+  transition-duration: var(--transition-hover-off);
 }
 
 .button:hover {
+  box-shadow: var(--box-shadow-active);
   background-color: var(--color-hover-bg);
   color: var(--color-fg);
+  transition-duration: var(--transition-hover-on);
 }
 
 .button.active {
@@ -15,7 +18,7 @@
 }
 
 .button.active:hover {
-  background-color: rgb(var(--color-hover-bg));
+  background-color: var(--color-hover-bg);
 }
 
 .button.disabled {

@@ -41,7 +41,7 @@
 }
 
 .activated {
-  transition: var(--transition-hover-off) ease-out;
+  transition: var(--transition-active-animation);
   opacity: 0;
   transform: scale(1.5) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);

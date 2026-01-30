@@ -34,11 +34,7 @@ export const UploadAdventureImgBtn = () => {
   return (
     <div>
       {adventure?.image_id ? (
-        <ActionContainer
-          onClick={handleClick}
-          label='Replace cover image'
-          role='button'
-        >
+        <ActionContainer onClick={handleClick} label='Replace cover image'>
           <HoloImg image_id={adventure.image_id} title={''} />
         </ActionContainer>
       ) : (

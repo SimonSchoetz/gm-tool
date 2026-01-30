@@ -6,7 +6,7 @@ import { HtmlProps } from '@/types';
 type ActionContainerProps = {
   onClick: () => void;
   label: string;
-} & Omit<HtmlProps<'div'>, 'onClick'>;
+} & Omit<HtmlProps<'button'>, 'onClick'>;
 
 const ActionContainer = ({
   onClick,
@@ -15,25 +15,16 @@ const ActionContainer = ({
   children,
   ...props
 }: ActionContainerProps) => {
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClick();
-    }
-  };
-
   return (
-    <div
-      className={cn('action-container', className)}
+    <button
+      className={cn('action-container', 'button', className)}
       onClick={onClick}
-      onKeyDown={handleKeyDown}
-      role='button'
       tabIndex={0}
       aria-label={label}
       {...props}
     >
       {children}
-    </div>
+    </button>
   );
 };
 
