@@ -61,18 +61,18 @@ const PopUpContainer = ({
 
   return (
     <div
-      className={cn('popup-overlay', isClosing && 'closing')}
+      className={cn('popup-background', isClosing && 'closing')}
       onClick={handleOverlayClick}
       role='dialog'
       aria-modal='true'
       aria-label='Popup dialog'
     >
-      <GlassPanel
+      <div
         className={cn('popup-content', isClosing && 'closing', className)}
         {...props}
       >
         {children}
-      </GlassPanel>
+      </div>
     </div>
   );
 };

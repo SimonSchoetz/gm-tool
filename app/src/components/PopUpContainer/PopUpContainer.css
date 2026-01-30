@@ -1,5 +1,4 @@
-.popup-overlay {
-  --duration: 0.5s;
+.popup-background {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -8,21 +7,24 @@
   justify-content: center;
   background: rgb(var(--color-bg-rgb), 0.5);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   animation: fadeIn var(--transition-base);
 }
 
-.popup-overlay.closing {
-  animation: fadeOut var(--duration) ease-out;
+.popup-background.closing {
+  animation: fadeOut var(--transition-active-animation) ease-out;
 }
 
 .popup-content {
   max-width: 90vw;
   max-height: 90vh;
-  animation: plopIn var(--duration) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: plopIn var(--transition-active-animation)
+    cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .popup-content.closing {
-  animation: plopOut var(--duration) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: plopOut var(--transition-active-animation)
+    cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 @keyframes fadeIn {

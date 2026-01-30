@@ -36,3 +36,41 @@
   flex-direction: column;
   gap: var(--spacing-md);
 }
+
+.delete-adventure-dialog {
+  padding: var(--spacing-2xl);
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.delete-adventure-dialog h1 {
+  text-align: center;
+}
+
+.delete-adventure-dialog p {
+  width: 100%;
+}
+
+.delete-adventure-dialog-confirm-text {
+  color: var(--color-danger);
+}
+
+.delete-adventure-dialog-input {
+  background-color: transparent;
+  text-align: center;
+  border: none;
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.delete-adventure-dialog-input:focus {
+  background: linear-gradient(
+    0deg,
+    rgb(var(--color-danger-rgb), 0.2),
+    transparent
+  );
+  color: var(--color-danger);
+  border-bottom-color: var(--color-danger);
+}

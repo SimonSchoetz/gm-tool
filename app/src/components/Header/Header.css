@@ -5,7 +5,7 @@
   align-items: center;
 }
 
-h1 {
+.header-content h1 {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
   width: fit-content;
