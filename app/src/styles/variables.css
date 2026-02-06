@@ -60,6 +60,7 @@
   --font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   --font-size-base: 16px;
   --font-size-sm: 0.5rem;
+  --font-size-md: 0.75rem;
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.5rem;
   --font-size-2xl: 2rem;
@@ -100,4 +101,11 @@
   --box-shadow-active-danger:
     -1px -1px 2px rgb(var(--color-danger-rgb), 0.6),
     2px 2px 5px rgb(var(--color-bg-rgb), 0.5);
+
+  /* Backgrounds */
+  --background-danger: radial-gradient(
+    ellipse 50% 80% at 50% 100%,
+    rgb(var(--color-danger-hover-rgb), 0.8),
+    transparent
+  );
 }
