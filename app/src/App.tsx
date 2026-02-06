@@ -1,23 +1,27 @@
 import { Outlet } from '@tanstack/react-router';
-import { Backdrop, LightSource, SideBarNav, Header } from './components';
+import { Backdrop, LightSource, SideBarNav, Header, ErrorBoundary } from './components';
 import { DataProvider } from './data/DataProvider';
 import './App.css';
 
 export const App = () => {
   return (
-    <DataProvider>
-      <Backdrop />
-      <LightSource intensity='bright' />
+    <ErrorBoundary>
+      <DataProvider>
+        <Backdrop />
+        <LightSource intensity='bright' />
 
-      <main className='app'>
-        <SideBarNav />
+        <main className='app'>
+          <SideBarNav />
 
-        <div className='screens-container'>
-          <Header />
+          <div className='screens-container'>
+            <Header />
 
-          <Outlet />
-        </div>
-      </main>
-    </DataProvider>
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
+          </div>
+        </main>
+      </DataProvider>
+    </ErrorBoundary>
   );
 };
