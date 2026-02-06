@@ -9,8 +9,8 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useParams, useRouter } from '@tanstack/react-router';
-import { useAdventures } from '@/data/adventures';
-import { useEffect, useState } from 'react';
+import { useAdventures } from '@/providers/adventures';
+import { useState } from 'react';
 import { Routes } from '@/routes';
 import { Adventure } from '@db/adventure';
 import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
@@ -23,26 +23,10 @@ export const AdventureScreen = () => {
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
+  const { adventure, updateAdventure, deleteAdventure } = useAdventures();
   const { adventureId } = useParams({
     from: `${Routes.ADVENTURE}/$adventureId`,
   });
-
-  const { initAdventure, adventure, updateAdventure, deleteAdventure, error } =
-    useAdventures();
-
-  if (error) {
-    return (
-      <div className='content-center'>
-        <h1>Error</h1>
-        <p style={{ color: 'red' }}>{error}</p>
-        <p>Check the browser console for more details</p>
-      </div>
-    );
-  }
-
-  useEffect(() => {
-    initAdventure(adventureId);
-  }, [adventureId]);
 
   if (!adventure) {
     return (
@@ -51,8 +35,14 @@ export const AdventureScreen = () => {
   }
 
   const handleAdventureDelete = async () => {
-    await deleteAdventure(adventureId);
-    router.navigate({ to: `${Routes.ADVENTURES}` });
+    try {
+      await deleteAdventure(adventureId);
+      router.navigate({ to: `${Routes.ADVENTURES}` });
+    } catch (err) {
+      // TODO: Add toast notification or inline error display
+      // For now, errors during deletion will prevent navigation
+      // Future: could trigger error boundary or show user-friendly message
+    }
   };
 
   const startDate =

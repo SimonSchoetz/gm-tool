@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Session } from '@db/session';
-import { useSessions } from '@/data/sessions';
+import { useSessions } from '@/providers/sessions';
 import { SessionList } from './components';
 
 export const SessionScreen = () => {

@@ -2,7 +2,7 @@ import { FCProps } from '@/types';
 import './Header.css';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
-import { useAdventures } from '@/data/adventures';
+import { useAdventures } from '@/providers/adventures';
 import { useRouterState } from '@tanstack/react-router';
 import { Routes } from '@/routes';
 

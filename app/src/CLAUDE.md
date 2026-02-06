@@ -11,13 +11,16 @@ src/
 │ │ ├── ComponentA.tsx
 │ │ └── ComponentA.css
 │ └── index.ts
-├── data/
-├── routes/
+├── providers/ # state management for responsive frontend
+├── routes/ # Tanstack router
 ├── screens/
 │ ├── screenA/
 │ │ ├── ScreenA.tsx
 │ │ ├── ScreenA.css
 │ │ └── components/
+│ └── index.ts
+├── services/ # communication between db and providers
+│ ├── serviceA.ts
 │ └── index.ts
 ├── styles/
 │ ├── global.css

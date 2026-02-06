@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useImages } from '@/data/images';
+import { useImages } from '@/providers/images';
 import { getImageUrl } from '@/util';
 import { FCProps, HtmlProps } from '@/types';
 

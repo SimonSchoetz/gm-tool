@@ -1,7 +1,7 @@
 import { cn, filePicker } from '@/util';
 import { useState } from 'react';
 import { ActionContainer, HoloImg } from '@/components';
-import { useAdventures } from '@/data/adventures';
+import { useAdventures } from '@/providers/adventures';
 import AdventureFrame from '../AdventureFrame/AdventureFrame';
 import './UploadAdventureImgBtn.css';
 

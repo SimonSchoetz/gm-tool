@@ -1,5 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router';
-import { useAdventures } from '@/data/adventures';
+import { useAdventures } from '@/providers/adventures';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
 import {

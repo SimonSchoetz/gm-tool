@@ -1,4 +1,4 @@
-import { useAdventures } from '@/data/adventures';
+import { useAdventures } from '@/providers/adventures';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from '../../components/AdventureComponents';
 import { NewItemBtn } from '@/components';
@@ -7,25 +7,21 @@ import { Routes } from '@/routes';
 
 export const AdventuresScreen = () => {
   const router = useRouter();
-  const { adventures, loading, error, createAdventure } = useAdventures();
+  const { adventures, loading, createAdventure } = useAdventures();
 
   const handleAdventureCreation = async () => {
-    const newAdventureId = await createAdventure();
-    router.navigate({ to: `${Routes.ADVENTURE}/${newAdventureId}` });
+    try {
+      const newAdventureId = await createAdventure();
+      router.navigate({ to: `${Routes.ADVENTURE}/${newAdventureId}` });
+    } catch (err) {
+      // TODO: Add toast notification or inline error display
+      // For now, errors during creation will prevent navigation
+      // Future: could trigger error boundary or show user-friendly message
+    }
   };
 
   if (loading) {
     return <div className='content-center'>Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className='content-center'>
-        <h1>Error</h1>
-        <p style={{ color: 'red' }}>{error}</p>
-        <p>Check the browser console for more details</p>
-      </div>
-    );
   }
 
   return (

@@ -1,6 +1,14 @@
+import { Suspense } from 'react';
 import { Outlet } from '@tanstack/react-router';
-import { Backdrop, LightSource, SideBarNav, Header, ErrorBoundary } from './components';
-import { DataProvider } from './data/DataProvider';
+import {
+  Backdrop,
+  LightSource,
+  SideBarNav,
+  Header,
+  ErrorBoundary,
+  GlassPanel,
+} from './components';
+import { DataProvider } from './providers/DataProvider';
 import './App.css';
 
 export const App = () => {
@@ -17,7 +25,9 @@ export const App = () => {
             <Header />
 
             <ErrorBoundary>
-              <Outlet />
+              <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
+                <Outlet />
+              </Suspense>
             </ErrorBoundary>
           </div>
         </main>
