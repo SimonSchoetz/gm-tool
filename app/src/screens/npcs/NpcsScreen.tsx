@@ -16,12 +16,12 @@ export const NpcsScreen = () => {
     from: '/adventure/$adventureId/npcs',
   });
 
-  const { loadAdventure, adventure } = useAdventures();
+  const { initAdventure, adventure } = useAdventures();
 
   useEffect(() => {
     //get npcs by adventureID
     if (adventureId) {
-      loadAdventure(adventureId);
+      initAdventure(adventureId);
     }
   }, [adventureId]);
 

@@ -9,7 +9,7 @@ export const UploadAdventureImgBtn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 
-  const { adventure, handleAdventureUpdate } = useAdventures();
+  const { adventure, updateAdventure } = useAdventures();
   const handleClick = async () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -19,7 +19,7 @@ export const UploadAdventureImgBtn = () => {
       if (filePath === null) {
         return;
       } else {
-        handleAdventureUpdate({
+        updateAdventure({
           image_id: adventure?.image_id,
           imgFilePath: filePath,
         });

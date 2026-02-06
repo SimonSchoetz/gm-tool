@@ -27,20 +27,21 @@ export const AdventureScreen = () => {
     from: `${Routes.ADVENTURE}/$adventureId`,
   });
 
-  const {
-    loadAdventure,
-    adventure,
-    setAdventure,
-    handleAdventureUpdate,
-    deleteAdventure,
-  } = useAdventures();
+  const { initAdventure, adventure, updateAdventure, deleteAdventure, error } =
+    useAdventures();
+
+  if (error) {
+    return (
+      <div className='content-center'>
+        <h1>Error</h1>
+        <p style={{ color: 'red' }}>{error}</p>
+        <p>Check the browser console for more details</p>
+      </div>
+    );
+  }
 
   useEffect(() => {
-    loadAdventure(adventureId);
-    // Cleanup: clear current adventure on unmount
-    return () => {
-      setAdventure(null);
-    };
+    initAdventure(adventureId);
   }, [adventureId]);
 
   if (!adventure) {
@@ -76,9 +77,7 @@ export const AdventureScreen = () => {
                 type='text'
                 placeholder='Adventure Title'
                 value={adventure.title}
-                onChange={(e) =>
-                  handleAdventureUpdate({ title: e.target.value })
-                }
+                onChange={(e) => updateAdventure({ title: e.target.value })}
                 className='title-input'
                 required
               />
@@ -105,7 +104,7 @@ export const AdventureScreen = () => {
             <TextEditor
               value={adventure?.description || ''}
               textEditorId={`Adventure_${adventure.id}`}
-              onChange={(description) => handleAdventureUpdate({ description })}
+              onChange={(description) => updateAdventure({ description })}
             />
           </div>
         </CustomScrollArea>

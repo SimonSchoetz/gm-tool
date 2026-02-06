@@ -14,13 +14,10 @@ type AdventureContextType = {
   loading: boolean;
   error: string | null;
   setAdventure: (adventure: Adventure | null) => void;
-  loadAdventure: (id: string) => Promise<void>;
-  getAdventure: (data: string) => Promise<Adventure>;
-  handleAdventureUpdate: (field: UpdateAdventureData) => void;
+  initAdventure: (id: string) => Promise<void>;
+  updateAdventure: (field: UpdateAdventureData) => void;
   createAdventure: () => Promise<string>;
-  updateAdventure: (id: string, data: UpdateAdventureInput) => Promise<void>;
   deleteAdventure: (id: string) => Promise<void>;
-  refreshAdventures: () => Promise<void>;
 };
 
 export type UpdateAdventureData = UpdateAdventureInput & {
@@ -57,32 +54,22 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     }
   };
 
-  const getAdventure = async (id: string) => {
-    // First try to find in current state
-    let foundAdventure = adventures.find((adv) => adv.id === id);
-
-    // If not found and state is empty, fetch directly from database
-    if (!foundAdventure && adventures.length === 0) {
-      foundAdventure = (await adventureDb.get(id)) ?? undefined;
+  const initAdventure = async (id: string) => {
+    if (adventures.length === 0) {
+      await loadAdventures();
     }
 
-    if (!foundAdventure) {
-      const errorMsg = `Can't find adventure with id ${id}`;
-      console.error(errorMsg);
-      throw Error(errorMsg);
-    }
+    const foundAdventure = adventures.find((adv) => adv.id === id);
 
-    return foundAdventure;
-  };
-
-  const loadAdventure = async (id: string): Promise<void> => {
-    const currentAdventure = await adventureDb.get(id);
-    if (currentAdventure) {
-      setAdventure(currentAdventure);
+    if (foundAdventure) {
+      setAdventure(foundAdventure);
+    } else {
+      setError(`Can't find adventure with id ${id}`);
+      throw new Error(`Can't find adventure with id ${id}`);
     }
   };
 
-  const handleAdventureUpdate = (data: UpdateAdventureData) => {
+  const updateAdventure = (data: UpdateAdventureData) => {
     if (!adventure) return;
 
     // Update state immediately (optimistic)
@@ -99,26 +86,13 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
 
     // Debounce DB save (500ms after last change)
     debounceTimeoutRef.current = setTimeout(() => {
-      updateAdventure(adventure.id, data).catch((error) => {
+      updateAdventureInDb(adventure.id, data).catch((error) => {
         console.error('Failed to auto-save adventure:', error);
       });
     }, 500);
   };
 
-  const createAdventure = async (): Promise<string> => {
-    try {
-      const dto: CreateAdventureInput = {
-        title: `New adventure ${new Date().toLocaleDateString()}`,
-      };
-
-      return await adventureDb.create(dto);
-    } catch (err) {
-      console.error('Failed to create adventure:', err);
-      throw err;
-    }
-  };
-
-  const updateAdventure = async (id: string, data: UpdateAdventureData) => {
+  const updateAdventureInDb = async (id: string, data: UpdateAdventureData) => {
     let image_id: string | null | undefined = undefined;
 
     try {
@@ -141,27 +115,48 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
       await adventureDb.update(id, dto);
 
       // Reload adventures list and current adventure to keep state in sync
-      await refreshAdventures(id);
+      await loadAdventures();
+      if (id && adventure?.id === id) {
+        await initAdventure(id);
+      }
     } catch (err) {
       console.error('Failed to update adventure:', err);
       throw err;
     }
   };
 
-  const deleteAdventure = async (id: string) => {
+  const createAdventure = async (): Promise<string> => {
     try {
+      const dto: CreateAdventureInput = {
+        title: `New adventure ${new Date().toLocaleDateString()}`,
+      };
+
+      return await adventureDb.create(dto);
+    } catch (err) {
+      console.error('Failed to create adventure:', err);
+      throw err;
+    }
+  };
+
+  const deleteAdventure = async (id: string) => {
+    await initAdventure(id);
+
+    if (adventure?.image_id) {
+      await imageDb.remove(adventure.image_id);
+    }
+
+    try {
+      /**
+       * TODO:
+       * - trigger delete all sessions that belong to adventure
+       * - trigger delete all NPCs that belong to adventure
+       * ... -> needs a logic that triggers deletion of everything that belongs to the adventure (probably FK adventure_id in all other tables)
+       */
       await adventureDb.remove(id);
       await loadAdventures();
     } catch (err) {
       console.error('Failed to delete adventure:', err);
       throw err;
-    }
-  };
-
-  const refreshAdventures = async (id?: string) => {
-    await loadAdventures();
-    if (id && adventure?.id === id) {
-      await loadAdventure(id);
     }
   };
 
@@ -184,14 +179,11 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     adventure,
     loading,
     error,
-    getAdventure,
-    loadAdventure,
+    initAdventure,
     setAdventure,
-    handleAdventureUpdate,
-    createAdventure,
     updateAdventure,
+    createAdventure,
     deleteAdventure,
-    refreshAdventures,
   };
 
   return (
