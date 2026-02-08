@@ -1,0 +1,73 @@
+.npc-screen {
+  padding: var(--spacing-md);
+  display: grid;
+  gap: var(--spacing-xl);
+  grid-template-columns: auto 1fr;
+}
+
+.text-edit-area {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.title-input {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-medium);
+}
+
+.npc-facts {
+  display: flex;
+  list-style-type: none;
+  gap: var(--spacing-xl);
+  color: rgb(var(--color-fg-rgb), 0.6);
+  margin-bottom: var(--spacing-md);
+}
+
+.npc-facts span {
+  color: var(--color-fg);
+}
+
+.npc-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.delete-npc-dialog {
+  padding: var(--spacing-2xl);
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.delete-npc-dialog h1 {
+  text-align: center;
+}
+
+.delete-npc-dialog p {
+  width: 100%;
+}
+
+.delete-npc-dialog-confirm-text {
+  color: var(--color-danger);
+}
+
+.delete-npc-dialog-input {
+  background-color: transparent;
+  text-shadow: 0 0 5px var(--color-bg);
+  text-align: center;
+  border: none;
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.delete-npc-dialog-input:focus {
+  color: var(--color-danger);
+  border-bottom-color: var(--color-danger);
+}
