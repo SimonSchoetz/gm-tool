@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { Outlet } from '@tanstack/react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   Backdrop,
   LightSource,
@@ -9,26 +8,13 @@ import {
   ErrorBoundary,
   GlassPanel,
 } from './components';
-import { DataProvider } from './providers/DataProvider';
+import { DataProvider, TanstackQueryClientProvider } from './providers/';
 import './App.css';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-    mutations: {
-      throwOnError: true, // Errors bubble to Error Boundary
-    },
-  },
-});
 
 export const App = () => {
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+      <TanstackQueryClientProvider>
         <DataProvider>
           <Backdrop />
           <LightSource intensity='bright' />
@@ -47,7 +33,7 @@ export const App = () => {
             </div>
           </main>
         </DataProvider>
-      </QueryClientProvider>
+      </TanstackQueryClientProvider>
     </ErrorBoundary>
   );
 };
