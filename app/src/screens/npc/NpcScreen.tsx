@@ -9,42 +9,36 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useAdventures } from '@/providers/adventures';
+import { useNpcs } from '@/providers/npcs';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
-import { Adventure } from '@db/adventure';
+import { Npc } from '@db/npc';
 import './NpcScreen.css';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
 export const NpcScreen = () => {
   const router = useRouter();
-  const { adventureId } = useParams({
-    from: `${Routes.ADVENTURE}/$adventureId/`,
+  const { adventureId, npcId } = useParams({
+    from: `${Routes.ADVENTURE}/$adventureId${Routes.NPCS}/$npcId`,
   });
 
-  const {
-    adventure,
-    updateAdventure,
-    deleteAdventure,
-    initAdventure,
-    saveError,
-  } = useAdventures();
+  const { npc, updateNpc, deleteNpc, initNpc, saveError } = useNpcs();
 
   useEffect(() => {
-    initAdventure(adventureId);
-  }, [adventureId, initAdventure]);
+    initNpc(npcId);
+  }, [npcId, initNpc]);
 
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
-  if (!adventure || adventure.id !== adventureId) {
+  if (!npc || npc.id !== npcId) {
     return <div>Loading...</div>;
   }
 
-  const handleAdventureDelete = async () => {
-    await deleteAdventure(adventure.id);
-    router.navigate({ to: `${Routes.ADVENTURES}` });
+  const handleNpcDelete = async () => {
+    await deleteNpc(npc.id);
+    router.navigate({ to: `${Routes.ADVENTURE}/${adventureId}/npcs` });
   };
 
   return (
@@ -52,16 +46,16 @@ export const NpcScreen = () => {
       <GlassPanel className={cn('npc-screen')}>
         <aside className='npc-sidebar'>
           <UploadImgBtn
-            image_id={adventure.image_id ?? undefined}
+            image_id={npc.image_id ?? undefined}
             uploadFn={(filePath) =>
-              updateAdventure({
+              updateNpc({
                 imgFilePath: filePath,
-                image_id: adventure.image_id,
+                image_id: npc.image_id,
               })
             }
           />
           <Button
-            label='Delete Adventure'
+            label='Delete NPC'
             onClick={() => setDeleteDialogState('open')}
             buttonStyle={'danger'}
           />
@@ -73,64 +67,70 @@ export const NpcScreen = () => {
               <Input
                 type='text'
                 placeholder='NPC Name'
-                value={adventure.title}
-                onChange={(e) => updateAdventure({ title: e.target.value })}
+                value={npc.name}
+                onChange={(e) => updateNpc({ name: e.target.value })}
                 className='title-input'
                 required
               />
 
+              <Input
+                type='text'
+                placeholder='Rank (optional)'
+                value={npc.rank ?? ''}
+                onChange={(e) => updateNpc({ rank: e.target.value || null })}
+                className='subtitle-input'
+              />
+
               <ul className={cn('npc-facts')}>
                 <li>
-                  Rank: <span>TBD</span>
+                  Faction:{' '}
+                  <Input
+                    type='text'
+                    placeholder='Faction'
+                    value={npc.faction ?? ''}
+                    onChange={(e) =>
+                      updateNpc({ faction: e.target.value || null })
+                    }
+                  />
                 </li>
                 <li>
-                  Faction: <span>TBD</span>
-                </li>
-                <li>
-                  Hometown: <span>TBD</span>
-                </li>
-                <li>
-                  PCs: <span>0</span>
-                </li>
-                <li>
-                  Party Level: <span>0</span>
+                  Hometown:{' '}
+                  <Input
+                    type='text'
+                    placeholder='Hometown'
+                    value={npc.hometown ?? ''}
+                    onChange={(e) =>
+                      updateNpc({ hometown: e.target.value || null })
+                    }
+                  />
                 </li>
               </ul>
             </div>
 
             {saveError && <div className='error-message'>{saveError}</div>}
             <TextEditor
-              value={adventure?.description || ''}
-              textEditorId={`NPC_${adventure.id}`}
-              onChange={(description) => updateAdventure({ description })}
+              value={npc?.description || ''}
+              textEditorId={`NPC_${npc.id}`}
+              onChange={(description) => updateNpc({ description })}
             />
           </div>
         </CustomScrollArea>
       </GlassPanel>
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
-        <DeleteAdventureDialog
-          adventure={adventure}
-          onDeletionConfirm={handleAdventureDelete}
-          name={adventure.title}
-        />
+        <DeleteNpcDialog npc={npc} onDeletionConfirm={handleNpcDelete} />
       </PopUpContainer>
     </>
   );
 };
 
-type DeleteAdventureDialogProps = {
-  adventure: Adventure;
+type DeleteNpcDialogProps = {
+  npc: Npc;
   onDeletionConfirm: () => void;
-  name: string;
 };
 
-const DeleteAdventureDialog = ({
-  adventure,
-  onDeletionConfirm,
-  name,
-}: DeleteAdventureDialogProps) => {
+const DeleteNpcDialog = ({ npc, onDeletionConfirm }: DeleteNpcDialogProps) => {
   const [intensity, setIntensity] = useState<number>(0);
-  const confirmText = `DELETE ${name}`;
+  const confirmText = `DELETE ${npc.name}`;
 
   const handleInputChange = (input: string) => {
     const targetSubString = confirmText.substring(0, input.length);
@@ -153,10 +153,10 @@ const DeleteAdventureDialog = ({
         background: `radial-gradient(ellipse 50% 80% at 50% 100%, rgb(var(--color-danger-hover-rgb), ${intensity}), transparent)`,
       }}
     >
-      <h1 className='delete-npc-dialog-title'>Delete {adventure.title}</h1>
+      <h1 className='delete-npc-dialog-title'>Delete {npc.name}</h1>
       <p>
-        You are about to delete this adventure with all its sessions,
-        characters, images, ect. This action can not be undone.
+        You are about to delete this NPC with all associated data. This action
+        cannot be undone.
       </p>
       <p>
         Type

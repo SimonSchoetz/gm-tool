@@ -1,5 +1,5 @@
-import { Link, useParams } from '@tanstack/react-router';
-import { useAdventures } from '@/providers/adventures';
+import { Link, useParams, useRouter } from '@tanstack/react-router';
+import { useNpcs } from '@/providers/npcs';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
 import {
@@ -9,73 +9,54 @@ import {
   NewItemBtn,
 } from '@/components';
 import { ChevronDownIcon } from 'lucide-react';
+import type { Npc } from '@db/npc';
 import './NpcsScreen.css';
 
 export const NpcsScreen = () => {
+  const router = useRouter();
   const { adventureId } = useParams({
     from: '/adventure/$adventureId/npcs',
   });
 
-  const { initAdventure, adventure } = useAdventures();
+  const { initNpcs, npcs, loading, createNpc } = useNpcs();
 
   useEffect(() => {
-    //get npcs by adventureID
     if (adventureId) {
-      initAdventure(adventureId);
+      initNpcs(adventureId);
     }
-  }, [adventureId]);
+  }, [adventureId, initNpcs]);
+
+  const handleNpcCreation = async () => {
+    const newNpcId = await createNpc(adventureId);
+    router.navigate({
+      to: `${Routes.ADVENTURE}/${adventureId}/npcs/${newNpcId}`,
+    });
+  };
+
+  if (loading) {
+    return <div className='content-center'>Loading...</div>;
+  }
 
   return (
     <GlassPanel className='npcs-screen'>
       <TableHeadRow />
       <CustomScrollArea>
         <ul className='npc-table'>
-          <NewNPCButton />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
-          <ListItem />
+          <li key='new-npc'>
+            <NewItemBtn
+              type='list-item'
+              label='+'
+              onClick={handleNpcCreation}
+              className='new-npc-btn'
+            />
+          </li>
+
+          {npcs.map((npc) => (
+            <ListItem key={npc.id} npc={npc} adventureId={adventureId} />
+          ))}
         </ul>
       </CustomScrollArea>
     </GlassPanel>
-  );
-};
-
-const NewNPCButton = () => {
-  return (
-    <NewItemBtn
-      type='list-item'
-      label='+'
-      onClick={() => console.log('new NPC clicked')}
-      className='new-npc-btn'
-    />
   );
 };
 
@@ -109,19 +90,29 @@ const TableHeadRow = () => {
   );
 };
 
-const ListItem = () => {
+type ListItemProps = {
+  npc: Npc;
+  adventureId: string;
+};
+
+const ListItem = ({ npc, adventureId }: ListItemProps) => {
+  const createdAt =
+    npc.created_at && new Date(npc.created_at).toLocaleDateString();
+  const updatedAt =
+    npc.updated_at && new Date(npc.updated_at).toLocaleDateString();
+
   return (
     <li>
       <GlassPanel intensity='bright'>
         <Link
           className='npc-list-item'
-          to={`${Routes.ADVENTURES}` /* Will route to NPC screen */}
+          to={`${Routes.ADVENTURE}/${adventureId}/npcs/${npc.id}`}
         >
-          <div>Image or Placeholder</div>
-          <div>PC Name</div>
-          <div>Faction they belong to</div>
-          <div>When they were created</div>
-          <div>When they have been last updated</div>
+          <div>{npc.image_id ? 'Image' : 'No Image'}</div>
+          <div>{npc.name}</div>
+          <div>{npc.faction || '-'}</div>
+          <div>{createdAt}</div>
+          <div>{updatedAt}</div>
         </Link>
       </GlassPanel>
     </li>

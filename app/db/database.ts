@@ -2,6 +2,7 @@ import Database from '@tauri-apps/plugin-sql';
 import { imageTable } from './image/schema';
 import { adventureTable } from './adventure/schema';
 import { sessionTable } from './session/schema';
+import { npcTable } from './npc/schema';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
@@ -44,6 +45,7 @@ export const initDatabase = async () => {
         { name: 'images', sql: imageTable.createTableSQL },
         { name: 'adventures', sql: adventureTable.createTableSQL },
         { name: 'sessions', sql: sessionTable.createTableSQL },
+        { name: 'npcs', sql: npcTable.createTableSQL },
       ];
 
       for (const { name, sql } of tableSchemas) {
