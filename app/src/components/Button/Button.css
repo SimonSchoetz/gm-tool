@@ -16,7 +16,7 @@
 }
 
 .button-wrapper--danger:hover {
-  box-shadow: inset 0 -5px 10px rgb(var(--color-danger-hover-rgb), 0.8);
+  box-shadow: var(--box-shadow-inset-danger);
   background: var(--background-danger);
 }
 

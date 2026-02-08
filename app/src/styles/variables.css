@@ -101,7 +101,8 @@
   --box-shadow-active-danger:
     -1px -1px 2px rgb(var(--color-danger-rgb), 0.6),
     2px 2px 5px rgb(var(--color-bg-rgb), 0.5);
-
+  --box-shadow-inset-danger: inset 0 -5px 10px
+    rgb(var(--color-danger-hover-rgb), 0.8);
   /* Backgrounds */
   --background-danger: radial-gradient(
     ellipse 50% 80% at 50% 100%,

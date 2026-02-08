@@ -1,3 +1,20 @@
 .upload-adventure-img-btn {
   border-radius: var(--radius-2xl);
 }
+
+.img-upload-textbox {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.img-upload-error-msg {
+  color: var(--color-danger);
+  background-color: var(--color-fg);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--box-shadow-inset-danger);
+  background: var(--background-danger);
+}

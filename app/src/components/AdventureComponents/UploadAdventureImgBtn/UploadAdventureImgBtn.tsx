@@ -36,35 +36,33 @@ export const UploadAdventureImgBtn = ({
     }
   };
 
-  return (
+  return image_id ? (
+    <ActionContainer
+      onClick={handleClick}
+      label='Replace cover image'
+      invisible
+    >
+      <HoloImg image_id={image_id} title={title} />
+    </ActionContainer>
+  ) : (
     <div>
-      {image_id ? (
-        <ActionContainer
-          className={cn('replace-adventure-img-btn')}
-          onClick={handleClick}
-          label='Replace cover image'
-          invisible
-        >
-          <HoloImg image_id={image_id} title={title} />
-        </ActionContainer>
-      ) : (
-        <ActionContainer
-          className={cn('upload-adventure-img-btn')}
-          onClick={handleClick}
-          label='Upload cover image'
-        >
-          <AdventureFrame>
-            <p
-              style={{
-                textAlign: 'center',
-              }}
-            >
-              {isLoading ? 'Loading...' : 'Click to upload cover image'}
-            </p>
-          </AdventureFrame>
-        </ActionContainer>
-      )}
-      {error && error}
+      <ActionContainer
+        className={cn('upload-adventure-img-btn')}
+        onClick={handleClick}
+        label='Upload cover image'
+      >
+        <AdventureFrame>
+          <p
+            className='img-upload-textbox'
+            style={{
+              textAlign: 'center',
+            }}
+          >
+            {isLoading ? 'Loading...' : 'Click to upload cover image'}
+            {error && <p className='img-upload-error-msg'>{error}</p>}
+          </p>
+        </AdventureFrame>
+      </ActionContainer>
     </div>
   );
 };

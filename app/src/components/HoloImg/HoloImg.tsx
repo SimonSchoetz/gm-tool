@@ -28,12 +28,7 @@ export const HoloImg: FCProps<Props> = ({
       {...props}
     >
       <AdventureFrame
-        className={cn(
-          'children-container',
-          'tilt-fx',
-          isActive && 'active',
-          className,
-        )}
+        className={cn('tilt-fx', isActive && 'active', className)}
       >
         <HoloFX shimmerContent={title} isActive={isActive} />
 
