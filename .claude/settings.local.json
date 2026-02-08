@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm test)",
       "Bash(npm test:*)",
-      "Bash(cargo check:*)"
+      "Bash(cargo check:*)",
+      "WebFetch(domain:tanstack.com)"
     ],
     "deny": [],
     "ask": []
