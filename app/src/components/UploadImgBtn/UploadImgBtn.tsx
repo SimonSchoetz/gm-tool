@@ -1,8 +1,8 @@
 import { cn, filePicker } from '@/util';
 import { useState } from 'react';
 import { ActionContainer, HoloImg } from '@/components';
-import AdventureFrame from '../AdventureFrame/AdventureFrame';
-import './UploadAdventureImgBtn.css';
+import AdventureFrame from '../AdventureComponents/AdventureFrame/AdventureFrame';
+import './UploadImgBtn.css';
 
 type Props = {
   image_id?: string;
@@ -10,11 +10,7 @@ type Props = {
   uploadFn: (filePath: string) => void;
 };
 
-export const UploadAdventureImgBtn = ({
-  image_id,
-  title = '',
-  uploadFn,
-}: Props) => {
+export const UploadImgBtn = ({ image_id, title = '', uploadFn }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 

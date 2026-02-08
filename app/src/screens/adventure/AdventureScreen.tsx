@@ -6,6 +6,7 @@ import {
   Input,
   PopUpContainer,
   TextEditor,
+  UploadImgBtn,
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
@@ -13,7 +14,6 @@ import { useAdventures } from '@/providers/adventures';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
 import { Adventure } from '@db/adventure';
-import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
@@ -54,7 +54,7 @@ export const AdventureScreen = () => {
     <>
       <GlassPanel className={cn('adventure-screen')}>
         <aside className='adventure-sidebar'>
-          <UploadAdventureImgBtn
+          <UploadImgBtn
             image_id={adventure.image_id ?? undefined}
             uploadFn={(filePath) =>
               updateAdventure({

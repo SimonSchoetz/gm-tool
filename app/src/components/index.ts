@@ -15,3 +15,4 @@ export * from './CustomScrollArea/CustomScrollArea';
 export * from './Button/Button.tsx';
 export * from './TextEditor/TextEditor.tsx';
 export * from './ErrorBoundary/ErrorBoundary';
+export * from './UploadImgBtn/UploadImgBtn.tsx';
