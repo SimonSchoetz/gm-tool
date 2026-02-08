@@ -20,7 +20,7 @@
   font-weight: var(--font-weight-medium);
 }
 
-.adventure-stats {
+.adventure-facts {
   display: flex;
   list-style-type: none;
   gap: var(--spacing-xl);
@@ -28,7 +28,7 @@
   margin-bottom: var(--spacing-md);
 }
 
-.adventure-stats span {
+.adventure-facts span {
   color: var(--color-fg);
 }
 

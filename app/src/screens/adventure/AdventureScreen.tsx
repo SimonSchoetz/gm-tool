@@ -82,7 +82,7 @@ export const AdventureScreen = () => {
                 required
               />
 
-              <ul className={cn('adventure-stats')}>
+              <ul className={cn('adventure-facts')}>
                 <li>
                   Started: <span>{startDate}</span>
                 </li>
