@@ -11,7 +11,7 @@
 
 ## Before anything else
 
-Reade all CLAUDE.md files!
+Read all CLAUDE.md files!
 
 ## Purpose
 
