@@ -1,15 +1,23 @@
 import { cn, filePicker } from '@/util';
 import { useState } from 'react';
 import { ActionContainer, HoloImg } from '@/components';
-import { useAdventures } from '@/providers/adventures';
 import AdventureFrame from '../AdventureFrame/AdventureFrame';
 import './UploadAdventureImgBtn.css';
 
-export const UploadAdventureImgBtn = () => {
+type Props = {
+  image_id?: string;
+  title?: string;
+  uploadFn: (filePath: string) => void;
+};
+
+export const UploadAdventureImgBtn = ({
+  image_id,
+  title = '',
+  uploadFn,
+}: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 
-  const { adventure, updateAdventure } = useAdventures();
   const handleClick = async () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -19,10 +27,7 @@ export const UploadAdventureImgBtn = () => {
       if (filePath === null) {
         return;
       } else {
-        updateAdventure({
-          image_id: adventure?.image_id,
-          imgFilePath: filePath,
-        });
+        uploadFn(filePath);
       }
     } catch (err) {
       setError(err?.toString());
@@ -33,14 +38,14 @@ export const UploadAdventureImgBtn = () => {
 
   return (
     <div>
-      {adventure?.image_id ? (
+      {image_id ? (
         <ActionContainer
           className={cn('replace-adventure-img-btn')}
           onClick={handleClick}
           label='Replace cover image'
           invisible
         >
-          <HoloImg image_id={adventure.image_id} title={adventure.title} />
+          <HoloImg image_id={image_id} title={title} />
         </ActionContainer>
       ) : (
         <ActionContainer
