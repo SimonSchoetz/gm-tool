@@ -9,6 +9,10 @@
 - Focus on the "what" and "why", not the "how"
 - --- **Delete this section after reading to keep Claude focused END**
 
+## Before anything else
+
+Reade all CLAUDE.md files!
+
 ## Purpose
 
 Brief description of what this component does and why it exists.
