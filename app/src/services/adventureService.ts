@@ -26,21 +26,14 @@ export const getAllAdventures = async (): Promise<Adventure[]> => {
   }
 };
 
-export const getAdventureById = async (
-  id: string,
-  adventures?: Adventure[],
-): Promise<Adventure> => {
-  const adventureList = adventures?.length
-    ? adventures
-    : await getAllAdventures();
+export const getAdventureById = async (id: string): Promise<Adventure> => {
+  const adventure = await adventureDb.get(id);
 
-  const foundAdventure = adventureList.find((adv) => adv.id === id);
-
-  if (!foundAdventure) {
+  if (!adventure) {
     throw new AdventureNotFoundError(id);
   }
 
-  return foundAdventure;
+  return adventure;
 };
 
 export const createAdventure = async (): Promise<string> => {

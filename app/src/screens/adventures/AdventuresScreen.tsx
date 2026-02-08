@@ -10,14 +10,8 @@ export const AdventuresScreen = () => {
   const { adventures, loading, createAdventure } = useAdventures();
 
   const handleAdventureCreation = async () => {
-    try {
-      const newAdventureId = await createAdventure();
-      router.navigate({ to: `${Routes.ADVENTURE}/${newAdventureId}` });
-    } catch (err) {
-      // TODO: Add toast notification or inline error display
-      // For now, errors during creation will prevent navigation
-      // Future: could trigger error boundary or show user-friendly message
-    }
+    const newAdventureId = await createAdventure();
+    router.navigate({ to: `${Routes.ADVENTURE}/${newAdventureId}` });
   };
 
   if (loading) {

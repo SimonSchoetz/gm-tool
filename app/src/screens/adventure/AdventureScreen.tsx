@@ -8,7 +8,7 @@ import {
   TextEditor,
 } from '@/components';
 import { cn } from '@/util';
-import { useRouter, useLoaderData } from '@tanstack/react-router';
+import { useRouter, useParams } from '@tanstack/react-router';
 import { useAdventures } from '@/providers/adventures';
 import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
@@ -19,8 +19,7 @@ type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
 export const AdventureScreen = () => {
   const router = useRouter();
-
-  const { adventure: loadedAdventure } = useLoaderData({
+  const { adventureId } = useParams({
     from: `${Routes.ADVENTURE}/$adventureId/`,
   });
 
@@ -33,27 +32,19 @@ export const AdventureScreen = () => {
   } = useAdventures();
 
   useEffect(() => {
-    initAdventure(loadedAdventure.id);
-  }, [loadedAdventure]);
+    initAdventure(adventureId);
+  }, [adventureId, initAdventure]);
 
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
-  // Sync provider state with loader data (no double-loading!)
-
-  if (!adventure) {
+  if (!adventure || adventure.id !== adventureId) {
     return <div>Loading...</div>;
   }
 
   const handleAdventureDelete = async () => {
-    try {
-      await deleteAdventure(adventure.id);
-      router.navigate({ to: `${Routes.ADVENTURES}` });
-    } catch (err) {
-      // TODO: Add toast notification or inline error display
-      // For now, errors during deletion will prevent navigation
-      // Future: could trigger error boundary or show user-friendly message
-    }
+    await deleteAdventure(adventure.id);
+    router.navigate({ to: `${Routes.ADVENTURES}` });
   };
 
   const startDate =
@@ -63,7 +54,15 @@ export const AdventureScreen = () => {
     <>
       <GlassPanel className={cn('adventure-screen')}>
         <aside className='adventure-sidebar'>
-          <UploadAdventureImgBtn />
+          <UploadAdventureImgBtn
+            image_id={adventure.image_id ?? undefined}
+            uploadFn={(filePath) =>
+              updateAdventure({
+                imgFilePath: filePath,
+                image_id: adventure.image_id,
+              })
+            }
+          />
           <Button
             label='Delete Adventure'
             onClick={() => setDeleteDialogState('open')}
