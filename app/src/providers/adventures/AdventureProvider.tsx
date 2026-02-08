@@ -1,8 +1,8 @@
 import { createContext, useEffect, useState, ReactNode, useRef } from 'react';
 import type { Adventure } from '@db/adventure';
-import * as adventureService from '@/services/adventureService';
+import * as service from '@/services/adventureService';
 import type { UpdateAdventureData } from '@/services/adventureService';
-import { AdventureLoadError, AdventureUpdateError } from './errors';
+import { AdventureLoadError, AdventureUpdateError } from '@/domain/adventures';
 
 type AdventureContextType = {
   adventures: Adventure[];
@@ -37,7 +37,11 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
   const loadAdventures = async () => {
     try {
       setLoading(true);
-      const loadedAdventures = await adventureService.loadAllAdventures();
+      const loadedAdventures = await service.getAllAdventures();
+      console.log(
+        '>>>>>>>>> | loadAdventures | loadedAdventures:',
+        loadedAdventures,
+      );
       setAdventures(loadedAdventures);
       setError(null);
     } catch (err) {
@@ -48,16 +52,19 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
     }
   };
 
-  const initAdventure = async (id: string) => {
-    const adventureList =
-      adventures.length === 0
-        ? await adventureService.loadAllAdventures()
-        : adventures;
-    const foundAdventure = await adventureService.loadAdventureById(
-      id,
-      adventureList,
-    );
-    setAdventure(foundAdventure);
+  const initAdventure = async (idOrAdventure: string | Adventure) => {
+    console.log('>>>>>>>>> | initAdventure | idOrAdventure:', idOrAdventure);
+    if (typeof idOrAdventure === 'string') {
+      const adventureList = await service.getAllAdventures();
+      console.log('>>>>>>>>> | initAdventure | adventureList:', adventureList);
+      const foundAdventure = await service.getAdventureById(
+        idOrAdventure,
+        adventureList,
+      );
+      setAdventure(foundAdventure);
+    } else {
+      setAdventure(idOrAdventure);
+    }
   };
 
   const updateAdventure = (data: UpdateAdventureData) => {
@@ -90,23 +97,24 @@ export const AdventureProvider = ({ children }: AdventureProviderProps) => {
 
   const updateAdventureInDb = async (id: string, data: UpdateAdventureData) => {
     try {
-      await adventureService.updateAdventure(id, data);
+      await service.updateAdventure(id, data);
 
       await loadAdventures();
-      if (id && adventure?.id === id) {
-        await initAdventure(id);
-      }
+      console.log(adventure);
+      console.log(adventures);
     } catch (err) {
       throw new AdventureUpdateError(id, err);
     }
   };
 
   const createAdventure = async (): Promise<string> => {
-    return await adventureService.createAdventure();
+    const id = await service.createAdventure();
+    await loadAdventures();
+    return id;
   };
 
   const deleteAdventure = async (id: string) => {
-    await adventureService.deleteAdventure(id, adventure ?? undefined);
+    await service.deleteAdventure(id, adventure ?? undefined);
     await loadAdventures();
   };
 

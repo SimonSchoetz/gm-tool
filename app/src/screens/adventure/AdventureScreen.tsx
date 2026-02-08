@@ -8,9 +8,9 @@ import {
   TextEditor,
 } from '@/components';
 import { cn } from '@/util';
-import { useParams, useRouter } from '@tanstack/react-router';
+import { useRouter, useLoaderData } from '@tanstack/react-router';
 import { useAdventures } from '@/providers/adventures';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
 import { Adventure } from '@db/adventure';
 import { UploadAdventureImgBtn } from '@/components/AdventureComponents';
@@ -20,23 +20,34 @@ type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 export const AdventureScreen = () => {
   const router = useRouter();
 
+  const { adventure: loadedAdventure } = useLoaderData({
+    from: `${Routes.ADVENTURE}/$adventureId/`,
+  });
+
+  const {
+    adventure,
+    updateAdventure,
+    deleteAdventure,
+    initAdventure,
+    saveError,
+  } = useAdventures();
+
+  useEffect(() => {
+    initAdventure(loadedAdventure.id);
+  }, [loadedAdventure]);
+
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
-  const { adventure, updateAdventure, deleteAdventure } = useAdventures();
-  const { adventureId } = useParams({
-    from: `${Routes.ADVENTURE}/$adventureId`,
-  });
+  // Sync provider state with loader data (no double-loading!)
 
   if (!adventure) {
-    return (
-      <GlassPanel className={cn('adventure-screen')}>Loading...</GlassPanel>
-    );
+    return <div>Loading...</div>;
   }
 
   const handleAdventureDelete = async () => {
     try {
-      await deleteAdventure(adventureId);
+      await deleteAdventure(adventure.id);
       router.navigate({ to: `${Routes.ADVENTURES}` });
     } catch (err) {
       // TODO: Add toast notification or inline error display
@@ -91,6 +102,7 @@ export const AdventureScreen = () => {
               </ul>
             </div>
 
+            {saveError && <div className='error-message'>{saveError}</div>}
             <TextEditor
               value={adventure?.description || ''}
               textEditorId={`Adventure_${adventure.id}`}
@@ -99,7 +111,6 @@ export const AdventureScreen = () => {
           </div>
         </CustomScrollArea>
       </GlassPanel>
-
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteAdventureDialog
           adventure={adventure}

@@ -6,12 +6,22 @@ database
 src/
 ├── **tests**
 ├── assets/
-├── components/
+├── components/ # UI
 │ ├── ComponentA/
 │ │ ├── ComponentA.tsx
 │ │ └── ComponentA.css
 │ └── index.ts
-├── providers/ # state management for responsive frontend
+├── domain/ # business concepts (errors, types, validation)
+│ ├── domainA/
+│ │ ├── index.ts
+│ │ ├── types.ts # domain specific types when needed
+│ │ ├── validation.ts # business rules when needed
+│ │ └── errors.ts
+├── providers/ # React state (context, hooks)
+│ ├── providerA/
+│ │ ├── index.ts
+│ │ ├── ProviderA.tsx
+│ │ └── useProviderA.ts
 ├── routes/ # Tanstack router
 ├── screens/
 │ ├── screenA/
@@ -19,7 +29,7 @@ src/
 │ │ ├── ScreenA.css
 │ │ └── components/
 │ └── index.ts
-├── services/ # communication between db and providers
+├── services/ # operations (CRUD, business logic)m uses db types and domain errors
 │ ├── serviceA.ts
 │ └── index.ts
 ├── styles/

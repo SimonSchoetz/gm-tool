@@ -11,13 +11,13 @@ import {
   AdventureCreateError,
   AdventureUpdateError,
   AdventureDeleteError,
-} from '@/providers/adventures/errors';
+} from '@/domain/adventures';
 
 export type UpdateAdventureData = UpdateAdventureInput & {
   imgFilePath?: string;
 };
 
-export const loadAllAdventures = async (): Promise<Adventure[]> => {
+export const getAllAdventures = async (): Promise<Adventure[]> => {
   try {
     const result = await adventureDb.getAll();
     return result.data;
@@ -26,13 +26,13 @@ export const loadAllAdventures = async (): Promise<Adventure[]> => {
   }
 };
 
-export const loadAdventureById = async (
+export const getAdventureById = async (
   id: string,
   adventures?: Adventure[],
 ): Promise<Adventure> => {
   const adventureList = adventures?.length
     ? adventures
-    : await loadAllAdventures();
+    : await getAllAdventures();
 
   const foundAdventure = adventureList.find((adv) => adv.id === id);
 
@@ -87,8 +87,11 @@ export const deleteAdventure = async (
   id: string,
   adventure?: Adventure,
 ): Promise<void> => {
+  /**
+   * TODO: Needs to delete all corresponding sessions ect. in the future
+   */
   try {
-    const adventureToDelete = adventure ?? (await loadAdventureById(id));
+    const adventureToDelete = adventure ?? (await getAdventureById(id));
 
     if (adventureToDelete.image_id) {
       await imageDb.remove(adventureToDelete.image_id);

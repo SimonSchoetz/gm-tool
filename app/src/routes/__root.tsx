@@ -19,8 +19,5 @@ export const Route = createRootRoute({
   component: RootLayout,
   beforeLoad: async () => {
     await ensureInitialized();
-    return {
-      adventureService,
-    };
   },
 });

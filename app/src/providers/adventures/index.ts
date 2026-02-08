@@ -1,3 +1,3 @@
 export * from './AdventureProvider';
 export * from './useAdventures';
-export * from './errors';
+export * from '../../domain/adventures/errors';
