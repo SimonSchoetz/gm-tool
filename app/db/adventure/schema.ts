@@ -12,18 +12,8 @@ export const adventureTable = defineTable({
     title: {
       type: 'TEXT',
       notNull: true,
-      zod: z
-        .string()
-        .min(1, 'Adventure title is required')
-        .refine((val) => val.trim().length > 0, {
-          message: 'Adventure title is required',
-        }),
-      updateZod: z
-        .string()
-        .min(1)
-        .refine((val) => val.trim().length > 0, {
-          message: 'Adventure title cannot be empty',
-        }),
+      zod: z.string(),
+      updateZod: z.string(),
     },
     description: {
       type: 'TEXT',

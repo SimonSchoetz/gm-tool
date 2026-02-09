@@ -22,18 +22,8 @@ export const npcTable = defineTable({
     name: {
       type: 'TEXT',
       notNull: true,
-      zod: z
-        .string()
-        .min(1, 'NPC name is required')
-        .refine((val) => val.trim().length > 0, {
-          message: 'NPC name is required',
-        }),
-      updateZod: z
-        .string()
-        .min(1)
-        .refine((val) => val.trim().length > 0, {
-          message: 'NPC name cannot be empty',
-        }),
+      zod: z.string(),
+      updateZod: z.string(),
     },
     rank: {
       type: 'TEXT',
