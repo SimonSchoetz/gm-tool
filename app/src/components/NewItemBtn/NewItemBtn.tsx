@@ -30,16 +30,20 @@ export const NewItemBtn: FCProps<Props> = ({
     <ActionContainer
       onClick={letAnimationPlayBeforeAction}
       label={'Create new adventure'}
-      className={cn('new-item-btn', hideBtn && 'activated')}
+      className={cn(
+        'new-item-btn',
+        className,
+        hideBtn && 'animate-new-item-btn-on-click',
+      )}
     >
       {type === 'adventure' && (
-        <AdventureFrame className={cn(className)}>
-          <div className='new-item-btn-label adventure'>{label}</div>
+        <AdventureFrame>
+          <div className='new-item-btn-adventure-label'>{label}</div>
         </AdventureFrame>
       )}
       {type === 'list-item' && (
-        <GlassPanel className={cn(className)}>
-          <div className='new-item-btn-label list-item'>{label}</div>
+        <GlassPanel className='new-item-btn-list-item-container'>
+          <div className='new-item-btn-list-item-label'>{label}</div>
         </GlassPanel>
       )}
     </ActionContainer>
