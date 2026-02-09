@@ -10,8 +10,8 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useAdventures } from '@/providers/adventures';
-import { useEffect, useState } from 'react';
+import { useAdventure } from '@/providers/adventures';
+import { useState } from 'react';
 import { Routes } from '@/routes';
 import { Adventure } from '@db/adventure';
 
@@ -23,27 +23,18 @@ export const AdventureScreen = () => {
     from: `/${Routes.ADVENTURE}/$adventureId/`,
   });
 
-  const {
-    adventure,
-    updateAdventure,
-    deleteAdventure,
-    initAdventure,
-    saveError,
-  } = useAdventures();
-
-  useEffect(() => {
-    initAdventure(adventureId);
-  }, [adventureId, initAdventure]);
+  const { adventure, updateAdventure, deleteAdventure, loading, saveError } =
+    useAdventure(adventureId);
 
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
-  if (!adventure || adventure.id !== adventureId) {
+  if (loading || !adventure) {
     return <div>Loading...</div>;
   }
 
   const handleAdventureDelete = async () => {
-    await deleteAdventure(adventure.id);
+    await deleteAdventure();
     router.navigate({ to: `/${Routes.ADVENTURES}` });
   };
 

@@ -214,12 +214,143 @@ Add new providers to the chain in logical order:
 6. **Don't forget to register new tables** in `database.ts`
 7. **Don't forget to export screens** in `screens/index.ts`
 
-### 7. Implementing Future Features
+### 7. Parameter-Based Hooks Pattern (Critical!)
+
+**Problem:** When refreshing a page on a route like `/adventure/xyz/npc/abc`, the route persists but provider state is lost. The old pattern required manual `initEntity(id)` calls in useEffect, which didn't work on page refresh.
+
+#### Old Pattern (Don't Use) ❌
+
+```typescript
+// Provider stored entity in context state
+const [npc, setNpc] = useState<Npc | null>(null);
+const initNpc = (id: string) => { /* fetch and setNpc */ };
+
+// Screen had to call init in useEffect
+const NpcScreen = () => {
+  const { npcId } = useParams({ from: '...' });
+  const { npc, initNpc } = useNpcs();
+
+  useEffect(() => {
+    initNpc(npcId); // ❌ Doesn't run on page refresh
+  }, [npcId]);
+
+  if (!npc) return <div>Loading...</div>;
+  // ...
+};
+```
+
+**Problems:**
+- State lost on page refresh (npc is null even though route has npcId)
+- Manual useEffect boilerplate in every screen
+- Easy to forget to call init
+- Not aligned with TanStack Query best practices
+
+#### New Pattern (Use This) ✅
+
+**For Single Entities:** Create standalone hooks that accept ID parameters
+
+```typescript
+// useNpc.ts - standalone hook (no provider needed)
+export const useNpc = (npcId: string): UseNpcReturn => {
+  const { data: npc, isPending: isLoadingNpc } = useQuery({
+    queryKey: ['npc', npcId],
+    queryFn: () => service.getNpcById(npcId),
+    enabled: !!npcId,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateNpcData }) =>
+      service.updateNpc(id, data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['npc', variables.id] });
+    },
+  });
+
+  // Debounced update function...
+  const updateNpc = (data: UpdateNpcData) => { /* ... */ };
+
+  return { npc, loading: isLoadingNpc, saveError, updateNpc, deleteNpc };
+};
+
+// Screen - clean and simple!
+const NpcScreen = () => {
+  const { npcId } = useParams({ from: '...' });
+  const { npc, updateNpc, loading } = useNpc(npcId); // ✅ Just works!
+
+  if (loading || !npc) return <div>Loading...</div>;
+  // NO useEffect, NO init call - automatically fetches based on npcId
+};
+```
+
+**For Lists:** Create standalone hooks that accept parent ID parameters
+
+```typescript
+// useNpcs.ts - standalone hook
+export const useNpcs = (adventureId: string): UseNpcsReturn => {
+  const { data: npcs = [], isPending } = useQuery({
+    queryKey: ['npcs', adventureId],
+    queryFn: () => service.getAllNpcs(adventureId),
+    enabled: !!adventureId,
+  });
+
+  // Create, delete mutations...
+
+  return { npcs, loading: isPending, createNpc };
+};
+
+// Screen
+const NpcsScreen = () => {
+  const { adventureId } = useParams({ from: '...' });
+  const { npcs, createNpc, loading } = useNpcs(adventureId); // ✅ Just works!
+  // ...
+};
+```
+
+#### When to Use Providers vs Standalone Hooks
+
+**Use Provider (with Context):**
+
+- For app-wide state needed by multiple unrelated components
+- For list operations that multiple routes need (e.g., all adventures)
+- When you need to share mutations across many components
+- Example: `AdventureProvider` for the adventures list + create/delete
+
+**Use Standalone Hooks (no Provider):**
+
+- For single-entity operations tied to route params
+- When each screen has its own isolated data needs
+- When the entity ID comes from the URL
+- Examples: `useAdventure(id)`, `useNpc(id)`, `useSession(id)`
+
+#### Benefits of Parameter-Based Pattern
+
+1. **Survives page refresh** - Route params persist, TanStack Query auto-fetches
+2. **Simpler code** - No useEffect, no manual init calls
+3. **Type-safe** - ID is required parameter, can't forget it
+4. **Better caching** - TanStack Query manages cache by ID automatically
+5. **Cleaner separation** - Each hook is independent, no tangled provider state
+
+#### Implementation Checklist
+
+When implementing a new feature with single-entity views:
+
+- [ ] Create `useEntity(id)` hook that accepts ID parameter
+- [ ] Use `useQuery` with `queryKey: ['entity', id]`
+- [ ] Enable query only when ID exists: `enabled: !!id`
+- [ ] Return loading state and data directly from hook
+- [ ] In screen, get ID from route params and pass to hook
+- [ ] Remove all useEffect and manual init calls
+- [ ] Test page refresh on entity detail routes
+
+### 8. Implementing Future Features
 
 For similar features (Sessions, Locations, Items, etc.):
 
 1. **Start with the Requirements Checklist** (above) - define schema and list all files to create
 2. **Follow the Architecture Pattern** - work layer by layer (Database → Domain → Service → Provider → Routes → Screens)
-3. **Avoid the Common Pitfalls** - use Route enums, prefix CSS classes, no try/catch in UI layers
-4. **Reference existing patterns** - use adventure implementation as template
-5. **Test thoroughly** - create, read, update, delete, and cascade delete scenarios
+3. **Use parameter-based hooks** for single-entity operations (see Learning #7)
+4. **Avoid the Common Pitfalls** - use Route enums, prefix CSS classes, no try/catch in UI layers
+5. **Reference existing patterns** - use adventure implementation as template
+6. **Test thoroughly** - create, read, update, delete, cascade delete, and **page refresh** scenarios

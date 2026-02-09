@@ -9,8 +9,8 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useNpcs } from '@/providers/npcs';
-import { useEffect, useState } from 'react';
+import { useNpc } from '@/providers/npcs';
+import { useState } from 'react';
 import { Routes } from '@/routes';
 import { Npc } from '@db/npc';
 import './NpcScreen.css';
@@ -23,21 +23,17 @@ export const NpcScreen = () => {
     from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPC}/$npcId`,
   });
 
-  const { npc, updateNpc, deleteNpc, initNpc, saveError } = useNpcs();
-
-  useEffect(() => {
-    initNpc(npcId);
-  }, [npcId, initNpc]);
+  const { npc, updateNpc, deleteNpc, loading, saveError } = useNpc(npcId);
 
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
 
-  if (!npc || npc.id !== npcId) {
+  if (loading || !npc) {
     return <div>Loading...</div>;
   }
 
   const handleNpcDelete = async () => {
-    await deleteNpc(npc.id);
+    await deleteNpc(adventureId);
     router.navigate({ to: `/${Routes.ADVENTURE}/${adventureId}/npcs` });
   };
 

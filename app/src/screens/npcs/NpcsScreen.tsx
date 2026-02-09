@@ -1,6 +1,5 @@
 import { Link, useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs } from '@/providers/npcs';
-import { useEffect, useState } from 'react';
 import { Routes } from '@/routes';
 import {
   ActionContainer,
@@ -11,6 +10,7 @@ import {
 import { ChevronDownIcon } from 'lucide-react';
 import type { Npc } from '@db/npc';
 import './NpcsScreen.css';
+import { useState } from 'react';
 
 export const NpcsScreen = () => {
   const router = useRouter();
@@ -18,13 +18,7 @@ export const NpcsScreen = () => {
     from: '/adventure/$adventureId/npcs',
   });
 
-  const { initNpcs, npcs, loading, createNpc } = useNpcs();
-
-  useEffect(() => {
-    if (adventureId) {
-      initNpcs(adventureId);
-    }
-  }, [adventureId, initNpcs]);
+  const { npcs, loading, createNpc } = useNpcs(adventureId);
 
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc(adventureId);
