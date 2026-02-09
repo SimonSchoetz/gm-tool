@@ -170,7 +170,10 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       )}
       <div
         ref={perspectiveRef}
-        style={{ paddingRight: `${isScrollNeeded ? 12 : 0}px` }}
+        style={{
+          padding: 'var(--spacing-xs)', // prevents clipping of box shadows
+          paddingRight: `${isScrollNeeded ? 12 : 0}px`,
+        }}
         className='perspective-container'
       >
         {children}
