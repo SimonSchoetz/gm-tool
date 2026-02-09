@@ -20,7 +20,7 @@ type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 export const AdventureScreen = () => {
   const router = useRouter();
   const { adventureId } = useParams({
-    from: `${Routes.ADVENTURE}/$adventureId/`,
+    from: `/${Routes.ADVENTURE}/$adventureId/`,
   });
 
   const {
@@ -44,7 +44,7 @@ export const AdventureScreen = () => {
 
   const handleAdventureDelete = async () => {
     await deleteAdventure(adventure.id);
-    router.navigate({ to: `${Routes.ADVENTURES}` });
+    router.navigate({ to: `/${Routes.ADVENTURES}` });
   };
 
   const startDate =
@@ -71,14 +71,14 @@ export const AdventureScreen = () => {
         </aside>
 
         <CustomScrollArea>
-          <div className={cn('text-edit-area')}>
+          <div className={cn('adventure-text-edit-area')}>
             <div>
               <Input
                 type='text'
                 placeholder='Adventure Title'
                 value={adventure.title}
                 onChange={(e) => updateAdventure({ title: e.target.value })}
-                className='title-input'
+                className='adventure-title-input'
                 required
               />
 

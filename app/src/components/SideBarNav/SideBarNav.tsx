@@ -20,11 +20,14 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
     <aside className='sidebar-nav' {...props}>
       <GlassPanel>
         <FwBwNav />
-        <ScreenNavBtn label='Adventures' targetRoute={Routes.ADVENTURES} />
+        <ScreenNavBtn
+          label='Adventures'
+          targetRoute={`/${Routes.ADVENTURES}`}
+        />
 
         <ScreenNavBtn
           label='NPCs'
-          targetRoute={`/adventure/${adventureId}/npcs`}
+          targetRoute={`/${Routes.ADVENTURE}/${adventureId}/${Routes.NPCS}`}
           isDisabled={!adventureId}
         />
       </GlassPanel>

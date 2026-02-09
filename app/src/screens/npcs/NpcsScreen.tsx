@@ -29,7 +29,7 @@ export const NpcsScreen = () => {
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc(adventureId);
     router.navigate({
-      to: `${Routes.ADVENTURE}/${adventureId}/npcs/${newNpcId}`,
+      to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.NPC}/${newNpcId}`,
     });
   };
 
@@ -42,15 +42,13 @@ export const NpcsScreen = () => {
       <TableHeadRow />
       <CustomScrollArea>
         <ul className='npc-table'>
-          <li key='new-npc'>
+          <li key='new-item-button'>
             <NewItemBtn
               type='list-item'
               label='+'
               onClick={handleNpcCreation}
-              className='new-npc-btn'
             />
           </li>
-
           {npcs.map((npc) => (
             <ListItem key={npc.id} npc={npc} adventureId={adventureId} />
           ))}
@@ -63,7 +61,7 @@ export const NpcsScreen = () => {
 const TableHeadRow = () => {
   const [sortBy, setSortBy] = useState<string>('name');
   return (
-    <li className='table-head'>
+    <div className='table-head'>
       <div>Avatar</div>
       <ActionContainer onClick={() => setSortBy('name')} label='Sort by name'>
         Name {sortBy === 'name' && <ChevronDownIcon />}
@@ -86,7 +84,7 @@ const TableHeadRow = () => {
       >
         Last updated {sortBy === 'lastUpdated' && <ChevronDownIcon />}
       </ActionContainer>
-    </li>
+    </div>
   );
 };
 
@@ -101,13 +99,12 @@ const ListItem = ({ npc, adventureId }: ListItemProps) => {
   const updatedAt =
     npc.updated_at && new Date(npc.updated_at).toLocaleDateString();
 
+  const route = `/${Routes.ADVENTURE}/${adventureId}/${Routes.NPC}/${npc.id}`;
+
   return (
     <li>
       <GlassPanel intensity='bright'>
-        <Link
-          className='npc-list-item'
-          to={`${Routes.ADVENTURE}/${adventureId}/npcs/${npc.id}`}
-        >
+        <Link className='npc-list-item' to={route}>
           <div>{npc.image_id ? 'Image' : 'No Image'}</div>
           <div>{npc.name}</div>
           <div>{npc.faction || '-'}</div>

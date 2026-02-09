@@ -3,7 +3,7 @@ import { NpcScreen } from '@/screens';
 import { Routes } from './index';
 
 export const Route = createFileRoute(
-  `${Routes.ADVENTURE}/$adventureId/npcs/$npcId`,
+  `/${Routes.ADVENTURE}/$adventureId/${Routes.NPC}/$npcId`,
 )({
   component: NpcScreen,
 });

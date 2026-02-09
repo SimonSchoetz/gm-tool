@@ -20,7 +20,7 @@ type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 export const NpcScreen = () => {
   const router = useRouter();
   const { adventureId, npcId } = useParams({
-    from: `${Routes.ADVENTURE}/$adventureId${Routes.NPCS}/$npcId`,
+    from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPC}/$npcId`,
   });
 
   const { npc, updateNpc, deleteNpc, initNpc, saveError } = useNpcs();
@@ -38,7 +38,7 @@ export const NpcScreen = () => {
 
   const handleNpcDelete = async () => {
     await deleteNpc(npc.id);
-    router.navigate({ to: `${Routes.ADVENTURE}/${adventureId}/npcs` });
+    router.navigate({ to: `/${Routes.ADVENTURE}/${adventureId}/npcs` });
   };
 
   return (
@@ -62,14 +62,14 @@ export const NpcScreen = () => {
         </aside>
 
         <CustomScrollArea>
-          <div className={cn('text-edit-area')}>
+          <div className={cn('npc-text-edit-area')}>
             <div>
               <Input
                 type='text'
                 placeholder='NPC Name'
                 value={npc.name}
                 onChange={(e) => updateNpc({ name: e.target.value })}
-                className='title-input'
+                className='npc-name-input'
                 required
               />
 

@@ -11,7 +11,7 @@ export const AdventuresScreen = () => {
 
   const handleAdventureCreation = async () => {
     const newAdventureId = await createAdventure();
-    router.navigate({ to: `${Routes.ADVENTURE}/${newAdventureId}` });
+    router.navigate({ to: `/${Routes.ADVENTURE}/${newAdventureId}` });
   };
 
   if (loading) {

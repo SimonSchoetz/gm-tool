@@ -5,17 +5,17 @@
   grid-template-columns: auto 1fr;
 }
 
-.text-edit-area {
+.npc-text-edit-area {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
 }
 
-.title-input {
+.npc-name-input {
   background-color: transparent;
   border: none;
   padding: 0;
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-medium);
 }

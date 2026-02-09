@@ -5,13 +5,13 @@
   grid-template-columns: auto 1fr;
 }
 
-.text-edit-area {
+.adventure-text-edit-area {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
 }
 
-.title-input {
+.adventure-title-input {
   background-color: transparent;
   border: none;
   padding: 0;

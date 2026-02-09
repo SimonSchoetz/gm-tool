@@ -25,13 +25,6 @@
   display: flex;
 }
 
-.new-npc-btn {
-  display: flex;
-  justify-content: center;
-  border: none;
-  min-width: 100%;
-}
-
 li {
   list-style-type: none;
 }

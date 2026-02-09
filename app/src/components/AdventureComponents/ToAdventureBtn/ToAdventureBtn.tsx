@@ -12,7 +12,7 @@ type Props = {
 } & HtmlProps<'div'>;
 
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
-  const route = `${Routes.ADVENTURE}/${adventure.id}`;
+  const route = `/${Routes.ADVENTURE}/${adventure.id}`;
 
   return (
     <Link
