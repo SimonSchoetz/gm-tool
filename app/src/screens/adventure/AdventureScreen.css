@@ -1,7 +1,7 @@
 .adventure-screen {
   padding: var(--spacing-md);
   display: grid;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
   grid-template-columns: auto 1fr;
 }
 
@@ -15,7 +15,7 @@
   background-color: transparent;
   border: none;
   padding: 0;
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-medium);
 }
