@@ -7,10 +7,16 @@ import './UploadImgBtn.css';
 type Props = {
   image_id?: string;
   title?: string;
+  dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
   uploadFn: (filePath: string) => void;
 };
 
-export const UploadImgBtn = ({ image_id, title = '', uploadFn }: Props) => {
+export const UploadImgBtn = ({
+  image_id,
+  title = '',
+  dimensions,
+  uploadFn,
+}: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -38,27 +44,25 @@ export const UploadImgBtn = ({ image_id, title = '', uploadFn }: Props) => {
       label='Replace cover image'
       invisible
     >
-      <HoloImg image_id={image_id} title={title} />
+      <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
     </ActionContainer>
   ) : (
-    <div>
-      <ActionContainer
-        className={cn('upload-adventure-img-btn')}
-        onClick={handleClick}
-        label='Upload cover image'
-      >
-        <ImagePlaceholderFrame>
-          <p
-            className='img-upload-textbox'
-            style={{
-              textAlign: 'center',
-            }}
-          >
-            {isLoading ? 'Loading...' : 'Click to upload cover image'}
-            {error && <p className='img-upload-error-msg'>{error}</p>}
-          </p>
-        </ImagePlaceholderFrame>
-      </ActionContainer>
-    </div>
+    <ActionContainer
+      className={cn('upload-adventure-img-btn')}
+      onClick={handleClick}
+      label='Upload cover image'
+    >
+      <ImagePlaceholderFrame dimensions={dimensions}>
+        <p
+          className='img-upload-textbox'
+          style={{
+            textAlign: 'center',
+          }}
+        >
+          {isLoading ? 'Loading...' : 'Click to upload cover image'}
+          {error && <p className='img-upload-error-msg'>{error}</p>}
+        </p>
+      </ImagePlaceholderFrame>
+    </ActionContainer>
   );
 };

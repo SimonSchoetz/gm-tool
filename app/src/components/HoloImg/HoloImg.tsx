@@ -1,5 +1,5 @@
 import { FCProps, HtmlProps } from '@/types';
-import { useRef } from 'react';
+import { CSSProperties, useRef } from 'react';
 import { HoloFX, useTiltFX } from '../HoloFX';
 import { cn } from '@/util';
 
@@ -10,12 +10,14 @@ import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFram
 type Props = {
   image_id: string;
   title: string;
+  dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
 } & HtmlProps<'div'>;
 
 export const HoloImg: FCProps<Props> = ({
   image_id,
   title,
   className,
+  dimensions,
   ...props
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +30,7 @@ export const HoloImg: FCProps<Props> = ({
       {...props}
     >
       <ImagePlaceholderFrame
+        dimensions={dimensions}
         className={cn('tilt-fx', isActive && 'active', className)}
       >
         <HoloFX shimmerContent={title} isActive={isActive} />
