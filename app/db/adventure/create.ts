@@ -7,11 +7,20 @@ export const create = async (data: CreateAdventureInput): Promise<string> => {
   const validated = adventureTable.createSchema.parse(data);
 
   const id = generateId();
-  const db = await getDatabase();
 
+  const fieldsToInsert = {
+    id,
+    title: validated.title,
+  };
+
+  const columnNames = Object.keys(fieldsToInsert);
+  const values = Object.values(fieldsToInsert);
+  const paramIndex = columnNames.map((_, i) => `$${i + 1}`).join(', ');
+
+  const db = await getDatabase();
   await db.execute(
-    'INSERT INTO adventures (id, title, description, image_id) VALUES ($1, $2, $3, $4)',
-    [id, validated.title],
+    `INSERT INTO adventures (${columnNames.join(', ')}) VALUES (${paramIndex})`,
+    values
   );
   return id;
 };
