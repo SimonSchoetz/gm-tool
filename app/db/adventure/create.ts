@@ -11,12 +11,7 @@ export const create = async (data: CreateAdventureInput): Promise<string> => {
 
   await db.execute(
     'INSERT INTO adventures (id, title, description, image_id) VALUES ($1, $2, $3, $4)',
-    [
-      id,
-      validated.title,
-      validated.description ?? null,
-      validated.image_id ?? null,
-    ]
+    [id, validated.title],
   );
   return id;
 };

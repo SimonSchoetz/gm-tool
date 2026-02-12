@@ -33,6 +33,31 @@ db/
   - `created_at`
   - `updated_at`
 
+### INSERT Best Practice
+
+Only specify required fields in INSERT statements. Let the database handle NULL for omitted optional columns:
+
+```typescript
+// ✅ GOOD - Only required fields
+await db.execute(
+  'INSERT INTO npcs (id, adventure_id, name) VALUES ($1, $2, $3)',
+  [id, validated.adventure_id, validated.name]
+);
+
+// ❌ BAD - Explicit NULL for every optional field
+await db.execute(
+  'INSERT INTO npcs (id, adventure_id, name, rank, faction) VALUES ($1, $2, $3, $4, $5)',
+  [id, validated.adventure_id, validated.name, validated.rank ?? null, validated.faction ?? null]
+);
+```
+
+**Benefits:**
+
+- Less maintenance when adding/removing optional fields
+- Schema defines what's nullable (single source of truth)
+- SQLite automatically sets NULL for unspecified nullable columns
+- Cleaner, self-documenting code
+
 ## Naming
 
 - Use short, generic CRUD names: `create`, `get`, `getAll`, `update`, `remove` (since `delete` is a reserved keyword)
