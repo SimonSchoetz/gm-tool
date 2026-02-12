@@ -50,6 +50,9 @@ export const NpcScreen = () => {
               })
             }
           />
+
+          {saveError && <div className='save-error-message'>{saveError}</div>}
+
           <Button
             label='Delete NPC'
             onClick={() => setDeleteDialogState('open')}
@@ -69,15 +72,15 @@ export const NpcScreen = () => {
                 required
               />
 
-              <TextEditor // <- Can I restrict line count?
-                className='summary-text-editor'
-                placeholder='Summmary'
-                value={npc?.summary || ''}
-                textEditorId={`NPC_${npc.id}`}
-                onChange={(summary) => updateNpc({ summary })}
-              />
+              <CustomScrollArea>
+                <TextEditor // <- Can I restrict line count?
+                  placeholder='Summmary'
+                  value={npc?.summary || ''}
+                  textEditorId={`NPC_${npc.id}`}
+                  onChange={(summary) => updateNpc({ summary })}
+                />
+              </CustomScrollArea>
             </GlassPanel>
-            {saveError && <div className='save-error-message'>{saveError}</div>}
 
             <TextEditor
               value={npc?.description || ''}
