@@ -6,6 +6,7 @@ import {
   CustomScrollArea,
   GlassPanel,
   ImageById,
+  ImagePlaceholderFrame,
   NewItemBtn,
 } from '@/components';
 import { ChevronDownIcon, UserSquareIcon } from 'lucide-react';
@@ -121,12 +122,15 @@ const ListItem = ({ npc, adventureId }: ListItemProps) => {
 
 const AvatarFrame = ({ imageId }: { imageId?: string | null }) => {
   return (
-    <GlassPanel radius='lg' className='list-item-avatar-frame'>
+    <ImagePlaceholderFrame
+      dimensions={{ width: '100px', height: '100px' }}
+      radius='lg'
+    >
       {imageId ? (
-        <ImageById imageId={imageId || ''} />
+        <ImageById imageId={imageId || ''} className='npc-list-item-image' />
       ) : (
         <UserSquareIcon className='npc-placeholder-icon' />
       )}
-    </GlassPanel>
+    </ImagePlaceholderFrame>
   );
 };
