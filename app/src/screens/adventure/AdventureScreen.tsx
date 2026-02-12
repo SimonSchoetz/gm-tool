@@ -2,6 +2,7 @@ import './AdventureScreen.css';
 import {
   Button,
   CustomScrollArea,
+  DeleteDialog,
   GlassPanel,
   Input,
   PopUpContainer,
@@ -13,7 +14,6 @@ import { useRouter, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/providers/adventures';
 import { useState } from 'react';
 import { Routes } from '@/routes';
-import { Adventure } from '@db/adventure';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
@@ -102,67 +102,11 @@ export const AdventureScreen = () => {
         </CustomScrollArea>
       </GlassPanel>
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
-        <DeleteAdventureDialog
-          adventure={adventure}
+        <DeleteDialog
+          name={adventure.title}
           onDeletionConfirm={handleAdventureDelete}
         />
       </PopUpContainer>
     </>
-  );
-};
-
-type DeleteAdventureDialogProps = {
-  adventure: Adventure;
-  onDeletionConfirm: () => void;
-};
-
-const DeleteAdventureDialog = ({
-  adventure,
-  onDeletionConfirm,
-}: DeleteAdventureDialogProps) => {
-  const [intensity, setIntensity] = useState<number>(0);
-  const confirmText = 'DELETE ADVENTURE';
-
-  const handleInputChange = (input: string) => {
-    const targetSubString = confirmText.substring(0, input.length);
-    if (input === targetSubString) {
-      setIntensity((1 / confirmText.length) * input.length);
-    } else {
-      setIntensity(0);
-    }
-
-    if (input === confirmText) {
-      onDeletionConfirm();
-    }
-  };
-
-  return (
-    <GlassPanel
-      className={cn('delete-adventure-dialog')}
-      style={{
-        boxShadow: `inset 0 -${intensity * 5}px ${intensity * 10}px rgb(var(--color-danger-hover-rgb), ${intensity / 2})`,
-        background: `radial-gradient(ellipse 50% 80% at 50% 100%, rgb(var(--color-danger-hover-rgb), ${intensity}), transparent)`,
-      }}
-    >
-      <h1 className='delete-adventure-dialog-title'>
-        Delete {adventure.title}
-      </h1>
-      <p>
-        You are about to delete this adventure with all its sessions,
-        characters, images, ect. This action can not be undone.
-      </p>
-      <p>
-        Type
-        <span className='delete-adventure-dialog-confirm-text'>
-          {` ${confirmText} `}
-        </span>
-        below to confirm this action:
-      </p>
-      <Input
-        className='delete-adventure-dialog-input'
-        placeholder={confirmText}
-        onChange={(e) => handleInputChange(e.target.value)}
-      />
-    </GlassPanel>
   );
 };

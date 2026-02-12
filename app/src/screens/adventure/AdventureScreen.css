@@ -35,40 +35,6 @@
   gap: var(--spacing-md);
 }
 
-.delete-adventure-dialog {
-  padding: var(--spacing-2xl);
-  max-width: 640px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.delete-adventure-dialog h1 {
-  text-align: center;
-}
-
-.delete-adventure-dialog p {
-  width: 100%;
-}
-
-.delete-adventure-dialog-confirm-text {
-  color: var(--color-danger);
-}
-
-.delete-adventure-dialog-input {
-  background-color: transparent;
-  text-shadow: 0 0 5px var(--color-bg);
-  text-align: center;
-  border: none;
-  border-bottom: 1px solid var(--color-primary);
-}
-
-.delete-adventure-dialog-input:focus {
-  color: var(--color-danger);
-  border-bottom-color: var(--color-danger);
-}
-
 .save-error-message {
   font-size: var(--font-size-xl);
   color: var(--color-warning);
