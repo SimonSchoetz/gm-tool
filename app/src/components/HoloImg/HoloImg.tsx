@@ -5,7 +5,7 @@ import { cn } from '@/util';
 
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
-import AdventureFrame from '../AdventureComponents/AdventureFrame/AdventureFrame';
+import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
 type Props = {
   image_id: string;
@@ -27,7 +27,7 @@ export const HoloImg: FCProps<Props> = ({
       className={cn('tilt-fx-container')}
       {...props}
     >
-      <AdventureFrame
+      <ImagePlaceholderFrame
         className={cn('tilt-fx', isActive && 'active', className)}
       >
         <HoloFX shimmerContent={title} isActive={isActive} />
@@ -38,7 +38,7 @@ export const HoloImg: FCProps<Props> = ({
           alt={`${title} preview`}
           className={cn('holo-img', isActive && 'active')}
         />
-      </AdventureFrame>
+      </ImagePlaceholderFrame>
     </div>
   );
 };

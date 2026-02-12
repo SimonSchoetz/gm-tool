@@ -4,7 +4,7 @@ import { cn } from '@/util';
 
 import { FCProps, HtmlProps } from '@/types';
 import { useState } from 'react';
-import AdventureFrame from '../AdventureComponents/AdventureFrame/AdventureFrame';
+import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
 type Props = {
   type: 'adventure' | 'list-item';
@@ -37,9 +37,9 @@ export const NewItemBtn: FCProps<Props> = ({
       )}
     >
       {type === 'adventure' && (
-        <AdventureFrame>
+        <ImagePlaceholderFrame>
           <div className='new-item-btn-adventure-label'>{label}</div>
-        </AdventureFrame>
+        </ImagePlaceholderFrame>
       )}
       {type === 'list-item' && (
         <GlassPanel className='new-item-btn-list-item-container'>

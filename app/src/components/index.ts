@@ -17,3 +17,4 @@ export * from './TextEditor/TextEditor.tsx';
 export * from './ErrorBoundary/ErrorBoundary';
 export * from './UploadImgBtn/UploadImgBtn.tsx';
 export * from './DeleteDialog/DeleteDialog.tsx';
+export * from './ImagePlaceholderFrame/ImagePlaceholderFrame.tsx';

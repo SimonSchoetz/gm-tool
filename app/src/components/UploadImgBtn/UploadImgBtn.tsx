@@ -1,7 +1,7 @@
 import { cn, filePicker } from '@/util';
 import { useState } from 'react';
 import { ActionContainer, HoloImg } from '@/components';
-import AdventureFrame from '../AdventureComponents/AdventureFrame/AdventureFrame';
+import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import './UploadImgBtn.css';
 
 type Props = {
@@ -47,7 +47,7 @@ export const UploadImgBtn = ({ image_id, title = '', uploadFn }: Props) => {
         onClick={handleClick}
         label='Upload cover image'
       >
-        <AdventureFrame>
+        <ImagePlaceholderFrame>
           <p
             className='img-upload-textbox'
             style={{
@@ -57,7 +57,7 @@ export const UploadImgBtn = ({ image_id, title = '', uploadFn }: Props) => {
             {isLoading ? 'Loading...' : 'Click to upload cover image'}
             {error && <p className='img-upload-error-msg'>{error}</p>}
           </p>
-        </AdventureFrame>
+        </ImagePlaceholderFrame>
       </ActionContainer>
     </div>
   );
