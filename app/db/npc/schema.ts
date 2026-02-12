@@ -25,17 +25,9 @@ export const npcTable = defineTable({
       zod: z.string(),
       updateZod: z.string(),
     },
-    rank: {
+    summary: {
       type: 'TEXT',
-      zod: z.string().nullable().optional(),
-    },
-    faction: {
-      type: 'TEXT',
-      zod: z.string().nullable().optional(),
-    },
-    hometown: {
-      type: 'TEXT',
-      zod: z.string().nullable().optional(),
+      zod: z.string().optional(),
     },
     description: {
       type: 'TEXT',
