@@ -28,7 +28,7 @@
   gap: var(--spacing-sm);
   grid-template-rows: auto 1fr;
   padding: var(--spacing-md);
-  height: 350px;
+  height: 200px;
   max-width: 600px;
 }
 

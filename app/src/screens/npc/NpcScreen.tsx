@@ -42,6 +42,7 @@ export const NpcScreen = () => {
       <GlassPanel className={cn('npc-screen')}>
         <aside className='npc-sidebar'>
           <UploadImgBtn
+            dimensions={{ width: '200px', height: '200px' }}
             image_id={npc.image_id ?? undefined}
             uploadFn={(filePath) =>
               updateNpc({
