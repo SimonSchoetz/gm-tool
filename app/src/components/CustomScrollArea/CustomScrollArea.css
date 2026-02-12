@@ -1,7 +1,7 @@
 .custom-scroll-area {
   position: relative;
   overflow-y: scroll;
-  height: 100%;
+  min-height: 100%;
   perspective: 1px;
   perspective-origin: top right;
   transform-style: preserve-3d;
