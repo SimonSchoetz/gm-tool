@@ -5,9 +5,10 @@ import {
   ActionContainer,
   CustomScrollArea,
   GlassPanel,
+  ImageById,
   NewItemBtn,
 } from '@/components';
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDownIcon, UserSquareIcon } from 'lucide-react';
 import type { Npc } from '@db/npc';
 import './NpcsScreen.css';
 import { useState } from 'react';
@@ -57,26 +58,31 @@ const TableHeadRow = () => {
   return (
     <div className='table-head'>
       <div>Avatar</div>
-      <ActionContainer onClick={() => setSortBy('name')} label='Sort by name'>
-        Name {sortBy === 'name' && <ChevronDownIcon />}
-      </ActionContainer>
       <ActionContainer
-        onClick={() => setSortBy('faction')}
-        label='Sort by faction'
+        className='npc-table-head-item'
+        onClick={() => setSortBy('name')}
+        label='Sort by name'
       >
-        Faction {sortBy === 'faction' && <ChevronDownIcon />}
+        <span>Name</span>
+        {sortBy === 'name' && <ChevronDownIcon />}
       </ActionContainer>
+
       <ActionContainer
+        className='npc-table-head-item'
         onClick={() => setSortBy('createdAt')}
         label='Sort by creation date'
       >
-        Created At {sortBy === 'createdAt' && <ChevronDownIcon />}
+        <span>Created At</span>
+        {sortBy === 'createdAt' && <ChevronDownIcon />}
       </ActionContainer>
+
       <ActionContainer
+        className='npc-table-head-item'
         onClick={() => setSortBy('lastUpdated')}
         label='Sort by last updated'
       >
-        Last updated {sortBy === 'lastUpdated' && <ChevronDownIcon />}
+        <span>Last updated</span>
+        {sortBy === 'lastUpdated' && <ChevronDownIcon />}
       </ActionContainer>
     </div>
   );
@@ -98,14 +104,29 @@ const ListItem = ({ npc, adventureId }: ListItemProps) => {
   return (
     <li>
       <GlassPanel intensity='bright'>
-        <Link className='npc-list-item' to={route}>
-          <div>{npc.image_id ? 'Image' : 'No Image'}</div>
-          <div>{npc.name}</div>
-          <div>{npc.faction || '-'}</div>
-          <div>{createdAt}</div>
-          <div>{updatedAt}</div>
+        <Link className='npc-link-wrapper' to={route}>
+          <ul className='npc-list-item'>
+            <li>
+              <AvatarFrame imageId={npc.image_id} />
+            </li>
+            <li>{npc.name}</li>
+            <li>{createdAt}</li>
+            <li>{updatedAt}</li>
+          </ul>
         </Link>
       </GlassPanel>
     </li>
+  );
+};
+
+const AvatarFrame = ({ imageId }: { imageId?: string | null }) => {
+  return (
+    <GlassPanel radius='lg' className='list-item-avatar-frame'>
+      {imageId ? (
+        <ImageById imageId={imageId || ''} />
+      ) : (
+        <UserSquareIcon className='npc-placeholder-icon' />
+      )}
+    </GlassPanel>
   );
 };
