@@ -1,8 +1,8 @@
 .holo-img {
   height: 100%;
-  width: auto;
+  width: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: top;
   transition: var(--transition-hover-off);
   filter: brightness(1) contrast(1) saturate(1);
 }
