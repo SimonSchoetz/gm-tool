@@ -20,6 +20,7 @@ import { useState } from 'react';
 type Props = {
   value: string;
   textEditorId: string;
+  placeholder?: string;
   onChange: (value: string) => void;
 };
 
@@ -49,6 +50,7 @@ export const TextEditor: FCProps<Props> = ({
   value,
   textEditorId,
   onChange,
+  placeholder = 'Description...',
   ...props
 }) => {
   const [isFirstRender, setIsFirstRender] = useState(true);
@@ -79,7 +81,7 @@ export const TextEditor: FCProps<Props> = ({
       <div className='text-editor'>
         <RichTextPlugin
           contentEditable={<ContentEditable className='editor-content' />}
-          placeholder={<div className='placeholder'>Description...</div>}
+          placeholder={<div className='placeholder'>{placeholder}</div>}
           ErrorBoundary={LexicalErrorBoundary}
         />
 
