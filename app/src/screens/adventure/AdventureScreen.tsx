@@ -54,6 +54,7 @@ export const AdventureScreen = () => {
               })
             }
           />
+          {saveError && <div className='save-error-message'>{saveError}</div>}
           <Button
             label='Delete Adventure'
             onClick={() => setDeleteDialogState('open')}
@@ -92,7 +93,6 @@ export const AdventureScreen = () => {
               </ul>
             </div>
 
-            {saveError && <div className='error-message'>{saveError}</div>}
             <TextEditor
               value={adventure?.description || ''}
               textEditorId={`Adventure_${adventure.id}`}

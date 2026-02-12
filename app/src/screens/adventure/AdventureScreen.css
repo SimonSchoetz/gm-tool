@@ -12,9 +12,6 @@
 }
 
 .adventure-title-input {
-  background-color: transparent;
-  border: none;
-  padding: 0;
   margin-top: var(--spacing-sm);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-medium);
@@ -70,4 +67,9 @@
 .delete-adventure-dialog-input:focus {
   color: var(--color-danger);
   border-bottom-color: var(--color-danger);
+}
+
+.save-error-message {
+  font-size: var(--font-size-xl);
+  color: var(--color-warning);
 }
