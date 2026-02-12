@@ -13,7 +13,6 @@ type CustomScrollAreaProps = {
 export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   children,
   className,
-  suppressContentEditableWarning,
   thumbMinHeight = 40,
   spacing = 0,
   ...props
@@ -171,7 +170,6 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       <div
         ref={perspectiveRef}
         style={{
-          padding: 'var(--spacing-xs)', // prevents clipping of box shadows
           paddingRight: `${isScrollNeeded ? 12 : 0}px`,
         }}
         className='perspective-container'

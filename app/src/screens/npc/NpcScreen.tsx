@@ -59,51 +59,26 @@ export const NpcScreen = () => {
 
         <CustomScrollArea>
           <div className={cn('npc-text-edit-area')}>
-            <div>
+            <GlassPanel className='npc-summary' intensity='bright'>
               <Input
                 type='text'
-                placeholder='NPC Name'
+                placeholder='Name'
                 value={npc.name}
                 onChange={(e) => updateNpc({ name: e.target.value })}
                 className='npc-name-input'
                 required
               />
 
-              <Input
-                type='text'
-                placeholder='Rank (optional)'
-                value={npc.rank ?? ''}
-                onChange={(e) => updateNpc({ rank: e.target.value || null })}
-                className='subtitle-input'
+              <TextEditor // <- Can I restrict line count?
+                className='summary-text-editor'
+                placeholder='Summmary'
+                value={npc?.summary || ''}
+                textEditorId={`NPC_${npc.id}`}
+                onChange={(summary) => updateNpc({ summary })}
               />
+            </GlassPanel>
+            {saveError && <div className='save-error-message'>{saveError}</div>}
 
-              <ul className={cn('npc-facts')}>
-                <li>
-                  Faction:{' '}
-                  <Input
-                    type='text'
-                    placeholder='Faction'
-                    value={npc.faction ?? ''}
-                    onChange={(e) =>
-                      updateNpc({ faction: e.target.value || null })
-                    }
-                  />
-                </li>
-                <li>
-                  Hometown:{' '}
-                  <Input
-                    type='text'
-                    placeholder='Hometown'
-                    value={npc.hometown ?? ''}
-                    onChange={(e) =>
-                      updateNpc({ hometown: e.target.value || null })
-                    }
-                  />
-                </li>
-              </ul>
-            </div>
-
-            {saveError && <div className='error-message'>{saveError}</div>}
             <TextEditor
               value={npc?.description || ''}
               textEditorId={`NPC_${npc.id}`}
