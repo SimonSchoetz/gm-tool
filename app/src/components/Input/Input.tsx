@@ -1,5 +1,6 @@
 import { InputHTMLAttributes } from 'react';
 import './Input.css';
+import { cn } from '@/util';
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
@@ -7,15 +8,14 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 const Input = ({ label, error, className = '', ...props }: InputProps) => {
-  const classNames = ['input', error && 'input--error', className]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <div className="input-wrapper">
-      {label && <label className="input-label">{label}</label>}
-      <input className={classNames} {...props} />
-      {error && <span className="input-error">{error}</span>}
+    <div className='input-wrapper'>
+      {label && <label className='input-label'>{`${label}: `}</label>}
+      <input
+        className={cn('input', error && 'input--error', className)}
+        {...props}
+      />
+      {error && <span className='input-error'>{error}</span>}
     </div>
   );
 };
