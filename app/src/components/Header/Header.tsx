@@ -29,7 +29,7 @@ export const Header: FCProps<Props> = ({ ...props }) => {
       return 'Adventures';
     }
     if (router.location.href.includes(Routes.ADVENTURE)) {
-      return `${adventure?.title ?? 'Loading...'}`;
+      return `${adventure?.name ?? 'Loading...'}`;
     }
     return 'GM Tool';
   };

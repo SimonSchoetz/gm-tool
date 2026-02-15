@@ -10,7 +10,7 @@ export const create = async (data: CreateAdventureInput): Promise<string> => {
 
   const fieldsToInsert = {
     id,
-    title: validated.title,
+    name: validated.name,
   };
 
   const columnNames = Object.keys(fieldsToInsert);

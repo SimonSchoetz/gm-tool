@@ -32,6 +32,10 @@ db/
   - `id` as PK (created with nanoid)
   - `created_at`
   - `updated_at`
+- **Naming consistency**: All entities use `name` as the primary identifier column
+  - Use `name`, not `title`, `label`, or other variations
+  - Example: `adventures.name`, `npcs.name`, `sessions.name`
+  - This creates consistency across the database schema
 
 ### INSERT Best Practice
 

@@ -32,7 +32,7 @@ describe('getAll', () => {
     const mockAdventures: Adventure[] = [
       {
         id: '1',
-        title: 'Adventure 1',
+        name: 'Adventure 1',
         created_at: '2025-10-13',
         updated_at: '2025-10-13',
       },

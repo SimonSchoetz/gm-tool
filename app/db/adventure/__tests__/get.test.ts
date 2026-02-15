@@ -30,7 +30,7 @@ describe('get', () => {
   it('should return adventure by id', async () => {
     const mockAdventure: Adventure = {
       id: 'test-id',
-      title: 'Test Adventure',
+      name: 'Test Adventure',
       description: 'Test Description',
       created_at: '2025-10-13',
       updated_at: '2025-10-13',

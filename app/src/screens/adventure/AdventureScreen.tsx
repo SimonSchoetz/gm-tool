@@ -68,8 +68,8 @@ export const AdventureScreen = () => {
               <Input
                 type='text'
                 placeholder='Adventure Title'
-                value={adventure.title}
-                onChange={(e) => updateAdventure({ title: e.target.value })}
+                value={adventure.name}
+                onChange={(e) => updateAdventure({ name: e.target.value })}
                 className='adventure-title-input'
                 required
               />
@@ -103,7 +103,7 @@ export const AdventureScreen = () => {
       </GlassPanel>
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteDialog
-          name={adventure.title}
+          name={adventure.name}
           onDeletionConfirm={handleAdventureDelete}
         />
       </PopUpContainer>

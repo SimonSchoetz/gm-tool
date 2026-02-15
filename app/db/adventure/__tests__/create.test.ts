@@ -32,10 +32,9 @@ describe('create', () => {
     vi.resetModules();
   });
 
-  it('should insert adventure with all fields and return generated ID', async () => {
+  it('should insert adventure and return generated ID', async () => {
     const mockAdventure: CreateAdventureInput = {
-      title: 'Test Adventure',
-      description: 'Test Description',
+      name: 'Test Adventure',
     };
 
     mockExecute.mockResolvedValue({});
@@ -43,15 +42,15 @@ describe('create', () => {
     const adventureId = await create(mockAdventure);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO adventures (id, title, description, image_id) VALUES ($1, $2, $3, $4)',
-      ['test-generated-id', 'Test Adventure', 'Test Description', null]
+      'INSERT INTO adventures (id, name) VALUES ($1, $2)',
+      ['test-generated-id', 'Test Adventure']
     );
     expect(adventureId).toBe('test-generated-id');
   });
 
-  it('should insert adventure with only required fields', async () => {
+  it('should allow empty name', async () => {
     const mockAdventure: CreateAdventureInput = {
-      title: 'Test Adventure',
+      name: '',
     };
 
     mockExecute.mockResolvedValue({});
@@ -59,31 +58,9 @@ describe('create', () => {
     const adventureId = await create(mockAdventure);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO adventures (id, title, description, image_id) VALUES ($1, $2, $3, $4)',
-      ['test-generated-id', 'Test Adventure', null, null]
+      'INSERT INTO adventures (id, name) VALUES ($1, $2)',
+      ['test-generated-id', '']
     );
     expect(adventureId).toBe('test-generated-id');
-  });
-
-  it('should throw error when title is empty', async () => {
-    const mockAdventure = {
-      title: '',
-    };
-
-    await expect(create(mockAdventure)).rejects.toThrow(
-      'Adventure title is required'
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw error when title is only whitespace', async () => {
-    const mockAdventure = {
-      title: '   ',
-    };
-
-    await expect(create(mockAdventure)).rejects.toThrow(
-      'Adventure title is required'
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
   });
 });

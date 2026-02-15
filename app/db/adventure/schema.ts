@@ -9,7 +9,7 @@ export const adventureTable = defineTable({
       primaryKey: true,
       zod: z.string(),
     },
-    title: {
+    name: {
       type: 'TEXT',
       notNull: true,
       zod: z.string(),
