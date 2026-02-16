@@ -3,6 +3,8 @@ import { imageTable } from './image/schema';
 import { adventureTable } from './adventure/schema';
 import { sessionTable } from './session/schema';
 import { npcTable } from './npc/schema';
+import { tableConfigTable } from './table-config/schema';
+import { seedTableConfig } from './table-config/seed';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
@@ -11,13 +13,13 @@ const runMigrations = async (database: Database) => {
   try {
     // Check if image_id column exists in adventures table
     const result = await database.select<{ name: string }[]>(
-      "SELECT name FROM pragma_table_info('adventures') WHERE name = 'image_id'"
+      "SELECT name FROM pragma_table_info('adventures') WHERE name = 'image_id'",
     );
 
     if (!result || result.length === 0) {
       // Column doesn't exist, add it
       await database.execute(
-        'ALTER TABLE adventures ADD COLUMN image_id TEXT REFERENCES images(id) ON DELETE SET NULL'
+        'ALTER TABLE adventures ADD COLUMN image_id TEXT REFERENCES images(id) ON DELETE SET NULL',
       );
       console.log('Migration: Added image_id column to adventures table');
     }
@@ -46,6 +48,7 @@ export const initDatabase = async () => {
         { name: 'adventures', sql: adventureTable.createTableSQL },
         { name: 'sessions', sql: sessionTable.createTableSQL },
         { name: 'npcs', sql: npcTable.createTableSQL },
+        { name: 'table_config', sql: tableConfigTable.createTableSQL },
       ];
 
       for (const { name, sql } of tableSchemas) {
@@ -53,12 +56,15 @@ export const initDatabase = async () => {
         console.log(
           `${
             name.charAt(0).toUpperCase() + name.slice(1)
-          } table created/verified`
+          } table created/verified`,
         );
       }
 
       // Run migrations
       await runMigrations(database);
+
+      // Seed table_config with defaults
+      await seedTableConfig(database);
 
       db = database;
       return database;

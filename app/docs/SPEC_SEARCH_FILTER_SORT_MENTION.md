@@ -1,5 +1,14 @@
 # SPEC: Search, Filter, Sort & @-Mention System
 
+## Progress
+
+- [x] Phase 1: Table Config System
+- [ ] Phase 2: Sortable Table Headers
+- [ ] Phase 3: List Filtering / Search
+- [ ] Phase 4: @-Mention — Custom Lexical MentionNode
+- [ ] Phase 5: @-Mention — Typeahead Popup
+- [ ] Phase 6: Reference List (DEFERRED)
+
 ## Before anything else
 
 Read all CLAUDE.md files!
@@ -34,8 +43,8 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
     color TEXT NOT NULL,              -- hex color for tag display, e.g. '#4a9eff'
     tagging_enabled INTEGER DEFAULT 1,  -- 0/1 boolean: show in @-mention results
     scope TEXT NOT NULL DEFAULT 'adventure',  -- 'adventure' | 'global'
-    name_column TEXT NOT NULL DEFAULT 'name', -- which column holds the display name (always 'name' by convention)
     searchable_columns TEXT,          -- JSON array of columns to search, e.g. '["name","description","summary"]'
+    -- NOTE: no name_column needed — convention is always 'name'
     created_at, updated_at
   )
   ```
@@ -197,7 +206,7 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 - For each table where `tagging_enabled = true`:
   - If `scope === 'adventure'`: filter by `adventure_id`
   - If `scope === 'global'`: no adventure filter
-  - Search `name_column LIKE '%query%'`
+  - Search `name LIKE '%query%'` (convention: always 'name' column)
   - Order by `updated_at DESC`
   - Limit per table (e.g. 5)
 - Returns: `{ id, name, tableName, displayName, color }[]`

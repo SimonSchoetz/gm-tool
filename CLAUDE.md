@@ -46,6 +46,16 @@ npm run dev                # Local Tauri environment
 npm run web                # Vite only in browser
 ```
 
+### Worktree Workflow
+
+Claude Code uses a git worktree in `~/.claude-worktrees/`. Before starting any coding:
+
+1. **Sync with main:** Run `git merge main` to pull in the latest changes from the user's main branch
+2. **Don't commit automatically.** Leave changes unstaged so the user can review diffs in Cursor's Source Control panel
+3. **Commit only when the user says to** (or after review approval)
+4. **Atomic commits:** One commit per logical sub-task (e.g. "DB layer", "service", "screen") — not one giant commit per feature
+5. **Open Worktree command** Remind user how to open the worktree in a new cursor window when asked with command `cursor ~/.claude-worktrees/gm-tool/wonderful-spence`
+
 ### Code styles and convention
 
 #### Coding style

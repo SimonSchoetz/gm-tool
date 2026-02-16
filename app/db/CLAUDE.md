@@ -2,24 +2,16 @@
 
 ## Structure
 
-database
 db/
-├── database.ts
-├── adventure/
-└── session/
+├── database.ts              # Init, table registration, migrations
+├── util/                    # Schema builder (defineTable)
+├── adventure/               # schema, types, CRUD, index
+├── session/
+├── npc/
+├── image/
+└── table-config/            # includes seed.ts
 
-## Database Schema
-
-**Core Tables:**
-
-- `adventures` - Main adventure/campaign records
-- `sessions` - Individual game sessions (many-to-one with adventures)
-- `images` - Images uploaded by the user for e. g. adventure covers or character artwork
-
-**Relationships:**
-
-- Adventures (1) → (∞) Sessions via `sessions.adventure_id`
-- Cascade delete: removing an adventure deletes its sessions
+**Schema source of truth:** Each domain's `schema.ts` defines the table via `defineTable()`. Don't maintain a separate schema list — read the `schema.ts` files directly.
 
 ## Conventions
 
@@ -68,3 +60,10 @@ await db.execute(
 - Import as namespace in consuming files: `import * as tableName from '@db/tableName'`
 - Usage example: `session.create()`, `session.getAll()`, `session.update()`
 - File names match function names: `create.ts`, `get.ts`, `get-all.ts`, `update.ts`, `remove.ts`
+
+## Seeds
+
+- Seed files live within their domain directory: `db/table-config/seed.ts`
+- Seeds are called from `database.ts` during init (after migrations)
+- Seeds are idempotent — they check for existing rows before inserting
+- Keep seed data co-located with the table it belongs to, not in `database.ts`

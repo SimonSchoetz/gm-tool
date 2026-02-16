@@ -1,14 +1,17 @@
 import { ReactNode } from 'react';
+import { TableConfigProvider } from './table-config';
+import { ImageProvider } from './images';
 import { AdventureProvider } from './adventures';
 import { SessionProvider } from './sessions';
-import { ImageProvider } from './images';
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   return (
-    <ImageProvider>
-      <AdventureProvider>
-        <SessionProvider>{children}</SessionProvider>
-      </AdventureProvider>
-    </ImageProvider>
+    <TableConfigProvider>
+      <ImageProvider>
+        <AdventureProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </AdventureProvider>
+      </ImageProvider>
+    </TableConfigProvider>
   );
 };

@@ -30,6 +30,11 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
           targetRoute={`/${Routes.ADVENTURE}/${adventureId}/${Routes.NPCS}`}
           isDisabled={!adventureId}
         />
+
+        <ScreenNavBtn
+          label='Settings'
+          targetRoute={`/${Routes.SETTINGS}`}
+        />
       </GlassPanel>
     </aside>
   );
