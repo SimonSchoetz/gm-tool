@@ -1,2 +1,3 @@
 _archive
 coverage
+.claude/settings.local.json
