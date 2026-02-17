@@ -19,3 +19,4 @@ export * from './UploadImgBtn/UploadImgBtn.tsx';
 export * from './DeleteDialog/DeleteDialog.tsx';
 export * from './ImagePlaceholderFrame/ImagePlaceholderFrame.tsx';
 export * from './SortableTableHeader/SortableTableHeader';
+export * from './SearchInput/SearchInput';
