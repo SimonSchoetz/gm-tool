@@ -3,7 +3,7 @@
 ## Progress
 
 - [x] Phase 1: Table Config System
-- [ ] Phase 2: Sortable Table Headers
+- [x] Phase 2: Sortable Table Headers
 - [ ] Phase 3: List Filtering / Search
 - [ ] Phase 4: @-Mention — Custom Lexical MentionNode
 - [ ] Phase 5: @-Mention — Typeahead Popup
@@ -74,6 +74,7 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 - Uses `useTableConfig()` hook + update mutation
 
 ### Files to create/modify:
+
 - `db/table-config/` (schema, types, get-all, get, update, index)
 - `db/database.ts` (register table + seed)
 - `src/domain/table-config/errors.ts` + `index.ts`
@@ -110,6 +111,7 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 - Sort by: name (string), created_at (date), updated_at (date)
 
 ### Files to create/modify:
+
 - `src/hooks/useSortable.ts` (new)
 - `src/components/SortableTableHeader/` (new: SortableTableHeader.tsx + SortableTableHeader.css)
 - `src/components/index.ts` (add SortableTableHeader export)
@@ -147,6 +149,7 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 - `fieldMatches` section shows a subtle label indicating which field matched (e.g. "found in description")
 
 ### Files to create/modify:
+
 - `src/hooks/useListFilter.ts` (new)
 - `src/components/SearchInput/` (new: SearchInput.tsx + SearchInput.css)
 - `src/components/index.ts` (add SearchInput export)
@@ -182,12 +185,14 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 - OnClick: navigate via TanStack Router
 
 ### Lexical version & packages:
+
 - Currently on **Lexical v0.39.0**
 - No built-in MentionNode exists — must be custom
 - `LexicalTypeaheadMenuPlugin` available from `@lexical/react` (already installed)
 - Custom nodes registered via `initialConfig.nodes` array (zero required constructor args)
 
 ### Files to create/modify:
+
 - `src/components/TextEditor/nodes/MentionNode.ts` (new)
 - `src/components/TextEditor/components/MentionBadge.tsx` (new)
 - `src/components/TextEditor/TextEditor.tsx` (register node)
@@ -236,6 +241,7 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 - Update all TextEditor usages to pass `adventureId`
 
 ### Files to create/modify:
+
 - `db/mention-search.ts` (new)
 - `src/services/mentionSearchService.ts` (new)
 - `src/components/TextEditor/plugins/MentionTypeaheadPlugin.tsx` (new)
@@ -271,24 +277,29 @@ Per discussion, this is deferred until Phases 1-5 are solid. Two notes for futur
 ## Verification Plan
 
 ### Phase 1:
+
 - Create table_config, verify seed data loads
 - Open settings screen, change a color, verify it persists after restart
 
 ### Phase 2:
+
 - Click Name header → NPCs sort A-Z, click again → Z-A
 - Click Created At → sort by date, click again → reverse
 
 ### Phase 3:
+
 - Type in search → list filters by name matches first
 - Type a word that only appears in a description → NPC appears below name matches
 - Clear search → full list returns
 
 ### Phase 4:
+
 - Manually create a MentionNode in editor (via test) → verify it renders as colored badge
 - Click badge → navigates to entity screen
 - Save & reload → mention persists in JSON
 
 ### Phase 5:
+
 - Type `@` in any TextEditor → popup appears with recent entities
 - Type `@Gob` → filters to NPCs matching "Gob"
 - Select item → MentionNode inserted with correct color
@@ -298,12 +309,12 @@ Per discussion, this is deferred until Phases 1-5 are solid. Two notes for futur
 
 ## Key Technical Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Mention node type | `DecoratorNode` | Need React component for color badge + click handler |
-| Search approach | Client-side for lists, DB query for @-mentions | Lists are already loaded; @-mentions need cross-table search |
-| Table config storage | SQLite `table_config` table | User requested DB-persisted, editable via settings |
-| Mention scope | Configurable per table via `scope` column | Adventure-scoped vs global per table |
-| Filter debounce | 300ms | Fast enough to feel responsive, slow enough to avoid excess work |
-| Sort state | Frontend only (no DB query changes) | Data already loaded, sorting in-memory is instant |
-| List search | Client-side two-tier | Local app, low hundreds of entries, no pagination needed |
+| Decision             | Choice                                         | Rationale                                                        |
+| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| Mention node type    | `DecoratorNode`                                | Need React component for color badge + click handler             |
+| Search approach      | Client-side for lists, DB query for @-mentions | Lists are already loaded; @-mentions need cross-table search     |
+| Table config storage | SQLite `table_config` table                    | User requested DB-persisted, editable via settings               |
+| Mention scope        | Configurable per table via `scope` column      | Adventure-scoped vs global per table                             |
+| Filter debounce      | 300ms                                          | Fast enough to feel responsive, slow enough to avoid excess work |
+| Sort state           | Frontend only (no DB query changes)            | Data already loaded, sorting in-memory is instant                |
+| List search          | Client-side two-tier                           | Local app, low hundreds of entries, no pagination needed         |
