@@ -15,17 +15,12 @@
   padding: var(--spacing-xs);
 }
 
-.table-head,
+.npc-table-head,
 .npc-list-item {
   padding: 1rem;
   display: grid;
   grid-template-columns: 100px 3fr repeat(2, 1fr);
   gap: var(--spacing-lg);
-}
-
-.npc-table-head-item {
-  display: flex;
-  justify-content: space-between;
 }
 
 .npc-link-wrapper {
