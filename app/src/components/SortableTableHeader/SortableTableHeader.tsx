@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import ActionContainer from '../ActionContainer/ActionContainer';
-import type { SortDirection, SortState } from '@/hooks/useSortable';
+import type { SortDirection, SortState } from '@/hooks';
 import './SortableTableHeader.css';
 
 type ColumnConfig<T> = {

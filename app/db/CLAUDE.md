@@ -15,12 +15,11 @@ db/
 
 ## Conventions
 
-- 1 function -> 1 file
-- all functions for 1 table should be grouped in a directory
-- export via barrel file
-- Defensive input validation with clear error messages.
-- tests should mirror the file structure
-- all tables have at least the following columns:
+Follows the global file organization conventions from the root CLAUDE.md, plus:
+
+- All functions for 1 table should be grouped in a directory
+- Defensive input validation with clear error messages
+- All tables have at least the following columns:
   - `id` as PK (created with nanoid)
   - `created_at`
   - `updated_at`

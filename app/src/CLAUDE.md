@@ -37,7 +37,7 @@ src/
 │ ├── reset.css
 │ └── variables.css
 ├── types/
-│ ├── any.type.ts
+│ └── any.type.ts
 ├── util/
 │ ├── **tests**/
 │ └── utilA.ts

@@ -13,8 +13,7 @@ import {
 } from '@/components';
 import { UserSquareIcon } from 'lucide-react';
 import type { Npc } from '@db/npc';
-import { useSortable } from '@/hooks/useSortable';
-import { useListFilter } from '@/hooks/useListFilter';
+import { useSortable, useListFilter } from '@/hooks';
 import './NpcsScreen.css';
 
 const TABLE_HEAD_COLUMNS = [

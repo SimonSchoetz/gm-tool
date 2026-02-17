@@ -80,9 +80,16 @@ npm run web                # Vite only in browser
   - ❌ BAD: Duplicating database calls and state updates in multiple functions
   - ✅ GOOD: Calling existing `createImage()` and `deleteImage()` within `replaceImage()`
 
-#### Conventions
+#### File Organization
 
-- keep modules small for better separation of concerns
+- **1 concern → 1 file**: Each public function gets its own file. Internal helpers that serve the same concern can share a file.
+  - ✅ GOOD: `create.ts`, `get.ts`, `remove.ts` — each is an independent public operation
+  - ✅ GOOD: `allTermsMatchItem.ts` containing private `getSearchableText` and `termMatchesItem` — they exist only to support `allTermsMatchItem`
+  - ❌ BAD: `utils.ts` with unrelated helpers dumped together
+- **Export via barrel file**: Each module directory exposes its public API through an `index.ts`
+- **Tests mirror file structure**: Test files live in a `__tests__/` subdirectory next to the code they test
+  - Source: `helper/parseSearchTerms.ts` → Test: `helper/__tests__/parseSearchTerms.test.ts`
+- Keep modules small for better separation of concerns
 - Error handling: TBD
 
 ## Product
