@@ -2,17 +2,30 @@ import { Link, useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs } from '@/providers/npcs';
 import { Routes } from '@/routes';
 import {
-  ActionContainer,
   CustomScrollArea,
   GlassPanel,
   ImageById,
   ImagePlaceholderFrame,
   NewItemBtn,
+  SortableTableHeader,
 } from '@/components';
-import { ChevronDownIcon, UserSquareIcon } from 'lucide-react';
+import { UserSquareIcon } from 'lucide-react';
 import type { Npc } from '@db/npc';
+import { useSortable } from '@/hooks/useSortable';
 import './NpcsScreen.css';
-import { useState } from 'react';
+
+const NPC_COLUMNS = [
+  { key: 'image_id' as const, label: 'Avatar', sortable: false },
+  { key: 'name' as const, label: 'Name' },
+  { key: 'created_at' as const, label: 'Created At' },
+  { key: 'updated_at' as const, label: 'Last updated' },
+];
+
+const NPC_SORT_COLUMNS = [
+  { key: 'name' as const },
+  { key: 'created_at' as const },
+  { key: 'updated_at' as const },
+];
 
 export const NpcsScreen = () => {
   const router = useRouter();
@@ -21,6 +34,11 @@ export const NpcsScreen = () => {
   });
 
   const { npcs, loading, createNpc } = useNpcs(adventureId);
+
+  const { sortedItems, sortState, toggleSort } = useSortable<Npc>(npcs, {
+    defaultSort: { column: 'name', direction: 'asc' },
+    columns: NPC_SORT_COLUMNS,
+  });
 
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc(adventureId);
@@ -35,7 +53,12 @@ export const NpcsScreen = () => {
 
   return (
     <GlassPanel className='npcs-screen'>
-      <TableHeadRow />
+      <SortableTableHeader<Npc>
+        columns={NPC_COLUMNS}
+        sortState={sortState}
+        onSort={toggleSort}
+        className='npc-table-head'
+      />
       <CustomScrollArea>
         <ul className='npc-table'>
           <li key='new-item-button'>
@@ -45,47 +68,12 @@ export const NpcsScreen = () => {
               onClick={handleNpcCreation}
             />
           </li>
-          {npcs.map((npc) => (
+          {sortedItems.map((npc) => (
             <ListItem key={npc.id} npc={npc} adventureId={adventureId} />
           ))}
         </ul>
       </CustomScrollArea>
     </GlassPanel>
-  );
-};
-
-const TableHeadRow = () => {
-  const [sortBy, setSortBy] = useState<string>('name');
-  return (
-    <div className='table-head'>
-      <div>Avatar</div>
-      <ActionContainer
-        className='npc-table-head-item'
-        onClick={() => setSortBy('name')}
-        label='Sort by name'
-      >
-        <span>Name</span>
-        {sortBy === 'name' && <ChevronDownIcon />}
-      </ActionContainer>
-
-      <ActionContainer
-        className='npc-table-head-item'
-        onClick={() => setSortBy('createdAt')}
-        label='Sort by creation date'
-      >
-        <span>Created At</span>
-        {sortBy === 'createdAt' && <ChevronDownIcon />}
-      </ActionContainer>
-
-      <ActionContainer
-        className='npc-table-head-item'
-        onClick={() => setSortBy('lastUpdated')}
-        label='Sort by last updated'
-      >
-        <span>Last updated</span>
-        {sortBy === 'lastUpdated' && <ChevronDownIcon />}
-      </ActionContainer>
-    </div>
   );
 };
 

@@ -1,0 +1,4 @@
+.sortable-table-header__cell--sortable {
+  display: flex;
+  justify-content: space-between;
+}
