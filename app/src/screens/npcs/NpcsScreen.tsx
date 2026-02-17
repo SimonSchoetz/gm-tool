@@ -30,7 +30,7 @@ const SORT_COLUMNS = [
 export const NpcsScreen = () => {
   const router = useRouter();
   const { adventureId } = useParams({
-    from: '/adventure/$adventureId/npcs',
+    from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPCS}`,
   });
 
   const { npcs, loading, createNpc } = useNpcs(adventureId);
