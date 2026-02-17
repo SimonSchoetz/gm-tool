@@ -1,10 +1,10 @@
 # Frontend
 
+Follows the global file organization conventions from the root CLAUDE.md.
+
 ## Structure
 
-database
 src/
-├── **tests**
 ├── assets/
 ├── components/ # UI
 │ ├── ComponentA/
@@ -17,6 +17,15 @@ src/
 │ │ ├── types.ts # domain specific types when needed
 │ │ ├── validation.ts # business rules when needed
 │ │ └── errors.ts
+├── hooks/ # reusable React hooks
+│ ├── index.ts
+│ ├── simpleHook.ts # flat file when no helpers needed
+│ └── complexHook/ # directory when helpers are needed
+│   ├── complexHook.ts
+│   └── helper/
+│     ├── helperA.ts
+│     └── __tests__/
+│       └── helperA.test.ts
 ├── providers/ # React state (context, hooks)
 │ ├── providerA/
 │ │ ├── index.ts
@@ -29,7 +38,7 @@ src/
 │ │ ├── ScreenA.css
 │ │ └── components/
 │ └── index.ts
-├── services/ # operations (CRUD, business logic)m uses db types and domain errors
+├── services/ # operations (CRUD, business logic), uses db types and domain errors
 │ ├── serviceA.ts
 │ └── index.ts
 ├── styles/
@@ -39,7 +48,6 @@ src/
 ├── types/
 │ └── any.type.ts
 ├── util/
-│ ├── **tests**/
 │ └── utilA.ts
 ├── App.css
 ├── App.tsx
