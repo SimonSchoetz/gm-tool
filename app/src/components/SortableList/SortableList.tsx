@@ -30,6 +30,7 @@ type SortableListProps<T extends Record<string, unknown>> = {
   onRowClick: (item: T) => void;
   onCreateNew?: () => void;
   className?: string;
+  searchPlaceholder?: string;
 };
 
 export const SortableList = <T extends Record<string, unknown>>({
@@ -40,6 +41,7 @@ export const SortableList = <T extends Record<string, unknown>>({
   onRowClick,
   onCreateNew,
   className,
+  searchPlaceholder,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -88,10 +90,7 @@ export const SortableList = <T extends Record<string, unknown>>({
 
   return (
     <GlassPanel className={cn('sortable-list', className)}>
-      <SearchInput
-        onSearch={setSearchTerm}
-        placeholder={'Name, search term 1, search term 2, ...'}
-      />
+      <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
       <SortableTableHeader<T>
         columns={headerColumns}
         sortState={sortState}
