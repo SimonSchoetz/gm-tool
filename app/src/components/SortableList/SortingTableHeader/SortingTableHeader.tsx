@@ -48,7 +48,12 @@ export const SortingTableHeader = <T,>({
               />
             </ActionContainer>
 
-            <div className={cn('col-resize-drag-btn')}></div>
+            <div
+              className={cn(
+                `col-resize-drag-btn`,
+                !notSortable && 'col-resizable',
+              )}
+            ></div>
           </div>
         );
       })}

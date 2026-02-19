@@ -43,5 +43,7 @@
 .col-resize-drag-btn {
   width: 8px;
   height: 100%;
+}
+.col-resizable {
   cursor: col-resize;
 }

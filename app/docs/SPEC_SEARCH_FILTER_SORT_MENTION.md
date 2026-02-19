@@ -4,7 +4,7 @@
 
 - [x] Phase 1: Table Config System
 - [x] Phase 2: Sortable Table Headers
-- [ ] Phase 3: List Filtering / Search
+- [x] Phase 3: List Filtering / Search
 - [ ] Phase 4: @-Mention — Custom Lexical MentionNode
 - [ ] Phase 5: @-Mention — Typeahead Popup
 - [ ] Phase 6: Reference List (DEFERRED)
