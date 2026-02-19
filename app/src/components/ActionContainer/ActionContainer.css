@@ -4,3 +4,13 @@
   border: none;
   color: inherit;
 }
+
+.action-container:hover {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.action-container:disabled {
+  cursor: auto;
+}

@@ -27,36 +27,29 @@ export const SortingTableHeader = <T,>({
     <div className={cn(`sorting-table-header`, className)}>
       {columns.map((column) => {
         const isActive = sortState.column === column.key;
-        const isSortable = column.sortable !== false;
-
-        if (!isSortable) {
-          return (
-            <div className='sorting-table-header__cell'>
-              <span key={column.key}>{column.label}</span>
-
-              <ChevronUpIcon // This is here as a placeholder for consistent styling
-                className={cn('sort-indicator', 'sort-indicator__inactive')}
-              />
-            </div>
-          );
-        }
+        const notSortable = column?.sortable === false;
 
         return (
-          <ActionContainer
-            key={column.key}
-            className='sorting-table-header__cell'
-            onClick={() => onSort(column.key)}
-            label={`Sort by ${column.label.toLowerCase()}`}
-          >
-            <span>{column.label}</span>
-            <ChevronUpIcon
-              className={cn(
-                'sort-indicator',
-                !isActive && 'sort-indicator__inactive',
-                sortState.direction === 'asc' && 'indicate-asc',
-              )}
-            />
-          </ActionContainer>
+          <div className='sorting-table-header__cell'>
+            <ActionContainer
+              disabled={notSortable}
+              key={column.key}
+              onClick={() => onSort(column.key)}
+              label={`Sort by ${column.label.toLowerCase()}`}
+              className='sorting-table-header__sort-btn'
+            >
+              <span>{column.label}</span>
+              <ChevronUpIcon
+                className={cn(
+                  'sort-indicator',
+                  !isActive && 'sort-indicator__inactive',
+                  sortState.direction === 'asc' && 'indicate-asc',
+                )}
+              />
+            </ActionContainer>
+
+            <div className={cn('col-resize-drag-btn')}></div>
+          </div>
         );
       })}
     </div>

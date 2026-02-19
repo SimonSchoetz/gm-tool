@@ -1,21 +1,32 @@
 .sorting-table-header {
   display: flex;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-lg);
 }
 
 .sorting-table-header__cell {
   overflow: hidden;
   display: flex;
   white-space: nowrap;
-  gap: var(--spacing-xs);
 }
 
-.sorting-table-header__cell > span {
+.sorting-table-header__cell:hover {
+  background-color: var(--color-hover-bg);
+}
+
+.sorting-table-header__sort-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  display: flex;
+  white-space: nowrap;
+}
+
+.sorting-table-header__sort-btn:hover {
+  background-color: transparent;
+}
+
+.sorting-table-header__cell > span,
+.sorting-table-header__sort-btn > span {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .sort-indicator {
   flex-shrink: 0;
   transition: var(--transition-very-fast);
@@ -27,4 +38,10 @@
 
 .indicate-asc {
   transform: rotate(180deg);
+}
+
+.col-resize-drag-btn {
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
 }
