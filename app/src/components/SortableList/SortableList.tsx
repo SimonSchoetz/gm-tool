@@ -4,12 +4,13 @@ import { cn } from '@/util';
 import {
   GlassPanel,
   SearchInput,
-  SortableTableHeader,
   CustomScrollArea,
   NewItemBtn,
   HorizontalDivider,
 } from '@/components';
 import './SortableList.css';
+import { SortableListItem } from './SortableListItem/SortableListItem';
+import { SortableTableHeader } from './SortableTableHeader/SortableTableHeader';
 
 export type ListColumn<T extends Record<string, unknown>> = {
   key: keyof T & string;
@@ -28,33 +29,8 @@ type SortableListProps<T extends Record<string, unknown>> = {
   defaultSortColumn?: keyof T & string;
   onRowClick: (item: T) => void;
   onCreateNew?: () => void;
-  searchPlaceholder?: string;
   className?: string;
 };
-
-type ListRowProps<T extends Record<string, unknown>> = {
-  item: T;
-  columns: ListColumn<T>[];
-  onClick: (item: T) => void;
-};
-
-const ListRow = <T extends Record<string, unknown>>({
-  item,
-  columns,
-  onClick,
-}: ListRowProps<T>) => (
-  <li>
-    <GlassPanel intensity='bright'>
-      <ul className='sortable-list__row' onClick={() => onClick(item)}>
-        {columns.map((col) => (
-          <li key={col.key}>
-            {col.render ? col.render(item) : String(item[col.key] ?? '')}
-          </li>
-        ))}
-      </ul>
-    </GlassPanel>
-  </li>
-);
 
 export const SortableList = <T extends Record<string, unknown>>({
   items,
@@ -63,7 +39,6 @@ export const SortableList = <T extends Record<string, unknown>>({
   defaultSortColumn,
   onRowClick,
   onCreateNew,
-  searchPlaceholder,
   className,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,7 +88,10 @@ export const SortableList = <T extends Record<string, unknown>>({
 
   return (
     <GlassPanel className={cn('sortable-list', className)}>
-      <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
+      <SearchInput
+        onSearch={setSearchTerm}
+        placeholder={'Name, search term 1, search term 2, ...'}
+      />
       <SortableTableHeader<T>
         columns={headerColumns}
         sortState={sortState}
@@ -128,7 +106,7 @@ export const SortableList = <T extends Record<string, unknown>>({
             </li>
           )}
           {sortedNameMatches.map((item) => (
-            <ListRow
+            <SortableListItem
               key={item.id as string}
               item={item}
               columns={columns}
@@ -139,7 +117,7 @@ export const SortableList = <T extends Record<string, unknown>>({
             <>
               <HorizontalDivider className='sortable-list__divider' />
               {sortedFieldMatches.map((item) => (
-                <ListRow
+                <SortableListItem
                   key={item.id as string}
                   item={item}
                   columns={columns}

@@ -1,0 +1,13 @@
+.sortable-list-item__avatar-icon {
+  width: 100%;
+  height: auto;
+  stroke-width: 1px;
+  color: var(--color-primary);
+}
+
+.sortable-list-item__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}

@@ -1,17 +1,3 @@
 .npcs-screen {
   --list-col-template: 100px 3fr repeat(2, 1fr);
 }
-
-.npc-placeholder-icon {
-  width: 100%;
-  height: auto;
-  stroke-width: 1px;
-  color: var(--color-primary);
-}
-
-.npc-list-item-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-}

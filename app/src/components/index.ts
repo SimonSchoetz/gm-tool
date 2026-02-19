@@ -18,7 +18,6 @@ export * from './ErrorBoundary/ErrorBoundary';
 export * from './UploadImgBtn/UploadImgBtn.tsx';
 export * from './DeleteDialog/DeleteDialog.tsx';
 export * from './ImagePlaceholderFrame/ImagePlaceholderFrame.tsx';
-export * from './SortableTableHeader/SortableTableHeader';
 export * from './SearchInput/SearchInput';
 export * from './HorizontalDivider/HorizontalDivider.tsx';
 export * from './SortableList/SortableList';

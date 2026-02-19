@@ -1,36 +1,15 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs } from '@/providers/npcs';
 import { Routes } from '@/routes';
-import {
-  ImageById,
-  ImagePlaceholderFrame,
-  SortableList,
-  type ListColumn,
-} from '@/components';
-import { UserSquareIcon } from 'lucide-react';
+import { SortableList, type ListColumn } from '@/components';
 import type { Npc } from '@db/npc';
 import './NpcsScreen.css';
 
 const COLUMNS: ListColumn<Npc>[] = [
-  {
-    key: 'image_id',
-    label: 'Avatar',
-    sortable: false,
-    render: (npc) => <AvatarFrame imageId={npc.image_id} />,
-  },
+  { key: 'image_id', label: 'Avatar', sortable: false },
   { key: 'name', label: 'Name' },
-  {
-    key: 'created_at',
-    label: 'Created At',
-    render: (npc) =>
-      npc.created_at ? new Date(npc.created_at).toLocaleDateString() : '',
-  },
-  {
-    key: 'updated_at',
-    label: 'Last updated',
-    render: (npc) =>
-      npc.updated_at ? new Date(npc.updated_at).toLocaleDateString() : '',
-  },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Last updated' },
 ];
 
 export const NpcsScreen = () => {
@@ -64,23 +43,7 @@ export const NpcsScreen = () => {
         })
       }
       onCreateNew={handleNpcCreation}
-      searchPlaceholder='Search NPCs...'
       className='npcs-screen'
     />
-  );
-};
-
-const AvatarFrame = ({ imageId }: { imageId?: string | null }) => {
-  return (
-    <ImagePlaceholderFrame
-      dimensions={{ width: '100px', height: '100px' }}
-      radius='lg'
-    >
-      {imageId ? (
-        <ImageById imageId={imageId} className='npc-list-item-image' />
-      ) : (
-        <UserSquareIcon className='npc-placeholder-icon' />
-      )}
-    </ImagePlaceholderFrame>
   );
 };
