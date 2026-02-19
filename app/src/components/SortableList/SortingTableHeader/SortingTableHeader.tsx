@@ -1,7 +1,8 @@
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import ActionContainer from '../../ActionContainer/ActionContainer';
 import type { SortDirection, SortState } from '@/hooks';
-import './SortableTableHeader.css';
+import './SortingTableHeader.css';
+import { cn } from '@/util';
 
 type ColumnConfig<T> = {
   key: keyof T & string;
@@ -9,7 +10,7 @@ type ColumnConfig<T> = {
   sortable?: boolean;
 };
 
-type SortableTableHeaderProps<T> = {
+type SortingTableHeaderProps<T> = {
   columns: ColumnConfig<T>[];
   sortState: SortState<T>;
   onSort: (column: keyof T & string) => void;
@@ -19,14 +20,14 @@ type SortableTableHeaderProps<T> = {
 const SortIcon = ({ direction }: { direction: SortDirection }) =>
   direction === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />;
 
-export const SortableTableHeader = <T,>({
+export const SortingTableHeader = <T,>({
   columns,
   sortState,
   onSort,
   className = '',
-}: SortableTableHeaderProps<T>) => {
+}: SortingTableHeaderProps<T>) => {
   return (
-    <div className={`sortable-table-header ${className}`}>
+    <div className={cn(`sortable-table-header`, className)}>
       {columns.map((column) => {
         const isActive = sortState.column === column.key;
         const isSortable = column.sortable !== false;

@@ -101,20 +101,20 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 ### 2b. Sortable `TableHeadRow` component
 
 - Refactor existing `TableHeadRow` in `NpcsScreen.tsx` — currently sets `sortBy` state but never actually sorts
-- Extract into reusable component: `src/components/SortableTableHeader/SortableTableHeader.tsx`
+- Extract into reusable component: `src/components/SortingTableHeader/SortingTableHeader.tsx`
 - Visual: ChevronDown for desc, ChevronUp for asc, no icon for inactive
 - Column config passed as props (label, sort key)
 
 ### 2c. Apply to NpcsScreen
 
-- Replace inline `TableHeadRow` + unsorted list with `useSortable` + `SortableTableHeader`
+- Replace inline `TableHeadRow` + unsorted list with `useSortable` + `SortingTableHeader`
 - Sort by: name (string), created_at (date), updated_at (date)
 
 ### Files to create/modify:
 
 - `src/hooks/useSortable.ts` (new)
-- `src/components/SortableTableHeader/` (new: SortableTableHeader.tsx + SortableTableHeader.css)
-- `src/components/index.ts` (add SortableTableHeader export)
+- `src/components/SortingTableHeader/` (new: SortingTableHeader.tsx + SortingTableHeader.css)
+- `src/components/index.ts` (add SortingTableHeader export)
 - `src/screens/npcs/NpcsScreen.tsx` (refactor)
 
 ---
@@ -143,7 +143,7 @@ Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) 
 
 ### 3c. Apply to NpcsScreen
 
-- Add `SearchInput` above `SortableTableHeader`
+- Add `SearchInput` above `SortingTableHeader`
 - Pipe: raw npcs → `useListFilter` → `useSortable` (applied to each array) → rendered list with two sections
 - Searchable columns for NPCs: `name`, `summary`, `description`
 - `fieldMatches` section shows a subtle label indicating which field matched (e.g. "found in description")

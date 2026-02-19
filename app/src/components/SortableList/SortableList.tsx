@@ -10,7 +10,7 @@ import {
 } from '@/components';
 import './SortableList.css';
 import { SortableListItem } from './SortableListItem/SortableListItem';
-import { SortableTableHeader } from './SortableTableHeader/SortableTableHeader';
+import { SortingTableHeader } from './SortingTableHeader/SortingTableHeader';
 
 export type ListColumn<T extends Record<string, unknown>> = {
   key: keyof T & string;
@@ -37,7 +37,7 @@ export const SortableList = <T extends Record<string, unknown>>({
   items,
   columns,
   filterConfig,
-  defaultSortColumn,
+  defaultSortColumn = 'updated_at',
   onRowClick,
   onCreateNew,
   className,
@@ -52,9 +52,9 @@ export const SortableList = <T extends Record<string, unknown>>({
   const firstSortableKey =
     sortableColumns[0]?.key ?? (columns[0].key as keyof T & string);
   const resolvedDefaultSort = defaultSortColumn ?? firstSortableKey;
-
+  console.log(resolvedDefaultSort);
   const sortConfig = {
-    defaultSort: { column: resolvedDefaultSort, direction: 'asc' as const },
+    defaultSort: { column: resolvedDefaultSort, direction: 'desc' as const },
     columns: sortableColumns,
   };
 
@@ -92,7 +92,7 @@ export const SortableList = <T extends Record<string, unknown>>({
   return (
     <GlassPanel className={cn('sortable-list', className)}>
       <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
-      <SortableTableHeader<T>
+      <SortingTableHeader<T>
         columns={headerColumns}
         sortState={sortState}
         onSort={toggleSort}

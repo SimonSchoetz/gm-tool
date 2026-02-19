@@ -36,7 +36,7 @@ export const NpcsScreen = () => {
       items={npcs}
       columns={COLUMNS}
       filterConfig={{ searchableColumns: ['name', 'summary', 'description'] }}
-      defaultSortColumn='name'
+      defaultSortColumn='updated_at'
       onRowClick={(npc) =>
         router.navigate({
           to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.NPC}/${npc.id}`,
