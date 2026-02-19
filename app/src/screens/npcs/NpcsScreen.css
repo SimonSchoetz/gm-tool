@@ -63,14 +63,7 @@ li {
 }
 
 .npc-field-matches-divider {
-  padding: var(--spacing-sm) var(--spacing-md);
-}
-
-.npc-field-matches-label {
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  margin: var(--spacing-sm) var(--spacing-md);
 }
 
 .npc-no-results {

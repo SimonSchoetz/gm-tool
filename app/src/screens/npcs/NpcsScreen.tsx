@@ -5,6 +5,7 @@ import { Routes } from '@/routes';
 import {
   CustomScrollArea,
   GlassPanel,
+  HorizontalDivider,
   ImageById,
   ImagePlaceholderFrame,
   NewItemBtn,
@@ -42,22 +43,25 @@ export const NpcsScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const handleSearch = useCallback((term: string) => setSearchTerm(term), []);
 
-  const { nameMatches, fieldMatches } = useListFilter<Npc>(
-    npcs,
-    searchTerm,
-    { searchableColumns: SEARCHABLE_COLUMNS }
-  );
+  const { nameMatches, fieldMatches } = useListFilter<Npc>(npcs, searchTerm, {
+    searchableColumns: SEARCHABLE_COLUMNS,
+  });
 
   const sortConfig = {
     defaultSort: { column: 'name' as const, direction: 'asc' as const },
     columns: SORT_COLUMNS,
   };
 
-  const { sortedItems: sortedNameMatches, sortState, toggleSort } =
-    useSortable<Npc>(nameMatches, sortConfig);
+  const {
+    sortedItems: sortedNameMatches,
+    sortState,
+    toggleSort,
+  } = useSortable<Npc>(nameMatches, sortConfig);
 
-  const { sortedItems: sortedFieldMatches } =
-    useSortable<Npc>(fieldMatches, sortConfig);
+  const { sortedItems: sortedFieldMatches } = useSortable<Npc>(
+    fieldMatches,
+    sortConfig,
+  );
 
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc(adventureId);
@@ -72,6 +76,10 @@ export const NpcsScreen = () => {
 
   const isSearching = searchTerm.trim().length > 0;
   const hasFieldMatches = sortedFieldMatches.length > 0;
+  const hasNothingToShow =
+    isSearching &&
+    sortedNameMatches.length === 0 &&
+    sortedFieldMatches.length === 0;
 
   return (
     <GlassPanel className='npcs-screen'>
@@ -98,21 +106,15 @@ export const NpcsScreen = () => {
           ))}
           {isSearching && hasFieldMatches && (
             <>
-              <li className='npc-field-matches-divider'>
-                <span className='npc-field-matches-label'>
-                  Found in other fields
-                </span>
-              </li>
+              <HorizontalDivider className='npc-field-matches-divider' />
               {sortedFieldMatches.map((npc) => (
                 <ListItem key={npc.id} npc={npc} adventureId={adventureId} />
               ))}
             </>
           )}
-          {isSearching &&
-            sortedNameMatches.length === 0 &&
-            sortedFieldMatches.length === 0 && (
-              <li className='npc-no-results'>No NPCs found</li>
-            )}
+          {hasNothingToShow && (
+            <li className='npc-no-results'>No NPCs found</li>
+          )}
         </ul>
       </CustomScrollArea>
     </GlassPanel>
