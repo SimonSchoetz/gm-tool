@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { parseSearchTerms } from './helper/parseSearchTerms';
 import { allTermsMatchItem } from './helper/allTermsMatchItem';
 
-type FilterConfig = {
-  searchableColumns: string[];
+type FilterConfig<T> = {
+  searchableColumns: Array<keyof T & string>;
 };
 
 type UseListFilterReturn<T> = {
@@ -14,7 +14,7 @@ type UseListFilterReturn<T> = {
 export const useListFilter = <T extends Record<string, unknown>>(
   items: T[],
   searchTerm: string,
-  config: FilterConfig,
+  config: FilterConfig<T>,
 ): UseListFilterReturn<T> => {
   return useMemo(() => {
     const terms = parseSearchTerms(searchTerm);
