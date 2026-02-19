@@ -1,6 +1,6 @@
-import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { ChevronUpIcon } from 'lucide-react';
 import ActionContainer from '../../ActionContainer/ActionContainer';
-import type { SortDirection, SortState } from '@/hooks';
+import type { SortState } from '@/hooks';
 import './SortingTableHeader.css';
 import { cn } from '@/util';
 
@@ -17,9 +17,6 @@ type SortingTableHeaderProps<T> = {
   className?: string;
 };
 
-const SortIcon = ({ direction }: { direction: SortDirection }) =>
-  direction === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />;
-
 export const SortingTableHeader = <T,>({
   columns,
   sortState,
@@ -27,15 +24,19 @@ export const SortingTableHeader = <T,>({
   className = '',
 }: SortingTableHeaderProps<T>) => {
   return (
-    <div className={cn(`sortable-table-header`, className)}>
+    <div className={cn(`sorting-table-header`, className)}>
       {columns.map((column) => {
         const isActive = sortState.column === column.key;
         const isSortable = column.sortable !== false;
 
         if (!isSortable) {
           return (
-            <div key={column.key} className='sortable-table-header__cell'>
-              {column.label}
+            <div className='sorting-table-header__cell'>
+              <span key={column.key}>{column.label}</span>
+
+              <ChevronUpIcon // This is here as a placeholder for consistent styling
+                className={cn('sort-indicator', 'sort-indicator__inactive')}
+              />
             </div>
           );
         }
@@ -43,12 +44,18 @@ export const SortingTableHeader = <T,>({
         return (
           <ActionContainer
             key={column.key}
-            className='sortable-table-header__cell sortable-table-header__cell--sortable'
+            className='sorting-table-header__cell'
             onClick={() => onSort(column.key)}
             label={`Sort by ${column.label.toLowerCase()}`}
           >
             <span>{column.label}</span>
-            {isActive && <SortIcon direction={sortState.direction} />}
+            <ChevronUpIcon
+              className={cn(
+                'sort-indicator',
+                !isActive && 'sort-indicator__inactive',
+                sortState.direction === 'asc' && 'indicate-asc',
+              )}
+            />
           </ActionContainer>
         );
       })}

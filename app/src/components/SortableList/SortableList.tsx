@@ -96,7 +96,6 @@ export const SortableList = <T extends Record<string, unknown>>({
         columns={headerColumns}
         sortState={sortState}
         onSort={toggleSort}
-        className='sortable-list__head'
       />
       <CustomScrollArea>
         <ul className='sortable-list__table'>

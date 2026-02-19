@@ -16,7 +16,6 @@
   padding: var(--spacing-xs);
 }
 
-.sortable-list__head,
 .sortable-list__row {
   padding: 1rem;
   display: grid;

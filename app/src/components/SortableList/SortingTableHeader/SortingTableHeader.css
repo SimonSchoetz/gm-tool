@@ -1,4 +1,30 @@
-.sortable-table-header__cell--sortable {
+.sorting-table-header {
   display: flex;
-  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg);
+}
+
+.sorting-table-header__cell {
+  overflow: hidden;
+  display: flex;
+  white-space: nowrap;
+  gap: var(--spacing-xs);
+}
+
+.sorting-table-header__cell > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sort-indicator {
+  flex-shrink: 0;
+  transition: var(--transition-very-fast);
+}
+
+.sort-indicator__inactive {
+  color: transparent;
+}
+
+.indicate-asc {
+  transform: rotate(180deg);
 }

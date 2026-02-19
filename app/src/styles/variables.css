@@ -87,6 +87,7 @@
   --transition-hover-on: 0.2s;
   --transition-hover-off: 0.3s ease-out;
   --transition-active-animation: 0.5s;
+  --transition-very-fast: 0.1s;
   --transition-fast: 0.2s;
   --transition-base: 0.5s;
   --transition-slow: 1s;

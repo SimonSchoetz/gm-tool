@@ -43,7 +43,6 @@ export const NpcsScreen = () => {
         })
       }
       onCreateNew={handleNpcCreation}
-      className='npcs-screen'
       searchPlaceholder='e.g. "name, profession, some text in description"'
     />
   );
