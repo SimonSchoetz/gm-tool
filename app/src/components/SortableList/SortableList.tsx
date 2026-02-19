@@ -75,18 +75,19 @@ export const SortableList = <T extends Record<string, unknown>>({
     sortConfig,
   );
 
+  const headerColumns = columns.map(({ key, label, sortable }) => ({
+    key,
+    label,
+    sortable,
+  }));
+
   const isSearching = searchTerm.trim().length > 0;
   const hasFieldMatches = sortedFieldMatches.length > 0;
   const hasNothingToShow =
     isSearching &&
     sortedNameMatches.length === 0 &&
     sortedFieldMatches.length === 0;
-
-  const headerColumns = columns.map(({ key, label, sortable }) => ({
-    key,
-    label,
-    sortable,
-  }));
+  const showCreateNewBtn = !!onCreateNew && (!isSearching || hasNothingToShow);
 
   return (
     <GlassPanel className={cn('sortable-list', className)}>
@@ -99,11 +100,12 @@ export const SortableList = <T extends Record<string, unknown>>({
       />
       <CustomScrollArea>
         <ul className='sortable-list__table'>
-          {!isSearching && onCreateNew && (
+          {showCreateNewBtn && (
             <li key='new-item-button'>
               <NewItemBtn type='list-item' label='+' onClick={onCreateNew} />
             </li>
           )}
+
           {sortedNameMatches.map((item) => (
             <SortableListItem
               key={item.id as string}
@@ -112,6 +114,7 @@ export const SortableList = <T extends Record<string, unknown>>({
               onClick={onRowClick}
             />
           ))}
+
           {isSearching && hasFieldMatches && (
             <>
               <HorizontalDivider className='sortable-list__divider' />
@@ -125,6 +128,7 @@ export const SortableList = <T extends Record<string, unknown>>({
               ))}
             </>
           )}
+
           {hasNothingToShow && (
             <li className='sortable-list__no-results'>No results found</li>
           )}
