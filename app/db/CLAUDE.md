@@ -3,13 +3,13 @@
 ## Structure
 
 db/
-├── database.ts              # Init, table registration, migrations
-├── util/                    # Schema builder (defineTable)
-├── adventure/               # schema, types, CRUD, index
+├── database.ts # Init, table registration, migrations
+├── util/ # Schema builder (defineTable)
+├── adventure/ # schema, types, CRUD, index
 ├── session/
 ├── npc/
 ├── image/
-└── table-config/            # includes seed.ts
+└── table-config/ # includes seed.ts
 
 **Schema source of truth:** Each domain's `schema.ts` defines the table via `defineTable()`. Don't maintain a separate schema list — read the `schema.ts` files directly.
 
@@ -27,6 +27,14 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
   - Use `name`, not `title`, `label`, or other variations
   - Example: `adventures.name`, `npcs.name`, `sessions.name`
   - This creates consistency across the database schema
+- **No unrequested schema columns**: Never add a column that was not explicitly discussed. If you believe an additional column is necessary, explain why and ask for approval before adding it.
+- **Frontend display is a frontend concern**: Do not add columns for display purposes (e.g. `display_name`) unless explicitly asked. How data is presented is handled in the frontend.
+- **JSON string columns must have validated schemas**: When a column stores a JSON-serialised object or array, always:
+  1. Define a named schema type (e.g. `TableLayout`) using the project's validation approach
+  2. Derive TypeScript types from that schema
+  3. Validate the JSON string against that schema in `create` and `update` functions before writing to the DB
+  - Never rely on TypeScript types alone to validate data that will be serialised to a string
+- **Column relocation means removal**: If instructed to move a field into another structure (e.g. "make `searchable_columns` part of `layout`"), always remove the original column unless explicitly told to keep it.
 
 ### INSERT Best Practice
 
@@ -36,13 +44,19 @@ Only specify required fields in INSERT statements. Let the database handle NULL 
 // ✅ GOOD - Only required fields
 await db.execute(
   'INSERT INTO npcs (id, adventure_id, name) VALUES ($1, $2, $3)',
-  [id, validated.adventure_id, validated.name]
+  [id, validated.adventure_id, validated.name],
 );
 
 // ❌ BAD - Explicit NULL for every optional field
 await db.execute(
   'INSERT INTO npcs (id, adventure_id, name, rank, faction) VALUES ($1, $2, $3, $4, $5)',
-  [id, validated.adventure_id, validated.name, validated.rank ?? null, validated.faction ?? null]
+  [
+    id,
+    validated.adventure_id,
+    validated.name,
+    validated.rank ?? null,
+    validated.faction ?? null,
+  ],
 );
 ```
 

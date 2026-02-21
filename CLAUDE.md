@@ -29,7 +29,7 @@ Project to build the app I want for my personal use without constraints like acc
 app/
 ├── db/ # SQLite database
 │ └── CLAUDE.md
-├── docs/ # documentation like templates
+├── docs/ # planning docs — see app/docs/CLAUDE.md
 ├── public/ # Static assets
 ├── src/ # React frontend source
 │ └── CLAUDE.md
@@ -74,11 +74,24 @@ npm run web                # Vite only in browser
 - If a user requests an approach that goes against best practices, explain why it's not recommended and suggest the better alternative
 - Don't just implement what's asked - guide toward the right solution
 - Use SOLID principles where applicable
+- **Separation of concerns over DRY**: When these two principles conflict, always prefer separation of concerns. Each component, hook, or module owns its own slice of responsibility — even if that means a parent holds less centralised state.
+  - ❌ BAD: Centralising column resize state in `SortableList` and passing it down because it "keeps things in one place"
+  - ✅ GOOD: `SortingTableHeader` owns resize state; `SortableListItem` owns its render logic based on layout config
 - **DRY (Don't Repeat Yourself)**: Always reuse existing functions instead of duplicating logic
   - If a function already exists that performs the needed operation, call it instead of reimplementing
   - Compose complex operations from existing simple functions
   - ❌ BAD: Duplicating database calls and state updates in multiple functions
   - ✅ GOOD: Calling existing `createImage()` and `deleteImage()` within `replaceImage()`
+
+### Third-Party Libraries
+
+Never assume training knowledge is current for third-party libraries. Before suggesting or implementing anything that depends on a specific library API, version, or feature:
+
+1. Check the installed version in `package.json`
+2. Fetch the official documentation for that exact version from the internet
+3. If documentation is ambiguous or unavailable, ask before proceeding
+
+This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and Drizzle.
 
 #### File Organization
 
