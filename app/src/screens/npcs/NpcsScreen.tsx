@@ -1,16 +1,9 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs } from '@/providers/npcs';
 import { Routes } from '@/routes';
-import { SortableList, type ListColumn } from '@/components';
+import { SortableList } from '@/components';
 import type { Npc } from '@db/npc';
 import './NpcsScreen.css';
-
-const COLUMNS: ListColumn<Npc>[] = [
-  { key: 'image_id', label: 'Avatar', sortable: false },
-  { key: 'name', label: 'Name' },
-  { key: 'created_at', label: 'Created At' },
-  { key: 'updated_at', label: 'Last updated' },
-];
 
 export const NpcsScreen = () => {
   const router = useRouter();
@@ -33,10 +26,8 @@ export const NpcsScreen = () => {
 
   return (
     <SortableList<Npc>
+      tableName='npcs'
       items={npcs}
-      columns={COLUMNS}
-      filterConfig={{ searchableColumns: ['name', 'summary', 'description'] }}
-      defaultSortColumn='updated_at'
       onRowClick={(npc) =>
         router.navigate({
           to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.NPC}/${npc.id}`,

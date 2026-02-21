@@ -1,5 +1,11 @@
-import { useState, type ReactNode } from 'react';
-import { useSortable, useListFilter } from '@/hooks';
+import { useMemo, useState, type ReactNode } from 'react';
+import {
+  useSortable,
+  useListFilter,
+  useTableLayout,
+  useColumnResize,
+} from '@/hooks';
+import type { LayoutColumn } from '@/domain/table-config';
 import { cn } from '@/util';
 import {
   GlassPanel,
@@ -12,32 +18,56 @@ import './SortableList.css';
 import { SortableListItem } from './SortableListItem/SortableListItem';
 import { SortingTableHeader } from './SortingTableHeader/SortingTableHeader';
 
+export type ColumnOverride<T extends Record<string, unknown>> = {
+  key: keyof T & string;
+  compareFn?: (a: T, b: T) => number;
+  render?: (item: T) => ReactNode;
+};
+
 export type ListColumn<T extends Record<string, unknown>> = {
   key: keyof T & string;
   label: string;
   sortable?: boolean;
+  resizable?: boolean;
+  width: number;
   compareFn?: (a: T, b: T) => number;
   render?: (item: T) => ReactNode;
 };
 
 type SortableListProps<T extends Record<string, unknown>> = {
+  tableName: string;
   items: T[];
-  columns: ListColumn<T>[];
-  filterConfig: {
-    searchableColumns: Array<keyof T & string>;
-  };
-  defaultSortColumn?: keyof T & string;
+  columnOverrides?: ColumnOverride<T>[];
   onRowClick: (item: T) => void;
   onCreateNew?: () => void;
   className?: string;
   searchPlaceholder?: string;
 };
 
+const buildColumns = <T extends Record<string, unknown>>(
+  layoutColumns: LayoutColumn[],
+  overrides?: ColumnOverride<T>[],
+): ListColumn<T>[] => {
+  const overrideMap = new Map(overrides?.map((o) => [o.key, o]));
+
+  return layoutColumns.map((lc) => {
+    const override = overrideMap.get(lc.key as keyof T & string);
+    return {
+      key: lc.key as keyof T & string,
+      label: lc.label,
+      sortable: lc.sortable,
+      resizable: lc.resizable,
+      width: lc.width,
+      compareFn: override?.compareFn,
+      render: override?.render,
+    };
+  });
+};
+
 export const SortableList = <T extends Record<string, unknown>>({
+  tableName,
   items,
-  columns,
-  filterConfig,
-  defaultSortColumn = 'updated_at',
+  columnOverrides,
   onRowClick,
   onCreateNew,
   className,
@@ -45,18 +75,78 @@ export const SortableList = <T extends Record<string, unknown>>({
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const sortableColumns = columns
-    .filter((col) => col.sortable !== false)
-    .map((col) => ({ key: col.key, compareFn: col.compareFn }));
+  const {
+    columns: layoutColumns,
+    sortState: persistedSort,
+    searchableColumns,
+    updateColumnWidths,
+    updateSortState,
+  } = useTableLayout(tableName);
+
+  const columns = useMemo(
+    () => buildColumns<T>(layoutColumns, columnOverrides),
+    [layoutColumns, columnOverrides],
+  );
+
+  const persistedWidths = useMemo(() => {
+    const result: Record<string, number> = {};
+    for (const col of layoutColumns) {
+      result[col.key] = col.width;
+    }
+    return result;
+  }, [layoutColumns]);
+
+  const resizeColumns = useMemo(
+    () =>
+      columns.map((col) => ({
+        key: col.key,
+        defaultWidth: col.width,
+        resizable: col.resizable,
+      })),
+    [columns],
+  );
+
+  const { gridTemplateColumns, handleResizeStart } = useColumnResize({
+    columns: resizeColumns,
+    persistedWidths,
+    onResizeEnd: updateColumnWidths,
+  });
+
+  const sortableColumns = useMemo(
+    () =>
+      columns
+        .filter((col) => col.sortable !== false)
+        .map((col) => ({ key: col.key, compareFn: col.compareFn })),
+    [columns],
+  );
 
   const firstSortableKey =
-    sortableColumns[0]?.key ?? (columns[0].key as keyof T & string);
-  const resolvedDefaultSort = defaultSortColumn ?? firstSortableKey;
-  console.log(resolvedDefaultSort);
+    sortableColumns[0]?.key ?? (columns[0]?.key as keyof T & string);
+
+  const defaultSort = persistedSort
+    ? {
+        column: persistedSort.column as keyof T & string,
+        direction: persistedSort.direction,
+      }
+    : { column: firstSortableKey, direction: 'desc' as const };
+
   const sortConfig = {
-    defaultSort: { column: resolvedDefaultSort, direction: 'desc' as const },
+    defaultSort,
     columns: sortableColumns,
+    onSortChange: (state: {
+      column: keyof T & string;
+      direction: 'asc' | 'desc';
+    }) => {
+      updateSortState(state.column, state.direction);
+    },
   };
+
+  const filterConfig = useMemo(
+    () => ({
+      searchableColumns: searchableColumns as Array<keyof T & string>,
+    }),
+    [searchableColumns],
+  );
 
   const { nameMatches, fieldMatches } = useListFilter<T>(
     items,
@@ -75,11 +165,16 @@ export const SortableList = <T extends Record<string, unknown>>({
     sortConfig,
   );
 
-  const headerColumns = columns.map(({ key, label, sortable }) => ({
-    key,
-    label,
-    sortable,
-  }));
+  const headerColumns = useMemo(
+    () =>
+      columns.map(({ key, label, sortable, resizable }) => ({
+        key,
+        label,
+        sortable,
+        resizable,
+      })),
+    [columns],
+  );
 
   const isSearching = searchTerm.trim().length > 0;
   const hasFieldMatches = sortedFieldMatches.length > 0;
@@ -89,13 +184,18 @@ export const SortableList = <T extends Record<string, unknown>>({
     sortedFieldMatches.length === 0;
   const showCreateNewBtn = !!onCreateNew && (!isSearching || hasNothingToShow);
 
+  const listStyle = {
+    '--list-col-template': gridTemplateColumns,
+  } as React.CSSProperties;
+
   return (
-    <GlassPanel className={cn('sortable-list', className)}>
+    <GlassPanel className={cn('sortable-list', className)} style={listStyle}>
       <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
       <SortingTableHeader<T>
         columns={headerColumns}
         sortState={sortState}
         onSort={toggleSort}
+        onResizeStart={handleResizeStart}
       />
       <CustomScrollArea>
         <ul className='sortable-list__table'>

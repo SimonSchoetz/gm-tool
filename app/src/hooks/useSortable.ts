@@ -15,6 +15,7 @@ type SortableColumn<T> = {
 type UseSortableConfig<T> = {
   defaultSort: SortState<T>;
   columns: SortableColumn<T>[];
+  onSortChange?: (state: SortState<T>) => void;
 };
 
 type UseSortableReturn<T> = {
@@ -48,13 +49,12 @@ export const useSortable = <T,>(
 
   const toggleSort = (column: keyof T & string) => {
     setSortState((prev) => {
-      if (prev.column === column) {
-        return {
-          column,
-          direction: prev.direction === 'asc' ? 'desc' : 'asc',
-        };
-      }
-      return { column, direction: 'asc' };
+      const next: SortState<T> =
+        prev.column === column
+          ? { column, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
+          : { column, direction: 'asc' };
+      config.onSortChange?.(next);
+      return next;
     });
   };
 

@@ -41,6 +41,10 @@ export const tableConfigTable = defineTable({
       type: 'TEXT',
       zod: z.string().optional(),
     },
+    layout: {
+      type: 'TEXT',
+      zod: z.string().optional(),
+    },
     created_at: {
       type: 'TEXT',
       default: 'CURRENT_TIMESTAMP',

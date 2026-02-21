@@ -8,12 +8,14 @@ type ColumnConfig<T> = {
   key: keyof T & string;
   label: string;
   sortable?: boolean;
+  resizable?: boolean;
 };
 
 type SortingTableHeaderProps<T> = {
   columns: ColumnConfig<T>[];
   sortState: SortState<T>;
   onSort: (column: keyof T & string) => void;
+  onResizeStart: (columnKey: string, startX: number) => void;
   className?: string;
 };
 
@@ -21,6 +23,7 @@ export const SortingTableHeader = <T,>({
   columns,
   sortState,
   onSort,
+  onResizeStart,
   className = '',
 }: SortingTableHeaderProps<T>) => {
   return (
@@ -29,11 +32,12 @@ export const SortingTableHeader = <T,>({
         const isActive = sortState.column === column.key;
         const notSortable = column?.sortable === false;
 
+        const isResizable = column.resizable !== false;
+
         return (
-          <div className='sorting-table-header__cell'>
+          <div key={column.key} className='sorting-table-header__cell'>
             <ActionContainer
               disabled={notSortable}
-              key={column.key}
               onClick={() => onSort(column.key)}
               label={`Sort by ${column.label.toLowerCase()}`}
               className='sorting-table-header__sort-btn'
@@ -50,10 +54,18 @@ export const SortingTableHeader = <T,>({
 
             <div
               className={cn(
-                `col-resize-drag-btn`,
-                !notSortable && 'col-resizable',
+                'col-resize-drag-btn',
+                isResizable && 'col-resizable',
               )}
-            ></div>
+              onMouseDown={
+                isResizable
+                  ? (e) => {
+                      e.preventDefault();
+                      onResizeStart(column.key, e.clientX);
+                    }
+                  : undefined
+              }
+            />
           </div>
         );
       })}
