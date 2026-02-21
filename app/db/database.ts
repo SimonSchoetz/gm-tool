@@ -35,79 +35,28 @@ const runMigrations = async (database: Database) => {
       console.log('Migration: Added layout column to table_config');
     }
 
-    // Migrate layout from column_widths format to columns format
-    const configsToMigrate = await database.select<
-      { id: string; table_name: string; searchable_columns: string | null; layout: string | null }[]
-    >('SELECT id, table_name, searchable_columns, layout FROM table_config');
-
-    const defaultColumnsByTable: Record<string, Array<{ key: string; label: string; sortable?: boolean; resizable?: boolean; width: number }>> = {
-      npcs: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
-        { key: 'name', label: 'Name', width: 250 },
-        { key: 'created_at', label: 'Created At', width: 150 },
-        { key: 'updated_at', label: 'Last updated', width: 150 },
-      ],
-      adventures: [
-        { key: 'name', label: 'Name', width: 250 },
-        { key: 'created_at', label: 'Created At', width: 150 },
-        { key: 'updated_at', label: 'Last updated', width: 150 },
-      ],
-      sessions: [
-        { key: 'name', label: 'Name', width: 250 },
-        { key: 'created_at', label: 'Created At', width: 150 },
-        { key: 'updated_at', label: 'Last updated', width: 150 },
-      ],
-    };
-
-    for (const config of configsToMigrate) {
-      let needsUpdate = false;
-      let parsed: Record<string, unknown> = {};
-
-      if (config.layout) {
-        try {
-          parsed = JSON.parse(config.layout);
-        } catch {
-          parsed = {};
-        }
-      }
-
-      if (!Array.isArray(parsed.columns)) {
-        const searchableColumns = Array.isArray(parsed.searchable_columns)
-          ? parsed.searchable_columns
-          : config.searchable_columns
-            ? JSON.parse(config.searchable_columns)
-            : [];
-
-        const defaultCols = defaultColumnsByTable[config.table_name] ?? [];
-        const persistedWidths =
-          parsed.column_widths && typeof parsed.column_widths === 'object'
-            ? (parsed.column_widths as Record<string, number>)
-            : {};
-
-        const columns = defaultCols.map((col) => ({
-          ...col,
-          width: persistedWidths[col.key] ?? col.width,
-        }));
-
-        const layout = JSON.stringify({
-          searchable_columns: searchableColumns,
-          columns,
-          sort_state: parsed.sort_state ?? null,
-        });
-
-        await database.execute(
-          'UPDATE table_config SET layout = $1 WHERE id = $2',
-          [layout, config.id],
-        );
-        needsUpdate = true;
-      }
-
-      if (needsUpdate) {
-        console.log(
-          `Migration: Migrated layout to columns format for ${config.table_name}`,
-        );
-      }
+    // Drop display_name column if it exists (was added as unrequested frontend concern)
+    const displayNameCol = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('table_config') WHERE name = 'display_name'",
+    );
+    if (displayNameCol && displayNameCol.length > 0) {
+      await database.execute(
+        'ALTER TABLE table_config DROP COLUMN display_name',
+      );
+      console.log('Migration: Dropped display_name column from table_config');
     }
+
+    // Drop searchable_columns column if it exists (data moved into layout JSON)
+    const searchableCol = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('table_config') WHERE name = 'searchable_columns'",
+    );
+    if (searchableCol && searchableCol.length > 0) {
+      await database.execute(
+        'ALTER TABLE table_config DROP COLUMN searchable_columns',
+      );
+      console.log('Migration: Dropped searchable_columns column from table_config');
+    }
+
   } catch (error) {
     console.error('Migration failed:', error);
     throw error;

@@ -14,11 +14,6 @@ export const tableConfigTable = defineTable({
       notNull: true,
       zod: z.string(),
     },
-    display_name: {
-      type: 'TEXT',
-      notNull: true,
-      zod: z.string(),
-    },
     color: {
       type: 'TEXT',
       notNull: true,
@@ -37,13 +32,11 @@ export const tableConfigTable = defineTable({
       default: "'adventure'",
       zod: z.enum(['adventure', 'global']),
     },
-    searchable_columns: {
-      type: 'TEXT',
-      zod: z.string().optional(),
-    },
     layout: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      notNull: true,
+      zod: z.string(),
+      updateZod: z.string().optional(),
     },
     created_at: {
       type: 'TEXT',

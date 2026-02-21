@@ -1,14 +1,16 @@
 import './SortableListItem.css';
+import { useMemo } from 'react';
 import { UserSquareIcon } from 'lucide-react';
-import { ListColumn } from '../SortableList';
 import { ActionContainer, GlassPanel, ImageById, ImagePlaceholderFrame } from '@/components';
+import { useTableConfig } from '@/providers/table-config';
 
 const DATE_KEYS = new Set(['created_at', 'updated_at']);
+const DEFAULT_COLUMN_WIDTH = 150;
 
-type Props<T extends Record<string, unknown>> = {
-  item: T;
-  columns: ListColumn<T>[];
-  onClick: (item: T) => void;
+type Props = {
+  tableName: string;
+  item: Record<string, unknown>;
+  onClick: (item: Record<string, unknown>) => void;
 };
 
 const AvatarCell = ({ imageId }: { imageId: string | null | undefined }) => (
@@ -27,31 +29,38 @@ const formatDateValue = (value: unknown): string => {
   return isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
 };
 
-const renderCell = <T extends Record<string, unknown>>(
-  col: ListColumn<T>,
-  item: T,
-): React.ReactNode => {
-  if (col.render) return col.render(item);
-  if (col.key === 'image_id') return <AvatarCell imageId={item.image_id as string | null | undefined} />;
-  if (DATE_KEYS.has(col.key)) return formatDateValue(item[col.key]);
-  return String(item[col.key] ?? '');
+const renderCell = (key: string, item: Record<string, unknown>): React.ReactNode => {
+  if (key === 'image_id') return <AvatarCell imageId={item.image_id as string | null | undefined} />;
+  if (DATE_KEYS.has(key)) return formatDateValue(item[key]);
+  return String(item[key] ?? '');
 };
 
-export const SortableListItem = <T extends Record<string, unknown>>({
-  item,
-  columns,
-  onClick,
-}: Props<T>) => {
+export const SortableListItem = ({ tableName, item, onClick }: Props) => {
+  const { getConfigForTable } = useTableConfig();
+
+  const layout = getConfigForTable(tableName).layout;
+
+  const gridTemplateColumns = useMemo(() => {
+    const lastIndex = layout.columns.length - 1;
+    return layout.columns
+      .map((col, index) => {
+        const width = col.width ?? DEFAULT_COLUMN_WIDTH;
+        return index === lastIndex ? `minmax(${width}px, 1fr)` : `${width}px`;
+      })
+      .join(' ');
+  }, [layout.columns]);
+
   return (
     <li>
       <GlassPanel intensity='bright'>
         <ActionContainer
           label={`Go to ${item.name ?? ''}`}
           className='sortable-list__row'
+          style={{ gridTemplateColumns }}
           onClick={() => onClick(item)}
         >
-          {columns.map((col) => (
-            <div key={col.key}>{renderCell(col, item)}</div>
+          {layout.columns.map((col) => (
+            <div key={col.key}>{renderCell(col.key, item)}</div>
           ))}
         </ActionContainer>
       </GlassPanel>

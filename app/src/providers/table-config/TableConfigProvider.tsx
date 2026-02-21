@@ -2,16 +2,29 @@ import { createContext, ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { TableConfig, UpdateTableConfigInput } from '@db/table-config';
 import * as service from '@/services/tableConfigService';
+import type { SortDirection } from '@/domain/table-config';
 
 type TableConfigContextType = {
   tableConfigs: TableConfig[];
   loading: boolean;
-  getConfigForTable: (tableName: string) => TableConfig | null;
-  updateTableConfig: (id: string, data: UpdateTableConfigInput) => Promise<void>;
+  getConfigForTable: (tableName: string) => TableConfig;
+  updateTableConfig: (
+    id: string,
+    data: UpdateTableConfigInput,
+  ) => Promise<void>;
+  updateColumnWidths: (
+    tableName: string,
+    widths: Record<string, number>,
+  ) => Promise<void>;
+  updateSortState: (
+    tableName: string,
+    column: string,
+    direction: SortDirection,
+  ) => Promise<void>;
 };
 
 export const TableConfigContext = createContext<TableConfigContextType | null>(
-  null
+  null,
 );
 
 type TableConfigProviderProps = {
@@ -34,15 +47,44 @@ export const TableConfigProvider = ({ children }: TableConfigProviderProps) => {
     },
   });
 
-  const getConfigForTable = (tableName: string): TableConfig | null => {
-    return tableConfigs.find((config) => config.table_name === tableName) ?? null;
+  const getConfigForTable = (tableName: string): TableConfig => {
+    const config = tableConfigs.find((c) => c.table_name === tableName);
+    if (!config) throw new Error(`No table config found for "${tableName}"`);
+    return config;
   };
 
   const handleUpdateTableConfig = async (
     id: string,
-    data: UpdateTableConfigInput
+    data: UpdateTableConfigInput,
   ): Promise<void> => {
     await updateMutation.mutateAsync({ id, data });
+  };
+
+  const updateColumnWidths = async (
+    tableName: string,
+    widths: Record<string, number>,
+  ): Promise<void> => {
+    const config = getConfigForTable(tableName);
+    const updatedColumns = config.layout.columns.map((col) => ({
+      ...col,
+      width: widths[col.key] ?? col.width,
+    }));
+    await updateMutation.mutateAsync({
+      id: config.id,
+      data: { layout: { ...config.layout, columns: updatedColumns } },
+    });
+  };
+
+  const updateSortState = async (
+    tableName: string,
+    column: string,
+    direction: SortDirection,
+  ): Promise<void> => {
+    const config = getConfigForTable(tableName);
+    await updateMutation.mutateAsync({
+      id: config.id,
+      data: { layout: { ...config.layout, sort_state: { column, direction } } },
+    });
   };
 
   const value: TableConfigContextType = {
@@ -50,6 +92,8 @@ export const TableConfigProvider = ({ children }: TableConfigProviderProps) => {
     loading: isLoadingConfigs,
     getConfigForTable,
     updateTableConfig: handleUpdateTableConfig,
+    updateColumnWidths,
+    updateSortState,
   };
 
   return (

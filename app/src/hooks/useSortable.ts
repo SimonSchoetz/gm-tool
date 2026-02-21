@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 export type SortDirection = 'asc' | 'desc';
 
@@ -13,15 +13,8 @@ type SortableColumn<T> = {
 };
 
 type UseSortableConfig<T> = {
-  defaultSort: SortState<T>;
-  columns: SortableColumn<T>[];
-  onSortChange?: (state: SortState<T>) => void;
-};
-
-type UseSortableReturn<T> = {
-  sortedItems: T[];
   sortState: SortState<T>;
-  toggleSort: (column: keyof T & string) => void;
+  columns: SortableColumn<T>[];
 };
 
 const defaultCompare = <T,>(a: T, b: T, key: keyof T): number => {
@@ -43,39 +36,16 @@ const defaultCompare = <T,>(a: T, b: T, key: keyof T): number => {
 
 export const useSortable = <T,>(
   items: T[],
-  config: UseSortableConfig<T>
-): UseSortableReturn<T> => {
-  const [sortState, setSortState] = useState<SortState<T>>(config.defaultSort);
-
-  const toggleSort = (column: keyof T & string) => {
-    setSortState((prev) => {
-      const next: SortState<T> =
-        prev.column === column
-          ? { column, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
-          : { column, direction: 'asc' };
-      config.onSortChange?.(next);
-      return next;
-    });
-  };
-
-  const sortedItems = useMemo(() => {
-    const columnConfig = config.columns.find((c) => c.key === sortState.column);
+  config: UseSortableConfig<T>,
+): T[] => {
+  return useMemo(() => {
+    const { sortState, columns } = config;
+    const columnConfig = columns.find((c) => c.key === sortState.column);
     const compareFn = columnConfig?.compareFn
       ?? ((a: T, b: T) => defaultCompare(a, b, sortState.column));
 
     const directionMultiplier = sortState.direction === 'asc' ? 1 : -1;
 
     return [...items].sort((a, b) => compareFn(a, b) * directionMultiplier);
-  }, [
-    items,
-    sortState.column,
-    sortState.direction,
-    config.columns,
-  ]);
-
-  return {
-    sortedItems,
-    sortState,
-    toggleSort,
-  };
+  }, [items, config.sortState.column, config.sortState.direction, config.columns]);
 };

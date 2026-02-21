@@ -19,7 +19,6 @@
 .sortable-list__row {
   padding: 1rem;
   display: grid;
-  grid-template-columns: var(--list-col-template);
   gap: var(--spacing-lg);
 }
 

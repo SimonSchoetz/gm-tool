@@ -1,6 +1,5 @@
 .sorting-table-header {
   display: grid;
-  grid-template-columns: var(--list-col-template);
 }
 
 .sorting-table-header__cell {
