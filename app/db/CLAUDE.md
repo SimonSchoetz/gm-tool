@@ -35,6 +35,9 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
   3. Validate the JSON string against that schema in `create` and `update` functions before writing to the DB
   - Never rely on TypeScript types alone to validate data that will be serialised to a string
 - **Column relocation means removal**: If instructed to move a field into another structure (e.g. "make `searchable_columns` part of `layout`"), always remove the original column unless explicitly told to keep it.
+- **Trust the validated output**: After a successful `schema.parse(data)` call, all non-optional fields are guaranteed to be defined. Never add conditional spreads, nullish coalescing, or optional chaining on fields the schema marks as required. Defensive handling belongs *before* the parse, not after.
+  - ❌ BAD: `...(validated.scope !== undefined && { scope: validated.scope })` — `scope` is required in the schema
+  - ✅ GOOD: `scope: validated.scope` — the parse already guarantees it
 
 ### INSERT Best Practice
 

@@ -77,11 +77,19 @@ npm run web                # Vite only in browser
 - **Separation of concerns over DRY**: When these two principles conflict, always prefer separation of concerns. Each component, hook, or module owns its own slice of responsibility — even if that means a parent holds less centralised state.
   - ❌ BAD: Centralising column resize state in `SortableList` and passing it down because it "keeps things in one place"
   - ✅ GOOD: `SortingTableHeader` owns resize state; `SortableListItem` owns its render logic based on layout config
+- **Ownership boundaries are not negotiable**: If a structural constraint seems to justify putting logic in a component that the separation-of-concerns rules say should not own it, find an alternative — do not centralise and do not defend the decision if challenged. When the user questions why a component owns something it shouldn't, treat that as an instruction to refactor, not an invitation to explain the rationale.
+  - ❌ BAD: "I put grid layout in `SortableList` because header and items are siblings and need a shared value"
+  - ✅ GOOD: Find a way for each component to derive what it needs independently (e.g. both read from `TableConfigProvider` directly)
 - **DRY (Don't Repeat Yourself)**: Always reuse existing functions instead of duplicating logic
   - If a function already exists that performs the needed operation, call it instead of reimplementing
   - Compose complex operations from existing simple functions
   - ❌ BAD: Duplicating database calls and state updates in multiple functions
   - ✅ GOOD: Calling existing `createImage()` and `deleteImage()` within `replaceImage()`
+- **Re-derive types after every refactor**: After changing how a component or function gets its data, re-derive its types and props bottom-up from actual usage — never trust existing definitions at face value. A type field with no reader is wrong. A prop with no caller setting it is wrong.
+  1. Trace every field in the props type to a value being set at the call site. If no caller sets it, remove it.
+  2. Trace every field in internal types to a place where it is read and used. If a field is only defined but never accessed, it is dead code — remove it.
+  - ❌ BAD: Keeping `render` on `ListColumn<T>` after a refactor because it was there before, without checking if any caller sets it or any reader accesses it
+  - ✅ GOOD: After refactor, scanning every field of `ListColumn<T>` and finding `render` is never called → remove the field and the dead branch
 
 ### Third-Party Libraries
 
