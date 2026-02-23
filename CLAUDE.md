@@ -103,10 +103,12 @@ This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and
 
 #### File Organization
 
-- **1 concern → 1 file**: Each public function gets its own file. Internal helpers that serve the same concern can share a file.
-  - ✅ GOOD: `create.ts`, `get.ts`, `remove.ts` — each is an independent public operation
+- **1 concern → 1 file**: A concern is defined by domain ownership, not operation type or access shape. Everything that belongs to the same domain entity belongs in the same file or module — splitting by singular/plural query, or by read/write, fragments cohesion without benefit.
+  - ✅ GOOD: `NpcProvider` owns all NPC query keys, mutations, and access patterns — `useNpc` and `useNpcs` are thin access hooks that delegate to it
+  - ✅ GOOD: `create.ts`, `get.ts`, `remove.ts` at the DB layer — each is an independent public operation on a different concern (creation vs. retrieval vs. deletion)
   - ✅ GOOD: `allTermsMatchItem.ts` containing private `getSearchableText` and `termMatchesItem` — they exist only to support `allTermsMatchItem`
   - ❌ BAD: `utils.ts` with unrelated helpers dumped together
+  - ❌ BAD: Moving all NPC mutation logic into `useNpc.ts` and `useNpcs.ts` and deleting `NpcProvider` — query key ownership is now split across two files with no shared invalidation surface
 - **Export via barrel file**: Each module directory exposes its public API through an `index.ts`
 - **Tests mirror file structure**: Test files live in a `__tests__/` subdirectory next to the code they test
   - Source: `helper/parseSearchTerms.ts` → Test: `helper/__tests__/parseSearchTerms.test.ts`
