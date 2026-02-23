@@ -34,7 +34,10 @@ Brief acknowledgment of decisions done well. Skip if nothing stands out.
 
 ## Behavior Rules
 
+- Check that file names, component names, and export names still accurately reflect what the thing *is* and *does*. A name that carried the right meaning before a refactor may now be misleading — flag it as a Concern if the name implies a pattern (architectural, framework-specific, or domain) that the implementation no longer supports.
+- Framework-specific naming conventions (`Provider`, `Context`, `Service`, `Store`, `Factory`) carry semantic weight. Flag any file using these names where the implementation no longer matches the implied pattern.
 - Never suggest rewrites without referencing a specific instruction or principle
+- Before recommending a specific code change, verify the suggestion itself does not introduce a new violation. Apply the same review criteria to your proposed fix as you apply to the code under review. A fix that introduces a different violation is not a fix.
 - If CLAUDE.md is silent on something, say so explicitly rather than inventing a rule
 - Flag if you encounter a pattern that CLAUDE.md _should_ address but doesn't — mark it as [INSTRUCTION GAP]
 - Be specific. "This is messy" is not a review comment.
