@@ -3,11 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Npc } from '@db/npc';
 import * as service from '@/services/npcsService';
 import type { UpdateNpcData } from '@/services/npcsService';
+import { npcKeys } from './npcKeys';
 
-type UseNpcReturn = {
+export type UseNpcReturn = {
   npc: Npc | undefined;
   loading: boolean;
-  saveError: string | null;
   updateNpc: (data: UpdateNpcData) => void;
   deleteNpc: (adventureId: string) => Promise<void>;
 };
@@ -17,43 +17,39 @@ export const useNpc = (npcId: string): UseNpcReturn => {
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateNpcData>({});
 
-  // Query: Fetch specific NPC
   const { data: npc, isPending: isLoadingNpc } = useQuery({
-    queryKey: ['npc', npcId],
+    queryKey: npcKeys.detail(npcId),
     queryFn: () => service.getNpcById(npcId),
     enabled: !!npcId,
     staleTime: 0,
     refetchOnMount: 'always',
+    throwOnError: true,
   });
 
-  // Mutation: Update NPC
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateNpcData }) =>
       service.updateNpc(id, data),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['npc', variables.id] });
-      // Invalidate NPCs list for the adventure
+      queryClient.invalidateQueries({ queryKey: npcKeys.detail(variables.id) });
       if (npc?.adventure_id) {
-        queryClient.invalidateQueries({ queryKey: ['npcs', npc.adventure_id] });
+        queryClient.invalidateQueries({ queryKey: npcKeys.list(npc.adventure_id) });
       }
     },
   });
 
-  // Mutation: Delete NPC
   const deleteMutation = useMutation({
-    mutationFn: ({ npcId, adventureId }: { npcId: string; adventureId: string }) =>
+    mutationFn: ({ npcId }: { npcId: string; adventureId: string }) =>
       service.deleteNpc(npcId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['npcs', variables.adventureId] });
+      queryClient.invalidateQueries({ queryKey: npcKeys.list(variables.adventureId) });
     },
   });
 
-  // Update function with debouncing
   const updateNpc = (data: UpdateNpcData) => {
     if (!npc) return;
 
-    // Immediately update cache for instant UI response
-    queryClient.setQueryData<Npc>(['npc', npcId], (old) => {
+    // Optimistic cache update for instant UI response
+    queryClient.setQueryData<Npc>(npcKeys.detail(npcId), (old) => {
       if (!old) return old;
       return { ...old, ...data };
     });
@@ -73,6 +69,7 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     debounceTimeoutRef.current = setTimeout(() => {
       const updates = { ...pendingUpdatesRef.current };
       pendingUpdatesRef.current = {};
+      debounceTimeoutRef.current = null;
 
       updateMutation.mutate({ id: npcId, data: updates });
     }, 500);
@@ -85,7 +82,6 @@ export const useNpc = (npcId: string): UseNpcReturn => {
   return {
     npc,
     loading: isLoadingNpc,
-    saveError: updateMutation.error?.message ?? null,
     updateNpc,
     deleteNpc,
   };

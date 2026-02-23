@@ -23,7 +23,7 @@ export const NpcScreen = () => {
     from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPC}/$npcId`,
   });
 
-  const { npc, updateNpc, deleteNpc, loading, saveError } = useNpc(npcId);
+  const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId);
 
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
@@ -51,8 +51,6 @@ export const NpcScreen = () => {
               })
             }
           />
-
-          {saveError && <div className='save-error-message'>{saveError}</div>}
 
           <Button
             label='Delete NPC'
