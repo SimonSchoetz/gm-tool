@@ -116,7 +116,7 @@ This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and
 - **Tests mirror file structure**: Test files live in a `__tests__/` subdirectory next to the code they test
   - Source: `helper/parseSearchTerms.ts` → Test: `helper/__tests__/parseSearchTerms.test.ts`
 - Keep modules small for better separation of concerns
-- Error handling: TBD
+- Error handling: see `app/src/CLAUDE.md` — State Management & Error Handling
 
 ## Product
 
