@@ -5,7 +5,7 @@
 - [x] Phase 1: Table Config System
 - [x] Phase 2: Sortable Table Headers
 - [x] Phase 3: List Filtering / Search
-- [ ] Phase 4: @-Mention — Custom Lexical MentionNode
+- [x] Phase 4: @-Mention — Custom Lexical MentionNode
 - [ ] Phase 5: @-Mention — Typeahead Popup
 - [ ] Phase 6: Reference List (DEFERRED)
 
@@ -60,17 +60,17 @@ export const formatTableLabel = (tableName: string): string =>
 
 **Required methods:**
 
-| Method | Details |
-|---|---|
-| `static getType()` | Returns `'mention'` |
-| `static clone(node: MentionNode)` | Returns `new MentionNode(node.entityId, node.entityType, node.displayName, node.color, node.adventureId)` |
-| `createDOM()` | Returns `document.createElement('span')` — the wrapper element for the React decorator |
-| `updateDOM()` | Returns `false` — decorator nodes never need DOM updates |
-| `isInline()` | Returns `true` |
-| `decorate()` | Returns `<MentionBadge entityId={...} entityType={...} displayName={...} color={...} adventureId={...} />` — all stored properties passed as props |
-| `getTextContent()` | Returns `` `@${this.displayName}` `` |
-| `exportJSON()` | Returns `SerializedMentionNode` (see type below) |
-| `static importJSON(json)` | Returns `new MentionNode(json.entityId, json.entityType, json.displayName, json.color, json.adventureId)` |
+| Method                            | Details                                                                                                                                            |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `static getType()`                | Returns `'mention'`                                                                                                                                |
+| `static clone(node: MentionNode)` | Returns `new MentionNode(node.entityId, node.entityType, node.displayName, node.color, node.adventureId)`                                          |
+| `createDOM()`                     | Returns `document.createElement('span')` — the wrapper element for the React decorator                                                             |
+| `updateDOM()`                     | Returns `false` — decorator nodes never need DOM updates                                                                                           |
+| `isInline()`                      | Returns `true`                                                                                                                                     |
+| `decorate()`                      | Returns `<MentionBadge entityId={...} entityType={...} displayName={...} color={...} adventureId={...} />` — all stored properties passed as props |
+| `getTextContent()`                | Returns `` `@${this.displayName}` ``                                                                                                               |
+| `exportJSON()`                    | Returns `SerializedMentionNode` (see type below)                                                                                                   |
+| `static importJSON(json)`         | Returns `new MentionNode(json.entityId, json.entityType, json.displayName, json.color, json.adventureId)`                                          |
 
 **`SerializedMentionNode` type** — defined and exported from `MentionNode.tsx`:
 
@@ -257,19 +257,19 @@ Deferred until Phases 4–5 are solid.
 
 ## Key Technical Decisions
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Mention node type | `DecoratorNode` | Need React component for color badge + click handler |
-| Display label source | `formatTableLabel(tableName)` util | Derivable from existing data — no extra schema column needed |
-| Search approach | DB query | @-mentions need live cross-table search; lists are already loaded client-side |
-| DB/service split | DB layer = single parameterized SELECT; service layer = iteration + enrichment | DB primitive stays dumb and reusable; config awareness belongs to the service |
-| `tableConfigs` in search | Passed from frontend caller | Already loaded via `useTableConfigs()` — avoids redundant DB call |
-| `adventureId` in `MentionNode` | Optional stored property | Set at insertion time; needed for adventure-scoped navigation |
-| `adventureId` on `TextEditor` | Required `string` prop (currently) | All current editors are in adventure context; optional guard lives at the call site |
-| Search result limit | None | Local dataset (hundreds of rows); no performance concern |
-| Route derivation in `MentionBadge` | `entityType.slice(0, -1)` | Strips plural `s` — matches `Routes` enum singular values exactly |
-| `db/mention-search.ts` location | Flat file at db root | Cross-table concern — no single domain directory owns it |
-| `components/index.ts` export style | Explicit named exports | Two exports (`FloatingToolbar` + `MentionBadge`) require explicit per CLAUDE.md |
+| Decision                           | Choice                                                                         | Rationale                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Mention node type                  | `DecoratorNode`                                                                | Need React component for color badge + click handler                                |
+| Display label source               | `formatTableLabel(tableName)` util                                             | Derivable from existing data — no extra schema column needed                        |
+| Search approach                    | DB query                                                                       | @-mentions need live cross-table search; lists are already loaded client-side       |
+| DB/service split                   | DB layer = single parameterized SELECT; service layer = iteration + enrichment | DB primitive stays dumb and reusable; config awareness belongs to the service       |
+| `tableConfigs` in search           | Passed from frontend caller                                                    | Already loaded via `useTableConfigs()` — avoids redundant DB call                   |
+| `adventureId` in `MentionNode`     | Optional stored property                                                       | Set at insertion time; needed for adventure-scoped navigation                       |
+| `adventureId` on `TextEditor`      | Required `string` prop (currently)                                             | All current editors are in adventure context; optional guard lives at the call site |
+| Search result limit                | None                                                                           | Local dataset (hundreds of rows); no performance concern                            |
+| Route derivation in `MentionBadge` | `entityType.slice(0, -1)`                                                      | Strips plural `s` — matches `Routes` enum singular values exactly                   |
+| `db/mention-search.ts` location    | Flat file at db root                                                           | Cross-table concern — no single domain directory owns it                            |
+| `components/index.ts` export style | Explicit named exports                                                         | Two exports (`FloatingToolbar` + `MentionBadge`) require explicit per CLAUDE.md     |
 
 ---
 

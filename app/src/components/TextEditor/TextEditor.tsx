@@ -7,6 +7,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
+import { MentionNode } from './nodes';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -44,6 +45,7 @@ const theme: EditorThemeClasses = {
       listitem: 'editor-nested-list-item',
     },
   },
+  mention: 'editor-mention',
 };
 
 export const TextEditor: FCProps<Props> = ({
@@ -59,7 +61,7 @@ export const TextEditor: FCProps<Props> = ({
     namespace: textEditorId,
     theme,
     onError: (err: any) => console.error('Lexical error:', err),
-    nodes: [HeadingNode, ListNode, ListItemNode],
+    nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
     editorState: value || undefined,
   };
 
