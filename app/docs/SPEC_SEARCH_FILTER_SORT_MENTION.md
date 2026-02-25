@@ -1,4 +1,4 @@
-# SPEC: Search, Filter, Sort & @-Mention System
+# SPEC: @-Mention System
 
 ## Progress
 
@@ -15,306 +15,188 @@ Read all CLAUDE.md files!
 
 ## Purpose
 
-Enable searching, filtering, and sorting across list screens (NpcsScreen, etc.) and implement an @-mention system in all TextEditor fields to link entities (NPCs, sessions, etc.) with color-coded, clickable inline badges.
+Implement an @-mention system in all TextEditor fields to link entities (NPCs, sessions, etc.) with color-coded, clickable inline badges.
 
-## User Stories
+## Context
 
-1. **@-Mention in TextEditor** — Type `@` in any text field to search and link NPCs/sessions/etc. with color-coded badges that navigate on click
-2. **Table Config** — DB-persisted config for color coding, tagging eligibility, and scope (adventure vs global) per table. Editable via settings screen.
-3. **Sortable Table Headers** — Click column headers to sort lists (asc/desc toggle)
-4. **List Filtering** — Search input that filters by name (primary) and other fields like description (secondary), returned as two separate arrays
-5. **Reference List** — DEFERRED. Show where an entity is mentioned across the adventure.
+Phases 1–3 are complete. Key architectural facts for phases 4–6:
 
----
-
-## Phase 1: Table Config System (foundation for everything)
-
-**Why first:** Color coding, tagging eligibility, and scope (adventure-scoped vs global) are referenced by every other feature. This is the single source of truth.
-
-### 1a. Database: `table_config` table
-
-- **File:** `db/table-config/schema.ts`
-- **Schema:**
-  ```
-  table_config (
-    id TEXT PK,
-    table_name TEXT NOT NULL UNIQUE,  -- e.g. 'npcs', 'sessions', 'adventures'
-    display_name TEXT NOT NULL,       -- e.g. 'NPC', 'Session', 'Adventure'
-    color TEXT NOT NULL,              -- hex color for tag display, e.g. '#4a9eff'
-    tagging_enabled INTEGER DEFAULT 1,  -- 0/1 boolean: show in @-mention results
-    scope TEXT NOT NULL DEFAULT 'adventure',  -- 'adventure' | 'global'
-    searchable_columns TEXT,          -- JSON array of columns to search, e.g. '["name","description","summary"]'
-    -- NOTE: no name_column needed — convention is always 'name'
-    created_at, updated_at
-  )
-  ```
-- **Seed data:** Insert default rows for `adventures`, `npcs`, `sessions` on DB init
-- **CRUD:** `db/table-config/` — `get-all.ts`, `get.ts`, `update.ts` (no create/remove — rows managed by seed)
-- **Types:** `db/table-config/types.ts` — `TableConfig`, `UpdateTableConfigInput`
-
-### 1b. Service Layer
-
-- **File:** `src/services/tableConfigService.ts`
-- Wraps DB functions, throws domain errors
-- Functions: `getAllTableConfigs()`, `getTableConfig(id)`, `updateTableConfig(id, data)`
-- Follows existing service pattern (see `adventureService.ts`)
-
-### 1c. Frontend: Table Registry
-
-- **File:** `src/providers/table-config/TableConfigProvider.tsx` + `useTableConfig.ts`
-- Loads all `table_config` rows on app init via TanStack Query (`queryKey: ['tableConfig']`)
-- Exposes helper: `getConfigForTable(tableName: string) => TableConfig | null`
-- Add to provider chain in `DataProvider.tsx` (at the top, before ImageProvider)
-
-### 1d. Settings Screen (optional but requested)
-
-- **Route:** `/settings` or accessible from sidebar
-- **Screen:** `src/screens/settings/SettingsScreen.tsx`
-- Table listing all `table_config` rows with editable fields: color (color picker), tagging_enabled (toggle)
-- Uses `useTableConfig()` hook + update mutation
-
-### Files to create/modify:
-
-- `db/table-config/` (schema, types, get-all, get, update, index)
-- `db/database.ts` (register table + seed)
-- `src/domain/table-config/errors.ts` + `index.ts`
-- `src/services/tableConfigService.ts`
-- `src/providers/table-config/` (provider, hook, index)
-- `src/providers/DataProvider.tsx` (add to chain)
-- `src/screens/settings/` (screen + CSS)
-- `src/routes/settings.tsx`
+- **Data access layer:** `src/data-access-layer/table-config/` — use `useTableConfigs()` for all configs, `useTableConfig(id)` for a single config by ID. No `TableConfigProvider`, no `DataProvider` — hooks work directly inside `TanstackQueryClientProvider` (in `App.tsx`).
+- **`TableConfig` type:** `{ id, table_name, color, tagging_enabled, scope, layout, created_at, updated_at }` where `layout` is a parsed JSON object: `{ searchable_columns, columns[], sort_state }`
+- **No `display_name` column:** derive display labels from `table_name` via `formatTableLabel()` (see Phase 4)
+- **`@lexical/link`** is already installed at `0.40.0`. All other Lexical packages are at `0.39.0` — align to `0.39.0` before starting Phase 4.
 
 ---
 
-## Phase 2: Sortable Table Headers (User Story 3)
+## Phase 4: @-Mention — Custom Lexical MentionNode
 
-**Why second:** Pure frontend logic, no new tables. Validates the list screen pattern before adding search complexity.
+**Why first:** The node must exist before the typeahead popup can insert it.
 
-### 2a. Generic `useSortable` hook
+### 4a. `formatTableLabel` util
 
-- **File:** `src/hooks/useSortable.ts`
-- Accepts an array of items + sort config
-- Returns sorted items + sort state (column, direction)
-- Supports toggling direction (asc → desc → default)
-- Generic: `useSortable<T>(items: T[], defaultSort: SortConfig<T>)`
+- **File:** `src/util/formatTableLabel.ts`
+- Maps `table_name` → human-readable label: `'npcs'` → `'NPC'`, `'sessions'` → `'Session'`, etc.
+- Fallback for unknown tables: strip trailing `s`, capitalize first letter
+- When adding a new table: one line in the map
 
-### 2b. Sortable `TableHeadRow` component
+```typescript
+const labelMap: Record<string, string> = {
+  npcs: 'NPC',
+  sessions: 'Session',
+  adventures: 'Adventure',
+};
 
-- Refactor existing `TableHeadRow` in `NpcsScreen.tsx` — currently sets `sortBy` state but never actually sorts
-- Extract into reusable component: `src/components/SortingTableHeader/SortingTableHeader.tsx`
-- Visual: ChevronDown for desc, ChevronUp for asc, no icon for inactive
-- Column config passed as props (label, sort key)
-
-### 2c. Apply to NpcsScreen
-
-- Replace inline `TableHeadRow` + unsorted list with `useSortable` + `SortingTableHeader`
-- Sort by: name (string), created_at (date), updated_at (date)
-
-### Files to create/modify:
-
-- `src/hooks/useSortable.ts` (new)
-- `src/components/SortingTableHeader/` (new: SortingTableHeader.tsx + SortingTableHeader.css)
-- `src/components/index.ts` (add SortingTableHeader export)
-- `src/screens/npcs/NpcsScreen.tsx` (refactor)
-
----
-
-## Phase 3: List Filtering / Search (User Story 4)
-
-**Why third:** Builds on the sorted list from Phase 2. Adds input-driven filtering.
-
-### 3a. Search logic
-
-- **Approach:** Client-side filtering (data is already loaded via TanStack Query). For a local SQLite app with lists in the low hundreds, this is the right tradeoff — no need for server-side search/pagination complexity.
-- **File:** `src/hooks/useListFilter.ts`
-- Two-tier matching, returned as **two separate arrays** for distinct display:
-  1. **`nameMatches: T[]`** — `name` column, case-insensitive partial match. Ordered: `startsWith` matches first, then `includes` matches.
-  2. **`fieldMatches: T[]`** — Other searchable columns (from `table_config.searchable_columns`), case-insensitive partial match. Excludes items already in `nameMatches`.
-- Generic: `useListFilter<T>(items: T[], searchTerm: string, config: FilterConfig) => { nameMatches: T[], fieldMatches: T[] }`
-- **Convention note:** All tables use `name` as their display column (never `title`).
-
-### 3b. Search input component
-
-- **File:** `src/components/SearchInput/SearchInput.tsx`
-- Simple text input with search icon, clear button
-- Debounced (300ms) to avoid filtering on every keystroke
-- Placed above the table header row
-- Export via `src/components/index.ts` barrel file
-
-### 3c. Apply to NpcsScreen
-
-- Add `SearchInput` above `SortingTableHeader`
-- Pipe: raw npcs → `useListFilter` → `useSortable` (applied to each array) → rendered list with two sections
-- Searchable columns for NPCs: `name`, `summary`, `description`
-- `fieldMatches` section shows a subtle label indicating which field matched (e.g. "found in description")
-
-### Files to create/modify:
-
-- `src/hooks/useListFilter.ts` (new)
-- `src/components/SearchInput/` (new: SearchInput.tsx + SearchInput.css)
-- `src/components/index.ts` (add SearchInput export)
-- `src/screens/npcs/NpcsScreen.tsx` (extend)
-
----
-
-## Phase 4: @-Mention — Custom Lexical MentionNode (User Story 1, foundation)
-
-**Why fourth:** The node must exist before the typeahead popup can insert it.
-
-### 4a. Install `@lexical/link` (if not already present — it's not in current deps)
+export const formatTableLabel = (tableName: string): string =>
+  labelMap[tableName] ??
+  tableName.charAt(0).toUpperCase() + tableName.slice(1, -1);
+```
 
 ### 4b. Custom `MentionNode`
 
-- **File:** `src/components/TextEditor/nodes/MentionNode.ts`
-- Extends `DecoratorNode` (not LinkNode — we need React rendering for color-coded badges + click handling)
-- Stored properties: `entityId`, `entityType` (table name), `displayName`, `color`
-- `decorate()` returns a small React component: colored badge with the entity name
+- **File:** `src/components/TextEditor/nodes/MentionNode.tsx`
+- Extends `DecoratorNode` (not `LinkNode` — we need React rendering for color badge + click handling)
+- Stored properties: `entityId`, `entityType` (= `table_name`), `displayName`, `color`, `adventureId?`
+  - `adventureId` is optional: required for adventure-scoped entity navigation, omitted for global-scoped
+- `decorate()` returns `<MentionBadge />` JSX
 - `exportJSON()` / `importJSON()` / `getTextContent()` for serialization
-- Clicking the badge navigates to the entity's route (e.g. `/adventure/:id/npc/:npcId`)
 
-### 4c. Register MentionNode
+### 4c. Register `MentionNode`
 
 - Add `MentionNode` to `initialConfig.nodes` array in `TextEditor.tsx`
-- Add mention-specific theme classes
+- Add mention-specific theme classes to the `theme` object
 
-### 4d. MentionComponent (the rendered badge)
+### 4d. `MentionBadge` component
 
 - **File:** `src/components/TextEditor/components/MentionBadge.tsx`
 - Renders: colored inline badge with entity name
-- Color comes from the node's `color` property (sourced from `table_config` at insertion time)
-- OnClick: navigate via TanStack Router
+- `color` comes from the node's `color` property (sourced from `table_config` at insertion time)
+- On click: navigate via TanStack Router
+  - Adventure-scoped: use `adventureId` + `entityType` + `entityId` to build route
+  - Global-scoped: derive route from `entityType` alone
 
-### Lexical version & packages:
+### Lexical notes
 
 - Currently on **Lexical v0.39.0**
-- No built-in MentionNode exists — must be custom
+- No built-in `MentionNode` — must be custom
 - `LexicalTypeaheadMenuPlugin` available from `@lexical/react` (already installed)
-- Custom nodes registered via `initialConfig.nodes` array (zero required constructor args)
+- Custom nodes registered via `initialConfig.nodes` — zero required constructor args
 
-### Files to create/modify:
+### Files to create/modify
 
-- `src/components/TextEditor/nodes/MentionNode.ts` (new)
+- `src/util/formatTableLabel.ts` (new)
+- `src/util/index.ts` (export `formatTableLabel`)
+- `src/components/TextEditor/nodes/MentionNode.tsx` (new)
+- `src/components/TextEditor/nodes/index.ts` (new barrel — export `MentionNode`)
 - `src/components/TextEditor/components/MentionBadge.tsx` (new)
-- `src/components/TextEditor/TextEditor.tsx` (register node)
-- `package.json` (add `@lexical/link` if needed for utilities)
+- `src/components/TextEditor/components/index.ts` (export `MentionBadge`)
+- `src/components/TextEditor/TextEditor.tsx` (register node + theme classes)
 
 ---
 
-## Phase 5: @-Mention — Typeahead Popup (User Story 1, interaction)
+## Phase 5: @-Mention — Typeahead Popup
 
-**Why fifth:** Requires MentionNode (Phase 4) + TableConfig (Phase 1).
+**Why fifth:** Requires `MentionNode` (Phase 4).
 
 ### 5a. Mention search DB function
 
 - **File:** `db/mention-search.ts`
-- Single function: `searchForMention(query: string, adventureId: string, tableConfigs: TableConfig[]) => MentionSearchResult[]`
-- For each table where `tagging_enabled = true`:
-  - If `scope === 'adventure'`: filter by `adventure_id`
-  - If `scope === 'global'`: no adventure filter
-  - Search `name LIKE '%query%'` (convention: always 'name' column)
-  - Order by `updated_at DESC`
-  - Limit per table (e.g. 5)
-- Returns: `{ id, name, tableName, displayName, color }[]`
-- **Performance note:** For small-to-medium datasets this is fine. If tables grow large, we can add SQLite FTS later.
+- Cross-table concern — no single domain owns it, flat file at DB root is appropriate
+- Single primitive: one parameterized SELECT against a given table — no orchestration, no iteration, no config awareness
+- Signature: `searchByName(tableName: string, query: string, adventureId: string | null, limit?: number): Promise<{ id: string; name: string; updated_at: string }[]>`
+  - `adventureId !== null`: appends `AND adventure_id = $adventureId` to the WHERE clause
+  - `adventureId === null`: no adventure filter (global-scoped tables)
+  - Always `ORDER BY updated_at DESC LIMIT $limit` — ordering at the DB level ensures the most recent rows are returned before the limit is applied
+  - Returns raw rows only — no enrichment, no type beyond the row shape
 
-### 5b. Mention service
+### 5b. Mention search service
 
 - **File:** `src/services/mentionSearchService.ts`
-- Wraps the DB function, passes current `tableConfig` data
+- Owns orchestration and the `MentionSearchResult` type — this is where config awareness lives, not the DB layer
+- `MentionSearchResult` defined here: `{ id, name, tableName, color, adventureId? }`
+  - `adventureId` included only for adventure-scoped results (stored in `MentionNode` for navigation)
+- `searchMentions(query: string, adventureId: string, tableConfigs: TableConfig[]): Promise<MentionSearchResult[]>`
+  - Iterates configs where `tagging_enabled === 1`
+  - Calls `db/mention-search.searchByName(config.table_name, query, scope === 'adventure' ? adventureId : null)`
+  - Enriches each row with `tableName` and `color` from the config
+  - Returns a flat merged array ordered by `updated_at` across all tables
 
-### 5c. MentionTypeaheadPlugin (Lexical plugin)
+### 5c. `MentionTypeaheadPlugin`
 
 - **File:** `src/components/TextEditor/plugins/MentionTypeaheadPlugin.tsx`
-- Uses Lexical's `LexicalTypeaheadMenuPlugin` (from `@lexical/react`)
+- Uses `LexicalTypeaheadMenuPlugin` from `@lexical/react`
 - Trigger: `@` character
-- On trigger: query `mentionSearchService` with the text after `@`
-- Popup renders below the cursor line showing:
-  - Each result as: `[ColorDot] EntityName [TableDisplayName]`
-  - Grouped or interleaved, ordered by `updated_at`
-- On select: insert `MentionNode` into editor, remove the `@query` text
+- Gets `tableConfigs` via `useTableConfigs()` directly — no provider needed
+- On trigger: call `mentionSearchService.searchMentions(queryText, adventureId, tableConfigs)`
+- `MentionSearchResult` imported from `src/services/mentionSearchService.ts`
+- Popup renders each result as: `[ColorDot] EntityName [TableLabel]` where `TableLabel = formatTableLabel(result.tableName)`
+- On select: insert `MentionNode` with `{ entityId, entityType, displayName, color, adventureId? }`, remove `@query` text
 - Keyboard nav: arrow keys + Enter to select, Escape to dismiss
+- Receives `adventureId` as prop from `TextEditor`
 
-### 5d. Wire into TextEditor
+### 5d. Wire into `TextEditor`
 
-- Add `MentionTypeaheadPlugin` to `TextEditor.tsx`
-- Pass `adventureId` as a new prop to `TextEditor` (needed for scoped search)
-- Update all TextEditor usages to pass `adventureId`
+- Add `adventureId?: string` prop to `TextEditor` (optional: if absent, only global-scoped entities appear)
+- Add `<MentionTypeaheadPlugin adventureId={adventureId} />` inside `LexicalComposer`
+- Update `NpcScreen` and `AdventureScreen` to pass `adventureId` (both already have it via `useParams`)
 
-### Files to create/modify:
+### Files to create/modify
 
 - `db/mention-search.ts` (new)
 - `src/services/mentionSearchService.ts` (new)
 - `src/components/TextEditor/plugins/MentionTypeaheadPlugin.tsx` (new)
-- `src/components/TextEditor/TextEditor.tsx` (add plugin + prop)
-- `src/screens/npc/NpcScreen.tsx` (pass adventureId to TextEditor)
-- `src/screens/adventure/AdventureScreen.tsx` (pass adventureId to TextEditor — check current usage)
+- `src/components/TextEditor/TextEditor.tsx` (add plugin + `adventureId?` prop)
+- `src/screens/npc/NpcScreen.tsx` (pass `adventureId` to `TextEditor`)
+- `src/screens/adventure/AdventureScreen.tsx` (pass `adventureId` to `TextEditor`)
 
 ---
 
-## Phase 6: Reference List (User Story 5) — DEFERRED
+## Phase 6: Reference List — DEFERRED
 
-Per discussion, this is deferred until Phases 1-5 are solid. Two notes for future implementation:
+Deferred until Phases 4–5 are solid.
 
-- **Approach:** With `MentionNode` storing structured `entityId` + `entityType`, a `mentions` tracking table (populated on text save) will be the cleanest approach
-- **Alternative:** On-the-fly search across all text fields for the entity's ID (works but slower)
-- **Prerequisite:** MentionNode must be stable and in use
+- **Preferred approach:** A `mentions` tracking table, populated on text save. `MentionNode` already stores `entityId` + `entityType` — the serialization shape is in place.
+- **Alternative:** On-the-fly search across all text fields for the entity's ID (simpler, but slower and fragile)
+- **Prerequisite:** `MentionNode` must be stable and in production use
 
 ---
 
-## Maintainability: "How many files to touch when adding a new table?"
+## Maintainability: Adding a new table
 
-### With this design, adding a new table (e.g. `factions`) requires:
+1. **DB layer:** Create `db/newTable/` with standard CRUD
+2. **Seed `table_config`:** One INSERT row — single source of truth for `color`, `tagging_enabled`, `scope`, `layout`
+3. **`formatTableLabel`:** One line in `labelMap` (e.g. `factions: 'Faction'`)
+4. **TextEditor:** No changes — `MentionTypeaheadPlugin` reads `table_config` dynamically
 
-1. **DB layer:** Create `db/faction/` with standard CRUD (same as today)
-2. **Seed `table_config`:** Add one INSERT row in `db/database.ts` seed — this is the **single source of truth** for color, tagging, scope, searchable columns
-3. **List screen:** Use `useSortable` + `useListFilter` hooks (generic, no changes to hooks needed)
-4. **TextEditor:** No changes — MentionTypeaheadPlugin reads from `table_config` dynamically
-
-**Total touch points for @-mention support of a new table: 1 line** (the seed INSERT). The rest is standard table setup you'd do anyway.
+**Touch points for full @-mention support of a new table: 2 lines.**
 
 ---
 
 ## Verification Plan
 
-### Phase 1:
+### Phase 4
 
-- Create table_config, verify seed data loads
-- Open settings screen, change a color, verify it persists after restart
-
-### Phase 2:
-
-- Click Name header → NPCs sort A-Z, click again → Z-A
-- Click Created At → sort by date, click again → reverse
-
-### Phase 3:
-
-- Type in search → list filters by name matches first
-- Type a word that only appears in a description → NPC appears below name matches
-- Clear search → full list returns
-
-### Phase 4:
-
-- Manually create a MentionNode in editor (via test) → verify it renders as colored badge
+- Manually create a `MentionNode` in the editor → renders as colored badge
 - Click badge → navigates to entity screen
-- Save & reload → mention persists in JSON
+- Save & reload → mention persists in serialized JSON
 
-### Phase 5:
+### Phase 5
 
-- Type `@` in any TextEditor → popup appears with recent entities
-- Type `@Gob` → filters to NPCs matching "Gob"
-- Select item → MentionNode inserted with correct color
-- Results show table type labels (NPC, Session, etc.)
+- Type `@` in any `TextEditor` → popup appears with recent entities
+- Type `@Gob` → filters to entities matching "Gob"
+- Select item → `MentionNode` inserted with correct color and label
+- Results show formatted table labels (`NPC`, `Session`, etc.)
+- Adventure-scoped results only show entities from the current adventure
 
 ---
 
 ## Key Technical Decisions
 
-| Decision             | Choice                                         | Rationale                                                        |
-| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
-| Mention node type    | `DecoratorNode`                                | Need React component for color badge + click handler             |
-| Search approach      | Client-side for lists, DB query for @-mentions | Lists are already loaded; @-mentions need cross-table search     |
-| Table config storage | SQLite `table_config` table                    | User requested DB-persisted, editable via settings               |
-| Mention scope        | Configurable per table via `scope` column      | Adventure-scoped vs global per table                             |
-| Filter debounce      | 300ms                                          | Fast enough to feel responsive, slow enough to avoid excess work |
-| Sort state           | Frontend only (no DB query changes)            | Data already loaded, sorting in-memory is instant                |
-| List search          | Client-side two-tier                           | Local app, low hundreds of entries, no pagination needed         |
+| Decision | Choice | Rationale |
+|---|---|---|
+| Mention node type | `DecoratorNode` | Need React component for color badge + click handler |
+| Display label source | `formatTableLabel(tableName)` util | Derivable from existing data — no extra schema column needed |
+| Search approach | DB query | @-mentions need live cross-table search; lists are already loaded client-side |
+| DB/service split | DB layer = single parameterized SELECT; service layer = iteration + enrichment | DB primitive stays dumb and reusable; config awareness belongs to the service |
+| `tableConfigs` in search | Passed from frontend caller | Already loaded via `useTableConfigs()` — avoids redundant DB call |
+| `adventureId` in `MentionNode` | Optional stored property | Set at insertion time; needed for adventure-scoped navigation |
+| `adventureId` on `TextEditor` | Optional prop | Enables scoped search; optional guards future non-adventure contexts |
