@@ -22,6 +22,7 @@ export default defineConfig(async () => ({
       '@': path.resolve(__dirname, './src'),
       '@db': path.resolve(__dirname, './db'),
     },
+    dedupe: ['react', 'react-dom'],
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
