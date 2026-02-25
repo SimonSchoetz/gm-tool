@@ -11,7 +11,7 @@ Rename `src/providers/` to `src/data-access-layer/` and converge all domain modu
 ## Progress tracker
 
 - [x] Sub-feature 1: Rename directory — move `providers/` to `data-access-layer/`, update all imports, update CLAUDE.md
-- [ ] Sub-feature 2: Adventures — drop Context, add key factory, convert to pure hooks
+- [x] Sub-feature 2: Adventures — drop Context, add key factory, convert to pure hooks
 - [ ] Sub-feature 3: Table Config — drop Context, add key factory, reshape hooks
 - [ ] Sub-feature 4: Images — create service layer, then convert to pure hooks
 - [ ] Sub-feature 5: Sessions — create service layer, then convert to pure hooks

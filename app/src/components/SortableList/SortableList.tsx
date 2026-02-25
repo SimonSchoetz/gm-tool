@@ -14,7 +14,7 @@ import { SortableListItem } from './SortableListItem/SortableListItem';
 import { SortingTableHeader } from './SortingTableHeader/SortingTableHeader';
 
 type SortableListProps<T extends Record<string, unknown>> = {
-  tableName: string;
+  tableConfigId: string;
   items: T[];
   onRowClick: (item: T) => void;
   onCreateNew?: () => void;
@@ -23,7 +23,7 @@ type SortableListProps<T extends Record<string, unknown>> = {
 };
 
 export const SortableList = <T extends Record<string, unknown>>({
-  tableName,
+  tableConfigId,
   items,
   onRowClick,
   onCreateNew,
@@ -31,23 +31,24 @@ export const SortableList = <T extends Record<string, unknown>>({
   searchPlaceholder,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { config } = useTableConfig(tableConfigId);
 
-  const { getConfigForTable } = useTableConfig();
-  const layout = getConfigForTable(tableName).layout;
+  const columns = config?.layout.columns ?? [];
+  const sortState = config?.layout.sort_state ?? { column: '', direction: 'asc' as const };
 
   const sortableColumns = useMemo(
     () =>
-      layout.columns
+      columns
         .filter((col) => col.sortable !== false)
         .map((col) => ({ key: col.key as keyof T & string })),
-    [layout.columns],
+    [columns],
   );
 
   const filterConfig = useMemo(
     () => ({
-      searchableColumns: layout.searchable_columns as Array<keyof T & string>,
+      searchableColumns: (config?.layout.searchable_columns ?? []) as Array<keyof T & string>,
     }),
-    [layout.searchable_columns],
+    [config?.layout.searchable_columns],
   );
 
   const { nameMatches, fieldMatches } = useListFilter<T>(
@@ -57,13 +58,16 @@ export const SortableList = <T extends Record<string, unknown>>({
   );
 
   const sortedNameMatches = useSortable<T>(nameMatches, {
-    sortState: layout.sort_state,
+    sortState,
     columns: sortableColumns,
   });
   const sortedFieldMatches = useSortable<T>(fieldMatches, {
-    sortState: layout.sort_state,
+    sortState,
     columns: sortableColumns,
   });
+
+  // All hooks called — safe to return early
+  if (!config) return null;
 
   const isSearching = searchTerm.trim().length > 0;
   const hasFieldMatches = sortedFieldMatches.length > 0;
@@ -77,7 +81,7 @@ export const SortableList = <T extends Record<string, unknown>>({
     <GlassPanel className={cn('sortable-list', className)}>
       <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
 
-      <SortingTableHeader tableName={tableName} />
+      <SortingTableHeader tableConfigId={tableConfigId} />
 
       <CustomScrollArea>
         <ul className='sortable-list__table'>
@@ -90,7 +94,7 @@ export const SortableList = <T extends Record<string, unknown>>({
           {sortedNameMatches.map((item) => (
             <SortableListItem
               key={item.id as string}
-              tableName={tableName}
+              tableConfigId={tableConfigId}
               item={item}
               onClick={(item) => onRowClick(item as T)}
             />
@@ -102,7 +106,7 @@ export const SortableList = <T extends Record<string, unknown>>({
               {sortedFieldMatches.map((item) => (
                 <SortableListItem
                   key={item.id as string}
-                  tableName={tableName}
+                  tableConfigId={tableConfigId}
                   item={item}
                   onClick={(item) => onRowClick(item as T)}
                 />

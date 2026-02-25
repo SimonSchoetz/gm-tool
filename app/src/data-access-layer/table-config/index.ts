@@ -1,2 +1,3 @@
-export * from './TableConfigProvider';
-export * from './useTableConfig';
+export { useTableConfig } from './useTableConfig';
+export { useTableConfigs } from './useTableConfigs';
+export { tableConfigKeys } from './tableConfigKeys';

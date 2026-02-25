@@ -9,7 +9,7 @@ const MIN_COLUMN_WIDTH = 60;
 const DEFAULT_COLUMN_WIDTH = 150;
 
 type SortingTableHeaderProps = {
-  tableName: string;
+  tableConfigId: string;
   className?: string;
 };
 
@@ -27,15 +27,17 @@ const buildGridTemplate = (
 };
 
 export const SortingTableHeader = ({
-  tableName,
+  tableConfigId,
   className = '',
 }: SortingTableHeaderProps) => {
-  const { getConfigForTable, updateColumnWidths, updateSortState } = useTableConfig();
+  const { config, updateColumnWidths, updateSortState } =
+    useTableConfig(tableConfigId);
 
-  const layout = getConfigForTable(tableName).layout;
-
-  const sortState = layout.sort_state;
-  const columns = layout.columns;
+  const columns = config?.layout.columns ?? [];
+  const sortState = config?.layout.sort_state ?? {
+    column: '',
+    direction: 'asc' as const,
+  };
 
   const persistedWidths = useMemo(() => {
     const result: Record<string, number> = {};
@@ -45,7 +47,8 @@ export const SortingTableHeader = ({
     return result;
   }, [columns]);
 
-  const [activeWidths, setActiveWidths] = useState<Record<string, number>>(persistedWidths);
+  const [activeWidths, setActiveWidths] =
+    useState<Record<string, number>>(persistedWidths);
 
   const dragRef = useRef<{
     columnKey: string;
@@ -72,9 +75,10 @@ export const SortingTableHeader = ({
   );
 
   const handleSort = (columnKey: string) => {
-    const currentDirection = sortState.column === columnKey ? sortState.direction : null;
+    const currentDirection =
+      sortState.column === columnKey ? sortState.direction : null;
     const nextDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-    updateSortState(tableName, columnKey, nextDirection);
+    updateSortState(columnKey, nextDirection);
   };
 
   const handleResizeStart = (columnKey: string, startX: number) => {
@@ -112,7 +116,7 @@ export const SortingTableHeader = ({
             resizableWidths[key] = current[key] ?? DEFAULT_COLUMN_WIDTH;
           }
         }
-        updateColumnWidthsRef.current(tableName, resizableWidths);
+        updateColumnWidthsRef.current(resizableWidths);
         return current;
       });
     };

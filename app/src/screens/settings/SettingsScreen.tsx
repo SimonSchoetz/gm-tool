@@ -1,10 +1,12 @@
-import { useTableConfig } from '@/data-access-layer/table-config';
+import {
+  useTableConfig,
+  useTableConfigs,
+} from '@/data-access-layer/table-config';
 import { GlassPanel, CustomScrollArea } from '@/components';
-import type { TableConfig } from '@db/table-config';
 import './SettingsScreen.css';
 
 export const SettingsScreen = () => {
-  const { tableConfigs, loading, updateTableConfig } = useTableConfig();
+  const { tableConfigs, loading } = useTableConfigs();
 
   if (loading) {
     return <div className='content-center'>Loading...</div>;
@@ -16,11 +18,7 @@ export const SettingsScreen = () => {
       <CustomScrollArea>
         <ul className='settings-config-list'>
           {tableConfigs.map((config) => (
-            <TableConfigRow
-              key={config.id}
-              config={config}
-              onUpdate={updateTableConfig}
-            />
+            <TableConfigRow key={config.id} tableConfigId={config.id} />
           ))}
         </ul>
       </CustomScrollArea>
@@ -28,22 +26,18 @@ export const SettingsScreen = () => {
   );
 };
 
-type TableConfigRowProps = {
-  config: TableConfig;
-  onUpdate: (id: string, data: Partial<TableConfig>) => Promise<void>;
-};
+const TableConfigRow = ({ tableConfigId }: { tableConfigId: string }) => {
+  const { config, updateTableConfig } = useTableConfig(tableConfigId);
+  if (!config) return null;
 
-const TableConfigRow = ({ config, onUpdate }: TableConfigRowProps) => {
   const isTaggingEnabled = config.tagging_enabled === 1;
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUpdate(config.id, { color: e.target.value });
+    updateTableConfig({ color: e.target.value });
   };
 
   const handleTaggingToggle = () => {
-    onUpdate(config.id, {
-      tagging_enabled: isTaggingEnabled ? 0 : 1,
-    });
+    updateTableConfig({ tagging_enabled: isTaggingEnabled ? 0 : 1 });
   };
 
   return (
@@ -62,7 +56,7 @@ const TableConfigRow = ({ config, onUpdate }: TableConfigRowProps) => {
               style={{ backgroundColor: config.color }}
             />
           </label>
-          <span>{config.display_name}</span>
+          <span>{config.table_name}</span>
 
           <span className='settings-label'>Scope</span>
           <span className='settings-scope-value'>{config.scope}</span>
