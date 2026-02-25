@@ -1,0 +1,22 @@
+.mention-typeahead-popup {
+  background: var(--color-surface, #1a1a2e);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  min-width: 200px;
+  padding: 4px 0;
+  z-index: 1000;
+}
+
+.mention-typeahead-item {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: background 0.1s;
+}
+
+.mention-typeahead-item:hover,
+.mention-typeahead-item--selected {
+  background: rgba(255, 255, 255, 0.08);
+}

@@ -15,12 +15,14 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { UNORDERED_LIST, ORDERED_LIST } from '@lexical/markdown';
 import { FloatingToolbar } from './components';
+import { MentionTypeaheadPlugin } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { useState } from 'react';
 
 type Props = {
   value: string;
   textEditorId: string;
+  adventureId: string;
   placeholder?: string;
   onChange: (value: string) => void;
 };
@@ -51,6 +53,7 @@ const theme: EditorThemeClasses = {
 export const TextEditor: FCProps<Props> = ({
   value,
   textEditorId,
+  adventureId,
   onChange,
   placeholder = 'Description...',
   ...props
@@ -94,6 +97,7 @@ export const TextEditor: FCProps<Props> = ({
         <OnChangePlugin onChange={handleChange} />
 
         <FloatingToolbar />
+        <MentionTypeaheadPlugin adventureId={adventureId} />
       </div>
     </LexicalComposer>
   );

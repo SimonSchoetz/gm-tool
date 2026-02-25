@@ -1,0 +1,1 @@
+export { MentionSearchError } from './errors';

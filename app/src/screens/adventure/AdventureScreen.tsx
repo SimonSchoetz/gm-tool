@@ -95,6 +95,7 @@ export const AdventureScreen = () => {
             <TextEditor
               value={adventure?.description || ''}
               textEditorId={`Adventure_${adventure.id}`}
+              adventureId={adventureId}
               onChange={(description) => updateAdventure({ description })}
             />
           </div>
