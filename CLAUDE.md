@@ -109,10 +109,14 @@ This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and
   - ✅ GOOD: `allTermsMatchItem.ts` containing private `getSearchableText` and `termMatchesItem` — they exist only to support `allTermsMatchItem`
   - ❌ BAD: `utils.ts` with unrelated helpers dumped together
   - ❌ BAD: Moving all NPC mutation logic into `useNpc.ts` and `useNpcs.ts` and deleting `NpcProvider` — query key ownership is now split across two files with no shared invalidation surface
-- **Export via barrel file**: Each module directory exposes its public API through an `index.ts`. Use `export *` only when a file has a single, obvious public concern (one component + its types) — there are no internals to accidentally leak. Use explicit named exports when a file exports multiple distinct things, or when some exports are internal implementation details that should not be public. The trigger: if you would have to think about whether a new export from that file should be public, use explicit exports.
-  - ✅ GOOD: `export *` from a single-component file — one concern, nothing to hide
-  - ✅ GOOD: Explicit named exports from a provider module — deliberately signals what is stable API (e.g. `npcKeys` exported = "safe to use for external invalidation")
-  - ❌ BAD: `export * from './NpcProvider'` in the barrel — accidentally makes internal query key factories public without a deliberate decision
+- **Export via barrel file**: Two directory types exist — distinguish them before adding or deleting a barrel:
+  - **Module directory**: owns a single domain entity (`npcs/`, `adventures/`, `table-config/`). Always exposes its public API through an `index.ts`. This barrel is required.
+  - **Grouping folder**: organizes module directories but owns no domain itself (`data-access-layer/`, `components/`, `screens/`). A barrel here exists only if consumers actually import from the grouping level. If all imports target subdirectories directly, there is no barrel — delete it.
+  - Use `export *` only when a file has a single, obvious public concern (one component + its types) — there are no internals to accidentally leak. Use explicit named exports when a file exports multiple distinct things, or when some exports are internal implementation details that should not be public. The trigger: if you would have to think about whether a new export from that file should be public, use explicit exports.
+  - ✅ GOOD: `data-access-layer/npcs/index.ts` — module directory, barrel required
+  - ✅ GOOD: `export { useNpcs, useNpc } from './npcs'` in a grouping barrel — explicit, signals what is stable public API
+  - ❌ BAD: `data-access-layer/index.ts` when no consumer imports from `data-access-layer/` directly — grouping folder barrel with no consumers, delete it
+  - ❌ BAD: `export * from './npcKeys'` in `npcs/index.ts` — accidentally leaks internal query key factories; if `npcKeys` is public API, name it explicitly
 - **Tests mirror file structure**: Test files live in a `__tests__/` subdirectory next to the code they test
   - Source: `helper/parseSearchTerms.ts` → Test: `helper/__tests__/parseSearchTerms.test.ts`
 - Keep modules small for better separation of concerns
