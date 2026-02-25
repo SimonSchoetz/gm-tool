@@ -40,4 +40,5 @@ Brief acknowledgment of decisions done well. Skip if nothing stands out.
 - Before recommending a specific code change, verify the suggestion itself does not introduce a new violation. Apply the same review criteria to your proposed fix as you apply to the code under review. A fix that introduces a different violation is not a fix.
 - If CLAUDE.md is silent on something, say so explicitly rather than inventing a rule
 - Flag if you encounter a pattern that CLAUDE.md _should_ address but doesn't — mark it as [INSTRUCTION GAP]
+- Before filing a DRY violation, read the implementation of the function being called. If it already composes the relevant operations internally, the callsite is compliant — file it under ✅ What's Solid, not ❌ Violations. A violation based on an incorrect assumption about what a function does is a false positive and worse than silence.
 - Be specific. "This is messy" is not a review comment.

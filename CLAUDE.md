@@ -83,8 +83,10 @@ npm run web                # Vite only in browser
 - **DRY (Don't Repeat Yourself)**: Always reuse existing functions instead of duplicating logic
   - If a function already exists that performs the needed operation, call it instead of reimplementing
   - Compose complex operations from existing simple functions
+  - DRY applies per layer independently. Before composing lower-layer primitives at the current layer, inspect the lower layer first. If a composed operation already exists there, delegating to it is the DRY choice — never re-compose what a lower layer already encapsulates.
   - ❌ BAD: Duplicating database calls and state updates in multiple functions
-  - ✅ GOOD: Calling existing `createImage()` and `deleteImage()` within `replaceImage()`
+  - ✅ GOOD: `imageService.replaceImage` calls `imageDb.replace()` because the DB layer already composes remove + create internally — re-implementing that composition at the service level would duplicate it
+  - ✅ GOOD: Composing sibling service functions (e.g. `deleteImage()` + `createImage()`) inside a service-level operation only when no equivalent composed operation exists in the layer below
 - **Re-derive types after every refactor**: After changing how a component or function gets its data, re-derive its types and props bottom-up from actual usage — never trust existing definitions at face value. A type field with no reader is wrong. A prop with no caller setting it is wrong.
   1. Trace every field in the props type to a value being set at the call site. If no caller sets it, remove it.
   2. Trace every field in internal types to a place where it is read and used. If a field is only defined but never accessed, it is dead code — remove it.
