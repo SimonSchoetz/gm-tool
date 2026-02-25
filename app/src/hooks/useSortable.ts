@@ -1,10 +1,10 @@
+import { PersistedSortState } from '@db/table-config/layout-schema';
 import { useMemo } from 'react';
 
-export type SortDirection = 'asc' | 'desc';
+// export type SortDirection = SortDire;
 
-export type SortState<T> = {
+export type SortState<T> = Omit<PersistedSortState, 'column'> & {
   column: keyof T & string;
-  direction: SortDirection;
 };
 
 type SortableColumn<T> = {
@@ -17,7 +17,7 @@ type UseSortableConfig<T> = {
   columns: SortableColumn<T>[];
 };
 
-const defaultCompare = <T,>(a: T, b: T, key: keyof T): number => {
+const defaultCompare = <T>(a: T, b: T, key: keyof T): number => {
   const aVal = a[key];
   const bVal = b[key];
 
@@ -34,18 +34,24 @@ const defaultCompare = <T,>(a: T, b: T, key: keyof T): number => {
   return 0;
 };
 
-export const useSortable = <T,>(
+export const useSortable = <T>(
   items: T[],
   config: UseSortableConfig<T>,
 ): T[] => {
   return useMemo(() => {
     const { sortState, columns } = config;
     const columnConfig = columns.find((c) => c.key === sortState.column);
-    const compareFn = columnConfig?.compareFn
-      ?? ((a: T, b: T) => defaultCompare(a, b, sortState.column));
+    const compareFn =
+      columnConfig?.compareFn ??
+      ((a: T, b: T) => defaultCompare(a, b, sortState.column));
 
     const directionMultiplier = sortState.direction === 'asc' ? 1 : -1;
 
     return [...items].sort((a, b) => compareFn(a, b) * directionMultiplier);
-  }, [items, config.sortState.column, config.sortState.direction, config.columns]);
+  }, [
+    items,
+    config.sortState.column,
+    config.sortState.direction,
+    config.columns,
+  ]);
 };

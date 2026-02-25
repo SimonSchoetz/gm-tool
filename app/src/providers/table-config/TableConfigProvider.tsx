@@ -2,7 +2,7 @@ import { createContext, ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { TableConfig, UpdateTableConfigInput } from '@db/table-config';
 import * as service from '@/services/tableConfigService';
-import type { SortDirection } from '@/domain/table-config';
+import { SortDirection } from '@db/table-config/layout-schema';
 
 type TableConfigContextType = {
   tableConfigs: TableConfig[];
