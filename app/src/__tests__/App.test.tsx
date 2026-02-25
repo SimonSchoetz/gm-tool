@@ -86,7 +86,7 @@ describe('App Component', () => {
       renderAppWithRouter();
 
       await waitFor(() => {
-        expect(database.initDatabase).toHaveBeenCalledTimes(2); // Called by ensureInitialized in __root.tsx and SessionProvider
+        expect(database.initDatabase).toHaveBeenCalledTimes(1); // Called by ensureInitialized in __root.tsx
         expect(adventure.getAll).toHaveBeenCalledOnce();
         expect(session.getAll).toHaveBeenCalledOnce();
       });
@@ -101,8 +101,8 @@ describe('App Component', () => {
       renderAppWithRouter();
 
       await waitFor(() => {
-        expect(screen.getByText('Error')).toBeInTheDocument();
-        expect(screen.getByText(/Database error:/)).toBeInTheDocument();
+        expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+        expect(screen.getByText(/Database connection failed/)).toBeInTheDocument();
       });
     });
   });
