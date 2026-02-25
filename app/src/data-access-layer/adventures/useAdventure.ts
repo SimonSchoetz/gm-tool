@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Adventure } from '@db/adventure';
 import * as service from '@/services/adventureService';
@@ -16,6 +16,14 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateAdventureData>({});
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const { data: adventure, isPending: loading } = useQuery({
     queryKey: adventureKeys.detail(adventureId),

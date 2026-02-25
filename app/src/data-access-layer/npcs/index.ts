@@ -1,3 +1,3 @@
-export * from './useNpcs';
-export * from './useNpc';
-export * from './npcKeys';
+export { useNpcs } from './useNpcs';
+export { useNpc } from './useNpc';
+export { npcKeys } from './npcKeys';

@@ -27,9 +27,6 @@ export const useTableConfig = (tableId: string): UseTableConfigReturn => {
       service.updateTableConfig(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tableConfigKeys.all() });
-      queryClient.invalidateQueries({
-        queryKey: tableConfigKeys.detail(tableId),
-      });
     },
   });
 

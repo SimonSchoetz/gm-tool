@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Npc } from '@db/npc';
 import * as service from '@/services/npcsService';
@@ -16,6 +16,14 @@ export const useNpc = (npcId: string): UseNpcReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateNpcData>({});
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const { data: npc, isPending: isLoadingNpc } = useQuery({
     queryKey: npcKeys.detail(npcId),

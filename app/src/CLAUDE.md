@@ -27,6 +27,7 @@ src/
 │     └── __tests__/
 │       └── helperA.test.ts
 ├── data-access-layer/ # domain data hooks (TanStack Query)
+│ ├── TanstackQueryClientProvider.tsx # QueryClient config — enables the entire layer
 │ ├── domainA/
 │ │ ├── index.ts
 │ │ ├── domainAKeys.ts
@@ -40,8 +41,7 @@ src/
 │ │ └── components/
 │ └── index.ts
 ├── services/ # operations (CRUD, business logic), uses db types and domain errors
-│ ├── serviceA.ts
-│ └── index.ts
+│ └── serviceA.ts
 ├── styles/
 │ ├── global.css
 │ ├── reset.css

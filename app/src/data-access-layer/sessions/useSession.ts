@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session, UpdateSessionInput } from '@db/session';
 import * as service from '@/services/sessionService';
@@ -15,6 +15,14 @@ export const useSession = (sessionId: string): UseSessionReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateSessionInput>({});
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const { data: session, isPending: loading } = useQuery({
     queryKey: sessionKeys.detail(sessionId),
