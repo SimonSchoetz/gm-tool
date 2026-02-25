@@ -8,31 +8,29 @@ import {
   ErrorBoundary,
   GlassPanel,
 } from './components';
-import { DataAccessProvider, TanstackQueryClientProvider } from './data-access-layer/';
+import { TanstackQueryClientProvider } from './data-access-layer/TanstackQueryClientProvider';
 import './App.css';
 
 export const App = () => {
   return (
     <ErrorBoundary>
       <TanstackQueryClientProvider>
-        <DataAccessProvider>
-          <Backdrop />
-          <LightSource intensity='bright' />
+        <Backdrop />
+        <LightSource intensity='bright' />
 
-          <main className='app'>
-            <SideBarNav />
+        <main className='app'>
+          <SideBarNav />
 
-            <div className='screens-container'>
-              <Header />
+          <div className='screens-container'>
+            <Header />
 
-              <ErrorBoundary>
-                <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
-                  <Outlet />
-                </Suspense>
-              </ErrorBoundary>
-            </div>
-          </main>
-        </DataAccessProvider>
+            <ErrorBoundary>
+              <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </main>
       </TanstackQueryClientProvider>
     </ErrorBoundary>
   );

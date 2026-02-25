@@ -14,8 +14,8 @@ Rename `src/providers/` to `src/data-access-layer/` and converge all domain modu
 - [x] Sub-feature 2: Adventures — drop Context, add key factory, convert to pure hooks
 - [x] Sub-feature 3: Table Config — drop Context, add key factory, reshape hooks
 - [x] Sub-feature 4: Images — create service layer, then convert to pure hooks
-- [ ] Sub-feature 5: Sessions — create service layer, then convert to pure hooks
-- [ ] Sub-feature 6: Remove DataProvider — inline remaining wrappers or remove entirely
+- [x] Sub-feature 5: Sessions — create service layer, then convert to pure hooks
+- [x] Sub-feature 6: Remove DataProvider — inline remaining wrappers or remove entirely
 
 ---
 
