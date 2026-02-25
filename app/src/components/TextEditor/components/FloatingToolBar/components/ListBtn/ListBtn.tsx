@@ -10,8 +10,7 @@ import {
 } from '@lexical/list';
 import { LucideIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { mergeRegister } from '@lexical/utils';
-import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW } from 'lexical';
+import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW, mergeRegister } from 'lexical';
 import { BaseBtn } from '../BaseBtn/BaseBtn';
 import './ListBtn.css';
 

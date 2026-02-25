@@ -7,12 +7,12 @@ import {
   $isRangeSelection,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_LOW,
+  mergeRegister,
 } from 'lexical';
 import { LucideIcon } from 'lucide-react';
 import './TextFormatBtn.css';
 
 import { useCallback, useEffect, useState } from 'react';
-import { mergeRegister } from '@lexical/utils';
 import { BaseBtn } from '../BaseBtn/BaseBtn';
 
 type TextFormatBtnProps = {

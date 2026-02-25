@@ -6,8 +6,8 @@ import {
   $isRangeSelection,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_LOW,
+  mergeRegister,
 } from 'lexical';
-import { mergeRegister } from '@lexical/utils';
 import './FloatingToolbar.css';
 import { TextFormatBtn, HeadingBtn, ListBtn } from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
