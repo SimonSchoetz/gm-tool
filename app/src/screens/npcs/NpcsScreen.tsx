@@ -1,5 +1,6 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs } from '@/data-access-layer/npcs';
+import { useTableConfigs } from '@/data-access-layer/table-config';
 import { Routes } from '@/routes';
 import { SortableList } from '@/components';
 import type { Npc } from '@db/npc';
@@ -11,7 +12,10 @@ export const NpcsScreen = () => {
     from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPCS}`,
   });
 
-  const { npcs, loading, createNpc } = useNpcs(adventureId);
+  const { npcs, loading: npcsLoading, createNpc } = useNpcs(adventureId);
+  const { tableConfigs, loading: configsLoading } = useTableConfigs();
+
+  const npcsTableConfig = tableConfigs.find((c) => c.table_name === 'npcs');
 
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc(adventureId);
@@ -20,13 +24,13 @@ export const NpcsScreen = () => {
     });
   };
 
-  if (loading) {
+  if (npcsLoading || configsLoading || !npcsTableConfig) {
     return <div className='content-center'>Loading...</div>;
   }
 
   return (
     <SortableList<Npc>
-      tableName='npcs'
+      tableConfigId={npcsTableConfig.id}
       items={npcs}
       onRowClick={(npc) =>
         router.navigate({

@@ -86,7 +86,7 @@ describe('App Component', () => {
       renderAppWithRouter();
 
       await waitFor(() => {
-        expect(database.initDatabase).toHaveBeenCalledTimes(3); // Called by AdventureProvider, SessionProvider, and ImageProvider
+        expect(database.initDatabase).toHaveBeenCalledTimes(2); // Called by ensureInitialized in __root.tsx and SessionProvider
         expect(adventure.getAll).toHaveBeenCalledOnce();
         expect(session.getAll).toHaveBeenCalledOnce();
       });

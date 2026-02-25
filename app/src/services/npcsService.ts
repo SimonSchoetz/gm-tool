@@ -1,5 +1,5 @@
 import * as npcDb from '@db/npc';
-import * as imageDb from '@db/image';
+import * as imageService from '@/services/imageService';
 import type { Npc, CreateNpcInput, UpdateNpcInput } from '@db/npc';
 import {
   NpcNotFoundError,
@@ -52,13 +52,11 @@ export const updateNpc = async (
     let imageId: string | null = null;
 
     if (data.imgFilePath && data.image_id) {
-      imageId = await imageDb.replace(data.image_id, {
-        filePath: data.imgFilePath,
-      });
+      imageId = await imageService.replaceImage(data.image_id, data.imgFilePath);
     }
 
     if (data.imgFilePath && !data.image_id) {
-      imageId = await imageDb.create({ filePath: data.imgFilePath });
+      imageId = await imageService.createImage(data.imgFilePath);
     }
 
     const { imgFilePath, ...dto } = data;
@@ -77,7 +75,7 @@ export const deleteNpc = async (id: string, npc?: Npc): Promise<void> => {
     const npcToDelete = npc ?? (await getNpcById(id));
 
     if (npcToDelete.image_id) {
-      await imageDb.remove(npcToDelete.image_id);
+      await imageService.deleteImage(npcToDelete.image_id);
     }
 
     await npcDb.remove(id);

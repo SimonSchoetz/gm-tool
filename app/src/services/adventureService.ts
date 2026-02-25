@@ -1,5 +1,5 @@
 import * as adventureDb from '@db/adventure';
-import * as imageDb from '@db/image';
+import * as imageService from '@/services/imageService';
 import type {
   Adventure,
   CreateAdventureInput,
@@ -56,13 +56,11 @@ export const updateAdventure = async (
     let imageId: string | null = null;
 
     if (data.imgFilePath && data.image_id) {
-      imageId = await imageDb.replace(data.image_id, {
-        filePath: data.imgFilePath,
-      });
+      imageId = await imageService.replaceImage(data.image_id, data.imgFilePath);
     }
 
     if (data.imgFilePath && !data.image_id) {
-      imageId = await imageDb.create({ filePath: data.imgFilePath });
+      imageId = await imageService.createImage(data.imgFilePath);
     }
 
     const { imgFilePath, ...dto } = data;
@@ -87,7 +85,7 @@ export const deleteAdventure = async (
     const adventureToDelete = adventure ?? (await getAdventureById(id));
 
     if (adventureToDelete.image_id) {
-      await imageDb.remove(adventureToDelete.image_id);
+      await imageService.deleteImage(adventureToDelete.image_id);
     }
 
     await adventureDb.remove(id);
