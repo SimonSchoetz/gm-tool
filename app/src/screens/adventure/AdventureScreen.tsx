@@ -23,7 +23,7 @@ export const AdventureScreen = () => {
     from: `/${Routes.ADVENTURE}/$adventureId/`,
   });
 
-  const { adventure, updateAdventure, deleteAdventure, loading, saveError } =
+  const { adventure, updateAdventure, deleteAdventure, loading } =
     useAdventure(adventureId);
 
   const [deleteDialogState, setDeleteDialogState] =
@@ -54,7 +54,6 @@ export const AdventureScreen = () => {
               })
             }
           />
-          {saveError && <div className='save-error-message'>{saveError}</div>}
           <Button
             label='Delete Adventure'
             onClick={() => setDeleteDialogState('open')}

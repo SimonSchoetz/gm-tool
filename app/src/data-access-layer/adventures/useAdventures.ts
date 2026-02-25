@@ -1,12 +1,50 @@
-import { useContext } from 'react';
-import { AdventureContext } from './AdventureProvider';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { Adventure } from '@db/adventure';
+import * as service from '@/services/adventureService';
+import { adventureKeys } from './adventureKeys';
 
-export const useAdventures = () => {
-  const context = useContext(AdventureContext);
+type UseAdventuresReturn = {
+  adventures: Adventure[];
+  loading: boolean;
+  createAdventure: () => Promise<string>;
+  deleteAdventure: (id: string) => Promise<void>;
+};
 
-  if (!context) {
-    throw new Error('useAdventures must be used within an AdventureProvider');
-  }
+export const useAdventures = (): UseAdventuresReturn => {
+  const queryClient = useQueryClient();
 
-  return context;
+  const { data: adventures = [], isPending: loading } = useQuery({
+    queryKey: adventureKeys.list(),
+    queryFn: service.getAllAdventures,
+    throwOnError: true,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: service.createAdventure,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (adventureId: string) => service.deleteAdventure(adventureId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+    },
+  });
+
+  const createAdventure = async (): Promise<string> => {
+    return createMutation.mutateAsync();
+  };
+
+  const deleteAdventure = async (adventureId: string): Promise<void> => {
+    await deleteMutation.mutateAsync(adventureId);
+  };
+
+  return {
+    adventures,
+    loading,
+    createAdventure,
+    deleteAdventure,
+  };
 };
