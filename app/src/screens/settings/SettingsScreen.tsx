@@ -1,4 +1,4 @@
-import { useTableConfig } from '@/providers/table-config';
+import { useTableConfig } from '@/data-access-layer/table-config';
 import { GlassPanel, CustomScrollArea } from '@/components';
 import type { TableConfig } from '@db/table-config';
 import './SettingsScreen.css';

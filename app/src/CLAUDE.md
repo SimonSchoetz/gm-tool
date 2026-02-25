@@ -26,11 +26,12 @@ src/
 │     ├── helperA.ts
 │     └── __tests__/
 │       └── helperA.test.ts
-├── providers/ # React state (context, hooks)
-│ ├── providerA/
+├── data-access-layer/ # domain data hooks (TanStack Query)
+│ ├── domainA/
 │ │ ├── index.ts
-│ │ ├── ProviderA.tsx
-│ │ └── useProviderA.ts
+│ │ ├── domainAKeys.ts
+│ │ ├── useDomainA.ts
+│ │ └── useDomainAs.ts
 ├── routes/ # Tanstack router
 ├── screens/
 │ ├── screenA/
@@ -73,12 +74,12 @@ src/
 
 ### TanStack Query pattern
 
-All async data lives in TanStack Query. Providers wrap `useQuery`/`useMutation` and expose a clean API. Screens and components consume the API — they own no async logic themselves.
+All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMutation` and expose a clean API. Screens and components consume the API — they own no async logic themselves.
 
 **Layer responsibilities:**
 
 - `services/` — business logic, wraps DB calls, throws domain errors from `/domain`
-- `providers/` — wraps TanStack Query hooks, exposes clean context API, no try/catch
+- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch
 - `screens/` — UI only, no error handling, no try/catch
 - Error Boundary at app level catches all unhandled async errors
 
@@ -86,5 +87,5 @@ All async data lives in TanStack Query. Providers wrap `useQuery`/`useMutation` 
 
 - Always add `throwOnError: true` to every `useQuery` call. Without it, query errors are silently swallowed into the query's internal error state and never surface to the Error Boundary.
 - Never destructure `error` from `useQuery` and handle it locally — let it propagate.
-- Never wrap `mutateAsync` in try/catch in providers or screens — mutations use `throwOnError: true` via QueryClient defaults.
-- Never add try/catch blocks to providers or screens. If an error needs handling, it belongs in the service layer or the Error Boundary.
+- Never wrap `mutateAsync` in try/catch in data access hooks or screens — mutations use `throwOnError: true` via QueryClient defaults.
+- Never add try/catch blocks to data access hooks or screens. If an error needs handling, it belongs in the service layer or the Error Boundary.

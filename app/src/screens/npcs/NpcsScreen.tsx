@@ -1,5 +1,5 @@
 import { useParams, useRouter } from '@tanstack/react-router';
-import { useNpcs } from '@/providers/npcs';
+import { useNpcs } from '@/data-access-layer/npcs';
 import { Routes } from '@/routes';
 import { SortableList } from '@/components';
 import type { Npc } from '@db/npc';

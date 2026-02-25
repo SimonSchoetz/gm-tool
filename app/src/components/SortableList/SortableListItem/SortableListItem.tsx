@@ -2,7 +2,7 @@ import './SortableListItem.css';
 import { useMemo } from 'react';
 import { UserSquareIcon } from 'lucide-react';
 import { ActionContainer, GlassPanel, ImageById, ImagePlaceholderFrame } from '@/components';
-import { useTableConfig } from '@/providers/table-config';
+import { useTableConfig } from '@/data-access-layer/table-config';
 
 const DATE_KEYS = new Set(['created_at', 'updated_at']);
 const DEFAULT_COLUMN_WIDTH = 150;

@@ -11,7 +11,7 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useAdventure } from '@/providers/adventures';
+import { useAdventure } from '@/data-access-layer/adventures';
 import { useState } from 'react';
 import { Routes } from '@/routes';
 

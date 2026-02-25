@@ -8,14 +8,14 @@ import {
   ErrorBoundary,
   GlassPanel,
 } from './components';
-import { DataProvider, TanstackQueryClientProvider } from './providers/';
+import { DataAccessProvider, TanstackQueryClientProvider } from './data-access-layer/';
 import './App.css';
 
 export const App = () => {
   return (
     <ErrorBoundary>
       <TanstackQueryClientProvider>
-        <DataProvider>
+        <DataAccessProvider>
           <Backdrop />
           <LightSource intensity='bright' />
 
@@ -32,7 +32,7 @@ export const App = () => {
               </ErrorBoundary>
             </div>
           </main>
-        </DataProvider>
+        </DataAccessProvider>
       </TanstackQueryClientProvider>
     </ErrorBoundary>
   );

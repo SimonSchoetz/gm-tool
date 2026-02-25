@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useSortable, useListFilter } from '@/hooks';
-import { useTableConfig } from '@/providers/table-config';
+import { useTableConfig } from '@/data-access-layer/table-config';
 import { cn } from '@/util';
 import {
   GlassPanel,

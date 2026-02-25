@@ -4,7 +4,7 @@ import { ImageProvider } from './images';
 import { AdventureProvider } from './adventures';
 import { SessionProvider } from './sessions';
 
-export const DataProvider = ({ children }: { children: ReactNode }) => {
+export const DataAccessProvider = ({ children }: { children: ReactNode }) => {
   return (
     <TableConfigProvider>
       <ImageProvider>

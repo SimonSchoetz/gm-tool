@@ -1,2 +1,2 @@
 export * from './TanstackQueryClientProvider';
-export * from './DataProvider';
+export * from './DataAccessProvider';

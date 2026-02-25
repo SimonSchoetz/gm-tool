@@ -1,4 +1,4 @@
-import { useAdventures } from '@/providers/adventures';
+import { useAdventures } from '@/data-access-layer/adventures';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from '../../components/AdventureComponents';
 import { NewItemBtn } from '@/components';
