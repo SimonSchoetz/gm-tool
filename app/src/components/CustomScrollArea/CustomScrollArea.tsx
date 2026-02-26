@@ -60,41 +60,41 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
     const thumb = thumbRef.current;
     if (!container || !thumb || !isScrollNeeded) return;
 
-    const updateThumbStyle = () => {
+    const updateThumbPosition = () => {
+      thumb.style.top = `${container.scrollTop * (1 + scalingRef.current) + spacing}px`;
+    };
+
+    const updateThumbLayout = () => {
       const viewport = container.getBoundingClientRect();
       const scrollHeight = container.scrollHeight;
       const maxScrollTop = scrollHeight - viewport.height;
 
-      // Calculate thumb height
+      if (maxScrollTop <= 0) return;
+
       const thumbHeight =
         Math.max(Math.pow(viewport.height, 2) / scrollHeight, thumbMinHeight) -
         spacing * 2;
 
       const maxTopOffset = viewport.height - thumbHeight;
-      const scaling = maxTopOffset / maxScrollTop;
+      scalingRef.current = maxTopOffset / maxScrollTop;
 
-      // Store scaling for drag calculations
-      scalingRef.current = scaling;
       const ROUNDING_OFFSET = 2;
       thumb.style.height = `${thumbHeight - ROUNDING_OFFSET}px`;
       thumb.style.right = `-${spacing * 0.5}px`;
-      thumb.style.top = `-${ROUNDING_OFFSET}px`;
-      // Apply styles with correct transform order: scale, matrix3d, translateZ
-      thumb.style.transform = `
-        scale(${1 / scaling})
-        matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1)
-        translateZ(${-2 + 1 - 1 / scaling}px)
-      `;
+
+      updateThumbPosition();
     };
 
-    updateThumbStyle();
+    updateThumbLayout();
+
+    container.addEventListener('scroll', updateThumbPosition);
 
     // Observe container size changes (window resize)
-    const resizeObserver = new ResizeObserver(updateThumbStyle);
+    const resizeObserver = new ResizeObserver(updateThumbLayout);
     resizeObserver.observe(container);
 
     // Observe content changes (children added/removed/modified)
-    const mutationObserver = new MutationObserver(updateThumbStyle);
+    const mutationObserver = new MutationObserver(updateThumbLayout);
     mutationObserver.observe(container, {
       childList: true,
       subtree: true,
@@ -102,6 +102,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
     });
 
     return () => {
+      container.removeEventListener('scroll', updateThumbPosition);
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
