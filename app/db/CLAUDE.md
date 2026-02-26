@@ -77,6 +77,10 @@ await db.execute(
 - Usage example: `session.create()`, `session.getAll()`, `session.update()`
 - File names match function names: `create.ts`, `get.ts`, `get-all.ts`, `update.ts`, `remove.ts`
 
+## Cross-table utilities
+
+Functions that operate across multiple tables (e.g., `mention-search.ts`) live as flat files at the db root, not in a domain subdirectory. This is a deliberate exception to the "group by table" convention — cross-table concerns have no single domain owner.
+
 ## Seeds
 
 - Seed files live within their domain directory: `db/table-config/seed.ts`

@@ -52,7 +52,7 @@ npm run web                # Vite only in browser
 
 - typescript first
 - types over interfaces
-- use modern arrow function syntax
+- Use modern arrow function syntax. Classes are permitted only where a third-party framework API requires inheritance — e.g., Lexical node types (extending `DecoratorNode`, `TextNode`, etc.) and `MenuOption` subclasses. Do not introduce classes for any other reason.
 - never return undefined, it should be an indicator for errors
 - avoid using `any` as type
 - Use descriptive names instead of comments

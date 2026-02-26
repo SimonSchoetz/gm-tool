@@ -8,7 +8,7 @@ export type MentionSearchResult = {
   tableName: string;
   color: string;
   adventureId?: string;
-  updated_at: string;
+  updatedAt: string;
 };
 
 export const searchMentions = async (
@@ -33,7 +33,7 @@ export const searchMentions = async (
           name: row.name,
           tableName: config.table_name,
           color: config.color,
-          updated_at: row.updated_at,
+          updatedAt: row.updated_at,
         };
         if (config.scope === 'adventure') {
           result.adventureId = adventureId;
@@ -46,7 +46,7 @@ export const searchMentions = async (
 
     return allResults.sort(
       (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
   } catch (err) {
     throw new MentionSearchError(err);

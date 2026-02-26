@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -33,6 +33,7 @@ export const MentionTypeaheadPlugin = ({ adventureId }: Props) => {
   const [options, setOptions] = useState<MentionMenuOption[]>([]);
 
   const triggerFn = useBasicTypeaheadTriggerMatch('@', { minLength: 0 });
+  const queryGenerationRef = useRef(0);
 
   const onQueryChange = useCallback(
     (matchingString: string | null) => {
@@ -40,12 +41,19 @@ export const MentionTypeaheadPlugin = ({ adventureId }: Props) => {
         setOptions([]);
         return;
       }
+      const generation = ++queryGenerationRef.current;
       mentionSearchService
         .searchMentions(matchingString, adventureId, tableConfigs)
-        .then((results) =>
-          setOptions(results.map((r) => new MentionMenuOption(r))),
-        )
-        .catch(() => setOptions([]));
+        .then((results) => {
+          if (generation === queryGenerationRef.current) {
+            setOptions(results.map((r) => new MentionMenuOption(r)));
+          }
+        })
+        .catch(() => {
+          if (generation === queryGenerationRef.current) {
+            setOptions([]);
+          }
+        });
     },
     [adventureId, tableConfigs],
   );
