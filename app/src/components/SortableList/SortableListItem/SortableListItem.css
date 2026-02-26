@@ -1,3 +1,7 @@
+.sortable-list-item {
+  list-style-type: none;
+}
+
 .sortable-list-item__avatar-icon {
   width: 100%;
   height: auto;
@@ -10,4 +14,23 @@
   height: 100%;
   object-fit: cover;
   object-position: top;
+}
+
+.sortable-list-item__content-container {
+  width: 100%;
+  padding: var(--spacing-md);
+  display: grid;
+}
+
+.sortable-list-item__content-container:hover {
+  background-color: var(--color-hover-bg);
+}
+
+.sortable-list-item__content-container div {
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  text-align: left;
+  font-size: var(--font-size-lg);
 }

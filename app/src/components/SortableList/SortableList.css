@@ -16,29 +16,6 @@
   padding: var(--spacing-xs);
 }
 
-.sortable-list__row {
-  padding: 1rem;
-  display: grid;
-  gap: var(--spacing-lg);
-}
-
-.sortable-list__row {
-  background-color: transparent;
-  transition-duration: var(--transition-fast);
-  cursor: pointer;
-}
-
-.sortable-list__row:hover {
-  background-color: var(--color-hover-bg);
-}
-
-.sortable-list__row li {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
 .sortable-list__divider {
   margin: var(--spacing-sm) var(--spacing-md);
 }

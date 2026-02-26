@@ -62,11 +62,11 @@ export const SortableListItem = ({ tableConfigId, item, onClick }: Props) => {
   }, [columns]);
 
   return (
-    <li>
+    <li className='sortable-list-item'>
       <GlassPanel intensity='bright'>
         <ActionContainer
           label={`Go to ${item.name ?? ''}`}
-          className='sortable-list__row'
+          className='sortable-list-item__content-container'
           style={{ gridTemplateColumns }}
           onClick={() => onClick(item)}
         >
