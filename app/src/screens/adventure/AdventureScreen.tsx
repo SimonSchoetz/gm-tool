@@ -9,7 +9,7 @@ import {
   TextEditor,
   UploadImgBtn,
 } from '@/components';
-import { cn } from '@/util';
+import { cn, getDateTimeString } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer/adventures';
 import { useState } from 'react';
@@ -39,7 +39,7 @@ export const AdventureScreen = () => {
   };
 
   const startDate =
-    adventure.created_at && new Date(adventure.created_at).toLocaleDateString();
+    adventure.created_at && getDateTimeString(adventure.created_at);
 
   return (
     <>
