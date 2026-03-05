@@ -5,7 +5,7 @@
   transform: translateX(-50%) translateY(40%);
   z-index: 1000;
   animation: floatingToolbarFadeIn 0.2s ease-in-out;
-  background-color: rgb(var(--color-bg-rgb), 1);
+  background-color: var(--color-surface);
   padding: 1px;
   border-radius: var(--radius-md);
   width: max-content;

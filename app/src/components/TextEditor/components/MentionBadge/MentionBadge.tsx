@@ -1,6 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Routes } from '@/routes';
-import { formatTableLabel } from '@/util';
 import './MentionBadge.css';
 
 type Props = {
@@ -29,12 +28,8 @@ export const MentionBadge = ({
   };
 
   return (
-    <span
-      className='mention-badge'
-      style={{ color }}
-      onClick={handleClick}
-    >
-      {displayName} [{formatTableLabel(entityType)}]
+    <span className='mention-badge' style={{ color }} onClick={handleClick}>
+      {displayName}
     </span>
   );
 };

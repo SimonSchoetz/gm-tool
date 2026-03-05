@@ -1,22 +1,35 @@
 .mention-typeahead-popup {
-  background: var(--color-surface, #1a1a2e);
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.15));
-  border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  min-width: 200px;
-  padding: 4px 0;
+  background: var(--color-surface);
   z-index: 1000;
+  width: max-content;
+  max-width: 250px;
+}
+
+.mention-typeahead-content-container {
+  max-height: 14rem; /* 14rem translates to <=7 visible rows */
 }
 
 .mention-typeahead-item {
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  padding: 6px 12px;
-  transition: background 0.1s;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
 }
 
 .mention-typeahead-item:hover,
 .mention-typeahead-item--selected {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-highlight-bg);
+}
+
+.mention-typeahead-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mention-typeahead-item-table-label {
+  font-size: var(--font-size-sm);
 }

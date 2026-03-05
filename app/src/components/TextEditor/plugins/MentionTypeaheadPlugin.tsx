@@ -13,6 +13,7 @@ import type { MentionSearchResult } from '@/services/mentionSearchService';
 import { MentionNode } from '../nodes';
 import { formatTableLabel } from '@/util';
 import './MentionTypeaheadPlugin.css';
+import { CustomScrollArea, GlassPanel } from '@/components';
 
 class MentionMenuOption extends MenuOption {
   result: MentionSearchResult;
@@ -102,20 +103,29 @@ export const MentionTypeaheadPlugin = ({ adventureId }: Props) => {
       }
 
       return createPortal(
-        <div className='mention-typeahead-popup'>
-          {menuOptions.map((option, i) => (
-            <div
-              key={option.key}
-              ref={(el) => option.setRefElement(el)}
-              className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
-              onClick={() => selectOptionAndCleanUp(option)}
-              onMouseEnter={() => setHighlightedIndex(i)}
-              style={{ color: option.result.color }}
-            >
-              {option.result.name} [{formatTableLabel(option.result.tableName)}]
-            </div>
-          ))}
-        </div>,
+        <GlassPanel className='mention-typeahead-popup' radius='md'>
+          <CustomScrollArea className='mention-typeahead-content-container'>
+            <ul>
+              {menuOptions.map((option, i) => (
+                <li
+                  key={option.key}
+                  ref={(el) => option.setRefElement(el)}
+                  className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
+                  onClick={() => selectOptionAndCleanUp(option)}
+                  onMouseEnter={() => setHighlightedIndex(i)}
+                  style={{ color: option.result.color }}
+                >
+                  <span className='mention-typeahead-item-name'>
+                    {option.result.name}
+                  </span>
+                  <span className='mention-typeahead-item-table-label'>
+                    {formatTableLabel(option.result.tableName)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CustomScrollArea>
+        </GlassPanel>,
         anchorElementRef.current,
       );
     },

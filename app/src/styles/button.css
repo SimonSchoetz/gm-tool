@@ -13,7 +13,7 @@
 
 .button.active {
   color: var(--color-fg);
-  background-color: var(--color-active-bg);
+  background-color: var(--color-highlight-bg);
   box-shadow: var(--box-shadow-active);
 }
 
