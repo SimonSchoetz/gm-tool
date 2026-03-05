@@ -72,6 +72,27 @@ src/
   - ❌ `import { AvatarCell } from '../components/AvatarCell/AvatarCell'` — double-name import, always wrong regardless of nesting depth
   - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
 
+### Component Internals
+
+**Props pattern — three cases, pick exactly one:**
+
+1. `HtmlProps<'element'>` — the component is a thin styled wrapper over a native HTML element and must forward all native attributes to it.
+   - ✅ `type GlassPanelProps = { radius?: RadiusSize } & HtmlProps<'div'>`
+   - ❌ `DivHTMLAttributes<HTMLDivElement>` or `React.HTMLProps<HTMLDivElement>` — always use the `HtmlProps` alias, never the raw React type
+
+2. `React.ComponentProps<typeof Parent>` — the component extends a specific existing component and must stay in sync with its prop shape.
+   - ✅ `type Props = { buttonStyle?: 'danger' } & React.ComponentProps<typeof ActionContainer>`
+
+3. Plain named type (or `FCProps<Props>`) — the component has a closed API that does not extend any HTML element or parent component.
+   - ✅ `type SearchInputProps = { onSearch: (term: string) => void; placeholder?: string }`
+
+**Variant system:**
+
+- Variants are expressed as a union type prop and applied via a CSS modifier class. Never express variants as inline styles. Never use one boolean prop per variant when the component has — or may grow — more than one variant.
+  - ✅ `buttonStyle?: 'danger'` → `cn('button-wrapper', buttonStyle && \`button-wrapper--${buttonStyle}\`)`
+  - ❌ `isDanger?: boolean; isPrimary?: boolean`
+  - ❌ `style={{ color: 'red' }}` to express a variant
+
 ### Util vs. Helper Placement
 
 A function belongs in `/src/util/` only when **both** conditions are met:
@@ -104,7 +125,24 @@ When a constant is shared by two or more files within the same module directory,
 ### Styles
 
 - `.css` files in `/styles` are for variables and globals
-- each component and screen has their own `.css` file that lives in parallel with them
+- Each component and screen has their own `.css` file that lives in parallel with them
+
+**CSS class naming — flat BEM-ish:**
+
+- Root element: `block-name` (e.g., `button-wrapper`, `search-input`)
+- Modifier: `block-name--modifier` (e.g., `button-wrapper--danger`)
+- Never use the BEM element suffix (`__`). There are no `block__element` class names in this codebase.
+  - ✅ `search-input`, `search-input--active`
+  - ❌ `search-input__icon`, `search-input__field`
+
+**Design token obligation:**
+
+- All CSS property values must reference tokens from `styles/variables.css` (e.g., `var(--spacing-sm)`, `var(--radius-xl)`).
+- Raw pixel, color, and `rem` values are banned in component `.css` files.
+- If a needed token does not exist in `variables.css`, add it there first — never hardcode at the component level.
+  - ✅ `padding: var(--spacing-sm)`
+  - ❌ `padding: 8px`
+  - ❌ `color: #ffffff`
 
 ## State Management & Error Handling
 
