@@ -19,3 +19,26 @@ Rules of Hooks is a hard constraint. It is never negotiable and never deprioriti
 All hooks must be called unconditionally before any conditional return. This is non-negotiable even under type pressure, even when an early return appears to be the simplest fix, even when the alternative requires more restructuring. If a type error or logic problem seems to require an early return before a hook call, the solution is to restructure — use safe defaults, conditional values, or derived state after the hooks — not to move the return above the hooks.
 
 If you are about to introduce a conditional return between hook calls, stop. The approach is wrong. Find a different path.
+
+## New Files
+
+Every file you create or extract is fully owned by you. Apply every CLAUDE.md
+rule to it independently — do not wait for a reviewer to flag violations.
+
+A code review is a sample. It identifies violations in existing code. It is
+not a substitute for your own compliance check on files you introduce.
+
+## Ambiguity
+
+When a step has more than one valid path — multiple options offered, competing
+interpretations, or a choice with observable consequences on behavior — stop
+and ask before proceeding. Do not resolve the ambiguity independently.
+
+Cleanup and dead code removal are not ambiguous — act on them. Anything with
+a behavioral tradeoff is — surface it to the user.
+
+## Signature Changes
+
+After any type, prop, or function signature change, run tsc --noEmit before
+touching any call sites. The compiler output is the authoritative list of
+what needs updating — do not rely on memory or manual search.

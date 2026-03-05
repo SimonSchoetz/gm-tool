@@ -59,3 +59,9 @@ Explicitly state what is working and should be left alone.
   adjust first?"
 - Never touch other agent files unless the change has a direct dependency
   — and if it does, flag that explicitly before proceeding
+- If the agent being refined has no entry in `.claude/CLAUDE.md`, propose one
+  as part of the Registry Impact section — a missing entry is a gap, not a
+  reason to skip the section
+- When closing a gap with a general principle, state the principle — do not
+  enumerate specific cases to make it concrete. Listing one case implies
+  unlisted cases are exempt, which contradicts the generality of the rule.
