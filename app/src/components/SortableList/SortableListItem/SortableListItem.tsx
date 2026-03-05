@@ -8,6 +8,7 @@ import {
   ImagePlaceholderFrame,
 } from '@/components';
 import { useTableConfig } from '@/data-access-layer/table-config';
+import { getDateTimeString } from '@/util';
 
 const DATE_KEYS = new Set(['created_at', 'updated_at']);
 const DEFAULT_COLUMN_WIDTH = 150;
@@ -33,8 +34,7 @@ const AvatarCell = ({ imageId }: { imageId: string | null | undefined }) => (
 
 const formatDateValue = (value: unknown): string => {
   if (!value) return '';
-  const date = new Date(value as string | number);
-  return isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
+  return getDateTimeString(value as string);
 };
 
 const renderCell = (
@@ -71,7 +71,9 @@ export const SortableListItem = ({ tableConfigId, item, onClick }: Props) => {
           onClick={() => onClick(item)}
         >
           {columns.map((col) => (
-            <div key={col.key}>{renderCell(col.key, item)}</div>
+            <div key={col.key}>
+              <span>{renderCell(col.key, item)}</span>
+            </div>
           ))}
         </ActionContainer>
       </GlassPanel>

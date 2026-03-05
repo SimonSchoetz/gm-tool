@@ -33,4 +33,11 @@
   align-items: center;
   text-align: left;
   font-size: var(--font-size-lg);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sortable-list-item__content-container div > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

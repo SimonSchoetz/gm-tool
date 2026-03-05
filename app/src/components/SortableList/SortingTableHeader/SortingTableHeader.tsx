@@ -56,6 +56,8 @@ export const SortingTableHeader = ({
     startWidth: number;
   } | null>(null);
 
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const updateColumnWidthsRef = useRef(updateColumnWidths);
   updateColumnWidthsRef.current = updateColumnWidths;
 
@@ -88,26 +90,7 @@ export const SortingTableHeader = ({
     const startWidth = activeWidths[columnKey] ?? MIN_COLUMN_WIDTH;
     dragRef.current = { columnKey, startX, startWidth };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!dragRef.current) return;
-      const delta = e.clientX - dragRef.current.startX;
-      const newWidth = Math.max(
-        MIN_COLUMN_WIDTH,
-        dragRef.current.startWidth + delta,
-      );
-      setActiveWidths((prev) => ({
-        ...prev,
-        [dragRef.current!.columnKey]: newWidth,
-      }));
-    };
-
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      dragRef.current = null;
-
+    const persistCurrentWidths = () => {
       setActiveWidths((current) => {
         const resizableWidths: Record<string, number> = {};
         for (const key of columnKeysRef.current) {
@@ -119,6 +102,40 @@ export const SortingTableHeader = ({
         updateColumnWidthsRef.current(resizableWidths);
         return current;
       });
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragRef.current) return;
+      const delta = e.clientX - dragRef.current.startX;
+      const newWidth = Math.max(
+        MIN_COLUMN_WIDTH,
+        dragRef.current.startWidth + delta,
+      );
+      setActiveWidths((prev) => ({
+        ...prev,
+        [dragRef.current!.columnKey]: newWidth,
+      }));
+
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        debounceTimerRef.current = null;
+        persistCurrentWidths();
+      }, 10);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+
+      dragRef.current = null;
+      persistCurrentWidths();
     };
 
     document.body.style.cursor = 'col-resize';
