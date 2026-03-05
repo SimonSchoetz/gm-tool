@@ -8,6 +8,7 @@ import {
   NpcUpdateError,
   NpcDeleteError,
 } from '@/domain/npcs';
+import { getDateTimeString } from '@/util';
 
 export type UpdateNpcData = UpdateNpcInput & {
   imgFilePath?: string;
@@ -35,7 +36,7 @@ export const createNpc = async (adventureId: string): Promise<string> => {
   try {
     const dto: CreateNpcInput = {
       adventure_id: adventureId,
-      name: `New NPC ${new Date().toLocaleDateString()}`,
+      name: `New NPC ${getDateTimeString(new Date().toISOString())}`,
     };
 
     return await npcDb.create(dto);
@@ -46,13 +47,16 @@ export const createNpc = async (adventureId: string): Promise<string> => {
 
 export const updateNpc = async (
   id: string,
-  data: UpdateNpcData
+  data: UpdateNpcData,
 ): Promise<void> => {
   try {
     let imageId: string | null = null;
 
     if (data.imgFilePath && data.image_id) {
-      imageId = await imageService.replaceImage(data.image_id, data.imgFilePath);
+      imageId = await imageService.replaceImage(
+        data.image_id,
+        data.imgFilePath,
+      );
     }
 
     if (data.imgFilePath && !data.image_id) {

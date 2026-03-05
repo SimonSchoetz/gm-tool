@@ -12,6 +12,7 @@ import {
   AdventureUpdateError,
   AdventureDeleteError,
 } from '@/domain/adventures';
+import { getDateTimeString } from '@/util';
 
 export type UpdateAdventureData = UpdateAdventureInput & {
   imgFilePath?: string;
@@ -39,7 +40,7 @@ export const getAdventureById = async (id: string): Promise<Adventure> => {
 export const createAdventure = async (): Promise<string> => {
   try {
     const dto: CreateAdventureInput = {
-      title: `New adventure ${new Date().toLocaleDateString()}`,
+      name: `New adventure $${getDateTimeString(new Date().toISOString())}`,
     };
 
     return await adventureDb.create(dto);
@@ -56,7 +57,10 @@ export const updateAdventure = async (
     let imageId: string | null = null;
 
     if (data.imgFilePath && data.image_id) {
-      imageId = await imageService.replaceImage(data.image_id, data.imgFilePath);
+      imageId = await imageService.replaceImage(
+        data.image_id,
+        data.imgFilePath,
+      );
     }
 
     if (data.imgFilePath && !data.image_id) {
