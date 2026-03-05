@@ -19,8 +19,8 @@ export const Button: FCProps<Props> = ({
   return (
     <ActionContainer
       className={cn(
-        'button-wrapper',
-        buttonStyle && `button-wrapper--${buttonStyle}`,
+        'button',
+        buttonStyle && `button--${buttonStyle}`,
         className,
       )}
       label={label}
@@ -29,8 +29,8 @@ export const Button: FCProps<Props> = ({
     >
       <GlassPanel
         className={cn(
-          'label-wrapper',
-          buttonStyle && `label-wrapper--${buttonStyle}`,
+          'button-label',
+          buttonStyle && `button-label--${buttonStyle}`,
         )}
         radius='xl'
       >

@@ -1,26 +1,26 @@
-.button-wrapper {
+.button {
   border-radius: var(--radius-xl);
   width: 100%;
 }
 
-.label-wrapper {
+.button-label {
   padding: var(--spacing-sm);
   color: var(--color-primary);
   transition: var(--transition-hover-on);
 }
 
-.label-wrapper:hover {
+.button-label:hover {
   color: var(--color-fg);
   box-shadow: var(--box-shadow-active);
   transition: var(--transition-hover-on);
 }
 
-.button-wrapper--danger:hover {
+.button--danger:hover {
   box-shadow: var(--box-shadow-inset-danger);
   background: var(--background-danger);
 }
 
-.label-wrapper--danger:hover {
+.button-label--danger:hover {
   color: var(--color-danger);
   text-shadow: 0 0 5px var(--color-bg);
 }

@@ -44,9 +44,9 @@ export const SearchInput = ({
 
   return (
     <div className='search-input'>
-      <SearchIcon className='search-input__icon' />
+      <SearchIcon className='search-input-icon' />
       <input
-        className='search-input__field'
+        className='search-input-field'
         type='text'
         value={value}
         onChange={handleChange}
@@ -54,7 +54,7 @@ export const SearchInput = ({
       />
       {value && (
         <button
-          className='search-input__clear'
+          className='search-input-clear'
           onClick={handleClear}
           type='button'
           aria-label='Clear search'
