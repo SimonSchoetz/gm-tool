@@ -74,6 +74,7 @@ await db.execute(
 
 - Use short, generic CRUD names: `create`, `get`, `getAll`, `update`, `remove` (since `delete` is a reserved keyword)
 - Import as namespace in consuming files: `import * as tableName from '@db/tableName'`
+- `@db/domainName` is the expected import depth for **all consumers** — including type imports from the frontend. Never reach into `@db/domainName/types` or deeper.
 - Usage example: `session.create()`, `session.getAll()`, `session.update()`
 - File names match function names: `create.ts`, `get.ts`, `get-all.ts`, `update.ts`, `remove.ts`
 

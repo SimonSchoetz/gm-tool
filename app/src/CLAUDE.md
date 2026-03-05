@@ -63,7 +63,32 @@ src/
 
 - each component has its own folder
 - each component has its own `.css` file
-- if a component is complicated, you may add sub folders with e.g. sub components or helper functions or types. Ask, when unsure!
+- Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
+- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`.
+- `helper/` and `components/` are internal-only subdirectories — they never get barrel files. Only the parent `ComponentName/` exposes a public `index.ts`.
+
+### Util vs. Helper Placement
+
+A function belongs in `/src/util/` only when **both** conditions are met:
+1. It is consumed by more than one component or module
+2. It is generic — no coupling to a specific domain concept, named without domain nouns
+
+A function that fails either condition stays local to its consumer in `ComponentName/helper/`. If a helper is later needed by a second component and is generic, promote it to `/src/util/`.
+
+- ✅ `getDateTimeString` in `/src/util/` — generic name, no domain coupling, multiple consumers
+- ❌ `formatTableLabel` in `/src/util/` — domain-specific name ("Table"), single consumer → belongs in `SortableList/helper/`
+
+### Constants
+
+When a constant is shared by two or more files within the same module directory, extract it to `ComponentName.constants.ts` at the level of the **smallest directory that contains all consumers**. A constant used only within a single file stays inlined — no constants file for single consumers.
+
+- ✅ `DEFAULT_COLUMN_WIDTH` shared by `SortingTableHeader` and `SortableListItem` (both under `SortableList/`) → `SortableList/SortableList.constants.ts`
+- ❌ A constant used only in `SortingTableHeader` → stays inlined in `SortingTableHeader.tsx`
+
+### Testing Policy
+
+- **Required**: All helper functions (`ComponentName/helper/`) and all util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name.
+- **Forbidden**: React components — files whose exported function returns JSX — must not have unit tests. Components change shape frequently; testing helpers and the data layer provides sufficient coverage at lower cost.
 
 ### Styles
 
