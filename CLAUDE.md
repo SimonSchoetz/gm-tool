@@ -66,6 +66,17 @@ npm run web                # Vite only in browser
 - use single quotes
 - multiple array/object items in new lines
 
+### Accountability on Missed Requirements
+
+When caught having missed a rule, a test, a cleanup item, or anything that CLAUDE.md or project conventions required, do not stop at acknowledging the miss. On the first pushback — before being asked again — immediately provide all four of the following:
+
+1. **Which rule applies** — cite it exactly and state why it is not scoped to a subset of cases (i.e., why it applied here).
+2. **Why it was missed** — not what was wrong in the output, but what went wrong in the reasoning process that produced the miss.
+3. **The wrong mental model** — the assumption or shortcut that caused the reasoning to fail.
+4. **The correct mental model** — the replacement belief or check that would have caught it.
+
+The first pushback is the prompt. Do not wait for a second or third before providing this analysis.
+
 ### Best Practices & Code Quality
 
 - **Always suggest and implement best practices first**

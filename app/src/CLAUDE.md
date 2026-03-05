@@ -65,7 +65,12 @@ src/
 - each component has its own `.css` file
 - Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
 - Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`.
-- `helper/` and `components/` are internal-only subdirectories — they never get barrel files. Only the parent `ComponentName/` exposes a public `index.ts`.
+- `helper/` and `components/` each have an `index.ts` as a within-module grouping barrel — explicit named exports, never re-exported from the parent `ComponentName/index.ts`. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory). A flat single-file sub-component is exported directly from the `components/` barrel.
+  - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
+  - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
+  - ✅ Parent imports `import { AvatarCell } from './components'`
+  - ❌ `import { AvatarCell } from '../components/AvatarCell/AvatarCell'` — double-name import, always wrong regardless of nesting depth
+  - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
 
 ### Util vs. Helper Placement
 
@@ -73,7 +78,13 @@ A function belongs in `/src/util/` only when **both** conditions are met:
 1. It is consumed by more than one component or module
 2. It is generic — no coupling to a specific domain concept, named without domain nouns
 
-A function that fails either condition stays local to its consumer in `ComponentName/helper/`. If a helper is later needed by a second component and is generic, promote it to `/src/util/`.
+A function that fails either condition stays local to its consumer in `ComponentName/helper/`. When a helper is later needed by more than one consumer, apply in order:
+
+1. **Sibling components within the same parent module** — promote to the parent module's `helper/`. Never import across sibling boundaries (`../SiblingComponent/helper/...` is always wrong).
+2. **Unrelated components, or the helper is generic** — promote to `/src/util/` only when both util conditions are met.
+
+- ✅ `buildGridTemplate` needed by both `SortingTableHeader` and `SortableListItem` → `SortableList/helper/buildGridTemplate.ts`
+- ❌ `SortingTableHeader` importing from `../SortableListItem/helper/buildGridTemplate`
 
 - ✅ `getDateTimeString` in `/src/util/` — generic name, no domain coupling, multiple consumers
 - ❌ `formatTableLabel` in `/src/util/` — domain-specific name ("Table"), single consumer → belongs in `SortableList/helper/`

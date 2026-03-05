@@ -14,6 +14,13 @@ Input: Files or git diff
 Output: Violations, concerns, what's solid
 Constraints: Treats CLAUDE.md as non-negotiable, no awareness of upstream changes
 
+## /refactor
+
+Intent: Execute refactoring steps under strict invariants for pacing, cleanup, and behavioral decisions
+Input: A refactoring task or review output
+Output: Step-by-step changes with confirmation gates between each step
+Constraints: Treats its instructions as the single source of truth for all decisions
+
 ## /refine-instructions
 
 Intent: Translate feedback into surgical CLAUDE.md changes
