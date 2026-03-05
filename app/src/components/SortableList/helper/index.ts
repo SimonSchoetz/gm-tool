@@ -1,0 +1,1 @@
+export { buildGridTemplate } from './buildGridTemplate';

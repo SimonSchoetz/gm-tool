@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSortable, useListFilter } from '@/hooks';
 import { useTableConfig } from '@/data-access-layer/table-config';
 import { cn } from '@/util';
@@ -10,10 +10,9 @@ import {
   HorizontalDivider,
 } from '@/components';
 import './SortableList.css';
-import { SortableListItem } from './SortableListItem/SortableListItem';
-import { SortingTableHeader } from './SortingTableHeader/SortingTableHeader';
+import { SortableListItem, SortingTableHeader } from './components';
 
-type SortableListProps<T extends Record<string, unknown>> = {
+type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   tableConfigId: string;
   items: T[];
   onRowClick: (item: T) => void;
@@ -22,7 +21,7 @@ type SortableListProps<T extends Record<string, unknown>> = {
   searchPlaceholder?: string;
 };
 
-export const SortableList = <T extends Record<string, unknown>>({
+export const SortableList = <T extends Record<string, unknown> & { id: string }>({
   tableConfigId,
   items,
   onRowClick,
@@ -31,6 +30,7 @@ export const SortableList = <T extends Record<string, unknown>>({
   searchPlaceholder,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [dragWidths, setDragWidths] = useState<Record<string, number> | null>(null);
   const { config } = useTableConfig(tableConfigId);
 
   const columns = config?.layout.columns ?? [];
@@ -66,6 +66,11 @@ export const SortableList = <T extends Record<string, unknown>>({
     columns: sortableColumns,
   });
 
+  // Clear live drag widths once config refreshes from DB after mouseup
+  useEffect(() => {
+    setDragWidths(null);
+  }, [config]);
+
   // All hooks called — safe to return early
   if (!config) return null;
 
@@ -81,7 +86,7 @@ export const SortableList = <T extends Record<string, unknown>>({
     <GlassPanel className={cn('sortable-list', className)}>
       <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
 
-      <SortingTableHeader tableConfigId={tableConfigId} />
+      <SortingTableHeader tableConfigId={tableConfigId} onDragWidthsChange={setDragWidths} />
 
       <CustomScrollArea>
         <ul className='sortable-list__table'>
@@ -93,10 +98,11 @@ export const SortableList = <T extends Record<string, unknown>>({
 
           {sortedNameMatches.map((item) => (
             <SortableListItem
-              key={item.id as string}
+              key={item.id}
               tableConfigId={tableConfigId}
               item={item}
               onClick={(item) => onRowClick(item as T)}
+              dragWidths={dragWidths}
             />
           ))}
 
@@ -105,10 +111,11 @@ export const SortableList = <T extends Record<string, unknown>>({
               <HorizontalDivider className='sortable-list__divider' />
               {sortedFieldMatches.map((item) => (
                 <SortableListItem
-                  key={item.id as string}
+                  key={item.id}
                   tableConfigId={tableConfigId}
                   item={item}
                   onClick={(item) => onRowClick(item as T)}
+                  dragWidths={dragWidths}
                 />
               ))}
             </>

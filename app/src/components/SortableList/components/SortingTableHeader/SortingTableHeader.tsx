@@ -1,34 +1,24 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { ChevronUpIcon } from 'lucide-react';
-import ActionContainer from '../../ActionContainer/ActionContainer';
+import { ActionContainer } from '@/components';
 import { useTableConfig } from '@/data-access-layer/table-config';
 import './SortingTableHeader.css';
 import { cn } from '@/util';
+import { buildGridTemplate } from '../../helper';
+import { DEFAULT_COLUMN_WIDTH } from '../../SortableList.constants';
 
 const MIN_COLUMN_WIDTH = 60;
-const DEFAULT_COLUMN_WIDTH = 150;
 
 type SortingTableHeaderProps = {
   tableConfigId: string;
   className?: string;
-};
-
-const buildGridTemplate = (
-  columnKeys: string[],
-  widths: Record<string, number>,
-): string => {
-  const lastIndex = columnKeys.length - 1;
-  return columnKeys
-    .map((key, index) => {
-      const width = widths[key] ?? DEFAULT_COLUMN_WIDTH;
-      return index === lastIndex ? `minmax(${width}px, 1fr)` : `${width}px`;
-    })
-    .join(' ');
+  onDragWidthsChange: (widths: Record<string, number>) => void;
 };
 
 export const SortingTableHeader = ({
   tableConfigId,
   className = '',
+  onDragWidthsChange,
 }: SortingTableHeaderProps) => {
   const { config, updateColumnWidths, updateSortState } =
     useTableConfig(tableConfigId);
@@ -56,10 +46,14 @@ export const SortingTableHeader = ({
     startWidth: number;
   } | null>(null);
 
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const updateColumnWidthsRef = useRef(updateColumnWidths);
   updateColumnWidthsRef.current = updateColumnWidths;
+
+  const onDragWidthsChangeRef = useRef(onDragWidthsChange);
+  onDragWidthsChangeRef.current = onDragWidthsChange;
+
+  const activeWidthsRef = useRef(activeWidths);
+  activeWidthsRef.current = activeWidths;
 
   const columnKeys = useMemo(() => columns.map((c) => c.key), [columns]);
   const columnKeysRef = useRef(columnKeys);
@@ -111,16 +105,10 @@ export const SortingTableHeader = ({
         MIN_COLUMN_WIDTH,
         dragRef.current.startWidth + delta,
       );
-      setActiveWidths((prev) => ({
-        ...prev,
-        [dragRef.current!.columnKey]: newWidth,
-      }));
-
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = setTimeout(() => {
-        debounceTimerRef.current = null;
-        persistCurrentWidths();
-      }, 10);
+      const nextWidths = { ...activeWidthsRef.current, [dragRef.current.columnKey]: newWidth };
+      activeWidthsRef.current = nextWidths;
+      setActiveWidths(nextWidths);
+      onDragWidthsChangeRef.current(nextWidths);
     };
 
     const handleMouseUp = () => {
@@ -128,12 +116,6 @@ export const SortingTableHeader = ({
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
-
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-        debounceTimerRef.current = null;
-      }
-
       dragRef.current = null;
       persistCurrentWidths();
     };
