@@ -17,16 +17,6 @@
 - [ ] Sub-feature 13: Session date picker and sort — date picker in header, sort sessions list by date
 - [ ] Sub-feature 14: Lexical checkbox lists — checkbox list nodes, read-only interactivity
 
-## Open Questions
-
-Resolve before implementation begins:
-
-1. **`notes` column removal**: The existing `sessions.notes` column is conceptually replaced by per-step content in the new `session_steps` table. No UI has ever surfaced this column (no session detail screen exists). Confirm: remove `notes` from the sessions schema, or keep it?
-
-2. **Additional sort options for sessions list**: The date picker story scopes sort-by-date only. The features overview (01_USER_STORIES.md) mentions session name, created at, updated at as additional sort options but no corresponding stories exist. Should the date picker story encompass all sort options, or are the others deferred?
-
-3. **Lexical CheckListPlugin in read-only mode**: Lexical v0.41.0 includes `CheckListPlugin` for checkbox lists. Checkbox interactivity in read-only mode (`editable: false`) likely requires custom event handling. The implementer must verify against v0.41.0 docs before building sub-feature 14. If native support is insufficient, a custom plugin is the fallback.
-
 ## Key Architectural Decisions
 
 ### Steps data model: separate `session_steps` table (not JSON column)
@@ -63,16 +53,16 @@ Fixes convention violations in the sessions table and adds infrastructure needed
 
 **Schema (`db/session/schema.ts`)**:
 
-- Rename `title` column to `name`. Keep validation: `z.string().min(1, 'Session name is required')` with refine for whitespace
+- Rename `title` column to `name`. Keep `name` as not-required in Zod (allows empty strings during editing with debounced saves)
 - Add `summary` column: `TEXT`, optional, `z.string().optional()` (needed by sub-feature 12)
-- Remove `notes` column if confirmed by open question 1
+- Remove `notes` column (confirmed — replaced by per-step content in `session_steps`)
 - Leave `description` and `session_date` columns unchanged (already exist, not touched by user stories)
 
 **Migration (`db/database.ts`)**: Add to `runMigrations`:
 
 - `ALTER TABLE sessions RENAME COLUMN title TO name`
 - `ALTER TABLE sessions ADD COLUMN summary TEXT`
-- `ALTER TABLE sessions DROP COLUMN notes` (if confirmed)
+- `ALTER TABLE sessions DROP COLUMN notes`
 
 **Types (`db/session/types.ts`)**: No manual changes needed. Types derive from schema via Zod inference and update automatically.
 
@@ -101,6 +91,8 @@ Fixes convention violations in the sessions table and adds infrastructure needed
 
 ### Frontend
 
+**`screens/sessions/SessionsScreen.tsx`**: Rename component export from `SessionScreen` to `SessionsScreen` (follows the NpcsScreen/NpcScreen naming pattern — plural for list, singular for detail)
+
 **`screens/sessions/components/SessionList.tsx`**: Replace `session.title` with `session.name`
 
 ---
@@ -119,7 +111,7 @@ Table `session_steps`:
 
 - `id` — TEXT, PK, nanoid
 - `session_id` — TEXT, NOT NULL, FK to sessions.id ON DELETE CASCADE
-- `name` — TEXT, NOT NULL (editable step name)
+- `name` — TEXT, optional (editable step name — nullable to allow empty input during editing with debounced saves)
 - `content` — TEXT, optional (Lexical editor JSON string)
 - `default_step_key` — TEXT, optional. Zod: `z.enum(['review_characters', 'strong_start', 'potential_scenes', 'secrets_clues', 'fantastic_locations', 'important_npcs', 'relevant_monsters', 'magic_items']).nullable().optional()`
 - `checked` — INTEGER, NOT NULL, DEFAULT 0 (0 = unchecked, 1 = checked; SQLite has no boolean)
@@ -231,26 +223,30 @@ None.
 
 **Screens**:
 
-- Update `screens/index.ts` to export `SessionScreen`
-- New directory: `screens/session/`
+- Add `export * from './session/SessionScreen'` to `screens/index.ts` (list view `SessionsScreen` is already exported via the `./sessions/SessionsScreen` barrel — no change needed there after the rename in sub-feature 1)
+- New directory: `screens/session/` (singular — detail view, following the `npc/NpcScreen` pattern)
 - `screens/session/SessionScreen.tsx`:
-  - Reads `sessionId` from route params
-  - Uses `useSession(sessionId)` and `useSessionSteps(sessionId)`
+  - Reads `sessionId` and `adventureId` from route params
+  - Calls `useSession(sessionId)` for loading/existence check only
   - `useState<'prep' | 'ingame'>('prep')` for view toggle
+  - Passes `sessionId`, `adventureId`, and view toggle to children — no data or callbacks
   - Renders `SessionHeader` (always visible) + conditional `PrepView` or `InGameView`
 
 - `screens/session/components/SessionHeader.tsx`:
-  - Session name input (editable, calls `updateSession({ name })`)
+  - Props: `sessionId`, view toggle state + setter
+  - Calls `useSession(sessionId)` internally — owns session name input and date picker
   - View toggle control (button or switch)
-  - Slots for date picker (sub-feature 13)
 
 - `screens/session/components/PrepView.tsx`:
-  - Layout wrapper: steps sidebar on left (sub-feature 10) + scrollable step sections on right
-  - Receives steps data and all step mutation functions
-  - Global tooltip toggle button (sub-feature 5)
+  - Props: `sessionId`, `adventureId`
+  - Calls `useSessionSteps(sessionId)` internally — maps step IDs to `StepSection` components
+  - Owns tooltip visibility state (`useState<Set<string>>`) and global tooltip toggle button (sub-feature 5)
+  - Layout: steps sidebar on left (sub-feature 10) + scrollable step sections on right
 
 - `screens/session/components/InGameView.tsx`:
-  - Layout wrapper: summary editor on top + read-only step sections below
+  - Props: `sessionId`, `adventureId`
+  - Calls `useSessionSteps(sessionId)` and `useSession(sessionId)` internally
+  - Layout: summary editor on top + read-only step sections below
   - Placeholder structure, populated in sub-features 11-12
 
 ---
@@ -277,12 +273,16 @@ New components within `screens/session/components/`:
 
 **`StepSection/StepSection.tsx`**:
 
-- Props: step data, updateStep callback, deleteStep callback, reorderSteps callback, tooltip visible flag, onToggleTooltip callback, isFirst/isLast flags (for disabling move buttons)
+- Props: `stepId`, `sessionId`, `adventureId`, tooltip visible flag, onToggleTooltip callback
+- Calls `useSessionSteps(sessionId)` internally — finds its own step from the list, gets `updateStep`
+- Derives `isFirst`/`isLast` from its own position in the steps array
 - Renders vertically: `StepSectionHeader` + tooltip area (conditional, sub-feature 5) + `TextEditor`
 - TextEditor uses `textEditorId: 'step-{step.id}'`, `value: step.content`, `onChange` calls `updateStep(step.id, { content })`
 
 **`StepSectionHeader/StepSectionHeader.tsx`**:
 
+- Props: `stepId`, `sessionId`, tooltip toggle callback, `isFirst`/`isLast` flags
+- Calls `useSessionSteps(sessionId)` internally — finds its own step, gets `updateStep`, `deleteStep`, `reorderSteps`
 - Renders horizontally: checkbox slot + name input + tooltip toggle button + move up button + move down button + delete button
 - Name input: `Input` component, onChange calls `updateStep(step.id, { name })`
 - Tooltip toggle: question mark icon, only rendered when `step.default_step_key !== null`
@@ -454,6 +454,8 @@ Add `useSessionSteps.bulkReorder(orderedStepIds)` — calls `sessionStepService.
 
 New component: `screens/session/components/StepsNavSidebar/StepsNavSidebar.tsx`
 
+- Props: `sessionId`
+- Calls `useSessionSteps(sessionId)` internally — owns its own step data for rendering and DnD operations
 - Lives within the session screen, left side of `PrepView` layout
 - Does NOT replace the global `SideBarNav`
 - Renders a list of step items: each shows step name + checked indicator
@@ -462,7 +464,7 @@ New component: `screens/session/components/StepsNavSidebar/StepsNavSidebar.tsx`
 - Reflects real-time changes from step data: checked state, name edits, order changes, deletions
 - Add button (`NewItemBtn`) as last item in the list (sub-feature 9)
 
-**DnD dependency**: Check `package.json` for an existing DnD library (likely `@dnd-kit` based on existing `SortableList` component). Reuse the existing DnD pattern. If no library is installed, flag to user before adding a dependency.
+**DnD dependency**: No DnD library is installed. The existing `SortableList` component is column-based sorting (click-to-sort), not drag-and-drop. A new dependency is required. The implementer must evaluate library options before starting this sub-feature. The sidebar needs only vertical list reorder of ~8-12 items — scope the library choice to that need. `@dnd-kit/core` + `@dnd-kit/sortable` is highly customizable but requires significant setup (sensors, collision detection, drag overlays). Simpler alternatives (e.g., `@hello-pangea/dnd`) may be sufficient and faster to integrate. Present the trade-off to the user before installing.
 
 ---
 
@@ -484,9 +486,9 @@ None.
 
 ### Frontend
 
-**`InGameView` component** (within `screens/session/components/`):
+**`InGameView` component** (already defined in sub-feature 3 — calls hooks internally):
 
-- Renders all steps in sort_order
+- Renders all steps in sort_order (from its own `useSessionSteps` call)
 - Each step: section header (step name as read-only text, checkbox remains interactive) + read-only content
 - No tooltip sections
 - No move/delete/tooltip-toggle buttons in headers
@@ -558,7 +560,9 @@ None. Update path already supports passing `session_date`.
 
 **Sessions list (`SessionsScreen`)**:
 
-- Client-side sort by `session_date` (sufficient for personal tool with small dataset)
+- Default sort columns (`name`, `created_at`, `updated_at`) follow the app-wide list convention — these are not session-specific
+- `session_date` is the session-specific sort column added by this sub-feature
+- All sorting is client-side (sufficient for personal tool with small dataset)
 - Date format: use existing `getDateTimeString` util if available, otherwise consistent ISO format
 
 ---
@@ -588,10 +592,11 @@ None.
 - Add checkbox list toolbar button in `FloatingToolbar`
 - Add `CHECK_LIST` to markdown shortcuts transformers (verify support in v0.41.0)
 
-**Read-only interactivity** (open question 3 — verify approach against docs):
+**Read-only interactivity** (playground confirms checkboxes are NOT interactive in read-only mode):
 
-- If `CheckListPlugin` natively supports checkbox toggling when `editable: false`: no additional work needed
-- If not: create a custom `CheckboxReadOnlyPlugin` that listens for click events on checkbox DOM elements and toggles the `checked` property on the `ListItemNode` even when the editor is non-editable. This plugin is only active when `readOnly: true`
+- A custom solution is required. The implementer must research the Lexical v0.41.0 API to determine the best approach before implementing.
+- Likely approach: a custom `CheckboxReadOnlyPlugin` that listens for click events on checkbox DOM elements and toggles the `checked` property on the `ListItemNode` even when the editor is non-editable. This plugin is only active when `readOnly: true`.
+- Alternative approaches may exist (e.g., DOM event interception, partial editability) — research first, then implement.
 
 **Scope**: Applies to all text editors in the session screen — prep step editors and the in-game summary editor.
 
@@ -601,4 +606,3 @@ None.
 
 - **`app/db/CLAUDE.md`**: Add `session-step/` to the directory tree listing under `db/`
 - **`app/src/CLAUDE.md`**: Add `session-steps/` under `domain/` and `session-steps/` under `data-access-layer/` in the structure tree
-- **Root `CLAUDE.md`**: No changes needed
