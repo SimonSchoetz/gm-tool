@@ -27,6 +27,10 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
   - Use `name`, not `title`, `label`, or other variations
   - Example: `adventures.name`, `npcs.name`, `sessions.name`
   - This creates consistency across the database schema
+- **User-editable text columns are nullable**: Any column whose value is written via a text input that the user can clear entirely must be defined as nullable in the SQL schema and optional in the Zod schema (no `.min(1)`, no `.refine` for empty / whitespace). Debounced auto-saves send every intermediate state — including empty strings — to the DB; NOT NULL constraints and non-empty validation on these columns cause runtime errors during normal editing.
+  - Columns set programmatically (`id`, `adventure_id`, `default_step_key`, etc.) are unaffected by this rule.
+  - ❌ BAD: `sessions.name` defined as `NOT NULL` with `z.string().min(1).refine(val => val.trim().length > 0)` — throws when the user clears the input field mid-edit
+  - ✅ GOOD: `sessions.name TEXT` (nullable SQL) + `z.string().optional()` in the Zod schema
 - **No unrequested schema columns**: Never add a column that was not explicitly discussed. If you believe an additional column is necessary, explain why and ask for approval before adding it.
 - **Frontend display is a frontend concern**: Do not add columns for display purposes (e.g. `display_name`) unless explicitly asked. How data is presented is handled in the frontend.
 - **JSON string columns must have validated schemas**: When a column stores a JSON-serialised object or array, always:

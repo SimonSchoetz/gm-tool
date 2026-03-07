@@ -117,6 +117,13 @@ When a constant is shared by two or more files within the same module directory,
 - ✅ `DEFAULT_COLUMN_WIDTH` shared by `SortingTableHeader` and `SortableListItem` (both under `SortableList/`) → `SortableList/SortableList.constants.ts`
 - ❌ A constant used only in `SortingTableHeader` → stays inlined in `SortingTableHeader.tsx`
 
+### List Conventions
+
+**Default sortable columns:** All entity lists support sorting by `name`, `created_at`, and `updated_at` as baseline columns. These are app-wide defaults — never re-specify them in feature stories or screen-specific specs. Domain-specific sort columns (e.g., `session_date` for sessions) are additive and require their own story or spec entry.
+
+- ❌ BAD: Session screen spec includes `name`, `created_at`, `updated_at` as session-specific sort work — these are already covered by the baseline
+- ✅ GOOD: Session screen spec adds only `session_date` as a new sort column, relying on the baseline for the rest
+
 ### Testing Policy
 
 - **Required**: All helper functions (`ComponentName/helper/`) and all util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name.
