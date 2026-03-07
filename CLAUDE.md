@@ -91,6 +91,9 @@ The first pushback is the prompt. Do not wait for a second or third before provi
 - **Ownership boundaries are not negotiable**: If a structural constraint seems to justify putting logic in a component that the separation-of-concerns rules say should not own it, find an alternative — do not centralise and do not defend the decision if challenged. When the user questions why a component owns something it shouldn't, treat that as an instruction to refactor, not an invitation to explain the rationale.
   - ❌ BAD: "I put grid layout in `SortableList` because header and items are siblings and need a shared value"
   - ✅ GOOD: Find a way for each component to derive what it needs independently (e.g. both read from `TableConfigProvider` directly)
+  - **Data fetching is not an exception**: "The parent fetches once and passes down" is not a valid justification for prop drilling. Each component that needs data calls the hook itself. TanStack Query's shared cache deduplicates fetches — there is no performance penalty. Props are for state that genuinely belongs to a parent (cross-component coordination, e.g. tooltip visibility). If a component has a button, that component owns the button's action — it does not receive a callback from two levels up.
+    - ❌ BAD: `SessionScreen` fetches session data, passes it to `PrepView`, which passes it to `StepSection`, which passes it to `StepSectionHeader`
+    - ✅ GOOD: `StepSectionHeader` calls `useSession(sessionId)` directly; TanStack Query serves the cached value
 - **DRY (Don't Repeat Yourself)**: Always reuse existing functions instead of duplicating logic
   - If a function already exists that performs the needed operation, call it instead of reimplementing
   - Compose complex operations from existing simple functions
