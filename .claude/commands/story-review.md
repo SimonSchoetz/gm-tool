@@ -79,8 +79,10 @@ What this story includes: [explicit]
 What this story does not include: [explicit — prevent scope creep in arch-review]
 
 Open Questions:
-[Any decision the arch-review must resolve before planning can begin.
-Leave empty if none. This section is optional and should not appear if there are no open questions]
+[Story-level decisions the PO cannot resolve — ambiguities or scope forks
+that require an architectural call before planning can begin. Leave empty
+if none remain at the story level. The arch-review will surface its own
+architectural questions independently.]
 ```
 
 ## Behavior Rules
