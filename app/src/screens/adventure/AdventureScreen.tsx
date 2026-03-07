@@ -11,7 +11,7 @@ import {
 } from '@/components';
 import { cn, getDateTimeString } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useAdventure } from '@/data-access-layer/adventures';
+import { useAdventure } from '@/data-access-layer';
 import { useState } from 'react';
 import { Routes } from '@/routes';
 

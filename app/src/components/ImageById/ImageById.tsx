@@ -1,4 +1,4 @@
-import { useImage } from '@/data-access-layer/images';
+import { useImage } from '@/data-access-layer';
 import { FCProps, HtmlProps } from '@/types';
 
 type Props = {

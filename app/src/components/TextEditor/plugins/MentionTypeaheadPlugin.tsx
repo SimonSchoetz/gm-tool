@@ -7,7 +7,7 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { TextNode } from 'lexical';
-import { useTableConfigs } from '@/data-access-layer/table-config';
+import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@/services/mentionSearchService';
 import type { MentionSearchResult } from '@/services/mentionSearchService';
 import { MentionNode } from '../nodes';

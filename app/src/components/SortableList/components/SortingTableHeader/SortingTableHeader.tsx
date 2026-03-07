@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { ChevronUpIcon } from 'lucide-react';
 import { ActionContainer } from '@/components';
-import { useTableConfig } from '@/data-access-layer/table-config';
+import { useTableConfig } from '@/data-access-layer';
 import './SortingTableHeader.css';
 import { cn } from '@/util';
 import { buildGridTemplate } from '../../helper';

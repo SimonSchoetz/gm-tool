@@ -10,7 +10,7 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useNpc } from '@/data-access-layer/npcs';
+import { useNpc } from '@/data-access-layer';
 import { useState } from 'react';
 import { Routes } from '@/routes';
 import './NpcScreen.css';

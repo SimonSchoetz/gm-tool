@@ -1,4 +1,4 @@
-import { useSessions } from '@/data-access-layer/sessions';
+import { useSessions } from '@/data-access-layer';
 import { SessionList } from './components';
 
 export const SessionScreen = () => {
