@@ -13,6 +13,21 @@
   padding: 16px;
 }
 
-.prep-view-step-placeholder {
-  padding: 12px;
+.prep-view-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px 0;
+  flex-shrink: 0;
+}
+
+.toggle-all-tooltips-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  font-size: 0.875rem;
+}
+
+.toggle-all-tooltips-btn:hover {
+  opacity: 1;
 }

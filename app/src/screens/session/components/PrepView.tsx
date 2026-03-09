@@ -10,15 +10,39 @@ type Props = {
 
 export const PrepView = ({ sessionId, adventureId }: Props) => {
   const { steps, loading } = useSessionSteps(sessionId);
-  // visibleTooltips wired in sub-feature 7
-  const [_visibleTooltips, _setVisibleTooltips] = useState<Set<string>>(new Set());
+  const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(new Set());
 
   if (loading) {
     return <div>Loading steps...</div>;
   }
 
+  const toggleTooltipForStep = (stepId: string) => {
+    setVisibleTooltips((prev) => {
+      const next = new Set(prev);
+      if (next.has(stepId)) {
+        next.delete(stepId);
+      } else {
+        next.add(stepId);
+      }
+      return next;
+    });
+  };
+
+  const defaultStepIds = steps
+    .filter((s) => s.default_step_key !== null)
+    .map((s) => s.id);
+
+  const toggleAllTooltips = () => {
+    setVisibleTooltips(visibleTooltips.size === 0 ? new Set(defaultStepIds) : new Set());
+  };
+
   return (
     <div className='prep-view'>
+      <div className='prep-view-toolbar'>
+        <button className='toggle-all-tooltips-btn' onClick={toggleAllTooltips}>
+          {visibleTooltips.size === 0 ? 'Show all hints' : 'Hide all hints'}
+        </button>
+      </div>
       <div className='prep-view-steps'>
         {steps.map((step) => (
           <StepSection
@@ -26,8 +50,8 @@ export const PrepView = ({ sessionId, adventureId }: Props) => {
             stepId={step.id}
             sessionId={sessionId}
             adventureId={adventureId}
-            tooltipVisible={false}
-            onToggleTooltip={() => {}}
+            tooltipVisible={visibleTooltips.has(step.id)}
+            onToggleTooltip={() => toggleTooltipForStep(step.id)}
           />
         ))}
       </div>

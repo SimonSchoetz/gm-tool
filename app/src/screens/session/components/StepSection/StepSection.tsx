@@ -1,5 +1,6 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { TextEditor } from '@/components';
+import { LAZY_DM_STEPS } from '@/domain/session-steps';
 import { StepSectionHeader } from '../StepSectionHeader/StepSectionHeader';
 import './StepSection.css';
 
@@ -38,7 +39,12 @@ export const StepSection = ({
         isLast={isLast}
       />
 
-      {/* Tooltip area — rendered in sub-feature 7 */}
+      {tooltipVisible && step.default_step_key !== null && (() => {
+        const definition = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
+        return definition ? (
+          <div className='step-tooltip-panel'>{definition.tooltip}</div>
+        ) : null;
+      })()}
 
       <TextEditor
         textEditorId={`step-${step.id}`}
