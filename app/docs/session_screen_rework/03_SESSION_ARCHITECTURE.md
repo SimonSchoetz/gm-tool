@@ -63,6 +63,14 @@ Fixes convention violations in the sessions table and adds infrastructure needed
 - `ALTER TABLE sessions RENAME COLUMN title TO name`
 - `ALTER TABLE sessions ADD COLUMN summary TEXT`
 - `ALTER TABLE sessions DROP COLUMN notes`
+- Update the sessions `table_config` row: remove `notes` from `searchable_columns` in the layout JSON (the column no longer exists, search would break)
+
+**Seed (`db/table-config/seed.ts`)**: Update the sessions seed entry:
+
+- Remove `'notes'` from `searchable_columns` (column removed)
+- Keep `searchable_columns: ['name', 'description']`
+
+Note: the seed is idempotent (skips existing rows), so existing DBs need the migration above. The seed change only affects fresh installs.
 
 **Types (`db/session/types.ts`)**: No manual changes needed. Types derive from schema via Zod inference and update automatically.
 
@@ -538,6 +546,13 @@ Adds date selection for sessions and enables sorting the sessions list by date.
 ### DB changes
 
 None. `session_date` column already exists on the sessions table.
+
+**Seed (`db/table-config/seed.ts`)**: Add `session_date` column to the sessions layout:
+
+- Add `{ key: 'session_date', label: 'Session Date', width: 250 }` to `columns` array
+- This is the session-specific sort column; default columns (`name`, `created_at`, `updated_at`) are already present
+
+**Migration (`db/database.ts`)**: Update the existing sessions `table_config` row to add `session_date` to the layout JSON columns array (same idempotent seed caveat — migration needed for existing DBs).
 
 ### Services
 
