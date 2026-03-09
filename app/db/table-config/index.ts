@@ -6,4 +6,6 @@ export type {
   TableConfig,
   CreateTableConfigInput,
   UpdateTableConfigInput,
+  TypedTableLayout,
+  TypedCreateTableConfigInput,
 } from './types';
