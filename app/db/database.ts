@@ -103,6 +103,25 @@ const runMigrations = async (database: Database) => {
       }
     }
 
+    // Add session_date column to sessions table_config layout
+    const sessionsConfigForDate = await database.select<{ id: string; layout: string }[]>(
+      "SELECT id, layout FROM table_config WHERE table_name = 'sessions'",
+    );
+    if (sessionsConfigForDate.length > 0) {
+      const layout = JSON.parse(sessionsConfigForDate[0].layout);
+      const hasSessionDate = layout.columns?.some(
+        (col: { key: string }) => col.key === 'session_date',
+      );
+      if (!hasSessionDate) {
+        layout.columns.push({ key: 'session_date', label: 'Session Date', width: 250 });
+        await database.execute(
+          'UPDATE table_config SET layout = $1 WHERE id = $2',
+          [JSON.stringify(layout), sessionsConfigForDate[0].id],
+        );
+        console.log('Migration: Added session_date to sessions table_config columns');
+      }
+    }
+
   } catch (error) {
     console.error('Migration failed:', error);
     throw error;

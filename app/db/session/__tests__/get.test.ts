@@ -29,7 +29,8 @@ describe('get', () => {
   it('should return session by id', async () => {
     const mockSession: Session = {
       id: 'test-id-1',
-      title: 'Test Session',
+      adventure_id: 'adventure-id-1',
+      name: 'Test Session',
       description: 'Test Description',
     };
 
@@ -39,7 +40,7 @@ describe('get', () => {
 
     expect(mockSelect).toHaveBeenCalledWith(
       'SELECT * FROM sessions WHERE id = $1',
-      ['test-id-1']
+      ['test-id-1'],
     );
     expect(session).toEqual(mockSession);
   });

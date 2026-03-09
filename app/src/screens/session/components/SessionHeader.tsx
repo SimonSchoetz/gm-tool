@@ -23,6 +23,19 @@ export const SessionHeader = ({ sessionId, adventureId, view, onViewChange }: Pr
         onChange={(e) => updateSession({ name: e.target.value })}
       />
 
+      {view === 'prep' && (
+        <input
+          type='date'
+          className='session-date-input'
+          value={session?.session_date ?? ''}
+          onChange={(e) => updateSession({ session_date: e.target.value })}
+        />
+      )}
+
+      {view === 'ingame' && session?.session_date && (
+        <span className='session-date-display'>{session.session_date}</span>
+      )}
+
       <div className='session-view-toggle'>
         <button
           className={`view-toggle-btn ${view === 'prep' ? 'active' : ''}`}

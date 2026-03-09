@@ -53,6 +53,7 @@ const sessionsConfig: TypedCreateTableConfigInput<Session> = {
     searchable_columns: ['name', 'description'],
     columns: [
       { key: 'name', label: 'Name', width: 250 },
+      { key: 'session_date', label: 'Session Date', width: 250 },
       { key: 'created_at', label: 'Created At', width: 250 },
       { key: 'updated_at', label: 'Last updated', width: 250 },
     ],
