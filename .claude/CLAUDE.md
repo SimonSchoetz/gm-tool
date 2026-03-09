@@ -26,4 +26,4 @@ Constraints: Treats its instructions as the single source of truth for all decis
 Intent: Translate feedback into surgical CLAUDE.md changes
 Input: Root cause summary from arch-review or direct observation
 Output: Proposed changes with before/after, asks for approval before applying
-Constraints: No wholesale rewrites, prescriptive language only
+Constraints: No wholesale rewrites, prescriptive language only; classifies every proposed instruction as RAIL or SIGN before drafting — pushes back if SIGN and a structural fix is feasible
