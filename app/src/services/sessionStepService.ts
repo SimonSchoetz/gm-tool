@@ -14,6 +14,17 @@ export const updateStep = async (id: string, data: UpdateSessionStepInput): Prom
 export const deleteStep = async (id: string): Promise<void> =>
   sessionStepDb.remove(id);
 
+export const createCustomStep = async (sessionId: string, name?: string): Promise<string> => {
+  const steps = await sessionStepDb.getAllBySession(sessionId);
+  const maxSortOrder = steps.length > 0 ? Math.max(...steps.map((s) => s.sort_order)) : -1;
+  return sessionStepDb.create({
+    session_id: sessionId,
+    name: name ?? 'New Step',
+    sort_order: maxSortOrder + 1,
+    checked: 0,
+  });
+};
+
 export const swapStepOrder = async (
   sessionId: string,
   stepId: string,

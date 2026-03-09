@@ -41,6 +41,13 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
       service.updateStep(id, data),
   });
 
+  const createMutation = useMutation({
+    mutationFn: (name?: string) => service.createCustomStep(sessionId, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (stepId: string) => service.deleteStep(stepId),
     onSuccess: () => {
@@ -72,10 +79,8 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     }, 500);
   };
 
-  // Implemented in sub-feature 11
-  const createStep = async (_name?: string): Promise<string> => {
-    throw new Error('createStep not yet implemented — see sub-feature 11');
-  };
+  const createStep = async (name?: string): Promise<string> =>
+    createMutation.mutateAsync(name);
 
   const deleteStep = async (stepId: string): Promise<void> => {
     await deleteMutation.mutateAsync(stepId);

@@ -12,7 +12,7 @@
 - [x] Sub-feature 8: Step completion checkmarks — checkbox in header, persisted per-session
 - [x] Sub-feature 9: Step rearrangement — move up/down via section header controls
 - [x] Sub-feature 10: Step deletion — delete with confirmation dialog
-- [ ] Sub-feature 11: Add custom steps — add action from sidebar, scroll and focus
+- [x] Sub-feature 11: Add custom steps — add action from sidebar, scroll and focus
 - [ ] Sub-feature 12: Steps navigation sidebar — sidebar component, drag-and-drop, real-time sync
 - [ ] Sub-feature 13: In-Game read-only view — read-only step content, interactive checkboxes
 - [ ] Sub-feature 14: In-Game session summary — editable summary editor at top of In-Game View
