@@ -11,9 +11,12 @@
   overflow: hidden;
 }
 
-.in-game-summary-placeholder {
-  padding: 16px;
+.in-game-summary {
+  height: 180px;
   flex-shrink: 0;
+  overflow: hidden;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .in-game-steps {

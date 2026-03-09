@@ -41,7 +41,7 @@ type Props = {
 };
 
 export const InGameView = ({ sessionId, adventureId }: Props) => {
-  const { session, loading: sessionLoading } = useSession(sessionId, adventureId);
+  const { session, loading: sessionLoading, updateSession } = useSession(sessionId, adventureId);
   const { steps, loading: stepsLoading } = useSessionSteps(sessionId);
 
   if (sessionLoading || stepsLoading) {
@@ -53,9 +53,13 @@ export const InGameView = ({ sessionId, adventureId }: Props) => {
       <StepsNavSidebar sessionId={sessionId} />
 
       <div className='in-game-main'>
-        {/* Summary editor added in sub-feature 14 */}
-        <div className='in-game-summary-placeholder'>
-          <span>{session?.summary ?? ''}</span>
+        <div className='in-game-summary'>
+          <TextEditor
+            textEditorId={`session-summary-${sessionId}`}
+            value={session?.summary ?? ''}
+            adventureId={adventureId}
+            onChange={(summary) => updateSession({ summary })}
+          />
         </div>
 
         <div className='in-game-steps'>

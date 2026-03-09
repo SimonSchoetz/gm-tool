@@ -15,7 +15,7 @@
 - [x] Sub-feature 11: Add custom steps — add action from sidebar, scroll and focus
 - [x] Sub-feature 12: Steps navigation sidebar — sidebar component, drag-and-drop, real-time sync
 - [x] Sub-feature 13: In-Game read-only view — read-only step content, interactive checkboxes
-- [ ] Sub-feature 14: In-Game session summary — editable summary editor at top of In-Game View
+- [x] Sub-feature 14: In-Game session summary — editable summary editor at top of In-Game View
 - [ ] Sub-feature 15: Session date picker and sort — date picker in header, sort sessions list by date
 - [ ] Sub-feature 16: Lexical checkbox lists — checkbox list nodes, read-only interactivity
 
