@@ -32,6 +32,12 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
         />
 
         <ScreenNavBtn
+          label='Sessions'
+          targetRoute={`/${Routes.ADVENTURE}/${adventureId}/${Routes.SESSIONS}`}
+          isDisabled={!adventureId}
+        />
+
+        <ScreenNavBtn
           label='Settings'
           targetRoute={`/${Routes.SETTINGS}`}
         />

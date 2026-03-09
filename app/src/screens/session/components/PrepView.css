@@ -1,0 +1,18 @@
+.prep-view {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.prep-view-steps {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.prep-view-step-placeholder {
+  padding: 12px;
+}
