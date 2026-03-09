@@ -27,7 +27,7 @@ export const create = async (data: CreateSessionStepInput): Promise<string> => {
   }
   if (validated.default_step_key !== undefined) {
     columns.push('default_step_key');
-    values.push(validated.default_step_key ?? null);
+    values.push(validated.default_step_key);
   }
 
   const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');

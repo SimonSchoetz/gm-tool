@@ -18,9 +18,14 @@ export const getAllSessions = async (adventureId: string): Promise<Session[]> =>
 };
 
 export const getSessionById = async (id: string): Promise<Session> => {
-  const session = await sessionDb.get(id);
-  if (!session) throw new SessionNotFoundError(id);
-  return session;
+  try {
+    const session = await sessionDb.get(id);
+    if (!session) throw new SessionNotFoundError(id);
+    return session;
+  } catch (err) {
+    if (err instanceof SessionNotFoundError) throw err;
+    throw new SessionLoadError(err);
+  }
 };
 
 export const createSession = async (data: CreateSessionInput): Promise<string> => {
