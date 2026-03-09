@@ -23,6 +23,8 @@ Each section must follow this layered order:
 3. Data Access Layer
 4. Frontend (components, screens)
 
+Before writing each layer, cross-check the plan against conventions documented for that layer in the relevant scoped CLAUDE.md (e.g. error wrapping in Services, TanStack Query patterns in the DAL). A spec that omits a required pattern is incomplete, not just unimplemented.
+
 Each sub-feature gets a heading with its name and a short description of its intent before the layered breakdown.
 
 ### CLAUDE.md impact
