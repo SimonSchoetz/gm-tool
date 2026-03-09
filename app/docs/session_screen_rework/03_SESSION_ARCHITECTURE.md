@@ -16,6 +16,8 @@
 - [ ] Sub-feature 12: In-Game session summary — editable summary editor at top of In-Game View
 - [ ] Sub-feature 13: Session date picker and sort — date picker in header, sort sessions list by date
 - [ ] Sub-feature 14: Lexical checkbox lists — checkbox list nodes, read-only interactivity
+- [ ] Sub-feature 15: Sessions list screen — rebuild SessionsScreen to follow NpcsScreen pattern with SortableList
+- [ ] Sub-feature 16: Header breadcrumbs — add sessions and session detail to breadcrumb logic
 
 ## Key Architectural Decisions
 
@@ -99,9 +101,9 @@ Note: the seed is idempotent (skips existing rows), so existing DBs need the mig
 
 ### Frontend
 
-**`screens/sessions/SessionsScreen.tsx`**: Rename component export from `SessionScreen` to `SessionsScreen` (follows the NpcsScreen/NpcScreen naming pattern — plural for list, singular for detail)
+**`screens/sessions/SessionsScreen.tsx`**: Rename component export from `SessionScreen` to `SessionsScreen` (follows the NpcsScreen/NpcScreen naming pattern — plural for list, singular for detail). Full rebuild of this screen is covered in sub-feature 15.
 
-**`screens/sessions/components/SessionList.tsx`**: Replace `session.title` with `session.name`
+**`screens/sessions/components/SessionList.tsx`**: Will be deleted in sub-feature 15 (replaced by `SortableList`).
 
 ---
 
@@ -614,6 +616,78 @@ None.
 - Alternative approaches may exist (e.g., DOM event interception, partial editability) — research first, then implement.
 
 **Scope**: Applies to all text editors in the session screen — prep step editors and the in-game summary editor.
+
+---
+
+## Sub-feature 15: Sessions list screen
+
+Rebuilds `SessionsScreen` to follow the established `NpcsScreen` pattern — `SortableList`, table config integration, row navigation, and session creation.
+
+### DB changes
+
+None.
+
+### Services
+
+None.
+
+### Data Access Layer
+
+None.
+
+### Frontend
+
+**`screens/sessions/SessionsScreen.tsx`** — rewrite to match `NpcsScreen` pattern:
+
+- Calls `useSessions(adventureId)` and `useTableConfigs()` internally
+- Finds the sessions table config: `tableConfigs.find(c => c.table_name === 'sessions')`
+- Loading state: shows loading if sessions or configs are loading, or if sessions config is missing
+- Renders `SortableList<Session>` with:
+  - `tableConfigId` from the sessions table config
+  - `items` from `useSessions`
+  - `onRowClick` navigates to `/adventure/{adventureId}/session/{session.id}`
+  - `onCreateNew` calls `createSession({ adventure_id: adventureId })`, then navigates to the new session detail screen
+  - `searchPlaceholder` appropriate for sessions
+
+**Delete `screens/sessions/components/SessionList.tsx`** and its CSS — replaced entirely by `SortableList`.
+
+**Delete `screens/sessions/components/` directory** if `SessionList` was the only component in it.
+
+---
+
+## Sub-feature 16: Header breadcrumbs
+
+Adds sessions routes to the global header breadcrumb logic so navigating to sessions shows the full path.
+
+### DB changes
+
+None.
+
+### Services
+
+None.
+
+### Data Access Layer
+
+None.
+
+### Frontend
+
+**`components/Header/Header.tsx`**:
+
+- Extract `sessionId` from URL: `router.location.href.match(/\/session\/([^\/]+)/)`
+- Call `useSession(sessionId)` (same pattern as existing `useNpc(npcId)`)
+- Import `useSession` from `@/data-access-layer`
+
+- Update `getRouteLevel1()`: add sessions check alongside NPCs:
+  - If URL includes `Routes.SESSIONS` or `/${Routes.SESSION}/` → return `' > Sessions'`
+
+- Update `getRouteLevel2()`: add session detail check alongside NPC detail:
+  - If URL includes `/${Routes.SESSION}/` → return ` > ${session?.name ?? 'Loading...'}`
+
+**Expected breadcrumb output**:
+- Sessions list: `{AdventureName} > Sessions`
+- Session detail: `{AdventureName} > Sessions > {SessionName}`
 
 ---
 
