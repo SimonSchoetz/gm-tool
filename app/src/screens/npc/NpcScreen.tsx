@@ -76,7 +76,6 @@ export const NpcScreen = () => {
                   placeholder='Summmary'
                   value={npc?.summary || ''}
                   textEditorId={`NPC_${npc.id}_summary`}
-                  adventureId={adventureId}
                   onChange={(summary) => updateNpc({ summary })}
                 />
               </CustomScrollArea>
@@ -85,7 +84,6 @@ export const NpcScreen = () => {
             <TextEditor
               value={npc?.description || ''}
               textEditorId={`NPC_${npc.id}_description`}
-              adventureId={adventureId}
               onChange={(description) => updateNpc({ description })}
             />
           </div>

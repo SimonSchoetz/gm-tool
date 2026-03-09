@@ -7,10 +7,9 @@ import './InGameView.css';
 type InGameStepSectionProps = {
   step: SessionStep;
   sessionId: string;
-  adventureId: string;
 };
 
-const InGameStepSection = ({ step, sessionId, adventureId }: InGameStepSectionProps) => {
+const InGameStepSection = ({ step, sessionId }: InGameStepSectionProps) => {
   const { updateStep } = useSessionSteps(sessionId);
 
   return (
@@ -28,7 +27,6 @@ const InGameStepSection = ({ step, sessionId, adventureId }: InGameStepSectionPr
       <TextEditor
         textEditorId={`in-game-step-${step.id}`}
         value={step.content ?? ''}
-        adventureId={adventureId}
         readOnly
       />
     </div>
@@ -57,7 +55,6 @@ export const InGameView = ({ sessionId, adventureId }: Props) => {
           <TextEditor
             textEditorId={`session-summary-${sessionId}`}
             value={session?.summary ?? ''}
-            adventureId={adventureId}
             onChange={(summary) => updateSession({ summary })}
           />
         </div>
@@ -68,7 +65,6 @@ export const InGameView = ({ sessionId, adventureId }: Props) => {
               key={step.id}
               step={step}
               sessionId={sessionId}
-              adventureId={adventureId}
             />
           ))}
         </div>

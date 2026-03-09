@@ -30,7 +30,7 @@ export const SessionScreen = () => {
         onViewChange={setView}
       />
       {view === 'prep' ? (
-        <PrepView sessionId={sessionId} adventureId={adventureId} />
+        <PrepView sessionId={sessionId} />
       ) : (
         <InGameView sessionId={sessionId} adventureId={adventureId} />
       )}

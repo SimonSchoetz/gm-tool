@@ -7,7 +7,6 @@ import './StepSection.css';
 type Props = {
   stepId: string;
   sessionId: string;
-  adventureId: string;
   tooltipVisible: boolean;
   onToggleTooltip: () => void;
 };
@@ -15,7 +14,6 @@ type Props = {
 export const StepSection = ({
   stepId,
   sessionId,
-  adventureId,
   tooltipVisible,
   onToggleTooltip,
 }: Props) => {
@@ -33,7 +31,6 @@ export const StepSection = ({
       <StepSectionHeader
         stepId={stepId}
         sessionId={sessionId}
-        tooltipVisible={tooltipVisible}
         onToggleTooltip={onToggleTooltip}
         isFirst={isFirst}
         isLast={isLast}
@@ -49,7 +46,6 @@ export const StepSection = ({
       <TextEditor
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
-        adventureId={adventureId}
         onChange={(content) => updateStep(step.id, { content })}
       />
     </div>

@@ -6,10 +6,9 @@ import './PrepView.css';
 
 type Props = {
   sessionId: string;
-  adventureId: string;
 };
 
-export const PrepView = ({ sessionId, adventureId }: Props) => {
+export const PrepView = ({ sessionId }: Props) => {
   const { steps, loading } = useSessionSteps(sessionId);
   const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(new Set());
 
@@ -53,7 +52,6 @@ export const PrepView = ({ sessionId, adventureId }: Props) => {
               key={step.id}
               stepId={step.id}
               sessionId={sessionId}
-              adventureId={adventureId}
               tooltipVisible={visibleTooltips.has(step.id)}
               onToggleTooltip={() => toggleTooltipForStep(step.id)}
             />
