@@ -103,6 +103,43 @@ const runMigrations = async (database: Database) => {
       }
     }
 
+    // Add session_date column to sessions table (the actual table, not just table_config)
+    const sessionDateCol = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('sessions') WHERE name = 'session_date'",
+    );
+    if (!sessionDateCol || sessionDateCol.length === 0) {
+      await database.execute('ALTER TABLE sessions ADD COLUMN session_date TEXT');
+      console.log('Migration: Added session_date column to sessions table');
+    }
+
+    // Remove NOT NULL constraint from sessions.name (inherited from title rename).
+    // SQLite requires table recreation to drop a NOT NULL constraint.
+    const sessionNameConstraint = await database.select<{ notnull: number }[]>(
+      "SELECT notnull FROM pragma_table_info('sessions') WHERE name = 'name'",
+    );
+    if (sessionNameConstraint.length > 0 && sessionNameConstraint[0].notnull === 1) {
+      await database.execute('PRAGMA foreign_keys = OFF');
+      await database.execute(`
+        CREATE TABLE sessions_new (
+          id TEXT PRIMARY KEY,
+          name TEXT,
+          description TEXT,
+          summary TEXT,
+          session_date TEXT,
+          adventure_id TEXT NOT NULL REFERENCES adventures(id) ON DELETE CASCADE,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      await database.execute(
+        'INSERT INTO sessions_new SELECT id, name, description, summary, session_date, adventure_id, created_at, updated_at FROM sessions',
+      );
+      await database.execute('DROP TABLE sessions');
+      await database.execute('ALTER TABLE sessions_new RENAME TO sessions');
+      await database.execute('PRAGMA foreign_keys = ON');
+      console.log('Migration: Removed NOT NULL constraint from sessions.name');
+    }
+
     // Add session_date column to sessions table_config layout
     const sessionsConfigForDate = await database.select<{ id: string; layout: string }[]>(
       "SELECT id, layout FROM table_config WHERE table_name = 'sessions'",
