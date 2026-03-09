@@ -5,7 +5,7 @@
 - [x] Sub-feature 1: Typed layout helper — generic type that constrains table_config column references at compile time
 - [x] Sub-feature 2: Apply typed layouts to seed — type each seed entry against its domain type
 - [x] Sub-feature 3: Sessions table cleanup — rename title to name, add summary column, filter by adventure
-- [ ] Sub-feature 4: Session steps data model — new table, DB CRUD, service, DAL, template init
+- [x] Sub-feature 4: Session steps data model — new table, DB CRUD, service, DAL, template init
 - [ ] Sub-feature 5: Session screen and view toggle — routes, screen shell, prep/in-game toggle
 - [ ] Sub-feature 6: Lazy DM step sections — step section component with header, tooltip area, editor
 - [ ] Sub-feature 7: Per-step tooltip toggle — tooltip visibility, per-step and global toggle
