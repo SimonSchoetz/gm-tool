@@ -43,6 +43,19 @@ export const swapStepOrder = async (
   await sessionStepDb.update(adjacent.id, { sort_order: target.sort_order });
 };
 
+export const bulkReorderSteps = async (
+  sessionId: string,
+  orderedStepIds: string[],
+): Promise<void> => {
+  const steps = await sessionStepDb.getAllBySession(sessionId);
+  for (const step of steps) {
+    const newIndex = orderedStepIds.indexOf(step.id);
+    if (newIndex !== -1 && newIndex !== step.sort_order) {
+      await sessionStepDb.update(step.id, { sort_order: newIndex });
+    }
+  }
+};
+
 export const initDefaultSteps = async (sessionId: string): Promise<void> => {
   for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
     const step = LAZY_DM_STEPS[index];

@@ -11,6 +11,7 @@ type UseSessionStepsReturn = {
   createStep: (name?: string) => Promise<string>;
   deleteStep: (stepId: string) => Promise<void>;
   reorderSteps: (stepId: string, direction: 'up' | 'down') => void;
+  bulkReorder: (orderedStepIds: string[]) => void;
 };
 
 type DebounceEntry = {
@@ -44,6 +45,14 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const createMutation = useMutation({
     mutationFn: (name?: string) => service.createCustomStep(sessionId, name),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+    },
+  });
+
+  const bulkReorderMutation = useMutation({
+    mutationFn: (orderedStepIds: string[]) =>
+      service.bulkReorderSteps(sessionId, orderedStepIds),
+    onError: () => {
       queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
     },
   });
@@ -108,5 +117,19 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     });
   };
 
-  return { steps, loading, updateStep, createStep, deleteStep, reorderSteps };
+  const bulkReorder = (orderedStepIds: string[]): void => {
+    queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
+      if (!old) return old;
+      const idToStep = new Map(old.map((s) => [s.id, s]));
+      return orderedStepIds
+        .map((id, index) => {
+          const step = idToStep.get(id);
+          return step ? { ...step, sort_order: index } : null;
+        })
+        .filter((s): s is SessionStep => s !== null);
+    });
+    bulkReorderMutation.mutate(orderedStepIds);
+  };
+
+  return { steps, loading, updateStep, createStep, deleteStep, reorderSteps, bulkReorder };
 };

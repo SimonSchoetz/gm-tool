@@ -29,7 +29,7 @@ export const StepSection = ({
   const isLast = stepIndex === steps.length - 1;
 
   return (
-    <div className='step-section'>
+    <div id={`step-section-${stepId}`} className='step-section'>
       <StepSectionHeader
         stepId={stepId}
         sessionId={sessionId}

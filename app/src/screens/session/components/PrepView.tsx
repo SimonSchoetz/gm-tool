@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
 import { StepSection } from './StepSection/StepSection';
+import { StepsNavSidebar } from './StepsNavSidebar/StepsNavSidebar';
 import './PrepView.css';
 
 type Props = {
@@ -38,22 +39,26 @@ export const PrepView = ({ sessionId, adventureId }: Props) => {
 
   return (
     <div className='prep-view'>
-      <div className='prep-view-toolbar'>
-        <button className='toggle-all-tooltips-btn' onClick={toggleAllTooltips}>
-          {visibleTooltips.size === 0 ? 'Show all hints' : 'Hide all hints'}
-        </button>
-      </div>
-      <div className='prep-view-steps'>
-        {steps.map((step) => (
-          <StepSection
-            key={step.id}
-            stepId={step.id}
-            sessionId={sessionId}
-            adventureId={adventureId}
-            tooltipVisible={visibleTooltips.has(step.id)}
-            onToggleTooltip={() => toggleTooltipForStep(step.id)}
-          />
-        ))}
+      <StepsNavSidebar sessionId={sessionId} />
+
+      <div className='prep-view-main'>
+        <div className='prep-view-toolbar'>
+          <button className='toggle-all-tooltips-btn' onClick={toggleAllTooltips}>
+            {visibleTooltips.size === 0 ? 'Show all hints' : 'Hide all hints'}
+          </button>
+        </div>
+        <div className='prep-view-steps'>
+          {steps.map((step) => (
+            <StepSection
+              key={step.id}
+              stepId={step.id}
+              sessionId={sessionId}
+              adventureId={adventureId}
+              tooltipVisible={visibleTooltips.has(step.id)}
+              onToggleTooltip={() => toggleTooltipForStep(step.id)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
