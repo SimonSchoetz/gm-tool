@@ -2,7 +2,7 @@ import { FCProps } from '@/types';
 import './Header.css';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
-import { useAdventure, useNpc } from '@/data-access-layer';
+import { useAdventure, useNpc, useSession } from '@/data-access-layer';
 import { useRouterState } from '@tanstack/react-router';
 import { Routes } from '@/routes';
 
@@ -19,9 +19,13 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   const npcIdMatch = router.location.href.match(/\/npc\/([^\/]+)/);
   const npcId = npcIdMatch ? npcIdMatch[1] : '';
 
-  // Use parameter-based hooks - only fetch if IDs exist
+  // Extract sessionId from route if present
+  const sessionIdMatch = router.location.href.match(/\/session\/([^\/]+)/);
+  const sessionId = sessionIdMatch ? sessionIdMatch[1] : '';
+
   const { adventure } = useAdventure(adventureId);
   const { npc } = useNpc(npcId);
+  const { session } = useSession(sessionId, adventureId);
 
   const getMainRoute = (): string => {
     if (router.location.href === `/${Routes.ADVENTURES}`) {
@@ -34,17 +38,24 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   };
 
   const getRouteLevel1 = (): string => {
-    // Show "NPCs" for both list and detail routes
     if (router.location.href.includes(Routes.NPCS) || router.location.href.includes(`/${Routes.NPC}/`)) {
       return ' > NPCs';
+    }
+    if (
+      router.location.href.includes(Routes.SESSIONS) ||
+      router.location.href.includes(`/${Routes.SESSION}/`)
+    ) {
+      return ' > Sessions';
     }
     return '';
   };
 
   const getRouteLevel2 = (): string => {
-    // Show NPC name only on detail route
     if (router.location.href.includes(`/${Routes.NPC}/`)) {
       return ` > ${npc?.name ?? 'Loading...'}`;
+    }
+    if (router.location.href.includes(`/${Routes.SESSION}/`)) {
+      return ` > ${session?.name ?? 'Loading...'}`;
     }
     return '';
   };
