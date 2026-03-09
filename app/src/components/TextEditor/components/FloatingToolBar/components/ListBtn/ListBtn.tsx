@@ -4,6 +4,7 @@ import { $getSelection, $isRangeSelection, RangeSelection } from 'lexical';
 import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_CHECK_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
   $isListNode,
   ListNode,
@@ -14,7 +15,7 @@ import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW, mergeRegister } from 'l
 import { BaseBtn } from '../BaseBtn/BaseBtn';
 import './ListBtn.css';
 
-type ListType = 'bullet' | 'number';
+type ListType = 'bullet' | 'number' | 'check';
 
 type ListBtnProps = {
   label: string;
@@ -31,7 +32,6 @@ export const ListBtn: FCProps<ListBtnProps> = ({
   const [editor] = useLexicalComposerContext();
   const [isActive, setIsActive] = useState<boolean>(false);
 
-  // Check if current selection is in a list of this type
   const isCurrentListType = useCallback(
     (selection: RangeSelection): boolean => {
       const anchorNode = selection.anchor.getNode();
@@ -40,13 +40,8 @@ export const ListBtn: FCProps<ListBtnProps> = ({
           ? anchorNode
           : anchorNode.getTopLevelElementOrThrow();
 
-      // Check if parent is a list node
       if ($isListNode(element)) {
-        const listType_tag = (element as ListNode).getListType();
-        return (
-          (listType === 'bullet' && listType_tag === 'bullet') ||
-          (listType === 'number' && listType_tag === 'number')
-        );
+        return (element as ListNode).getListType() === listType;
       }
       return false;
     },
@@ -86,15 +81,13 @@ export const ListBtn: FCProps<ListBtnProps> = ({
         const isCurrentlyTargetType = isCurrentListType(selection);
 
         if (isCurrentlyTargetType) {
-          // Remove list
           editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+        } else if (listType === 'bullet') {
+          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+        } else if (listType === 'number') {
+          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
         } else {
-          // Insert list
-          if (listType === 'bullet') {
-            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-          } else {
-            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-          }
+          editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
         }
       }
     });

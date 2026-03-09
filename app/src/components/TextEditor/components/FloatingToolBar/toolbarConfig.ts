@@ -60,4 +60,9 @@ export const listBtns: ListBtnConfig[] = [
     listType: 'number',
     icon: Icon.ListOrderedIcon,
   },
+  {
+    label: 'Check List',
+    listType: 'check',
+    icon: Icon.ListChecksIcon,
+  },
 ];
