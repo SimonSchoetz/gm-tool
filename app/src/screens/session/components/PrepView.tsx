@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
+import { StepSection } from './StepSection/StepSection';
 import './PrepView.css';
 
 type Props = {
@@ -7,7 +8,7 @@ type Props = {
   adventureId: string;
 };
 
-export const PrepView = ({ sessionId }: Props) => {
+export const PrepView = ({ sessionId, adventureId }: Props) => {
   const { steps, loading } = useSessionSteps(sessionId);
   // visibleTooltips wired in sub-feature 7
   const [_visibleTooltips, _setVisibleTooltips] = useState<Set<string>>(new Set());
@@ -20,10 +21,14 @@ export const PrepView = ({ sessionId }: Props) => {
     <div className='prep-view'>
       <div className='prep-view-steps'>
         {steps.map((step) => (
-          <div key={step.id} className='prep-view-step-placeholder'>
-            {/* StepSection added in sub-feature 6 */}
-            <span>{step.name}</span>
-          </div>
+          <StepSection
+            key={step.id}
+            stepId={step.id}
+            sessionId={sessionId}
+            adventureId={adventureId}
+            tooltipVisible={false}
+            onToggleTooltip={() => {}}
+          />
         ))}
       </div>
     </div>

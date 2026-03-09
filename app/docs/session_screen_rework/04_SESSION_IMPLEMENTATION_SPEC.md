@@ -7,7 +7,7 @@
 - [x] Sub-feature 3: Sessions table cleanup — rename title to name, add summary column, filter by adventure
 - [x] Sub-feature 4: Session steps data model — new table, DB CRUD, service, DAL, template init
 - [x] Sub-feature 5: Session screen and view toggle — routes, screen shell, prep/in-game toggle
-- [ ] Sub-feature 6: Lazy DM step sections — step section component with header, tooltip area, editor
+- [x] Sub-feature 6: Lazy DM step sections — step section component with header, tooltip area, editor
 - [ ] Sub-feature 7: Per-step tooltip toggle — tooltip visibility, per-step and global toggle
 - [ ] Sub-feature 8: Step completion checkmarks — checkbox in header, persisted per-session
 - [ ] Sub-feature 9: Step rearrangement — move up/down via section header controls
