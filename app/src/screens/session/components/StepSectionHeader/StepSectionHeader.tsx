@@ -25,8 +25,12 @@ export const StepSectionHeader = ({
 
   return (
     <div className='step-section-header'>
-      {/* Checkbox wired in sub-feature 8 */}
-      <input type='checkbox' className='step-checkbox' readOnly />
+      <input
+        type='checkbox'
+        className='step-checkbox'
+        checked={step.checked === 1}
+        onChange={() => updateStep(step.id, { checked: step.checked ? 0 : 1 })}
+      />
 
       <input
         type='text'
