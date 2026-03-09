@@ -7,6 +7,4 @@ export type {
   Session,
   CreateSessionInput,
   UpdateSessionInput,
-  PaginationParams,
-  PaginatedResponse,
 } from './types';

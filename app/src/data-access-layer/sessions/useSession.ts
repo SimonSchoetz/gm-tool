@@ -11,7 +11,7 @@ type UseSessionReturn = {
   deleteSession: () => Promise<void>;
 };
 
-export const useSession = (sessionId: string): UseSessionReturn => {
+export const useSession = (sessionId: string, adventureId: string): UseSessionReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateSessionInput>({});
@@ -42,7 +42,7 @@ export const useSession = (sessionId: string): UseSessionReturn => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => service.deleteSession(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.list() });
+      queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
     },
   });
 

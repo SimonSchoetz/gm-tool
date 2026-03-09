@@ -10,26 +10,27 @@ type UseSessionsReturn = {
   deleteSession: (id: string) => Promise<void>;
 };
 
-export const useSessions = (): UseSessionsReturn => {
+export const useSessions = (adventureId: string): UseSessionsReturn => {
   const queryClient = useQueryClient();
 
   const { data: sessions = [], isPending: loading } = useQuery({
-    queryKey: sessionKeys.list(),
-    queryFn: service.getAllSessions,
+    queryKey: sessionKeys.list(adventureId),
+    queryFn: () => service.getAllSessions(adventureId),
+    enabled: !!adventureId,
     throwOnError: true,
   });
 
   const createMutation = useMutation({
     mutationFn: (data: CreateSessionInput) => service.createSession(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.list() });
+      queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => service.deleteSession(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.list() });
+      queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
     },
   });
 

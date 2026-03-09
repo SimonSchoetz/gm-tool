@@ -50,9 +50,9 @@ const sessionsConfig: TypedCreateTableConfigInput<Session> = {
   tagging_enabled: 0,
   scope: 'adventure',
   layout: {
-    searchable_columns: ['title', 'description', 'notes'],
+    searchable_columns: ['name', 'description'],
     columns: [
-      { key: 'title', label: 'Name', width: 250 },
+      { key: 'name', label: 'Name', width: 250 },
       { key: 'created_at', label: 'Created At', width: 250 },
       { key: 'updated_at', label: 'Last updated', width: 250 },
     ],

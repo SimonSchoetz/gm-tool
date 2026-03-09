@@ -15,7 +15,7 @@ const SessionList = ({ sessions }: SessionListProps) => {
           No sessions yet. Create your first session above!
         </p>
       ) : (
-        sessions.map((session) => <p>{session.title}</p>)
+        sessions.map((session) => <p>{session.name}</p>)
       )}
     </div>
   );

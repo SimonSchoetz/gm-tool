@@ -9,31 +9,19 @@ export const sessionTable = defineTable({
       primaryKey: true,
       zod: z.string(),
     },
-    title: {
+    name: {
       type: 'TEXT',
-      notNull: true,
-      zod: z
-        .string()
-        .min(1, 'Session title is required')
-        .refine((val) => val.trim().length > 0, {
-          message: 'Session title is required',
-        }),
-      updateZod: z
-        .string()
-        .min(1)
-        .refine((val) => val.trim().length > 0, {
-          message: 'Session title cannot be empty',
-        }),
+      zod: z.string().optional(),
     },
     description: {
       type: 'TEXT',
       zod: z.string().optional(),
     },
-    session_date: {
+    summary: {
       type: 'TEXT',
       zod: z.string().optional(),
     },
-    notes: {
+    session_date: {
       type: 'TEXT',
       zod: z.string().optional(),
     },

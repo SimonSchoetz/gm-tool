@@ -57,6 +57,51 @@ const runMigrations = async (database: Database) => {
       console.log('Migration: Dropped searchable_columns column from table_config');
     }
 
+    // Rename title to name on sessions
+    const titleCol = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('sessions') WHERE name = 'title'",
+    );
+    if (titleCol && titleCol.length > 0) {
+      await database.execute('ALTER TABLE sessions RENAME COLUMN title TO name');
+      console.log('Migration: Renamed title to name on sessions');
+    }
+
+    // Add summary column to sessions
+    const summaryCol = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('sessions') WHERE name = 'summary'",
+    );
+    if (!summaryCol || summaryCol.length === 0) {
+      await database.execute('ALTER TABLE sessions ADD COLUMN summary TEXT');
+      console.log('Migration: Added summary column to sessions');
+    }
+
+    // Drop notes column from sessions
+    const notesCol = await database.select<{ name: string }[]>(
+      "SELECT name FROM pragma_table_info('sessions') WHERE name = 'notes'",
+    );
+    if (notesCol && notesCol.length > 0) {
+      await database.execute('ALTER TABLE sessions DROP COLUMN notes');
+      console.log('Migration: Dropped notes column from sessions');
+    }
+
+    // Update sessions table_config: remove 'notes' from searchable_columns in layout JSON
+    const sessionsConfig = await database.select<{ id: string; layout: string }[]>(
+      "SELECT id, layout FROM table_config WHERE table_name = 'sessions'",
+    );
+    if (sessionsConfig.length > 0) {
+      const layout = JSON.parse(sessionsConfig[0].layout);
+      if (layout.searchable_columns?.includes('notes')) {
+        layout.searchable_columns = layout.searchable_columns.filter(
+          (col: string) => col !== 'notes',
+        );
+        await database.execute(
+          'UPDATE table_config SET layout = $1 WHERE id = $2',
+          [JSON.stringify(layout), sessionsConfig[0].id],
+        );
+        console.log('Migration: Removed notes from sessions table_config searchable_columns');
+      }
+    }
+
   } catch (error) {
     console.error('Migration failed:', error);
     throw error;

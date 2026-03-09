@@ -1,10 +1,8 @@
 import * as sessionDb from '@db/session';
 import type { Session, CreateSessionInput, UpdateSessionInput } from '@db/session';
 
-export const getAllSessions = async (): Promise<Session[]> => {
-  const result = await sessionDb.getAll();
-  return result.data;
-};
+export const getAllSessions = async (adventureId: string): Promise<Session[]> =>
+  sessionDb.getAll(adventureId);
 
 export const getSessionById = async (id: string): Promise<Session> => {
   const session = await sessionDb.get(id);
