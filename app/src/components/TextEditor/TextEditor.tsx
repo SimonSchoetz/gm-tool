@@ -23,7 +23,6 @@ import { useState } from 'react';
 type Props = {
   value: string;
   textEditorId: string;
-  adventureId: string;
   placeholder?: string;
   readOnly?: boolean;
   onChange?: (value: string) => void;
@@ -58,7 +57,6 @@ const theme: EditorThemeClasses = {
 export const TextEditor: FCProps<Props> = ({
   value,
   textEditorId,
-  adventureId,
   onChange,
   placeholder = 'Description...',
   readOnly = false,
@@ -69,7 +67,7 @@ export const TextEditor: FCProps<Props> = ({
   const initialConfig = {
     namespace: textEditorId,
     theme,
-    onError: (err: any) => console.error('Lexical error:', err),
+    onError: (err: Error) => console.error('Lexical error:', err),
     nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
     editorState: value || undefined,
     editable: !readOnly,
@@ -105,7 +103,7 @@ export const TextEditor: FCProps<Props> = ({
 
         {!readOnly && <OnChangePlugin onChange={handleChange} />}
         {!readOnly && <FloatingToolbar />}
-        {!readOnly && <MentionTypeaheadPlugin adventureId={adventureId} />}
+        {!readOnly && <MentionTypeaheadPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
     </LexicalComposer>

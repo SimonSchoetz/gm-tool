@@ -26,8 +26,7 @@ export const CheckboxReadOnlyPlugin = (): null => {
       if (!(target instanceof HTMLElement) || target.tagName !== 'LI') return;
 
       const parentNode = target.parentNode;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (!parentNode || (parentNode as any).__lexicalListType !== 'check') return;
+      if (!parentNode || (parentNode as unknown as { __lexicalListType?: string }).__lexicalListType !== 'check') return;
 
       const rect = target.getBoundingClientRect();
       const beforeStyles = window.getComputedStyle ? window.getComputedStyle(target, '::before') : null;

@@ -8,7 +8,6 @@ type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 type Props = {
   stepId: string;
   sessionId: string;
-  tooltipVisible: boolean;
   onToggleTooltip: () => void;
   isFirst: boolean;
   isLast: boolean;
@@ -17,7 +16,6 @@ type Props = {
 export const StepSectionHeader = ({
   stepId,
   sessionId,
-  tooltipVisible: _tooltipVisible,
   onToggleTooltip,
   isFirst,
   isLast,

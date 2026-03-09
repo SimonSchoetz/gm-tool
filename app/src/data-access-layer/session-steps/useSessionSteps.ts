@@ -15,7 +15,7 @@ type UseSessionStepsReturn = {
 };
 
 type DebounceEntry = {
-  timeout: NodeJS.Timeout;
+  timeout?: NodeJS.Timeout;
   pending: UpdateSessionStepInput;
 };
 
@@ -51,7 +51,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
 
   const bulkReorderMutation = useMutation({
     mutationFn: (orderedStepIds: string[]) =>
-      service.bulkReorderSteps(sessionId, orderedStepIds),
+      service.bulkReorderSteps(orderedStepIds),
     onError: () => {
       queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
     },
@@ -74,10 +74,10 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     const existing = map.get(stepId);
 
     if (existing) {
-      clearTimeout(existing.timeout);
+      if (existing.timeout) clearTimeout(existing.timeout);
       existing.pending = { ...existing.pending, ...data };
     } else {
-      map.set(stepId, { timeout: 0 as unknown as NodeJS.Timeout, pending: { ...data } });
+      map.set(stepId, { pending: { ...data } });
     }
 
     const entry = map.get(stepId)!;

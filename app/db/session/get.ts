@@ -11,5 +11,5 @@ export const get = async (id: string): Promise<Session | null> => {
     'SELECT * FROM sessions WHERE id = $1',
     [id]
   );
-  return sessions[0] || null;
+  return sessions[0] ?? null;
 };

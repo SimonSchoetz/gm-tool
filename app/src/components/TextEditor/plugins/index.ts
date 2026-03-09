@@ -1,2 +1,2 @@
-export * from './MentionTypeaheadPlugin';
-export * from './CheckboxReadOnlyPlugin';
+export { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';
+export { CheckboxReadOnlyPlugin } from './CheckboxReadOnlyPlugin';
