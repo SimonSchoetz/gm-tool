@@ -24,7 +24,8 @@ type Props = {
   textEditorId: string;
   adventureId: string;
   placeholder?: string;
-  onChange: (value: string) => void;
+  readOnly?: boolean;
+  onChange?: (value: string) => void;
 };
 
 const theme: EditorThemeClasses = {
@@ -56,6 +57,7 @@ export const TextEditor: FCProps<Props> = ({
   adventureId,
   onChange,
   placeholder = 'Description...',
+  readOnly = false,
   ...props
 }) => {
   const [isFirstRender, setIsFirstRender] = useState(true);
@@ -66,6 +68,7 @@ export const TextEditor: FCProps<Props> = ({
     onError: (err: any) => console.error('Lexical error:', err),
     nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
     editorState: value || undefined,
+    editable: !readOnly,
   };
 
   const handleChange = (editorState: EditorState) => {
@@ -94,10 +97,10 @@ export const TextEditor: FCProps<Props> = ({
         <ListPlugin />
         <TabIndentationPlugin />
         <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST]} />
-        <OnChangePlugin onChange={handleChange} />
 
-        <FloatingToolbar />
-        <MentionTypeaheadPlugin adventureId={adventureId} />
+        {!readOnly && <OnChangePlugin onChange={handleChange} />}
+        {!readOnly && <FloatingToolbar />}
+        {!readOnly && <MentionTypeaheadPlugin adventureId={adventureId} />}
       </div>
     </LexicalComposer>
   );
