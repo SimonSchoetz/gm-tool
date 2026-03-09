@@ -18,7 +18,7 @@ export const StepSectionHeader = ({
   isFirst,
   isLast,
 }: Props) => {
-  const { steps, updateStep } = useSessionSteps(sessionId);
+  const { steps, updateStep, reorderSteps } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
   if (!step) return null;
@@ -47,11 +47,20 @@ export const StepSectionHeader = ({
         </button>
       )}
 
-      {/* Move buttons — wired in sub-feature 9 */}
-      <button className='step-move-btn' disabled={isFirst} title='Move up'>
+      <button
+        className='step-move-btn'
+        disabled={isFirst}
+        title='Move up'
+        onClick={() => reorderSteps(step.id, 'up')}
+      >
         ↑
       </button>
-      <button className='step-move-btn' disabled={isLast} title='Move down'>
+      <button
+        className='step-move-btn'
+        disabled={isLast}
+        title='Move down'
+        onClick={() => reorderSteps(step.id, 'down')}
+      >
         ↓
       </button>
 

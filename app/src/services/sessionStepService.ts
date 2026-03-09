@@ -14,6 +14,24 @@ export const updateStep = async (id: string, data: UpdateSessionStepInput): Prom
 export const deleteStep = async (id: string): Promise<void> =>
   sessionStepDb.remove(id);
 
+export const swapStepOrder = async (
+  sessionId: string,
+  stepId: string,
+  direction: 'up' | 'down',
+): Promise<void> => {
+  const steps = await sessionStepDb.getAllBySession(sessionId);
+  const index = steps.findIndex((s) => s.id === stepId);
+  if (index === -1) return;
+
+  const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
+  const adjacent = steps[adjacentIndex];
+  if (!adjacent) return;
+
+  const target = steps[index];
+  await sessionStepDb.update(target.id, { sort_order: adjacent.sort_order });
+  await sessionStepDb.update(adjacent.id, { sort_order: target.sort_order });
+};
+
 export const initDefaultSteps = async (sessionId: string): Promise<void> => {
   for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
     const step = LAZY_DM_STEPS[index];

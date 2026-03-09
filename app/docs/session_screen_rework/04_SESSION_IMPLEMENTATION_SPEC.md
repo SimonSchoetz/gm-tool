@@ -10,7 +10,7 @@
 - [x] Sub-feature 6: Lazy DM step sections — step section component with header, tooltip area, editor
 - [x] Sub-feature 7: Per-step tooltip toggle — tooltip visibility, per-step and global toggle
 - [x] Sub-feature 8: Step completion checkmarks — checkbox in header, persisted per-session
-- [ ] Sub-feature 9: Step rearrangement — move up/down via section header controls
+- [x] Sub-feature 9: Step rearrangement — move up/down via section header controls
 - [ ] Sub-feature 10: Step deletion — delete with confirmation dialog
 - [ ] Sub-feature 11: Add custom steps — add action from sidebar, scroll and focus
 - [ ] Sub-feature 12: Steps navigation sidebar — sidebar component, drag-and-drop, real-time sync

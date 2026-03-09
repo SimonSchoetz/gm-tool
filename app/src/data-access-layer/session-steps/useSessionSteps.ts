@@ -81,9 +81,26 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     await deleteMutation.mutateAsync(stepId);
   };
 
-  // Implemented in sub-feature 9
-  const reorderSteps = (_stepId: string, _direction: 'up' | 'down'): void => {
-    throw new Error('reorderSteps not yet implemented — see sub-feature 9');
+  const reorderSteps = (stepId: string, direction: 'up' | 'down'): void => {
+    queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
+      if (!old) return old;
+      const index = old.findIndex((s) => s.id === stepId);
+      if (index === -1) return old;
+      const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
+      const adjacent = old[adjacentIndex];
+      if (!adjacent) return old;
+      const targetSortOrder = old[index].sort_order;
+      const updated = old.map((s) => {
+        if (s.id === stepId) return { ...s, sort_order: adjacent.sort_order };
+        if (s.id === adjacent.id) return { ...s, sort_order: targetSortOrder };
+        return s;
+      });
+      return [...updated].sort((a, b) => a.sort_order - b.sort_order);
+    });
+
+    service.swapStepOrder(sessionId, stepId, direction).catch(() => {
+      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+    });
   };
 
   return { steps, loading, updateStep, createStep, deleteStep, reorderSteps };
