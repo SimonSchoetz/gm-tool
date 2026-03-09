@@ -18,7 +18,7 @@
 - [x] Sub-feature 14: In-Game session summary — editable summary editor at top of In-Game View
 - [x] Sub-feature 15: Session date picker and sort — date picker in header, sort sessions list by date
 - [x] Sub-feature 16: Lexical checkbox lists — checkbox list nodes, read-only interactivity
-- [ ] Sub-feature 17: Sessions list screen — rebuild SessionsScreen to follow NpcsScreen pattern with SortableList
+- [x] Sub-feature 17: Sessions list screen — rebuild SessionsScreen to follow NpcsScreen pattern with SortableList
 - [ ] Sub-feature 18: Header breadcrumbs — add sessions and session detail to breadcrumb logic
 
 ## Key Architectural Decisions
