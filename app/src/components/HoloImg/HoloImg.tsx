@@ -1,5 +1,5 @@
 import { FCProps, HtmlProps } from '@/types';
-import { CSSProperties, useRef } from 'react';
+import { useRef } from 'react';
 import { HoloFX, useTiltFX } from '../HoloFX';
 import { cn } from '@/util';
 

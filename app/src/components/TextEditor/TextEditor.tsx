@@ -11,20 +11,21 @@ import { MentionNode } from './nodes';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { UNORDERED_LIST, ORDERED_LIST } from '@lexical/markdown';
+import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown';
 import { FloatingToolbar } from './components';
-import { MentionTypeaheadPlugin } from './plugins';
+import { MentionTypeaheadPlugin, CheckboxReadOnlyPlugin } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { useState } from 'react';
 
 type Props = {
   value: string;
   textEditorId: string;
-  adventureId: string;
   placeholder?: string;
-  onChange: (value: string) => void;
+  readOnly?: boolean;
+  onChange?: (value: string) => void;
 };
 
 const theme: EditorThemeClasses = {
@@ -43,6 +44,9 @@ const theme: EditorThemeClasses = {
     ul: 'editor-list-ul',
     ol: 'editor-list-ol',
     listitem: 'editor-list-item',
+    listitemChecked: 'editor-listitem-checked',
+    listitemUnchecked: 'editor-listitem-unchecked',
+    checklist: 'editor-checklist',
     nested: {
       listitem: 'editor-nested-list-item',
     },
@@ -53,9 +57,9 @@ const theme: EditorThemeClasses = {
 export const TextEditor: FCProps<Props> = ({
   value,
   textEditorId,
-  adventureId,
   onChange,
   placeholder = 'Description...',
+  readOnly = false,
   ...props
 }) => {
   const [isFirstRender, setIsFirstRender] = useState(true);
@@ -63,9 +67,10 @@ export const TextEditor: FCProps<Props> = ({
   const initialConfig = {
     namespace: textEditorId,
     theme,
-    onError: (err: any) => console.error('Lexical error:', err),
+    onError: (err: Error) => console.error('Lexical error:', err),
     nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
     editorState: value || undefined,
+    editable: !readOnly,
   };
 
   const handleChange = (editorState: EditorState) => {
@@ -92,12 +97,14 @@ export const TextEditor: FCProps<Props> = ({
 
         <HistoryPlugin />
         <ListPlugin />
+        <CheckListPlugin />
         <TabIndentationPlugin />
-        <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST]} />
-        <OnChangePlugin onChange={handleChange} />
+        <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]} />
 
-        <FloatingToolbar />
-        <MentionTypeaheadPlugin adventureId={adventureId} />
+        {!readOnly && <OnChangePlugin onChange={handleChange} />}
+        {!readOnly && <FloatingToolbar />}
+        {!readOnly && <MentionTypeaheadPlugin />}
+        {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
     </LexicalComposer>
   );

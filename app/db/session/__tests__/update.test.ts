@@ -18,7 +18,7 @@ import { update } from '../update';
 describe('update', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
+    mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
   });
 
@@ -28,62 +28,37 @@ describe('update', () => {
 
   it('should update all provided fields', async () => {
     const updates: Partial<Session> = {
-      title: 'Updated Title',
+      name: 'Updated Name',
       description: 'Updated Description',
+      summary: 'Updated summary',
       session_date: '2025-10-14',
-      notes: 'Updated notes',
     };
-
-    mockExecute.mockResolvedValue({});
 
     await update('test-id-1', updates);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE sessions SET title = $1, description = $2, session_date = $3, notes = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5',
-      [
-        'Updated Title',
-        'Updated Description',
-        '2025-10-14',
-        'Updated notes',
-        'test-id-1',
-      ]
+      'UPDATE sessions SET name = $1, description = $2, summary = $3, session_date = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5',
+      ['Updated Name', 'Updated Description', 'Updated summary', '2025-10-14', 'test-id-1'],
     );
   });
 
   it('should update only provided fields', async () => {
     const updates: Partial<Session> = {
-      title: 'Updated Title Only',
+      name: 'New Name Only',
     };
-
-    mockExecute.mockResolvedValue({});
 
     await update('test-id-1', updates);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE sessions SET title = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      [
-        'Updated Title Only',
-        'test-id-1',
-      ]
+      'UPDATE sessions SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      ['New Name Only', 'test-id-1'],
     );
   });
 
   it('should throw error when id is invalid', async () => {
-    const updates: Partial<Session> = { title: 'Test' };
+    const updates: Partial<Session> = { name: 'Test' };
 
     await expect(update('', updates)).rejects.toThrow('Valid session ID is required');
     await expect(update('   ', updates)).rejects.toThrow('Valid session ID is required');
-  });
-
-  it('should throw error when title is empty string', async () => {
-    const updates: Partial<Session> = { title: '' };
-
-    await expect(update('test-id-1', updates)).rejects.toThrow('Session title cannot be empty');
-  });
-
-  it('should throw error when title is only whitespace', async () => {
-    const updates: Partial<Session> = { title: '   ' };
-
-    await expect(update('test-id-1', updates)).rejects.toThrow('Session title cannot be empty');
   });
 });

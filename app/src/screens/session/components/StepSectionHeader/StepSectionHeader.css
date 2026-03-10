@@ -1,0 +1,45 @@
+.step-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.step-checkbox {
+  flex-shrink: 0;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.step-name-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.step-tooltip-btn,
+.step-move-btn,
+.step-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+  padding: 4px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.step-tooltip-btn:hover,
+.step-move-btn:hover:not(:disabled),
+.step-delete-btn:hover {
+  opacity: 1;
+}
+
+.step-move-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+}

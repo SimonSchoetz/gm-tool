@@ -1,4 +1,4 @@
 export const sessionKeys = {
-  list: () => ['sessions'] as const,
+  list: (adventureId: string) => ['sessions', adventureId] as const,
   detail: (sessionId: string) => ['session', sessionId] as const,
 };

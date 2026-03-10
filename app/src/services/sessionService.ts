@@ -1,24 +1,58 @@
 import * as sessionDb from '@db/session';
 import type { Session, CreateSessionInput, UpdateSessionInput } from '@db/session';
+import * as sessionStepService from './sessionStepService';
+import {
+  SessionNotFoundError,
+  SessionLoadError,
+  SessionCreateError,
+  SessionUpdateError,
+  SessionDeleteError,
+} from '@/domain/sessions';
 
-export const getAllSessions = async (): Promise<Session[]> => {
-  const result = await sessionDb.getAll();
-  return result.data;
+export const getAllSessions = async (adventureId: string): Promise<Session[]> => {
+  try {
+    return await sessionDb.getAll(adventureId);
+  } catch (err) {
+    throw new SessionLoadError(err);
+  }
 };
 
 export const getSessionById = async (id: string): Promise<Session> => {
-  const session = await sessionDb.get(id);
-  if (!session) throw new Error(`Session not found: ${id}`);
-  return session;
+  try {
+    const session = await sessionDb.get(id);
+    if (!session) throw new SessionNotFoundError(id);
+    return session;
+  } catch (err) {
+    if (err instanceof SessionNotFoundError) throw err;
+    throw new SessionLoadError(err);
+  }
 };
 
-export const createSession = async (data: CreateSessionInput): Promise<string> =>
-  sessionDb.create(data);
+export const createSession = async (data: CreateSessionInput): Promise<string> => {
+  try {
+    const newSessionId = await sessionDb.create({
+      name: 'New Session',
+      ...data,
+    });
+    await sessionStepService.initDefaultSteps(newSessionId);
+    return newSessionId;
+  } catch (err) {
+    throw new SessionCreateError(err);
+  }
+};
 
 export const updateSession = async (id: string, data: UpdateSessionInput): Promise<void> => {
-  await sessionDb.update(id, data);
+  try {
+    await sessionDb.update(id, data);
+  } catch (err) {
+    throw new SessionUpdateError(id, err);
+  }
 };
 
 export const deleteSession = async (id: string): Promise<void> => {
-  await sessionDb.remove(id);
+  try {
+    await sessionDb.remove(id);
+  } catch (err) {
+    throw new SessionDeleteError(id, err);
+  }
 };

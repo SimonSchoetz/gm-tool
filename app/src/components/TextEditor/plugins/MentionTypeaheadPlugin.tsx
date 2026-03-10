@@ -7,6 +7,7 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { TextNode } from 'lexical';
+import { useParams } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@/services/mentionSearchService';
 import type { MentionSearchResult } from '@/services/mentionSearchService';
@@ -24,12 +25,9 @@ class MentionMenuOption extends MenuOption {
   }
 }
 
-type Props = {
-  adventureId: string;
-};
-
-export const MentionTypeaheadPlugin = ({ adventureId }: Props) => {
+export const MentionTypeaheadPlugin = () => {
   const [editor] = useLexicalComposerContext();
+  const { adventureId = '' } = useParams({ strict: false });
   const { tableConfigs } = useTableConfigs();
   const [options, setOptions] = useState<MentionMenuOption[]>([]);
 

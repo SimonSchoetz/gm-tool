@@ -79,3 +79,54 @@
 .editor-nested-list-item {
   list-style-type: none;
 }
+
+/*
+    Checklist styles
+*/
+
+.editor-checklist {
+  list-style: none;
+  padding-left: var(--spacing-lg);
+}
+
+.editor-listitem-checked,
+.editor-listitem-unchecked {
+  position: relative;
+  list-style-type: none;
+  padding-left: 1.75rem;
+  cursor: default;
+}
+
+.editor-listitem-checked::before,
+.editor-listitem-unchecked::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-text-muted, #888);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.editor-listitem-checked::before {
+  background: var(--color-accent, #51cf66);
+  border-color: var(--color-accent, #51cf66);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z'/%3E%3C/svg%3E");
+  background-size: 0.75rem;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.editor-listitem-checked > span,
+.editor-listitem-unchecked > span {
+  opacity: 1;
+}
+
+.editor-listitem-checked > span {
+  opacity: 0.5;
+  text-decoration: line-through;
+}

@@ -2,22 +2,24 @@
 
 ## Progress Tracker
 
-- [ ] Sub-feature 1: Typed layout helper — generic type that constrains table_config column references at compile time
-- [ ] Sub-feature 2: Apply typed layouts to seed — type each seed entry against its domain type
-- [ ] Sub-feature 3: Sessions table cleanup — rename title to name, add summary column, filter by adventure
-- [ ] Sub-feature 4: Session steps data model — new table, DB CRUD, service, DAL, template init
-- [ ] Sub-feature 5: Session screen and view toggle — routes, screen shell, prep/in-game toggle
-- [ ] Sub-feature 6: Lazy DM step sections — step section component with header, tooltip area, editor
-- [ ] Sub-feature 7: Per-step tooltip toggle — tooltip visibility, per-step and global toggle
-- [ ] Sub-feature 8: Step completion checkmarks — checkbox in header, persisted per-session
-- [ ] Sub-feature 9: Step rearrangement — move up/down via section header controls
-- [ ] Sub-feature 10: Step deletion — delete with confirmation dialog
-- [ ] Sub-feature 11: Add custom steps — add action from sidebar, scroll and focus
-- [ ] Sub-feature 12: Steps navigation sidebar — sidebar component, drag-and-drop, real-time sync
-- [ ] Sub-feature 13: In-Game read-only view — read-only step content, interactive checkboxes
-- [ ] Sub-feature 14: In-Game session summary — editable summary editor at top of In-Game View
-- [ ] Sub-feature 15: Session date picker and sort — date picker in header, sort sessions list by date
-- [ ] Sub-feature 16: Lexical checkbox lists — checkbox list nodes, read-only interactivity
+- [x] Sub-feature 1: Typed layout helper — generic type that constrains table_config column references at compile time
+- [x] Sub-feature 2: Apply typed layouts to seed — type each seed entry against its domain type
+- [x] Sub-feature 3: Sessions table cleanup — rename title to name, add summary column, filter by adventure
+- [x] Sub-feature 4: Session steps data model — new table, DB CRUD, service, DAL, template init
+- [x] Sub-feature 5: Session screen and view toggle — routes, screen shell, prep/in-game toggle
+- [x] Sub-feature 6: Lazy DM step sections — step section component with header, tooltip area, editor
+- [x] Sub-feature 7: Per-step tooltip toggle — tooltip visibility, per-step and global toggle
+- [x] Sub-feature 8: Step completion checkmarks — checkbox in header, persisted per-session
+- [x] Sub-feature 9: Step rearrangement — move up/down via section header controls
+- [x] Sub-feature 10: Step deletion — delete with confirmation dialog
+- [x] Sub-feature 11: Add custom steps — add action from sidebar, scroll and focus
+- [x] Sub-feature 12: Steps navigation sidebar — sidebar component, drag-and-drop, real-time sync
+- [x] Sub-feature 13: In-Game read-only view — read-only step content, interactive checkboxes
+- [x] Sub-feature 14: In-Game session summary — editable summary editor at top of In-Game View
+- [x] Sub-feature 15: Session date picker and sort — date picker in header, sort sessions list by date
+- [x] Sub-feature 16: Lexical checkbox lists — checkbox list nodes, read-only interactivity
+- [x] Sub-feature 17: Sessions list screen — rebuild SessionsScreen to follow NpcsScreen pattern with SortableList
+- [x] Sub-feature 18: Header breadcrumbs — add sessions and session detail to breadcrumb logic
 
 ## Key Architectural Decisions
 
@@ -1075,6 +1077,111 @@ The implementer must research the installed Lexical version's API to determine t
 Alternative approaches may exist (DOM event interception, partial editability). Research first, implement second. Do not guess at the Lexical API — fetch the docs for the installed version.
 
 **Scope**: Applies to all `TextEditor` instances — prep step editors and the in-game summary editor.
+
+---
+
+## Sub-feature 17: Sessions list screen
+
+Rebuilds `SessionsScreen` to follow the established `NpcsScreen` pattern — `SortableList`, table config integration, row navigation, and session creation.
+
+### Files affected
+
+**Modified:**
+- `src/screens/sessions/SessionsScreen.tsx`
+
+**Deleted:**
+- `src/screens/sessions/components/SessionList.tsx`
+- `src/screens/sessions/components/SessionList.css`
+- `src/screens/sessions/components/index.ts`
+- `src/screens/sessions/components/` directory (empty after deletions)
+
+### Frontend
+
+**`screens/sessions/SessionsScreen.tsx`** — rewrite to match `NpcsScreen` pattern:
+
+- Add imports:
+  - `useRouter` from `@tanstack/react-router`
+  - `useTableConfigs` from `@/data-access-layer` (add to existing `useSessions` import)
+  - `SortableList` from `@/components`
+  - `Session` type from `@db/session`
+  - `Routes` from `@/routes` (already imported)
+- Remove import of `SessionList` from `./components`
+- Call `useRouter()` for navigation
+- Call `useTableConfigs()` alongside existing `useSessions(adventureId)`
+- Find sessions table config: `tableConfigs.find((c) => c.table_name === 'sessions')`
+- Loading state: show loading if `loading || configsLoading || !sessionsTableConfig`
+  - Use `<div className='content-center'>Loading...</div>` (matches `NpcsScreen` pattern)
+- Create `handleSessionCreation` async function:
+  - Destructure `createSession` from `useSessions(adventureId)`
+  - Call `createSession({ adventure_id: adventureId })`, capture returned `newSessionId`
+  - Navigate to `/${Routes.ADVENTURE}/${adventureId}/${Routes.SESSION}/${newSessionId}`
+- Render `SortableList<Session>` with:
+  - `tableConfigId`: `sessionsTableConfig.id`
+  - `items`: `sessions`
+  - `onRowClick`: `(session) => router.navigate({ to: \`/${Routes.ADVENTURE}/${adventureId}/${Routes.SESSION}/${session.id}\` })`
+  - `onCreateNew`: `handleSessionCreation`
+  - `searchPlaceholder`: `'e.g. "session name, description"'`
+
+**Reference**: `NpcsScreen.tsx` is the exact pattern to follow. The sessions version is structurally identical — only the domain type (`Session` instead of `Npc`), hook (`useSessions` instead of `useNpcs`), config table name (`'sessions'` instead of `'npcs'`), route segments (`Routes.SESSION` instead of `Routes.NPC`), and search placeholder text differ.
+
+**Delete `screens/sessions/components/`**: Remove `SessionList.tsx`, `SessionList.css`, and `index.ts`. The `components/` directory should be deleted entirely — `SessionList` was its only content, and `SortableList` fully replaces it.
+
+---
+
+## Sub-feature 18: Header breadcrumbs
+
+Adds sessions routes to the global header breadcrumb logic so navigating to sessions or a session detail screen shows the full breadcrumb path.
+
+### Files affected
+
+**Modified:**
+- `src/components/Header/Header.tsx`
+
+### Frontend
+
+**`components/Header/Header.tsx`**:
+
+Add `sessionId` extraction (same pattern as existing `npcId` extraction):
+
+```typescript
+const sessionIdMatch = router.location.href.match(/\/session\/([^\/]+)/);
+const sessionId = sessionIdMatch ? sessionIdMatch[1] : '';
+```
+
+Import `useSession` from `@/data-access-layer` — add to the existing import statement that already imports `useAdventure, useNpc`:
+
+```typescript
+import { useAdventure, useNpc, useSession } from '@/data-access-layer';
+```
+
+Call `useSession(sessionId)` — destructure `{ session }` (same pattern as existing `useNpc(npcId)`):
+
+```typescript
+const { session } = useSession(sessionId);
+```
+
+Update `getRouteLevel1()` — add sessions check alongside the existing NPCs check:
+
+```typescript
+if (
+  router.location.href.includes(Routes.SESSIONS) ||
+  router.location.href.includes(`/${Routes.SESSION}/`)
+) {
+  return ' > Sessions';
+}
+```
+
+Update `getRouteLevel2()` — add session detail check alongside the existing NPC detail check:
+
+```typescript
+if (router.location.href.includes(`/${Routes.SESSION}/`)) {
+  return ` > ${session?.name ?? 'Loading...'}`;
+}
+```
+
+**Expected breadcrumb output**:
+- Sessions list: `{AdventureName} > Sessions`
+- Session detail: `{AdventureName} > Sessions > {SessionName}`
 
 ---
 

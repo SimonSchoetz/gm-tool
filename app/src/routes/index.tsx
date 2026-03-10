@@ -6,6 +6,8 @@ export enum Routes {
   ADVENTURE = 'adventure',
   NPCS = 'npcs',
   NPC = 'npc',
+  SESSIONS = 'sessions',
+  SESSION = 'session',
   SETTINGS = 'settings',
 }
 

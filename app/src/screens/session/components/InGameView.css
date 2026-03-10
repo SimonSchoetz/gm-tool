@@ -1,0 +1,50 @@
+.in-game-view {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.in-game-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.in-game-summary {
+  height: 180px;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.in-game-steps {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.in-game-step-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.in-game-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.in-game-step-checkbox {
+  flex-shrink: 0;
+}
+
+.in-game-step-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}

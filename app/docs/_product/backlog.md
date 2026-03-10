@@ -10,6 +10,7 @@
   - Feature: Pin-to-foreground functionality
 - Feature: Image detail vs reupload
 - Feature: Image Drag&Drop
+- Feature: Pin favorites in list screens and make them orderable via drag&drop
 
 ### Vertical Build
 
