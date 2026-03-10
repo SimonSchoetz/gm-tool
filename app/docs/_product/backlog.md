@@ -11,6 +11,7 @@
 - Feature: Image detail vs reupload
 - Feature: Image Drag&Drop
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
+- Feature: Random Tables
 
 ### Vertical Build
 

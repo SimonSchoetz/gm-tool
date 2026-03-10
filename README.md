@@ -18,9 +18,10 @@ Make GMing easy with an opinionated data framework and intuitive UI that guides 
 
 ### Closed Beta: Create features based on my personal preferences
 
-- [x] List and detail screens
+- [x] List and detail screens general concept
 - [x] tagging/mentioning
 - [ ] "Lazy DM" session prep steps
+- [ ] All necessary screens to build sessions (PCs, Factions, ect.)
 - [ ] summary pop-up
 - [ ] random tables
 - [ ] data export as document (markdown and/or pdf)
@@ -28,9 +29,9 @@ Make GMing easy with an opinionated data framework and intuitive UI that guides 
 
 Ongoing: Fine-tune Claude
 
-### Open Beta: Approach the community and continue building 
+### Open Beta: Approach the community and continue building
 
-- [ ] communication channels
+- [ ] establish communication and collaboration channels
 - [ ] collaboration guidelines
 - [ ] continuous development based on community feedback
 - [ ] GM-Tool homepage?
@@ -38,5 +39,5 @@ Ongoing: Fine-tune Claude
 ### Release
 
 - [ ] distribution/automated update process
-- [ ] Stabil and secure on all platforms
+- [ ] Stable and secure on all platforms
 - [ ] synchronization between multiple devices
