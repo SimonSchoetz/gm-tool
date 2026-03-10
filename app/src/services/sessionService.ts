@@ -30,7 +30,10 @@ export const getSessionById = async (id: string): Promise<Session> => {
 
 export const createSession = async (data: CreateSessionInput): Promise<string> => {
   try {
-    const newSessionId = await sessionDb.create(data);
+    const newSessionId = await sessionDb.create({
+      name: 'New Session',
+      ...data,
+    });
     await sessionStepService.initDefaultSteps(newSessionId);
     return newSessionId;
   } catch (err) {
