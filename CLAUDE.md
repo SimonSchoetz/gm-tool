@@ -46,6 +46,29 @@ npm run dev                # Local Tauri environment
 npm run web                # Vite only in browser
 ```
 
+### Git Conventions
+
+#### Branch naming
+
+Always use `<type>/<branch-name>` format:
+- `feat/session-screen-rework`
+- `refactor/tanstack-query`
+- `fix/session-name-nullable`
+
+#### Commit messages
+
+Always use Conventional Commits with scope required:
+
+```
+<type>(<scope>): <description>
+```
+
+- Scope is required and must exactly mirror the branch name — if the branch is `feat/session-screen-rework`, every commit on that branch uses `feat(session-screen-rework): <description>`
+- Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`, `perf`
+- Branch types and commit types share the same vocabulary — use the same word in both
+- Never include a `Co-Authored-By` line, Claude signature, or any attribution in the commit message or body
+- Body is permitted only when it adds information that the subject line cannot convey (e.g. why a non-obvious decision was made)
+
 ### Code styles and convention
 
 #### Coding style
@@ -119,6 +142,13 @@ Never assume training knowledge is current for third-party libraries. Before sug
 3. If documentation is ambiguous or unavailable, ask before proceeding
 
 This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and Drizzle.
+
+To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
+
+### Tool Use Discipline
+
+- **Always Read a file before editing it in the current context window.** Treat any prior read state as lost after context compaction — do not assume a file read earlier in the session is still accurate. Re-read before editing.
+- **Run `npx tsc` once per sub-feature, not after every individual file edit.** Type-check after all files for a sub-feature are written, immediately before marking that sub-feature complete. Running it after every file wastes round-trips and produces noise from intentionally incomplete intermediate states.
 
 #### File Organization
 

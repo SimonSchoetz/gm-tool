@@ -22,6 +22,10 @@ boundaries. You own the details that would trip up an implementing instance:
 - Query/DB specifics: ordering, limits, parameters — never leave these implicit
 - Prop names and signatures consistent with existing patterns
 - Edge cases the architecture implies but doesn't state
+- For every third-party library the feature uses: the exact type declaration file
+  path (e.g. `node_modules/@dnd-kit/core/dist/index.d.ts`); the implementing
+  instance must Read that file for API verification — never use `node -e` or
+  runtime introspection
 
 ## What You Do NOT Own
 
@@ -64,6 +68,9 @@ A complete spec file ready to save and hand to a fresh Claude instance.
 - Every file in the implementation must appear in a file list — including barrel
   files, index files, and type files
 - Never use "or", "if needed", or "may" for implementation details — resolve them
+- When the spec is expected to exceed ~400 lines, use the split format (root index
+  file + per-sub-feature files) as defined in `app/docs/CLAUDE.md`; decide at
+  authoring time — do not write a single file and split post-hoc
 
 ## Behavior Rules
 
