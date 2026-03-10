@@ -115,7 +115,7 @@ const runMigrations = async (database: Database) => {
     // Remove NOT NULL constraint from sessions.name (inherited from title rename).
     // SQLite requires table recreation to drop a NOT NULL constraint.
     const sessionNameConstraint = await database.select<{ notnull: number }[]>(
-      "SELECT notnull FROM pragma_table_info('sessions') WHERE name = 'name'",
+      "SELECT \"notnull\" FROM pragma_table_info('sessions') WHERE name = 'name'",
     );
     if (sessionNameConstraint.length > 0 && sessionNameConstraint[0].notnull === 1) {
       await database.execute('PRAGMA foreign_keys = OFF');
