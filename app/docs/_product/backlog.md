@@ -4,6 +4,11 @@
 
 ### Horizontal Build
 
+- Refactor: Error Handling
+- Refactor: Enums to types
+- Fix: Claude's Frontend Implementation
+- Fix: Claude's .md formatting vs lint rules
+- Fix: Claude's output adding stuff like "Good question"
 - Feature: Session Screens
   - Sub-Feature: Lazy DM Steps
 - Feature: Summary Popup
@@ -12,12 +17,6 @@
 - Feature: Image Drag&Drop
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: Random Tables
-- Fix: Tests
-- Refactor: Error Handling
-- Refactor: Enums to types
-- Fix: Claude's Frontend Implementation
-- Fix: Claude's .md formatting vs lint rules
-- Fix: Claude's output adding stuff like "Good question"
 
 ### Vertical Build
 
@@ -33,3 +32,4 @@
 ### Done
 
 - Feature: Automated commit message generation from branch name
+- Fix: Tests
