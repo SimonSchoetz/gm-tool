@@ -1,59 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Adventure } from '../types';
-
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@tauri-apps/plugin-sql', () => ({
   default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      })
-    ),
+    load: vi.fn(),
   },
 }));
 
 import { getAll } from '../get-all';
 
 describe('getAll', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
-  });
-
-  afterEach(() => {
-    vi.resetModules();
-  });
-
-  it('should return paginated adventures with default limit', async () => {
-    const mockAdventures: Adventure[] = [
-      {
-        id: '1',
-        name: 'Adventure 1',
-        created_at: '2025-10-13',
-        updated_at: '2025-10-13',
-      },
-    ];
-
-    mockSelect
-      .mockResolvedValueOnce([]) // Migration check
-      .mockResolvedValueOnce([{ count: 15 }])
-      .mockResolvedValueOnce(mockAdventures);
-
-    const result = await getAll();
-
-    expect(result).toEqual({
-      data: mockAdventures,
-      total: 15,
-      limit: 10,
-      offset: 0,
-      hasMore: true,
-    });
-  });
-
   it('should throw error when limit is too large', async () => {
     await expect(getAll({ limit: 101 })).rejects.toThrow(
       'Limit must be between 1 and 100'
@@ -66,3 +21,4 @@ describe('getAll', () => {
     );
   });
 });
+

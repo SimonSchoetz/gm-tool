@@ -89,7 +89,7 @@ const runMigrations = async (database: Database) => {
     const sessionsConfig = await database.select<{ id: string; layout: string }[]>(
       "SELECT id, layout FROM table_config WHERE table_name = 'sessions'",
     );
-    if (sessionsConfig.length > 0) {
+    if (sessionsConfig.length > 0 && sessionsConfig[0].layout != null) {
       const layout = JSON.parse(sessionsConfig[0].layout);
       if (layout.searchable_columns?.includes('notes')) {
         layout.searchable_columns = layout.searchable_columns.filter(
@@ -144,7 +144,7 @@ const runMigrations = async (database: Database) => {
     const sessionsConfigForDate = await database.select<{ id: string; layout: string }[]>(
       "SELECT id, layout FROM table_config WHERE table_name = 'sessions'",
     );
-    if (sessionsConfigForDate.length > 0) {
+    if (sessionsConfigForDate.length > 0 && sessionsConfigForDate[0].layout != null) {
       const layout = JSON.parse(sessionsConfigForDate[0].layout);
       const hasSessionDate = layout.columns?.some(
         (col: { key: string }) => col.key === 'session_date',
@@ -201,9 +201,8 @@ export const initDatabase = async () => {
       await runMigrations(database);
 
       // Seed table_config with defaults
-      await seedTableConfig(database);
-
       db = database;
+      await seedTableConfig(database);
       return database;
     } catch (error) {
       console.error('Database initialization failed:', error);
