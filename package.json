@@ -15,5 +15,11 @@
     "test": "cd app && npm run test",
     "dev": "cd app && npm run dev",
     "web": "cd app && npm run web"
+  },
+  "devDependencies": {
+    "simple-git-hooks": "latest"
+  },
+  "simple-git-hooks": {
+    "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2"
   }
 }
