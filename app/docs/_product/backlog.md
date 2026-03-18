@@ -12,7 +12,6 @@
 - Feature: Image Drag&Drop
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: Random Tables
-- Feature: Automated commit message generation from branch name
 - Fix: Tests
 - Refactor: Error Handling
 - Refactor: Enums to types
@@ -32,3 +31,5 @@
 ---
 
 ### Done
+
+- Feature: Automated commit message generation from branch name

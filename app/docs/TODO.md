@@ -1,7 +1,3 @@
-# git message precommit hook
-
-we agreed on a commit message format. My muscle memory is good in making the branch names but not so much when it comes to commit messages following the format. I wnat a precommit hook that changes the commit message so it uses the branch name and distills it into the commit message format so the message only have to type is the description
-
 # fix tests
 
 Test Failure Review
