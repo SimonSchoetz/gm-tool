@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Exit immediately for merge, squash, or amend commits — no mutation
+case "$2" in
+  merge|squash|commit) exit 0 ;;
+esac
+
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+# Exit for detached HEAD, main, or master
+case "$BRANCH" in
+  ''|main|master) exit 0 ;;
+esac
+
+MSG=$(cat "$1")
+
+# Exit if message already has conventional commit format: type(scope):
+case "$MSG" in
+  *\(*\):*) exit 0 ;;
+esac
+
+# Check if branch matches <type>/<scope> pattern
+case "$BRANCH" in
+  [a-zA-Z]*/*)
+    TYPE=${BRANCH%%/*}
+    SCOPE=${BRANCH#*/}
+    printf '%s(%s): %s' "$TYPE" "$SCOPE" "$MSG" > "$1"
+    ;;
+esac
+
+exit 0
