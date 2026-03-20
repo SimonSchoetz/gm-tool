@@ -18,7 +18,7 @@ export const getAllSessions = async (adventureId: string): Promise<Session[]> =>
 };
 
 export const getSessionById = async (id: string): Promise<Session> => {
-  let session: Session | null | undefined;
+  let session: Session | null = null;
   try {
     session = await sessionDb.get(id);
   } catch (err) {
