@@ -4,7 +4,6 @@
 
 ### Horizontal Build
 
-- Refactor: Error Handling
 - Refactor: Enums to types
 - Fix: Claude's Frontend Implementation
 - Fix: Claude's .md formatting vs lint rules
@@ -31,5 +30,6 @@
 
 ### Done
 
+- Refactor: Error Handling
 - Feature: Automated commit message generation from branch name
 - Fix: Tests

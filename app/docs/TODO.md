@@ -1,55 +1,3 @@
-# error handling
-
-here is a another violation flagged after the error handling was added:
-V1 — Error classes use class syntax in errors.ts files
-app/src/domain/sessions/errors.ts lines 1–41 app/src/domain/session-steps/errors.ts lines 1–41
-Rule: "Classes are permitted only where a third-party framework API requires inheritance — e.g., Lexical node types… Do not introduce classes for any other reason." Error is a JS built-in, not a third-party framework API, and is not in the listed exceptions.
-The class-free alternative using factory functions:
-export type SessionLoadError = Error & { name: 'SessionLoadError' }; export const sessionLoadError = (cause?: unknown): SessionLoadError => { const error = new Error(Failed to load sessions: ${cause}) as SessionLoadError; error.name = 'SessionLoadError'; return error; };
-This pattern satisfies "types over interfaces" for the type side and "arrow functions only" for the factory side. The tradeoff: instanceof checks stop working — but since throwOnError: true routes all errors to Error Boundaries (which don't use instanceof), this is not a practical loss. Verify no instanceof check exists in the codebase before applying.
-Note: this is also a /refine-instructions candidate — CLAUDE.md should explicitly list Error subclassing in the exceptions or endorse the factory pattern to prevent this recurring. [INSTRUCTION GAP]
-
-whats your take on this?
-
-Show less
-
-The reviewer is technically right — extends Error is class inheritance, and Error is a language built-in, not a third-party framework API. The rule's exception list doesn't cover it.
-
-But the real question is: which pattern is actually better for this project?
-
-Factory pattern wins here. Not because "classes are bad" in the abstract, but because of how this specific codebase handles errors:
-
-throwOnError: true on all queries → errors go straight to the Error Boundary
-The Error Boundary renders a generic fallback — it doesn't discriminate by error type
-No instanceof checks exist anywhere in the codebase
-The typed error name (SessionLoadError) is for logging/debugging, not for branching logic
-Given all that, the factory pattern costs you nothing (instanceof you'll never use) and stays consistent with the project's posture (types + arrow functions, no class keyword). The as cast is safe because you immediately set name to match the narrowed type — it's a construction pattern, not a lie.
-
-This is a /refine-instructions candidate. The rule needs to either:
-
-Add Error subclassing to the exceptions list, or
-Endorse the factory pattern as the error creation approach
-I'd recommend the latter — it resolves the ambiguity permanently and is consistent with "types over interfaces" + "arrow functions only." Brief for /refine-instructions:
-
-File: Root CLAUDE.md, under "Coding style"
-
-Instruction gap: The "no classes" rule doesn't address Error subclassing. Implementers default to class MyError extends Error (standard JS idiom), which violates the rule. This has now occurred twice (sessions, session-steps).
-
-Proposed addition (after the classes rule):
-
-Error types use factory functions, not classes: Create typed errors with a factory function + type narrowing instead of class extends Error. This aligns with "types over interfaces" and "arrow functions only." instanceof is not used in this codebase — all errors route to the Error Boundary via throwOnError: true.
-
-// ✅ GOOD
-export type SessionLoadError = Error & { name: 'SessionLoadError' };
-export const sessionLoadError = (cause?: unknown): SessionLoadError => {
-const error = new Error(`Failed to load sessions: ${cause}`) as SessionLoadError;
-error.name = 'SessionLoadError';
-return error;
-};
-
-// ❌ BAD
-export class SessionLoadError extends Error { ... }
-
 # enums
 
 V5 — enum Routes compiles to a class-like construct app/src/routes/index.tsx Rule: "Classes are permitted only where a third-party framework API requires inheritance." TypeScript enum compiles to a mutable IIFE — it is not a plain type. CLAUDE.md says types over interfaces, no classes. Fix:
@@ -107,3 +55,5 @@ Every .css line I write is production code, subject to the same conventions as T
 # .md lint vs claude formatting
 
 Claude does different formatting than my linter - I want to sync that
+
+# Claude should stop useless affirmations like "good question"
