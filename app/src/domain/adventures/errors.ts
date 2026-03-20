@@ -32,10 +32,3 @@ export const adventureDeleteError = (id: string, cause?: unknown): AdventureDele
   error.name = 'AdventureDeleteError';
   return error;
 };
-
-export type DatabaseInitError = Error & { name: 'DatabaseInitError' };
-export const databaseInitError = (cause?: unknown): DatabaseInitError => {
-  const error = new Error(`Failed to initialize database: ${cause}`) as DatabaseInitError;
-  error.name = 'DatabaseInitError';
-  return error;
-};
