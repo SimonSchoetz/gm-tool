@@ -63,5 +63,7 @@ coordinator may apply approved changes directly or instruct teammates
 to apply them — but what gets changed and why is always determined by
 the teammates, never by the coordinator acting alone.
 After changes are applied, keep both teammates alive and explicitly invite the
-user to review the result and ask follow-up questions. Only shut teammates down
-once the user confirms they are satisfied.
+user to review the result and ask follow-up questions. Once the user confirms
+they are satisfied — or ends the session without further requests — shut down
+all spawned teammates before closing. Do not leave teammates running at session
+end under any circumstance.
