@@ -4,16 +4,16 @@ import type {
   UpdateTableConfigInput,
 } from '@db/table-config';
 import {
-  TableConfigNotFoundError,
-  TableConfigLoadError,
-  TableConfigUpdateError,
+  tableConfigNotFoundError,
+  tableConfigLoadError,
+  tableConfigUpdateError,
 } from '@/domain/table-config';
 
 export const getAllTableConfigs = async (): Promise<TableConfig[]> => {
   try {
     return await tableConfigDb.getAll();
   } catch (err) {
-    throw new TableConfigLoadError(err);
+    throw tableConfigLoadError(err);
   }
 };
 
@@ -21,7 +21,7 @@ export const getTableConfigById = async (id: string): Promise<TableConfig> => {
   const config = await tableConfigDb.get(id);
 
   if (!config) {
-    throw new TableConfigNotFoundError(id);
+    throw tableConfigNotFoundError(id);
   }
 
   return config;
@@ -34,6 +34,6 @@ export const updateTableConfig = async (
   try {
     await tableConfigDb.update(id, data);
   } catch (err) {
-    throw new TableConfigUpdateError(id, err);
+    throw tableConfigUpdateError(id, err);
   }
 };
