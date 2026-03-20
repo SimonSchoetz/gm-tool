@@ -2,11 +2,11 @@ import * as npcDb from '@db/npc';
 import * as imageService from '@/services/imageService';
 import type { Npc, CreateNpcInput, UpdateNpcInput } from '@db/npc';
 import {
-  NpcNotFoundError,
-  NpcLoadError,
-  NpcCreateError,
-  NpcUpdateError,
-  NpcDeleteError,
+  npcNotFoundError,
+  npcLoadError,
+  npcCreateError,
+  npcUpdateError,
+  npcDeleteError,
 } from '@/domain/npcs';
 import { getDateTimeString } from '@/util';
 
@@ -18,7 +18,7 @@ export const getAllNpcs = async (adventureId: string): Promise<Npc[]> => {
   try {
     return await npcDb.getAll(adventureId);
   } catch (err) {
-    throw new NpcLoadError(err);
+    throw npcLoadError(err);
   }
 };
 
@@ -26,7 +26,7 @@ export const getNpcById = async (id: string): Promise<Npc> => {
   const npc = await npcDb.get(id);
 
   if (!npc) {
-    throw new NpcNotFoundError(id);
+    throw npcNotFoundError(id);
   }
 
   return npc;
@@ -41,7 +41,7 @@ export const createNpc = async (adventureId: string): Promise<string> => {
 
     return await npcDb.create(dto);
   } catch (err) {
-    throw new NpcCreateError(err);
+    throw npcCreateError(err);
   }
 };
 
@@ -70,7 +70,7 @@ export const updateNpc = async (
 
     await npcDb.update(id, dto);
   } catch (err) {
-    throw new NpcUpdateError(id, err);
+    throw npcUpdateError(id, err);
   }
 };
 
@@ -84,6 +84,6 @@ export const deleteNpc = async (id: string, npc?: Npc): Promise<void> => {
 
     await npcDb.remove(id);
   } catch (err) {
-    throw new NpcDeleteError(id, err);
+    throw npcDeleteError(id, err);
   }
 };
