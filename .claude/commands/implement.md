@@ -35,7 +35,7 @@ After all sub-features are committed:
 2. Apply every ❌ Violation from the review. Do not skip or defer any item. Apply the same invariants from this file to the fixes.
 3. Run `npx tsc --noEmit` again. Resolve every error.
 4. Commit all fixes in a single commit: `fix(<branch>): address review violations`.
-5. Open a PR: `gh pr create --base main --fill`. If this fails due to missing permissions, emit the exact command the user needs to run manually and proceed to step 6.
+5. Open a PR: `gh pr create --base main --title "$(git branch --show-current)" --body ""`. If this fails due to missing permissions, emit the exact command the user needs to run manually and proceed to step 6.
 6. Produce a friction summary and pass it to `/refine-claude`. The summary must cover:
    - Any rule that was unclear or missing (instruction gaps surfaced during the session)
    - Any agent behavior that was unexpected or incorrect
