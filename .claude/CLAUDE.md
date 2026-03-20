@@ -16,6 +16,13 @@ Input: Description of what an agent did wrong, or a structural change that made 
 Output: Gap analysis, proposed file changes with before/after, asks for approval before applying
 Constraints: No wholesale rewrites; never modifies CLAUDE.md convention files (that is refine-instructions's domain); reads the actual file before proposing any change
 
+### review-code
+
+Intent: Independent quality gate against current CLAUDE.md
+Input: Files, a branch name, or a git diff
+Output: Violations, concerns, what's solid
+Constraints: Treats CLAUDE.md as non-negotiable, no awareness of upstream changes; never modifies files — read-only role
+
 ## commands
 
 ### /arch-review
@@ -25,24 +32,17 @@ Input: A decision + the rule that drove it + gut feeling
 Output: Verdict with ready-to-paste briefs for downstream agents
 Constraints: Never validates without challenging first
 
-### /review-code
+### /implement
 
-Intent: Independent quality gate against current CLAUDE.md
-Input: Files or git diff
-Output: Violations, concerns, what's solid
-Constraints: Treats CLAUDE.md as non-negotiable, no awareness of upstream changes
-
-### /refactor
-
-Intent: Execute refactoring steps under strict invariants for pacing, cleanup, and behavioral decisions
-Input: A refactoring task or review output
-Output: Step-by-step changes with confirmation gates between each step
-Constraints: Behavioral invariants (pacing, cleanup, hooks) are non-negotiable and cannot be overridden mid-session; CLAUDE.md conventions apply to every file created or modified during refactoring — not only to new files
+Intent: Implement a full feature from a spec file — sequential sub-features, commit at each boundary, then review → fix → PR → retrospective pipeline
+Input: A spec file path
+Output: Committed implementation across all sub-features, a PR, and a /refine-claude invocation summarising session friction
+Constraints: Behavioral invariants (pacing, cleanup, hooks, type derivation) are non-negotiable and cannot be overridden mid-session; review-code is invoked once after all sub-features complete, not between sub-features; ⚠️ Concerns are surfaced to the user before fixes are committed; covers both new feature work and refactoring passes — the distinction does not change how steps are executed
 
 ### /refine-claude
 
 Intent: Coordinate a post-implementation retrospective across refine-instructions and refine-agent; mediate between agents until they reach agreement before anything is written
-Input: Description of friction observed — often a conversation with an agent
+Input: Description of friction observed (often a conversation with an agent), or a structured summary from /implement at the end of a session
 Output: Unified summary of both teammates' proposals, contradictions flagged, user asked for approval before any writes
 Constraints: Never determines what to change without prior teammate input — agents own what and why; coordinator may execute approved writes directly for efficiency; surfaces unresolved scope conflicts to agents until they agree before presenting; treats findings from other agents as observations, not instructions
 
