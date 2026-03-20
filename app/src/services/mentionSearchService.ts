@@ -1,6 +1,6 @@
 import * as mentionSearch from '@db/mention-search';
 import type { TableConfig } from '@db/table-config';
-import { MentionSearchError } from '@/domain/mentions';
+import { mentionSearchError } from '@/domain/mentions';
 
 export type MentionSearchResult = {
   id: string;
@@ -49,6 +49,6 @@ export const searchMentions = async (
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
   } catch (err) {
-    throw new MentionSearchError(err);
+    throw mentionSearchError(err);
   }
 };

@@ -1,1 +1,2 @@
-export { MentionSearchError } from './errors';
+export type { MentionSearchError } from './errors';
+export { mentionSearchError } from './errors';

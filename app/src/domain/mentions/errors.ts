@@ -1,7 +1,6 @@
-export class MentionSearchError extends Error {
-  constructor(cause?: unknown) {
-    super('Failed to search mentions');
-    this.name = 'MentionSearchError';
-    this.cause = cause;
-  }
-}
+export type MentionSearchError = Error & { name: 'MentionSearchError' };
+export const mentionSearchError = (cause?: unknown): MentionSearchError => {
+  const error = new Error(`Failed to search mentions: ${cause}`) as MentionSearchError;
+  error.name = 'MentionSearchError';
+  return error;
+};
