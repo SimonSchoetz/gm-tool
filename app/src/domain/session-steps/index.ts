@@ -1,10 +1,12 @@
 export { LAZY_DM_STEPS } from './lazyDmSteps';
 export type { LazyDmStepKey, LazyDmStepDefinition } from './lazyDmSteps';
-export {
-  SessionStepError,
-  SessionStepLoadError,
-  SessionStepCreateError,
-  SessionStepUpdateError,
-  SessionStepDeleteError,
-  SessionStepReorderError,
-} from './errors';
+export type { SessionStepLoadError } from './errors';
+export { sessionStepLoadError } from './errors';
+export type { SessionStepCreateError } from './errors';
+export { sessionStepCreateError } from './errors';
+export type { SessionStepUpdateError } from './errors';
+export { sessionStepUpdateError } from './errors';
+export type { SessionStepDeleteError } from './errors';
+export { sessionStepDeleteError } from './errors';
+export type { SessionStepReorderError } from './errors';
+export { sessionStepReorderError } from './errors';

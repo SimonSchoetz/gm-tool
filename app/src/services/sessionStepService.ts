@@ -2,18 +2,18 @@ import * as sessionStepDb from '@db/session-step';
 import type { SessionStep, CreateSessionStepInput, UpdateSessionStepInput } from '@db/session-step';
 import {
   LAZY_DM_STEPS,
-  SessionStepLoadError,
-  SessionStepCreateError,
-  SessionStepUpdateError,
-  SessionStepDeleteError,
-  SessionStepReorderError,
+  sessionStepLoadError,
+  sessionStepCreateError,
+  sessionStepUpdateError,
+  sessionStepDeleteError,
+  sessionStepReorderError,
 } from '@/domain/session-steps';
 
 export const getStepsBySessionId = async (sessionId: string): Promise<SessionStep[]> => {
   try {
     return await sessionStepDb.getAllBySession(sessionId);
   } catch (err) {
-    throw new SessionStepLoadError(err);
+    throw sessionStepLoadError(err);
   }
 };
 
@@ -21,7 +21,7 @@ export const createStep = async (data: CreateSessionStepInput): Promise<string> 
   try {
     return await sessionStepDb.create(data);
   } catch (err) {
-    throw new SessionStepCreateError(err);
+    throw sessionStepCreateError(err);
   }
 };
 
@@ -29,7 +29,7 @@ export const updateStep = async (id: string, data: UpdateSessionStepInput): Prom
   try {
     await sessionStepDb.update(id, data);
   } catch (err) {
-    throw new SessionStepUpdateError(id, err);
+    throw sessionStepUpdateError(id, err);
   }
 };
 
@@ -37,7 +37,7 @@ export const deleteStep = async (id: string): Promise<void> => {
   try {
     await sessionStepDb.remove(id);
   } catch (err) {
-    throw new SessionStepDeleteError(id, err);
+    throw sessionStepDeleteError(id, err);
   }
 };
 
@@ -52,7 +52,7 @@ export const createCustomStep = async (sessionId: string, name?: string): Promis
       checked: 0,
     });
   } catch (err) {
-    throw new SessionStepCreateError(err);
+    throw sessionStepCreateError(err);
   }
 };
 
@@ -74,7 +74,7 @@ export const swapStepOrder = async (
     await sessionStepDb.update(target.id, { sort_order: adjacent.sort_order });
     await sessionStepDb.update(adjacent.id, { sort_order: target.sort_order });
   } catch (err) {
-    throw new SessionStepReorderError(err);
+    throw sessionStepReorderError(err);
   }
 };
 
@@ -84,7 +84,7 @@ export const bulkReorderSteps = async (orderedStepIds: string[]): Promise<void> 
       await sessionStepDb.update(orderedStepIds[index], { sort_order: index });
     }
   } catch (err) {
-    throw new SessionStepReorderError(err);
+    throw sessionStepReorderError(err);
   }
 };
 
@@ -101,6 +101,6 @@ export const initDefaultSteps = async (sessionId: string): Promise<void> => {
       });
     }
   } catch (err) {
-    throw new SessionStepCreateError(err);
+    throw sessionStepCreateError(err);
   }
 };
