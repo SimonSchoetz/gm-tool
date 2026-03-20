@@ -20,7 +20,7 @@ The progress tracker is a sequencing reference. The implementing instance reads 
 
 Required section in every spec, placed after the progress tracker and before the first sub-feature section. Document every non-obvious structural choice the implementing instance needs to understand — data model shape, state ownership, persistence decisions, naming corrections, and anything the architecture implies but does not make explicit.
 
-Each entry: a short heading stating the decision, followed by one paragraph of rationale. Cross-reference the CLAUDE.md rule that drove it when one applies.
+Each entry: a short heading stating the decision, followed by one paragraph of rationale. Cross-reference the CLAUDE.md rule that drove it when one applies. State decisions as facts — never attribute them to a conversation, a person, or a prior agent. The spec is consumed by a fresh implementing instance with no conversational context; provenance is noise.
 
 In split format, this section lives exclusively in the root index file. Sub-feature files do not contain their own decision sections.
 
@@ -60,7 +60,7 @@ Required section in every spec. Before marking a spec complete, evaluate:
 - Does this spec introduce a new structural pattern (e.g. a new layer, directory convention, or module shape) that should be documented?
 - Does this spec make a previously documented example invalid?
 
-For each impact found, list the affected CLAUDE.md file and the required update. If there is no impact, write "None."
+For each impact found, list the affected CLAUDE.md file and the required update. If there is no impact, write "None." This section is addressed to the implementing instance — every entry must be a concrete, self-contained file-level instruction. Do not reference other agents, commands, conversations, or briefs.
 
 ### Split format
 

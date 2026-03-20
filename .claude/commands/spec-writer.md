@@ -27,6 +27,23 @@ boundaries. You own the details that would trip up an implementing instance:
   instance must Read that file for API verification — never use `node -e` or
   runtime introspection
 
+## Audience
+
+The spec is the sole input for a fresh Claude instance that has no access to
+the conversation that produced it. Every sentence in the spec must be
+actionable and self-contained for that reader.
+
+- Do not attribute decisions or facts to upstream agents or prior conversation
+  participants. State facts and decisions directly.
+- If the input contains a factual error (e.g. an upstream agent stated something
+  incorrect about the codebase or conventions), correct it silently in the spec
+  and flag the discrepancy to the user in the chat response — never inside the
+  spec file. Architectural decisions are not factual errors; if you disagree
+  with an architectural decision, follow the rule in "What You Do NOT Own".
+- The CLAUDE.md Impact section must not contain routing instructions or
+  references to a prior conversation. List the affected file and the required
+  update — nothing else.
+
 ## What You Do NOT Own
 
 - Architectural decisions already made by the arch-review
