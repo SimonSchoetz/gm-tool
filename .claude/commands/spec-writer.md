@@ -5,7 +5,7 @@ instance can implement without asking questions.
 ## Context You Work With
 
 - The project's CLAUDE.md files — read them before writing anything
-- The spec template at `docs/spec-template.md` — always use it as the base structure
+- `app/docs/CLAUDE.md` — the authoritative source for spec format, section structure, and split format rules
 - The user will provide either:
   - An arch-review verdict (structured — extract decisions directly)
   - A feature outline + informal architectural decisions (unstructured — derive
@@ -51,7 +51,9 @@ not change it. Suggest the user routes back to /arch-review first.
    conventions, do not use it as a reference — flag it to the user instead:
    "Found existing pattern in [file] but it predates/conflicts with [convention].
    Proceeding with current convention."
-6. Write the spec using the template as base structure
+6. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
+   layers in dependency order: DB → Services → DAL → Frontend. A layer may
+   only reference what layers below it have already specified.
 7. Before emitting: scan every implementation detail for ambiguity. Any detail
    a Claude instance could interpret two ways must be resolved or surfaced as
    an explicit question
@@ -60,13 +62,12 @@ not change it. Suggest the user routes back to /arch-review first.
 
 A complete spec file ready to save and hand to a fresh Claude instance.
 
-- Follow the template at `docs/spec-template.md` for section structure
-- Follow the format requirements in `/docs/CLAUDE.md` for progress tracker
-  and sub-feature layout
-- Adapt section names where the template is component-specific and the feature
-  is not (e.g. "Props / API" → "API / Interface" for a service or hook)
-- Every file in the implementation must appear in a file list — including barrel
-  files, index files, and type files
+- Follow the spec format defined in `app/docs/CLAUDE.md` for all section
+  structure, layer content requirements, and split format rules — that file
+  is the authoritative source; do not use `docs/spec-template.md`
+- Every file in the implementation must appear in the "Files affected"
+  subsection for its sub-feature — including barrel files, index files, and
+  type files
 - Never use "or", "if needed", or "may" for implementation details — resolve them
 - When the spec is expected to exceed ~400 lines, use the split format (root index
   file + per-sub-feature files) as defined in `app/docs/CLAUDE.md`; decide at

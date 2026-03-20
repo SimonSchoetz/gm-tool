@@ -16,18 +16,41 @@ Always use the following structure when writing a spec or plan:
 
 The progress tracker is a sequencing reference. The implementing instance reads it to understand the order and dependencies of sub-features before starting work. It is not a live status document — do not modify it during implementation.
 
+### Key Architectural Decisions
+
+Required section in every spec, placed after the progress tracker and before the first sub-feature section. Document every non-obvious structural choice the implementing instance needs to understand — data model shape, state ownership, persistence decisions, naming corrections, and anything the architecture implies but does not make explicit.
+
+Each entry: a short heading stating the decision, followed by one paragraph of rationale. Cross-reference the CLAUDE.md rule that drove it when one applies.
+
+In split format, this section lives exclusively in the root index file. Sub-feature files do not contain their own decision sections.
+
 ### Per sub-feature section
 
-Each section must follow this layered order:
+Each sub-feature gets a heading with its name and a short description of its intent, followed by:
+
+**Files affected** — required subsection before the layered breakdown. Two labeled lists:
+
+- `Modified:` — existing files changed by this sub-feature
+- `New:` — files created by this sub-feature
+
+Every file touched must appear here — including barrel files, index files, and type files. No file may appear only in prose.
+
+**Layered breakdown** — layers in dependency order:
 
 1. DB changes (schema, seed, CRUD)
 2. Services
 3. Data Access Layer
 4. Frontend (components, screens)
 
-Before writing each layer, cross-check the plan against conventions documented for that layer in the relevant scoped CLAUDE.md (e.g. error wrapping in Services, TanStack Query patterns in the DAL). A spec that omits a required pattern is incomplete, not just unimplemented.
+This is a dependency order, not style: a layer may only reference what layers below it have already specified. Before writing each layer, cross-check the plan against conventions documented for that layer in the relevant scoped CLAUDE.md (e.g. error wrapping in Services, TanStack Query patterns in the DAL). A spec that omits a required pattern is incomplete, not just unimplemented.
 
-Each sub-feature gets a heading with its name and a short description of its intent before the layered breakdown.
+For the **Frontend** layer, always specify:
+
+- **Purpose** — what this component or screen does and why it exists at this point in the feature
+- **Behavior** — user interactions, state managed, side effects, edge cases (loading, error, empty)
+- **UI / Visual** — layout structure, component composition, styling notes
+
+A Frontend layer entry that omits any of the three is incomplete.
 
 ### CLAUDE.md impact
 
@@ -43,7 +66,7 @@ For each impact found, list the affected CLAUDE.md file and the required update.
 
 When a spec is expected to exceed ~400 lines, use the split format instead of a single file:
 
-- **Root index file** (`SPEC_<FEATURE>.md`): contains the progress tracker, key architectural decisions, the CLAUDE.md impact section, and a file list with relative links to each sub-feature file.
+- **Root index file** (`SPEC_<FEATURE>.md`): contains the progress tracker, Key Architectural Decisions section, the CLAUDE.md impact section, and a file list with relative links to each sub-feature file.
 - **Sub-feature files** (`SPEC_<FEATURE>_SF<N>.md`): each contains exactly one sub-feature's layered breakdown. Never put more than one sub-feature section in a split file.
 
 The layered order rule (DB changes → Services → Data Access Layer → Frontend) applies inside each sub-feature file unchanged.

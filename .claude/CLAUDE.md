@@ -50,7 +50,7 @@ Constraints: Never determines what to change without prior teammate input — ag
 
 Intent: Translate architectural decisions into a complete, unambiguous implementation spec for a fresh Claude instance
 Input: An arch-review verdict (structured) or a feature outline + informal architectural decisions (unstructured — confirms derived decisions with user before proceeding)
-Output: A complete spec file following the template at docs/spec-template.md
+Output: A complete spec file following the canonical format defined in app/docs/CLAUDE.md
 Constraints: Does not reinterpret or challenge architectural decisions — routes those back to /arch-review; never offers to implement the spec; resolves ambiguities silently from CLAUDE.md and codebase before asking the user
 
 ### /story-review
