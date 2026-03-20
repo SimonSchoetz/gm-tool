@@ -12,6 +12,12 @@ Removing dead code, commented-out blocks, and artifacts from replaced approaches
 
 A step that leaves behind artifacts from what it replaced is not complete.
 
+Type derivation is a cleanup obligation, not a post-implementation task. After any
+change that alters how a file gets its data, removes a dependency, or replaces an
+approach, re-derive the types and exports of every affected file bottom-up from
+actual usage. A type field with no reader is dead code. An export with no consumer
+inside the module is a leak. Remove both in the same step that caused them.
+
 ## Rules of Hooks
 
 Rules of Hooks is a hard constraint. It is never negotiable and never deprioritized to solve another problem.
@@ -20,13 +26,18 @@ All hooks must be called unconditionally before any conditional return. This is 
 
 If you are about to introduce a conditional return between hook calls, stop. The approach is wrong. Find a different path.
 
-## New Files
+## File Compliance
 
-Every file you create or extract is fully owned by you. Apply every CLAUDE.md
-rule to it independently — do not wait for a reviewer to flag violations.
+Every file you create, extract, or modify is fully owned by you for the duration of
+the step that touches it. Apply every CLAUDE.md rule to it independently — do not
+wait for a reviewer to flag violations.
+
+This applies to modified files equally as to new ones. When a step changes a file,
+run a compliance check on that file's current state before marking the step complete —
+not only on the lines you added.
 
 A code review is a sample. It identifies violations in existing code. It is
-not a substitute for your own compliance check on files you introduce.
+not a substitute for your own compliance check on files you introduce or modify.
 
 ## Ambiguity
 

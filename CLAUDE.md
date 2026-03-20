@@ -91,7 +91,9 @@ export const sessionLoadError = (cause?: unknown): SessionLoadError => {
 export class SessionLoadError extends Error { ... }
 ```
 
-- never return undefined, it should be an indicator for errors
+- Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
+  - ❌ BAD: `let session: Session | undefined;`
+  - ✅ GOOD: `let session: Session | null = null;`
 - avoid using `any` as type
 - Use descriptive names instead of comments
   ❌ BAD: `const data = await fetch(); // Get user data`
@@ -139,9 +141,10 @@ The first pushback is the prompt. Do not wait for a second or third before provi
   - ❌ BAD: Duplicating database calls and state updates in multiple functions
   - ✅ GOOD: `imageService.replaceImage` calls `imageDb.replace()` because the DB layer already composes remove + create internally — re-implementing that composition at the service level would duplicate it
   - ✅ GOOD: Composing sibling service functions (e.g. `deleteImage()` + `createImage()`) inside a service-level operation only when no equivalent composed operation exists in the layer below
-- **Re-derive types after every refactor**: After changing how a component or function gets its data, re-derive its types and props bottom-up from actual usage — never trust existing definitions at face value. A type field with no reader is wrong. A prop with no caller setting it is wrong.
-  1. Trace every field in the props type to a value being set at the call site. If no caller sets it, remove it.
-  2. Trace every field in internal types to a place where it is read and used. If a field is only defined but never accessed, it is dead code — remove it.
+- **Re-derive types after every refactor**: After any refactor, audit every exported symbol in the changed files — types, factory functions, error constructors, constants — bottom-up from actual usage. Never trust existing definitions at face value. A symbol with no call site is dead code regardless of whether it is a type, a prop, or an exported function.
+  1. Trace every field in props types to a value being set at the call site. If no caller sets it, remove it.
+  2. Trace every field in internal types to a place where it is read and used. If a field is only defined but never accessed, remove it.
+  3. Trace every exported symbol (error type, factory function, constant, utility) to at least one import or call site in the codebase. If nothing imports or calls it, remove it.
   - ❌ BAD: Keeping `render` on `ListColumn<T>` after a refactor because it was there before, without checking if any caller sets it or any reader accesses it
   - ✅ GOOD: After refactor, scanning every field of `ListColumn<T>` and finding `render` is never called → remove the field and the dead branch
 - **Validate before replicating**: Never assume existing code is compliant with current conventions. Before using any file as a reference implementation or pattern to follow, re-validate it against current CLAUDE.md rules. Convention changes retroactively invalidate previously correct code — if the reference is stale, the violation propagates to every new module that copies it. Fix violations found during this check, or surface them to the user, before proceeding.
@@ -165,6 +168,7 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 - **Always Read a file before editing it in the current context window.** Treat any prior read state as lost after context compaction — do not assume a file read earlier in the session is still accurate. Re-read before editing.
 - **Verify before naming a path in any output.** Any file path named in output — briefs, specs, task lists, plans — makes a factual claim about the filesystem. Before listing a path as "to create", verify it does not already exist. Before listing a path as "to touch", verify it does exist. Absence of prior mention in the conversation is not evidence of absence in the codebase.
 - **Run `npx tsc` once per sub-feature, not after every individual file edit.** Type-check after all files for a sub-feature are written, immediately before marking that sub-feature complete. Running it after every file wastes round-trips and produces noise from intentionally incomplete intermediate states.
+- **Re-validate spec instructions that touch file organization before executing them.** A spec is written by a prior instance that may have mis-applied current conventions. Before executing any spec instruction that specifies barrel shape, export style, or directory structure — including "no change needed" — re-read the relevant CLAUDE.md barrel rules and verify the instruction is consistent. If it is not, apply the correct convention and note the deviation. The spec is a starting point, not a source of truth for convention questions.
 
 #### File Organization
 

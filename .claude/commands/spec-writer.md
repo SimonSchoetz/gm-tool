@@ -68,6 +68,14 @@ not change it. Suggest the user routes back to /arch-review first.
    conventions, do not use it as a reference — flag it to the user instead:
    "Found existing pattern in [file] but it predates/conflicts with [convention].
    Proceeding with current convention."
+
+   For every file listed as Modified in any "Files affected" subsection: audit
+   its current contents against CLAUDE.md conventions and identify anything the
+   feature will make dead (orphaned exports, unreachable code, fields with no
+   remaining reader). List each as an explicit cleanup task in the sub-feature's
+   layered breakdown — not as a note, not as optional. An implementing instance
+   that receives a "Files affected" list with no cleanup tasks will assume the
+   file is already clean.
 6. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
    layers in dependency order: DB → Services → DAL → Frontend. A layer may
    only reference what layers below it have already specified.
@@ -84,7 +92,9 @@ A complete spec file ready to save and hand to a fresh Claude instance.
   is the authoritative source; do not use `docs/spec-template.md`
 - Every file in the implementation must appear in the "Files affected"
   subsection for its sub-feature — including barrel files, index files, and
-  type files
+  type files. For every barrel file listed, specify the required export style
+  (explicit named exports vs. `export *`) per the barrel convention in CLAUDE.md —
+  never leave this implicit for the implementing instance to infer.
 - Never use "or", "if needed", or "may" for implementation details — resolve them
 - When the spec is expected to exceed ~400 lines, use the split format (root index
   file + per-sub-feature files) as defined in `app/docs/CLAUDE.md`; decide at

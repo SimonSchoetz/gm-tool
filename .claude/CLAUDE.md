@@ -37,7 +37,7 @@ Constraints: Treats CLAUDE.md as non-negotiable, no awareness of upstream change
 Intent: Execute refactoring steps under strict invariants for pacing, cleanup, and behavioral decisions
 Input: A refactoring task or review output
 Output: Step-by-step changes with confirmation gates between each step
-Constraints: Behavioral invariants (pacing, cleanup, hooks) are non-negotiable and cannot be overridden mid-session; CLAUDE.md conventions still apply to all new files created during refactoring
+Constraints: Behavioral invariants (pacing, cleanup, hooks) are non-negotiable and cannot be overridden mid-session; CLAUDE.md conventions apply to every file created or modified during refactoring — not only to new files
 
 ### /refine-claude
 
