@@ -6,11 +6,11 @@ import type {
   UpdateAdventureInput,
 } from '@db/adventure';
 import {
-  AdventureNotFoundError,
-  AdventureLoadError,
-  AdventureCreateError,
-  AdventureUpdateError,
-  AdventureDeleteError,
+  adventureNotFoundError,
+  adventureLoadError,
+  adventureCreateError,
+  adventureUpdateError,
+  adventureDeleteError,
 } from '@/domain/adventures';
 import { getDateTimeString } from '@/util';
 
@@ -23,7 +23,7 @@ export const getAllAdventures = async (): Promise<Adventure[]> => {
     const result = await adventureDb.getAll();
     return result.data;
   } catch (err) {
-    throw new AdventureLoadError(err);
+    throw adventureLoadError(err);
   }
 };
 
@@ -31,7 +31,7 @@ export const getAdventureById = async (id: string): Promise<Adventure> => {
   const adventure = await adventureDb.get(id);
 
   if (!adventure) {
-    throw new AdventureNotFoundError(id);
+    throw adventureNotFoundError(id);
   }
 
   return adventure;
@@ -45,7 +45,7 @@ export const createAdventure = async (): Promise<string> => {
 
     return await adventureDb.create(dto);
   } catch (err) {
-    throw new AdventureCreateError(err);
+    throw adventureCreateError(err);
   }
 };
 
@@ -74,7 +74,7 @@ export const updateAdventure = async (
 
     await adventureDb.update(id, dto);
   } catch (err) {
-    throw new AdventureUpdateError(id, err);
+    throw adventureUpdateError(id, err);
   }
 };
 
@@ -94,6 +94,6 @@ export const deleteAdventure = async (
 
     await adventureDb.remove(id);
   } catch (err) {
-    throw new AdventureDeleteError(id, err);
+    throw adventureDeleteError(id, err);
   }
 };
