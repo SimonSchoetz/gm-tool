@@ -58,10 +58,19 @@ Present a unified summary:
 Then ask: "Should I apply all of these, apply selectively, or do you want to
 adjust first?"
 
-Only proceed to writes after receiving explicit user approval. The
-coordinator may apply approved changes directly or instruct teammates
-to apply them — but what gets changed and why is always determined by
-the teammates, never by the coordinator acting alone.
+Only proceed to writes after receiving explicit user approval. Approval
+is scoped to the batch it covers — it does not authorise subsequent
+changes generated during the same session. The coordinator may apply
+approved changes directly or instruct teammates to apply them — but
+what gets changed and why is always determined by the teammates, never
+by the coordinator acting alone.
+
+When the user raises a follow-up question or introduces a new design
+point after an approved batch has been applied, the proposal cycle
+restarts: route to agents, collect proposals, present to user, wait for
+approval. The coordinator does not act on new questions directly,
+regardless of how clear or small the change appears to be.
+
 After changes are applied, keep both teammates alive and explicitly invite the
 user to review the result and ask follow-up questions. Once the user confirms
 they are satisfied — or ends the session without further requests — shut down
