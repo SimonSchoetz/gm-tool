@@ -1,41 +1,34 @@
-export class SessionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'SessionError';
-  }
-}
+export type SessionNotFoundError = Error & { name: 'SessionNotFoundError' };
+export const sessionNotFoundError = (id: string): SessionNotFoundError => {
+  const error = new Error(`Session with id ${id} not found`) as SessionNotFoundError;
+  error.name = 'SessionNotFoundError';
+  return error;
+};
 
-export class SessionNotFoundError extends SessionError {
-  constructor(id: string) {
-    super(`Session with id ${id} not found`);
-    this.name = 'SessionNotFoundError';
-  }
-}
+export type SessionLoadError = Error & { name: 'SessionLoadError' };
+export const sessionLoadError = (cause?: unknown): SessionLoadError => {
+  const error = new Error(`Failed to load sessions: ${cause}`) as SessionLoadError;
+  error.name = 'SessionLoadError';
+  return error;
+};
 
-export class SessionLoadError extends SessionError {
-  constructor(cause?: unknown) {
-    super(`Failed to load sessions: ${cause}`);
-    this.name = 'SessionLoadError';
-  }
-}
+export type SessionCreateError = Error & { name: 'SessionCreateError' };
+export const sessionCreateError = (cause?: unknown): SessionCreateError => {
+  const error = new Error(`Failed to create session: ${cause}`) as SessionCreateError;
+  error.name = 'SessionCreateError';
+  return error;
+};
 
-export class SessionCreateError extends SessionError {
-  constructor(cause?: unknown) {
-    super(`Failed to create session: ${cause}`);
-    this.name = 'SessionCreateError';
-  }
-}
+export type SessionUpdateError = Error & { name: 'SessionUpdateError' };
+export const sessionUpdateError = (id: string, cause?: unknown): SessionUpdateError => {
+  const error = new Error(`Failed to update session ${id}: ${cause}`) as SessionUpdateError;
+  error.name = 'SessionUpdateError';
+  return error;
+};
 
-export class SessionUpdateError extends SessionError {
-  constructor(id: string, cause?: unknown) {
-    super(`Failed to update session ${id}: ${cause}`);
-    this.name = 'SessionUpdateError';
-  }
-}
-
-export class SessionDeleteError extends SessionError {
-  constructor(id: string, cause?: unknown) {
-    super(`Failed to delete session ${id}: ${cause}`);
-    this.name = 'SessionDeleteError';
-  }
-}
+export type SessionDeleteError = Error & { name: 'SessionDeleteError' };
+export const sessionDeleteError = (id: string, cause?: unknown): SessionDeleteError => {
+  const error = new Error(`Failed to delete session ${id}: ${cause}`) as SessionDeleteError;
+  error.name = 'SessionDeleteError';
+  return error;
+};

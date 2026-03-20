@@ -2,30 +2,30 @@ import * as sessionDb from '@db/session';
 import type { Session, CreateSessionInput, UpdateSessionInput } from '@db/session';
 import * as sessionStepService from './sessionStepService';
 import {
-  SessionNotFoundError,
-  SessionLoadError,
-  SessionCreateError,
-  SessionUpdateError,
-  SessionDeleteError,
+  sessionNotFoundError,
+  sessionLoadError,
+  sessionCreateError,
+  sessionUpdateError,
+  sessionDeleteError,
 } from '@/domain/sessions';
 
 export const getAllSessions = async (adventureId: string): Promise<Session[]> => {
   try {
     return await sessionDb.getAll(adventureId);
   } catch (err) {
-    throw new SessionLoadError(err);
+    throw sessionLoadError(err);
   }
 };
 
 export const getSessionById = async (id: string): Promise<Session> => {
+  let session: Session | null | undefined;
   try {
-    const session = await sessionDb.get(id);
-    if (!session) throw new SessionNotFoundError(id);
-    return session;
+    session = await sessionDb.get(id);
   } catch (err) {
-    if (err instanceof SessionNotFoundError) throw err;
-    throw new SessionLoadError(err);
+    throw sessionLoadError(err);
   }
+  if (!session) throw sessionNotFoundError(id);
+  return session;
 };
 
 export const createSession = async (data: CreateSessionInput): Promise<string> => {
@@ -37,7 +37,7 @@ export const createSession = async (data: CreateSessionInput): Promise<string> =
     await sessionStepService.initDefaultSteps(newSessionId);
     return newSessionId;
   } catch (err) {
-    throw new SessionCreateError(err);
+    throw sessionCreateError(err);
   }
 };
 
@@ -45,7 +45,7 @@ export const updateSession = async (id: string, data: UpdateSessionInput): Promi
   try {
     await sessionDb.update(id, data);
   } catch (err) {
-    throw new SessionUpdateError(id, err);
+    throw sessionUpdateError(id, err);
   }
 };
 
@@ -53,6 +53,6 @@ export const deleteSession = async (id: string): Promise<void> => {
   try {
     await sessionDb.remove(id);
   } catch (err) {
-    throw new SessionDeleteError(id, err);
+    throw sessionDeleteError(id, err);
   }
 };

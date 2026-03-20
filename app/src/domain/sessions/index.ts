@@ -1,8 +1,10 @@
-export {
-  SessionError,
-  SessionNotFoundError,
-  SessionLoadError,
-  SessionCreateError,
-  SessionUpdateError,
-  SessionDeleteError,
-} from './errors';
+export type { SessionNotFoundError } from './errors';
+export { sessionNotFoundError } from './errors';
+export type { SessionLoadError } from './errors';
+export { sessionLoadError } from './errors';
+export type { SessionCreateError } from './errors';
+export { sessionCreateError } from './errors';
+export type { SessionUpdateError } from './errors';
+export { sessionUpdateError } from './errors';
+export type { SessionDeleteError } from './errors';
+export { sessionDeleteError } from './errors';
