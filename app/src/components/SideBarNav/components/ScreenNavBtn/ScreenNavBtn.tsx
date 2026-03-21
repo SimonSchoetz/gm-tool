@@ -1,5 +1,5 @@
 import { GlassPanel } from '@/components';
-import { Routes } from '@/routes';
+import type { AppRoute } from '@/routes';
 import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';
 import { Link, useRouterState } from '@tanstack/react-router';
@@ -9,7 +9,7 @@ import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 
 type Props = {
   label: string;
-  targetRoute: Routes | string;
+  targetRoute: AppRoute | string;
   searchParams?: Record<string, string>;
   isDisabled?: boolean;
 } & HtmlProps<'a'>;
