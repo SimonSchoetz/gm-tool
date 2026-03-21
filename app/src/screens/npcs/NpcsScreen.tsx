@@ -1,6 +1,5 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs, useTableConfigs } from '@/data-access-layer';
-import { Routes } from '@/routes';
 import { SortableList } from '@/components';
 import type { Npc } from '@db/npc';
 import './NpcsScreen.css';
@@ -8,7 +7,7 @@ import './NpcsScreen.css';
 export const NpcsScreen = () => {
   const router = useRouter();
   const { adventureId } = useParams({
-    from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPCS}`,
+    from: '/adventure/$adventureId/npcs',
   });
 
   const { npcs, loading: npcsLoading, createNpc } = useNpcs(adventureId);
@@ -19,7 +18,7 @@ export const NpcsScreen = () => {
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc(adventureId);
     router.navigate({
-      to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.NPC}/${newNpcId}`,
+      to: `/adventure/${adventureId}/npc/${newNpcId}`,
     });
   };
 
@@ -33,7 +32,7 @@ export const NpcsScreen = () => {
       items={npcs}
       onRowClick={(npc) =>
         router.navigate({
-          to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.NPC}/${npc.id}`,
+          to: `/adventure/${adventureId}/npc/${npc.id}`,
         })
       }
       onCreateNew={handleNpcCreation}

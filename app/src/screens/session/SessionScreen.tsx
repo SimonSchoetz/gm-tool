@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { useSession } from '@/data-access-layer';
-import { Routes } from '@/routes';
 import { SessionHeader } from './components/SessionHeader';
 import { PrepView } from './components/PrepView';
 import { InGameView } from './components/InGameView';
@@ -11,7 +10,7 @@ type View = 'prep' | 'ingame';
 
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({
-    from: `/${Routes.ADVENTURE}/$adventureId/${Routes.SESSION}/$sessionId`,
+    from: '/adventure/$adventureId/session/$sessionId',
   });
 
   const { loading } = useSession(sessionId, adventureId);

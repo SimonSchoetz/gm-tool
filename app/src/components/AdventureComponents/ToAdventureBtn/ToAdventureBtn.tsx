@@ -5,14 +5,13 @@ import { FCProps, HtmlProps } from '@/types';
 
 import { HoloImg } from '@/components';
 import { Adventure } from '@db/adventure';
-import { Routes } from '@/routes';
 
 type Props = {
   adventure: Adventure;
 } & HtmlProps<'div'>;
 
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
-  const route = `/${Routes.ADVENTURE}/${adventure.id}`;
+  const route = `/adventure/${adventure.id}`;
 
   return (
     <Link

@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { SettingsScreen } from '@/screens';
-import { Routes } from './index';
 
-export const Route = createFileRoute(`/${Routes.SETTINGS}`)({
+export const Route = createFileRoute('/settings')({
   component: SettingsScreen,
 });

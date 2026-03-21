@@ -13,14 +13,12 @@ import { cn, getDateTimeString } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
 import { useState } from 'react';
-import { Routes } from '@/routes';
-
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
 export const AdventureScreen = () => {
   const router = useRouter();
   const { adventureId } = useParams({
-    from: `/${Routes.ADVENTURE}/$adventureId/`,
+    from: '/adventure/$adventureId/',
   });
 
   const { adventure, updateAdventure, deleteAdventure, loading } =
@@ -35,7 +33,7 @@ export const AdventureScreen = () => {
 
   const handleAdventureDelete = async () => {
     await deleteAdventure();
-    router.navigate({ to: `/${Routes.ADVENTURES}` });
+    router.navigate({ to: '/adventures' });
   };
 
   const startDate =

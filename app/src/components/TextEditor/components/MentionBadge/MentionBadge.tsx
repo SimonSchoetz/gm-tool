@@ -1,5 +1,4 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Routes } from '@/routes';
 import './MentionBadge.css';
 
 type Props = {
@@ -22,7 +21,7 @@ export const MentionBadge = ({
 
   const handleClick = () => {
     const path = adventureId
-      ? `/${Routes.ADVENTURE}/${adventureId}/${entitySegment}/${entityId}`
+      ? `/adventure/${adventureId}/${entitySegment}/${entityId}`
       : `/${entitySegment}/${entityId}`;
     navigate({ to: path });
   };

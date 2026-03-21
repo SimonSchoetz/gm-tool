@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { NpcScreen } from '@/screens';
-import { Routes } from './index';
 
 export const Route = createFileRoute(
-  `/${Routes.ADVENTURE}/$adventureId/${Routes.NPC}/$npcId`,
+  '/adventure/$adventureId/npc/$npcId',
 )({
   component: NpcScreen,
 });

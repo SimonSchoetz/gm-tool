@@ -12,7 +12,6 @@ import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { useNpc } from '@/data-access-layer';
 import { useState } from 'react';
-import { Routes } from '@/routes';
 import './NpcScreen.css';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
@@ -20,7 +19,7 @@ type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 export const NpcScreen = () => {
   const router = useRouter();
   const { adventureId, npcId } = useParams({
-    from: `/${Routes.ADVENTURE}/$adventureId/${Routes.NPC}/$npcId`,
+    from: '/adventure/$adventureId/npc/$npcId',
   });
 
   const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId);
@@ -34,7 +33,7 @@ export const NpcScreen = () => {
 
   const handleNpcDelete = async () => {
     await deleteNpc(adventureId);
-    router.navigate({ to: `/${Routes.ADVENTURE}/${adventureId}/npcs` });
+    router.navigate({ to: `/adventure/${adventureId}/npcs` });
   };
 
   return (

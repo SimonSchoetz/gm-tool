@@ -1,13 +1,12 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useSessions, useTableConfigs } from '@/data-access-layer';
-import { Routes } from '@/routes';
 import { SortableList } from '@/components';
 import type { Session } from '@db/session';
 
 export const SessionsScreen = () => {
   const router = useRouter();
   const { adventureId } = useParams({
-    from: `/${Routes.ADVENTURE}/$adventureId/${Routes.SESSIONS}`,
+    from: '/adventure/$adventureId/sessions',
   });
 
   const { sessions, loading, createSession } = useSessions(adventureId);
@@ -18,7 +17,7 @@ export const SessionsScreen = () => {
   const handleSessionCreation = async () => {
     const newSessionId = await createSession({ adventure_id: adventureId });
     router.navigate({
-      to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.SESSION}/${newSessionId}`,
+      to: `/adventure/${adventureId}/session/${newSessionId}`,
     });
   };
 
@@ -32,7 +31,7 @@ export const SessionsScreen = () => {
       items={sessions}
       onRowClick={(session) =>
         router.navigate({
-          to: `/${Routes.ADVENTURE}/${adventureId}/${Routes.SESSION}/${session.id}`,
+          to: `/adventure/${adventureId}/session/${session.id}`,
         })
       }
       onCreateNew={handleSessionCreation}

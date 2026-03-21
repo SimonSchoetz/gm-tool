@@ -3,7 +3,6 @@ import './AdventuresScreen.css';
 import { ToAdventureBtn } from '../../components/AdventureComponents';
 import { NewItemBtn } from '@/components';
 import { useRouter } from '@tanstack/react-router';
-import { Routes } from '@/routes';
 
 export const AdventuresScreen = () => {
   const router = useRouter();
@@ -11,7 +10,7 @@ export const AdventuresScreen = () => {
 
   const handleAdventureCreation = async () => {
     const newAdventureId = await createAdventure();
-    router.navigate({ to: `/${Routes.ADVENTURE}/${newAdventureId}` });
+    router.navigate({ to: `/adventure/${newAdventureId}` });
   };
 
   if (loading) {

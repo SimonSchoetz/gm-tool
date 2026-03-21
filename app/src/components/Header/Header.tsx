@@ -4,7 +4,6 @@ import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 import { useAdventure, useNpc, useSession } from '@/data-access-layer';
 import { useRouterState } from '@tanstack/react-router';
-import { Routes } from '@/routes';
 
 type Props = object;
 
@@ -28,22 +27,22 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   const { session } = useSession(sessionId, adventureId);
 
   const getMainRoute = (): string => {
-    if (router.location.href === `/${Routes.ADVENTURES}`) {
+    if (router.location.href === '/adventures') {
       return 'Adventures';
     }
-    if (router.location.href.includes(Routes.ADVENTURE)) {
+    if (router.location.href.includes('adventure')) {
       return `${adventure?.name ?? 'Loading...'}`;
     }
     return 'GM Tool';
   };
 
   const getRouteLevel1 = (): string => {
-    if (router.location.href.includes(Routes.NPCS) || router.location.href.includes(`/${Routes.NPC}/`)) {
+    if (router.location.href.includes('npcs') || router.location.href.includes('/npc/')) {
       return ' > NPCs';
     }
     if (
-      router.location.href.includes(Routes.SESSIONS) ||
-      router.location.href.includes(`/${Routes.SESSION}/`)
+      router.location.href.includes('sessions') ||
+      router.location.href.includes('/session/')
     ) {
       return ' > Sessions';
     }
@@ -51,10 +50,10 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   };
 
   const getRouteLevel2 = (): string => {
-    if (router.location.href.includes(`/${Routes.NPC}/`)) {
+    if (router.location.href.includes('/npc/')) {
       return ` > ${npc?.name ?? 'Loading...'}`;
     }
-    if (router.location.href.includes(`/${Routes.SESSION}/`)) {
+    if (router.location.href.includes('/session/')) {
       return ` > ${session?.name ?? 'Loading...'}`;
     }
     return '';
