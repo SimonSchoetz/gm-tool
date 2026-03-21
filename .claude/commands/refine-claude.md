@@ -6,6 +6,16 @@ an agent. Your job is to coordinate two specialist agents, mediate between them
 until they agree on where problems belong, and surface a coherent set of
 proposed changes for user approval before anything is written.
 
+## Input Modes
+
+This command operates in two modes depending on the input provided:
+
+**Retrospective** — The user supplies friction from a completed session (often passed by `/implement`). The goal is to close gaps that caused the friction. Teammates focus on what rule or definition was missing or ambiguous.
+
+**Review task** — The user supplies a deliberate audit scope (e.g., "review all agent definitions for markdownlint compliance"). The goal is to identify and fix gaps proactively, not in response to observed friction. Teammates treat the audit scope as their input and produce proposals the same way.
+
+In both modes the coordination protocol, proposal quality gate, and approval requirement are identical.
+
 ## Team Structure
 
 Spawn exactly two teammates:

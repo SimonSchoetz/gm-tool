@@ -4,55 +4,59 @@ Follows the global file organization conventions from the root CLAUDE.md.
 
 ## Structure
 
+```text
 src/
 ├── assets/
 ├── components/ # UI
-│ ├── ComponentA/
-│ │ ├── ComponentA.tsx
-│ │ └── ComponentA.css
-│ └── index.ts
+│   ├── ComponentA/
+│   │   ├── ComponentA.tsx
+│   │   └── ComponentA.css
+│   └── index.ts
 ├── domain/ # business concepts (errors, types, validation)
-│ ├── domainA/
-│ │ ├── index.ts
-│ │ ├── types.ts # domain specific types when needed
-│ │ ├── validation.ts # business rules when needed
-│ │ └── errors.ts
+│   ├── domainA/
+│   │   ├── index.ts
+│   │   ├── types.ts # domain specific types when needed
+│   │   ├── validation.ts # business rules when needed
+│   │   └── errors.ts
 ├── hooks/ # reusable React hooks
-│ ├── index.ts
-│ ├── simpleHook.ts # flat file when no helpers needed
-│ └── complexHook/ # directory when helpers are needed
-│   ├── complexHook.ts
-│   └── helper/
-│     ├── helperA.ts
-│     └── __tests__/
-│       └── helperA.test.ts
+│   ├── index.ts
+│   ├── simpleHook.ts # flat file when no helpers needed
+│   └── complexHook/ # directory when helpers are needed
+│     ├── complexHook.ts
+│     └── helper/
+│       ├── helperA.ts
+│       └── __tests__/
+│         └── helperA.test.ts
 ├── data-access-layer/ # domain data hooks (TanStack Query)
-│ ├── TanstackQueryClientProvider.tsx # QueryClient config — enables the entire layer
-│ ├── domainA/
-│ │ ├── index.ts
-│ │ ├── domainAKeys.ts
-│ │ ├── useDomainA.ts
-│ │ └── useDomainAs.ts
+│   ├── TanstackQueryClientProvider.tsx # QueryClient config — enables the entire layer
+│   ├── domainA/
+│   │   ├── index.ts
+│   │   ├── domainAKeys.ts
+│   │   ├── useDomainA.ts
+│   │   └── useDomainAs.ts
 ├── routes/ # Tanstack router
 ├── screens/
-│ ├── screenA/
-│ │ ├── ScreenA.tsx
-│ │ ├── ScreenA.css
-│ │ └── components/
-│ └── index.ts
+│   ├── screenA/
+│   │   ├── ScreenA.tsx
+│   │   ├── ScreenA.css
+│   │   └── components/
+│   └── index.ts
 ├── services/ # operations (CRUD, business logic), uses db types and domain errors
-│ └── serviceA.ts
+│   ├── index.ts
+│   └── serviceA.ts
 ├── styles/
-│ ├── global.css
-│ ├── reset.css
-│ └── variables.css
+│   ├── global.css
+│   ├── reset.css
+│   └── variables.css
 ├── types/
-│ └── any.type.ts
+│   ├── index.ts
+│   └── domain.types.ts
 ├── util/
-│ └── utilA.ts
+│   └── utilA.ts
 ├── App.css
 ├── App.tsx
 └── main.tsx
+```
 
 ### Screens
 
@@ -83,7 +87,7 @@ src/
 2. `React.ComponentProps<typeof Parent>` — the component extends a specific existing component and must stay in sync with its prop shape.
    - ✅ `type Props = { buttonStyle?: 'danger' } & React.ComponentProps<typeof ActionContainer>`
 
-3. Plain named type (or `FCProps<Props>`) — the component has a closed API that does not extend any HTML element or parent component.
+3. Plain named type (or `FCProps<Props>` from `'@/types'`) — the component has a closed API that does not extend any HTML element or parent component.
    - ✅ `type SearchInputProps = { onSearch: (term: string) => void; placeholder?: string }`
 
 **Variant system:**
@@ -96,6 +100,7 @@ src/
 ### Util vs. Helper Placement
 
 A function belongs in `/src/util/` only when **both** conditions are met:
+
 1. It is consumed by more than one component or module
 2. It is generic — no coupling to a specific domain concept, named without domain nouns
 
@@ -150,6 +155,42 @@ When a constant is shared by two or more files within the same module directory,
   - ✅ `padding: var(--spacing-sm)`
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
+
+### Domain Layer
+
+`domain/` owns the frontend's business concepts: error types, domain-specific TypeScript types, and validation rules. It has no runtime dependencies on services, data-access-layer, or db — it is the vocabulary layer that everything else imports from.
+
+**What belongs in `domain/`:**
+
+- Error factory functions and their types (see root CLAUDE.md — Error types use factory functions)
+- Domain-specific TypeScript types that are not derived from the db schema
+- Validation rules that express business constraints (e.g. allowed values, formats)
+
+**What does NOT belong in `domain/`:**
+
+- Types that are purely re-exports of db types — import directly from `@db/domainName`
+- Business operations or CRUD logic — those belong in `services/`
+- React-specific types (props, ref types) — those belong in `types/` or co-located with their component
+
+**Barrel requirement:** `domain/` is a grouping folder. It requires a grouping barrel (`domain/index.ts`) with explicit named exports — `export *` is banned. Each domain entity has its own module directory (`domain/domainA/`) with a required `index.ts`.
+
+### Types Directory
+
+`types/` owns React-infrastructure types and cross-cutting utility types that are not domain concepts: prop aliases, HTML element type aliases, and generic utility types reused across unrelated modules.
+
+**What belongs in `types/`:**
+
+- The `HtmlProps` alias and similar React/HTML element type helpers
+- `FCProps<T>` and similar generic prop wrappers
+- Any type that is infrastructure (framework-level) rather than domain-level
+
+**What does NOT belong in `types/`:**
+
+- Domain error types — those belong in `domain/domainName/errors.ts`
+- Domain entity types — those belong in `domain/domainName/types.ts`
+- Types derived from db schemas — import directly from `@db/domainName`
+
+**Barrel requirement:** `types/` is a grouping folder. It requires a barrel (`types/index.ts`) with explicit named exports. External consumers import from `@/types`.
 
 ## State Management & Error Handling
 

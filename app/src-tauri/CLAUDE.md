@@ -4,7 +4,7 @@ This file provides guidance for working with the Rust backend code in the GM-Too
 
 ## Structure
 
-```
+```text
 src-tauri/src/
 ├── main.rs           # Entry point
 ├── lib.rs            # Main library with app setup
@@ -29,6 +29,7 @@ src-tauri/src/
 ### Adding New Commands
 
 1. **Create a new file** in the appropriate subdirectory:
+
    ```rust
    // src-tauri/src/commands/images/my_command.rs
    use tauri::Manager;
@@ -41,6 +42,7 @@ src-tauri/src/
    ```
 
 2. **Add to module file**:
+
    ```rust
    // src-tauri/src/commands/images/mod.rs
    mod my_command;
@@ -48,12 +50,14 @@ src-tauri/src/
    ```
 
 3. **Export from commands**:
+
    ```rust
    // src-tauri/src/commands/mod.rs
    pub use images::my_command;
    ```
 
 4. **Register in lib.rs**:
+
    ```rust
    .invoke_handler(tauri::generate_handler![
        commands::my_command,

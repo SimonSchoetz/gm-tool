@@ -95,6 +95,7 @@ export class SessionLoadError extends Error { ... }
 ```
 
 - **`as const` over `enum`**: Use `as const` objects with derived union types instead of TypeScript enums. Enums are runtime IIFE constructs that conflict with the "types over interfaces" posture. An `as const` object gives identical DX — dot-access, autocomplete, type narrowing, exhaustive checks — without a runtime construct.
+
   ```ts
   // ✅ GOOD
   export const Routes = {
@@ -131,7 +132,7 @@ export class SessionLoadError extends Error { ... }
   ✅ GOOD: `if (obj?.prop?.nested) { ... }`
 - use single quotes
 - multiple array/object items in new lines
-- **Markdown files must comply with markdownlint default rules.** No markdownlint config file exists in this repo — the defaults are the standard. This applies to all `.md` files in the repo.
+- **Markdown files must comply with markdownlint rules as defined in `.markdownlint.json` at the repo root.** Key configured rules: no line-length limit (MD013 off), blank-lines-around-lists not enforced (MD032 off), bold uses asterisk style `**bold**` (MD050). All other markdownlint defaults apply — code blocks must declare a language (MD040), first line must be H1 (MD041), blank lines around fences (MD031).
 
 ### Accountability on Missed Requirements
 
@@ -198,6 +199,7 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 
 - **Always Read a file before editing it in the current context window.** Treat any prior read state as lost after context compaction — do not assume a file read earlier in the session is still accurate. Re-read before editing.
 - **Verify before naming a path in any output.** Any file path named in output — briefs, specs, task lists, plans — makes a factual claim about the filesystem. Before listing a path as "to create", verify it does not already exist. Before listing a path as "to touch", verify it does exist. Absence of prior mention in the conversation is not evidence of absence in the codebase.
+- **Verify user-provided paths before treating them as facts.** When a user names a file or directory path during instruction refinement, auditing, or any artifact review, verify it exists (or does not exist) by reading the filesystem before accepting it as ground truth. User-provided paths are claims, not facts — the filesystem is the authority. This applies even when the path sounds plausible or matches a pattern used elsewhere in the repo.
 - **`npx tsc --noEmit` must pass with zero errors before any commit.** Run it once after all files for a sub-feature are written — not after every individual file edit, which produces noise from intentionally incomplete intermediate states. Pre-existing errors must be resolved before implementation begins — they are never filtered out, deferred, or treated as acceptable baseline noise. A commit that precedes a passing type-check is a commit on broken code.
 - **`npx vitest run` must pass with zero failures before any commit.** Run it once after all files for a sub-feature are written — same timing as tsc, not after every individual file edit. Pre-existing failures must be resolved before implementation begins — they are never filtered out or deferred. A commit that precedes a passing test run is a commit on broken code.
 - **Re-validate spec instructions that touch file organization before executing them.** A spec is written by a prior instance that may have mis-applied current conventions. Before executing any spec instruction that specifies barrel shape, export style, or directory structure — including "no change needed" — re-read the relevant CLAUDE.md barrel rules and verify the instruction is consistent. If it is not, apply the correct convention and note the deviation. The spec is a starting point, not a source of truth for convention questions.
@@ -215,7 +217,7 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 - **Export via barrel file**: Two directory types exist — distinguish them before adding or deleting a barrel:
   - **Module directory**: owns a single domain entity (`npcs/`, `adventures/`, `table-config/`). Always exposes its public API through an `index.ts`. This barrel is required.
   - **Grouping folder**: organizes module directories but owns no domain itself (`data-access-layer/`, `components/`, `util/`, `hooks/`, `services/`). Every grouping folder under `src/` **requires** a barrel (`index.ts`) with explicit named exports — `export *` is banned in grouping barrels. External consumers always import from exactly one level: `@/components`, `@/data-access-layer`, `@/util`, etc. — never deeper. Within-module imports use the module directory barrel via relative path (`./SortableListItem`, not `@/components/SortableList/SortableListItem`). Exceptions with no barrel: `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only), `assets/`.
-  - `@db` is an explicit exception: no grouping barrel exists at the db root due to operation name collisions across domains (`create`, `get`, `remove`, etc. exist in every domain module). `@db/domainName` is the expected import depth for all consumers — including type imports from the frontend. Never import from `@db/domainName/types` or deeper.
+  - `@db` is an explicit exception: no grouping barrel exists at the db root. See `app/db/CLAUDE.md` — Naming for the authoritative import depth rule.
   - In **module directory barrels**, `export *` is permitted when the file has a single, obvious public concern (one component + its types) with no internals to leak. Use explicit named exports when a file exports multiple distinct things or has implementation details that should stay private. The trigger: if you would have to think about whether a new export should be public, use explicit exports.
   - ✅ GOOD: `data-access-layer/npcs/index.ts` — module directory, barrel required
   - ✅ GOOD: `export { useNpcs, useNpc } from './npcs'` in a grouping barrel — explicit named exports only, never `export *`

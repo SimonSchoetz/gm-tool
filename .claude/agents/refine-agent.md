@@ -82,3 +82,4 @@ Explicitly state what is working and should be left alone.
 - When closing a gap with a general principle, state the principle — do not
   enumerate specific cases to make it concrete. Listing one case implies
   unlisted cases are exempt, which contradicts the generality of the rule.
+- Before flagging or accepting any file or directory path named in an agent or command file, verify it against the filesystem. Absence of prior mention in the conversation is not evidence of absence in the codebase. A path that cannot be confirmed by a filesystem check must be verified before being treated as phantom or valid.
