@@ -1,31 +1,3 @@
-# enums
-
-V5 — enum Routes compiles to a class-like construct app/src/routes/index.tsx Rule: "Classes are permitted only where a third-party framework API requires inheritance." TypeScript enum compiles to a mutable IIFE — it is not a plain type. CLAUDE.md says types over interfaces, no classes. Fix:
-export const Routes = { HOME: '/', ADVENTURES: 'adventures', // ... } as const; export type Route = (typeof Routes)[keyof typeof Routes];
-
-Valid catch. TypeScript enums compile to runtime IIFE objects — they're not plain types. The as const object gives identical DX (autocomplete, type narrowing) without the runtime construct.
-
-But this is pre-existing — the enum was there before the session work. The session implementation just added two entries to it. This is a "validate before replicating" miss: the implementer added to an existing pattern without checking if the pattern itself was convention-compliant.
-
-The fix is mechanical but wide — every file that imports Routes needs updating (route files, screen files, SideBarNav, Header). Worth doing as a standalone cleanup, not entangled with the session feature. Want me to add it as a separate spec, or is this small enough to just hand to a refactor instance directly?
-
-Well it's a valid catch when it comes to the instruction regarding classes. But should we really avoid using enums entirely? What's safer for you?
-
-Honestly — for me, both are equally safe to work with. I'll autocomplete and type-check either pattern correctly. This isn't a "Claude will make fewer mistakes" question.
-
-The real question is whether the convention should ban enums. My take: yes, prefer as const as the default, but not because enums are dangerous. It's about consistency with the project's existing posture:
-
-"types over interfaces" → you already prefer type-level constructs over runtime constructs
-as const gives the same DX (autocomplete, type narrowing, exhaustive checks) without being a special TypeScript-only syntax feature
-String enums don't reverse-map, so the one feature enums add over as const doesn't even apply here
-But calling it a "class" violation is a stretch — the reviewer is right about the spirit, wrong about the cited rule. Enums aren't classes. If you want to ban them, it deserves its own line in CLAUDE.md rather than being shoehorned under the class rule.
-
-Something like:
-
-as const over enum: Use as const objects with derived types instead of TypeScript enums. Enums are runtime constructs with compilation quirks; as const achieves the same type safety with a plain object.
-
-That said — this is cosmetic cleanup, not a structural risk. I'd queue it behind the actual session feature work, not block on it.
-
 # frontend implementation
 
 Can you tell me why you ignored the instructions "Raw pixel, color, and rem values are banned in component .css files." from @app/src/CLAUDE.md ? In many .css files I review just now are raw px values. I do not want you to fix this right now. But I want to know what went wrong
