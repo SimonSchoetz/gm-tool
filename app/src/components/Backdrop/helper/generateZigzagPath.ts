@@ -1,11 +1,13 @@
 import { RefObject } from 'react';
 import { Grid } from '../types';
 
-enum Direction {
-  LEFT = -1,
-  RIGHT = 1,
-  DOWN = 0,
-}
+const Direction = {
+  LEFT: -1,
+  RIGHT: 1,
+  DOWN: 0,
+} as const;
+
+type Direction = (typeof Direction)[keyof typeof Direction];
 
 export const generateZigzagPath = (
   gridRef: RefObject<Grid>
