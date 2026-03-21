@@ -91,6 +91,22 @@ export const sessionLoadError = (cause?: unknown): SessionLoadError => {
 export class SessionLoadError extends Error { ... }
 ```
 
+- **`as const` over `enum`**: Use `as const` objects with derived union types instead of TypeScript enums. Enums are runtime IIFE constructs that conflict with the "types over interfaces" posture. An `as const` object gives identical DX — dot-access, autocomplete, type narrowing, exhaustive checks — without a runtime construct.
+  ```ts
+  // ✅ GOOD
+  export const Routes = {
+    ADVENTURES: 'adventures',
+    SESSION: 'session',
+  } as const;
+  export type AppRoute = (typeof Routes)[keyof typeof Routes];
+
+  // ❌ BAD
+  export enum Routes {
+    ADVENTURES = 'adventures',
+    SESSION = 'session',
+  }
+  ```
+
 - Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
   - ❌ BAD: `let session: Session | undefined;`
   - ✅ GOOD: `let session: Session | null = null;`
