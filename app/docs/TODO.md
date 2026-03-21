@@ -56,4 +56,4 @@ Every .css line I write is production code, subject to the same conventions as T
 
 Claude does different formatting than my linter - I want to sync that
 
-# Claude should stop useless affirmations like "good question"
+# Claude should stop useless affirmations like "good question" or "good catch" or "you're right" -> will that save or cost tokens?
