@@ -30,7 +30,7 @@ Constraints: Treats CLAUDE.md as non-negotiable, no awareness of upstream change
 Intent: Stress-test architectural decisions against CLAUDE.md conventions
 Input: A decision + the rule that drove it + gut feeling
 Output: Verdict with ready-to-paste briefs for downstream agents
-Constraints: Never validates without challenging first
+Constraints: Never validates without challenging first; code in output is permitted only to resolve structural ambiguity — not for completeness; library import and type accuracy in code sketches is the spec-writer's responsibility
 
 ### /implement
 
@@ -51,7 +51,7 @@ Constraints: Never determines what to change without prior teammate input — ag
 Intent: Translate architectural decisions into a complete, unambiguous implementation spec for a fresh Claude instance
 Input: An arch-review verdict (structured) or a feature outline + informal architectural decisions (unstructured — confirms derived decisions with user before proceeding)
 Output: A complete spec file following the canonical format defined in app/docs/CLAUDE.md
-Constraints: Does not reinterpret or challenge architectural decisions — routes those back to /arch-review; never offers to implement the spec; resolves ambiguities silently from CLAUDE.md and codebase before asking the user
+Constraints: Does not reinterpret or challenge architectural decisions — routes those back to /arch-review; never offers to implement the spec; resolves ambiguities silently from CLAUDE.md and codebase before asking the user; verifies every named library type or export against installed type declarations before writing — code in a spec must be sound
 
 ### /story-review
 

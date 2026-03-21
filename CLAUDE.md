@@ -98,6 +98,13 @@ export class SessionLoadError extends Error { ... }
 - Use descriptive names instead of comments
   ❌ BAD: `const data = await fetch(); // Get user data`
   ✅ GOOD: `const userData = await fetchUserData();`
+- **Route explanatory knowledge to its narrowest correct scope.** When a name alone is insufficient, stop at the first level that fits:
+  1. **Inline comment** — specific to a single line, no meaning outside it
+  2. **Top-of-file comment** — applies to multiple constructs within one file
+  3. **Parent component comment** — scoped to a component subtree
+  4. **CLAUDE.md** — a codebase-wide convention any Claude instance must know
+
+  A comment that would need to be duplicated in more than one file is not a comment — it is a missing CLAUDE.md rule.
 - Use modern JavaScript operators for cleaner code:
   ❌ BAD: `const x = value !== undefined ? value : defaultValue`
   ✅ GOOD: `const x = value ?? defaultValue`
@@ -169,6 +176,7 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 - **Verify before naming a path in any output.** Any file path named in output — briefs, specs, task lists, plans — makes a factual claim about the filesystem. Before listing a path as "to create", verify it does not already exist. Before listing a path as "to touch", verify it does exist. Absence of prior mention in the conversation is not evidence of absence in the codebase.
 - **`npx tsc --noEmit` must pass with zero errors before any commit.** Run it once after all files for a sub-feature are written — not after every individual file edit, which produces noise from intentionally incomplete intermediate states. Pre-existing errors must be resolved before implementation begins — they are never filtered out, deferred, or treated as acceptable baseline noise. A commit that precedes a passing type-check is a commit on broken code.
 - **Re-validate spec instructions that touch file organization before executing them.** A spec is written by a prior instance that may have mis-applied current conventions. Before executing any spec instruction that specifies barrel shape, export style, or directory structure — including "no change needed" — re-read the relevant CLAUDE.md barrel rules and verify the instruction is consistent. If it is not, apply the correct convention and note the deviation. The spec is a starting point, not a source of truth for convention questions.
+- **Every code or type reference proposed in any artifact must be verified before inclusion — no exceptions.** Artifacts include specs, briefs, review fix proposals, architectural decision documents, and inline suggestions. Before including a symbol, import path, function signature, or type name: verify it is real by reading the file at the declared path and confirming the symbol is exported there. For third-party symbols, inspect the library's `index.d.ts` (see Third-Party Libraries). For first-party symbols, read the source file. A symbol that cannot be confirmed by a file read must not appear in the artifact — propose its creation explicitly instead. Training knowledge of what a file exports is never sufficient.
 
 #### File Organization
 

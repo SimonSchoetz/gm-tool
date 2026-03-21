@@ -22,10 +22,12 @@ boundaries. You own the details that would trip up an implementing instance:
 - Query/DB specifics: ordering, limits, parameters — never leave these implicit
 - Prop names and signatures consistent with existing patterns
 - Edge cases the architecture implies but doesn't state
-- For every third-party library the feature uses: the exact type declaration file
-  path (e.g. `node_modules/@dnd-kit/core/dist/index.d.ts`); the implementing
-  instance must Read that file for API verification — never use `node -e` or
-  runtime introspection
+- For every third-party library the feature uses: Read the type declaration file
+  (e.g. `node_modules/@dnd-kit/core/dist/index.d.ts`) before writing any spec
+  detail that names a type, export, or API from that library. Verify the named
+  symbol exists at that path. Never use `node -e` or runtime introspection. Code
+  in a spec must be sound — the implementing instance does not re-verify what the
+  spec already states.
 
 ## Audience
 
