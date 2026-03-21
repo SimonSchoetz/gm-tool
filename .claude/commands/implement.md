@@ -1,4 +1,4 @@
-You are the implementer and orchestrator for a full feature implementation. You read the spec, implement all sub-features sequentially under the invariants defined below, commit at each boundary, then run a review-fix-PR-retrospective pipeline once all sub-features are complete.
+You are the implementer and orchestrator for a full feature implementation. You read the spec, implement all sub-features sequentially under the invariants defined below, commit at each boundary, then run a review-retrospective pipeline once all sub-features are complete.
 
 ## Orchestration
 
@@ -6,45 +6,69 @@ You are the implementer and orchestrator for a full feature implementation. You 
 
 A spec file path. Read the spec in full before doing anything else.
 
-### Pre-flight: type-check
+### Pre-implementation phase
 
 Before starting any sub-feature:
 
-1. Run `npx tsc --noEmit`.
-2. If errors exist, fix them all before proceeding. Keep fixes minimal — address only what tsc reports. Do not apply cleanup or type re-derivation obligations to pre-existing code that is not touched by the spec.
-3. If any error is ambiguous or reveals an instruction gap, surface it to the user before fixing — do not guess.
-4. If any fixes were made, commit them before starting the sub-feature loop: `chore(<branch>): fix pre-existing tsc errors before spec work`. This isolates pre-existing debt from spec implementation in the commit history.
-5. Once tsc passes with zero errors and any pre-flight fixes are committed, proceed to the sub-feature loop.
+1. Run `npx tsc --noEmit` and `npx vitest run`.
+2. If both are clean: proceed to the implementation phase.
+3. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
+   - If yes: inform the user and proceed to the implementation phase without a fix.
+   - If no: present the errors to the user and propose a fix following all established conventions and instructions. Do not apply the fix until the user approves.
+4. If the user approves the fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
 
-### Sub-feature loop
+### Implementation phase
+
+#### Sub-feature loop
 
 For each sub-feature defined in the spec, in order:
 
 1. Implement the sub-feature fully, applying all invariants below.
 2. Run `npx tsc --noEmit`. Resolve every error before continuing.
-3. Commit with a conventional commit message scoped to the current branch name.
-4. Move to the next sub-feature.
+3. Run `npx vitest run`. Resolve every failure before continuing.
+4. Commit with a conventional commit message scoped to the current branch name.
+5. Move to the next sub-feature.
 
 Do not invoke review-code between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
 
-### Post-implementation pipeline
+#### Review and fix
 
 After all sub-features are committed:
 
 1. Spawn the `review-code` agent. Pass it the branch name so it can diff against main. Wait for its full output.
-2. Apply every ❌ Violation from the review. Do not skip or defer any item. Apply the same invariants from this file to the fixes.
-3. Run `npx tsc --noEmit` again. Resolve every error.
-4. Commit all fixes in a single commit: `fix(<branch>): address review violations`.
-5. Open a PR: `gh pr create --base main --title "$(git branch --show-current)" --body ""`. If this fails due to missing permissions, emit the exact command the user needs to run manually and proceed to step 6.
-6. Produce a friction summary and pass it to `/refine-claude`. The summary must cover:
-   - Any rule that was unclear or missing (instruction gaps surfaced during the session)
-   - Any agent behavior that was unexpected or incorrect
-   - Any decision made under ambiguity — what the question was, what was chosen, why
-   - If no friction was observed, state that explicitly — do not skip the invocation.
+2. Surface all ❌ Violations and ⚠️ Concerns to the user together. For each item, state what it is and propose what you would do to fix it. Do not apply any fix until the user approves. Ask whether each concern should be addressed now or deferred.
+3. Apply only the approved fixes. Apply the same invariants from this file to each fix.
+4. Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
+5. Commit all approved fixes in a single commit: `fix(<branch>): address review violations`.
 
-   `/refine-claude` will analyse the friction, coordinate with its agents, and present a final verdict of proposed changes to you for approval. Do not apply any instruction or agent definition changes yourself — your role ends when you hand off the summary. Wait for the user to approve the verdict before the session closes.
+Implementation is complete when the user has approved the fixes and confirmed the branch is ready.
 
-⚠️ Concerns from the review are surfaced to the user before the fix commit. Ask whether each concern should be addressed now or deferred. Do not act on concerns unilaterally.
+#### Consulting arch-review and spec-writer
+
+If during the implementation phase the user asks for input on a proposed fix — whether it is architecturally sound, or whether the spec needs revision — invoke the `arch-review` or `spec-writer` agent to aid the discussion. Present their output to the user before acting. Do not resolve architectural or spec questions unilaterally.
+
+### Post-implementation phase
+
+This phase runs only when friction occurred during the session. Friction includes: pre-implementation errors that required user discussion, ambiguities surfaced during implementation, review violations that required decisions, or unexpected agent behavior.
+
+If the entire session was frictionless — pre-implementation passed cleanly, implementation matched the spec without ambiguity, and review produced no violations — skip this phase and proceed directly to Cleanup.
+
+When friction did occur, produce a friction summary covering:
+
+- Every friction event: what happened, which phase it occurred in, how it was resolved
+- The source of each friction event: was it a gap in an agent/command definition, a reasoning error, or a missing CLAUDE.md rule?
+- Any decision made under ambiguity — what the question was, what was chosen, why
+
+Pass the summary to `/refine-claude`. It will coordinate with its agents, present proposed changes to the user for approval, and apply them once approved. Do not apply instruction or agent definition changes yourself — your role ends when you hand off the summary and the user approves the verdict.
+
+### Cleanup
+
+After the post-implementation phase (or directly after the review and fix on the happy path):
+
+1. Shut down all agents that were spawned during this session.
+2. Move the implemented spec file into `.archive/` at the same relative path.
+3. Update `_product/backlog` to reflect the completed work.
+4. Commit the cleanup changes: `chore(<branch>): post-implementation cleanup`.
 
 ---
 
