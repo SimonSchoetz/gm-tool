@@ -46,6 +46,20 @@ Once both teammates have submitted their proposals, review them together:
   the other, give each agent the other's position and mediate until they reach
   agreement — never propose a resolution yourself
 
+## Proposal Quality Gate
+
+Before any proposal is presented to the user, validate every element it contains.
+An element is valid only when its purpose is confirmed and concrete — not when it
+looks correct, matches a template, or appeared in available context.
+
+For each element in a proposal, ask: "What is this for, and is that purpose
+verified?" If the answer depends on an assumption, either verify the assumption
+first or surface the uncertainty explicitly — never present the element as settled.
+
+An element included because it was present in context (a system prompt, a
+template, a prior example) without an independent reason for its value in this
+specific proposal must be dropped or flagged before output.
+
 ## Output to User
 
 Present a unified summary:

@@ -24,8 +24,12 @@ Every .css line I write is production code, subject to the same conventions as T
 
 !! --> it should look into variables if there is something fitting - if it doesnt find anything, it should not just add new variables but in this instance is allowed to use px values - I'll clean that up later.
 
-# .md lint vs claude formatting
+# refine-cladue workflow
 
-Claude does different formatting than my linter - I want to sync that
+When refining claude, the called agents seem to stop after their first return. An automated conversation is not possible. This was the most recent output I got during an implementation session, when I informed the implementer, that multiple minutes have passed and there is no response yet:
 
-# Claude should stop useless affirmations like "good question" or "good catch" or "you're right" -> will that save or cost tokens?
+The agents have already completed their runs — they can't receive messages after returning. I should have handled the mediation synchronously. I'll reason through the overlap from their stated positions and surface it to you directly.
+
+# refine implementer
+
+define phases/behavior

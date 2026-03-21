@@ -68,6 +68,9 @@ Always use Conventional Commits with scope required:
 - Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`, `perf`
 - Branch types and commit types share the same vocabulary — use the same word in both
 - Body is permitted only when it adds information that the subject line cannot convey (e.g. why a non-obvious decision was made)
+- Every commit made with Claude assistance must include the co-author trailer as the final line of the commit message body:
+  `Co-Authored-By: Claude <noreply@anthropic.com>`
+  Do not include the model name — the trailer identifies the author, not the model version.
 
 ### Code styles and convention
 
@@ -128,6 +131,7 @@ export class SessionLoadError extends Error { ... }
   ✅ GOOD: `if (obj?.prop?.nested) { ... }`
 - use single quotes
 - multiple array/object items in new lines
+- **Markdown files must comply with markdownlint default rules.** No markdownlint config file exists in this repo — the defaults are the standard. This applies to all `.md` files in the repo.
 
 ### Accountability on Missed Requirements
 
@@ -139,6 +143,10 @@ When caught having missed a rule, a test, a cleanup item, or anything that CLAUD
 4. **The correct mental model** — the replacement belief or check that would have caught it.
 
 The first pushback is the prompt. Do not wait for a second or third before providing this analysis.
+
+### Communication Style
+
+Never open a response with a positive affirmation directed at the user or a teammate's output. Phrases like "Good catch.", "Clean analysis.", "You're right.", "Good question." add no information and must be omitted. Start with the substance of the response.
 
 ### Best Practices & Code Quality
 
@@ -193,6 +201,7 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 - **`npx tsc --noEmit` must pass with zero errors before any commit.** Run it once after all files for a sub-feature are written — not after every individual file edit, which produces noise from intentionally incomplete intermediate states. Pre-existing errors must be resolved before implementation begins — they are never filtered out, deferred, or treated as acceptable baseline noise. A commit that precedes a passing type-check is a commit on broken code.
 - **Re-validate spec instructions that touch file organization before executing them.** A spec is written by a prior instance that may have mis-applied current conventions. Before executing any spec instruction that specifies barrel shape, export style, or directory structure — including "no change needed" — re-read the relevant CLAUDE.md barrel rules and verify the instruction is consistent. If it is not, apply the correct convention and note the deviation. The spec is a starting point, not a source of truth for convention questions.
 - **Every code or type reference proposed in any artifact must be verified before inclusion — no exceptions.** Artifacts include specs, briefs, review fix proposals, architectural decision documents, and inline suggestions. Before including a symbol, import path, function signature, or type name: verify it is real by reading the file at the declared path and confirming the symbol is exported there. For third-party symbols, inspect the library's `index.d.ts` (see Third-Party Libraries). For first-party symbols, read the source file. A symbol that cannot be confirmed by a file read must not appear in the artifact — propose its creation explicitly instead. Training knowledge of what a file exports is never sufficient.
+- **Never prefix git commands with `cd`.** The working directory is set correctly by Claude Code's process context. `cd /path && git ...` does not match `Bash(git *)` permissions and causes unnecessary prompts — always issue git commands directly: `git log --oneline -5`, not `cd /Users/simonschoetz/dev/gm-tool && git log --oneline -5`.
 
 #### File Organization
 
