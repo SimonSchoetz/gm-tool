@@ -13,7 +13,7 @@ const getSearchableText = <T extends Record<string, unknown>>(
 };
 
 const termMatchesItem = <T extends Record<string, unknown>>(
-  term: keyof T & string,
+  term: string,
   item: T,
   searchableColumns: string[],
 ): boolean => {
@@ -25,7 +25,7 @@ const termMatchesItem = <T extends Record<string, unknown>>(
 };
 
 export const allTermsMatchItem = <T extends Record<string, unknown>>(
-  terms: Array<keyof T & string>,
+  terms: string[],
   item: T,
   searchableColumns: string[],
 ): boolean =>

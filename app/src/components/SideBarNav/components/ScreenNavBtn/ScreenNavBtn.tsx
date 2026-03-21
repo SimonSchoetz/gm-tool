@@ -1,28 +1,30 @@
 import { GlassPanel } from '@/components';
-import { Routes } from '@/routes';
+import type { AppRoute } from '@/types';
 import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';
-import { Link, useRouterState } from '@tanstack/react-router';
+import { Link, useMatch } from '@tanstack/react-router';
 import '../NavButton.css';
 import './ScreenNavBtn.css';
 import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 
 type Props = {
   label: string;
-  targetRoute: Routes | string;
+  to: AppRoute;
+  params?: Record<string, string>;
   searchParams?: Record<string, string>;
   isDisabled?: boolean;
 } & HtmlProps<'a'>;
 
 export const ScreenNavBtn: FCProps<Props> = ({
   label,
-  targetRoute,
+  to,
+  params,
   searchParams,
   isDisabled = false,
   ...props
 }) => {
-  const location = useRouterState({ select: (s) => s.location });
-  const isAtTarget = location.href === targetRoute;
+  // shouldThrow: false is required — omitting it causes a runtime error when the route is not active
+  const isAtTarget = !!useMatch({ from: to, shouldThrow: false });
 
   return (
     <GlassPanel
@@ -36,7 +38,8 @@ export const ScreenNavBtn: FCProps<Props> = ({
       )}
     >
       <Link
-        to={targetRoute}
+        to={to}
+        params={params}
         search={searchParams}
         disabled={isDisabled}
         aria-disabled={isDisabled || isAtTarget}

@@ -1,3 +1,4 @@
-export * from './htmlProps.type';
-export * from './fcProps.type';
-export * from './fileTypes.type';
+export type { HtmlProps } from './htmlProps.type';
+export type { FCProps } from './fcProps.type';
+export type { FileTypes } from './fileTypes.type';
+export type { AppRoute } from './appRoute.type';

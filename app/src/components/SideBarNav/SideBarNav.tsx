@@ -3,7 +3,6 @@ import './SideBarNav.css';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { FwBwNav } from './components';
 import { ScreenNavBtn } from './components/ScreenNavBtn/ScreenNavBtn';
-import { Routes } from '@/routes';
 import { useRouterState } from '@tanstack/react-router';
 
 type Props = HtmlProps<'aside'>;
@@ -22,24 +21,26 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
         <FwBwNav />
         <ScreenNavBtn
           label='Adventures'
-          targetRoute={`/${Routes.ADVENTURES}`}
+          to='/adventures'
         />
 
         <ScreenNavBtn
           label='NPCs'
-          targetRoute={`/${Routes.ADVENTURE}/${adventureId}/${Routes.NPCS}`}
+          to='/adventure/$adventureId/npcs'
+          params={{ adventureId: adventureId ?? '' }}
           isDisabled={!adventureId}
         />
 
         <ScreenNavBtn
           label='Sessions'
-          targetRoute={`/${Routes.ADVENTURE}/${adventureId}/${Routes.SESSIONS}`}
+          to='/adventure/$adventureId/sessions'
+          params={{ adventureId: adventureId ?? '' }}
           isDisabled={!adventureId}
         />
 
         <ScreenNavBtn
           label='Settings'
-          targetRoute={`/${Routes.SETTINGS}`}
+          to='/settings'
         />
       </GlassPanel>
     </aside>
