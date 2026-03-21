@@ -11,7 +11,6 @@ export const Routes = {
   SETTINGS: 'settings',
 } as const;
 
-export type AppRoute = (typeof Routes)[keyof typeof Routes];
 
 export const Route = createFileRoute(Routes.HOME)({
   beforeLoad: () => {
