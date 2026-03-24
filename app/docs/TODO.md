@@ -29,7 +29,3 @@ Every .css line I write is production code, subject to the same conventions as T
 When refining claude, the called agents seem to stop after their first return. An automated conversation is not possible. This was the most recent output I got during an implementation session, when I informed the implementer, that multiple minutes have passed and there is no response yet:
 
 The agents have already completed their runs — they can't receive messages after returning. I should have handled the mediation synchronously. I'll reason through the overlap from their stated positions and surface it to you directly.
-
-# refine implementer
-
-define phases/behavior

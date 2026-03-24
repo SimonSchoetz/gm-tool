@@ -4,10 +4,7 @@
 
 ### Horizontal Build
 
-- Refactor: Enums to types
 - Fix: Claude's Frontend Implementation
-- Fix: Claude's .md formatting vs lint rules
-- Fix: Claude's output adding stuff like "Good question"
 - Feature: Session Screens
   - Sub-Feature: Lazy DM Steps
 - Feature: Summary Popup
@@ -30,6 +27,9 @@
 
 ### Done
 
+- Refactor: Enums to types
+- Fix: Claude's .md formatting vs lint rules
+- Fix: Claude's output adding stuff like "Good question"
 - Refactor: Error Handling
 - Feature: Automated commit message generation from branch name
 - Fix: Tests
