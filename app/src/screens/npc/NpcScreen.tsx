@@ -42,7 +42,7 @@ export const NpcScreen = () => {
         <aside className='npc-sidebar'>
           <UploadImgBtn
             dimensions={{ width: '200px', height: '200px' }}
-            image_id={npc.image_id}
+            image_id={npc.image_id ?? null}
             uploadFn={(filePath) =>
               updateNpc({
                 imgFilePath: filePath,

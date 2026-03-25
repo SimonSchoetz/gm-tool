@@ -44,7 +44,7 @@ export const AdventureScreen = () => {
       <GlassPanel className={cn('adventure-screen')}>
         <aside className='adventure-sidebar'>
           <UploadImgBtn
-            image_id={adventure.image_id}
+            image_id={adventure.image_id ?? null}
             uploadFn={(filePath) =>
               updateAdventure({
                 imgFilePath: filePath,
