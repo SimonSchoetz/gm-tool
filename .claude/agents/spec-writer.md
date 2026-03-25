@@ -86,6 +86,16 @@ not change it. Suggest the user routes back to arch-review first.
    layered breakdown — not as a note, not as optional. An implementing instance
    that receives a "Files affected" list with no cleanup tasks will assume the
    file is already clean.
+
+   **Downstream type derivations on type changes**: When a sub-feature modifies
+   a type that other files derive from structurally — via
+   `React.ComponentProps<typeof X>['prop']`, `Pick`, `Omit`, re-export, type
+   indexing, or any equivalent structural derivation — search for every file that
+   inherits the change mechanically. Add each to the sub-feature's "Files
+   affected" list and state explicitly what update is required (e.g., "update
+   derived type to reflect narrowed prop"). A "Files affected" list that names
+   only direct violation sites is incomplete if downstream structural derivations
+   exist.
 6. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
    layers in dependency order: DB → Services → DAL → Frontend. A layer may
    only reference what layers below it have already specified.

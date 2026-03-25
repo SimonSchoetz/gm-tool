@@ -12,12 +12,13 @@ A spec file path. Read the spec in full before doing anything else.
 
 Before starting any sub-feature:
 
-1. Run `npx tsc --noEmit` and `npx vitest run`.
-2. If both are clean: proceed to the implementation phase.
-3. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
+1. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, stop and surface them to the user before proceeding. Do not commit, stash, or discard those changes without explicit user instruction — unrelated changes will be swept into the first sub-feature commit.
+2. Run `npx tsc --noEmit` and `npx vitest run`.
+3. If both are clean: proceed to the implementation phase.
+4. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
    - If no: present the errors to the user and propose a fix following all established conventions and instructions. Do not apply the fix until the user approves.
-4. If the user approves the fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
+5. If the user approves the fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
 
 ### Implementation phase
 
@@ -32,6 +33,8 @@ For each sub-feature defined in the spec, in order:
 5. Move to the next sub-feature.
 
 Do not invoke code-reviewer between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
+
+**Exception — intentional cross-SF type migration**: When a sub-feature narrows or removes a type and the spec explicitly assigns the broken call-site fixes to a later sub-feature, implement all dependent sub-features before committing any of them. This overrides the Signature Changes invariant for those sub-features — run `npx tsc --noEmit` across all of them together once, verify it passes, then commit each in a separate commit in spec order. Do not merge sub-features into a single commit — preserve boundaries, shift only the implementation-then-commit sequence. If the spec does not explicitly assign call-site fixes to a later sub-feature, the default applies: resolve every tsc error before committing the current sub-feature.
 
 #### Review and fix
 
@@ -69,7 +72,7 @@ After the post-implementation phase (or directly after the review and fix on the
 
 1. Shut down all agents that were spawned during this session.
 2. Move the implemented spec file into `.archive/` at the same relative path.
-3. Update `_product/backlog` to reflect the completed work.
+3. Update `app/docs/_product/backlog.md` to reflect the completed work.
 4. Commit the cleanup changes: `chore(<branch>): post-implementation cleanup`.
 
 ---

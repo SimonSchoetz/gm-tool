@@ -27,6 +27,7 @@
 
 ### Done
 
+- Fix: exactOptionalPropertyTypes cleanup
 - Refactor: Enums to types
 - Fix: Claude's .md formatting vs lint rules
 - Fix: Claude's output adding stuff like "Good question"
