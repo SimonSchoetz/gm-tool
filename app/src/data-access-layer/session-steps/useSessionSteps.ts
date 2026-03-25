@@ -16,7 +16,7 @@ type UseSessionStepsReturn = {
 };
 
 type DebounceEntry = {
-  timeout?: NodeJS.Timeout;
+  timeout: NodeJS.Timeout | null;
   pending: UpdateSessionStepInput;
 };
 
@@ -27,7 +27,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   useEffect(() => {
     const map = debounceMapRef.current;
     return () => {
-      map.forEach((entry) => clearTimeout(entry.timeout));
+      map.forEach((entry) => clearTimeout(entry.timeout ?? undefined));
     };
   }, []);
 
@@ -78,7 +78,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
       if (existing.timeout) clearTimeout(existing.timeout);
       existing.pending = { ...existing.pending, ...data };
     } else {
-      map.set(stepId, { pending: { ...data } });
+      map.set(stepId, { timeout: null, pending: { ...data } });
     }
 
     const entry = map.get(stepId)!;
