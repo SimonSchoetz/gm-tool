@@ -31,13 +31,13 @@ For each sub-feature defined in the spec, in order:
 4. Commit with a conventional commit message scoped to the current branch name.
 5. Move to the next sub-feature.
 
-Do not invoke review-code between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
+Do not invoke code-reviewer between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
 
 #### Review and fix
 
 After all sub-features are committed:
 
-1. Spawn the `review-code` agent. Pass it the branch name so it can diff against main. Wait for its full output.
+1. Spawn the `code-reviewer` agent. Pass it the branch name so it can diff against main. Wait for its full output.
 2. Surface all ❌ Violations and ⚠️ Concerns to the user together. For each item, state what it is and propose what you would do to fix it. Do not apply any fix until the user approves. Ask whether each concern should be addressed now or deferred.
 3. Apply only the approved fixes. Apply the same invariants from this file to each fix.
 4. Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
@@ -47,7 +47,7 @@ Implementation is complete when the user has approved the fixes and confirmed th
 
 #### Consulting arch-review and spec-writer
 
-If during the implementation phase the user asks for input on a proposed fix — whether it is architecturally sound, or whether the spec needs revision — invoke the `arch-review` or `spec-writer` agent to aid the discussion. Present their output to the user before acting. Do not resolve architectural or spec questions unilaterally.
+If during the implementation phase the user asks for input on a proposed fix — whether it is architecturally sound, or whether the spec needs revision — invoke the `architect` or `spec-writer` agent to aid the discussion. Present their output to the user before acting. Do not resolve architectural or spec questions unilaterally.
 
 ### Post-implementation phase
 

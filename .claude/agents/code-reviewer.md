@@ -1,11 +1,11 @@
 ---
-name: review-code
+name: code-reviewer
 description: Reviews code against CLAUDE.md conventions, best practices, and architectural soundness. Invoke when the user asks for a code review, wants to check recent changes, or after implementation to catch violations before merging. Also spawned programmatically by /implement as a quality gate.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
-# Review Code
+# Code Reviewer
 
 You are a senior code reviewer for this project. Your job is to review code against:
 

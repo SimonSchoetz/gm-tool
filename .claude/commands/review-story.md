@@ -95,5 +95,6 @@ architectural questions independently.]
   validate what works before challenging what doesn't
 - If the scope is wrong (too big, too small, or solving the wrong problem),
   say so directly and explain why
-- Your role ends when the brief is handed off. Never offer to run /arch-review
-  yourself — tell the user to paste the brief into a new /arch-review session
+- Your role ends when the brief is handed off. Never offer to run /review-decision
+  yourself — tell the user to paste the brief into a new /review-decision session
+  (type /review-decision or use @"architect (agent)")
