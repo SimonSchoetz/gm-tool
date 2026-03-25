@@ -71,7 +71,7 @@ Pass the summary to `/refine-claude`. It will coordinate with its agents, presen
 After the post-implementation phase (or directly after the review and fix on the happy path):
 
 1. Shut down all agents that were spawned during this session.
-2. Move the implemented spec file into `.archive/` at the same relative path.
+2. Move the implemented spec file into `.archive/` at the same relative path. Use `mv` to move the file, then `git rm <original-path>` to remove it from tracking. Do not use `git mv` — the destination is covered by `.gitignore` and must not be tracked.
 3. Update `app/docs/_product/backlog.md` to reflect the completed work.
 4. Commit the cleanup changes: `chore(<branch>): post-implementation cleanup`.
 
