@@ -1,5 +1,5 @@
 import { GlassPanel } from '@/components';
-import type { AppRoute, HtmlProps, FCProps } from '@/types';
+import type { AppRoute, FCProps } from '@/types';
 import { cn } from '@/util';
 import { Link, useMatch } from '@tanstack/react-router';
 import '../NavButton.css';
@@ -12,7 +12,7 @@ type Props = {
   params?: Record<string, string>;
   searchParams?: Record<string, string>;
   isDisabled?: boolean;
-} & HtmlProps<'a'>;
+};
 
 export const ScreenNavBtn: FCProps<Props> = ({
   label,

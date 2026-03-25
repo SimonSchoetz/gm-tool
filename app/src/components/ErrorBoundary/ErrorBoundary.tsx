@@ -15,7 +15,7 @@ const ErrorFallback: FunctionComponent<FallbackProps> = ({
   const isDevelopment = import.meta.env.DEV;
 
   const errorMessage = error instanceof Error ? error.message : String(error);
-  const errorStack = error instanceof Error ? error.stack : undefined;
+  const errorStack = error instanceof Error ? (error.stack ?? null) : null;
 
   return (
     <GlassPanel className={cn('error-boundary-panel')} intensity='bright'>

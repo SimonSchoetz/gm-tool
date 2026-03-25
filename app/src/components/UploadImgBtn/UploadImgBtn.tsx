@@ -5,7 +5,7 @@ import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFram
 import './UploadImgBtn.css';
 
 type Props = {
-  image_id?: string | null | undefined;
+  image_id?: string | null;
   title?: string;
   dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
   uploadFn: (filePath: string) => void;
@@ -18,7 +18,7 @@ export const UploadImgBtn = ({
   uploadFn,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
     if (isLoading) return;
@@ -32,7 +32,7 @@ export const UploadImgBtn = ({
         uploadFn(filePath);
       }
     } catch (err) {
-      setError(err?.toString());
+      setError(err?.toString() ?? null);
     } finally {
       setIsLoading(false);
     }
