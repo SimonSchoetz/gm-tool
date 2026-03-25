@@ -125,6 +125,7 @@ export class SessionLoadError extends Error { ... }
   4. **CLAUDE.md** — a codebase-wide convention any Claude instance must know
 
   A comment that would need to be duplicated in more than one file is not a comment — it is a missing CLAUDE.md rule.
+
 - Use modern JavaScript operators for cleaner code:
   ❌ BAD: `const x = value !== undefined ? value : defaultValue`
   ✅ GOOD: `const x = value ?? defaultValue`
@@ -138,12 +139,14 @@ export class SessionLoadError extends Error { ... }
 
 When caught having missed a rule, a test, a cleanup item, or anything that CLAUDE.md or project conventions required, do not stop at acknowledging the miss. On the first pushback — before being asked again — immediately provide all four of the following:
 
-1. **Which rule applies** — cite it exactly and state why it is not scoped to a subset of cases (i.e., why it applied here).
+1. **Which rule applies** — cite it exactly, state why it is not scoped to a subset of cases (i.e., why it applied here), and identify its source: explicit instruction in CLAUDE.md, inferred from project conventions, inferred from examples, or derived from general principles.
 2. **Why it was missed** — not what was wrong in the output, but what went wrong in the reasoning process that produced the miss.
 3. **The wrong mental model** — the assumption or shortcut that caused the reasoning to fail.
 4. **The correct mental model** — the replacement belief or check that would have caught it.
 
 The first pushback is the prompt. Do not wait for a second or third before providing this analysis.
+
+If the source in point 1 is anything other than explicit instruction in CLAUDE.md, flag it: "This rule is not yet written down explicitly — consider adding it to CLAUDE.md."
 
 ### Communication Style
 
