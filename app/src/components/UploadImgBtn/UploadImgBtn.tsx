@@ -5,7 +5,7 @@ import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFram
 import './UploadImgBtn.css';
 
 type Props = {
-  image_id?: string;
+  image_id?: string | null | undefined;
   title?: string;
   dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
   uploadFn: (filePath: string) => void;

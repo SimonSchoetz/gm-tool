@@ -8,7 +8,7 @@ type Props = {
   shimmerContent?: string;
 };
 
-export const HoloFX: FCProps<Props> = ({ shimmerContent, isActive }) => {
+export const HoloFX: FCProps<Props> = ({ shimmerContent = '', isActive }) => {
   return (
     <div className={cn('holo-fx-container', isActive && 'active')}>
       <Glare />

@@ -4,7 +4,7 @@ import './SearchInput.css';
 
 type SearchInputProps = {
   onSearch: (term: string) => void;
-  placeholder?: string;
+  placeholder?: string | undefined;
   debounceMs?: number;
 };
 

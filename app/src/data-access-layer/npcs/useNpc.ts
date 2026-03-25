@@ -59,7 +59,7 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     // Optimistic cache update for instant UI response
     queryClient.setQueryData<Npc>(npcKeys.detail(npcId), (old) => {
       if (!old) return old;
-      return { ...old, ...data };
+      return { ...old, ...data } as Npc;
     });
 
     // Accumulate pending updates

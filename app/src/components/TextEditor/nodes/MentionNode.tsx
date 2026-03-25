@@ -7,7 +7,7 @@ export type SerializedMentionNode = SerializedLexicalNode & {
   entityType: string;
   displayName: string;
   color: string;
-  adventureId?: string;
+  adventureId?: string | undefined;
 };
 
 export class MentionNode extends DecoratorNode<JSX.Element> {
@@ -15,7 +15,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
   __entityType: string;
   __displayName: string;
   __color: string;
-  __adventureId?: string;
+  __adventureId: string | undefined;
 
   constructor(
     entityId: string,

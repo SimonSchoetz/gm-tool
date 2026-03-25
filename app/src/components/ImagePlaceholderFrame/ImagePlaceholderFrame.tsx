@@ -8,7 +8,7 @@ type Props = React.ComponentProps<typeof GlassPanel> & {
   dimensions?: {
     width: CSSProperties['width'];
     height: CSSProperties['height'];
-  };
+  } | undefined;
 };
 
 export const ImagePlaceholderFrame = ({

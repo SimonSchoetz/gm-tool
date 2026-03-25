@@ -69,7 +69,7 @@ export const TextEditor: FCProps<Props> = ({
     theme,
     onError: (err: Error) => console.error('Lexical error:', err),
     nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
-    editorState: value || undefined,
+    editorState: value || null,
     editable: !readOnly,
   };
 

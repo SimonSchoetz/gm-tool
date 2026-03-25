@@ -25,7 +25,9 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "erasableSyntaxOnly": true,
+    "exactOptionalPropertyTypes": true
   },
   "include": ["src", "db"],
   "references": [{ "path": "./tsconfig.node.json" }]

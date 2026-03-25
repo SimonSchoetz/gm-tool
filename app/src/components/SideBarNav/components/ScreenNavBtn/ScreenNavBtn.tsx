@@ -1,6 +1,5 @@
 import { GlassPanel } from '@/components';
-import type { AppRoute } from '@/types';
-import { FCProps, HtmlProps } from '@/types';
+import type { AppRoute, HtmlProps, FCProps } from '@/types';
 import { cn } from '@/util';
 import { Link, useMatch } from '@tanstack/react-router';
 import '../NavButton.css';
@@ -21,7 +20,6 @@ export const ScreenNavBtn: FCProps<Props> = ({
   params,
   searchParams,
   isDisabled = false,
-  ...props
 }) => {
   // shouldThrow: false is required — omitting it causes a runtime error when the route is not active
   const isAtTarget = !!useMatch({ from: to, shouldThrow: false });
@@ -39,13 +37,12 @@ export const ScreenNavBtn: FCProps<Props> = ({
     >
       <Link
         to={to}
-        params={params}
-        search={searchParams}
+        {...(params !== undefined ? { params } : {})}
+        {...(searchParams !== undefined ? { search: searchParams } : {})}
         disabled={isDisabled}
         aria-disabled={isDisabled || isAtTarget}
         aria-label={`Navigate to ${label}`}
         className={cn('screen-nav-btn-content', 'content-center')}
-        {...props}
       >
         <ChevronsLeftIcon className={cn(isAtTarget && 'active')} />
         <span>{label}</span>

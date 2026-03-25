@@ -57,7 +57,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
       adventureKeys.detail(adventureId),
       (old) => {
         if (!old) return old;
-        return { ...old, ...data };
+        return { ...old, ...data } as Adventure;
       },
     );
 

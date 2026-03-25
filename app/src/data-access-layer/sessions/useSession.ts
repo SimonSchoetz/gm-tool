@@ -51,7 +51,7 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
 
     queryClient.setQueryData<Session>(sessionKeys.detail(sessionId), (old) => {
       if (!old) return old;
-      return { ...old, ...data };
+      return { ...old, ...data } as Session;
     });
 
     pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...data };

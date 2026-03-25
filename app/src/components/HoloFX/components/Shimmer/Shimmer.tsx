@@ -5,7 +5,7 @@ import './Shimmer.css';
 type Props = { shimmerContent?: string } & HtmlProps<'div'>;
 
 export const Shimmer: FCProps<Props> = ({
-  shimmerContent,
+  shimmerContent = '',
   className,
   ...props
 }) => {
@@ -14,7 +14,7 @@ export const Shimmer: FCProps<Props> = ({
       className={cn('holo-fx-shimmer', className)}
       style={
         {
-          '--shimmer-content': shimmerContent ? `"${shimmerContent}"` : '""',
+          '--shimmer-content': `"${shimmerContent}"`,
         } as React.CSSProperties
       }
       {...props}

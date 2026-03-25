@@ -67,7 +67,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const updateStep = (stepId: string, data: UpdateSessionStepInput) => {
     queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
       if (!old) return old;
-      return old.map((step) => (step.id === stepId ? { ...step, ...data } : step));
+      return old.map((step) => (step.id === stepId ? { ...step, ...data } as SessionStep : step));
     });
 
     const map = debounceMapRef.current;

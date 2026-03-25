@@ -47,7 +47,7 @@ export const ErrorBoundary = ({ children, onReset }: ErrorBoundaryProps) => {
   return (
     <ReactErrorBoundary
       FallbackComponent={ErrorFallback}
-      onReset={onReset}
+      onReset={onReset ?? (() => {})}
       onError={(error, errorInfo) => {
         // Log to console in development
         if (import.meta.env.DEV) {
