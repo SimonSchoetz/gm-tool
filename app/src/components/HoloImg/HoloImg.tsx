@@ -30,7 +30,7 @@ export const HoloImg: FCProps<Props> = ({
       {...props}
     >
       <ImagePlaceholderFrame
-        dimensions={dimensions}
+        {...(dimensions !== undefined ? { dimensions } : {})}
         className={cn('tilt-fx', isActive && 'active', className)}
       >
         <HoloFX shimmerContent={title} isActive={isActive} />

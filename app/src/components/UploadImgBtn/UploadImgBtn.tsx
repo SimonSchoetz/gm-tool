@@ -52,7 +52,7 @@ export const UploadImgBtn = ({
       onClick={handleClick}
       label='Upload cover image'
     >
-      <ImagePlaceholderFrame dimensions={dimensions}>
+      <ImagePlaceholderFrame {...(dimensions !== undefined ? { dimensions } : {})}>
         <p
           className='img-upload-textbox'
           style={{

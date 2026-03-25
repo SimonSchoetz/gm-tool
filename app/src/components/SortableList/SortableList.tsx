@@ -27,7 +27,7 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
   onRowClick,
   onCreateNew,
   className,
-  searchPlaceholder,
+  searchPlaceholder = 'Search...',
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dragWidths, setDragWidths] = useState<Record<string, number> | null>(null);
