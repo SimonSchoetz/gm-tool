@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session, UpdateSessionInput } from '@db/session';
 import * as service from '@/services/sessionService';
 import { sessionKeys } from './sessionKeys';
+import { mergeUpdate } from '../mergeUpdate';
 
 type UseSessionReturn = {
-  session: Session | undefined;
+  session: Session | null;
   loading: boolean;
   updateSession: (data: UpdateSessionInput) => void;
   deleteSession: () => Promise<void>;
@@ -24,7 +25,7 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
     };
   }, []);
 
-  const { data: session, isPending: loading } = useQuery({
+  const { data: sessionData, isPending: loading } = useQuery({
     queryKey: sessionKeys.detail(sessionId),
     queryFn: () => service.getSessionById(sessionId),
     enabled: !!sessionId,
@@ -47,11 +48,11 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
   });
 
   const updateSession = (data: UpdateSessionInput) => {
-    if (!session) return;
+    if (!sessionData) return;
 
     queryClient.setQueryData<Session>(sessionKeys.detail(sessionId), (old) => {
       if (!old) return old;
-      return { ...old, ...data } as Session;
+      return mergeUpdate(old, data);
     });
 
     pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...data };
@@ -72,5 +73,5 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
     await deleteMutation.mutateAsync(sessionId);
   };
 
-  return { session, loading, updateSession, deleteSession };
+  return { session: sessionData ?? null, loading, updateSession, deleteSession };
 };

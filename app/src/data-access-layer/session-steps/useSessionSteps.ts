@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { SessionStep, UpdateSessionStepInput } from '@db/session-step';
 import * as service from '@/services/sessionStepService';
 import { sessionStepKeys } from './sessionStepKeys';
+import { mergeUpdate } from '../mergeUpdate';
 
 type UseSessionStepsReturn = {
   steps: SessionStep[];
@@ -67,7 +68,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const updateStep = (stepId: string, data: UpdateSessionStepInput) => {
     queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
       if (!old) return old;
-      return old.map((step) => (step.id === stepId ? { ...step, ...data } as SessionStep : step));
+      return old.map((step) => (step.id === stepId ? mergeUpdate(step, data) : step));
     });
 
     const map = debounceMapRef.current;

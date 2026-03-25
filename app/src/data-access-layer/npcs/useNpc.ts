@@ -4,9 +4,10 @@ import type { Npc } from '@db/npc';
 import * as service from '@/services/npcsService';
 import type { UpdateNpcData } from '@/services/npcsService';
 import { npcKeys } from './npcKeys';
+import { mergeUpdate } from '../mergeUpdate';
 
 export type UseNpcReturn = {
-  npc: Npc | undefined;
+  npc: Npc | null;
   loading: boolean;
   updateNpc: (data: UpdateNpcData) => void;
   deleteNpc: (adventureId: string) => Promise<void>;
@@ -25,7 +26,7 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     };
   }, []);
 
-  const { data: npc, isPending: isLoadingNpc } = useQuery({
+  const { data: npcData, isPending: isLoadingNpc } = useQuery({
     queryKey: npcKeys.detail(npcId),
     queryFn: () => service.getNpcById(npcId),
     enabled: !!npcId,
@@ -39,8 +40,8 @@ export const useNpc = (npcId: string): UseNpcReturn => {
       service.updateNpc(id, data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: npcKeys.detail(variables.id) });
-      if (npc?.adventure_id) {
-        queryClient.invalidateQueries({ queryKey: npcKeys.list(npc.adventure_id) });
+      if (npcData?.adventure_id) {
+        queryClient.invalidateQueries({ queryKey: npcKeys.list(npcData.adventure_id) });
       }
     },
   });
@@ -54,12 +55,13 @@ export const useNpc = (npcId: string): UseNpcReturn => {
   });
 
   const updateNpc = (data: UpdateNpcData) => {
-    if (!npc) return;
+    if (!npcData) return;
 
     // Optimistic cache update for instant UI response
     queryClient.setQueryData<Npc>(npcKeys.detail(npcId), (old) => {
       if (!old) return old;
-      return { ...old, ...data } as Npc;
+      const { imgFilePath: _imgFilePath, ...patch } = data;
+      return mergeUpdate(old, patch);
     });
 
     // Accumulate pending updates
@@ -88,7 +90,7 @@ export const useNpc = (npcId: string): UseNpcReturn => {
   };
 
   return {
-    npc,
+    npc: npcData ?? null,
     loading: isLoadingNpc,
     updateNpc,
     deleteNpc,

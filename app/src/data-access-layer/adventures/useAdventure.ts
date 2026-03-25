@@ -4,9 +4,10 @@ import type { Adventure } from '@db/adventure';
 import * as service from '@/services/adventureService';
 import type { UpdateAdventureData } from '@/services/adventureService';
 import { adventureKeys } from './adventureKeys';
+import { mergeUpdate } from '../mergeUpdate';
 
 type UseAdventureReturn = {
-  adventure: Adventure | undefined;
+  adventure: Adventure | null;
   loading: boolean;
   updateAdventure: (data: UpdateAdventureData) => void;
   deleteAdventure: () => Promise<void>;
@@ -25,7 +26,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     };
   }, []);
 
-  const { data: adventure, isPending: loading } = useQuery({
+  const { data: adventureData, isPending: loading } = useQuery({
     queryKey: adventureKeys.detail(adventureId),
     queryFn: () => service.getAdventureById(adventureId),
     enabled: !!adventureId,
@@ -51,13 +52,14 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   });
 
   const updateAdventure = (data: UpdateAdventureData) => {
-    if (!adventure) return;
+    if (!adventureData) return;
 
     queryClient.setQueryData<Adventure>(
       adventureKeys.detail(adventureId),
       (old) => {
         if (!old) return old;
-        return { ...old, ...data } as Adventure;
+        const { imgFilePath: _imgFilePath, ...patch } = data;
+        return mergeUpdate(old, patch);
       },
     );
 
@@ -83,7 +85,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   };
 
   return {
-    adventure,
+    adventure: adventureData ?? null,
     loading,
     updateAdventure,
     deleteAdventure,
