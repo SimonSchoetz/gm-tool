@@ -6,7 +6,7 @@ type Props = {
   entityType: string;
   displayName: string;
   color: string;
-  adventureId?: string | undefined;
+  adventureId?: string | null;
 };
 
 export const MentionBadge = ({

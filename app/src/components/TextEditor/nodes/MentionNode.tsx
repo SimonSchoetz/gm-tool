@@ -7,7 +7,7 @@ export type SerializedMentionNode = SerializedLexicalNode & {
   entityType: string;
   displayName: string;
   color: string;
-  adventureId?: string | undefined;
+  adventureId?: string;
 };
 
 export class MentionNode extends DecoratorNode<JSX.Element> {
@@ -15,14 +15,14 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
   __entityType: string;
   __displayName: string;
   __color: string;
-  __adventureId: string | undefined;
+  __adventureId: string | null;
 
   constructor(
     entityId: string,
     entityType: string,
     displayName: string,
     color: string,
-    adventureId?: string,
+    adventureId?: string | null,
     key?: NodeKey,
   ) {
     super(key);
@@ -30,7 +30,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     this.__entityType = entityType;
     this.__displayName = displayName;
     this.__color = color;
-    this.__adventureId = adventureId;
+    this.__adventureId = adventureId ?? null;
   }
 
   static getType(): string {
@@ -54,7 +54,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       json.entityType,
       json.displayName,
       json.color,
-      json.adventureId,
+      json.adventureId ?? null,
     );
   }
 
@@ -83,7 +83,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       displayName: this.__displayName,
       color: this.__color,
     };
-    if (this.__adventureId !== undefined) {
+    if (this.__adventureId !== null) {
       json.adventureId = this.__adventureId;
     }
     return json;
