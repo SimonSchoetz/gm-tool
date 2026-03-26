@@ -1,6 +1,6 @@
 # Implement
 
-You are the implementer and orchestrator for a full feature implementation. You read the spec, implement all sub-features sequentially under the invariants defined below, commit at each boundary, then run a review-retrospective pipeline once all sub-features are complete.
+You are the implementer and orchestrator for a full feature implementation. You read the spec, implement all sub-features sequentially under the invariants defined below, commit at each boundary, then run a multi-cycle review loop until the code passes. When friction occurred during the session, you produce a friction brief for the user before cleanup.
 
 ## Orchestration
 
@@ -12,13 +12,14 @@ A spec file path. Read the spec in full before doing anything else.
 
 Before starting any sub-feature:
 
-1. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, stop and surface them to the user before proceeding. Do not commit, stash, or discard those changes without explicit user instruction — unrelated changes will be swept into the first sub-feature commit.
-2. Run `npx tsc --noEmit` and `npx vitest run`.
-3. If both are clean: proceed to the implementation phase.
-4. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
+1. Check the current branch: run `git branch --show-current`. If on `main`, ask the user for a feature branch name, create it with `git checkout -b <name>`, and confirm the switch before continuing. Never begin implementation work on `main`.
+2. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, stop and surface them to the user before proceeding. Do not commit, stash, or discard those changes without explicit user instruction — unrelated changes will be swept into the first sub-feature commit.
+3. Run `npx tsc --noEmit` and `npx vitest run`.
+4. If both are clean: proceed to the implementation phase.
+5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
    - If no: present the errors to the user and propose a fix following all established conventions and instructions. Do not apply the fix until the user approves.
-5. If the user approves the fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
+6. If the user approves the fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
 
 ### Implementation phase
 
@@ -36,43 +37,64 @@ Do not invoke code-reviewer between sub-features. Sub-features build on each oth
 
 **Exception — intentional cross-SF type migration**: When a sub-feature narrows or removes a type and the spec explicitly assigns the broken call-site fixes to a later sub-feature, implement all dependent sub-features before committing any of them. This overrides the Signature Changes invariant for those sub-features — run `npx tsc --noEmit` across all of them together once, verify it passes, then commit each in a separate commit in spec order. Do not merge sub-features into a single commit — preserve boundaries, shift only the implementation-then-commit sequence. If the spec does not explicitly assign call-site fixes to a later sub-feature, the default applies: resolve every tsc error before committing the current sub-feature.
 
-#### Review and fix
+#### Review and fix loop
 
-After all sub-features are committed:
+After all sub-features are committed, run the following loop. The loop exits when violations reach zero or the hard cap is hit.
 
-1. Spawn the `code-reviewer` agent. Pass it the branch name so it can diff against main. Wait for its full output.
-2. Surface all ❌ Violations and ⚠️ Concerns to the user together. For each item, state what it is and propose what you would do to fix it. Do not apply any fix until the user approves. Ask whether each concern should be addressed now or deferred.
-3. Apply only the approved fixes. Apply the same invariants from this file to each fix.
-4. Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
-5. Commit all approved fixes in a single commit: `fix(<branch>): address review violations`.
+During this loop the implementer is a pure mediator — it passes outputs and verdicts between agents and does not propose fixes, interpret agent output, or resolve ambiguity itself. If any agent asks a clarifying question, pass it to the user verbatim and wait for the user's response before continuing. All agents are spawned as one-shot workers via the Agent tool — each invocation is independent with no memory of prior cycles. The implementer accumulates state between cycles and passes the right context to each new invocation.
 
-Implementation is complete when the user has approved the fixes and confirmed the branch is ready.
+**Cycle structure (repeat up to 3 times):**
 
-#### Consulting arch-review and spec-writer
+1. Spawn `code-reviewer` via the Agent tool. Pass: the branch name (for diffing against main) + the accumulated review context from all prior cycles.
+2. Pass the full code-reviewer output to the user as informational. Append the full output to the accumulated review context. Do not classify, filter, or interpret it.
+3. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context. The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
+4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
+5. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
+6. If the architect brief for in-scope violations requires a spec change, spawn `spec-writer` via the Agent tool. Pass: the architect brief + the relevant original spec section. Spec-writer is stateless — pass only current inputs. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
+7. Implement per the architect brief (and revised spec if spec-writer was invoked). Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
+8. Commit: `fix(<branch>): address review violations — cycle N`.
 
-If during the implementation phase the user asks for input on a proposed fix — whether it is architecturally sound, or whether the spec needs revision — invoke the `architect` or `spec-writer` agent to aid the discussion. Present their output to the user before acting. Do not resolve architectural or spec questions unilaterally.
+**Error boundaries:**
 
-### Post-implementation phase
+- **Review drift**: accumulated review context passed explicitly; contradicting findings surfaced as informational, do not automatically become new blocking violations.
+- **Scope creep**: if architect brief proposes changes beyond flagged violations, surface the expansion as informational before implementing.
+- **Regression**: full branch diff passed each cycle, not incremental diff.
+- **Contradicting briefs**: prior briefs passed as read-only context; reversals surfaced as informational before implementing.
+- **Infinite convergence**: concerns never block; loop exits on architect's no-violations verdict.
+- **Hard cap**: after 3 cycles, surface remaining violations to user and halt.
 
-This phase runs only when friction occurred during the session. Friction includes: pre-implementation errors that required user discussion, ambiguities surfaced during implementation, review violations that required decisions, or unexpected agent behavior.
+**Post-loop:**
 
-If the entire session was frictionless — pre-implementation passed cleanly, implementation matched the spec without ambiguity, and review produced no violations — skip this phase and proceed directly to Cleanup.
+Run `npx tsc --noEmit` and `npx vitest run` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
-When friction did occur, produce a friction summary covering:
+Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced), before cleanup.
+
+### Friction brief
+
+This step runs only when friction occurred during the session or when non-blocking instruction gaps were surfaced during the review loop. If neither applies, proceed directly to Cleanup.
+
+Produce a friction summary covering:
+
+**Implementation friction** (if any):
 
 - Every friction event: what happened, which phase it occurred in, how it was resolved
 - The source of each friction event: was it a gap in an agent/command definition, a reasoning error, or a missing CLAUDE.md rule?
 - Any decision made under ambiguity — what the question was, what was chosen, why
 
-Pass the summary to `/refine-claude`. It will coordinate with its agents, present proposed changes to the user for approval, and apply them once approved. Do not apply instruction or agent definition changes yourself — your role ends when you hand off the summary and the user approves the verdict.
+**Instruction gaps** (if any):
+
+- Every instruction gap the code-reviewer surfaced that was not blocking the current task (blocking gaps were handled by architect in the review loop)
+- For each: what rule is missing or ambiguous, and in which file or context it was observed
+
+Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself. Proceed to Cleanup.
 
 ### Cleanup
 
-After the post-implementation phase (or directly after the review and fix on the happy path):
+After the friction brief (or directly after the review loop on the frictionless path):
 
 1. Shut down all agents that were spawned during this session.
 2. Move the implemented spec file into `.archive/` at the same relative path. Use `mv` to move the file, then `git rm <original-path>` to remove it from tracking. Do not use `git mv` — the destination is covered by `.gitignore` and must not be tracked.
-3. Update `app/docs/_product/backlog.md` to reflect the completed work.
+3. Update `app/docs/_product/backlog.md` to reflect the completed work. If no backlog item exists, add a new one to "done"
 4. Commit the cleanup changes: `chore(<branch>): post-implementation cleanup`.
 
 ---

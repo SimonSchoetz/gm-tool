@@ -18,12 +18,16 @@ In both modes the coordination protocol, proposal quality gate, and approval req
 
 ## Team Structure
 
-Spawn exactly two teammates:
+Use TeamCreate to spawn the following two long-running teammates at the start of
+the session as needed:
 
 - `head-of-instructions` — owns CLAUDE.md files
 - `head-of-agents` — owns `.claude/agents/` and `.claude/commands/` files
 
-Provide both teammates with the full user input in their spawn prompt.
+Provide both teammates with the full user input in their initial TeamCreate
+prompt. These teammates persist for the session — use SendMessage to
+communicate with them in subsequent rounds. Do not spawn fresh instances
+for follow-up questions or mediation rounds.
 
 ## Input Provenance
 
@@ -49,12 +53,12 @@ Instruct both teammates to:
 
 Once both teammates have submitted their proposals, review them together:
 
-- If both agents claim the same problem, share each agent's position with the
-  other and ask them to resolve the overlap themselves — never decide where it
-  belongs on their behalf
+- If both agents claim the same problem, use SendMessage to share each
+  agent's position with the other and ask them to resolve the overlap
+  themselves — never decide where it belongs on their behalf
 - If a proposed change in one scope contradicts a proposal or existing rule in
-  the other, give each agent the other's position and mediate until they reach
-  agreement — never propose a resolution yourself
+  the other, use SendMessage to give each agent the other's position and
+  continue until they reach agreement — never propose a resolution yourself
 
 ## Proposal Quality Gate
 
@@ -99,8 +103,9 @@ approval. The coordinator does not act on new questions directly,
 regardless of how clear or small the change appears to be.
 
 After changes are applied, explicitly invite the user to review the result and
-ask follow-up questions. If the user raises a follow-up, spawn fresh teammate
-instances as needed — agent-tool workers complete and exit after each task, so
-prior instances cannot be resumed. Once the user confirms they are satisfied —
-or ends the session without further requests — ensure no teammates remain
-running.
+ask follow-up questions. If the user raises a follow-up, route it to the
+existing teammates via SendMessage — do not spawn new instances. If SendMessage
+fails after one retry, surface the failure explicitly and spawn a replacement
+via TeamCreate before continuing. Once the user confirms they are satisfied —
+or ends the session without further requests — dismiss both teammates so no
+long-running instances remain.

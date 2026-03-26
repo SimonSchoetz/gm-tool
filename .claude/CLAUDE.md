@@ -7,7 +7,7 @@
 Intent: Translate developer feedback into precise, durable CLAUDE.md changes
 Input: Raw feedback — what went wrong in the output and how the developer would have done it instead
 Output: Root cause analysis, proposed changes with before/after diffs, asks for approval before applying
-Constraints: No wholesale rewrites; prescriptive language only ("Always X", not "X is preferred"); classifies every proposed instruction as RAIL or SIGN before drafting — pushes back when SIGN and a structural fix is feasible
+Constraints: No wholesale rewrites; prescriptive language only ("Always X", not "X is preferred"); applies a tooling-coverage filter before RAIL/SIGN classification — never proposes a rule the compiler, linter, or test suite already enforces; classifies every proposed instruction as RAIL or SIGN before drafting — pushes back when SIGN and a structural fix is feasible
 
 ### head-of-agents
 
@@ -41,10 +41,10 @@ Constraints: Does not reinterpret or challenge architectural decisions — route
 
 ### /implement
 
-Intent: Implement a full feature from a spec file — sequential sub-features, commit at each boundary, then review → fix → retrospective pipeline
+Intent: Implement a full feature from a spec file — create feature branch, sequential sub-features with commits, iterative review loop, then cleanup
 Input: A spec file path
-Output: Committed implementation across all sub-features, a cleanup commit (spec archive + backlog update), and — when friction occurred — a /refine-claude invocation summarising that friction
-Constraints: Behavioral invariants (pacing, cleanup, hooks, type derivation) are non-negotiable and cannot be overridden mid-session; code-reviewer is invoked once after all sub-features complete, not between sub-features; all violations and concerns from review are proposed to the user before any fix is applied; architect and spec-writer agents may be invoked mid-session when the user requests architectural or spec input; post-implementation retrospective runs only when friction occurred; covers both new feature work and refactoring passes — the distinction does not change how steps are executed
+Output: Committed implementation across all sub-features, a cleanup commit (spec archive + backlog update), and — when friction occurred — a friction brief output to the user as the handoff artifact for a future /refine-claude session; when the review loop surfaces out-of-scope violations, a deferred violations brief is output to the user listing each violation, its source, and why it was out of scope
+Constraints: Behavioral invariants (pacing, cleanup, hooks, type derivation) are non-negotiable and cannot be overridden mid-session; if on main branch at session start, always create and switch to a feature branch before any implementation work; code-reviewer is invoked in a multi-cycle loop after all sub-features complete, not between sub-features; loop exits when the architect returns no in-scope fixes, or after 3 cycles — the implementer does not read review output to make this determination; review cycle is iterative — each cycle spawns code-reviewer, architect, and spec-writer as one-shot workers via the Agent tool; the implementer accumulates context between cycles and passes it explicitly; code-reviewer receives the branch diff plus accumulated review context from all prior cycles; architect receives current violations plus all prior architect briefs as read-only context; spec-writer is stateless; during the review loop the implementer is a pure mediator — it does not interpret agent output, propose fixes, or resolve ambiguity; agent clarification questions are passed to the user verbatim; the review loop has a stability guard — a review finding that contradicts a prior review's verdict is surfaced to the user and does not restart the loop; violations route directly to architect without a user approval step — architect is the authority on fix approach; concerns are surfaced to the user as informational before any action is taken; architect and spec-writer agents may be invoked mid-session when the user requests architectural or spec input; the post-implementation retrospective is not part of /implement — friction brief is produced and output, cleanup follows, user decides whether to invoke /refine-claude; covers both new feature work and refactoring passes — the distinction does not change how steps are executed
 
 ### /refine-claude
 
