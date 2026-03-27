@@ -5,8 +5,6 @@
 ### Horizontal Build
 
 - Fix: Claude's Frontend Implementation
-- Feature: Session Screens
-  - Sub-Feature: Lazy DM Steps
 - Feature: Summary Popup
   - Feature: Pin-to-foreground functionality
 - Feature: Image detail vs reupload
@@ -34,3 +32,4 @@
 - Refactor: Error Handling
 - Feature: Automated commit message generation from branch name
 - Fix: Tests
+- Feature: Session Screens (incl. Lazy DM Steps)
