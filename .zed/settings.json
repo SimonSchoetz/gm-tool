@@ -1,0 +1,16 @@
+{
+  "languages": {
+    "TypeScript": {
+      "colorize_brackets": true,
+    },
+    "TSX": {
+      "colorize_brackets": true,
+    },
+    "JSON": {
+      "colorize_brackets": true,
+    },
+    "JavaScript": {
+      "colorize_brackets": true,
+    },
+  },
+}
