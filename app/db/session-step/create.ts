@@ -10,8 +10,8 @@ export const create = async (data: CreateSessionStepInput): Promise<string> => {
   const db = await getDatabase();
 
   await db.execute(
-    'INSERT INTO session_steps (id, session_id, sort_order, checked) VALUES ($1, $2, $3, $4)',
-    [id, validated.session_id, validated.sort_order, validated.checked],
+    'INSERT INTO session_steps (id, session_id, sort_order) VALUES ($1, $2, $3)',
+    [id, validated.session_id, validated.sort_order],
   );
   return id;
 };
