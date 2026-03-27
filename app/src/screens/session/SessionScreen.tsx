@@ -4,9 +4,8 @@ import { useSession } from '@/data-access-layer';
 import { SessionHeader } from './components/SessionHeader';
 import { PrepView } from './components/PrepView';
 import { InGameView } from './components/InGameView';
+import type { View } from './SessionScreen.types';
 import './SessionScreen.css';
-
-type View = 'prep' | 'ingame';
 
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({

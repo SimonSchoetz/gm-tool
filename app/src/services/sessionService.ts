@@ -30,10 +30,8 @@ export const getSessionById = async (id: string): Promise<Session> => {
 
 export const createSession = async (data: CreateSessionInput): Promise<string> => {
   try {
-    const newSessionId = await sessionDb.create({
-      name: 'New Session',
-      ...data,
-    });
+    const newSessionId = await sessionDb.create({ adventure_id: data.adventure_id });
+    await sessionDb.update(newSessionId, { name: data.name ?? 'New Session' });
     await sessionStepService.initDefaultSteps(newSessionId);
     return newSessionId;
   } catch (err) {

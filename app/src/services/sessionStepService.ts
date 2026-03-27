@@ -45,12 +45,13 @@ export const createCustomStep = async (sessionId: string, name?: string): Promis
   try {
     const steps = await sessionStepDb.getAllBySession(sessionId);
     const maxSortOrder = steps.length > 0 ? Math.max(...steps.map((s) => s.sort_order)) : -1;
-    return await sessionStepDb.create({
+    const newStepId = await sessionStepDb.create({
       session_id: sessionId,
-      name: name ?? 'New Step',
       sort_order: maxSortOrder + 1,
       checked: 0,
     });
+    await sessionStepDb.update(newStepId, { name: name ?? 'New Step' });
+    return newStepId;
   } catch (err) {
     throw sessionStepCreateError(err);
   }
@@ -92,12 +93,14 @@ export const initDefaultSteps = async (sessionId: string): Promise<void> => {
   try {
     for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
       const step = LAZY_DM_STEPS[index];
-      await sessionStepDb.create({
+      const newStepId = await sessionStepDb.create({
         session_id: sessionId,
-        name: step.name,
-        default_step_key: step.key,
         sort_order: index,
         checked: 0,
+      });
+      await sessionStepDb.update(newStepId, {
+        name: step.name,
+        default_step_key: step.key,
       });
     }
   } catch (err) {

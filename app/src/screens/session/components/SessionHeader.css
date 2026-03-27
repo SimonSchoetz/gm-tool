@@ -1,8 +1,8 @@
 .session-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm-plus) var(--spacing-md);
   flex-shrink: 0;
 }
 
@@ -10,26 +10,26 @@
   flex: 1;
   background: transparent;
   border: none;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
   outline: none;
 }
 
 .session-view-toggle {
   display: flex;
-  gap: 4px;
+  gap: var(--spacing-xs);
 }
 
 .view-toggle-btn {
-  padding: 6px 16px;
+  padding: var(--spacing-xs-plus) var(--spacing-md);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   background: transparent;
   opacity: 0.5;
 }
 
-.view-toggle-btn.active {
+.view-toggle-btn--active {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-active-bg);
 }
