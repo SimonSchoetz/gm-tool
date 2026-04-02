@@ -21,6 +21,10 @@
 - Feature: Places Screens
 - Feature: References List (Where each screen is tagged)
 
+### Tech Debt
+
+- Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
+
 ---
 
 ### Done
