@@ -1,5 +1,6 @@
 import { getDatabase } from '../database';
 import { generateId } from '../../util';
+import { buildCreateQuery } from '../util';
 import { sessionStepTable } from './schema';
 import type { CreateSessionStepInput } from './types';
 
@@ -8,10 +9,8 @@ export const create = async (data: CreateSessionStepInput): Promise<string> => {
 
   const id = generateId();
   const db = await getDatabase();
+  const { sql, values } = buildCreateQuery('session_steps', id, validated);
 
-  await db.execute(
-    'INSERT INTO session_steps (id, session_id, sort_order) VALUES ($1, $2, $3)',
-    [id, validated.session_id, validated.sort_order],
-  );
+  await db.execute(sql, values);
   return id;
 };

@@ -1,5 +1,5 @@
 import { useSession } from '@/data-access-layer';
-import type { View } from '../SessionScreen.types';
+import type { View } from '../SessionScreen';
 import './SessionHeader.css';
 
 type Props = {
