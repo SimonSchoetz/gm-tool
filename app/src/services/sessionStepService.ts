@@ -1,5 +1,9 @@
 import * as sessionStepDb from '@db/session-step';
-import type { SessionStep, CreateSessionStepInput, UpdateSessionStepInput } from '@db/session-step';
+import type {
+  SessionStep,
+  CreateSessionStepInput,
+  UpdateSessionStepInput,
+} from '@db/session-step';
 import {
   LAZY_DM_STEPS,
   sessionStepLoadError,
@@ -7,9 +11,11 @@ import {
   sessionStepUpdateError,
   sessionStepDeleteError,
   sessionStepReorderError,
-} from '@/domain/session-steps';
+} from '@/domain';
 
-export const getStepsBySessionId = async (sessionId: string): Promise<SessionStep[]> => {
+export const getStepsBySessionId = async (
+  sessionId: string,
+): Promise<SessionStep[]> => {
   try {
     return await sessionStepDb.getAllBySession(sessionId);
   } catch (err) {
@@ -17,7 +23,9 @@ export const getStepsBySessionId = async (sessionId: string): Promise<SessionSte
   }
 };
 
-export const createStep = async (data: CreateSessionStepInput): Promise<string> => {
+export const createStep = async (
+  data: CreateSessionStepInput,
+): Promise<string> => {
   try {
     return await sessionStepDb.create(data);
   } catch (err) {
@@ -25,7 +33,10 @@ export const createStep = async (data: CreateSessionStepInput): Promise<string> 
   }
 };
 
-export const updateStep = async (id: string, data: UpdateSessionStepInput): Promise<void> => {
+export const updateStep = async (
+  id: string,
+  data: UpdateSessionStepInput,
+): Promise<void> => {
   try {
     await sessionStepDb.update(id, data);
   } catch (err) {
@@ -41,10 +52,14 @@ export const deleteStep = async (id: string): Promise<void> => {
   }
 };
 
-export const createCustomStep = async (sessionId: string, name?: string): Promise<string> => {
+export const createCustomStep = async (
+  sessionId: string,
+  name?: string,
+): Promise<string> => {
   try {
     const steps = await sessionStepDb.getAllBySession(sessionId);
-    const maxSortOrder = steps.length > 0 ? Math.max(...steps.map((s) => s.sort_order)) : -1;
+    const maxSortOrder =
+      steps.length > 0 ? Math.max(...steps.map((s) => s.sort_order)) : -1;
     const newStepId = await sessionStepDb.create({
       session_id: sessionId,
       sort_order: maxSortOrder + 1,
@@ -79,7 +94,9 @@ export const swapStepOrder = async (
   }
 };
 
-export const bulkReorderSteps = async (orderedStepIds: string[]): Promise<void> => {
+export const bulkReorderSteps = async (
+  orderedStepIds: string[],
+): Promise<void> => {
   try {
     for (let index = 0; index < orderedStepIds.length; index++) {
       await sessionStepDb.update(orderedStepIds[index], { sort_order: index });

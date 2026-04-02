@@ -1,5 +1,9 @@
 import * as sessionDb from '@db/session';
-import type { Session, CreateSessionInput, UpdateSessionInput } from '@db/session';
+import type {
+  Session,
+  CreateSessionInput,
+  UpdateSessionInput,
+} from '@db/session';
 import * as sessionStepService from './sessionStepService';
 import {
   sessionNotFoundError,
@@ -7,9 +11,11 @@ import {
   sessionCreateError,
   sessionUpdateError,
   sessionDeleteError,
-} from '@/domain/sessions';
+} from '@/domain';
 
-export const getAllSessions = async (adventureId: string): Promise<Session[]> => {
+export const getAllSessions = async (
+  adventureId: string,
+): Promise<Session[]> => {
   try {
     return await sessionDb.getAll(adventureId);
   } catch (err) {
@@ -28,9 +34,13 @@ export const getSessionById = async (id: string): Promise<Session> => {
   return session;
 };
 
-export const createSession = async (data: CreateSessionInput): Promise<string> => {
+export const createSession = async (
+  data: CreateSessionInput,
+): Promise<string> => {
   try {
-    const newSessionId = await sessionDb.create({ adventure_id: data.adventure_id });
+    const newSessionId = await sessionDb.create({
+      adventure_id: data.adventure_id,
+    });
     await sessionDb.update(newSessionId, { name: data.name ?? 'New Session' });
     await sessionStepService.initDefaultSteps(newSessionId);
     return newSessionId;
@@ -39,7 +49,10 @@ export const createSession = async (data: CreateSessionInput): Promise<string> =
   }
 };
 
-export const updateSession = async (id: string, data: UpdateSessionInput): Promise<void> => {
+export const updateSession = async (
+  id: string,
+  data: UpdateSessionInput,
+): Promise<void> => {
   try {
     await sessionDb.update(id, data);
   } catch (err) {
