@@ -206,6 +206,10 @@ When a constant is shared by two or more files within the same module directory,
 - Domain error types — those belong in `domain/domainName/errors.ts`
 - Domain entity types — those belong in `domain/domainName/types.ts`
 - Types derived from db schemas — import directly from `@db/domainName`
+- Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file.
+  - ❌ `SessionScreen.types.ts` alongside `SessionScreen.tsx` — same directory does not satisfy this rule; the type must be in `SessionScreen.tsx` itself
+  - ❌ `types/appRoute.type.ts` if `AppRoute` is imported only in `ScreenNavBtn` — move the declaration into `ScreenNavBtn.tsx`
+  - ✅ `HtmlProps` in `types/` — imported across dozens of unrelated components
 
 **Barrel requirement:** `types/` is a grouping folder. It requires a barrel (`types/index.ts`) with explicit named exports. External consumers import from `@/types`.
 
