@@ -22,6 +22,7 @@ type DebounceEntry = {
 
 export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const queryClient = useQueryClient();
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments -- new Map() infers Map<unknown, unknown> without the explicit type args
   const debounceMapRef = useRef<Map<string, DebounceEntry>>(new Map());
 
   useEffect(() => {
