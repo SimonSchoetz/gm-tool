@@ -6,7 +6,7 @@ import { PrepView } from './components/PrepView';
 import { InGameView } from './components/InGameView';
 import './SessionScreen.css';
 
-type View = 'prep' | 'ingame';
+export type View = 'prep' | 'ingame';
 
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({

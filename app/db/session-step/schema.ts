@@ -44,7 +44,7 @@ export const sessionStepTable = defineTable({
       type: 'INTEGER',
       notNull: true,
       default: '0',
-      zod: z.number(),
+      zod: z.number().optional(),
     },
     sort_order: {
       type: 'INTEGER',

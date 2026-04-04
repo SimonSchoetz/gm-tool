@@ -1,7 +1,6 @@
 import { useSession } from '@/data-access-layer';
+import type { View } from '../SessionScreen';
 import './SessionHeader.css';
-
-type View = 'prep' | 'ingame';
 
 type Props = {
   sessionId: string;
@@ -38,13 +37,13 @@ export const SessionHeader = ({ sessionId, adventureId, view, onViewChange }: Pr
 
       <div className='session-view-toggle'>
         <button
-          className={`view-toggle-btn ${view === 'prep' ? 'active' : ''}`}
+          className={`view-toggle-btn${view === 'prep' ? ' view-toggle-btn--active' : ''}`}
           onClick={() => onViewChange('prep')}
         >
           Prep
         </button>
         <button
-          className={`view-toggle-btn ${view === 'ingame' ? 'active' : ''}`}
+          className={`view-toggle-btn${view === 'ingame' ? ' view-toggle-btn--active' : ''}`}
           onClick={() => onViewChange('ingame')}
         >
           In Game

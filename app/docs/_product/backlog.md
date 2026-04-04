@@ -5,8 +5,6 @@
 ### Horizontal Build
 
 - Fix: Claude's Frontend Implementation
-- Feature: Session Screens
-  - Sub-Feature: Lazy DM Steps
 - Feature: Summary Popup
   - Feature: Pin-to-foreground functionality
 - Feature: Image detail vs reupload
@@ -23,6 +21,11 @@
 - Feature: Places Screens
 - Feature: References List (Where each screen is tagged)
 
+### Tech Debt
+
+- Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
+- Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
+
 ---
 
 ### Done
@@ -34,3 +37,4 @@
 - Refactor: Error Handling
 - Feature: Automated commit message generation from branch name
 - Fix: Tests
+- Feature: Session Screens (incl. Lazy DM Steps)

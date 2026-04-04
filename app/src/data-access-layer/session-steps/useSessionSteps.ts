@@ -27,7 +27,9 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   useEffect(() => {
     const map = debounceMapRef.current;
     return () => {
-      map.forEach((entry) => clearTimeout(entry.timeout ?? undefined));
+      map.forEach((entry) => {
+        if (entry.timeout !== null) clearTimeout(entry.timeout);
+      });
     };
   }, []);
 

@@ -41,7 +41,7 @@ Do not invoke code-reviewer between sub-features. Sub-features build on each oth
 
 After all sub-features are committed, run the following loop. The loop exits when violations reach zero or the hard cap is hit.
 
-During this loop the implementer is a pure mediator — it passes outputs and verdicts between agents and does not propose fixes, interpret agent output, or resolve ambiguity itself. If any agent asks a clarifying question, pass it to the user verbatim and wait for the user's response before continuing. All agents are spawned as one-shot workers via the Agent tool — each invocation is independent with no memory of prior cycles. The implementer accumulates state between cycles and passes the right context to each new invocation.
+During this loop only, the implementer acts as a pure mediator — it passes outputs and verdicts between agents and does not propose fixes, interpret agent output, or resolve ambiguity itself. If any agent asks a clarifying question, pass it to the user verbatim and wait for the user's response before continuing. All agents are spawned as one-shot workers via the Agent tool — each invocation is independent with no memory of prior cycles. The implementer accumulates state between cycles and passes the right context to each new invocation.
 
 **Cycle structure (repeat up to 3 times):**
 
@@ -50,8 +50,8 @@ During this loop the implementer is a pure mediator — it passes outputs and ve
 3. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context. The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
 4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
 5. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
-6. If the architect brief for in-scope violations requires a spec change, spawn `spec-writer` via the Agent tool. Pass: the architect brief + the relevant original spec section. Spec-writer is stateless — pass only current inputs. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
-7. Implement per the architect brief (and revised spec if spec-writer was invoked). Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
+6. Spawn `spec-writer` via the Agent tool. Pass: the architect brief. Spec-writer's role is to resolve ambiguity in how to implement the architect's verdict — not to update spec documents. Spec-writer is stateless — pass only current inputs. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
+7. Implement per the spec-writer output. Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
 8. Commit: `fix(<branch>): address review violations — cycle N`.
 
 **Error boundaries:**
@@ -87,15 +87,6 @@ Produce a friction summary covering:
 - For each: what rule is missing or ambiguous, and in which file or context it was observed
 
 Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself. Proceed to Cleanup.
-
-### Cleanup
-
-After the friction brief (or directly after the review loop on the frictionless path):
-
-1. Shut down all agents that were spawned during this session.
-2. Move the implemented spec file into `.archive/` at the same relative path. Use `mv` to move the file, then `git rm <original-path>` to remove it from tracking. Do not use `git mv` — the destination is covered by `.gitignore` and must not be tracked.
-3. Update `app/docs/_product/backlog.md` to reflect the completed work. If no backlog item exists, add a new one to "done"
-4. Commit the cleanup changes: `chore(<branch>): post-implementation cleanup`.
 
 ---
 
@@ -148,6 +139,20 @@ and ask before proceeding. Do not resolve the ambiguity independently.
 
 Cleanup and dead code removal are not ambiguous — act on them. Anything with
 a behavioral tradeoff is — surface it to the user.
+
+When the user provides input mid-cycle — decisions, fix direction, an entry point to resume from — treat it as a navigation instruction, not as permission to self-interpret. Resume from the step the user names, passing their input as context to the agent responsible for that step. The implementer does not evaluate, interpret, or collapse the remaining steps on the user's behalf.
+
+## Engineering Validity
+
+Before executing any spec instruction, read it as a coder. Ask whether the
+code it requires makes sense — not whether the architecture behind it is
+correct, but whether the implementation itself is coherent. If it is not,
+stop. State the instruction, describe what is wrong with the code it produces,
+and wait for the user to resolve it before proceeding.
+
+This is not a license to challenge architectural decisions. The question is
+whether the code makes sense, not whether you would have designed it
+differently.
 
 ## Signature Changes
 

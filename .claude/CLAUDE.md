@@ -44,7 +44,7 @@ Constraints: Does not reinterpret or challenge architectural decisions — route
 Intent: Implement a full feature from a spec file — create feature branch, sequential sub-features with commits, iterative review loop, then cleanup
 Input: A spec file path
 Output: Committed implementation across all sub-features, a cleanup commit (spec archive + backlog update), and — when friction occurred — a friction brief output to the user as the handoff artifact for a future /refine-claude session; when the review loop surfaces out-of-scope violations, a deferred violations brief is output to the user listing each violation, its source, and why it was out of scope
-Constraints: Behavioral invariants (pacing, cleanup, hooks, type derivation) are non-negotiable and cannot be overridden mid-session; if on main branch at session start, always create and switch to a feature branch before any implementation work; code-reviewer is invoked in a multi-cycle loop after all sub-features complete, not between sub-features; loop exits when the architect returns no in-scope fixes, or after 3 cycles — the implementer does not read review output to make this determination; review cycle is iterative — each cycle spawns code-reviewer, architect, and spec-writer as one-shot workers via the Agent tool; the implementer accumulates context between cycles and passes it explicitly; code-reviewer receives the branch diff plus accumulated review context from all prior cycles; architect receives current violations plus all prior architect briefs as read-only context; spec-writer is stateless; during the review loop the implementer is a pure mediator — it does not interpret agent output, propose fixes, or resolve ambiguity; agent clarification questions are passed to the user verbatim; the review loop has a stability guard — a review finding that contradicts a prior review's verdict is surfaced to the user and does not restart the loop; violations route directly to architect without a user approval step — architect is the authority on fix approach; concerns are surfaced to the user as informational before any action is taken; architect and spec-writer agents may be invoked mid-session when the user requests architectural or spec input; the post-implementation retrospective is not part of /implement — friction brief is produced and output, cleanup follows, user decides whether to invoke /refine-claude; covers both new feature work and refactoring passes — the distinction does not change how steps are executed
+Constraints: If on main branch at session start, always create and switch to a feature branch before any implementation work; code-reviewer is invoked after all sub-features complete, not mid-implementation; each review cycle spawns code-reviewer, architect, and spec-writer; loop exits when the architect returns no in-scope violations, or after 3 cycles; agent clarification questions are passed to the user verbatim; contradicting review findings are surfaced to the user; concerns are surfaced to the user as informational before any action is taken; architect and spec-writer agents may be invoked mid-session when the user requests architectural or spec input; the post-implementation retrospective is not part of /implement — friction brief is produced and output, cleanup follows, user decides whether to invoke /refine-claude; covers both new feature work and refactoring passes
 
 ### /refine-claude
 
@@ -80,6 +80,22 @@ Intent: Review code against CLAUDE.md conventions, best practices, and architect
 Input: Files, a branch name, or a git diff; defaults to recently changed files if none specified
 Output: Violations, concerns, what's solid
 Constraints: Treats CLAUDE.md as non-negotiable; never proposes fixes — flagging the violation is the complete output; flags INSTRUCTION GAP when CLAUDE.md is silent on something rather than inventing a rule; never modifies files — read-only role
+
+## Registry Entry Conventions
+
+The registry is a caller's reference, not an executor's handbook. Each field has a defined audience and scope:
+
+- **Intent**: one sentence — what the agent/command accomplishes from the caller's perspective.
+- **Input**: what the caller must provide. Omit everything the executor derives internally.
+- **Output**: what the caller receives back. Omit internal intermediate artifacts.
+- **Constraints**: caller-observable behavioral guarantees — rules a caller needs to know to use this agent correctly or to understand what it will and will not do. Not executor-internal invariants.
+
+**The test for whether a constraint belongs in the registry:**
+"Does this constraint change how a caller or orchestrator decides to invoke this agent, what to pass it, or what to expect from it?"
+If yes → it belongs in the registry constraints field.
+If no → it belongs in the agent or command file only.
+
+A constraint that only governs the executor's own internal process (step ordering, pacing, error handling) does not belong in the registry. Mirroring such constraints creates two sources of truth that will drift. The agent or command file is the authoritative source for executor behavior.
 
 ## Automation Forms
 

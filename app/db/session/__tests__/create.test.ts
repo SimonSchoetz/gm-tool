@@ -29,7 +29,7 @@ describe('create', () => {
     vi.resetModules();
   });
 
-  it('should insert session with id, name, and adventure_id and return generated ID', async () => {
+  it('should insert session including optional name when provided and return generated ID', async () => {
     const sessionId = await create({
       name: 'Test Session',
       adventure_id: 'test-adventure-id',
@@ -42,14 +42,14 @@ describe('create', () => {
     expect(sessionId).toBe('test-generated-id');
   });
 
-  it('should insert session with no name (nullable)', async () => {
+  it('should insert session without name (let DB default to NULL)', async () => {
     const sessionId = await create({
       adventure_id: 'test-adventure-id',
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, name, adventure_id) VALUES ($1, $2, $3)',
-      ['test-generated-id', undefined, 'test-adventure-id'],
+      'INSERT INTO sessions (id, adventure_id) VALUES ($1, $2)',
+      ['test-generated-id', 'test-adventure-id'],
     );
     expect(sessionId).toBe('test-generated-id');
   });

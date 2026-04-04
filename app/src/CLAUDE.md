@@ -62,6 +62,9 @@ src/
 
 - screens are what would be different pages on a website
 - When they are displayed is handled in `App.tsx`
+- **Any `components/` subdirectories** follow the same barrel rule as component-library `ComponentName/components/`: they are grouping folders and require an `index.ts` with explicit named exports. Sub-components within a screen are always imported from `./components`, never by direct path.
+  - ✅ `import { StepSection } from './components'`
+  - ❌ `import { StepSection } from './components/StepSection/StepSection'`
 
 ### Component Library
 
@@ -77,6 +80,13 @@ src/
   - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
 
 ### Component Internals
+
+**No IIFE in JSX.** An immediately-invoked function expression inside a render return (`{(() => { ... })()}`) is always a sign that logic has not been extracted. Apply the correct extraction:
+
+- Logic that returns a primitive value → extract to a `helper/` function.
+- Logic that returns JSX → extract to a sub-component in `components/`.
+
+Never leave an IIFE in a render return.
 
 **Props pattern — three cases, pick exactly one:**
 
@@ -156,6 +166,13 @@ When a constant is shared by two or more files within the same module directory,
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
 
+**DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-` to distinguish them from global tokens at a glance.
+
+- ✅ `style={{ '--rt-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-color)`
+- ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
+
+**No unilateral additions to `variables.css`:** Never add a new CSS variable to `variables.css` on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime.
+
 ### Domain Layer
 
 `domain/` owns the frontend's business concepts: error types, domain-specific TypeScript types, and validation rules. It has no runtime dependencies on services, data-access-layer, or db — it is the vocabulary layer that everything else imports from.
@@ -189,6 +206,10 @@ When a constant is shared by two or more files within the same module directory,
 - Domain error types — those belong in `domain/domainName/errors.ts`
 - Domain entity types — those belong in `domain/domainName/types.ts`
 - Types derived from db schemas — import directly from `@db/domainName`
+- Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file.
+  - ❌ `SessionScreen.types.ts` alongside `SessionScreen.tsx` — same directory does not satisfy this rule; the type must be in `SessionScreen.tsx` itself
+  - ❌ `types/appRoute.type.ts` if `AppRoute` is imported only in `ScreenNavBtn` — move the declaration into `ScreenNavBtn.tsx`
+  - ✅ `HtmlProps` in `types/` — imported across dozens of unrelated components
 
 **Barrel requirement:** `types/` is a grouping folder. It requires a barrel (`types/index.ts`) with explicit named exports. External consumers import from `@/types`.
 
