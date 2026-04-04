@@ -40,7 +40,7 @@ export const UploadImgBtn = ({
 
   return image_id ? (
     <ActionContainer
-      onClick={handleClick}
+      onClick={() => { void handleClick(); }}
       label='Replace cover image'
       invisible
     >
@@ -49,7 +49,7 @@ export const UploadImgBtn = ({
   ) : (
     <ActionContainer
       className={cn('upload-adventure-img-btn')}
-      onClick={handleClick}
+      onClick={() => { void handleClick(); }}
       label='Upload cover image'
     >
       <ImagePlaceholderFrame {...(dimensions !== undefined ? { dimensions } : {})}>

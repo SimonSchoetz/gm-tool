@@ -22,14 +22,14 @@ export const useAdventures = (): UseAdventuresReturn => {
   const createMutation = useMutation({
     mutationFn: service.createAdventure,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (adventureId: string) => service.deleteAdventure(adventureId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
     },
   });
 

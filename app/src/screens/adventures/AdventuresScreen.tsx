@@ -10,7 +10,7 @@ export const AdventuresScreen = () => {
 
   const handleAdventureCreation = async () => {
     const newAdventureId = await createAdventure();
-    router.navigate({ to: `/adventure/${newAdventureId}` });
+    void router.navigate({ to: `/adventure/${newAdventureId}` });
   };
 
   if (loading) {
@@ -24,7 +24,7 @@ export const AdventuresScreen = () => {
           <NewItemBtn
             type='adventure'
             label='+'
-            onClick={handleAdventureCreation}
+            onClick={() => { void handleAdventureCreation(); }}
           />
         </li>
 

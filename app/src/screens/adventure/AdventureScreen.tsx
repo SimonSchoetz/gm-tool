@@ -33,7 +33,7 @@ export const AdventureScreen = () => {
 
   const handleAdventureDelete = async () => {
     await deleteAdventure();
-    router.navigate({ to: '/adventures' });
+    void router.navigate({ to: '/adventures' });
   };
 
   const startDate =
@@ -101,7 +101,7 @@ export const AdventureScreen = () => {
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteDialog
           name={adventure.name}
-          onDeletionConfirm={handleAdventureDelete}
+          onDeletionConfirm={() => { void handleAdventureDelete(); }}
         />
       </PopUpContainer>
     </>

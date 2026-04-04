@@ -90,7 +90,7 @@ export const StepsNavSidebar = ({ sessionId }: Props) => {
         </SortableContext>
       </DndContext>
 
-      <NewItemBtn type='list-item' label='Add Step' onClick={() => createStep()} />
+      <NewItemBtn type='list-item' label='Add Step' onClick={() => { void createStep(); }} />
     </div>
   );
 };

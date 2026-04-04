@@ -36,14 +36,14 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
     mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) =>
       service.updateSession(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.detail(sessionId) });
+      void queryClient.invalidateQueries({ queryKey: sessionKeys.detail(sessionId) });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => service.deleteSession(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
+      void queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
     },
   });
 

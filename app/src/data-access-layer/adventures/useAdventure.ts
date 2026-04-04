@@ -39,15 +39,15 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     mutationFn: ({ id, data }: { id: string; data: UpdateAdventureData }) =>
       service.updateAdventure(id, data),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
-      queryClient.invalidateQueries({ queryKey: adventureKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.detail(variables.id) });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (adventureId: string) => service.deleteAdventure(adventureId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
     },
   });
 

@@ -30,11 +30,11 @@ const TableConfigRow = ({ tableConfigId }: { tableConfigId: string }) => {
   const isTaggingEnabled = config.tagging_enabled === 1;
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateTableConfig({ color: e.target.value });
+    void updateTableConfig({ color: e.target.value });
   };
 
   const handleTaggingToggle = () => {
-    updateTableConfig({ tagging_enabled: isTaggingEnabled ? 0 : 1 });
+    void updateTableConfig({ tagging_enabled: isTaggingEnabled ? 0 : 1 });
   };
 
   return (

@@ -74,7 +74,7 @@ export const SortingTableHeader = ({
     const currentDirection =
       sortState.column === columnKey ? sortState.direction : null;
     const nextDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-    updateSortState(columnKey, nextDirection);
+    void updateSortState(columnKey, nextDirection);
   };
 
   const handleResizeStart = (columnKey: string, startX: number) => {
@@ -93,7 +93,7 @@ export const SortingTableHeader = ({
             resizableWidths[key] = current[key] ?? DEFAULT_COLUMN_WIDTH;
           }
         }
-        updateColumnWidthsRef.current(resizableWidths);
+        void updateColumnWidthsRef.current(resizableWidths);
         return current;
       });
     };

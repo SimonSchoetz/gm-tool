@@ -39,9 +39,9 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     mutationFn: ({ id, data }: { id: string; data: UpdateNpcData }) =>
       service.updateNpc(id, data),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: npcKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: npcKeys.detail(variables.id) });
       if (npcData?.adventure_id) {
-        queryClient.invalidateQueries({ queryKey: npcKeys.list(npcData.adventure_id) });
+        void queryClient.invalidateQueries({ queryKey: npcKeys.list(npcData.adventure_id) });
       }
     },
   });
@@ -50,7 +50,7 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     mutationFn: ({ npcId }: { npcId: string; adventureId: string }) =>
       service.deleteNpc(npcId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: npcKeys.list(variables.adventureId) });
+      void queryClient.invalidateQueries({ queryKey: npcKeys.list(variables.adventureId) });
     },
   });
 

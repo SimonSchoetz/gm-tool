@@ -16,9 +16,7 @@ export const SessionsScreen = () => {
 
   const handleSessionCreation = async () => {
     const newSessionId = await createSession({ adventure_id: adventureId });
-    router.navigate({
-      to: `/adventure/${adventureId}/session/${newSessionId}`,
-    });
+    void router.navigate({ to: `/adventure/${adventureId}/session/${newSessionId}` });
   };
 
   if (loading || configsLoading || !sessionsTableConfig) {
@@ -29,12 +27,8 @@ export const SessionsScreen = () => {
     <SortableList<Session>
       tableConfigId={sessionsTableConfig.id}
       items={sessions}
-      onRowClick={(session) =>
-        router.navigate({
-          to: `/adventure/${adventureId}/session/${session.id}`,
-        })
-      }
-      onCreateNew={handleSessionCreation}
+      onRowClick={(session) => { void router.navigate({ to: `/adventure/${adventureId}/session/${session.id}` }); }}
+      onCreateNew={() => { void handleSessionCreation(); }}
       searchPlaceholder='e.g. "session name, description"'
     />
   );

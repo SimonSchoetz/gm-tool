@@ -20,9 +20,11 @@ export const StepSectionHeader = ({
   isFirst,
   isLast,
 }: Props) => {
-  const { steps, updateStep, reorderSteps, deleteStep } = useSessionSteps(sessionId);
+  const { steps, updateStep, reorderSteps, deleteStep } =
+    useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
-  const [deleteDialogState, setDeleteDialogState] = useState<PopUpState>('closed');
+  const [deleteDialogState, setDeleteDialogState] =
+    useState<PopUpState>('closed');
 
   if (!step) return null;
 
@@ -33,19 +35,27 @@ export const StepSectionHeader = ({
           type='checkbox'
           className='step-checkbox'
           checked={step.checked === 1}
-          onChange={() => { updateStep(step.id, { checked: step.checked ? 0 : 1 }); }}
+          onChange={() => {
+            updateStep(step.id, { checked: step.checked ? 0 : 1 });
+          }}
         />
 
         <input
           type='text'
           className='step-name-input'
           value={step.name ?? ''}
-          onChange={(e) => { updateStep(step.id, { name: e.target.value }); }}
+          onChange={(e) => {
+            updateStep(step.id, { name: e.target.value });
+          }}
           placeholder='Step name'
         />
 
         {step.default_step_key !== null && (
-          <button className='step-tooltip-btn' onClick={onToggleTooltip} title='Show hint'>
+          <button
+            className='step-tooltip-btn'
+            onClick={onToggleTooltip}
+            title='Show hint'
+          >
             ?
           </button>
         )}
@@ -54,7 +64,9 @@ export const StepSectionHeader = ({
           className='step-move-btn'
           disabled={isFirst}
           title='Move up'
-          onClick={() => { reorderSteps(step.id, 'up'); }}
+          onClick={() => {
+            reorderSteps(step.id, 'up');
+          }}
         >
           ↑
         </button>
@@ -62,7 +74,9 @@ export const StepSectionHeader = ({
           className='step-move-btn'
           disabled={isLast}
           title='Move down'
-          onClick={() => { reorderSteps(step.id, 'down'); }}
+          onClick={() => {
+            reorderSteps(step.id, 'down');
+          }}
         >
           ↓
         </button>
@@ -70,7 +84,9 @@ export const StepSectionHeader = ({
         <button
           className='step-delete-btn'
           title='Delete step'
-          onClick={() => { setDeleteDialogState('open'); }}
+          onClick={() => {
+            setDeleteDialogState('open');
+          }}
         >
           ✕
         </button>
@@ -79,7 +95,9 @@ export const StepSectionHeader = ({
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteDialog
           name={step.name ?? 'Untitled Step'}
-          onDeletionConfirm={() => deleteStep(step.id)}
+          onDeletionConfirm={() => {
+            void deleteStep(step.id);
+          }}
         />
       </PopUpContainer>
     </>

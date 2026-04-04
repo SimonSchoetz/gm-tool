@@ -22,7 +22,7 @@ export const useNpcs = (adventureId: string): UseNpcsReturn => {
   const createMutation = useMutation({
     mutationFn: (adventureId: string) => service.createNpc(adventureId),
     onSuccess: (_id, adventureId) => {
-      queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
+      void queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
     },
   });
 

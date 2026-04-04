@@ -23,14 +23,14 @@ export const useSessions = (adventureId: string): UseSessionsReturn => {
   const createMutation = useMutation({
     mutationFn: (data: CreateSessionInput) => service.createSession(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
+      void queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => service.deleteSession(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
+      void queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
     },
   });
 

@@ -26,7 +26,7 @@ export const useTableConfig = (tableId: string): UseTableConfigReturn => {
     mutationFn: ({ id, data }: { id: string; data: UpdateTableConfigInput }) =>
       service.updateTableConfig(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tableConfigKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: tableConfigKeys.all() });
     },
   });
 

@@ -23,7 +23,7 @@ export const MentionBadge = ({
     const path = adventureId
       ? `/adventure/${adventureId}/${entitySegment}/${entityId}`
       : `/${entitySegment}/${entityId}`;
-    navigate({ to: path });
+    void navigate({ to: path });
   };
 
   return (

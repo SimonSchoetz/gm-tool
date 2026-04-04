@@ -33,7 +33,7 @@ export const NpcScreen = () => {
 
   const handleNpcDelete = async () => {
     await deleteNpc(adventureId);
-    router.navigate({ to: `/adventure/${adventureId}/npcs` });
+    void router.navigate({ to: `/adventure/${adventureId}/npcs` });
   };
 
   return (
@@ -90,7 +90,7 @@ export const NpcScreen = () => {
       </GlassPanel>
 
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
-        <DeleteDialog name={npc.name} onDeletionConfirm={handleNpcDelete} />
+        <DeleteDialog name={npc.name} onDeletionConfirm={() => { void handleNpcDelete(); }} />
       </PopUpContainer>
     </>
   );

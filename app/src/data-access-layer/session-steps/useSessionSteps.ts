@@ -49,7 +49,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const createMutation = useMutation({
     mutationFn: (name?: string) => service.createCustomStep(sessionId, name),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
     },
   });
 
@@ -57,14 +57,14 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     mutationFn: (orderedStepIds: string[]) =>
       service.bulkReorderSteps(orderedStepIds),
     onError: () => {
-      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (stepId: string) => service.deleteStep(stepId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
     },
   });
 
@@ -116,8 +116,8 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
       return [...updated].sort((a, b) => a.sort_order - b.sort_order);
     });
 
-    service.swapStepOrder(sessionId, stepId, direction).catch(() => {
-      queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+    void service.swapStepOrder(sessionId, stepId, direction).catch(() => {
+      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
     });
   };
 
