@@ -2,7 +2,7 @@ import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';
 import './HorizontalDivider.css';
 
-export const HorizontalDivider: FCProps = ({
+export const HorizontalDivider: FCProps<HtmlProps<'hr'>> = ({
   className,
   ...props
 }) => {

@@ -10,7 +10,7 @@ type Props = {
 
 export const PrepView = ({ sessionId }: Props) => {
   const { steps, loading } = useSessionSteps(sessionId);
-  const [visibleTooltips, setVisibleTooltips] = useState(new Set());
+  const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(new Set());
 
   if (loading) {
     return <div>Loading steps...</div>;

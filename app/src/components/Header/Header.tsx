@@ -7,7 +7,7 @@ import { useRouterState } from '@tanstack/react-router';
 
 type Props = object;
 
-export const Header: FCProps = ({ ...props }) => {
+export const Header: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
 
   // Extract adventureId from route if present

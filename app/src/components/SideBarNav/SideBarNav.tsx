@@ -7,7 +7,7 @@ import { useRouterState } from '@tanstack/react-router';
 
 type Props = HtmlProps<'aside'>;
 
-export const SideBarNav: FCProps = ({ ...props }) => {
+export const SideBarNav: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
 
   // Extract adventureId from URL if it exists

@@ -10,7 +10,7 @@ type CustomScrollAreaProps = {
   spacing?: number;
 } & HtmlProps<'div'>;
 
-export const CustomScrollArea: FCProps = ({
+export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   children,
   className,
   thumbMinHeight = 40,

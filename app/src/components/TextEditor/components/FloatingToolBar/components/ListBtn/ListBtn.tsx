@@ -7,7 +7,6 @@ import {
   INSERT_CHECK_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
   $isListNode,
-  ListNode,
 } from '@lexical/list';
 import { LucideIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';

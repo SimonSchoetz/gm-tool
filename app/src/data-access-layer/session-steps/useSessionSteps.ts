@@ -22,7 +22,7 @@ type DebounceEntry = {
 
 export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const queryClient = useQueryClient();
-  const debounceMapRef = useRef(new Map());
+  const debounceMapRef = useRef<Map<string, DebounceEntry>>(new Map());
 
   useEffect(() => {
     const map = debounceMapRef.current;
