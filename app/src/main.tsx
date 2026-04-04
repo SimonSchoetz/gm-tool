@@ -15,12 +15,14 @@ import { routeTree } from './routeTree.gen';
 const router = createRouter({ routeTree });
 
 // Register the router instance and context for type safety
+/* eslint-disable @typescript-eslint/consistent-type-definitions, @typescript-eslint/no-empty-object-type -- TanStack Router requires interface for declaration merging */
 declare module '@tanstack/react-router' {
-  type Register = {
+  interface Register {
     router: typeof router;
   }
-  type RouteContext = {} & RouterContext
+  interface RouteContext extends RouterContext {}
 }
+/* eslint-enable @typescript-eslint/consistent-type-definitions, @typescript-eslint/no-empty-object-type */
 
 // Render the app
 const rootElement = document.getElementById('root')!;
