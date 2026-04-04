@@ -88,15 +88,6 @@ Produce a friction summary covering:
 
 Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself. Proceed to Cleanup.
 
-### Cleanup
-
-After the friction brief (or directly after the review loop on the frictionless path):
-
-1. Shut down all agents that were spawned during this session.
-2. Move the implemented spec file into `.archive/` at the same relative path. Use `mv` to move the file, then `git rm <original-path>` to remove it from tracking. Do not use `git mv` — the destination is covered by `.gitignore` and must not be tracked.
-3. Update `app/docs/_product/backlog.md` to reflect the completed work. If no backlog item exists, add a new one to "done"
-4. Commit the cleanup changes: `chore(<branch>): post-implementation cleanup`.
-
 ---
 
 These invariants apply to all steps above. They are not a process — they are constraints that hold throughout.
@@ -148,6 +139,8 @@ and ask before proceeding. Do not resolve the ambiguity independently.
 
 Cleanup and dead code removal are not ambiguous — act on them. Anything with
 a behavioral tradeoff is — surface it to the user.
+
+When the user provides input mid-cycle — decisions, fix direction, an entry point to resume from — treat it as a navigation instruction, not as permission to self-interpret. Resume from the step the user names, passing their input as context to the agent responsible for that step. The implementer does not evaluate, interpret, or collapse the remaining steps on the user's behalf.
 
 ## Engineering Validity
 
