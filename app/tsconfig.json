@@ -29,6 +29,6 @@
     "erasableSyntaxOnly": true,
     "exactOptionalPropertyTypes": true
   },
-  "include": ["src", "db"],
+  "include": ["src", "db", "util"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

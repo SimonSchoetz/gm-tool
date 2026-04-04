@@ -6,7 +6,7 @@ import { reactRefresh } from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  { ignores: ['dist/**', 'src-tauri/**'] },
+  { ignores: ['dist/**', 'src-tauri/**', 'coverage/**'] },
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -31,6 +31,10 @@ export default defineConfig(
   reactRefresh.configs.vite(),
   {
     files: ['*.js', '*.mjs', '*.cjs'],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    files: ['vite.config.ts', 'vitest.config.ts'],
     extends: [tseslint.configs.disableTypeChecked],
   },
 );
