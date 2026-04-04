@@ -10,7 +10,7 @@ type CustomScrollAreaProps = {
   spacing?: number;
 } & HtmlProps<'div'>;
 
-export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
+export const CustomScrollArea: FCProps = ({
   children,
   className,
   thumbMinHeight = 40,
@@ -20,7 +20,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const perspectiveRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
-  const scalingRef = useRef<number>(1);
+  const scalingRef = useRef(1);
   const [isHovered, setIsHovered] = useState(false);
   const [isScrollNeeded, setIsScrollNeeded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -109,7 +109,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   }, [isScrollNeeded, thumbMinHeight, spacing]);
 
   // Drag handlers
-  const lastYRef = useRef<number>(0);
+  const lastYRef = useRef(0);
 
   const handleThumbMouseDown = (event: React.MouseEvent) => {
     setIsDragging(true);
@@ -153,8 +153,8 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
     <div
       ref={containerRef}
       className={cn('custom-scroll-area', className)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => { setIsHovered(true); }}
+      onMouseLeave={() => { setIsHovered(false); }}
       {...props}
     >
       {isScrollNeeded && (

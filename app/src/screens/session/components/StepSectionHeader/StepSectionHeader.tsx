@@ -33,14 +33,14 @@ export const StepSectionHeader = ({
           type='checkbox'
           className='step-checkbox'
           checked={step.checked === 1}
-          onChange={() => updateStep(step.id, { checked: step.checked ? 0 : 1 })}
+          onChange={() => { updateStep(step.id, { checked: step.checked ? 0 : 1 }); }}
         />
 
         <input
           type='text'
           className='step-name-input'
           value={step.name ?? ''}
-          onChange={(e) => updateStep(step.id, { name: e.target.value })}
+          onChange={(e) => { updateStep(step.id, { name: e.target.value }); }}
           placeholder='Step name'
         />
 
@@ -54,7 +54,7 @@ export const StepSectionHeader = ({
           className='step-move-btn'
           disabled={isFirst}
           title='Move up'
-          onClick={() => reorderSteps(step.id, 'up')}
+          onClick={() => { reorderSteps(step.id, 'up'); }}
         >
           ↑
         </button>
@@ -62,7 +62,7 @@ export const StepSectionHeader = ({
           className='step-move-btn'
           disabled={isLast}
           title='Move down'
-          onClick={() => reorderSteps(step.id, 'down')}
+          onClick={() => { reorderSteps(step.id, 'down'); }}
         >
           ↓
         </button>
@@ -70,7 +70,7 @@ export const StepSectionHeader = ({
         <button
           className='step-delete-btn'
           title='Delete step'
-          onClick={() => setDeleteDialogState('open')}
+          onClick={() => { setDeleteDialogState('open'); }}
         >
           ✕
         </button>

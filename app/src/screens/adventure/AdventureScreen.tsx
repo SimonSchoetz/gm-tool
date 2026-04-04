@@ -46,15 +46,15 @@ export const AdventureScreen = () => {
           <UploadImgBtn
             image_id={adventure.image_id ?? null}
             uploadFn={(filePath) =>
-              updateAdventure({
+              { updateAdventure({
                 imgFilePath: filePath,
                 image_id: adventure.image_id,
-              })
+              }); }
             }
           />
           <Button
             label='Delete Adventure'
-            onClick={() => setDeleteDialogState('open')}
+            onClick={() => { setDeleteDialogState('open'); }}
             buttonStyle={'danger'}
           />
         </aside>
@@ -66,7 +66,7 @@ export const AdventureScreen = () => {
                 type='text'
                 placeholder='Adventure Title'
                 value={adventure.name}
-                onChange={(e) => updateAdventure({ name: e.target.value })}
+                onChange={(e) => { updateAdventure({ name: e.target.value }); }}
                 className='adventure-title-input'
                 required
               />
@@ -93,7 +93,7 @@ export const AdventureScreen = () => {
             <TextEditor
               value={adventure?.description || ''}
               textEditorId={`Adventure_${adventure.id}`}
-              onChange={(description) => updateAdventure({ description })}
+              onChange={(description) => { updateAdventure({ description }); }}
             />
           </div>
         </CustomScrollArea>

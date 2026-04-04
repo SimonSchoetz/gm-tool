@@ -13,7 +13,7 @@ type Props = {
 } & HtmlProps<'div'>;
 
 export const NewItemBtn: FCProps<Props> = ({
-  type = 'list-item',
+  type,
   label,
   onClick,
   className,
@@ -23,7 +23,7 @@ export const NewItemBtn: FCProps<Props> = ({
   const letAnimationPlayBeforeAction = () => {
     setHideBtn(true);
     const timeoutId = setTimeout(onClick, 500);
-    return () => clearTimeout(timeoutId);
+    return () => { clearTimeout(timeoutId); };
   };
 
   return (

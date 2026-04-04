@@ -29,7 +29,7 @@ export const SortableListItem = ({ tableConfigId, item, onClick, dragWidths }: P
           label={`Go to ${item.name ?? ''}`}
           className='sortable-list-item__content-container'
           style={{ gridTemplateColumns }}
-          onClick={() => onClick(item)}
+          onClick={() => { onClick(item); }}
         >
           {columns.map((col) => (
             <div key={col.key}>

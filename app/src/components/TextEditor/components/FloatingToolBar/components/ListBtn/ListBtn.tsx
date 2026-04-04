@@ -30,7 +30,7 @@ export const ListBtn: FCProps<ListBtnProps> = ({
   ...props
 }) => {
   const [editor] = useLexicalComposerContext();
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState(false);
 
   const isCurrentListType = useCallback(
     (selection: RangeSelection): boolean => {
@@ -41,7 +41,7 @@ export const ListBtn: FCProps<ListBtnProps> = ({
           : anchorNode.getTopLevelElementOrThrow();
 
       if ($isListNode(element)) {
-        return (element as ListNode).getListType() === listType;
+        return (element).getListType() === listType;
       }
       return false;
     },

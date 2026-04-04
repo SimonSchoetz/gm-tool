@@ -19,7 +19,7 @@ export const SearchInput = ({
   const debouncedSearch = useCallback(
     (term: string) => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => onSearch(term), debounceMs);
+      timerRef.current = setTimeout(() => { onSearch(term); }, debounceMs);
     },
     [onSearch, debounceMs]
   );

@@ -13,7 +13,7 @@ export const DeleteDialog = ({
   name,
   onDeletionConfirm,
 }: DeleteDialogProps) => {
-  const [intensity, setIntensity] = useState<number>(0);
+  const [intensity, setIntensity] = useState(0);
   const confirmText = `DELETE ${name}`;
 
   const handleInputChange = (input: string) => {
@@ -50,7 +50,7 @@ export const DeleteDialog = ({
       <Input
         className='delete-dialog-input'
         placeholder={confirmText}
-        onChange={(e) => handleInputChange(e.target.value)}
+        onChange={(e) => { handleInputChange(e.target.value); }}
       />
     </GlassPanel>
   );

@@ -16,10 +16,10 @@ const router = createRouter({ routeTree });
 
 // Register the router instance and context for type safety
 declare module '@tanstack/react-router' {
-  interface Register {
+  type Register = {
     router: typeof router;
   }
-  interface RouteContext extends RouterContext {}
+  type RouteContext = {} & RouterContext
 }
 
 // Render the app

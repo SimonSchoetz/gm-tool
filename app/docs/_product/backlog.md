@@ -25,6 +25,7 @@
 
 - Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
 - Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
+- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
 
 ---
 

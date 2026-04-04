@@ -17,8 +17,8 @@ const PopUpContainer = ({
   enforceCancelBtn = false,
   ...props
 }: Props) => {
-  const [isOpen, setIsOpen] = useState<boolean>(state === 'open');
-  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(state === 'open');
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (state === 'open') {
@@ -30,7 +30,7 @@ const PopUpContainer = ({
         setIsOpen(false);
       }, 500);
 
-      return () => clearTimeout(timeoutId);
+      return () => { clearTimeout(timeoutId); };
     }
   }, [state]);
 

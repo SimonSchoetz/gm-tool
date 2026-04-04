@@ -33,7 +33,7 @@ const initialState: CardState = {
 export const useTiltFX = (
   containerRef: RefObject<HTMLElement | null>
 ): { cardVars: CardVars; isActive: boolean } => {
-  const [state, setState] = useState<CardState>(initialState);
+  const [state, setState] = useState(initialState);
 
   useEffect(() => {
     const container = containerRef.current;

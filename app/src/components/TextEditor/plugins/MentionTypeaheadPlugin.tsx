@@ -107,10 +107,10 @@ export const MentionTypeaheadPlugin = () => {
               {menuOptions.map((option, i) => (
                 <li
                   key={option.key}
-                  ref={(el) => option.setRefElement(el)}
+                  ref={(el) => { option.setRefElement(el); }}
                   className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
-                  onClick={() => selectOptionAndCleanUp(option)}
-                  onMouseEnter={() => setHighlightedIndex(i)}
+                  onClick={() => { selectOptionAndCleanUp(option); }}
+                  onMouseEnter={() => { setHighlightedIndex(i); }}
                   style={{ color: option.result.color }}
                 >
                   <span className='mention-typeahead-item-name'>

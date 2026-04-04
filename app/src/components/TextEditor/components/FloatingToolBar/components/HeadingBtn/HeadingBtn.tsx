@@ -37,7 +37,7 @@ export const HeadingBtn: FCProps<HeadingBtnProps> = ({
   ...props
 }) => {
   const [editor] = useLexicalComposerContext();
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState(false);
 
   const isCurrentHeadingType = useCallback(
     (selection: RangeSelection): boolean => {

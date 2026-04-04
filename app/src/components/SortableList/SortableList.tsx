@@ -46,7 +46,7 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
 
   const filterConfig = useMemo(
     () => ({
-      searchableColumns: (config?.layout.searchable_columns ?? []) as Array<keyof T & string>,
+      searchableColumns: (config?.layout.searchable_columns ?? []) as (keyof T & string)[],
     }),
     [config?.layout.searchable_columns],
   );
@@ -101,7 +101,7 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
               key={item.id}
               tableConfigId={tableConfigId}
               item={item}
-              onClick={(item) => onRowClick(item as T)}
+              onClick={(item) => { onRowClick(item as T); }}
               dragWidths={dragWidths}
             />
           ))}
@@ -114,7 +114,7 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
                   key={item.id}
                   tableConfigId={tableConfigId}
                   item={item}
-                  onClick={(item) => onRowClick(item as T)}
+                  onClick={(item) => { onRowClick(item as T); }}
                   dragWidths={dragWidths}
                 />
               ))}

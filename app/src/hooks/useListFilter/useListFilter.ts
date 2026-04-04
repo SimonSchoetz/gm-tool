@@ -3,7 +3,7 @@ import { parseSearchTerms } from './helper/parseSearchTerms';
 import { allTermsMatchItem } from './helper/allTermsMatchItem';
 
 type FilterConfig<T> = {
-  searchableColumns: Array<keyof T & string>;
+  searchableColumns: (keyof T & string)[];
 };
 
 type UseListFilterReturn<T> = {

@@ -19,7 +19,7 @@ const InGameStepSection = ({ step, sessionId }: InGameStepSectionProps) => {
           type='checkbox'
           className='in-game-step-checkbox'
           checked={step.checked === 1}
-          onChange={() => updateStep(step.id, { checked: step.checked ? 0 : 1 })}
+          onChange={() => { updateStep(step.id, { checked: step.checked ? 0 : 1 }); }}
         />
         <span className='in-game-step-name'>{step.name ?? 'Untitled Step'}</span>
       </div>
@@ -55,7 +55,7 @@ export const InGameView = ({ sessionId, adventureId }: Props) => {
           <TextEditor
             textEditorId={`session-summary-${sessionId}`}
             value={session?.summary ?? ''}
-            onChange={(summary) => updateSession({ summary })}
+            onChange={(summary) => { updateSession({ summary }); }}
           />
         </div>
 

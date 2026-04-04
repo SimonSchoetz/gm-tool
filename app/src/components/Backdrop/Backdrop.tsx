@@ -13,7 +13,7 @@ const BEAM_SPEED = 4;
 
 const Backdrop = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameRef = useRef<number>(0);
+  const animationFrameRef = useRef(0);
   const beamsRef = useRef<Beam[]>([]);
   const gridRef = useRef<Grid>(null);
 

@@ -38,7 +38,7 @@ export const SortingTableHeader = ({
   }, [columns]);
 
   const [activeWidths, setActiveWidths] =
-    useState<Record<string, number>>(persistedWidths);
+    useState(persistedWidths);
 
   const dragRef = useRef<{
     columnKey: string;
@@ -140,7 +140,7 @@ export const SortingTableHeader = ({
           <div key={column.key} className='sorting-table-header__cell'>
             <ActionContainer
               disabled={notSortable}
-              onClick={() => handleSort(column.key)}
+              onClick={() => { handleSort(column.key); }}
               label={`Sort by ${column.label.toLowerCase()}`}
               className='sorting-table-header__sort-btn'
             >

@@ -28,7 +28,7 @@ export const TextFormatBtn: FCProps<TextFormatBtnProps> = ({
   ...props
 }) => {
   const [editor] = useLexicalComposerContext();
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState(false);
 
   const handleStateUpdate = useCallback(() => {
     const selection = $getSelection();

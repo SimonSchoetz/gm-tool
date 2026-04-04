@@ -10,7 +10,7 @@ type Props = {
 
 export const PrepView = ({ sessionId }: Props) => {
   const { steps, loading } = useSessionSteps(sessionId);
-  const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(new Set());
+  const [visibleTooltips, setVisibleTooltips] = useState(new Set());
 
   if (loading) {
     return <div>Loading steps...</div>;
@@ -53,7 +53,7 @@ export const PrepView = ({ sessionId }: Props) => {
               stepId={step.id}
               sessionId={sessionId}
               tooltipVisible={visibleTooltips.has(step.id)}
-              onToggleTooltip={() => toggleTooltipForStep(step.id)}
+              onToggleTooltip={() => { toggleTooltipForStep(step.id); }}
             />
           ))}
         </div>

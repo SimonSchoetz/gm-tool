@@ -7,7 +7,7 @@ import './FwBwNav.css';
 import '../NavButton.css';
 type Props = HtmlProps<'div'>;
 
-export const FwBwNav: FCProps<Props> = () => {
+export const FwBwNav: FCProps = () => {
   const router = useRouter();
   const canGoBack = router.history?.location.state?.key !== undefined;
   const canGoForward = window.history.length > 1;

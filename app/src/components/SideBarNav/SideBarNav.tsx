@@ -7,12 +7,12 @@ import { useRouterState } from '@tanstack/react-router';
 
 type Props = HtmlProps<'aside'>;
 
-export const SideBarNav: FCProps<Props> = ({ ...props }) => {
+export const SideBarNav: FCProps = ({ ...props }) => {
   const router = useRouterState();
 
   // Extract adventureId from URL if it exists
   const adventureIdMatch =
-    router.location.pathname.match(/\/adventure\/([^/]+)/);
+    /\/adventure\/([^/]+)/.exec(router.location.pathname);
   const adventureId = adventureIdMatch?.[1];
 
   return (

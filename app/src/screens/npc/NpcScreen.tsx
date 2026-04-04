@@ -44,16 +44,16 @@ export const NpcScreen = () => {
             dimensions={{ width: '200px', height: '200px' }}
             image_id={npc.image_id ?? null}
             uploadFn={(filePath) =>
-              updateNpc({
+              { updateNpc({
                 imgFilePath: filePath,
                 image_id: npc.image_id,
-              })
+              }); }
             }
           />
 
           <Button
             label='Delete NPC'
-            onClick={() => setDeleteDialogState('open')}
+            onClick={() => { setDeleteDialogState('open'); }}
             buttonStyle={'danger'}
           />
         </aside>
@@ -65,7 +65,7 @@ export const NpcScreen = () => {
                 type='text'
                 placeholder='Name'
                 value={npc.name}
-                onChange={(e) => updateNpc({ name: e.target.value })}
+                onChange={(e) => { updateNpc({ name: e.target.value }); }}
                 className='npc-name-input'
                 required
               />
@@ -75,7 +75,7 @@ export const NpcScreen = () => {
                   placeholder='Summmary'
                   value={npc?.summary || ''}
                   textEditorId={`NPC_${npc.id}_summary`}
-                  onChange={(summary) => updateNpc({ summary })}
+                  onChange={(summary) => { updateNpc({ summary }); }}
                 />
               </CustomScrollArea>
             </GlassPanel>
@@ -83,7 +83,7 @@ export const NpcScreen = () => {
             <TextEditor
               value={npc?.description || ''}
               textEditorId={`NPC_${npc.id}_description`}
-              onChange={(description) => updateNpc({ description })}
+              onChange={(description) => { updateNpc({ description }); }}
             />
           </div>
         </CustomScrollArea>

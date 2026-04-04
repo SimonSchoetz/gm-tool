@@ -23,9 +23,9 @@ const initPosition: Position = { top: 0, left: 0 };
 export const FloatingToolbar = ({ ...props }) => {
   const [editor] = useLexicalComposerContext();
   const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState<Position>(initPosition);
-  const [cursorPosition, setCursorPosition] = useState<Position>(initPosition);
-  const [selected, setSelected] = useState<string>('');
+  const [position, setPosition] = useState(initPosition);
+  const [cursorPosition, setCursorPosition] = useState(initPosition);
+  const [selected, setSelected] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +87,7 @@ export const FloatingToolbar = ({ ...props }) => {
   useEffect(() => {
     const rootElement = editor.getRootElement();
 
-    const handleFocus = () => setIsFocused(true);
+    const handleFocus = () => { setIsFocused(true); };
     const handleBlur = () => {
       setIsFocused(false);
       setIsVisible(false);
@@ -166,7 +166,7 @@ export const FloatingToolbar = ({ ...props }) => {
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={(e) => { e.preventDefault(); }}
       {...props}
     >
       {headingBtns.map((btn) => (

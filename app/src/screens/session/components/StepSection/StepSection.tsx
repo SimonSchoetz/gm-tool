@@ -46,7 +46,7 @@ export const StepSection = ({
       <TextEditor
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
-        onChange={(content) => updateStep(step.id, { content })}
+        onChange={(content) => { updateStep(step.id, { content }); }}
       />
     </div>
   );

@@ -7,19 +7,19 @@ import { useRouterState } from '@tanstack/react-router';
 
 type Props = object;
 
-export const Header: FCProps<Props> = ({ ...props }) => {
+export const Header: FCProps = ({ ...props }) => {
   const router = useRouterState();
 
   // Extract adventureId from route if present
-  const adventureIdMatch = router.location.href.match(/\/adventure\/([^\/]+)/);
+  const adventureIdMatch = /\/adventure\/([^\/]+)/.exec(router.location.href);
   const adventureId = adventureIdMatch ? adventureIdMatch[1] : '';
 
   // Extract npcId from route if present
-  const npcIdMatch = router.location.href.match(/\/npc\/([^\/]+)/);
+  const npcIdMatch = /\/npc\/([^\/]+)/.exec(router.location.href);
   const npcId = npcIdMatch ? npcIdMatch[1] : '';
 
   // Extract sessionId from route if present
-  const sessionIdMatch = router.location.href.match(/\/session\/([^\/]+)/);
+  const sessionIdMatch = /\/session\/([^\/]+)/.exec(router.location.href);
   const sessionId = sessionIdMatch ? sessionIdMatch[1] : '';
 
   const { adventure } = useAdventure(adventureId);
@@ -31,7 +31,7 @@ export const Header: FCProps<Props> = ({ ...props }) => {
       return 'Adventures';
     }
     if (router.location.href.includes('adventure')) {
-      return `${adventure?.name ?? 'Loading...'}`;
+      return adventure?.name ?? 'Loading...';
     }
     return 'GM Tool';
   };

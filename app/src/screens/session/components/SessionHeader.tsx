@@ -19,7 +19,7 @@ export const SessionHeader = ({ sessionId, adventureId, view, onViewChange }: Pr
         className='session-name-input'
         placeholder='Session name'
         value={session?.name ?? ''}
-        onChange={(e) => updateSession({ name: e.target.value })}
+        onChange={(e) => { updateSession({ name: e.target.value }); }}
       />
 
       {view === 'prep' && (
@@ -27,7 +27,7 @@ export const SessionHeader = ({ sessionId, adventureId, view, onViewChange }: Pr
           type='date'
           className='session-date-input'
           value={session?.session_date ?? ''}
-          onChange={(e) => updateSession({ session_date: e.target.value })}
+          onChange={(e) => { updateSession({ session_date: e.target.value }); }}
         />
       )}
 
@@ -38,13 +38,13 @@ export const SessionHeader = ({ sessionId, adventureId, view, onViewChange }: Pr
       <div className='session-view-toggle'>
         <button
           className={`view-toggle-btn${view === 'prep' ? ' view-toggle-btn--active' : ''}`}
-          onClick={() => onViewChange('prep')}
+          onClick={() => { onViewChange('prep'); }}
         >
           Prep
         </button>
         <button
           className={`view-toggle-btn${view === 'ingame' ? ' view-toggle-btn--active' : ''}`}
-          onClick={() => onViewChange('ingame')}
+          onClick={() => { onViewChange('ingame'); }}
         >
           In Game
         </button>

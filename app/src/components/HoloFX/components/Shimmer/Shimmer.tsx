@@ -4,7 +4,7 @@ import './Shimmer.css';
 
 type Props = { shimmerContent?: string } & HtmlProps<'div'>;
 
-export const Shimmer: FCProps<Props> = ({
+export const Shimmer: FCProps = ({
   shimmerContent = '',
   className,
   ...props

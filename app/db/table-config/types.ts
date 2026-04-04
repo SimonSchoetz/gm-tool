@@ -19,8 +19,8 @@ export type UpdateTableConfigInput = Omit<
 > & { layout?: TableLayout };
 
 export type TypedTableLayout<T> = {
-  searchable_columns: Array<keyof T & string>;
-  columns: Array<Omit<LayoutColumn, 'key'> & { key: keyof T & string }>;
+  searchable_columns: (keyof T & string)[];
+  columns: (Omit<LayoutColumn, 'key'> & { key: keyof T & string })[];
   sort_state: { column: keyof T & string; direction: SortDirection };
 };
 
