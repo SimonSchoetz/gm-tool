@@ -77,7 +77,6 @@ Always use Conventional Commits with scope required:
 #### Coding style
 
 - typescript first
-- types over interfaces
 - Use modern arrow function syntax. Classes are permitted only where a third-party framework API requires inheritance — e.g., Lexical node types (extending `DecoratorNode`, `TextNode`, etc.) and `MenuOption` subclasses. Do not introduce classes for any other reason.
 - **Error types use factory functions, not classes.** Create typed errors with a factory function and type narrowing — never `class XxxError extends Error`. This aligns with "types over interfaces" and "arrow functions only." `instanceof` is not used in this codebase — all errors route to the Error Boundary via `throwOnError: true`.
 
@@ -94,27 +93,9 @@ export const sessionLoadError = (cause?: unknown): SessionLoadError => {
 export class SessionLoadError extends Error { ... }
 ```
 
-- **`as const` over `enum`**: Use `as const` objects with derived union types instead of TypeScript enums. Enums are runtime IIFE constructs that conflict with the "types over interfaces" posture. An `as const` object gives identical DX — dot-access, autocomplete, type narrowing, exhaustive checks — without a runtime construct.
-
-  ```ts
-  // ✅ GOOD
-  export const Routes = {
-    ADVENTURES: 'adventures',
-    SESSION: 'session',
-  } as const;
-  export type AppRoute = (typeof Routes)[keyof typeof Routes];
-
-  // ❌ BAD
-  export enum Routes {
-    ADVENTURES = 'adventures',
-    SESSION = 'session',
-  }
-  ```
-
 - Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
   - ❌ BAD: `let session: Session | undefined;`
   - ✅ GOOD: `let session: Session | null = null;`
-- avoid using `any` as type
 - Use descriptive names instead of comments
   ❌ BAD: `const data = await fetch(); // Get user data`
   ✅ GOOD: `const userData = await fetchUserData();`
@@ -126,13 +107,6 @@ export class SessionLoadError extends Error { ... }
 
   A comment that would need to be duplicated in more than one file is not a comment — it is a missing CLAUDE.md rule.
 
-- Use modern JavaScript operators for cleaner code:
-  ❌ BAD: `const x = value !== undefined ? value : defaultValue`
-  ✅ GOOD: `const x = value ?? defaultValue`
-  ❌ BAD: `if (obj && obj.prop && obj.prop.nested) { ... }`
-  ✅ GOOD: `if (obj?.prop?.nested) { ... }`
-- use single quotes
-- multiple array/object items in new lines
 - **Markdown files must comply with markdownlint rules as defined in `.markdownlint.json` at the repo root.** Key configured rules: no line-length limit (MD013 off), blank-lines-around-lists not enforced (MD032 off), bold uses asterisk style `**bold**` (MD050). All other markdownlint defaults apply — code blocks must declare a language (MD040), first line must be H1 (MD041), blank lines around fences (MD031).
 
 ### Accountability on Missed Requirements
@@ -154,11 +128,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
 ### Best Practices & Code Quality
 
-- **Always suggest and implement best practices first**
-- When multiple valid approaches exist, explain the tradeoffs and recommend the best option
-- Proactively warn against anti-patterns, deprecated features, or "escape hatches" (like useImperativeHandle, useLayoutEffect, etc.)
-- If a user requests an approach that goes against best practices, explain why it's not recommended and suggest the better alternative
-- Don't just implement what's asked - guide toward the right solution
+- **When the user opts for an approach that conflicts with documented best practices or is flagged as inadvisable by the relevant framework or library authors, push back explicitly before implementing.** Do not assume the user's choice is informed — surface the concern and confirm it is intentional. If the user confirms, implement as asked. This is not a license to withhold implementation indefinitely; one explicit pushback is required, then proceed on confirmation.
 - Use SOLID principles where applicable
 - **Separation of concerns over DRY**: When these two principles conflict, always prefer separation of concerns. Each component, hook, or module owns its own slice of responsibility — even if that means a parent holds less centralised state.
   - ❌ BAD: Centralising column resize state in `SortableList` and passing it down because it "keeps things in one place"
@@ -205,6 +175,7 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 - **Verify user-provided paths before treating them as facts.** When a user names a file or directory path during instruction refinement, auditing, or any artifact review, verify it exists (or does not exist) by reading the filesystem before accepting it as ground truth. User-provided paths are claims, not facts — the filesystem is the authority. This applies even when the path sounds plausible or matches a pattern used elsewhere in the repo.
 - **`npx tsc --noEmit` must pass with zero errors before any commit.** Run it once after all files for a sub-feature are written — not after every individual file edit, which produces noise from intentionally incomplete intermediate states. Pre-existing errors must be resolved before implementation begins — they are never filtered out, deferred, or treated as acceptable baseline noise. A commit that precedes a passing type-check is a commit on broken code.
 - **`npx vitest run` must pass with zero failures before any commit.** Run it once after all files for a sub-feature are written — same timing as tsc, not after every individual file edit. Pre-existing failures must be resolved before implementation begins — they are never filtered out or deferred. A commit that precedes a passing test run is a commit on broken code.
+- **`npx eslint .` must pass with zero errors before any commit (run from `app/`).** Same timing as tsc — once after all files for a sub-feature are written. Pre-existing errors must be resolved before implementation begins. A commit that precedes a passing lint run is a commit on broken code.
 - **Re-validate spec instructions that touch file organization before executing them.** A spec is written by a prior instance that may have mis-applied current conventions. Before executing any spec instruction that specifies barrel shape, export style, or directory structure — including "no change needed" — re-read the relevant CLAUDE.md barrel rules and verify the instruction is consistent. If it is not, apply the correct convention and note the deviation. The spec is a starting point, not a source of truth for convention questions.
 - **Every code or type reference proposed in any artifact must be verified before inclusion — no exceptions.** Artifacts include specs, briefs, review fix proposals, architectural decision documents, and inline suggestions. Before including a symbol, import path, function signature, or type name: verify it is real by reading the file at the declared path and confirming the symbol is exported there. For third-party symbols, inspect the library's `index.d.ts` (see Third-Party Libraries). For first-party symbols, read the source file. A symbol that cannot be confirmed by a file read must not appear in the artifact — propose its creation explicitly instead. Training knowledge of what a file exports is never sufficient.
 - **Never prefix git commands with `cd`.** The working directory is set correctly by Claude Code's process context. `cd /path && git ...` does not match `Bash(git *)` permissions and causes unnecessary prompts — always issue git commands directly: `git log --oneline -5`, not `cd /Users/simonschoetz/dev/gm-tool && git log --oneline -5`.

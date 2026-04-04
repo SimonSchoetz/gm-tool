@@ -75,13 +75,8 @@ src-tauri/src/
 
 ### Documentation
 
-- Add doc comments to all public functions
 - Use `///` for documentation
-- Document:
-  - Purpose of the command
-  - Arguments with types
-  - Return values
-  - Error cases
+- Document only when the function's purpose isn't self-evident from its name and signature
 
 ### Naming
 
@@ -176,10 +171,3 @@ Current dependencies in `Cargo.toml`:
 - `tauri-plugin-opener` - Opening files/URLs
 - `tauri-plugin-sql` - SQLite support
 
-## Best Practices
-
-- **Always validate input** - Check file extensions, paths, etc.
-- **Graceful error handling** - Return descriptive errors, don't panic
-- **Use Tauri's path APIs** - Don't construct paths manually
-- **Async where appropriate** - Use `async fn` for I/O operations
-- **Security first** - Validate all user input, use safe path operations
