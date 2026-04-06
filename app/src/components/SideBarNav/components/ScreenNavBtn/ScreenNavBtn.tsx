@@ -4,7 +4,6 @@ import { cn } from '@/util';
 import { Link, useMatch } from '@tanstack/react-router';
 import '../NavButton.css';
 import './ScreenNavBtn.css';
-import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 
 type Props = {
   label: string;
@@ -44,9 +43,7 @@ export const ScreenNavBtn: FCProps<Props> = ({
         aria-label={`Navigate to ${label}`}
         className={cn('screen-nav-btn-content', 'content-center')}
       >
-        <ChevronsLeftIcon className={cn(isAtTarget && 'active')} />
         <span>{label}</span>
-        <ChevronsRightIcon className={cn(isAtTarget && 'active')} />
       </Link>
     </GlassPanel>
   );

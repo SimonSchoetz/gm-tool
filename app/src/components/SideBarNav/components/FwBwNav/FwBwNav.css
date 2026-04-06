@@ -1,6 +1,7 @@
 .fw-bw-btn-container {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 .fw-bw-btn {

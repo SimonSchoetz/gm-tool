@@ -1,7 +1,7 @@
 .screen-nav-btn-content {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   color: var(--color-primary);
   text-decoration: none;
