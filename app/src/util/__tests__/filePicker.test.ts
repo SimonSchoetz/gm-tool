@@ -73,7 +73,7 @@ describe('filePicker', () => {
               extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
             },
           ],
-        })
+        }),
       );
     });
 
@@ -90,7 +90,7 @@ describe('filePicker', () => {
               extensions: ['pdf', 'md'],
             },
           ],
-        })
+        }),
       );
     });
 
@@ -102,7 +102,7 @@ describe('filePicker', () => {
       expect(open).toHaveBeenCalledWith(
         expect.objectContaining({
           multiple: false,
-        })
+        }),
       );
     });
   });
@@ -127,7 +127,8 @@ describe('filePicker', () => {
       vi.mocked(open).mockRejectedValue(unknownError);
 
       await expect(filePicker('image')).rejects.toThrow(
-        `Failed to open file picker: ${unknownError}`
+        // eslint-disable-next-line
+        `Failed to open file picker: ${unknownError}`,
       );
     });
 
@@ -135,7 +136,7 @@ describe('filePicker', () => {
       vi.mocked(open).mockRejectedValue(null);
 
       await expect(filePicker('image')).rejects.toThrow(
-        'Failed to open file picker: null'
+        'Failed to open file picker: null',
       );
     });
 
@@ -143,7 +144,7 @@ describe('filePicker', () => {
       vi.mocked(open).mockRejectedValue(undefined);
 
       await expect(filePicker('image')).rejects.toThrow(
-        'Failed to open file picker: undefined'
+        'Failed to open file picker: undefined',
       );
     });
 
@@ -151,7 +152,7 @@ describe('filePicker', () => {
       vi.mocked(open).mockRejectedValue(404);
 
       await expect(filePicker('image')).rejects.toThrow(
-        'Failed to open file picker: 404'
+        'Failed to open file picker: 404',
       );
     });
   });
