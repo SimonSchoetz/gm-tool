@@ -49,7 +49,9 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const createMutation = useMutation({
     mutationFn: (name?: string) => service.createCustomStep(sessionId, name),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({
+        queryKey: sessionStepKeys.list(sessionId),
+      });
     },
   });
 
@@ -57,22 +59,31 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     mutationFn: (orderedStepIds: string[]) =>
       service.bulkReorderSteps(orderedStepIds),
     onError: () => {
-      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({
+        queryKey: sessionStepKeys.list(sessionId),
+      });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (stepId: string) => service.deleteStep(stepId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({
+        queryKey: sessionStepKeys.list(sessionId),
+      });
     },
   });
 
   const updateStep = (stepId: string, data: UpdateSessionStepInput) => {
-    queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
-      if (!old) return old;
-      return old.map((step) => (step.id === stepId ? mergeUpdate(step, data) : step));
-    });
+    queryClient.setQueryData<SessionStep[]>(
+      sessionStepKeys.list(sessionId),
+      (old) => {
+        if (!old) return old;
+        return old.map((step) =>
+          step.id === stepId ? mergeUpdate(step, data) : step,
+        );
+      },
+    );
 
     const map = debounceMapRef.current;
     const existing = map.get(stepId);
@@ -84,12 +95,14 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
       map.set(stepId, { timeout: null, pending: { ...data } });
     }
 
-    const entry = map.get(stepId)!;
-    entry.timeout = setTimeout(() => {
-      const accumulated = { ...entry.pending };
-      map.delete(stepId);
-      updateMutation.mutate({ id: stepId, data: accumulated });
-    }, 500);
+    const entry = map.get(stepId);
+    if (entry) {
+      entry.timeout = setTimeout(() => {
+        const accumulated = { ...entry.pending };
+        map.delete(stepId);
+        updateMutation.mutate({ id: stepId, data: accumulated });
+      }, 500);
+    }
   };
 
   const createStep = async (name?: string): Promise<string> =>
@@ -100,40 +113,56 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   };
 
   const reorderSteps = (stepId: string, direction: 'up' | 'down'): void => {
-    queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
-      if (!old) return old;
-      const index = old.findIndex((s) => s.id === stepId);
-      if (index === -1) return old;
-      const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
-      const adjacent = old[adjacentIndex];
-      if (!adjacent) return old;
-      const targetSortOrder = old[index].sort_order;
-      const updated = old.map((s) => {
-        if (s.id === stepId) return { ...s, sort_order: adjacent.sort_order };
-        if (s.id === adjacent.id) return { ...s, sort_order: targetSortOrder };
-        return s;
-      });
-      return [...updated].sort((a, b) => a.sort_order - b.sort_order);
-    });
+    queryClient.setQueryData<SessionStep[]>(
+      sessionStepKeys.list(sessionId),
+      (old) => {
+        if (!old) return old;
+        const index = old.findIndex((s) => s.id === stepId);
+        if (index === -1) return old;
+        const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
+        const adjacent = old[adjacentIndex];
+        const targetSortOrder = old[index].sort_order;
+        const updated = old.map((s) => {
+          if (s.id === stepId) return { ...s, sort_order: adjacent.sort_order };
+          if (s.id === adjacent.id)
+            return { ...s, sort_order: targetSortOrder };
+          return s;
+        });
+        return [...updated].sort((a, b) => a.sort_order - b.sort_order);
+      },
+    );
 
     void service.swapStepOrder(sessionId, stepId, direction).catch(() => {
-      void queryClient.invalidateQueries({ queryKey: sessionStepKeys.list(sessionId) });
+      void queryClient.invalidateQueries({
+        queryKey: sessionStepKeys.list(sessionId),
+      });
     });
   };
 
   const bulkReorder = (orderedStepIds: string[]): void => {
-    queryClient.setQueryData<SessionStep[]>(sessionStepKeys.list(sessionId), (old) => {
-      if (!old) return old;
-      const idToStep = new Map(old.map((s) => [s.id, s]));
-      return orderedStepIds
-        .map((id, index) => {
-          const step = idToStep.get(id);
-          return step ? { ...step, sort_order: index } : null;
-        })
-        .filter((s): s is SessionStep => s !== null);
-    });
+    queryClient.setQueryData<SessionStep[]>(
+      sessionStepKeys.list(sessionId),
+      (old) => {
+        if (!old) return old;
+        const idToStep = new Map(old.map((s) => [s.id, s]));
+        return orderedStepIds
+          .map((id, index) => {
+            const step = idToStep.get(id);
+            return step ? { ...step, sort_order: index } : null;
+          })
+          .filter((s): s is SessionStep => s !== null);
+      },
+    );
     bulkReorderMutation.mutate(orderedStepIds);
   };
 
-  return { steps, loading, updateStep, createStep, deleteStep, reorderSteps, bulkReorder };
+  return {
+    steps,
+    loading,
+    updateStep,
+    createStep,
+    deleteStep,
+    reorderSteps,
+    bulkReorder,
+  };
 };

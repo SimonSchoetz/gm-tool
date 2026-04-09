@@ -11,9 +11,7 @@ export const filePicker = async (fileType: keyof FileTypes) => {
     const extensions = fileTypes[fileType];
     const selected = await open({
       multiple: false,
-      ...(extensions
-        ? { filters: [{ name: 'Allowed Files', extensions }] }
-        : {}),
+      filters: [{ name: 'Allowed Files', extensions }],
     });
 
     return selected;

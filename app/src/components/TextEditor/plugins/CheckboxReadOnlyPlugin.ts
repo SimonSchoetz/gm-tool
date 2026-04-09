@@ -26,11 +26,16 @@ export const CheckboxReadOnlyPlugin = (): null => {
       if (!(target instanceof HTMLElement) || target.tagName !== 'LI') return;
 
       const parentNode = target.parentNode;
-      if (!parentNode || (parentNode as unknown as { __lexicalListType?: string }).__lexicalListType !== 'check') return;
+      if (
+        !parentNode ||
+        (parentNode as unknown as { __lexicalListType?: string })
+          .__lexicalListType !== 'check'
+      )
+        return;
 
       const rect = target.getBoundingClientRect();
-      const beforeStyles = window.getComputedStyle ? window.getComputedStyle(target, '::before') : null;
-      const beforeWidth = beforeStyles ? (parseFloat(beforeStyles.width) || 24) : 24;
+      const beforeStyles = window.getComputedStyle(target, '::before');
+      const beforeWidth = parseFloat(beforeStyles.width) || 24;
       const clickX = event.clientX;
 
       const isInCheckboxArea =

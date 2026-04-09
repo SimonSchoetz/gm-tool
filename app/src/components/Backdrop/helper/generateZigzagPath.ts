@@ -10,7 +10,7 @@ const Direction = {
 type Direction = (typeof Direction)[keyof typeof Direction];
 
 export const generateZigzagPath = (
-  gridRef: RefObject<Grid>
+  gridRef: RefObject<Grid>,
 ): { x: number; y: number }[] => {
   if (!gridRef.current) return [];
   const { squareSize, cols, rows, offsetX, offsetY } = gridRef.current;
@@ -29,20 +29,25 @@ export const generateZigzagPath = (
 
   let direction: Direction = Direction.DOWN;
 
-  const setDirection = () => {
+  const getNextDirection = (current: Direction): Direction => {
     const shouldMoveHorizontally = Math.random() < 0.4;
 
     if (shouldMoveHorizontally) {
-      if (direction !== Direction.LEFT && direction !== Direction.RIGHT) {
-        direction = Math.random() < 0.5 ? Direction.LEFT : Direction.RIGHT;
+      if (current !== Direction.LEFT && current !== Direction.RIGHT) {
+        return Math.random() < 0.5 ? Direction.LEFT : Direction.RIGHT;
       }
-    } else if (direction !== Direction.DOWN) {
-      direction = Direction.DOWN;
+      return current;
     }
+
+    if (current !== Direction.DOWN) {
+      return Direction.DOWN;
+    }
+
+    return current;
   };
 
   while (currentRow <= rows) {
-    setDirection();
+    direction = getNextDirection(direction);
 
     if (direction !== Direction.DOWN) {
       const newCol = Math.max(0, Math.min(cols - 1, currentCol + direction));

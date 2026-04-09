@@ -82,7 +82,6 @@ export const swapStepOrder = async (
 
     const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
     const adjacent = steps[adjacentIndex];
-    if (!adjacent) return;
 
     const target = steps[index];
     await sessionStepDb.update(target.id, { sort_order: adjacent.sort_order });
