@@ -10,15 +10,6 @@ import { seedTableConfig } from './table-config/seed';
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
 
-// const runMigrations = async (database: Database) => {
-//   try {
-
-//   } catch (error) {
-//     console.error('Migration failed:', error);
-//     throw error;
-//   }
-// };
-
 export const initDatabase = async () => {
   if (db) return db;
 
@@ -51,9 +42,6 @@ export const initDatabase = async () => {
           } table created/verified`,
         );
       }
-
-      // Run migrations
-      // await runMigrations(database);
 
       // Seed table_config with defaults
       db = database;

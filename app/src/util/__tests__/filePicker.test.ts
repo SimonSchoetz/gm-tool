@@ -127,7 +127,7 @@ describe('filePicker', () => {
       vi.mocked(open).mockRejectedValue(unknownError);
 
       await expect(filePicker('image')).rejects.toThrow(
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
         `Failed to open file picker: ${unknownError}`,
       );
     });

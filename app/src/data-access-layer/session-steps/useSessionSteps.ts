@@ -120,6 +120,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
         const index = old.findIndex((s) => s.id === stepId);
         if (index === -1) return old;
         const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
+        if (adjacentIndex < 0 || adjacentIndex >= old.length) return old;
         const adjacent = old[adjacentIndex];
         const targetSortOrder = old[index].sort_order;
         const updated = old.map((s) => {
