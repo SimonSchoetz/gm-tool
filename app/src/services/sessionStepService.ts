@@ -81,6 +81,7 @@ export const swapStepOrder = async (
     if (index === -1) return;
 
     const adjacentIndex = direction === 'up' ? index - 1 : index + 1;
+    if (adjacentIndex < 0 || adjacentIndex >= steps.length) return;
     const adjacent = steps[adjacentIndex];
 
     const target = steps[index];
