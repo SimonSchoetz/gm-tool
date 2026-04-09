@@ -13,7 +13,11 @@ export const renderCell = (
     return <AvatarCell imageId={item.image_id} />;
   }
   if (DATE_KEYS.has(key)) return formatDateValue(item[key]);
-  return String(item[key] ?? '');
+  const value = item[key];
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  // eslint-disable-next-line @typescript-eslint/no-base-to-string -- value is a non-object primitive after nullish and object guards above
+  return String(value);
 };
 
 const assertIsString: (value: unknown) => asserts value is string = (value) => {
