@@ -26,6 +26,20 @@ Every .css line I write is production code, subject to the same conventions as T
 
 # refine-cladue workflow
 
-When refining claude, the called agents seem to stop after their first return. An automated conversation is not possible. This was the most recent output I got during an implementation session, when I informed the implementer, that multiple minutes have passed and there is no response yet:
+## convo:
 
-The agents have already completed their runs — they can't receive messages after returning. I should have handled the mediation synchronously. I'll reason through the overlap from their stated positions and surface it to you directly.
+ok wtf is happening here? I admit: I made a mistake. I'm still getting used to a new interface and told you the wrong file to look at. There was no as stringcast change in @app/db/image/create.ts . Your error:You didn't find what I was talking about and decided to move on with something completely different. Fixing an error that has nothing todo with my initial request and than going back to answering the overarching question regarding type assertion. That confused me and it costs time and tokens. Did you not see that I was talking nonsense here?
+
+Applying the accountability framework.
+
+1. Which rule applies: "Verify user-provided paths before treating them as facts... User-provided paths are claims, not facts — the filesystem is the authority." This extends to content claims, not just paths. The user said there was an as string cast in create.ts. The file contained no such cast. That is a discrepancy — a blocker, not a detail to work around. Source: explicit instruction in CLAUDE.md ("Verify user-provided paths before treating them as facts").
+
+2. Why it was missed: I found a different type cast (as 'jpg' | ...) and rationalized it as the subject rather than flagging the mismatch. I prioritized having something to review over having the correct thing to review.
+
+3. The wrong mental model: "Close enough" substitution. User said as string, I found as 'some union type', treated them as equivalent and moved on. The discrepancy was evidence the premise was wrong — I read it as an opportunity to still produce output.
+
+4. The correct mental model: A mismatch between user description and file content is a hard stop. The right response is: "I read the file and there's no as string cast here — what file were you actually looking at?"
+
+## instructions: read every file before editing could cost double in implemementation process
+
+- write spec is already doing a deep read and listing changes. The implementer then again does read the files. Is that good?

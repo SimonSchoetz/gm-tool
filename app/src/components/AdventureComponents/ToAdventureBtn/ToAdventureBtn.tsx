@@ -19,7 +19,7 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
       className={'to-adventure-link'}
       aria-label={adventure.name}
     >
-      <HoloImg image_id={adventure.image_id!} title={adventure.name} />
+      <HoloImg image_id={adventure.image_id ?? ''} title={adventure.name} />
     </Link>
   );
 };

@@ -21,7 +21,7 @@ export const create = async ({
     throw new Error(`Unsupported file extension: ${extension}`);
   }
 
-  const originalFilename = filePath.split('/').pop() || undefined;
+  const originalFilename = filePath.split('/').pop() ?? undefined;
 
   const id = generateId();
 

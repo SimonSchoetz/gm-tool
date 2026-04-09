@@ -14,7 +14,8 @@
   "scripts": {
     "test": "cd app && npm run test",
     "dev": "cd app && npm run dev",
-    "web": "cd app && npm run web"
+    "web": "cd app && npm run web",
+    "lint": "cd app && npx eslint ."
   },
   "devDependencies": {
     "simple-git-hooks": "latest"

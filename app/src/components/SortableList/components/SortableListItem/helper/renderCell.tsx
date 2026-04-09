@@ -8,8 +8,16 @@ export const renderCell = (
   key: string,
   item: Record<string, unknown>,
 ): ReactNode => {
-  if (key === 'image_id')
-    return <AvatarCell imageId={item.image_id as string | null | undefined} />;
+  if (key === 'image_id') {
+    assertIsString(item.image_id);
+    return <AvatarCell imageId={item.image_id} />;
+  }
   if (DATE_KEYS.has(key)) return formatDateValue(item[key]);
   return String(item[key] ?? '');
+};
+
+const assertIsString: (value: unknown) => asserts value is string = (value) => {
+  if (typeof value !== 'string') {
+    throw new Error('Expected a string');
+  }
 };

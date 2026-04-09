@@ -2,7 +2,7 @@ import { UserSquareIcon } from 'lucide-react';
 import { ImageById, ImagePlaceholderFrame } from '@/components';
 
 type AvatarCellProps = {
-  imageId: string | null | undefined;
+  imageId: string;
 };
 
 export const AvatarCell = ({ imageId }: AvatarCellProps) => (
