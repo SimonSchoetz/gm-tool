@@ -45,16 +45,18 @@ export const AdventureScreen = () => {
         <aside className='adventure-sidebar'>
           <UploadImgBtn
             image_id={adventure.image_id ?? null}
-            uploadFn={(filePath) =>
-              { updateAdventure({
+            uploadFn={(filePath) => {
+              updateAdventure({
                 imgFilePath: filePath,
                 image_id: adventure.image_id,
-              }); }
-            }
+              });
+            }}
           />
           <Button
             label='Delete Adventure'
-            onClick={() => { setDeleteDialogState('open'); }}
+            onClick={() => {
+              setDeleteDialogState('open');
+            }}
             buttonStyle={'danger'}
           />
         </aside>
@@ -66,9 +68,10 @@ export const AdventureScreen = () => {
                 type='text'
                 placeholder='Adventure Title'
                 value={adventure.name}
-                onChange={(e) => { updateAdventure({ name: e.target.value }); }}
+                onChange={(e) => {
+                  updateAdventure({ name: e.target.value });
+                }}
                 className='adventure-title-input'
-                required
               />
 
               <ul className={cn('adventure-facts')}>
@@ -93,7 +96,9 @@ export const AdventureScreen = () => {
             <TextEditor
               value={adventure?.description || ''}
               textEditorId={`Adventure_${adventure.id}`}
-              onChange={(description) => { updateAdventure({ description }); }}
+              onChange={(description) => {
+                updateAdventure({ description });
+              }}
             />
           </div>
         </CustomScrollArea>
@@ -101,7 +106,9 @@ export const AdventureScreen = () => {
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteDialog
           name={adventure.name}
-          onDeletionConfirm={() => { void handleAdventureDelete(); }}
+          onDeletionConfirm={() => {
+            void handleAdventureDelete();
+          }}
         />
       </PopUpContainer>
     </>
