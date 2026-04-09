@@ -78,13 +78,13 @@ Always use Conventional Commits with scope required:
 
 - typescript first
 - Use modern arrow function syntax. Classes are permitted only where a third-party framework API requires inheritance — e.g., Lexical node types (extending `DecoratorNode`, `TextNode`, etc.) and `MenuOption` subclasses. Do not introduce classes for any other reason.
-- **Error types use factory functions, not classes.** Create typed errors with a factory function and type narrowing — never `class XxxError extends Error`. This aligns with "types over interfaces" and "arrow functions only." `instanceof` is not used in this codebase — all errors route to the Error Boundary via `throwOnError: true`.
+- **Error types use factory functions, not classes.** Create typed errors with a factory function and type narrowing — never `class XxxError extends Error`. `instanceof` is not used in this codebase — all errors route to the Error Boundary via `throwOnError: true`.
 
 ```ts
 // ✅ GOOD
 export type SessionLoadError = Error & { name: 'SessionLoadError' };
 export const sessionLoadError = (cause?: unknown): SessionLoadError => {
-  const error = new Error(`Failed to load sessions: ${cause}`) as SessionLoadError;
+  const error = new Error(`Failed to load sessions: ${String(cause)}`) as SessionLoadError;
   error.name = 'SessionLoadError';
   return error;
 };
