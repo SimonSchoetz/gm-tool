@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useState, useRef, useMemo } from 'react';
 import { ChevronUpIcon } from 'lucide-react';
 import { ActionContainer } from '@/components';
 import { useTableConfig } from '@/data-access-layer';
@@ -30,12 +30,13 @@ export const SortingTableHeader = ({
   };
 
   const persistedWidths = useMemo(() => {
+    const cols = config?.layout.columns ?? [];
     const result: Record<string, number> = {};
-    for (const col of columns) {
+    for (const col of cols) {
       result[col.key] = col.width;
     }
     return result;
-  }, [columns]);
+  }, [config?.layout.columns]);
 
   const [activeWidths, setActiveWidths] = useState(persistedWidths);
 
@@ -46,21 +47,28 @@ export const SortingTableHeader = ({
   } | null>(null);
 
   const updateColumnWidthsRef = useRef(updateColumnWidths);
-  updateColumnWidthsRef.current = updateColumnWidths;
-
   const onDragWidthsChangeRef = useRef(onDragWidthsChange);
-  onDragWidthsChangeRef.current = onDragWidthsChange;
-
   const activeWidthsRef = useRef(activeWidths);
-  activeWidthsRef.current = activeWidths;
 
-  const columnKeys = useMemo(() => columns.map((c) => c.key), [columns]);
+  const columnKeys = useMemo(
+    () => (config?.layout.columns ?? []).map((c) => c.key),
+    [config?.layout.columns],
+  );
   const columnKeysRef = useRef(columnKeys);
-  columnKeysRef.current = columnKeys;
+
+  // Keep refs in sync with latest values so drag event handlers never close over stale callbacks.
+  // useLayoutEffect runs synchronously after commit and before browser paint, eliminating any
+  // race between a render and a user interaction.
+  useLayoutEffect(() => {
+    updateColumnWidthsRef.current = updateColumnWidths;
+    onDragWidthsChangeRef.current = onDragWidthsChange;
+    activeWidthsRef.current = activeWidths;
+    columnKeysRef.current = columnKeys;
+  }, [updateColumnWidths, onDragWidthsChange, activeWidths, columnKeys]);
 
   useEffect(() => {
     if (!dragRef.current) {
-      setActiveWidths(persistedWidths);
+      setActiveWidths(persistedWidths); // eslint-disable-line react-hooks/set-state-in-effect -- syncs activeWidths with persisted widths when not dragging
     }
   }, [persistedWidths]);
 

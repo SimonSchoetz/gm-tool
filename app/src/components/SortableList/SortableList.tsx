@@ -21,7 +21,9 @@ type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   searchPlaceholder?: string;
 };
 
-export const SortableList = <T extends Record<string, unknown> & { id: string }>({
+export const SortableList = <
+  T extends Record<string, unknown> & { id: string },
+>({
   tableConfigId,
   items,
   onRowClick,
@@ -30,23 +32,28 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
   searchPlaceholder = 'Search...',
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [dragWidths, setDragWidths] = useState<Record<string, number> | null>(null);
+  const [dragWidths, setDragWidths] = useState<Record<string, number> | null>(
+    null,
+  );
   const { config } = useTableConfig(tableConfigId);
 
-  const columns = config?.layout.columns ?? [];
-  const sortState = config?.layout.sort_state ?? { column: '', direction: 'asc' as const };
+  const sortState = config?.layout.sort_state ?? {
+    column: '',
+    direction: 'asc' as const,
+  };
 
   const sortableColumns = useMemo(
     () =>
-      columns
+      (config?.layout.columns ?? [])
         .filter((col) => col.sortable !== false)
         .map((col) => ({ key: col.key as keyof T & string })),
-    [columns],
+    [config?.layout.columns],
   );
 
   const filterConfig = useMemo(
     () => ({
-      searchableColumns: (config?.layout.searchable_columns ?? []) as (keyof T & string)[],
+      searchableColumns: (config?.layout.searchable_columns ?? []) as (keyof T &
+        string)[],
     }),
     [config?.layout.searchable_columns],
   );
@@ -66,9 +73,10 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
     columns: sortableColumns,
   });
 
-  // Clear live drag widths once config refreshes from DB after mouseup
+  // Clear live drag widths once config refreshes from DB after mouseup.
+  // dragWidths is transient drag state that cannot be derived from config.
   useEffect(() => {
-    setDragWidths(null);
+    setDragWidths(null); // eslint-disable-line react-hooks/set-state-in-effect
   }, [config]);
 
   // All hooks called — safe to return early
@@ -86,7 +94,10 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
     <GlassPanel className={cn('sortable-list', className)}>
       <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
 
-      <SortingTableHeader tableConfigId={tableConfigId} onDragWidthsChange={setDragWidths} />
+      <SortingTableHeader
+        tableConfigId={tableConfigId}
+        onDragWidthsChange={setDragWidths}
+      />
 
       <CustomScrollArea>
         <ul className='sortable-list__table'>
@@ -101,7 +112,9 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
               key={item.id}
               tableConfigId={tableConfigId}
               item={item}
-              onClick={(item) => { onRowClick(item as T); }}
+              onClick={(item) => {
+                onRowClick(item as T);
+              }}
               dragWidths={dragWidths}
             />
           ))}
@@ -114,7 +127,9 @@ export const SortableList = <T extends Record<string, unknown> & { id: string }>
                   key={item.id}
                   tableConfigId={tableConfigId}
                   item={item}
-                  onClick={(item) => { onRowClick(item as T); }}
+                  onClick={(item) => {
+                    onRowClick(item as T);
+                  }}
                   dragWidths={dragWidths}
                 />
               ))}

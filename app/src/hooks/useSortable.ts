@@ -48,6 +48,7 @@ export const useSortable = <T>(
     const directionMultiplier = sortState.direction === 'asc' ? 1 : -1;
 
     return [...items].sort((a, b) => compareFn(a, b) * directionMultiplier);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- individual config properties are intentionally more stable deps than config itself, which is created inline by callers on every render
   }, [
     items,
     config.sortState.column,

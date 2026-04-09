@@ -22,11 +22,12 @@ export const SortableListItem = ({
   const columns = config?.layout.columns ?? [];
 
   const gridTemplateColumns = useMemo(() => {
-    const keys = columns.map((c) => c.key);
+    const cols = config?.layout.columns ?? [];
+    const keys = cols.map((c) => c.key);
     const widths =
-      dragWidths ?? Object.fromEntries(columns.map((c) => [c.key, c.width]));
+      dragWidths ?? Object.fromEntries(cols.map((c) => [c.key, c.width]));
     return buildGridTemplate(keys, widths);
-  }, [columns, dragWidths]);
+  }, [config?.layout.columns, dragWidths]);
 
   const name = typeof item.name === 'string' ? item.name : '';
 
