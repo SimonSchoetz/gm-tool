@@ -2,7 +2,7 @@ import { useImage } from '@/data-access-layer';
 import { FCProps, HtmlProps } from '@/types';
 
 type Props = {
-  imageId: string;
+  imageId: string | null;
 } & HtmlProps<'img'>;
 
 export const ImageById: FCProps<Props> = ({ imageId, ...props }) => {

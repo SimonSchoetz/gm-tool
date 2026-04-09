@@ -66,9 +66,11 @@ export const SortingTableHeader = ({
     columnKeysRef.current = columnKeys;
   }, [updateColumnWidths, onDragWidthsChange, activeWidths, columnKeys]);
 
+  // Syncs activeWidths with DB-persisted widths when config refreshes.
+  // The dragRef guard prevents overwriting live drag state mid-drag.
   useEffect(() => {
     if (!dragRef.current) {
-      setActiveWidths(persistedWidths); // eslint-disable-line react-hooks/set-state-in-effect -- syncs activeWidths with persisted widths when not dragging
+      setActiveWidths(persistedWidths); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [persistedWidths]);
 
