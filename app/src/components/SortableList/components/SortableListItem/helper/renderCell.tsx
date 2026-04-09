@@ -9,8 +9,8 @@ export const renderCell = (
   item: Record<string, unknown>,
 ): ReactNode => {
   if (key === 'image_id') {
-    assertIsString(item.image_id);
-    return <AvatarCell imageId={item.image_id} />;
+    const imageId = typeof item.image_id === 'string' ? item.image_id : '';
+    return <AvatarCell imageId={imageId} />;
   }
   if (DATE_KEYS.has(key)) return formatDateValue(item[key]);
   const value = item[key];
@@ -18,10 +18,4 @@ export const renderCell = (
   if (typeof value === 'object') return JSON.stringify(value);
   // eslint-disable-next-line @typescript-eslint/no-base-to-string -- value is a non-object primitive after nullish and object guards above
   return String(value);
-};
-
-const assertIsString: (value: unknown) => asserts value is string = (value) => {
-  if (typeof value !== 'string') {
-    throw new Error('Expected a string');
-  }
 };
