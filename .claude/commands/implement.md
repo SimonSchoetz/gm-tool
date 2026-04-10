@@ -51,7 +51,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
 5. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
 6. Spawn `spec-writer` via the Agent tool. Pass: the architect brief. Spec-writer's role is to resolve ambiguity in how to implement the architect's verdict — not to update spec documents. Spec-writer is stateless — pass only current inputs. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
-7. Implement per the spec-writer output. Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
+7. Implement per the spec-writer output. Run `npm test` from the root directory. Resolve every error and failure.
 8. Commit: `fix(<branch>): address review violations — cycle N`.
 
 **Error boundaries:**
