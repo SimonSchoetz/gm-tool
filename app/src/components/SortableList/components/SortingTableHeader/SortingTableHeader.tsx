@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useState, useRef, useMemo } from 'react';
 import { ChevronUpIcon } from 'lucide-react';
 import { ActionContainer } from '@/components';
 import { useTableConfig } from '@/data-access-layer';
@@ -30,15 +30,15 @@ export const SortingTableHeader = ({
   };
 
   const persistedWidths = useMemo(() => {
+    const cols = config?.layout.columns ?? [];
     const result: Record<string, number> = {};
-    for (const col of columns) {
+    for (const col of cols) {
       result[col.key] = col.width;
     }
     return result;
-  }, [columns]);
+  }, [config?.layout.columns]);
 
-  const [activeWidths, setActiveWidths] =
-    useState(persistedWidths);
+  const [activeWidths, setActiveWidths] = useState(persistedWidths);
 
   const dragRef = useRef<{
     columnKey: string;
@@ -47,21 +47,32 @@ export const SortingTableHeader = ({
   } | null>(null);
 
   const updateColumnWidthsRef = useRef(updateColumnWidths);
-  updateColumnWidthsRef.current = updateColumnWidths;
-
   const onDragWidthsChangeRef = useRef(onDragWidthsChange);
-  onDragWidthsChangeRef.current = onDragWidthsChange;
-
   const activeWidthsRef = useRef(activeWidths);
-  activeWidthsRef.current = activeWidths;
 
-  const columnKeys = useMemo(() => columns.map((c) => c.key), [columns]);
+  const columnKeys = useMemo(
+    () => (config?.layout.columns ?? []).map((c) => c.key),
+    [config?.layout.columns],
+  );
   const columnKeysRef = useRef(columnKeys);
-  columnKeysRef.current = columnKeys;
 
+  // Ref sync must be paint-synchronous: native DOM handlers (mousemove, mouseup) attached to
+  // document fire outside React's scheduler. If a render updates these values after paint,
+  // a mousemove arriving in that same frame reads stale refs and produces a visible column
+  // width jump mid-drag. useLayoutEffect guarantees refs are current before the browser
+  // services the next input event.
+  useLayoutEffect(() => {
+    updateColumnWidthsRef.current = updateColumnWidths;
+    onDragWidthsChangeRef.current = onDragWidthsChange;
+    activeWidthsRef.current = activeWidths;
+    columnKeysRef.current = columnKeys;
+  }, [updateColumnWidths, onDragWidthsChange, activeWidths, columnKeys]);
+
+  // Syncs activeWidths with DB-persisted widths when config refreshes.
+  // The dragRef guard prevents overwriting live drag state mid-drag.
   useEffect(() => {
     if (!dragRef.current) {
-      setActiveWidths(persistedWidths);
+      setActiveWidths(persistedWidths); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [persistedWidths]);
 
@@ -105,7 +116,10 @@ export const SortingTableHeader = ({
         MIN_COLUMN_WIDTH,
         dragRef.current.startWidth + delta,
       );
-      const nextWidths = { ...activeWidthsRef.current, [dragRef.current.columnKey]: newWidth };
+      const nextWidths = {
+        ...activeWidthsRef.current,
+        [dragRef.current.columnKey]: newWidth,
+      };
       activeWidthsRef.current = nextWidths;
       setActiveWidths(nextWidths);
       onDragWidthsChangeRef.current(nextWidths);
@@ -133,14 +147,16 @@ export const SortingTableHeader = ({
     >
       {columns.map((column) => {
         const isActive = sortState.column === column.key;
-        const notSortable = column?.sortable === false;
+        const notSortable = column.sortable === false;
         const isResizable = column.resizable !== false;
 
         return (
           <div key={column.key} className='sorting-table-header__cell'>
             <ActionContainer
               disabled={notSortable}
-              onClick={() => { handleSort(column.key); }}
+              onClick={() => {
+                handleSort(column.key);
+              }}
               label={`Sort by ${column.label.toLowerCase()}`}
               className='sorting-table-header__sort-btn'
             >

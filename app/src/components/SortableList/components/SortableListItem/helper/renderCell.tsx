@@ -8,8 +8,14 @@ export const renderCell = (
   key: string,
   item: Record<string, unknown>,
 ): ReactNode => {
-  if (key === 'image_id')
-    return <AvatarCell imageId={item.image_id as string | null | undefined} />;
+  if (key === 'image_id') {
+    const imageId = typeof item.image_id === 'string' ? item.image_id : '';
+    return <AvatarCell imageId={imageId} />;
+  }
   if (DATE_KEYS.has(key)) return formatDateValue(item[key]);
-  return String(item[key] ?? '');
+  const value = item[key];
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  // eslint-disable-next-line @typescript-eslint/no-base-to-string -- value is a non-object primitive after nullish and object guards above
+  return String(value);
 };

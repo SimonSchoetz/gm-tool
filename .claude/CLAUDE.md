@@ -1,7 +1,5 @@
 # Automation Registry
 
-## agents
-
 ### head-of-instructions
 
 Intent: Translate developer feedback into precise, durable CLAUDE.md changes
@@ -32,7 +30,7 @@ Constraints: Never validates without challenging first; code in output is permit
 
 ### spec-writer
 
-Intent: Translate architectural decisions into a complete, unambiguous implementation spec for a fresh Claude instance
+Intent: Translate architectural decisions into a complete, unambiguous implementation spec for the implementer. Final gate for fact chacks like file paths and sources
 Input: An arch-review verdict (structured) or a feature outline + informal architectural decisions (unstructured — confirms derived decisions with user before proceeding)
 Output: A complete spec file following the canonical format defined in app/docs/CLAUDE.md
 Constraints: Does not reinterpret or challenge architectural decisions — routes those back to architect; never offers to implement the spec; resolves ambiguities silently from CLAUDE.md and codebase before asking the user; verifies every named library type or export against installed type declarations before writing — code in a spec must be sound
@@ -41,10 +39,10 @@ Constraints: Does not reinterpret or challenge architectural decisions — route
 
 ### /implement
 
-Intent: Implement a full feature from a spec file — create feature branch, sequential sub-features with commits, iterative review loop, then cleanup
+Intent: Implement a spec file and dealing with execution realism the spec writer can not account for. Additionally, orchestrating iterative review and fix loop, then cleanup
 Input: A spec file path
 Output: Committed implementation across all sub-features, a cleanup commit (spec archive + backlog update), and — when friction occurred — a friction brief output to the user as the handoff artifact for a future /refine-claude session; when the review loop surfaces out-of-scope violations, a deferred violations brief is output to the user listing each violation, its source, and why it was out of scope
-Constraints: If on main branch at session start, always create and switch to a feature branch before any implementation work; code-reviewer is invoked after all sub-features complete, not mid-implementation; each review cycle spawns code-reviewer, architect, and spec-writer; loop exits when the architect returns no in-scope violations, or after 3 cycles; agent clarification questions are passed to the user verbatim; contradicting review findings are surfaced to the user; concerns are surfaced to the user as informational before any action is taken; architect and spec-writer agents may be invoked mid-session when the user requests architectural or spec input; the post-implementation retrospective is not part of /implement — friction brief is produced and output, cleanup follows, user decides whether to invoke /refine-claude; covers both new feature work and refactoring passes
+Constraints: does not resolve ambiguity by itself
 
 ### /refine-claude
 

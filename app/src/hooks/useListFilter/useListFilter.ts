@@ -36,7 +36,9 @@ export const useListFilter = <T extends Record<string, unknown>>(
         continue;
       }
 
-      const name = String(item.name ?? '').toLowerCase();
+      const name = (
+        typeof item.name === 'string' ? item.name : ''
+      ).toLowerCase();
       const primaryTerm = terms[0];
 
       if (name.startsWith(primaryTerm)) {

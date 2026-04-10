@@ -12,8 +12,8 @@ type ColumnDefinition = {
     column: string;
     onDelete?: 'CASCADE' | 'SET NULL' | 'RESTRICT';
   };
-  zod: z.ZodTypeAny;
-  updateZod?: z.ZodTypeAny; // Optional: different validation for updates
+  zod: z.ZodType;
+  updateZod?: z.ZodType; // Optional: different validation for updates
 };
 
 type TableDefinition = {
@@ -41,7 +41,7 @@ type ExtractUpdateShape<T extends Record<string, ColumnDefinition>> = {
     ? never
     : K extends 'created_at' | 'updated_at'
       ? never
-      : K]: T[K] extends { updateZod: z.ZodTypeAny }
+      : K]: T[K] extends { updateZod: z.ZodType }
     ? z.ZodOptional<T[K]['updateZod']>
     : z.ZodOptional<T[K]['zod']>;
 };
@@ -55,7 +55,7 @@ type TableSchema<T extends TableDefinition> = {
 };
 
 export const defineTable = <T extends TableDefinition>(
-  definition: T
+  definition: T,
 ): TableSchema<T> => {
   const { name, columns } = definition;
 
@@ -76,7 +76,7 @@ export const defineTable = <T extends TableDefinition>(
 
 const generateCreateTableSQL = (
   name: string,
-  columns: Record<string, ColumnDefinition>
+  columns: Record<string, ColumnDefinition>,
 ): string => {
   const columnDefs: string[] = [];
   const foreignKeys: string[] = [];
@@ -107,7 +107,7 @@ const generateCreateTableSQL = (
 };
 
 const generateZodSchema = (columns: Record<string, ColumnDefinition>) => {
-  const zodSchemaShape: Record<string, z.ZodTypeAny> = {};
+  const zodSchemaShape: Record<string, z.ZodType> = {};
   for (const [columnName, columnDef] of Object.entries(columns)) {
     zodSchemaShape[columnName] = columnDef.zod;
   }
@@ -116,7 +116,7 @@ const generateZodSchema = (columns: Record<string, ColumnDefinition>) => {
 };
 
 const generateCreateSchema = (columns: Record<string, ColumnDefinition>) => {
-  const createSchemaShape: Record<string, z.ZodTypeAny> = {};
+  const createSchemaShape: Record<string, z.ZodType> = {};
   for (const [columnName, columnDef] of Object.entries(columns)) {
     if (
       !columnDef.primaryKey &&
@@ -130,7 +130,7 @@ const generateCreateSchema = (columns: Record<string, ColumnDefinition>) => {
 };
 
 const generateUpdateSchema = (columns: Record<string, ColumnDefinition>) => {
-  const updateSchemaShape: Record<string, z.ZodTypeAny> = {};
+  const updateSchemaShape: Record<string, z.ZodType> = {};
   for (const [columnName, columnDef] of Object.entries(columns)) {
     if (
       !columnDef.primaryKey &&

@@ -8,7 +8,7 @@ import './HoloImg.css';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
 type Props = {
-  image_id: string;
+  image_id: string | null;
   title: string;
   dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
 } & HtmlProps<'div'>;

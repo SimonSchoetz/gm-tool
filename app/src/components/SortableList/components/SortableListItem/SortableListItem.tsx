@@ -12,24 +12,35 @@ type Props = {
   dragWidths: Record<string, number> | null;
 };
 
-export const SortableListItem = ({ tableConfigId, item, onClick, dragWidths }: Props) => {
+export const SortableListItem = ({
+  tableConfigId,
+  item,
+  onClick,
+  dragWidths,
+}: Props) => {
   const { config } = useTableConfig(tableConfigId);
   const columns = config?.layout.columns ?? [];
 
   const gridTemplateColumns = useMemo(() => {
-    const keys = columns.map((c) => c.key);
-    const widths = dragWidths ?? Object.fromEntries(columns.map((c) => [c.key, c.width]));
+    const cols = config?.layout.columns ?? [];
+    const keys = cols.map((c) => c.key);
+    const widths =
+      dragWidths ?? Object.fromEntries(cols.map((c) => [c.key, c.width]));
     return buildGridTemplate(keys, widths);
-  }, [columns, dragWidths]);
+  }, [config?.layout.columns, dragWidths]);
+
+  const name = typeof item.name === 'string' ? item.name : '';
 
   return (
     <li className='sortable-list-item'>
       <GlassPanel intensity='bright'>
         <ActionContainer
-          label={`Go to ${item.name ?? ''}`}
+          label={`Go to ${name}`}
           className='sortable-list-item__content-container'
           style={{ gridTemplateColumns }}
-          onClick={() => { onClick(item); }}
+          onClick={() => {
+            onClick(item);
+          }}
         >
           {columns.map((col) => (
             <div key={col.key}>

@@ -14,8 +14,8 @@ Before starting any sub-feature:
 
 1. Check the current branch: run `git branch --show-current`. If on `main`, ask the user for a feature branch name, create it with `git checkout -b <name>`, and confirm the switch before continuing. Never begin implementation work on `main`.
 2. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, stop and surface them to the user before proceeding. Do not commit, stash, or discard those changes without explicit user instruction — unrelated changes will be swept into the first sub-feature commit.
-3. Run `npx tsc --noEmit` and `npx vitest run`.
-4. If both are clean: proceed to the implementation phase.
+3. Run `npm test` from root dir.
+4. If everything is clean: proceed to the implementation phase.
 5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
    - If no: present the errors to the user and propose a fix following all established conventions and instructions. Do not apply the fix until the user approves.
@@ -51,7 +51,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
 5. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
 6. Spawn `spec-writer` via the Agent tool. Pass: the architect brief. Spec-writer's role is to resolve ambiguity in how to implement the architect's verdict — not to update spec documents. Spec-writer is stateless — pass only current inputs. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
-7. Implement per the spec-writer output. Run `npx tsc --noEmit` and `npx vitest run`. Resolve every error and failure.
+7. Implement per the spec-writer output. Run `npm test` from the root directory. Resolve every error and failure.
 8. Commit: `fix(<branch>): address review violations — cycle N`.
 
 **Error boundaries:**
@@ -65,7 +65,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 **Post-loop:**
 
-Run `npx tsc --noEmit` and `npx vitest run` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
+Run `npm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
 Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced), before cleanup.
 
@@ -109,14 +109,6 @@ change that alters how a file gets its data, removes a dependency, or replaces a
 approach, re-derive the types and exports of every affected file bottom-up from
 actual usage. A type field with no reader is dead code. An export with no consumer
 inside the module is a leak. Remove both in the same step that caused them.
-
-## Rules of Hooks
-
-Rules of Hooks is a hard constraint. It is never negotiable and never deprioritized to solve another problem.
-
-All hooks must be called unconditionally before any conditional return. This is non-negotiable even under type pressure, even when an early return appears to be the simplest fix, even when the alternative requires more restructuring. If a type error or logic problem seems to require an early return before a hook call, the solution is to restructure — use safe defaults, conditional values, or derived state after the hooks — not to move the return above the hooks.
-
-If you are about to introduce a conditional return between hook calls, stop. The approach is wrong. Find a different path.
 
 ## File Compliance
 

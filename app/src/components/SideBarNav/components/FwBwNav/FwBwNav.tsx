@@ -9,17 +9,17 @@ type Props = HtmlProps<'div'>;
 
 export const FwBwNav: FCProps<Props> = () => {
   const router = useRouter();
-  const canGoBack = router.history?.location.state?.key !== undefined;
+  const canGoBack = router.history.location.state.key !== undefined;
   const canGoForward = window.history.length > 1;
 
   const handleBack = () => {
-    if (canGoBack && router.history) {
+    if (canGoBack) {
       router.history.back();
     }
   };
 
   const handleForward = () => {
-    if (canGoForward && router.history) {
+    if (canGoForward) {
       router.history.forward();
     }
   };

@@ -1,5 +1,5 @@
-const getSearchableText = <T extends Record<string, unknown>>(
-  item: T,
+const getSearchableText = (
+  item: Record<string, unknown>,
   columns: string[],
 ): Map<string, string> => {
   const textByColumn = new Map<string, string>();
@@ -12,9 +12,9 @@ const getSearchableText = <T extends Record<string, unknown>>(
   return textByColumn;
 };
 
-const termMatchesItem = <T extends Record<string, unknown>>(
+const termMatchesItem = (
   term: string,
-  item: T,
+  item: Record<string, unknown>,
   searchableColumns: string[],
 ): boolean => {
   const textByColumn = getSearchableText(item, searchableColumns);
@@ -24,9 +24,9 @@ const termMatchesItem = <T extends Record<string, unknown>>(
   return false;
 };
 
-export const allTermsMatchItem = <T extends Record<string, unknown>>(
+export const allTermsMatchItem = (
   terms: string[],
-  item: T,
+  item: Record<string, unknown>,
   searchableColumns: string[],
 ): boolean =>
   terms.every((term) => termMatchesItem(term, item, searchableColumns));

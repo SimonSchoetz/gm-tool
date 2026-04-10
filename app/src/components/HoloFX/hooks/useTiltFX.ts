@@ -31,7 +31,7 @@ const initialState: CardState = {
 };
 
 export const useTiltFX = (
-  containerRef: RefObject<HTMLElement | null>
+  containerRef: RefObject<HTMLElement | null>,
 ): { cardVars: CardVars; isActive: boolean } => {
   const [state, setState] = useState(initialState);
 
@@ -47,8 +47,6 @@ export const useTiltFX = (
       }
 
       rafId = requestAnimationFrame(() => {
-        if (!container) return;
-
         const rect = container.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -88,7 +86,7 @@ export const useTiltFX = (
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, []);
+  }, [containerRef]);
 
   const cardVars: CardVars = {
     '--mx': `${state.mx}%`,

@@ -10,7 +10,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -49,7 +49,7 @@ describe('image.create', () => {
 
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-      [expect.any(String), 'jpg', 'my-photo.jpg', 1024]
+      [expect.any(String), 'jpg', 'my-photo.jpg', 1024],
     );
 
     expect(typeof result).toBe('string');
@@ -65,7 +65,7 @@ describe('image.create', () => {
 
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-      [expect.any(String), 'png', 'image.png', 1024]
+      [expect.any(String), 'png', 'image.png', 1024],
     );
 
     expect(typeof result).toBe('string');
@@ -88,7 +88,7 @@ describe('image.create', () => {
 
       expect(mockExecute).toHaveBeenCalledWith(
         'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-        [expect.any(String), ext, `image.${ext}`, 1024]
+        [expect.any(String), ext, `image.${ext}`, 1024],
       );
       expect(typeof result).toBe('string');
       expect(result).toBeTruthy();
@@ -108,6 +108,6 @@ describe('image.create', () => {
       filePath: '/path/to/file',
     };
 
-    await expect(create(input as any)).rejects.toThrow('Unsupported file extension');
+    await expect(create(input)).rejects.toThrow('Unsupported file extension');
   });
 });

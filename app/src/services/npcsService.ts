@@ -63,7 +63,7 @@ export const updateNpc = async (
       imageId = await imageService.createImage(data.imgFilePath);
     }
 
-    const { imgFilePath, ...dto } = data;
+    const { imgFilePath: _imgFilePath, ...dto } = data;
     if (imageId) {
       dto.image_id = imageId;
     }

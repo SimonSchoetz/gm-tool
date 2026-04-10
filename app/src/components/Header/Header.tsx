@@ -11,15 +11,15 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
 
   // Extract adventureId from route if present
-  const adventureIdMatch = /\/adventure\/([^\/]+)/.exec(router.location.href);
+  const adventureIdMatch = /\/adventure\/([^/]+)/.exec(router.location.href);
   const adventureId = adventureIdMatch ? adventureIdMatch[1] : '';
 
   // Extract npcId from route if present
-  const npcIdMatch = /\/npc\/([^\/]+)/.exec(router.location.href);
+  const npcIdMatch = /\/npc\/([^/]+)/.exec(router.location.href);
   const npcId = npcIdMatch ? npcIdMatch[1] : '';
 
   // Extract sessionId from route if present
-  const sessionIdMatch = /\/session\/([^\/]+)/.exec(router.location.href);
+  const sessionIdMatch = /\/session\/([^/]+)/.exec(router.location.href);
   const sessionId = sessionIdMatch ? sessionIdMatch[1] : '';
 
   const { adventure } = useAdventure(adventureId);

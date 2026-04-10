@@ -43,17 +43,19 @@ export const NpcScreen = () => {
           <UploadImgBtn
             dimensions={{ width: '200px', height: '200px' }}
             image_id={npc.image_id ?? null}
-            uploadFn={(filePath) =>
-              { updateNpc({
+            uploadFn={(filePath) => {
+              updateNpc({
                 imgFilePath: filePath,
                 image_id: npc.image_id,
-              }); }
-            }
+              });
+            }}
           />
 
           <Button
             label='Delete NPC'
-            onClick={() => { setDeleteDialogState('open'); }}
+            onClick={() => {
+              setDeleteDialogState('open');
+            }}
             buttonStyle={'danger'}
           />
         </aside>
@@ -65,32 +67,43 @@ export const NpcScreen = () => {
                 type='text'
                 placeholder='Name'
                 value={npc.name}
-                onChange={(e) => { updateNpc({ name: e.target.value }); }}
+                onChange={(e) => {
+                  updateNpc({ name: e.target.value });
+                }}
                 className='npc-name-input'
                 required
               />
 
               <CustomScrollArea>
-                <TextEditor // <- Can I restrict line count?
+                <TextEditor
                   placeholder='Summmary'
-                  value={npc?.summary || ''}
+                  value={npc.summary ?? ''}
                   textEditorId={`NPC_${npc.id}_summary`}
-                  onChange={(summary) => { updateNpc({ summary }); }}
+                  onChange={(summary) => {
+                    updateNpc({ summary });
+                  }}
                 />
               </CustomScrollArea>
             </GlassPanel>
 
             <TextEditor
-              value={npc?.description || ''}
+              value={npc.description ?? ''}
               textEditorId={`NPC_${npc.id}_description`}
-              onChange={(description) => { updateNpc({ description }); }}
+              onChange={(description) => {
+                updateNpc({ description });
+              }}
             />
           </div>
         </CustomScrollArea>
       </GlassPanel>
 
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
-        <DeleteDialog name={npc.name} onDeletionConfirm={() => { void handleNpcDelete(); }} />
+        <DeleteDialog
+          name={npc.name}
+          onDeletionConfirm={() => {
+            void handleNpcDelete();
+          }}
+        />
       </PopUpContainer>
     </>
   );

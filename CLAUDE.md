@@ -78,13 +78,13 @@ Always use Conventional Commits with scope required:
 
 - typescript first
 - Use modern arrow function syntax. Classes are permitted only where a third-party framework API requires inheritance — e.g., Lexical node types (extending `DecoratorNode`, `TextNode`, etc.) and `MenuOption` subclasses. Do not introduce classes for any other reason.
-- **Error types use factory functions, not classes.** Create typed errors with a factory function and type narrowing — never `class XxxError extends Error`. This aligns with "types over interfaces" and "arrow functions only." `instanceof` is not used in this codebase — all errors route to the Error Boundary via `throwOnError: true`.
+- **Error types use factory functions, not classes.** Create typed errors with a factory function and type narrowing — never `class XxxError extends Error`. `instanceof` is not used in this codebase — all errors route to the Error Boundary via `throwOnError: true`.
 
 ```ts
 // ✅ GOOD
 export type SessionLoadError = Error & { name: 'SessionLoadError' };
 export const sessionLoadError = (cause?: unknown): SessionLoadError => {
-  const error = new Error(`Failed to load sessions: ${cause}`) as SessionLoadError;
+  const error = new Error(`Failed to load sessions: ${String(cause)}`) as SessionLoadError;
   error.name = 'SessionLoadError';
   return error;
 };
@@ -96,6 +96,7 @@ export class SessionLoadError extends Error { ... }
 - Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
   - ❌ BAD: `let session: Session | undefined;`
   - ✅ GOOD: `let session: Session | null = null;`
+- **`useLayoutEffect` over `useEffect` only when a DOM measurement or paint-synchronous side effect is required** — the canonical case is reading layout geometry (`getBoundingClientRect`, `scrollWidth`, `offsetHeight`) and applying a state update that must not cause a visible flash. All other effects use `useEffect`. When `useLayoutEffect` is chosen, an inline comment stating the specific paint-synchronous requirement is required — "avoids flicker" alone is not sufficient.
 - Use descriptive names instead of comments
   ❌ BAD: `const data = await fetch(); // Get user data`
   ✅ GOOD: `const userData = await fetchUserData();`
@@ -129,8 +130,7 @@ Never open a response with a positive affirmation directed at the user or a team
 ### Best Practices & Code Quality
 
 - **When the user opts for an approach that conflicts with documented best practices or is flagged as inadvisable by the relevant framework or library authors, push back explicitly before implementing.** Do not assume the user's choice is informed — surface the concern and confirm it is intentional. If the user confirms, implement as asked. This is not a license to withhold implementation indefinitely; one explicit pushback is required, then proceed on confirmation.
-- Use SOLID principles where applicable
-- **Separation of concerns over DRY**: When these two principles conflict, always prefer separation of concerns. Each component, hook, or module owns its own slice of responsibility — even if that means a parent holds less centralised state.
+- **Separation of concerns over DRY**: Before applying DRY — whether in implementation or in review — establish that both sites serve the same concern. If they serve different concerns, DRY does not apply regardless of structural similarity. When DRY and separation of concerns conflict, always prefer separation of concerns. Each component, hook, or module owns its own slice of responsibility — even if that means a parent holds less centralised state.
   - ❌ BAD: Centralising column resize state in `SortableList` and passing it down because it "keeps things in one place"
   - ✅ GOOD: `SortingTableHeader` owns resize state; `SortableListItem` owns its render logic based on layout config
 - **Ownership boundaries are not negotiable**: If a structural constraint seems to justify putting logic in a component that the separation-of-concerns rules say should not own it, find an alternative — do not centralise and do not defend the decision if challenged. When the user questions why a component owns something it shouldn't, treat that as an instruction to refactor, not an invitation to explain the rationale.
@@ -156,6 +156,27 @@ Never open a response with a positive affirmation directed at the user or a team
   - ❌ BAD: "Follow the NPC pattern" → copy the barrel file shape without checking it against the barrel convention
   - ✅ GOOD: "Follow the NPC pattern" → read `npcs/index.ts`, verify it matches current barrel file rules, fix or flag any violations, then use it as a template
 
+### Epistemological Discipline
+
+**Training data confers reasoning capability, never factual authority about external state.** When Claude asserts a fact about something outside the conversation — an ESLint plugin's exported rules, a library's API surface, a CLI flag's behavior, a file's contents, a config schema — that assertion must be grounded in verification performed in the current context window, not in training knowledge. Training knowledge is a starting point for knowing *where* to look and *what questions to ask*; it is never sufficient to state that something exists, works a certain way, or does not exist.
+
+The corollary: **absence is not provable from training knowledge.** Claiming that a rule, symbol, or feature does not exist based on not recognizing it from training is always wrong — only a lookup that returns no result proves absence.
+
+When a verified fact about external state appears in an artifact — a spec, brief, review finding, or architectural decision — mark it with an inline citation immediately after the claim: `[Role_N: source]`. Role codes: `R` = code-reviewer, `A` = architect, `S` = spec-writer, `I` = implementer; `N` is sequential within that agent's output. Source forms:
+
+- File read: `path:line`
+- Scan confirmed present: `grep <pattern> <path> — found`
+- Confirmed absence: `grep <pattern> <path> — not found`
+- Web fetch: `url`
+
+Examples: `[R_1: app/eslint.config.js:12]`, `[A_2: grep "set-state-in-effect" node_modules/eslint-plugin-react-hooks — found]`
+
+This allows downstream agents and future cycles to treat verified facts as established without re-verifying them. Unverified facts must not appear in artifacts — verify first, then cite, or do not state the fact.
+
+**Stated facts arriving from any source are subject to the same discipline.** When a fact enters the current context — from user input, a reviewer's output, a spec, or another agent's brief — its epistemic status is determined by whether it carries a citation. A fact with a `[Role_N: source]` citation is established and may be used as a premise without re-verification. A fact without a citation is a claim — it must be verified before being accepted as a premise, re-stated as fact, or propagated into a new artifact. If verification is not possible in the current context, the fact must be flagged as unverified before use.
+
+**Every handoff artifact must carry the full citation record.** When producing a brief, review output, or any artifact passed to another agent or cycle, include all `[Role_N: source]` citations from prior work — not only the citations introduced in the current output. Citations must not be dropped, summarized, or merged when forwarding. A downstream agent receiving an artifact without its full citation record cannot distinguish established facts from unverified claims and must treat all facts as unverified.
+
 ### Third-Party Libraries
 
 Never assume training knowledge is current for third-party libraries. Before suggesting or implementing anything that depends on a specific library API, version, or feature:
@@ -173,10 +194,10 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
 - **Always Read a file before editing it in the current context window.** Treat any prior read state as lost after context compaction — do not assume a file read earlier in the session is still accurate. Re-read before editing.
 - **Verify before naming a path or describing a file's content in any output.** Any file path named in output — briefs, specs, task lists, plans — makes a factual claim about the filesystem. Before listing a path as "to create", verify it does not already exist. Before listing a path as "to touch", verify it does exist. Absence of prior mention in the conversation is not evidence of absence in the codebase. The same principle extends to content: never state or imply facts about what a file contains, how long it is, what it exports, or what structure it has — even hedged ("almost certainly", "probably") — without having read it first in the current context window. **Pattern recognition is not verification.** Recognizing a familiar convention (e.g., "this problem will be solved with using `.prettierrc`") does not satisfy this rule — only a Read or Glob tool call result visible in the current response does. If no tool call was made, the path or content claim must not appear in the output.
 - **Verify user-provided paths before treating them as facts.** When a user names a file or directory path during instruction refinement, auditing, or any artifact review, verify it exists (or does not exist) by reading the filesystem before accepting it as ground truth. User-provided paths are claims, not facts — the filesystem is the authority. This applies even when the path sounds plausible or matches a pattern used elsewhere in the repo.
-- **`npx tsc --noEmit` must pass with zero errors before any commit.** Run it once after all files for a sub-feature are written — not after every individual file edit, which produces noise from intentionally incomplete intermediate states. Pre-existing errors must be resolved before implementation begins — they are never filtered out, deferred, or treated as acceptable baseline noise. A commit that precedes a passing type-check is a commit on broken code.
-- **`npx vitest run` must pass with zero failures before any commit.** Run it once after all files for a sub-feature are written — same timing as tsc, not after every individual file edit. Pre-existing failures must be resolved before implementation begins — they are never filtered out or deferred. A commit that precedes a passing test run is a commit on broken code.
-- **`npx eslint .` must pass with zero errors before any commit (run from `app/`).** Same timing as tsc — once after all files for a sub-feature are written. Pre-existing errors must be resolved before implementation begins. A commit that precedes a passing lint run is a commit on broken code.
-- **Re-validate spec instructions that touch file organization before executing them.** A spec is written by a prior instance that may have mis-applied current conventions. Before executing any spec instruction that specifies barrel shape, export style, or directory structure — including "no change needed" — re-read the relevant CLAUDE.md barrel rules and verify the instruction is consistent. If it is not, apply the correct convention and note the deviation. The spec is a starting point, not a source of truth for convention questions.
+- **All automated checks must pass with zero errors or failures before any commit.** Run each once after all files for a sub-feature are written — not after every individual file edit, which produces noise from intentionally incomplete intermediate states. Pre-existing failures must be resolved before implementation begins — they are never filtered out, deferred, or treated as acceptable baseline noise. A commit that precedes passing checks is a commit on broken code. Checks and their invocations:
+  - Type check: `npx tsc --noEmit` (from `app/`)
+  - Tests: `npx vitest run` (from `app/`)
+  - Lint: `npx eslint .` (from `app/`)
 - **Every code or type reference proposed in any artifact must be verified before inclusion — no exceptions.** Artifacts include specs, briefs, review fix proposals, architectural decision documents, and inline suggestions. Before including a symbol, import path, function signature, or type name: verify it is real by reading the file at the declared path and confirming the symbol is exported there. For third-party symbols, inspect the library's `index.d.ts` (see Third-Party Libraries). For first-party symbols, read the source file. A symbol that cannot be confirmed by a file read must not appear in the artifact — propose its creation explicitly instead. Training knowledge of what a file exports is never sufficient.
 - **Never prefix git commands with `cd`.** The working directory is set correctly by Claude Code's process context. `cd /path && git ...` does not match `Bash(git *)` permissions and causes unnecessary prompts — always issue git commands directly: `git log --oneline -5`, not `cd /Users/simonschoetz/dev/gm-tool && git log --oneline -5`.
 - **Distinguish one-shot workers from long-running teammates.** Agents spawned via the Agent tool are one-shot workers — they execute, return a result, and exit. They cannot receive SendMessage and must not be "resumed." Teammates spawned via TeamCreate are long-running — they persist in the session and can receive SendMessage. Before spawning a new teammate for the same role, attempt to resume the existing one via SendMessage. If SendMessage fails after one retry, surface the failure explicitly — never silently substitute a new instance. Silent substitution hides continuity loss from the user and invalidates any prior context the teammate held.
@@ -202,7 +223,6 @@ To inspect what a library actually exports, use Read or Glob on its `index.d.ts`
   - ❌ BAD: `export * from './npcKeys'` in `npcs/index.ts` — accidentally leaks internal query key factories; if `npcKeys` is public API, name it explicitly
 - **Tests mirror file structure**: Test files live in a `__tests__/` subdirectory next to the code they test
   - Source: `helper/parseSearchTerms.ts` → Test: `helper/__tests__/parseSearchTerms.test.ts`
-- Keep modules small for better separation of concerns
 - Error handling: see `app/src/CLAUDE.md` — State Management & Error Handling
 
 ## Product

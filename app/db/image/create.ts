@@ -10,18 +10,16 @@ export const create = async ({
     throw new Error('filePath must be a string');
   }
 
-  const extension = filePath.split('.').pop()?.toLowerCase() as
-    | 'jpg'
-    | 'jpeg'
-    | 'png'
-    | 'webp'
-    | 'gif';
+  const extension = filePath.split('.').pop()?.toLowerCase();
 
-  if (!extension || !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)) {
+  if (
+    !extension ||
+    !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)
+  ) {
     throw new Error(`Unsupported file extension: ${extension}`);
   }
 
-  const originalFilename = filePath.split('/').pop() || undefined;
+  const originalFilename = filePath.split('/').pop() ?? null;
 
   const id = generateId();
 
@@ -36,7 +34,7 @@ export const create = async ({
   const db = await getDatabase();
   await db.execute(
     'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-    [id, extension, originalFilename ?? null, fileSize]
+    [id, extension, originalFilename, fileSize],
   );
 
   return id;

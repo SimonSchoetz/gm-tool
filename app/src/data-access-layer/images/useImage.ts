@@ -7,14 +7,15 @@ type UseImageReturn = {
   loading: boolean;
 };
 
-export const useImage = (imageId: string | null | undefined): UseImageReturn => {
+export const useImage = (imageId: string | null): UseImageReturn => {
   const { data: imageUrl = null, isPending: loading } = useQuery({
     queryKey: imageKeys.detail(imageId ?? ''),
     queryFn: async () => {
-      const image = await imageService.getImageById(imageId!);
+      if (imageId === null) return null;
+      const image = await imageService.getImageById(imageId);
       return imageService.getImageUrl(image.id, image.file_extension);
     },
-    enabled: !!imageId,
+    enabled: imageId !== null,
     throwOnError: true,
   });
 

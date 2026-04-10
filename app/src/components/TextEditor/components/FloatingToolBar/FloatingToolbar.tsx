@@ -87,7 +87,9 @@ export const FloatingToolbar = ({ ...props }) => {
   useEffect(() => {
     const rootElement = editor.getRootElement();
 
-    const handleFocus = () => { setIsFocused(true); };
+    const handleFocus = () => {
+      setIsFocused(true);
+    };
     const handleBlur = () => {
       setIsFocused(false);
       setIsVisible(false);
@@ -132,26 +134,23 @@ export const FloatingToolbar = ({ ...props }) => {
     const toolbarRect = toolbar.getBoundingClientRect();
     const toolbarHalfWidth = toolbarRect.width / 2;
     const PADDING = 12;
-
     const viewportWidth = window.innerWidth;
-    let adjustedLeft = position.left;
 
-    // Check horizontal bounds (toolbar uses translateX(-50%))
-    const leftEdge = position.left - toolbarHalfWidth;
-    const rightEdge = position.left + toolbarHalfWidth;
+    setPosition((currentPosition) => {
+      // Check horizontal bounds (toolbar uses translateX(-50%))
+      const leftEdge = currentPosition.left - toolbarHalfWidth;
+      const rightEdge = currentPosition.left + toolbarHalfWidth;
 
-    if (leftEdge < PADDING) {
-      // Too far left
-      adjustedLeft = toolbarHalfWidth + PADDING;
-    } else if (rightEdge > viewportWidth - PADDING) {
-      // Too far right
-      adjustedLeft = viewportWidth - toolbarHalfWidth - PADDING;
-    }
+      let adjustedLeft = currentPosition.left;
+      if (leftEdge < PADDING) {
+        adjustedLeft = toolbarHalfWidth + PADDING;
+      } else if (rightEdge > viewportWidth - PADDING) {
+        adjustedLeft = viewportWidth - toolbarHalfWidth - PADDING;
+      }
 
-    // Only update if adjustment is needed
-    if (adjustedLeft !== position.left) {
-      setPosition({ ...position, left: adjustedLeft });
-    }
+      if (adjustedLeft === currentPosition.left) return currentPosition;
+      return { ...currentPosition, left: adjustedLeft };
+    });
   }, [isVisible, cursorPosition, selected]);
 
   if (!isVisible) {
@@ -166,7 +165,9 @@ export const FloatingToolbar = ({ ...props }) => {
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
-      onMouseDown={(e) => { e.preventDefault(); }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+      }}
       {...props}
     >
       {headingBtns.map((btn) => (

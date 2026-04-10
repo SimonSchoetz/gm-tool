@@ -8,7 +8,7 @@ describe('cn utility', () => {
 
   it('should filter out falsy values', () => {
     expect(cn('class1', false, 'class2', null, 'class3', undefined)).toBe(
-      'class1 class2 class3'
+      'class1 class2 class3',
     );
   });
 
@@ -21,15 +21,18 @@ describe('cn utility', () => {
   });
 
   it('should handle numbers', () => {
-    expect(cn('class1', 0, 'class2', 1, 'class3')).toBe('class1 class2 1 class3');
+    expect(cn('class1', 0, 'class2', 1, 'class3')).toBe(
+      'class1 class2 1 class3',
+    );
   });
 
   it('should handle conditional classes', () => {
     const isActive = true;
     const isDisabled = false;
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     expect(cn('base', isActive && 'active', isDisabled && 'disabled')).toBe(
-      'base active'
+      'base active',
     );
   });
 

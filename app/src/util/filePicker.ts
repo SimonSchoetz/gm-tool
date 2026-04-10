@@ -11,7 +11,7 @@ export const filePicker = async (fileType: keyof FileTypes) => {
     const extensions = fileTypes[fileType];
     const selected = await open({
       multiple: false,
-      ...(extensions ? { filters: [{ name: 'Allowed Files', extensions }] } : {}),
+      filters: [{ name: 'Allowed Files', extensions }],
     });
 
     return selected;
@@ -23,7 +23,7 @@ export const filePicker = async (fileType: keyof FileTypes) => {
     } else if (typeof err === 'string') {
       errorMsg = err;
     } else {
-      errorMsg = `Failed to open file picker: ${err}`;
+      errorMsg = `Failed to open file picker: ${String(err)}`;
     }
 
     throw new Error(errorMsg);
