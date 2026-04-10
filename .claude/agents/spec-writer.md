@@ -87,6 +87,13 @@ not change it. Suggest the user routes back to arch-review first.
    that receives a "Files affected" list with no cleanup tasks will assume the
    file is already clean.
 
+   For every file the spec concludes needs no change — including barrel files,
+   index files, and any file where the instruction is "no change needed" — verify
+   that conclusion against current CLAUDE.md conventions explicitly before writing
+   it into the spec. A "no change needed" instruction is a convention claim, not a
+   neutral observation. The spec is the implementing instance's sole input; if the
+   spec states "no change needed," the implementer will not re-validate.
+
    **Downstream type derivations on type changes**: When a sub-feature modifies
    a type that other files derive from structurally — via
    `React.ComponentProps<typeof X>['prop']`, `Pick`, `Omit`, re-export, type

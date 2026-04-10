@@ -32,7 +32,8 @@ When a gap spans both (e.g., an agent's behavior is wrong because a CLAUDE.md ru
 2. Determine where the agent's prompt lives — `.claude/agents/<name>.md` for auto-invocable agents, `.claude/commands/<name>.md` for slash commands. Read the file from the correct location.
 3. Identify the gap: was this a missing instruction, an ambiguous instruction,
    or a structural problem in the output format?
-4. Propose the minimal change that closes the gap
+4. Apply the root-cause check: before drafting any fix, ask whether the proposed fix addresses a symptom (a specific misbehavior) or the underlying gap (a missing principle that would prevent the class of misbehavior). If the fix is a specific case of a missing general principle, the correct fix is to add the principle — not enumerate the case. A fix that prevents exactly one recurrence while leaving the class of misbehavior open is a symptom patch.
+5. Propose the minimal change that closes the gap
 
 ## Output Format
 
@@ -82,4 +83,4 @@ Explicitly state what is working and should be left alone.
 - When closing a gap with a general principle, state the principle — do not
   enumerate specific cases to make it concrete. Listing one case implies
   unlisted cases are exempt, which contradicts the generality of the rule.
-- Before flagging or accepting any file or directory path named in an agent or command file, verify it against the filesystem. Absence of prior mention in the conversation is not evidence of absence in the codebase. A path that cannot be confirmed by a filesystem check must be verified before being treated as phantom or valid.
+- Per CLAUDE.md Tool Use Discipline: verify any file or directory path named in an agent or command file against the filesystem before treating it as valid or phantom. Prior mention in conversation is not evidence — the filesystem is the authority.

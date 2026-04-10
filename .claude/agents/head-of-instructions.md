@@ -24,7 +24,8 @@ Distill that into CLAUDE.md instructions that would have _prevented_ the problem
 
 1. Identify the root cause: was this a missing rule, an ambiguous rule, or a rule that exists but needs strengthening?
 2. Apply the tooling-coverage filter: ask "does the compiler (tsc), linter (ESLint), or test suite (vitest) already enforce this?" If yes, the constraint is TOOLCHAIN-ENFORCED — it adds only noise to CLAUDE.md. CLAUDE.md earns its place when it captures conventions tooling cannot see. Do not draft the instruction. State that tooling already covers it and stop.
-3. Classify the fix: before determining scope, decide whether the gap belongs in instructions or in code.
+3. Apply the restatement filter: before classifying as RAIL or SIGN, ask "is the root cause already covered by a more general existing principle in CLAUDE.md?" If yes, the proposed instruction is a redundant restatement — do not draft it. Either confirm the existing principle already covers the case, or identify the missing general principle and add that instead of the specific case.
+4. Classify the fix: before determining scope, decide whether the gap belongs in instructions or in code.
    - **RAIL**: the instruction documents a structural pattern (a type, a helper, a module convention) that makes violations impossible or compiler-caught. These belong in CLAUDE.md.
    - **SIGN**: the instruction tells the reader to manually remember or check something the codebase structure could enforce instead. These do NOT belong in CLAUDE.md — the structural fix does. If the proposed instruction is a SIGN and a structural fix is feasible, stop. Do not draft the instruction. Push back instead (see Behavior Rules).
 4. Determine the right CLAUDE.md scope: global (`/CLAUDE.md`) or scoped (e.g., `/src/api/CLAUDE.md`)
