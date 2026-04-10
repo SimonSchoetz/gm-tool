@@ -9,7 +9,7 @@
     "build:frontend": "vite build",
     "web": "vite",
     "preview": "vite preview",
-    "test": "npx vitest run && npx tsc --noEmit && npx eslint",
+    "test": "npx vitest run && npx tsc --noEmit && npx eslint .",
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {

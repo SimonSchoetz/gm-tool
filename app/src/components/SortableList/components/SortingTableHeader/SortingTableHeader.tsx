@@ -56,9 +56,11 @@ export const SortingTableHeader = ({
   );
   const columnKeysRef = useRef(columnKeys);
 
-  // Keep refs in sync with latest values so drag event handlers never close over stale callbacks.
-  // useLayoutEffect runs synchronously after commit and before browser paint, eliminating any
-  // race between a render and a user interaction.
+  // Ref sync must be paint-synchronous: native DOM handlers (mousemove, mouseup) attached to
+  // document fire outside React's scheduler. If a render updates these values after paint,
+  // a mousemove arriving in that same frame reads stale refs and produces a visible column
+  // width jump mid-drag. useLayoutEffect guarantees refs are current before the browser
+  // services the next input event.
   useLayoutEffect(() => {
     updateColumnWidthsRef.current = updateColumnWidths;
     onDragWidthsChangeRef.current = onDragWidthsChange;
