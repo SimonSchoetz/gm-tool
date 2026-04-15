@@ -97,8 +97,11 @@ Never leave an IIFE in a render return.
 2. `React.ComponentProps<typeof Parent>` — the component extends a specific existing component and must stay in sync with its prop shape.
    - ✅ `type Props = { buttonStyle?: 'danger' } & React.ComponentProps<typeof ActionContainer>`
 
-3. Plain named type (or `FCProps<Props>` from `'@/types'`) — the component has a closed API that does not extend any HTML element or parent component.
-   - ✅ `type SearchInputProps = { onSearch: (term: string) => void; placeholder?: string }`
+3. `FCProps<Props>` — the component has a closed API that does not extend any HTML element or parent component. Always declare the props as a named `type Props = { ... }` and type the component assignment as `FCProps<Props>`.
+   - ✅ `type Props = { onSearch: (term: string) => void; placeholder?: string }`
+        `export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => { ... }`
+   - ❌ `const SearchInput = ({ onSearch }: { onSearch: () => void }) => { ... }` — inline props destructuring without FCProps
+   - ❌ `const SearchInput: React.FC<Props> = ...` — use FCProps, not React.FC
 
 **Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
 
