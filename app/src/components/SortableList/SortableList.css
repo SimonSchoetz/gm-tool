@@ -7,6 +7,11 @@
   gap: var(--spacing-sm);
 }
 
+.sortable-list__scroll-area {
+  flex: 1;
+  min-height: 0;
+}
+
 .sortable-list__table {
   display: flex;
   flex-direction: column;
@@ -24,4 +29,8 @@
   padding: var(--spacing-lg);
   text-align: center;
   color: var(--color-text-muted);
+}
+
+li {
+  list-style-type: none;
 }

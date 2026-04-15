@@ -1,7 +1,6 @@
 .custom-scroll-area {
   position: relative;
   overflow-y: scroll;
-  min-height: 100%;
   scrollbar-width: none;
 }
 
