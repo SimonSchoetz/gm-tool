@@ -1,7 +1,7 @@
 import { useSession } from '@/data-access-layer';
 import type { View } from '../SessionScreen';
 import './SessionHeader.css';
-import { Input, DateInput } from '@/components';
+import { Input, DateInput, LabeledToggleButton } from '@/components';
 import { FCProps } from '@/types';
 
 type Props = {
@@ -33,39 +33,24 @@ export const SessionHeader: FCProps<Props> = ({
       <div>
         <label className='session-date'>
           <span className='session-date__label'>Session Date:</span>
-          {view === 'prep' && (
-            <DateInput
-              className='session-date__input'
-              value={session?.session_date ?? ''}
-              onChange={(e) => {
-                updateSession({ session_date: e.target.value });
-              }}
-            />
-          )}
 
-          {view === 'ingame' && session?.session_date && (
-            <span className='session-date-display'>{session.session_date}</span>
-          )}
+          <DateInput
+            className='session-date__input'
+            value={session?.session_date ?? ''}
+            onChange={(e) => {
+              updateSession({ session_date: e.target.value });
+            }}
+          />
         </label>
 
-        <div className='session-view-toggle'>
-          <button
-            className={`view-toggle-btn${view === 'prep' ? ' view-toggle-btn--active' : ''}`}
-            onClick={() => {
-              onViewChange('prep');
-            }}
-          >
-            Prep
-          </button>
-          <button
-            className={`view-toggle-btn${view === 'ingame' ? ' view-toggle-btn--active' : ''}`}
-            onClick={() => {
-              onViewChange('ingame');
-            }}
-          >
-            In Game
-          </button>
-        </div>
+        <LabeledToggleButton
+          options={[
+            { value: 'prep', label: 'Prep' },
+            { value: 'ingame', label: 'In Game' },
+          ]}
+          value={view}
+          onChange={onViewChange}
+        />
       </div>
     </header>
   );

@@ -1,0 +1,35 @@
+.labeled-toggle-panel {
+  display: flex;
+  position: relative;
+  color: var(--color-primary);
+  transition: var(--transition-hover-on);
+}
+
+.labeled-toggle-panel:hover {
+  color: var(--color-fg);
+  box-shadow: var(--box-shadow-active);
+  transition: var(--transition-hover-on);
+}
+
+.labeled-toggle-slider {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: var(--color-bg);
+  transition:
+    left var(--transition-fast),
+    width var(--transition-fast);
+  transition-timing-function: ease-in;
+}
+
+.labeled-toggle-label {
+  position: relative;
+  z-index: 1;
+  padding: var(--spacing-xs) var(--spacing-md);
+  opacity: 0.4;
+  transition: opacity var(--transition-slow);
+}
+
+.labeled-toggle-label--active {
+  opacity: 1;
+}

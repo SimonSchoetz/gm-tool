@@ -8,25 +8,6 @@
   font-weight: var(--font-weight-medium);
 }
 
-.session-view-toggle {
-  display: flex;
-  gap: var(--spacing-xs);
-}
-
-.view-toggle-btn {
-  padding: 0.375rem var(--spacing-md);
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  background: transparent;
-  opacity: 0.5;
-}
-
-.view-toggle-btn--active {
-  opacity: 1;
-  background: rgba(var(--color-fg-rgb), 0.15);
-}
-
 .session-date {
   width: fit-content;
   display: flex;
