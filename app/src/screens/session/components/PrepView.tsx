@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
 import { StepSection } from './StepSection/StepSection';
-import { StepsNavSidebar } from './StepsNavSidebar/StepsNavSidebar';
 import './PrepView.css';
 
 type Props = {
@@ -11,7 +10,9 @@ type Props = {
 export const PrepView = ({ sessionId }: Props) => {
   const { steps, loading } = useSessionSteps(sessionId);
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments -- new Set() infers Set<unknown> without the explicit type arg
-  const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(new Set());
+  const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(
+    new Set(),
+  );
 
   if (loading) {
     return <div>Loading steps...</div>;
@@ -34,16 +35,19 @@ export const PrepView = ({ sessionId }: Props) => {
     .map((s) => s.id);
 
   const toggleAllTooltips = () => {
-    setVisibleTooltips(visibleTooltips.size === 0 ? new Set(defaultStepIds) : new Set());
+    setVisibleTooltips(
+      visibleTooltips.size === 0 ? new Set(defaultStepIds) : new Set(),
+    );
   };
 
   return (
     <div className='prep-view'>
-      <StepsNavSidebar sessionId={sessionId} />
-
       <div className='prep-view-main'>
         <div className='prep-view-toolbar'>
-          <button className='toggle-all-tooltips-btn' onClick={toggleAllTooltips}>
+          <button
+            className='toggle-all-tooltips-btn'
+            onClick={toggleAllTooltips}
+          >
             {visibleTooltips.size === 0 ? 'Show all hints' : 'Hide all hints'}
           </button>
         </div>
@@ -54,7 +58,9 @@ export const PrepView = ({ sessionId }: Props) => {
               stepId={step.id}
               sessionId={sessionId}
               tooltipVisible={visibleTooltips.has(step.id)}
-              onToggleTooltip={() => { toggleTooltipForStep(step.id); }}
+              onToggleTooltip={() => {
+                toggleTooltipForStep(step.id);
+              }}
             />
           ))}
         </div>

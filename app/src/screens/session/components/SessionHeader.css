@@ -1,20 +1,12 @@
 .session-header {
-  display: flex;
-  align-items: center;
   gap: var(--spacing-md);
   padding: 0.75rem var(--spacing-md);
-  flex-shrink: 0;
   color: var(--color-fg);
 }
 
 .session-name-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  outline: none;
-  color: var(--color-fg);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-medium);
 }
 
 .session-view-toggle {

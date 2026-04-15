@@ -1,6 +1,10 @@
 .session-screen {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  /*flex-direction: column;*/
+  /*height: 100%;*/
+  /*overflow: hidden;*/
+}
+
+.session-screen__main {
+  width: 100%;
 }

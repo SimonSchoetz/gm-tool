@@ -5,6 +5,8 @@ import { SessionHeader } from './components/SessionHeader';
 import { PrepView } from './components/PrepView';
 import { InGameView } from './components/InGameView';
 import './SessionScreen.css';
+import { GlassPanel } from '@/components';
+import { StepsNavSidebar } from './components/StepsNavSidebar/StepsNavSidebar';
 
 export type View = 'prep' | 'ingame';
 
@@ -21,18 +23,21 @@ export const SessionScreen = () => {
   }
 
   return (
-    <div className='session-screen'>
-      <SessionHeader
-        sessionId={sessionId}
-        adventureId={adventureId}
-        view={view}
-        onViewChange={setView}
-      />
-      {view === 'prep' ? (
-        <PrepView sessionId={sessionId} />
-      ) : (
-        <InGameView sessionId={sessionId} adventureId={adventureId} />
-      )}
-    </div>
+    <GlassPanel className='session-screen'>
+      <StepsNavSidebar sessionId={sessionId} />
+      <div className='session-screen__main'>
+        <SessionHeader
+          sessionId={sessionId}
+          adventureId={adventureId}
+          view={view}
+          onViewChange={setView}
+        />
+        {view === 'prep' ? (
+          <PrepView sessionId={sessionId} />
+        ) : (
+          <InGameView sessionId={sessionId} adventureId={adventureId} />
+        )}
+      </div>
+    </GlassPanel>
   );
 };

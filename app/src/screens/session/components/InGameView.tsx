@@ -1,7 +1,6 @@
 import { useSession, useSessionSteps } from '@/data-access-layer';
 import type { SessionStep } from '@db/session-step';
 import { TextEditor } from '@/components';
-import { StepsNavSidebar } from './StepsNavSidebar/StepsNavSidebar';
 import './InGameView.css';
 
 type InGameStepSectionProps = {
@@ -19,9 +18,13 @@ const InGameStepSection = ({ step, sessionId }: InGameStepSectionProps) => {
           type='checkbox'
           className='in-game-step-checkbox'
           checked={step.checked === 1}
-          onChange={() => { updateStep(step.id, { checked: step.checked ? 0 : 1 }); }}
+          onChange={() => {
+            updateStep(step.id, { checked: step.checked ? 0 : 1 });
+          }}
         />
-        <span className='in-game-step-name'>{step.name ?? 'Untitled Step'}</span>
+        <span className='in-game-step-name'>
+          {step.name ?? 'Untitled Step'}
+        </span>
       </div>
 
       <TextEditor
@@ -39,7 +42,11 @@ type Props = {
 };
 
 export const InGameView = ({ sessionId, adventureId }: Props) => {
-  const { session, loading: sessionLoading, updateSession } = useSession(sessionId, adventureId);
+  const {
+    session,
+    loading: sessionLoading,
+    updateSession,
+  } = useSession(sessionId, adventureId);
   const { steps, loading: stepsLoading } = useSessionSteps(sessionId);
 
   if (sessionLoading || stepsLoading) {
@@ -48,14 +55,14 @@ export const InGameView = ({ sessionId, adventureId }: Props) => {
 
   return (
     <div className='in-game-view'>
-      <StepsNavSidebar sessionId={sessionId} />
-
       <div className='in-game-main'>
         <div className='in-game-summary'>
           <TextEditor
             textEditorId={`session-summary-${sessionId}`}
             value={session?.summary ?? ''}
-            onChange={(summary) => { updateSession({ summary }); }}
+            onChange={(summary) => {
+              updateSession({ summary });
+            }}
           />
         </div>
 
