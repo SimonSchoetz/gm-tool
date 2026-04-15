@@ -100,6 +100,14 @@ Never leave an IIFE in a render return.
 3. Plain named type (or `FCProps<Props>` from `'@/types'`) — the component has a closed API that does not extend any HTML element or parent component.
    - ✅ `type SearchInputProps = { onSearch: (term: string) => void; placeholder?: string }`
 
+**Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
+
+- ❌ `<input type="text" />` — `type="text"` is the default
+- ❌ `<button type="submit" />` — `type="submit"` is the browser default for button
+- ✅ `<input />`, `<button />`
+- ✅ `<input type="checkbox" />` — non-default, keep it
+- ✅ `<button type="button" />` — non-default, keep it
+
 **Variant system:**
 
 - Variants are expressed as a union type prop and applied via a CSS modifier class. Never express variants as inline styles. Never use one boolean prop per variant when the component has — or may grow — more than one variant.

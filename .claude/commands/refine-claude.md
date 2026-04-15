@@ -108,4 +108,6 @@ existing teammates via SendMessage — do not spawn new instances. If SendMessag
 fails after one retry, surface the failure explicitly and spawn a replacement
 via TeamCreate before continuing. Once the user confirms they are satisfied —
 or ends the session without further requests — dismiss both teammates so no
-long-running instances remain.
+long-running instances remain. Never send a shutdown request in the same
+response as an invitation to confirm satisfaction — ask first, wait for the
+user's answer, then dismiss.
