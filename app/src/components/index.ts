@@ -21,3 +21,4 @@ export { ImagePlaceholderFrame } from './ImagePlaceholderFrame/ImagePlaceholderF
 export { SearchInput } from './SearchInput/SearchInput';
 export { HorizontalDivider } from './HorizontalDivider/HorizontalDivider.tsx';
 export { SortableList } from './SortableList';
+export { DateInput } from './DateInput/DateInput';

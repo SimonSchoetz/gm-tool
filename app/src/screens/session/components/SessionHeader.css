@@ -1,6 +1,5 @@
 .session-header {
   gap: var(--spacing-md);
-  padding: 0.75rem var(--spacing-md);
   color: var(--color-fg);
 }
 
@@ -26,4 +25,16 @@
 .view-toggle-btn--active {
   opacity: 1;
   background: rgba(var(--color-fg-rgb), 0.15);
+}
+
+.session-date {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.session-date__label {
+  color: rgb(var(--color-fg-rgb), 0.6);
 }

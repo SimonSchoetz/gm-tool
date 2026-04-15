@@ -25,7 +25,8 @@ export const SessionScreen = () => {
   return (
     <GlassPanel className='session-screen'>
       <StepsNavSidebar sessionId={sessionId} />
-      <div className='session-screen__main'>
+
+      <div>
         <SessionHeader
           sessionId={sessionId}
           adventureId={adventureId}

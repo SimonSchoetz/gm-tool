@@ -1,7 +1,8 @@
 import { useSession } from '@/data-access-layer';
 import type { View } from '../SessionScreen';
 import './SessionHeader.css';
-import { Input } from '@/components';
+import { Input, DateInput } from '@/components';
+import { FCProps } from '@/types';
 
 type Props = {
   sessionId: string;
@@ -10,12 +11,12 @@ type Props = {
   onViewChange: (view: View) => void;
 };
 
-export const SessionHeader = ({
+export const SessionHeader: FCProps<Props> = ({
   sessionId,
   adventureId,
   view,
   onViewChange,
-}: Props) => {
+}) => {
   const { session, updateSession } = useSession(sessionId, adventureId);
 
   return (
@@ -30,20 +31,22 @@ export const SessionHeader = ({
       />
 
       <div>
-        {view === 'prep' && (
-          <input
-            type='date'
-            className='session-date-input'
-            value={session?.session_date ?? ''}
-            onChange={(e) => {
-              updateSession({ session_date: e.target.value });
-            }}
-          />
-        )}
+        <label className='session-date'>
+          <span className='session-date__label'>Session Date:</span>
+          {view === 'prep' && (
+            <DateInput
+              className='session-date__input'
+              value={session?.session_date ?? ''}
+              onChange={(e) => {
+                updateSession({ session_date: e.target.value });
+              }}
+            />
+          )}
 
-        {view === 'ingame' && session?.session_date && (
-          <span className='session-date-display'>{session.session_date}</span>
-        )}
+          {view === 'ingame' && session?.session_date && (
+            <span className='session-date-display'>{session.session_date}</span>
+          )}
+        </label>
 
         <div className='session-view-toggle'>
           <button

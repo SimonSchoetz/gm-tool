@@ -1,13 +1,19 @@
 import { InputHTMLAttributes } from 'react';
 import './Input.css';
 import { cn } from '@/util';
+import { FCProps } from '@/types';
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
   error?: string;
 };
 
-const Input = ({ label, error, className = '', ...props }: InputProps) => {
+const Input: FCProps<InputProps> = ({
+  label,
+  error,
+  className = '',
+  ...props
+}) => {
   return (
     <div className='input-wrapper'>
       {label && <label className='input-label'>{`${label}: `}</label>}

@@ -1,10 +1,6 @@
 .session-screen {
-  display: flex;
-  /*flex-direction: column;*/
-  /*height: 100%;*/
-  /*overflow: hidden;*/
-}
-
-.session-screen__main {
-  width: 100%;
+  padding: var(--spacing-md);
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: auto 1fr;
 }
