@@ -65,7 +65,6 @@ export const AdventureScreen = () => {
           <div className={cn('adventure-text-edit-area')}>
             <div>
               <Input
-                type='text'
                 placeholder='Adventure Title'
                 value={adventure.name}
                 onChange={(e) => {

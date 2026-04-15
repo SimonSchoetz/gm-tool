@@ -99,7 +99,7 @@ export const SortableList = <
         onDragWidthsChange={setDragWidths}
       />
 
-      <CustomScrollArea>
+      <CustomScrollArea className='sortable-list__scroll-area'>
         <ul className='sortable-list__table'>
           {showCreateNewBtn && (
             <li key='new-item-button'>

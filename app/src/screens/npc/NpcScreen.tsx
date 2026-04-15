@@ -64,7 +64,6 @@ export const NpcScreen = () => {
           <div className={cn('npc-text-edit-area')}>
             <GlassPanel className='npc-summary' intensity='bright'>
               <Input
-                type='text'
                 placeholder='Name'
                 value={npc.name}
                 onChange={(e) => {
