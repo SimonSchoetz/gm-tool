@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
 import { StepSection } from './StepSection/StepSection';
 import './PrepView.css';
+import { Button } from '@/components';
 
 type Props = {
   sessionId: string;
@@ -44,12 +45,13 @@ export const PrepView = ({ sessionId }: Props) => {
     <div className='prep-view'>
       <div className='prep-view-main'>
         <div className='prep-view-toolbar'>
-          <button
+          <Button
             className='toggle-all-tooltips-btn'
             onClick={toggleAllTooltips}
-          >
-            {visibleTooltips.size === 0 ? 'Show all hints' : 'Hide all hints'}
-          </button>
+            label={
+              visibleTooltips.size === 0 ? 'Show all hints' : 'Hide all hints'
+            }
+          />
         </div>
         <div className='prep-view-steps'>
           {steps.map((step) => (
