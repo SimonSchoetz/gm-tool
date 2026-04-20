@@ -1,8 +1,9 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { TextEditor } from '@/components';
-import { LAZY_DM_STEPS } from '@/domain/session-steps';
 import { StepSectionHeader } from '../StepSectionHeader/StepSectionHeader';
+import { TooltipPanel } from './components';
 import './StepSection.css';
+import { FCProps } from '@/types';
 
 type Props = {
   stepId: string;
@@ -11,12 +12,12 @@ type Props = {
   onToggleTooltip: () => void;
 };
 
-export const StepSection = ({
+export const StepSection: FCProps<Props> = ({
   stepId,
   sessionId,
   tooltipVisible,
   onToggleTooltip,
-}: Props) => {
+}) => {
   const { steps, updateStep } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
@@ -36,17 +37,16 @@ export const StepSection = ({
         isLast={isLast}
       />
 
-      {tooltipVisible && step.default_step_key !== null && (() => {
-        const definition = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
-        return definition ? (
-          <div className='step-tooltip-panel'>{definition.tooltip}</div>
-        ) : null;
-      })()}
+      {tooltipVisible && step.default_step_key != null && (
+        <TooltipPanel stepKey={step.default_step_key} />
+      )}
 
       <TextEditor
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
-        onChange={(content) => { updateStep(step.id, { content }); }}
+        onChange={(content) => {
+          updateStep(step.id, { content });
+        }}
       />
     </div>
   );

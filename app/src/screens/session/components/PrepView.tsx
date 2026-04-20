@@ -1,5 +1,5 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { StepSection } from './StepSection/StepSection';
+import { StepSection } from './StepSection';
 import './PrepView.css';
 import { FCProps } from '@/types';
 
