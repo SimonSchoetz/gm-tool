@@ -1,7 +1,7 @@
 import { useSession } from '@/data-access-layer';
 import type { View } from '../SessionScreen';
 import './SessionHeader.css';
-import { Input, DateInput, LabeledToggleButton } from '@/components';
+import { Button, Input, DateInput, LabeledToggleButton } from '@/components';
 import { FCProps } from '@/types';
 
 type Props = {
@@ -9,6 +9,8 @@ type Props = {
   adventureId: string;
   view: View;
   onViewChange: (view: View) => void;
+  areTooltipsVisible: boolean;
+  onToggleAllTooltips: () => void;
 };
 
 export const SessionHeader: FCProps<Props> = ({
@@ -16,6 +18,8 @@ export const SessionHeader: FCProps<Props> = ({
   adventureId,
   view,
   onViewChange,
+  areTooltipsVisible,
+  onToggleAllTooltips,
 }) => {
   const { session, updateSession } = useSession(sessionId, adventureId);
 
@@ -42,6 +46,14 @@ export const SessionHeader: FCProps<Props> = ({
             }}
           />
         </label>
+
+        {view === 'prep' && (
+          <Button
+            className='toggle-all-tooltips-btn'
+            onClick={onToggleAllTooltips}
+            label={areTooltipsVisible ? 'Hide all hints' : 'Show all hints'}
+          />
+        )}
 
         <LabeledToggleButton
           options={[
