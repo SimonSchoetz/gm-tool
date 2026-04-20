@@ -17,24 +17,18 @@ export const Button: FCProps<Props> = ({
   ...props
 }) => {
   return (
-    <ActionContainer
-      className={cn(
-        'button',
-        buttonStyle && `button--${buttonStyle}`,
-        className,
-      )}
-      label={label}
-      onClick={onClick}
-      {...props}
-    >
-      <GlassPanel
+    <GlassPanel className={cn('global-btn-styles', 'button', className)}>
+      <ActionContainer
         className={cn(
           'button-label',
           buttonStyle && `button-label--${buttonStyle}`,
         )}
+        label={label}
+        onClick={onClick}
+        {...props}
       >
         {label}
-      </GlassPanel>
-    </ActionContainer>
+      </ActionContainer>
+    </GlassPanel>
   );
 };

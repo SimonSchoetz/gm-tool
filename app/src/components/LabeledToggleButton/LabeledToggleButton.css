@@ -3,6 +3,7 @@
   position: relative;
   color: var(--color-primary);
   transition: var(--transition-hover-on);
+  border-radius: var(--radius-md);
 }
 
 .labeled-toggle-panel:hover {

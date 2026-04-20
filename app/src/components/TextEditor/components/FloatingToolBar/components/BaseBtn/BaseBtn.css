@@ -1,3 +1,7 @@
+.base-btn-container {
+  border-radius: var(--radius-md);
+}
+
 .base-btn {
   padding: var(--spacing-sm);
 }

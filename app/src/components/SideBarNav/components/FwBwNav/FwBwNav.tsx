@@ -57,7 +57,7 @@ const Button = ({
   return (
     <GlassPanel
       intensity='bright'
-      className={cn('button', disabled && 'disabled')}
+      className={cn('global-btn-styles', disabled && 'disabled')}
     >
       <ActionContainer
         className={cn('content-center', 'fw-bw-btn')}

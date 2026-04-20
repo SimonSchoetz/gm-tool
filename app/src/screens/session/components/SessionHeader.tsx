@@ -34,27 +34,19 @@ export const SessionHeader: FCProps<Props> = ({
         }}
       />
 
-      <div>
-        <label className='session-date'>
-          <span className='session-date__label'>Session Date:</span>
+      <label className='session-date'>
+        <span className='session-date__label'>Session Date:</span>
 
-          <DateInput
-            className='session-date__input'
-            value={session?.session_date ?? ''}
-            onChange={(e) => {
-              updateSession({ session_date: e.target.value });
-            }}
-          />
-        </label>
+        <DateInput
+          className='session-date__input'
+          value={session?.session_date ?? ''}
+          onChange={(e) => {
+            updateSession({ session_date: e.target.value });
+          }}
+        />
+      </label>
 
-        {view === 'prep' && (
-          <Button
-            className='toggle-all-tooltips-btn'
-            onClick={onToggleAllTooltips}
-            label={areTooltipsVisible ? 'Hide all hints' : 'Show all hints'}
-          />
-        )}
-
+      <div className='view-options-section'>
         <LabeledToggleButton
           options={[
             { value: 'prep', label: 'Prep' },
@@ -62,6 +54,12 @@ export const SessionHeader: FCProps<Props> = ({
           ]}
           value={view}
           onChange={onViewChange}
+        />
+
+        <Button
+          className='toggle-all-tooltips-btn'
+          onClick={onToggleAllTooltips}
+          label={areTooltipsVisible ? 'Hide all hints' : 'Show all hints'}
         />
       </div>
     </header>

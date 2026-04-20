@@ -22,7 +22,11 @@ export const BaseBtn: FCProps<Props> = ({
     <GlassPanel
       data-active={isActive}
       intensity={isActive ? 'bright' : 'off'}
-      className={cn('button', isActive && 'active')}
+      className={cn(
+        'global-btn-styles',
+        'base-btn-container',
+        isActive && 'active',
+      )}
     >
       <ActionContainer
         className='base-btn'

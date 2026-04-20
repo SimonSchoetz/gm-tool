@@ -69,7 +69,6 @@ export const LabeledToggleButton = <T extends string>({
 
   return (
     <ActionContainer
-      invisible
       onClick={handleClick}
       label={options[1 - displayIndex].label}
       className={cn('labeled-toggle-btn', className)}

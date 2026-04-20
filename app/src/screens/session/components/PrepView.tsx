@@ -21,22 +21,18 @@ export const PrepView: FCProps<Props> = ({
   }
 
   return (
-    <div className='prep-view'>
-      <div className='prep-view-main'>
-        <div className='prep-view-steps'>
-          {steps.map((step) => (
-            <StepSection
-              key={step.id}
-              stepId={step.id}
-              sessionId={sessionId}
-              tooltipVisible={visibleTooltips.has(step.id)}
-              onToggleTooltip={() => {
-                onToggleTooltip(step.id);
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+    <>
+      {steps.map((step) => (
+        <StepSection
+          key={step.id}
+          stepId={step.id}
+          sessionId={sessionId}
+          tooltipVisible={visibleTooltips.has(step.id)}
+          onToggleTooltip={() => {
+            onToggleTooltip(step.id);
+          }}
+        />
+      ))}
+    </>
   );
 };

@@ -21,3 +21,38 @@ h1 {
   line-height: 44px;
   font-weight: var(--font-weight-medium);
 }
+
+.global-btn-styles {
+  color: var(--color-primary);
+  background-color: transparent;
+  transition-duration: var(--transition-hover-off);
+}
+
+.global-btn-styles:hover {
+  box-shadow: var(--box-shadow-active);
+  background-color: var(--color-hover-bg);
+  color: var(--color-fg);
+  transition-duration: var(--transition-hover-on);
+}
+
+.global-btn-styles.active {
+  color: var(--color-fg);
+  background-color: var(--color-highlight-bg);
+  box-shadow: var(--box-shadow-active);
+}
+
+.global-btn-styles.active:hover {
+  background-color: var(--color-highlight-bg);
+}
+
+.global-btn-styles.disabled {
+  background-color: transparent;
+  box-shadow: none;
+  opacity: 0.5;
+  filter: grayscale(1);
+  cursor: default;
+}
+
+.global-btn-styles:active {
+  transform: translateY(1px);
+}

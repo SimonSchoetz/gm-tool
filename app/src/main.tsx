@@ -5,7 +5,6 @@ import type { RouterContext } from './routes/__root';
 import './styles/reset.css';
 import './styles/variables.css';
 import './styles/global.css';
-import './styles/button.css';
 import './styles/scrollbar.css';
 
 // Import the generated route tree

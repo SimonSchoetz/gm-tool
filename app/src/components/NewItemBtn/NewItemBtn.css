@@ -1,10 +1,16 @@
 .new-item-btn {
   border-radius: var(--radius-2xl);
   width: 100%;
+  transition: box-shadow var(--transition-hover-off);
 }
 
 .new-item-btn-list-item-container {
   border: none;
+}
+
+.new-item-btn:hover {
+  transition: box-shadow var(--transition-hover-on);
+  box-shadow: var(--box-shadow-active);
 }
 
 .new-item-btn:hover .new-item-btn-list-item-label,
@@ -42,7 +48,7 @@
 }
 
 .animate-new-item-btn-on-click {
-  transition: var(--transition-active-animation);
+  transition: var(--transition-base);
   opacity: 0;
   transform: scale(1.5) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);

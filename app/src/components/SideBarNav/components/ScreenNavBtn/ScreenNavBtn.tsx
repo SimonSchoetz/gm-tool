@@ -27,7 +27,7 @@ export const ScreenNavBtn: FCProps<Props> = ({
     <GlassPanel
       intensity='bright'
       className={cn(
-        'button',
+        'global-btn-styles',
         'nav-button',
         isDisabled && 'disabled',
         isAtTarget && 'active',

@@ -40,19 +40,24 @@ export const UploadImgBtn = ({
 
   return image_id ? (
     <ActionContainer
-      onClick={() => { void handleClick(); }}
+      onClick={() => {
+        void handleClick();
+      }}
       label='Replace cover image'
-      invisible
     >
       <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
     </ActionContainer>
   ) : (
     <ActionContainer
       className={cn('upload-adventure-img-btn')}
-      onClick={() => { void handleClick(); }}
+      onClick={() => {
+        void handleClick();
+      }}
       label='Upload cover image'
     >
-      <ImagePlaceholderFrame {...(dimensions !== undefined ? { dimensions } : {})}>
+      <ImagePlaceholderFrame
+        {...(dimensions !== undefined ? { dimensions } : {})}
+      >
         <p
           className='img-upload-textbox'
           style={{

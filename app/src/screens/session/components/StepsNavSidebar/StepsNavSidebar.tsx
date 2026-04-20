@@ -25,9 +25,10 @@ type SortableStepItemProps = {
 };
 
 const SortableStepItem = ({ step }: SortableStepItemProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: step.id,
-  });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: step.id,
+    });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -67,7 +68,9 @@ export const StepsNavSidebar = ({ sessionId }: Props) => {
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -82,15 +85,28 @@ export const StepsNavSidebar = ({ sessionId }: Props) => {
 
   return (
     <div className='steps-nav-sidebar'>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={steps.map((s) => s.id)}
+          strategy={verticalListSortingStrategy}
+        >
           {steps.map((step) => (
             <SortableStepItem key={step.id} step={step} />
           ))}
         </SortableContext>
       </DndContext>
 
-      <NewItemBtn type='list-item' label='Add Step' onClick={() => { void createStep(); }} />
+      <NewItemBtn
+        type='list-item'
+        label='+'
+        onClick={() => {
+          void createStep();
+        }}
+      />
     </div>
   );
 };

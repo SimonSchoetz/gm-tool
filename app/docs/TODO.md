@@ -7,3 +7,5 @@
     - parallel to the glasspanel is the pop up container for error/warning messages
   - Should look for components that mirror html components and use them instead (eg html -> <input> vs custom component -> <Input>)
   - instructions about 'not using px' in .css not explicit enough -> should always use variables and if none exist but pattern strongly suggests a new valiue, it should be surfaced to the user
+
+- Cleanup: Claude moved parts of a component to another component. Css entries concerning the moved code stayd in the former sub component's css file. This should be cleaned up properly in the future

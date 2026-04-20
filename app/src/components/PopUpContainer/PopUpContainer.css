@@ -8,22 +8,22 @@
   background: rgb(var(--color-bg-rgb), 0.5);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  animation: popUpBackgroundFadeIn var(--transition-active-animation);
+  animation: popUpBackgroundFadeIn var(--transition-base);
 }
 
 .popup-background.closing {
-  animation: popUpBackgroundFadeOut var(--transition-active-animation) ease-out;
+  animation: popUpBackgroundFadeOut var(--transition-base) ease-out;
 }
 
 .popup-content {
   max-width: 90vw;
   max-height: 90vh;
-  animation: popUpContentPlopIn var(--transition-active-animation)
+  animation: popUpContentPlopIn var(--transition-base)
     cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .popup-content.closing {
-  animation: popUpContentPlopOut var(--transition-active-animation)
+  animation: popUpContentPlopOut var(--transition-base)
     cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 

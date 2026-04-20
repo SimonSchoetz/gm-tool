@@ -50,8 +50,8 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 3. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context. The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
 4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
 5. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
-6. Spawn `spec-writer` via the Agent tool. Pass: the architect brief. Spec-writer's role is to resolve ambiguity in how to implement the architect's verdict — not to update spec documents. Spec-writer is stateless — pass only current inputs. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
-7. Implement per the spec-writer output. Run `npm test` from the root directory. Resolve every error and failure.
+6. Spawn `spec-writer` via the Agent tool. Pass: the architect brief, plus any engineering concerns you identified while reading the architect's output — do not surface those concerns to the user directly. The spec-writer resolves implementation ambiguity; engineering concerns about the architect's proposed approach are inputs to the spec-writer, not reasons to pause the loop. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
+7. Implement per the spec-writer output. Before implementing, apply the Engineering Validity check: if the spec-writer output still produces incoherent code, stop and surface the exact instruction and the problem to the user. The Engineering Validity invariant runs here — not on architect output.
 8. Commit: `fix(<branch>): address review violations — cycle N`.
 
 **Error boundaries:**
