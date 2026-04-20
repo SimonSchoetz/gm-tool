@@ -56,6 +56,7 @@ One of four outcomes:
 
 - **DECISION WAS WRONG** — the rule is sound but was misapplied here.
   → Hand to a new Claude instance with this refactoring brief:
+  - What this change achieves — one sentence stating the goal from a user or system perspective, not the structural mechanism
   - Which files to touch and which to leave alone
   - What the target structure should look like (even a short file/folder sketch)
   - The specific violations to fix
@@ -72,6 +73,7 @@ One of four outcomes:
 
 - **BOTH** — the rule was misapplied AND the rule itself is too ambiguous to prevent this in future.
   → Hand to a new Claude instance with this refactoring brief:
+  - What this change achieves — one sentence stating the goal from a user or system perspective, not the structural mechanism
   - Which files to touch and which to leave alone
   - What the target structure should look like (even a short file/folder sketch)
   - The specific violations to fix
