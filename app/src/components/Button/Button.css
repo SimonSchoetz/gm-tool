@@ -1,9 +1,11 @@
 .button {
-  border-radius: var(--radius-xl);
-  width: 100%;
+  /*border-radius: var(--radius-xl);*/
+  /*width: 100%;*/
 }
 
 .button-label {
+  border-radius: var(--radius-xl);
+
   padding: var(--spacing-sm);
   color: var(--color-primary);
   transition: var(--transition-hover-on);

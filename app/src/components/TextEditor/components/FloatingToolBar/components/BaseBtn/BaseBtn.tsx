@@ -21,7 +21,6 @@ export const BaseBtn: FCProps<Props> = ({
   return (
     <GlassPanel
       data-active={isActive}
-      radius='md'
       intensity={isActive ? 'bright' : 'off'}
       className={cn('button', isActive && 'active')}
     >

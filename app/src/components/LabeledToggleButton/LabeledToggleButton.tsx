@@ -74,7 +74,7 @@ export const LabeledToggleButton = <T extends string>({
       label={options[1 - displayIndex].label}
       className={cn('labeled-toggle-btn', className)}
     >
-      <GlassPanel className='labeled-toggle-panel' radius='md'>
+      <GlassPanel className='labeled-toggle-panel'>
         <div ref={sliderRef} className='labeled-toggle-slider' />
         {options.map((option, index) => (
           <span

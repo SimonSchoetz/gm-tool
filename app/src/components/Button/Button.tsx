@@ -32,7 +32,6 @@ export const Button: FCProps<Props> = ({
           'button-label',
           buttonStyle && `button-label--${buttonStyle}`,
         )}
-        radius='xl'
       >
         {label}
       </GlassPanel>

@@ -101,16 +101,22 @@ export const MentionTypeaheadPlugin = () => {
       }
 
       return createPortal(
-        <GlassPanel className='mention-typeahead-popup' radius='md'>
+        <GlassPanel className='mention-typeahead-popup'>
           <CustomScrollArea className='mention-typeahead-content-container'>
             <ul>
               {menuOptions.map((option, i) => (
                 <li
                   key={option.key}
-                  ref={(el) => { option.setRefElement(el); }}
+                  ref={(el) => {
+                    option.setRefElement(el);
+                  }}
                   className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
-                  onClick={() => { selectOptionAndCleanUp(option); }}
-                  onMouseEnter={() => { setHighlightedIndex(i); }}
+                  onClick={() => {
+                    selectOptionAndCleanUp(option);
+                  }}
+                  onMouseEnter={() => {
+                    setHighlightedIndex(i);
+                  }}
                   style={{ color: option.result.color }}
                 >
                   <span className='mention-typeahead-item-name'>

@@ -6,10 +6,7 @@ type AvatarCellProps = {
 };
 
 export const AvatarCell = ({ imageId }: AvatarCellProps) => (
-  <ImagePlaceholderFrame
-    dimensions={{ width: '100px', height: '100px' }}
-    radius='lg'
-  >
+  <ImagePlaceholderFrame dimensions={{ width: '100px', height: '100px' }}>
     {imageId ? (
       <ImageById imageId={imageId} className='sortable-list-item__avatar-img' />
     ) : (

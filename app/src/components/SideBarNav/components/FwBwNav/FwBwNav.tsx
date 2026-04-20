@@ -57,7 +57,6 @@ const Button = ({
   return (
     <GlassPanel
       intensity='bright'
-      radius='xl'
       className={cn('button', disabled && 'disabled')}
     >
       <ActionContainer

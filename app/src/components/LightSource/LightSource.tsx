@@ -1,5 +1,4 @@
 import { HtmlProps } from '@/types';
-import { useEffect } from 'react';
 import './LightSource.css';
 import { cn } from '@/util';
 
@@ -12,10 +11,6 @@ const LightSource = ({
   className = '',
   ...props
 }: Readonly<LightSourceProps>) => {
-  useEffect(() => {
-    document.documentElement.style.setProperty('--light-state', 'running');
-  }, []);
-
   const intensityClass =
     intensity === 'bright' ? 'light-source-bright' : 'light-source-dim';
 
