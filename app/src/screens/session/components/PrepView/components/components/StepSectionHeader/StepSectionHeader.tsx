@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
-import { DeleteDialog, PopUpContainer, Checkbox } from '@/components';
+import { DeleteDialog, PopUpContainer, Checkbox, Input } from '@/components';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
 import { FCProps } from '@/types';
@@ -42,8 +42,7 @@ export const StepSectionHeader: FCProps<Props> = ({
           }}
         />
 
-        <input
-          type='text'
+        <Input
           className='step-name-input'
           value={step.name ?? ''}
           onChange={(e) => {
