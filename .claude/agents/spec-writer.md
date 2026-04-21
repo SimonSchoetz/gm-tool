@@ -111,9 +111,14 @@ not change it. Suggest the user routes back to arch-review first.
 6. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
    layers in dependency order: DB → Services → DAL → Frontend. A layer may
    only reference what layers below it have already specified.
-7. Before emitting: scan every implementation detail for ambiguity. Any detail
-   a Claude instance could interpret two ways must be resolved or surfaced as
-   an explicit question
+7. Before emitting: for every file placement, directory structure decision, and
+   implementation detail in the spec, verify it satisfies the applicable rule in
+   CLAUDE.md — do not rely on the codebase scan in step 5 to have caught all
+   violations. Treat each proposed file as a claim: confirm its location,
+   structure, and accompanying files are what the conventions require. Any detail
+   that cannot be reconciled with CLAUDE.md must be corrected before emitting.
+   Any detail a Claude instance could interpret in more than one way must be
+   resolved or surfaced as an explicit question.
 
 ## Output
 

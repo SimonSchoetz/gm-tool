@@ -71,7 +71,7 @@ src/
 - each component has its own folder
 - each component has its own `.css` file
 - Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
-- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`.
+- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`.
 - `helper/` and `components/` each have an `index.ts` as a within-module grouping barrel — explicit named exports, never re-exported from the parent `ComponentName/index.ts`. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory). A flat single-file sub-component is exported directly from the `components/` barrel.
   - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
   - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
@@ -87,6 +87,8 @@ src/
 - Logic that returns JSX → extract to a sub-component in `components/`.
 
 Never leave an IIFE in a render return.
+
+**No inline sub-components.** A named function declared inside a component body that returns JSX is a sub-component, not a helper. It must be extracted to `ComponentName/components/` exactly as if it had been defined outside the parent file. Defining it inline does not make it exempt from the ownership rule — the extraction destination is the same regardless of where the function is currently declared.
 
 **Props pattern — three cases, pick exactly one:**
 
