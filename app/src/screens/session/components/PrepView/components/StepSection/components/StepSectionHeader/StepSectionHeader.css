@@ -1,15 +1,19 @@
 .step-section-header {
   display: flex;
   align-items: center;
+  gap: var(--spacing-md);
+  /*border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);*/
 }
 
-.step-name-input {
+.step-name {
   flex: 1;
-  background: transparent;
-  border: none;
   font-size: 1rem;
   font-weight: 600;
-  outline: none;
+}
+
+label.step-name:hover {
+  cursor: pointer;
 }
 
 .step-tooltip-btn,

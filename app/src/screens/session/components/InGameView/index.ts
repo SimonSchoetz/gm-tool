@@ -1,0 +1,1 @@
+export { InGameView } from './InGameView';

@@ -1,5 +1,5 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { TextEditor } from '@/components';
+import { TextEditor, GlassPanel } from '@/components';
 import { StepSectionHeader, TooltipPanel } from './components';
 import './StepSection.css';
 import { FCProps } from '@/types';
@@ -29,7 +29,11 @@ export const StepSection: FCProps<Props> = ({
   const isLast = stepIndex === steps.length - 1;
 
   return (
-    <div id={`step-section-${stepId}`} className='step-section'>
+    <GlassPanel
+      intensity='bright'
+      id={`step-section-${stepId}`}
+      className='step-section'
+    >
       <StepSectionHeader
         stepId={stepId}
         onToggleTooltip={onToggleTooltip}
@@ -48,6 +52,6 @@ export const StepSection: FCProps<Props> = ({
           updateStep(step.id, { content });
         }}
       />
-    </div>
+    </GlassPanel>
   );
 };
