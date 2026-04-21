@@ -50,18 +50,18 @@
   left: 15%;
   width: 70%;
   height: 70%;
-  background-color: var(--color-secondary);
+  background-color: var(--color-success-hover);
   z-index: 1;
 }
 
-.checkbox-container:hover .checkbox-indicator-bg {
-  background-color: var(--color-secondary);
+.checkbox-container:has(.checkbox:hover) .checkbox-indicator-bg {
+  background-color: var(--color-success-hover);
 }
 
 .checkbox-indicator-bg__checked {
-  background-color: var(--color-primary);
+  background-color: var(--color-success);
 }
 
-.checkbox-container:hover .checkbox-indicator-bg__checked {
-  background-color: var(--color-primary-hover);
+.checkbox-container:has(.checkbox:hover) .checkbox-indicator-bg__checked {
+  background-color: var(--color-success);
 }

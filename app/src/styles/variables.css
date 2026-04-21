@@ -23,8 +23,7 @@
 
   --color-success-rgb: 119, 238, 27;
   --color-success: rgb(var(--color-success-rgb));
-  --color-success-hover-rgb: 95, 194, 21;
-  --color-success-hover: rgb(var(--color-success-hover-rgb));
+  --color-success-hover: rgb(var(--color-success-rgb), 0.5);
 
   --color-warning-rgb: 244, 211, 1;
   --color-warning: rgb(var(--color-warning-rgb));
