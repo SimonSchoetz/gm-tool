@@ -53,12 +53,10 @@ export const SessionScreen = () => {
 
   return (
     <GlassPanel className='session-screen'>
-      <StepsNavSidebar sessionId={sessionId} />
+      <StepsNavSidebar />
 
       <div className='session-content'>
         <SessionHeader
-          sessionId={sessionId}
-          adventureId={adventureId}
           view={view}
           onViewChange={setView}
           areTooltipsVisible={visibleTooltips.size > 0}
@@ -68,12 +66,11 @@ export const SessionScreen = () => {
         <CustomScrollArea className='session-screen__body'>
           {view === 'prep' ? (
             <PrepView
-              sessionId={sessionId}
               visibleTooltips={visibleTooltips}
               onToggleTooltip={toggleTooltipForStep}
             />
           ) : (
-            <InGameView sessionId={sessionId} adventureId={adventureId} />
+            <InGameView />
           )}
         </CustomScrollArea>
       </div>

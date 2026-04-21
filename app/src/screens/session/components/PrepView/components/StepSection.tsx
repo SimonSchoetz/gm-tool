@@ -1,23 +1,24 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { TextEditor } from '@/components';
-import { StepSectionHeader } from '../StepSectionHeader/StepSectionHeader';
-import { TooltipPanel } from './components';
+import { StepSectionHeader, TooltipPanel } from './components';
 import './StepSection.css';
 import { FCProps } from '@/types';
+import { useParams } from '@tanstack/react-router';
 
 type Props = {
   stepId: string;
-  sessionId: string;
   tooltipVisible: boolean;
   onToggleTooltip: () => void;
 };
 
 export const StepSection: FCProps<Props> = ({
   stepId,
-  sessionId,
   tooltipVisible,
   onToggleTooltip,
 }) => {
+  const { sessionId } = useParams({
+    from: '/adventure/$adventureId/session/$sessionId',
+  });
   const { steps, updateStep } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
@@ -31,7 +32,6 @@ export const StepSection: FCProps<Props> = ({
     <div id={`step-section-${stepId}`} className='step-section'>
       <StepSectionHeader
         stepId={stepId}
-        sessionId={sessionId}
         onToggleTooltip={onToggleTooltip}
         isFirst={isFirst}
         isLast={isLast}

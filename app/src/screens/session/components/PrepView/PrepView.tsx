@@ -1,19 +1,20 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { StepSection } from './StepSection';
-import './PrepView.css';
+import { StepSection } from './components';
 import { FCProps } from '@/types';
+import { useParams } from '@tanstack/react-router';
 
 type Props = {
-  sessionId: string;
   visibleTooltips: Set<string>;
   onToggleTooltip: (stepId: string) => void;
 };
 
 export const PrepView: FCProps<Props> = ({
-  sessionId,
   visibleTooltips,
   onToggleTooltip,
 }) => {
+  const { sessionId } = useParams({
+    from: '/adventure/$adventureId/session/$sessionId',
+  });
   const { steps, loading } = useSessionSteps(sessionId);
 
   if (loading) {
@@ -26,7 +27,6 @@ export const PrepView: FCProps<Props> = ({
         <StepSection
           key={step.id}
           stepId={step.id}
-          sessionId={sessionId}
           tooltipVisible={visibleTooltips.has(step.id)}
           onToggleTooltip={() => {
             onToggleTooltip(step.id);

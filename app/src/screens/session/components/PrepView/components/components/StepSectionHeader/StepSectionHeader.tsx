@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
 import { DeleteDialog, PopUpContainer } from '@/components';
 import './StepSectionHeader.css';
+import { useParams } from '@tanstack/react-router';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
 type Props = {
   stepId: string;
-  sessionId: string;
   onToggleTooltip: () => void;
   isFirst: boolean;
   isLast: boolean;
@@ -15,11 +15,13 @@ type Props = {
 
 export const StepSectionHeader = ({
   stepId,
-  sessionId,
   onToggleTooltip,
   isFirst,
   isLast,
 }: Props) => {
+  const { sessionId } = useParams({
+    from: '/adventure/$adventureId/session/$sessionId',
+  });
   const { steps, updateStep, reorderSteps, deleteStep } =
     useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);

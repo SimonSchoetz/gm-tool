@@ -3,10 +3,9 @@ import type { View } from '../SessionScreen';
 import './SessionHeader.css';
 import { Button, Input, DateInput, LabeledToggleButton } from '@/components';
 import { FCProps } from '@/types';
+import { useParams } from '@tanstack/react-router';
 
 type Props = {
-  sessionId: string;
-  adventureId: string;
   view: View;
   onViewChange: (view: View) => void;
   areTooltipsVisible: boolean;
@@ -14,13 +13,14 @@ type Props = {
 };
 
 export const SessionHeader: FCProps<Props> = ({
-  sessionId,
-  adventureId,
   view,
   onViewChange,
   areTooltipsVisible,
   onToggleAllTooltips,
 }) => {
+  const { sessionId, adventureId } = useParams({
+    from: '/adventure/$adventureId/session/$sessionId',
+  });
   const { session, updateSession } = useSession(sessionId, adventureId);
 
   return (
@@ -34,10 +34,11 @@ export const SessionHeader: FCProps<Props> = ({
         }}
       />
 
-      <label className='session-date'>
+      <label className='session-date' htmlFor='session-date-input'>
         <span className='session-date__label'>Session Date:</span>
 
         <DateInput
+          id='session-date-input'
           className='session-date__input'
           value={session?.session_date ?? ''}
           onChange={(e) => {

@@ -1,1 +1,0 @@
-export { TooltipPanel } from './TooltipPanel';

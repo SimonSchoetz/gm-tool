@@ -6,64 +6,23 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { useSessionSteps } from '@/data-access-layer';
-import type { SessionStep } from '@db/session-step';
 import { NewItemBtn } from '@/components';
 import './StepsNavSidebar.css';
+import { useParams } from '@tanstack/react-router';
+import { SortableStepItem } from './components';
 
-type SortableStepItemProps = {
-  step: SessionStep;
-};
-
-const SortableStepItem = ({ step }: SortableStepItemProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: step.id,
-    });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const scrollToStep = () => {
-    document.getElementById(`step-section-${step.id}`)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`steps-nav-item${step.checked === 1 ? ' steps-nav-item--checked' : ''}`}
-      {...attributes}
-    >
-      <span className='steps-nav-drag-handle' {...listeners}>
-        ⠿
-      </span>
-      <button className='steps-nav-item-label' onClick={scrollToStep}>
-        {step.name ?? 'Untitled Step'}
-      </button>
-    </div>
-  );
-};
-
-type Props = {
-  sessionId: string;
-};
-
-export const StepsNavSidebar = ({ sessionId }: Props) => {
+export const StepsNavSidebar = () => {
+  const { sessionId } = useParams({
+    from: '/adventure/$adventureId/session/$sessionId',
+  });
   const { steps, createStep, bulkReorder } = useSessionSteps(sessionId);
 
   const sensors = useSensors(
