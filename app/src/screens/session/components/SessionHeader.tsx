@@ -34,11 +34,10 @@ export const SessionHeader: FCProps<Props> = ({
         }}
       />
 
-      <label className='session-date' htmlFor='session-date-input'>
+      <label className='session-date'>
         <span className='session-date__label'>Session Date:</span>
 
         <DateInput
-          id='session-date-input'
           className='session-date__input'
           value={session?.session_date ?? ''}
           onChange={(e) => {

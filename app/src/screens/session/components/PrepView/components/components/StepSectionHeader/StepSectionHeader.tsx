@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useSessionSteps } from '@/data-access-layer';
-import { DeleteDialog, PopUpContainer } from '@/components';
+import { DeleteDialog, PopUpContainer, Checkbox } from '@/components';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
+import { FCProps } from '@/types';
 
 type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
 
@@ -13,12 +14,12 @@ type Props = {
   isLast: boolean;
 };
 
-export const StepSectionHeader = ({
+export const StepSectionHeader: FCProps<Props> = ({
   stepId,
   onToggleTooltip,
   isFirst,
   isLast,
-}: Props) => {
+}) => {
   const { sessionId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
@@ -33,8 +34,7 @@ export const StepSectionHeader = ({
   return (
     <>
       <div className='step-section-header'>
-        <input
-          type='checkbox'
+        <Checkbox
           className='step-checkbox'
           checked={step.checked === 1}
           onChange={() => {
