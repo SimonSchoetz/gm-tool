@@ -36,6 +36,11 @@ boundaries. You own the details that would trip up an implementing instance:
   symbol exists at that path. Never use `node -e` or runtime introspection. Code
   in a spec must be sound — the implementing instance does not re-verify what the
   spec already states.
+- For every first-party import path named in the spec — whether proposed by an
+  upstream agent or derived independently — verify it resolves from the importing
+  file's location. Confirm the importer's directory, resolve the relative segments,
+  and verify the result exists before including the path. A target that exists at
+  the right name does not make the import valid from every importer location.
 
 ## Audience
 
