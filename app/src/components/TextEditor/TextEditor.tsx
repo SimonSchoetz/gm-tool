@@ -19,6 +19,7 @@ import { FloatingToolbar } from './components';
 import { MentionTypeaheadPlugin, CheckboxReadOnlyPlugin } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { useState } from 'react';
+import { parseSafeEditorState } from './helper';
 
 type Props = {
   value: string;
@@ -67,9 +68,11 @@ export const TextEditor: FCProps<Props> = ({
   const initialConfig = {
     namespace: textEditorId,
     theme,
-    onError: (err: Error) => { console.error('Lexical error:', err); },
+    onError: (err: Error) => {
+      console.error('Lexical error:', err);
+    },
     nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
-    editorState: value || null,
+    editorState: value ? parseSafeEditorState(value) : null,
     editable: !readOnly,
   };
 
@@ -81,8 +84,9 @@ export const TextEditor: FCProps<Props> = ({
     }
 
     if (onChange) {
-      const json = JSON.stringify(editorState.toJSON());
-      onChange(json);
+      onChange(
+        editorState.isEmpty() ? '' : JSON.stringify(editorState.toJSON()),
+      );
     }
   };
 
@@ -99,7 +103,9 @@ export const TextEditor: FCProps<Props> = ({
         <ListPlugin />
         <CheckListPlugin />
         <TabIndentationPlugin />
-        <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]} />
+        <MarkdownShortcutPlugin
+          transformers={[UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]}
+        />
 
         {!readOnly && <OnChangePlugin onChange={handleChange} />}
         {!readOnly && <FloatingToolbar />}

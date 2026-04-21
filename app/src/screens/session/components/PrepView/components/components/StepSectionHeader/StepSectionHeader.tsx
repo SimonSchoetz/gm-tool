@@ -35,21 +35,27 @@ export const StepSectionHeader: FCProps<Props> = ({
     <>
       <div className='step-section-header'>
         <Checkbox
-          className='step-checkbox'
+          id={`step-checkbox-${step.id}`}
           checked={step.checked === 1}
           onChange={() => {
             updateStep(step.id, { checked: step.checked ? 0 : 1 });
           }}
         />
 
-        <Input
-          className='step-name-input'
-          value={step.name ?? ''}
-          onChange={(e) => {
-            updateStep(step.id, { name: e.target.value });
-          }}
-          placeholder='Step name'
-        />
+        {step.default_step_key !== null ? (
+          <label className='step-name' htmlFor={`step-checkbox-${step.id}`}>
+            {step.name}
+          </label>
+        ) : (
+          <Input
+            className='step-name'
+            value={step.name ?? ''}
+            onChange={(e) => {
+              updateStep(step.id, { name: e.target.value });
+            }}
+            placeholder='Step name'
+          />
+        )}
 
         {step.default_step_key !== null && (
           <button
@@ -60,7 +66,6 @@ export const StepSectionHeader: FCProps<Props> = ({
             ?
           </button>
         )}
-
         <button
           className='step-move-btn'
           disabled={isFirst}
@@ -81,7 +86,6 @@ export const StepSectionHeader: FCProps<Props> = ({
         >
           ↓
         </button>
-
         <button
           className='step-delete-btn'
           title='Delete step'
