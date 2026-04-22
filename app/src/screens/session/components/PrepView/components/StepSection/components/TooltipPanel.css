@@ -1,0 +1,4 @@
+.step-tooltip-panel {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-style: italic;
+}

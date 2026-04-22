@@ -1,6 +1,7 @@
 import { LAZY_DM_STEPS } from '@/domain';
 import type { LazyDmStepKey } from '@/domain';
 import { FCProps } from '@/types';
+import './TooltipPanel.css';
 
 type Props = {
   stepKey: LazyDmStepKey;
