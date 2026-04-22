@@ -5,6 +5,7 @@ import { generateZigzagPath } from './generateZigzagPath';
 import { getColor } from './getColor';
 import { getPathLength } from './getPathLength';
 import { getPositionOnPath } from './getPositionOnPath';
+import { getWaypointsBetween } from './getWaypointsBetween';
 
 export const createBeams = (
   beamsRef: RefObject<Beam[]>,
@@ -36,11 +37,20 @@ const drawBeams = (
       ctx.lineWidth = width;
 
       if (i > 0) {
-        const prevParticle = beam.particles[i - 1];
-        ctx.beginPath();
-        ctx.moveTo(particle.x, particle.y);
-        ctx.lineTo(prevParticle.x, prevParticle.y);
-        ctx.stroke();
+        const olderParticle = beam.particles[i - 1];
+        const waypoints = getWaypointsBetween(
+          beam.path,
+          olderParticle.progress,
+          particle.progress,
+        );
+        if (waypoints.length >= 2) {
+          ctx.beginPath();
+          ctx.moveTo(waypoints[0].x, waypoints[0].y);
+          for (let w = 1; w < waypoints.length; w++) {
+            ctx.lineTo(waypoints[w].x, waypoints[w].y);
+          }
+          ctx.stroke();
+        }
       }
 
       if (i === beam.particles.length - 1) {

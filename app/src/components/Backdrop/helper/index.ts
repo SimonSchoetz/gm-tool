@@ -1,5 +1,6 @@
-export * from './createBeams';
-export * from './createGridTiles';
-export * from './initBeams';
-export * from './setCanvasSize';
-export * from './setGridDimensions';
+export { createBeams } from './createBeams';
+export { createGridTiles } from './createGridTiles';
+export { initBeams } from './initBeams';
+export { setCanvasSize } from './setCanvasSize';
+export { setGridDimensions } from './setGridDimensions';
+export { getWaypointsBetween } from './getWaypointsBetween';
