@@ -24,8 +24,15 @@ export const AdventureScreen = () => {
   const { adventure, updateAdventure, deleteAdventure, loading } =
     useAdventure(adventureId);
 
+  const [adventureName, setAdventureName] = useState(adventure?.name ?? '');
+  const [syncedAdventureId, setSyncedAdventureId] = useState(adventure?.id);
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
+
+  if (adventure?.id !== syncedAdventureId) {
+    setSyncedAdventureId(adventure?.id);
+    setAdventureName(adventure?.name ?? '');
+  }
 
   if (loading || !adventure) {
     return <div>Loading...</div>;
@@ -66,8 +73,9 @@ export const AdventureScreen = () => {
             <div>
               <Input
                 placeholder='Adventure Title'
-                value={adventure.name}
+                value={adventureName}
                 onChange={(e) => {
+                  setAdventureName(e.target.value);
                   updateAdventure({ name: e.target.value });
                 }}
                 className='adventure-title-input'

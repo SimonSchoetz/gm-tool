@@ -24,8 +24,15 @@ export const NpcScreen = () => {
 
   const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId);
 
+  const [npcName, setNpcName] = useState(npc?.name ?? '');
+  const [syncedNpcId, setSyncedNpcId] = useState(npc?.id);
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
+
+  if (npc?.id !== syncedNpcId) {
+    setSyncedNpcId(npc?.id);
+    setNpcName(npc?.name ?? '');
+  }
 
   if (loading || !npc) {
     return <div>Loading...</div>;
@@ -65,8 +72,9 @@ export const NpcScreen = () => {
             <GlassPanel className='npc-summary' intensity='bright'>
               <Input
                 placeholder='Name'
-                value={npc.name}
+                value={npcName}
                 onChange={(e) => {
+                  setNpcName(e.target.value);
                   updateNpc({ name: e.target.value });
                 }}
                 className='npc-name-input'

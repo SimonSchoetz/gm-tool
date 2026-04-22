@@ -26,8 +26,15 @@ export const StepSectionHeader: FCProps<Props> = ({
   const { steps, updateStep, reorderSteps, deleteStep } =
     useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
+  const [stepName, setStepName] = useState(step?.name ?? '');
+  const [syncedStepId, setSyncedStepId] = useState(step?.id);
   const [deleteDialogState, setDeleteDialogState] =
     useState<PopUpState>('closed');
+
+  if (step?.id !== syncedStepId) {
+    setSyncedStepId(step?.id);
+    setStepName(step?.name ?? '');
+  }
 
   if (!step) return null;
 
@@ -49,8 +56,9 @@ export const StepSectionHeader: FCProps<Props> = ({
         ) : (
           <Input
             className='step-name'
-            value={step.name ?? ''}
+            value={stepName}
             onChange={(e) => {
+              setStepName(e.target.value);
               updateStep(step.id, { name: e.target.value });
             }}
             placeholder='Step name'

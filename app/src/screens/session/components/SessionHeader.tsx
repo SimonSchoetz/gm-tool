@@ -4,6 +4,7 @@ import './SessionHeader.css';
 import { Button, Input, DateInput, LabeledToggleButton } from '@/components';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
+import { useState } from 'react';
 
 type Props = {
   view: View;
@@ -23,13 +24,24 @@ export const SessionHeader: FCProps<Props> = ({
   });
   const { session, updateSession } = useSession(sessionId, adventureId);
 
+  const [sessionName, setSessionName] = useState(session?.name ?? '');
+  const [sessionDate, setSessionDate] = useState(session?.session_date ?? '');
+  const [syncedSessionId, setSyncedSessionId] = useState(session?.id);
+
+  if (session?.id !== syncedSessionId) {
+    setSyncedSessionId(session?.id);
+    setSessionName(session?.name ?? '');
+    setSessionDate(session?.session_date ?? '');
+  }
+
   return (
     <header className='session-header'>
       <Input
         className='session-name-input'
         placeholder='Session name'
-        value={session?.name ?? ''}
+        value={sessionName}
         onChange={(e) => {
+          setSessionName(e.target.value);
           updateSession({ name: e.target.value });
         }}
       />
@@ -39,8 +51,9 @@ export const SessionHeader: FCProps<Props> = ({
 
         <DateInput
           className='session-date__input'
-          value={session?.session_date ?? ''}
+          value={sessionDate}
           onChange={(e) => {
+            setSessionDate(e.target.value);
             updateSession({ session_date: e.target.value });
           }}
         />
