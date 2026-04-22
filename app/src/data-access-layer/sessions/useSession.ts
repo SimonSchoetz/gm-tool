@@ -12,7 +12,10 @@ type UseSessionReturn = {
   deleteSession: () => Promise<void>;
 };
 
-export const useSession = (sessionId: string, adventureId: string): UseSessionReturn => {
+export const useSession = (
+  sessionId: string,
+  adventureId: string,
+): UseSessionReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateSessionInput>({});
@@ -36,14 +39,21 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
     mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) =>
       service.updateSession(id, data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: sessionKeys.detail(sessionId) });
+      void queryClient.invalidateQueries({
+        queryKey: sessionKeys.detail(sessionId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: sessionKeys.list(adventureId),
+      });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => service.deleteSession(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: sessionKeys.list(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: sessionKeys.list(adventureId),
+      });
     },
   });
 
@@ -54,6 +64,14 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
       if (!old) return old;
       return mergeUpdate(old, data);
     });
+
+    queryClient.setQueryData<Session[]>(
+      sessionKeys.list(adventureId),
+      (old) => {
+        if (!old) return old;
+        return old.map((s) => (s.id === sessionId ? mergeUpdate(s, data) : s));
+      },
+    );
 
     pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...data };
 
@@ -73,5 +91,10 @@ export const useSession = (sessionId: string, adventureId: string): UseSessionRe
     await deleteMutation.mutateAsync(sessionId);
   };
 
-  return { session: sessionData ?? null, loading, updateSession, deleteSession };
+  return {
+    session: sessionData ?? null,
+    loading,
+    updateSession,
+    deleteSession,
+  };
 };
