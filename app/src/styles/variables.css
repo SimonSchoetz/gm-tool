@@ -12,6 +12,7 @@
 
   --color-fg-rgb: 248, 251, 251;
   --color-fg: rgb(var(--color-fg-rgb));
+  --color-fg-hover: rgb(var(--color-fg-rgb), 0.7);
 
   --color-bg-rgb: 3, 19, 34;
   --color-bg: rgb(var(--color-bg-rgb));

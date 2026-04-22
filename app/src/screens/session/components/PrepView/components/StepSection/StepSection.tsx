@@ -1,5 +1,5 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { TextEditor, GlassPanel } from '@/components';
+import { TextEditor, GlassPanel, HorizontalDivider } from '@/components';
 import { StepSectionHeader, TooltipPanel } from './components';
 import './StepSection.css';
 import { FCProps } from '@/types';
@@ -24,10 +24,6 @@ export const StepSection: FCProps<Props> = ({
 
   if (!step) return null;
 
-  const stepIndex = steps.findIndex((s) => s.id === stepId);
-  const isFirst = stepIndex === 0;
-  const isLast = stepIndex === steps.length - 1;
-
   return (
     <GlassPanel
       intensity='bright'
@@ -37,13 +33,14 @@ export const StepSection: FCProps<Props> = ({
       <StepSectionHeader
         stepId={stepId}
         onToggleTooltip={onToggleTooltip}
-        isFirst={isFirst}
-        isLast={isLast}
+        tooltipVisible={tooltipVisible}
       />
 
       {tooltipVisible && step.default_step_key != null && (
         <TooltipPanel stepKey={step.default_step_key} />
       )}
+
+      <HorizontalDivider className='step-section-divider' />
 
       <TextEditor
         textEditorId={`step-${step.id}`}

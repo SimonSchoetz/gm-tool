@@ -2,39 +2,24 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  /*border-radius: var(--radius-lg);
-  padding: var(--spacing-sm);*/
-}
-
-.step-name {
-  flex: 1;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-label.step-name:hover {
-  cursor: pointer;
 }
 
 .step-tooltip-btn,
-.step-move-btn,
 .step-delete-btn {
-  background: transparent;
-  border: none;
   cursor: pointer;
-  opacity: 0.5;
-  padding: 4px 6px;
-  border-radius: 4px;
-  flex-shrink: 0;
+  color: var(--color-primary);
+  transition: color var(--transition-fast);
 }
 
 .step-tooltip-btn:hover,
-.step-move-btn:hover:not(:disabled),
 .step-delete-btn:hover {
-  opacity: 1;
+  color: var(--color-fg);
 }
 
-.step-move-btn:disabled {
-  opacity: 0.2;
-  cursor: default;
+.step-tooltip-btn__active {
+  transition: color var(--transition-fast);
+  color: var(--color-fg);
+}
+.step-tooltip-btn__active:hover {
+  color: var(--color-fg-hover);
 }

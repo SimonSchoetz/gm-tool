@@ -9,3 +9,7 @@
 .step-section:not(:last-child) {
   margin-bottom: var(--spacing-md);
 }
+
+.step-section-divider {
+  border-color: var(--color-primary);
+}
