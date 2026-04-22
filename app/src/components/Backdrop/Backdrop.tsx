@@ -8,7 +8,7 @@ import {
 } from './helper';
 import { Beam, Grid } from './types';
 
-const AMOUNT_BEAMS = 3;
+const AMOUNT_BEAMS = 6;
 const BEAM_SPEED = 4;
 
 const Backdrop = () => {
@@ -24,8 +24,10 @@ const Backdrop = () => {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
+    let offscreenCanvas: OffscreenCanvas | null = null;
+
     const animate = () => {
-      createGridTiles(gridRef, ctx);
+      if (offscreenCanvas) ctx.drawImage(offscreenCanvas, 0, 0);
       createBeams(beamsRef, ctx, gridRef);
       animationFrameRef.current = requestAnimationFrame(animate);
     };
@@ -33,12 +35,24 @@ const Backdrop = () => {
     const initCanvas = () => {
       setCanvasSize(canvas, ctx);
       setGridDimensions(gridRef);
+      offscreenCanvas = new OffscreenCanvas(
+        window.innerWidth,
+        window.innerHeight,
+      );
+      const offscreenCtx = offscreenCanvas.getContext('2d');
+      if (offscreenCtx) createGridTiles(gridRef, offscreenCtx);
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
     };
 
     const updateCanvasOnResize = () => {
       setCanvasSize(canvas, ctx);
       setGridDimensions(gridRef);
+      offscreenCanvas = new OffscreenCanvas(
+        window.innerWidth,
+        window.innerHeight,
+      );
+      const offscreenCtx = offscreenCanvas.getContext('2d');
+      if (offscreenCtx) createGridTiles(gridRef, offscreenCtx);
       beamsRef.current = [];
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
     };

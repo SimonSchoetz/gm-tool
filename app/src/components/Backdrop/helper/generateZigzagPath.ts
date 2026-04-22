@@ -21,7 +21,6 @@ export const generateZigzagPath = (
   const startSide = Math.random() < 0.5 ? 'left' : 'right';
   const offset = startSide === 'left' ? 0 : squareSize;
 
-  // Starting position
   path.push({
     x: offsetX + currentCol * squareSize + offset,
     y: offsetY + currentRow * squareSize,
@@ -46,11 +45,14 @@ export const generateZigzagPath = (
     return current;
   };
 
-  while (currentRow <= rows) {
+  while (currentRow <= rows + 1) {
     direction = getNextDirection(direction);
 
     if (direction !== Direction.DOWN) {
-      const newCol = Math.max(0, Math.min(cols - 1, currentCol + direction));
+      const newCol = Math.max(
+        0,
+        Math.min(Math.ceil(cols) - 1, currentCol + direction),
+      );
 
       if (newCol !== currentCol) {
         currentCol = newCol;
@@ -61,7 +63,7 @@ export const generateZigzagPath = (
       }
     } else {
       currentRow++;
-      if (currentRow <= rows) {
+      if (currentRow <= rows + 1) {
         path.push({
           x: offsetX + currentCol * squareSize + offset,
           y: offsetY + currentRow * squareSize,

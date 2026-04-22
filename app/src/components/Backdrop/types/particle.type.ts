@@ -3,4 +3,5 @@ export type Particle = {
   y: number;
   age: number;
   maxAge: number;
+  progress: number;
 };
