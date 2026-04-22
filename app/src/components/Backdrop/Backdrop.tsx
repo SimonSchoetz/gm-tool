@@ -8,7 +8,7 @@ import {
 } from './helper';
 import { Beam, Grid } from './types';
 
-const AMOUNT_BEAMS = 3;
+const AMOUNT_BEAMS = 6;
 const BEAM_SPEED = 4;
 
 const Backdrop = () => {
