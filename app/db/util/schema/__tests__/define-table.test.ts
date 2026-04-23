@@ -21,7 +21,9 @@ describe('defineTable', () => {
     });
 
     expect(table.name).toBe('test_table');
-    expect(table.createTableSQL).toContain('CREATE TABLE IF NOT EXISTS test_table');
+    expect(table.createTableSQL).toContain(
+      'CREATE TABLE IF NOT EXISTS test_table',
+    );
     expect(table.createTableSQL).toContain('id TEXT PRIMARY KEY');
     expect(table.createTableSQL).toContain('name TEXT NOT NULL');
     expect(table.zodSchema).toBeDefined();
