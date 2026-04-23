@@ -92,3 +92,7 @@ Functions that operate across multiple tables (e.g., `mention-search.ts`) live a
 - Seeds are called from `database.ts` during init (after migrations)
 - Seeds are idempotent — they check for existing rows before inserting
 - Keep seed data co-located with the table it belongs to, not in `database.ts`
+
+## Testing
+
+Every public function in a domain directory (`create`, `get`, `getAll`, `update`, `remove`) must have a corresponding test file in a `__tests__/` subdirectory within that domain directory. See `db/adventure/__tests__/` and `db/session/__tests__/` as reference implementations.
