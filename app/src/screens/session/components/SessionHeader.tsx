@@ -72,7 +72,7 @@ export const SessionHeader: FCProps<Props> = ({
         <Button
           className='toggle-all-tooltips-btn'
           onClick={onToggleAllTooltips}
-          label={areTooltipsVisible ? 'Hide all hints' : 'Show all hints'}
+          label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
         />
       </div>
     </header>
