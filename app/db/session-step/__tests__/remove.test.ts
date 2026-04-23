@@ -32,4 +32,18 @@ describe('remove', () => {
       ['step-id'],
     );
   });
+
+  it('should throw when id is empty', async () => {
+    await expect(remove('')).rejects.toThrow(
+      'Valid Session Step ID is required',
+    );
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
+
+  it('should throw when id is whitespace only', async () => {
+    await expect(remove('   ')).rejects.toThrow(
+      'Valid Session Step ID is required',
+    );
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
 });
