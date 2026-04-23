@@ -39,9 +39,9 @@ Constraints: Does not reinterpret or challenge architectural decisions — route
 
 ### /implement
 
-Intent: Implement a spec file and dealing with execution realism the spec writer can not account for. Additionally, orchestrating iterative review and fix loop, then cleanup
+Intent: Implement a spec file and dealing with execution realism the spec writer can not account for. Additionally, orchestrating iterative review and fix loop
 Input: A spec file path
-Output: Committed implementation across all sub-features, a cleanup commit (spec archive + backlog update), and — when friction occurred — a friction brief output to the user as the handoff artifact for a future /refine-claude session; when the review loop surfaces out-of-scope violations, a deferred violations brief is output to the user listing each violation, its source, and why it was out of scope
+Output: Committed implementation across all sub-features, and — when friction occurred — a friction brief output to the user as the handoff artifact for a future /refine-claude session; when the review loop surfaces out-of-scope violations, a deferred violations brief is output to the user listing each violation, its source, and why it was out of scope
 Constraints: does not resolve ambiguity by itself
 
 ### /refine-claude
