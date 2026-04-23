@@ -45,7 +45,9 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 **Cycle structure (repeat up to 3 times):**
 
-1. Spawn `code-reviewer` via the Agent tool. Pass: the branch name (for diffing against main) + the accumulated review context from all prior cycles.
+1. Spawn `code-reviewer` via the Agent tool.
+   - **Cycle 1:** Pass the branch name (for diffing against main) + the accumulated review context. The reviewer reads all changed files in full.
+   - **Cycles 2+:** Pass an explicit file list of files touched in the prior fix commit (do NOT pass the branch name — a branch name triggers a full re-read of all changed files, which is the wrong scope for a targeted verification pass) + the accumulated review context + the list of specific violations fixed in the prior cycle. The reviewer limits reads to those files and any files they directly import or affect.
 2. Pass the full code-reviewer output to the user as informational. Append the full output to the accumulated review context. Do not classify, filter, or interpret it.
 3. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context. The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
 4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
@@ -67,11 +69,11 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 Run `npm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
-Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced), before cleanup.
+Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced).
 
 ### Friction brief
 
-This step runs only when friction occurred during the session or when non-blocking instruction gaps were surfaced during the review loop. If neither applies, proceed directly to Cleanup.
+This step runs only when friction occurred during the session or when non-blocking instruction gaps were surfaced during the review loop.
 
 Produce a friction summary covering:
 
@@ -86,7 +88,7 @@ Produce a friction summary covering:
 - Every instruction gap the code-reviewer surfaced that was not blocking the current task (blocking gaps were handled by architect in the review loop)
 - For each: what rule is missing or ambiguous, and in which file or context it was observed
 
-Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself. Proceed to Cleanup.
+Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself.
 
 ---
 
