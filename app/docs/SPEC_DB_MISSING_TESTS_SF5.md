@@ -99,14 +99,14 @@ Test cases for `assertValidId`:
 
 Test cases for `assertHasUpdateFields`:
 
-4. `should throw when data object is empty`
+1. `should throw when data object is empty`
    - `expect(() => assertHasUpdateFields({})).toThrow('At least one field must be provided for update')`
 
-5. `should throw when all values are undefined`
+2. `should throw when all values are undefined`
    - `expect(() => assertHasUpdateFields({ name: undefined, description: undefined })).toThrow('At least one field must be provided for update')`
 
-6. `should not throw when at least one value is defined`
+3. `should not throw when at least one value is defined`
    - `expect(() => assertHasUpdateFields({ name: 'New Name' })).not.toThrow()`
 
-7. `should not throw when multiple values are defined`
+4. `should not throw when multiple values are defined`
    - `expect(() => assertHasUpdateFields({ name: 'New Name', description: 'New Desc' })).not.toThrow()`

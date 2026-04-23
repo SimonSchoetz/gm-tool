@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 const mockExecute = vi.fn();
 const mockSelect = vi.fn();
@@ -18,6 +18,10 @@ describe('searchByName', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    vi.resetModules();
   });
 
   it('should search with LIKE pattern scoped to adventureId when adventureId is not null', async () => {

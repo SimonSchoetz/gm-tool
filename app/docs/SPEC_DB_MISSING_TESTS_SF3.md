@@ -45,6 +45,7 @@ Test cases:
 
 1. `should create table config and return generated ID`
    - Input:
+
      ```ts
      { table_name: 'npcs', color: '#3498db', tagging_enabled: 1, scope: 'adventure', layout: validLayout }
      ```
