@@ -96,3 +96,5 @@ Functions that operate across multiple tables (e.g., `mention-search.ts`) live a
 ## Testing
 
 Every public function in a domain directory (`create`, `get`, `getAll`, `update`, `remove`) must have a corresponding test file in a `__tests__/` subdirectory within that domain directory. See `db/adventure/__tests__/` and `db/session/__tests__/` as reference implementations.
+
+Every test file that calls `vi.mock('@tauri-apps/plugin-sql', ...)` at module scope must include `afterEach(() => { vi.resetModules(); })`. Without it, hoisted module mocks leak across files sharing the same vitest worker, causing order-dependent test failures.

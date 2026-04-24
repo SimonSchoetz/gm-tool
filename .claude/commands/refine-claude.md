@@ -103,11 +103,26 @@ approval. The coordinator does not act on new questions directly,
 regardless of how clear or small the change appears to be.
 
 After changes are applied, explicitly invite the user to review the result and
-ask follow-up questions. If the user raises a follow-up, route it to the
-existing teammates via SendMessage — do not spawn new instances. If SendMessage
-fails after one retry, surface the failure explicitly and spawn a replacement
-via TeamCreate before continuing. Once the user confirms they are satisfied —
-or ends the session without further requests — dismiss both teammates so no
-long-running instances remain. Never send a shutdown request in the same
-response as an invitation to confirm satisfaction — ask first, wait for the
-user's answer, then dismiss.
+ask follow-up questions. Track teammate state explicitly: a teammate is either
+active (spawned, not yet dismissed) or dismissed (shutdown confirmation
+received). If the user raises a follow-up and both teammates are active, route
+it via SendMessage — do not spawn new instances. If a teammate has been
+dismissed, skip SendMessage for that teammate and spawn a replacement via
+TeamCreate before continuing — SendMessage to a dismissed teammate succeeds
+silently and the message is never received.
+
+Before routing any follow-up via SendMessage, check whether the gap since the
+last known teammate interaction exceeds 30 minutes. Get the current time with
+`date +%s` (Unix epoch seconds) and compare it against the timestamp of the
+last interaction recorded in the conversation. If the gap exceeds 1800 seconds,
+treat all active teammates as potentially timed out — send each a shutdown
+request as a cleanup measure (it will likely succeed silently), then spawn
+replacements via TeamCreate instead of routing via SendMessage, providing the
+full session context in the TeamCreate prompt so the new instances can continue
+without loss. A timed-out teammate behaves identically to a dismissed one:
+SendMessage returns success but the message is never received.
+
+Once the user confirms they are satisfied — or ends the session without further
+requests — dismiss any active teammates so no long-running instances remain.
+Never send a shutdown request in the same response as an invitation to confirm
+satisfaction — ask first, wait for the user's answer, then dismiss.
