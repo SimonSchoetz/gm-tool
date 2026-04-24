@@ -52,4 +52,12 @@ describe('get', () => {
 
     expect(result).toBeNull();
   });
+
+  it('should throw when id is empty string', async () => {
+    await expect(get('')).rejects.toThrow('Valid NPC ID is required');
+  });
+
+  it('should throw when id is whitespace only', async () => {
+    await expect(get('   ')).rejects.toThrow('Valid NPC ID is required');
+  });
 });

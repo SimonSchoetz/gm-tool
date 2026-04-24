@@ -59,4 +59,14 @@ describe('getAll', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('should throw when adventureId is empty string', async () => {
+    await expect(getAll('')).rejects.toThrow('Valid Adventure ID is required');
+  });
+
+  it('should throw when adventureId is whitespace only', async () => {
+    await expect(getAll('   ')).rejects.toThrow(
+      'Valid Adventure ID is required',
+    );
+  });
 });

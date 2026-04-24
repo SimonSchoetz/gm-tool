@@ -55,4 +55,16 @@ describe('getAllBySession', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('should throw when sessionId is empty string', async () => {
+    await expect(getAllBySession('')).rejects.toThrow(
+      'Valid Session ID is required',
+    );
+  });
+
+  it('should throw when sessionId is whitespace only', async () => {
+    await expect(getAllBySession('   ')).rejects.toThrow(
+      'Valid Session ID is required',
+    );
+  });
 });
