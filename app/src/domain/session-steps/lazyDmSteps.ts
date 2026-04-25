@@ -1,12 +1,4 @@
-export type LazyDmStepKey =
-  | 'review_characters'
-  | 'strong_start'
-  | 'potential_scenes'
-  | 'secrets_clues'
-  | 'fantastic_locations'
-  | 'important_npcs'
-  | 'relevant_monsters'
-  | 'magic_items';
+import type { LazyDmStepKey } from '@db/session-step';
 
 export type LazyDmStepDefinition = {
   key: LazyDmStepKey;

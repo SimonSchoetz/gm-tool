@@ -1,6 +1,19 @@
 import { z } from 'zod';
 import { defineTable } from '../util';
 
+export const LAZY_DM_STEP_KEYS = [
+  'review_characters',
+  'strong_start',
+  'potential_scenes',
+  'secrets_clues',
+  'fantastic_locations',
+  'important_npcs',
+  'relevant_monsters',
+  'magic_items',
+] as const;
+
+export type LazyDmStepKey = (typeof LAZY_DM_STEP_KEYS)[number];
+
 export const sessionStepTable = defineTable({
   name: 'session_steps',
   columns: {
@@ -29,16 +42,7 @@ export const sessionStepTable = defineTable({
     },
     default_step_key: {
       type: 'TEXT',
-      zod: z.enum([
-        'review_characters',
-        'strong_start',
-        'potential_scenes',
-        'secrets_clues',
-        'fantastic_locations',
-        'important_npcs',
-        'relevant_monsters',
-        'magic_items',
-      ]).nullable().optional(),
+      zod: z.enum(LAZY_DM_STEP_KEYS).nullable().optional(),
     },
     checked: {
       type: 'INTEGER',

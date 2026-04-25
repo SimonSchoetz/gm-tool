@@ -53,6 +53,20 @@ describe('create', () => {
     expect(result).toBe('test-generated-id');
   });
 
+  it('should create session step with default_step_key', async () => {
+    const result = await create({
+      session_id: 'sess-1',
+      sort_order: 0,
+      default_step_key: 'review_characters',
+    });
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      'INSERT INTO session_steps (id, session_id, default_step_key, sort_order) VALUES ($1, $2, $3, $4)',
+      ['test-generated-id', 'sess-1', 'review_characters', 0],
+    );
+    expect(result).toBe('test-generated-id');
+  });
+
   it('should throw when session_id is missing', async () => {
     const input = { sort_order: 0 } as CreateSessionStepInput;
     await expect(create(input)).rejects.toThrow();
