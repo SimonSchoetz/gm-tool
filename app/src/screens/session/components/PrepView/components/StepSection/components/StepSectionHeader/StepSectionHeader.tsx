@@ -6,6 +6,7 @@ import {
   Checkbox,
   ActionContainer,
 } from '@/components';
+import { LAZY_DM_STEPS } from '@/domain';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
 import { FCProps } from '@/types';
@@ -80,7 +81,12 @@ export const StepSectionHeader: FCProps<Props> = ({
 
       <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
         <DeleteDialog
-          name={step.name ?? 'Untitled Step'}
+          name={
+            step.default_step_key !== null
+              ? (LAZY_DM_STEPS.find((s) => s.key === step.default_step_key)
+                  ?.name ?? 'Untitled Step')
+              : (step.name ?? 'Untitled Step')
+          }
           onDeletionConfirm={() => {
             void deleteStep(step.id);
           }}

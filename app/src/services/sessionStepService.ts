@@ -111,7 +111,6 @@ export const initDefaultSteps = async (sessionId: string): Promise<void> => {
       await sessionStepDb.create({
         session_id: sessionId,
         sort_order: index,
-        name: step.name,
         default_step_key: step.key,
       });
     }

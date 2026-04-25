@@ -1,5 +1,6 @@
 import { Input } from '@/components';
 import { useSessionSteps } from '@/data-access-layer';
+import { LAZY_DM_STEPS } from '@/domain';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -26,11 +27,19 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
     setStepName(step.name ?? '');
   }
 
-  return step.default_step_key !== null ? (
-    <label className='step-name' htmlFor={`step-checkbox-${step.id}`}>
-      {step.name}
-    </label>
-  ) : (
+  if (step.default_step_key !== null) {
+    const definition = LAZY_DM_STEPS.find(
+      (s) => s.key === step.default_step_key,
+    );
+    if (!definition) return null;
+    return (
+      <label className='step-name' htmlFor={`step-checkbox-${step.id}`}>
+        {definition.name}
+      </label>
+    );
+  }
+
+  return (
     <Input
       className='step-name'
       value={stepName}
