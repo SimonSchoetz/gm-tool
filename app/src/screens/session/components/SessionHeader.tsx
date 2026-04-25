@@ -1,5 +1,4 @@
 import { useSession } from '@/data-access-layer';
-import type { View } from '../SessionScreen';
 import './SessionHeader.css';
 import { Button, Input, DateInput, LabeledToggleButton } from '@/components';
 import { FCProps } from '@/types';
@@ -7,15 +6,11 @@ import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
 
 type Props = {
-  view: View;
-  onViewChange: (view: View) => void;
   areTooltipsVisible: boolean;
   onToggleAllTooltips: () => void;
 };
 
 export const SessionHeader: FCProps<Props> = ({
-  view,
-  onViewChange,
   areTooltipsVisible,
   onToggleAllTooltips,
 }) => {
@@ -65,8 +60,8 @@ export const SessionHeader: FCProps<Props> = ({
             { value: 'prep', label: 'Prep' },
             { value: 'ingame', label: 'In Game' },
           ]}
-          value={view}
-          onChange={onViewChange}
+          value={session?.active_view ?? 'prep'}
+          onChange={(newView) => updateSession({ active_view: newView })}
         />
 
         <Button

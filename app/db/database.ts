@@ -43,6 +43,17 @@ export const initDatabase = async () => {
         );
       }
 
+      try {
+        await database.execute(
+          `ALTER TABLE sessions ADD COLUMN active_view TEXT NOT NULL DEFAULT 'prep'`,
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (!message.toLowerCase().includes('duplicate column name')) {
+          throw err;
+        }
+      }
+
       // Seed table_config with defaults
       db = database;
       await seedTableConfig(database);

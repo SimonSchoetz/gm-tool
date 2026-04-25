@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { defineTable } from '../util';
 
+export const SESSION_VIEW_VALUES = ['prep', 'ingame'] as const;
+export type SessionView = (typeof SESSION_VIEW_VALUES)[number];
+
 export const sessionTable = defineTable({
   name: 'sessions',
   columns: {
@@ -24,6 +27,12 @@ export const sessionTable = defineTable({
     session_date: {
       type: 'TEXT',
       zod: z.string().optional(),
+    },
+    active_view: {
+      type: 'TEXT',
+      notNull: true,
+      default: "'prep'",
+      zod: z.enum(SESSION_VIEW_VALUES).optional(),
     },
     adventure_id: {
       type: 'TEXT',

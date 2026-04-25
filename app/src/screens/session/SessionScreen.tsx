@@ -10,16 +10,13 @@ import {
 import './SessionScreen.css';
 import { CustomScrollArea, GlassPanel } from '@/components';
 
-export type View = 'prep' | 'ingame';
-
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
 
-  const { loading } = useSession(sessionId, adventureId);
+  const { session, loading } = useSession(sessionId, adventureId);
   const { steps } = useSessionSteps(sessionId);
-  const [view, setView] = useState<View>('prep');
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments -- new Set() infers Set<unknown> without the explicit type arg
   const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(
     new Set(),
@@ -57,14 +54,12 @@ export const SessionScreen = () => {
 
       <div className='session-content'>
         <SessionHeader
-          view={view}
-          onViewChange={setView}
           areTooltipsVisible={visibleTooltips.size > 0}
           onToggleAllTooltips={toggleAllTooltips}
         />
 
         <CustomScrollArea className='session-screen__body'>
-          {view === 'prep' ? (
+          {(session?.active_view ?? 'prep') === 'prep' ? (
             <PrepView
               visibleTooltips={visibleTooltips}
               onToggleTooltip={toggleTooltipForStep}

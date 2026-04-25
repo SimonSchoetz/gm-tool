@@ -6,10 +6,12 @@ const mockSelect = vi.fn();
 
 vi.mock('@tauri-apps/plugin-sql', () => ({
   default: {
-    load: vi.fn(() => Promise.resolve({
-      execute: mockExecute,
-      select: mockSelect,
-    })),
+    load: vi.fn(() =>
+      Promise.resolve({
+        execute: mockExecute,
+        select: mockSelect,
+      }),
+    ),
   },
 }));
 
@@ -38,7 +40,13 @@ describe('update', () => {
 
     expect(mockExecute).toHaveBeenCalledWith(
       'UPDATE sessions SET name = $1, description = $2, summary = $3, session_date = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5',
-      ['Updated Name', 'Updated Description', 'Updated summary', '2025-10-14', 'test-id-1'],
+      [
+        'Updated Name',
+        'Updated Description',
+        'Updated summary',
+        '2025-10-14',
+        'test-id-1',
+      ],
     );
   });
 
@@ -55,10 +63,25 @@ describe('update', () => {
     );
   });
 
+  it('should update active_view field', async () => {
+    const updates: Partial<Session> = { active_view: 'ingame' };
+
+    await update('test-id-1', updates);
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      'UPDATE sessions SET active_view = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      ['ingame', 'test-id-1'],
+    );
+  });
+
   it('should throw error when id is invalid', async () => {
     const updates: Partial<Session> = { name: 'Test' };
 
-    await expect(update('', updates)).rejects.toThrow('Valid session ID is required');
-    await expect(update('   ', updates)).rejects.toThrow('Valid session ID is required');
+    await expect(update('', updates)).rejects.toThrow(
+      'Valid session ID is required',
+    );
+    await expect(update('   ', updates)).rejects.toThrow(
+      'Valid session ID is required',
+    );
   });
 });
