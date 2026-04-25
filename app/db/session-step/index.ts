@@ -8,5 +8,4 @@ export type {
   CreateSessionStepInput,
   UpdateSessionStepInput,
 } from './types';
-export { LAZY_DM_STEP_KEYS } from './schema';
 export type { LazyDmStepKey } from './schema';

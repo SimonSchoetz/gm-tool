@@ -4,5 +4,3 @@ export { get } from './get';
 export { update } from './update';
 export { remove } from './remove';
 export type { Session, CreateSessionInput, UpdateSessionInput } from './types';
-export { SESSION_VIEW_VALUES } from './schema';
-export type { SessionView } from './schema';

@@ -32,7 +32,6 @@ export {
 } from './npcs';
 
 export type {
-  LazyDmStepDefinition,
   SessionStepLoadError,
   SessionStepCreateError,
   SessionStepUpdateError,

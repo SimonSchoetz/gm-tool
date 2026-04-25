@@ -6,10 +6,12 @@ const mockSelect = vi.fn();
 
 vi.mock('@tauri-apps/plugin-sql', () => ({
   default: {
-    load: vi.fn(() => Promise.resolve({
-      execute: mockExecute,
-      select: mockSelect,
-    })),
+    load: vi.fn(() =>
+      Promise.resolve({
+        execute: mockExecute,
+        select: mockSelect,
+      }),
+    ),
   },
 }));
 
@@ -28,8 +30,20 @@ describe('getAll', () => {
 
   it('should return sessions for the given adventure, ordered by created_at DESC', async () => {
     const mockSessions: Session[] = [
-      { id: 'id-2', adventure_id: 'adv-1', name: 'Newer Session', created_at: '2025-10-13' },
-      { id: 'id-1', adventure_id: 'adv-1', name: 'Older Session', created_at: '2025-10-12' },
+      {
+        id: 'id-2',
+        adventure_id: 'adv-1',
+        active_view: 'prep',
+        name: 'Newer Session',
+        created_at: '2025-10-13',
+      },
+      {
+        id: 'id-1',
+        adventure_id: 'adv-1',
+        active_view: 'prep',
+        name: 'Older Session',
+        created_at: '2025-10-12',
+      },
     ];
 
     mockSelect.mockResolvedValue(mockSessions);

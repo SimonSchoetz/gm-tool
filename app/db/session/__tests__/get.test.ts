@@ -6,10 +6,12 @@ const mockSelect = vi.fn();
 
 vi.mock('@tauri-apps/plugin-sql', () => ({
   default: {
-    load: vi.fn(() => Promise.resolve({
-      execute: mockExecute,
-      select: mockSelect,
-    })),
+    load: vi.fn(() =>
+      Promise.resolve({
+        execute: mockExecute,
+        select: mockSelect,
+      }),
+    ),
   },
 }));
 
@@ -30,6 +32,7 @@ describe('get', () => {
     const mockSession: Session = {
       id: 'test-id-1',
       adventure_id: 'adventure-id-1',
+      active_view: 'prep',
       name: 'Test Session',
       description: 'Test Description',
     };

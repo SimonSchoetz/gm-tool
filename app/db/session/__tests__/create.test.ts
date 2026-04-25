@@ -5,10 +5,12 @@ const mockSelect = vi.fn();
 
 vi.mock('@tauri-apps/plugin-sql', () => ({
   default: {
-    load: vi.fn(() => Promise.resolve({
-      execute: mockExecute,
-      select: mockSelect,
-    })),
+    load: vi.fn(() =>
+      Promise.resolve({
+        execute: mockExecute,
+        select: mockSelect,
+      }),
+    ),
   },
 }));
 
@@ -32,24 +34,26 @@ describe('create', () => {
   it('should insert session including optional name when provided and return generated ID', async () => {
     const sessionId = await create({
       name: 'Test Session',
+      active_view: 'prep',
       adventure_id: 'test-adventure-id',
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, name, adventure_id) VALUES ($1, $2, $3)',
-      ['test-generated-id', 'Test Session', 'test-adventure-id'],
+      'INSERT INTO sessions (id, name, active_view, adventure_id) VALUES ($1, $2, $3, $4)',
+      ['test-generated-id', 'Test Session', 'prep', 'test-adventure-id'],
     );
     expect(sessionId).toBe('test-generated-id');
   });
 
-  it('should insert session without name (let DB default to NULL)', async () => {
+  it('should insert session without name and return generated ID', async () => {
     const sessionId = await create({
+      active_view: 'prep',
       adventure_id: 'test-adventure-id',
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, adventure_id) VALUES ($1, $2)',
-      ['test-generated-id', 'test-adventure-id'],
+      'INSERT INTO sessions (id, active_view, adventure_id) VALUES ($1, $2, $3)',
+      ['test-generated-id', 'prep', 'test-adventure-id'],
     );
     expect(sessionId).toBe('test-generated-id');
   });
