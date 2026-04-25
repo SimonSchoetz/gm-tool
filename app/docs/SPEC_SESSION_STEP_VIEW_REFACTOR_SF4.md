@@ -7,6 +7,7 @@ Add `active_view` column to `sessions`. Replace the `useState` view toggle in `S
 **Modified:**
 - `app/db/session/schema.ts`
 - `app/db/session/index.ts`
+- `app/db/session/__tests__/update.test.ts`
 - `app/db/database.ts`
 - `app/src/screens/session/SessionScreen.tsx`
 - `app/src/screens/session/components/SessionHeader.tsx`
@@ -51,6 +52,25 @@ export type { SessionView } from './schema';
 ```
 
 All existing exports (`create`, `getAll`, `get`, `update`, `remove`, and the three types from `./types`) are unchanged.
+
+**`app/db/session/__tests__/update.test.ts`**
+
+Add a test case for updating `active_view`. The `buildUpdateQuery` utility iterates validated object keys in schema column order. With only `active_view` provided, the UPDATE SET clause contains only `active_view`.
+
+Add after the existing "should update only provided fields" test:
+
+```ts
+it('should update active_view field', async () => {
+  const updates: Partial<Session> = { active_view: 'ingame' };
+
+  await update('test-id-1', updates);
+
+  expect(mockExecute).toHaveBeenCalledWith(
+    'UPDATE sessions SET active_view = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+    ['ingame', 'test-id-1'],
+  );
+});
+```
 
 **`app/db/database.ts`**
 

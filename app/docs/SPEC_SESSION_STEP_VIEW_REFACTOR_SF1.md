@@ -7,6 +7,7 @@ Move the canonical `LazyDmStepKey` type and its backing const array to `db/sessi
 **Modified:**
 - `app/db/session-step/schema.ts`
 - `app/db/session-step/index.ts`
+- `app/db/session-step/__tests__/create.test.ts`
 - `app/src/domain/session-steps/lazyDmSteps.ts`
 - `app/src/domain/session-steps/index.ts`
 - `app/src/domain/index.ts`
@@ -55,6 +56,28 @@ export type { LazyDmStepKey } from './schema';
 ```
 
 All existing exports (`create`, `get`, `getAllBySession`, `update`, `remove`, and the three types from `./types`) are unchanged.
+
+**`app/db/session-step/__tests__/create.test.ts`**
+
+Add a test case for creating a step with `default_step_key`. The `buildCreateQuery` utility iterates validated object keys in schema column order (session_id → name → content → default_step_key → checked → sort_order). With only `session_id`, `default_step_key`, and `sort_order` provided, the INSERT columns are `id, session_id, default_step_key, sort_order` in that order.
+
+Add after the existing "should create session step with optional name included" test:
+
+```ts
+it('should create session step with default_step_key', async () => {
+  const result = await create({
+    session_id: 'sess-1',
+    sort_order: 0,
+    default_step_key: 'review_characters',
+  });
+
+  expect(mockExecute).toHaveBeenCalledWith(
+    'INSERT INTO session_steps (id, session_id, default_step_key, sort_order) VALUES ($1, $2, $3, $4)',
+    ['test-generated-id', 'sess-1', 'review_characters', 0],
+  );
+  expect(result).toBe('test-generated-id');
+});
+```
 
 ### Domain
 
