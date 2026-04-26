@@ -61,7 +61,9 @@ export const SessionHeader: FCProps<Props> = ({
             { value: 'ingame', label: 'In Game' },
           ]}
           value={session?.active_view ?? 'prep'}
-          onChange={(newView) => updateSession({ active_view: newView })}
+          onChange={(newView) => {
+            updateSession({ active_view: newView });
+          }}
         />
 
         <Button
