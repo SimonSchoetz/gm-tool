@@ -3,6 +3,36 @@ import { defineTable } from '../define-table';
 import { z } from 'zod';
 
 describe('defineTable', () => {
+  it('createSchema makes defaulted columns optional', () => {
+    const table = defineTable({
+      name: 'test_defaults',
+      columns: {
+        id: { type: 'TEXT', primaryKey: true, zod: z.string() },
+        required_col: { type: 'TEXT', notNull: true, zod: z.string() },
+        defaulted_col: {
+          type: 'INTEGER',
+          notNull: true,
+          default: '0',
+          zod: z.number(),
+        },
+      },
+    });
+
+    const withRequired = table.createSchema.safeParse({
+      required_col: 'hello',
+    });
+    expect(withRequired.success).toBe(true);
+
+    const withDefaulted = table.createSchema.safeParse({
+      required_col: 'hello',
+      defaulted_col: 1,
+    });
+    expect(withDefaulted.success).toBe(true);
+
+    const missingRequired = table.createSchema.safeParse({});
+    expect(missingRequired.success).toBe(false);
+  });
+
   it('should generate SQL and Zod schemas from table definition', () => {
     const table = defineTable({
       name: 'test_table',

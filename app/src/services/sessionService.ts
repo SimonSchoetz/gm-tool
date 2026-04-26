@@ -40,8 +40,6 @@ export const createSession = async (
   try {
     const newSessionId = await sessionDb.create({
       adventure_id: data.adventure_id,
-      active_view: data.active_view,
-      name: data.name ?? 'New Session',
     });
     await sessionStepService.initDefaultSteps(newSessionId);
     return newSessionId;

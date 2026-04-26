@@ -19,7 +19,6 @@ export const SessionsScreen = () => {
   const handleSessionCreation = async () => {
     const newSessionId = await createSession({
       adventure_id: adventureId,
-      active_view: 'prep',
     });
     void router.navigate({
       to: `/adventure/${adventureId}/session/${newSessionId}`,

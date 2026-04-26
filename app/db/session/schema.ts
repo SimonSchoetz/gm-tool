@@ -30,6 +30,7 @@ export const sessionTable = defineTable({
     active_view: {
       type: 'TEXT',
       notNull: true,
+      default: "'prep'",
       zod: z.enum(SESSION_VIEW_VALUES),
     },
     adventure_id: {

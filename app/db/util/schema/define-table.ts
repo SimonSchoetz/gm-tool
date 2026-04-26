@@ -26,13 +26,15 @@ type ExtractZodShape<T extends Record<string, ColumnDefinition>> = {
   [K in keyof T]: T[K]['zod'];
 };
 
-// Extract create schema shape (excludes id, created_at, updated_at)
+// Extract create schema shape (excludes id, created_at, updated_at; auto-optional for defaulted columns)
 type ExtractCreateShape<T extends Record<string, ColumnDefinition>> = {
   [K in keyof T as T[K]['primaryKey'] extends true
     ? never
     : K extends 'created_at' | 'updated_at'
       ? never
-      : K]: T[K]['zod'];
+      : K]: T[K] extends { default: string }
+    ? z.ZodOptional<T[K]['zod']>
+    : T[K]['zod'];
 };
 
 // Extract update schema shape (same as create but all optional)
@@ -123,7 +125,10 @@ const generateCreateSchema = (columns: Record<string, ColumnDefinition>) => {
       columnName !== 'created_at' &&
       columnName !== 'updated_at'
     ) {
-      createSchemaShape[columnName] = columnDef.zod;
+      createSchemaShape[columnName] =
+        columnDef.default !== undefined
+          ? columnDef.zod.optional()
+          : columnDef.zod;
     }
   }
   return z.object(createSchemaShape);
