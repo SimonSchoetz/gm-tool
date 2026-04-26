@@ -44,6 +44,11 @@ Every file touched must appear here — including barrel files, index files, and
 
 This is a dependency order, not style: a layer may only reference what layers below it have already specified. Before writing each layer, cross-check the plan against conventions documented for that layer in the relevant scoped CLAUDE.md (e.g. error wrapping in Services, TanStack Query patterns in the DAL). A spec that omits a required pattern is incomplete, not just unimplemented.
 
+**Cross-SF symbol lifecycle** — when a sub-feature introduces a symbol (a type field, exported constant, or any value) that has no consumer within the same sub-feature, the spec must explicitly name the later sub-feature that will wire it. A symbol with no current consumer and no forward reference is a spec defect, not a placeholder. The implementing instance has no basis to distinguish "intentionally deferred" from "accidentally omitted" without this annotation.
+
+- ✅ `placeholder: string` introduced in SF2 with annotation: "consumed by SF3 — wired to `TextEditor` placeholder prop in `StepSection.tsx`"
+- ❌ `placeholder: string` introduced in SF2 with no mention of a consumer anywhere in the spec
+
 **Barrel instructions require explicit validation.** Before writing any barrel instruction (including "no change needed"), read the actual barrel file and verify every export against the current barrel conventions in root CLAUDE.md. Never infer barrel correctness from the file's current state — existing `export *` is not evidence that `export *` is correct. A spec that instructs "no change needed" for a barrel that violates the explicit-exports rule is a spec defect.
 
 For the **Frontend** layer, always specify:

@@ -51,4 +51,5 @@ Brief acknowledgment of decisions done well. Skip if nothing stands out.
 - If CLAUDE.md is silent on something, say so explicitly rather than inventing a rule
 - Flag if you encounter a pattern that CLAUDE.md _should_ address but doesn't — mark it as [INSTRUCTION GAP]
 - Before filing a DRY violation, read the implementation of the function being called. If it already composes the relevant operations internally, the callsite is compliant — file it under ✅ What's Solid, not ❌ Violations. A violation based on an incorrect assumption about what a function does is a false positive and worse than silence.
+- Before filing any dead-code finding (unused field, unexported symbol, type with no consumer), check whether a spec exists for the current branch and whether any sub-feature in that spec names the symbol as a deliverable. If it does, the symbol is not dead — the missing consumer is a spec gap. File the finding as a Concern noting the gap, not a Violation requiring removal.
 - Be specific. "This is messy" is not a review comment.

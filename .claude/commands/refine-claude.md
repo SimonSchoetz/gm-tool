@@ -40,33 +40,70 @@ fix from another agent is never applied as-is.
 ## Coordination Protocol
 
 Neither teammate writes anything to disk during this phase. Their job is
-analysis and proposal only.
+analysis and proposal only. The protocol runs in two explicit phases — diagnosis
+before proposals. Do not accept proposals in the first round.
 
-Instruct both teammates to:
+### Phase 1 — Diagnosis
 
-1. Analyze the problem and determine whether it is caused by a missing or
-   ambiguous project-wide convention (CLAUDE.md), a missing or ambiguous
-   agent instruction, or both
-2. Propose the minimal change that closes the gap
-3. Flag any instruction that contradicts an existing rule — in their own
-   file scope or across both scopes
+Instruct both teammates to submit a diagnosis only — no fixes yet:
 
-Once both teammates have submitted their proposals, review them together:
+1. For each friction or gap in the input: identify the root cause. A root cause
+   is the underlying gap that, if fixed, would prevent the class of problem —
+   not the specific misbehavior that surfaced it. A behavioral rule that patches
+   a specific case while leaving the class open is a symptom fix, not a root-cause fix.
+2. Look across all frictions before concluding: do any share a root cause? A
+   single root-cause fix that closes multiple frictions is always preferred over
+   one fix per friction.
+3. Flag whether the root cause is structural (a missing format constraint, a
+   missing process gate) or behavioral (an agent lacks a rule to remember).
+   Structural fixes are preferred when feasible — a format requirement or a
+   process gate enforces itself; a behavioral rule depends on agent recall.
+4. Do not propose a fix yet. Submit only: root cause per friction, shared-root-cause
+   groupings if any, and structural vs. behavioral classification.
+
+Once both teammates have submitted diagnoses, review them together:
+
+- If both agents identify the same root cause for the same friction, that is
+  agreement — proceed to Phase 2.
+- If they identify different root causes for the same friction, share each
+  agent's diagnosis with the other via SendMessage and continue until they
+  agree on the root cause before proceeding to Phase 2.
+
+### Phase 2 — Proposals
+
+Once diagnoses are agreed, instruct both teammates to propose fixes:
+
+1. Each fix must address the root cause identified in Phase 1 — not the
+   surface symptom. If the diagnosis identified a structural gap, the fix must
+   be structural. If the diagnosis identified a behavioral gap, the fix may be
+   behavioral, but only after confirming no structural fix is feasible.
+2. Propose the minimal change that closes the gap.
+3. Flag any proposed change that contradicts an existing rule — in their own
+   file scope or across both scopes.
+
+Once both teammates have submitted proposals, review them together:
 
 - If both agents claim the same problem, use SendMessage to share each
   agent's position with the other and ask them to resolve the overlap
-  themselves — never decide where it belongs on their behalf
+  themselves — never decide where it belongs on their behalf.
 - If a proposed change in one scope contradicts a proposal or existing rule in
   the other, use SendMessage to give each agent the other's position and
-  continue until they reach agreement — never propose a resolution yourself
+  continue until they reach agreement — never propose a resolution yourself.
 
 ## Proposal Quality Gate
 
-Before any proposal is presented to the user, validate every element it contains.
-An element is valid only when its purpose is confirmed and concrete — not when it
-looks correct, matches a template, or appeared in available context.
+Before any proposal is presented to the user, validate every element it contains
+against two criteria.
 
-For each element in a proposal, ask: "What is this for, and is that purpose
+**Criterion 1 — Causal depth:** Each proposed change must address the root cause
+identified in Phase 1, not the surface symptom. Ask: "If this change had been in
+place, would the class of problem have been prevented — or only this specific
+instance?" If only this instance, route back to the proposing agent with the
+root-cause diagnosis and ask for a revised proposal before presenting.
+
+**Criterion 2 — Concreteness:** An element is valid only when its purpose is
+confirmed and concrete — not when it looks correct, matches a template, or
+appeared in available context. Ask: "What is this for, and is that purpose
 verified?" If the answer depends on an assumption, either verify the assumption
 first or surface the uncertainty explicitly — never present the element as settled.
 

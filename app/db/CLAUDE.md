@@ -42,6 +42,9 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
 - **Trust the validated output**: After a successful `schema.parse(data)` call, all non-optional fields are guaranteed to be defined. Never add conditional spreads, nullish coalescing, or optional chaining on fields the schema marks as required. Defensive handling belongs *before* the parse, not after.
   - ❌ BAD: `...(validated.scope !== undefined && { scope: validated.scope })` — `scope` is required in the schema
   - ✅ GOOD: `scope: validated.scope` — the parse already guarantees it
+- **`NOT NULL DEFAULT x` columns must not carry `.optional()` on their base zod schema.** The base schema represents a read row — every `NOT NULL` column is guaranteed present. `.optional()` belongs only in the auto-generated `createSchema` (produced by `generateCreateSchema`), which wraps defaulted columns automatically. Never add `.optional()` manually to a `NOT NULL` column's base field — fix `generateCreateSchema` instead.
+  - ❌ BAD: `active_view: z.enum(['prep', 'run']).optional()` on the base schema — allows `undefined` in read types, misrepresenting `NOT NULL`
+  - ✅ GOOD: `active_view: z.enum(['prep', 'run'])` on the base schema; `generateCreateSchema` wraps it automatically
 
 ### INSERT Best Practice
 

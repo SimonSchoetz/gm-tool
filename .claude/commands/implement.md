@@ -29,7 +29,7 @@ For each sub-feature defined in the spec, in order:
 
 1. Implement the sub-feature fully, applying all invariants below.
 2. Run `npx tsc --noEmit`. Resolve every error before continuing.
-3. Run `npx vitest run`. Resolve every failure before continuing.
+3. Do not run the full test suite between sub-features — intermediate states produce failures that are not yet meaningful. TypeScript type-correctness is sufficient verification at this stage.
 4. Commit with a conventional commit message scoped to the current branch name.
 5. Move to the next sub-feature.
 
@@ -45,16 +45,18 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 **Cycle structure (repeat up to 3 times):**
 
+0. Run `npx tsc --noEmit` and resolve any errors. Then run `npx vitest run --related <files changed in this cycle>`. Resolve any failures. The reviewer must see code that is type-correct and test-passing before filing findings.
 1. Spawn `code-reviewer` via the Agent tool.
    - **Cycle 1:** Pass the branch name (for diffing against main) + the accumulated review context. The reviewer reads all changed files in full.
    - **Cycles 2+:** Pass an explicit file list of files touched in the prior fix commit (do NOT pass the branch name — a branch name triggers a full re-read of all changed files, which is the wrong scope for a targeted verification pass) + the accumulated review context + the list of specific violations fixed in the prior cycle. The reviewer limits reads to those files and any files they directly import or affect.
 2. Pass the full code-reviewer output to the user as informational. Append the full output to the accumulated review context. Do not classify, filter, or interpret it.
-3. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context. The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
-4. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
-5. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
-6. Spawn `spec-writer` via the Agent tool. Pass: the architect brief, plus any engineering concerns you identified while reading the architect's output — do not surface those concerns to the user directly. The spec-writer resolves implementation ambiguity; engineering concerns about the architect's proposed approach are inputs to the spec-writer, not reasons to pause the loop. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
-7. Implement per the spec-writer output. Before implementing, apply the Engineering Validity check: if the spec-writer output still produces incoherent code, stop and surface the exact instruction and the problem to the user. The Engineering Validity invariant runs here — not on architect output.
-8. Commit: `fix(<branch>): address review violations — cycle N`.
+3. If the code-reviewer found zero violations: the loop exits immediately. Do not spawn architect. Proceed to the post-loop step. A clean reviewer verdict is the loop's exit condition — no architect confirmation is required or permitted.
+4. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context. The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
+5. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
+6. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
+7. Spawn `spec-writer` via the Agent tool. Pass: the architect brief, plus any engineering concerns you identified while reading the architect's output — do not surface those concerns to the user directly. The spec-writer resolves implementation ambiguity; engineering concerns about the architect's proposed approach are inputs to the spec-writer, not reasons to pause the loop. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
+8. Implement per the spec-writer output. Before implementing, apply the Engineering Validity check: if the spec-writer output still produces incoherent code, stop and surface the exact instruction and the problem to the user. The Engineering Validity invariant runs here — not on architect output.
+9. Commit: `fix(<branch>): address review violations — cycle N`.
 
 **Error boundaries:**
 
@@ -62,7 +64,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 - **Scope creep**: if architect brief proposes changes beyond flagged violations, surface the expansion as informational before implementing.
 - **Regression**: full branch diff passed each cycle, not incremental diff.
 - **Contradicting briefs**: prior briefs passed as read-only context; reversals surfaced as informational before implementing.
-- **Infinite convergence**: concerns never block; loop exits on architect's no-violations verdict.
+- **Infinite convergence**: concerns never block; loop exits on a clean reviewer verdict (zero violations) or on the architect's no-violations verdict.
 - **Hard cap**: after 3 cycles, surface remaining violations to user and halt.
 
 **Post-loop:**

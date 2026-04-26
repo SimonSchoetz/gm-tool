@@ -235,6 +235,12 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 **Layer responsibilities:**
 
 - `services/` — business logic, wraps DB calls, throws domain errors from `/domain`
+  - **Service layer must not supply fallback defaults for nullable or DB-defaulted columns.** A nullable column's correct value when not provided is `NULL` — supplying a fallback in the service layer misrepresents domain state. Service functions pass values through as-is or omit them; they do not apply `?? 'fallback'` or similar substitutions.
+    - ❌ BAD: `name: data.name ?? 'New Session'` in a service `create` function — implies the session has a name when it doesn't
+    - ✅ GOOD: `name: data.name` — pass the value through; the DB handles NULL
+  - **Never replicate a DB default value at a call site.** When a column has a SQL `DEFAULT`, omit the field — the database supplies the value. When a `NOT NULL DEFAULT x` column appears non-optional at a call site, the fix is `generateCreateSchema` — never patch the call site.
+    - ❌ BAD: `active_view: 'prep'` in a service `create` call because the column became non-optional
+    - ✅ GOOD: omit `active_view` entirely — `generateCreateSchema` makes it optional at the schema level; the DB default fires
 - `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch
 - `screens/` — UI only, no error handling, no try/catch
 - Error Boundary at app level catches all unhandled async errors

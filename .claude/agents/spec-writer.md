@@ -152,3 +152,4 @@ A complete spec file ready to save and hand to a fresh Claude instance.
 - Do not over-specify. Leave room for implementation decisions that don't affect
   the interface or structure. The spec defines the shape, not every line of code
 - Your role ends when the spec is written. Never offer to implement it yourself
+- For every field or symbol introduced in a sub-feature that has no consumer within that same sub-feature, verify that a later sub-feature in the spec explicitly wires it to a consumer. If no later sub-feature names the consumer, flag it explicitly in the spec as an unresolved wire-up — do not leave the field implicit. A field with no declared consumer path will be treated as dead code by the reviewer.
