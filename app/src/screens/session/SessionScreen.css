@@ -1,19 +1,14 @@
 .session-screen {
   padding: var(--spacing-md);
-  display: grid;
-  gap: var(--spacing-lg);
-  grid-template-columns: auto 1fr;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
   height: 100%;
 }
 
-.session-content {
-  display: flex;
+.session-body {
+  display: grid;
   gap: var(--spacing-md);
-  flex-direction: column;
-  min-height: 0;
-}
-
-.session-screen__body {
-  flex: 1;
+  grid-template-columns: auto 1fr;
   min-height: 0;
 }

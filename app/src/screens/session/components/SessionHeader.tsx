@@ -23,10 +23,12 @@ export const SessionHeader: FCProps<Props> = ({
   const [sessionDate, setSessionDate] = useState(session?.session_date ?? '');
   const [syncedSessionId, setSyncedSessionId] = useState(session?.id);
 
-  if (session?.id !== syncedSessionId) {
-    setSyncedSessionId(session?.id);
-    setSessionName(session?.name ?? '');
-    setSessionDate(session?.session_date ?? '');
+  if (!session) return null;
+
+  if (session.id !== syncedSessionId) {
+    setSyncedSessionId(session.id);
+    setSessionName(session.name ?? '');
+    setSessionDate(session.session_date ?? '');
   }
 
   return (
@@ -60,7 +62,7 @@ export const SessionHeader: FCProps<Props> = ({
             { value: 'prep', label: 'Prep' },
             { value: 'ingame', label: 'In Game' },
           ]}
-          value={session?.active_view ?? 'prep'}
+          value={session.active_view}
           onChange={(newView) => {
             updateSession({ active_view: newView });
           }}

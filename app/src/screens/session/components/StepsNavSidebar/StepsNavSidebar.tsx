@@ -13,16 +13,18 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { useSessionSteps } from '@/data-access-layer';
+import { useSession, useSessionSteps } from '@/data-access-layer';
 import { GlassPanel, NewItemBtn } from '@/components';
 import './StepsNavSidebar.css';
 import { useParams } from '@tanstack/react-router';
 import { SortableStepItem } from './components';
 
 export const StepsNavSidebar = () => {
-  const { sessionId } = useParams({
+  const { sessionId, adventureId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
+  const { session } = useSession(sessionId, adventureId);
+
   const { steps, createStep, bulkReorder } = useSessionSteps(sessionId);
 
   const sensors = useSensors(
@@ -43,7 +45,7 @@ export const StepsNavSidebar = () => {
   };
 
   return (
-    <div className='steps-sidebar'>
+    <aside className='steps-sidebar'>
       <GlassPanel className='steps-sidebar-nav' intensity='off'>
         <DndContext
           sensors={sensors}
@@ -59,16 +61,17 @@ export const StepsNavSidebar = () => {
             ))}
           </SortableContext>
         </DndContext>
-
-        <NewItemBtn
-          className='new-step-section-btn'
-          type='list-item'
-          label='+'
-          onClick={() => {
-            void createStep();
-          }}
-        />
+        {session?.active_view === 'prep' && (
+          <NewItemBtn
+            className='new-step-section-btn'
+            type='list-item'
+            label='+'
+            onClick={() => {
+              void createStep();
+            }}
+          />
+        )}
       </GlassPanel>
-    </div>
+    </aside>
   );
 };
