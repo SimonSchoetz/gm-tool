@@ -33,14 +33,12 @@ describe('getAll', () => {
       {
         id: 'id-2',
         adventure_id: 'adv-1',
-        active_view: 'prep',
         name: 'Newer Session',
         created_at: '2025-10-13',
       },
       {
         id: 'id-1',
         adventure_id: 'adv-1',
-        active_view: 'prep',
         name: 'Older Session',
         created_at: '2025-10-12',
       },
