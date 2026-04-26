@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { defineTable } from '../util';
 
-export const SESSION_VIEW_VALUES = ['prep', 'ingame'] as const;
-export type SessionView = (typeof SESSION_VIEW_VALUES)[number];
+const SESSION_VIEW_VALUES = ['prep', 'ingame'] as const;
 
 export const sessionTable = defineTable({
   name: 'sessions',
