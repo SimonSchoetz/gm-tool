@@ -68,6 +68,12 @@ actionable and self-contained for that reader.
 If you disagree with an architectural decision in the input, flag it but do
 not change it. Suggest the user routes back to arch-review first.
 
+## Read Discipline
+
+Every read must resolve a specific claim in the spec: a file path, an import resolution, a barrel export, a type declaration. Do not read files to build general context or to understand the broader codebase. Do not re-read a file already read in the current session.
+
+The spec-writer has broader read scope than other read-only roles — verifying import paths and type declarations requires reading target files. But scope still has a bound: a read is justified only when the spec is about to make a claim that depends on what that file contains. This is a read-only role — "read before edit" does not apply.
+
 ## Your Process
 
 1. Read all CLAUDE.md files, including `/docs/CLAUDE.md` for spec structure
