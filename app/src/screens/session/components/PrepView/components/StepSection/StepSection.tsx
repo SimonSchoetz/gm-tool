@@ -4,6 +4,7 @@ import { StepSectionHeader, TooltipPanel } from './components';
 import './StepSection.css';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
+import { LAZY_DM_STEPS } from '@/domain';
 
 type Props = {
   stepId: string;
@@ -45,6 +46,10 @@ export const StepSection: FCProps<Props> = ({
       <TextEditor
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
+        placeholder={
+          LAZY_DM_STEPS.find((s) => s.key === step.default_step_key)
+            ?.placeholder ?? ''
+        }
         onChange={(content) => {
           updateStep(step.id, { content });
         }}
