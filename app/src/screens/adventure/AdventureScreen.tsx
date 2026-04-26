@@ -2,10 +2,8 @@ import './AdventureScreen.css';
 import {
   Button,
   CustomScrollArea,
-  DeleteDialog,
   GlassPanel,
   Input,
-  PopUpContainer,
   TextEditor,
   UploadImgBtn,
 } from '@/components';
@@ -13,7 +11,7 @@ import { cn, getDateTimeString } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
 import { useState } from 'react';
-type PopUpState = React.ComponentProps<typeof PopUpContainer>['state'];
+import { useDeleteDialog } from '@/providers';
 
 export const AdventureScreen = () => {
   const router = useRouter();
@@ -23,11 +21,10 @@ export const AdventureScreen = () => {
 
   const { adventure, updateAdventure, deleteAdventure, loading } =
     useAdventure(adventureId);
+  const { openDeleteDialog } = useDeleteDialog();
 
   const [adventureName, setAdventureName] = useState(adventure?.name ?? '');
   const [syncedAdventureId, setSyncedAdventureId] = useState(adventure?.id);
-  const [deleteDialogState, setDeleteDialogState] =
-    useState<PopUpState>('closed');
 
   if (adventure?.id !== syncedAdventureId) {
     setSyncedAdventureId(adventure?.id);
@@ -47,77 +44,67 @@ export const AdventureScreen = () => {
     adventure.created_at && getDateTimeString(adventure.created_at);
 
   return (
-    <>
-      <GlassPanel className={cn('adventure-screen')}>
-        <aside className='adventure-sidebar'>
-          <UploadImgBtn
-            image_id={adventure.image_id ?? null}
-            uploadFn={(filePath) => {
-              updateAdventure({
-                imgFilePath: filePath,
-                image_id: adventure.image_id,
-              });
-            }}
-          />
-          <Button
-            label='Delete Adventure'
-            onClick={() => {
-              setDeleteDialogState('open');
-            }}
-            buttonStyle={'danger'}
-          />
-        </aside>
-
-        <CustomScrollArea>
-          <div className={cn('adventure-text-edit-area')}>
-            <div>
-              <Input
-                placeholder='Adventure Title'
-                value={adventureName}
-                onChange={(e) => {
-                  setAdventureName(e.target.value);
-                  updateAdventure({ name: e.target.value });
-                }}
-                className='adventure-title-input'
-              />
-
-              <ul className={cn('adventure-facts')}>
-                <li>
-                  Started: <span>{startDate}</span>
-                </li>
-                <li>
-                  Sessions: <span>0</span>
-                </li>
-                <li>
-                  NPCs: <span>0</span>
-                </li>
-                <li>
-                  PCs: <span>0</span>
-                </li>
-                <li>
-                  Party Level: <span>0</span>
-                </li>
-              </ul>
-            </div>
-
-            <TextEditor
-              value={adventure.description ?? ''}
-              textEditorId={`Adventure_${adventure.id}`}
-              onChange={(description) => {
-                updateAdventure({ description });
-              }}
-            />
-          </div>
-        </CustomScrollArea>
-      </GlassPanel>
-      <PopUpContainer state={deleteDialogState} setState={setDeleteDialogState}>
-        <DeleteDialog
-          name={adventure.name}
-          onDeletionConfirm={() => {
-            void handleAdventureDelete();
+    <GlassPanel className={cn('adventure-screen')}>
+      <aside className='adventure-sidebar'>
+        <UploadImgBtn
+          image_id={adventure.image_id ?? null}
+          uploadFn={(filePath) => {
+            updateAdventure({
+              imgFilePath: filePath,
+              image_id: adventure.image_id,
+            });
           }}
         />
-      </PopUpContainer>
-    </>
+        <Button
+          label='Delete Adventure'
+          onClick={() => {
+            openDeleteDialog(adventure.name, handleAdventureDelete);
+          }}
+          buttonStyle={'danger'}
+        />
+      </aside>
+
+      <CustomScrollArea>
+        <div className={cn('adventure-text-edit-area')}>
+          <div>
+            <Input
+              placeholder='Adventure Title'
+              value={adventureName}
+              onChange={(e) => {
+                setAdventureName(e.target.value);
+                updateAdventure({ name: e.target.value });
+              }}
+              className='adventure-title-input'
+            />
+
+            <ul className={cn('adventure-facts')}>
+              <li>
+                Started: <span>{startDate}</span>
+              </li>
+              <li>
+                Sessions: <span>0</span>
+              </li>
+              <li>
+                NPCs: <span>0</span>
+              </li>
+              <li>
+                PCs: <span>0</span>
+              </li>
+              <li>
+                Party Level: <span>0</span>
+              </li>
+            </ul>
+          </div>
+
+          <TextEditor
+            value={adventure.description ?? ''}
+            textEditorId={`Adventure_${adventure.id}`}
+            onChange={(description) => {
+              updateAdventure({ description });
+            }}
+          />
+        </div>
+      </CustomScrollArea>
+    </GlassPanel>
   );
 };
