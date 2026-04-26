@@ -1,23 +1,35 @@
 .steps-nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  border-radius: 6px;
-  padding: 4px 6px;
-  opacity: 0.85;
+  color: var(--color-primary);
+  width: 100%;
 }
 
 .steps-nav-item--checked {
-  opacity: 0.45;
-  text-decoration: line-through;
+  color: var(--color-success);
+}
+
+.steps-nav-item:hover {
+  color: var(--color-fg);
+}
+
+.steps-nav-item:hover .steps-nav-drag-handle {
+  transition: background-color var(--transition-fast);
+  background-color: var(--color-primary-hover);
+}
+
+.steps-nav-item:hover .steps-nav-item-label {
+  transition: background-color var(--transition-fast);
+  background-color: var(--color-bg-hover);
 }
 
 .steps-nav-drag-handle {
   cursor: grab;
-  opacity: 0.4;
   font-size: 1rem;
-  flex-shrink: 0;
   user-select: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  height: 100%;
+  transition: background-color var(--transition-fast);
 }
 
 .steps-nav-drag-handle:active {
@@ -25,14 +37,13 @@
 }
 
 .steps-nav-item-label {
-  background: transparent;
-  border: none;
-  cursor: pointer;
+  padding: var(--spacing-xs);
+  padding-left: var(--spacing-sm);
   text-align: left;
-  font-size: 0.8125rem;
-  padding: 0;
+  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  transition: background-color var(--transition-fast);
 }

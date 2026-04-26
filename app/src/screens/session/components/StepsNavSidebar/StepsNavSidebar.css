@@ -1,9 +1,29 @@
-.steps-nav-sidebar {
+.steps-sidebar {
   display: flex;
   flex-direction: column;
   width: 200px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  padding: 8px;
-  gap: 4px;
+}
+
+.steps-sidebar-nav {
+  border-radius: var(--radius-lg);
+  border-width: 0;
+}
+
+.steps-sidebar-nav:hover {
+  box-shadow: var(--box-shadow-active);
+}
+
+.new-step-section-btn:hover {
+  transition: background-color var(--transition-fast);
+  background-color: var(--color-bg-hover);
+}
+
+.new-step-section-btn,
+.new-step-section-btn > * {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.new-step-section-btn > * > * {
+  font-size: var(--font-size-2xl);
 }

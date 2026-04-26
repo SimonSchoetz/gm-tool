@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { useSessionSteps } from '@/data-access-layer';
-import { NewItemBtn } from '@/components';
+import { GlassPanel, NewItemBtn } from '@/components';
 import './StepsNavSidebar.css';
 import { useParams } from '@tanstack/react-router';
 import { SortableStepItem } from './components';
@@ -43,29 +43,32 @@ export const StepsNavSidebar = () => {
   };
 
   return (
-    <div className='steps-nav-sidebar'>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={steps.map((s) => s.id)}
-          strategy={verticalListSortingStrategy}
+    <div className='steps-sidebar'>
+      <GlassPanel className='steps-sidebar-nav' intensity='off'>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
         >
-          {steps.map((step) => (
-            <SortableStepItem key={step.id} step={step} />
-          ))}
-        </SortableContext>
-      </DndContext>
+          <SortableContext
+            items={steps.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {steps.map((step) => (
+              <SortableStepItem key={step.id} step={step} />
+            ))}
+          </SortableContext>
+        </DndContext>
 
-      <NewItemBtn
-        type='list-item'
-        label='+'
-        onClick={() => {
-          void createStep();
-        }}
-      />
+        <NewItemBtn
+          className='new-step-section-btn'
+          type='list-item'
+          label='+'
+          onClick={() => {
+            void createStep();
+          }}
+        />
+      </GlassPanel>
     </div>
   );
 };
