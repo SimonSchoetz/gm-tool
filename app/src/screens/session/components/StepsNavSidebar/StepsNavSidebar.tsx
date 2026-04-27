@@ -14,18 +14,22 @@ import {
 } from '@dnd-kit/sortable';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { useSession, useSessionSteps } from '@/data-access-layer';
-import { GlassPanel, NewItemBtn } from '@/components';
+import { Button, GlassPanel, NewItemBtn } from '@/components';
 import './StepsNavSidebar.css';
-import { useParams } from '@tanstack/react-router';
+import { useParams, useRouter } from '@tanstack/react-router';
 import { SortableStepItem } from './components';
+import { useDeleteDialog } from '@/providers';
 
 export const StepsNavSidebar = () => {
+  const router = useRouter();
   const { sessionId, adventureId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
-  const { session } = useSession(sessionId, adventureId);
+  const { session, deleteSession } = useSession(sessionId, adventureId);
 
   const { steps, createStep, bulkReorder } = useSessionSteps(sessionId);
+
+  const { openDeleteDialog } = useDeleteDialog();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -42,6 +46,11 @@ export const StepsNavSidebar = () => {
     const newIndex = steps.findIndex((s) => s.id === over.id);
     const reordered = arrayMove(steps, oldIndex, newIndex);
     bulkReorder(reordered.map((s) => s.id));
+  };
+
+  const handleSessionDelete = async () => {
+    await deleteSession();
+    void router.navigate({ to: `/adventure/${adventureId}/sessions` });
   };
 
   return (
@@ -72,6 +81,18 @@ export const StepsNavSidebar = () => {
           />
         )}
       </GlassPanel>
+
+      {session?.active_view === 'prep' && (
+        <Button
+          label='Delete Session'
+          onClick={() => {
+            openDeleteDialog(session.name ?? '', () => {
+              void handleSessionDelete();
+            });
+          }}
+          buttonStyle={'danger'}
+        />
+      )}
     </aside>
   );
 };
