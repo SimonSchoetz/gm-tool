@@ -27,6 +27,11 @@ src/
 │       ├── helperA.ts
 │       └── __tests__/
 │         └── helperA.test.ts
+├── providers/ # app-level UI infrastructure providers
+│   ├── ProviderA/
+│   │   ├── ProviderA.tsx
+│   │   └── index.ts
+│   └── index.ts
 ├── data-access-layer/ # domain data hooks (TanStack Query)
 │   ├── TanstackQueryClientProvider.tsx # QueryClient config — enables the entire layer
 │   ├── domainA/
@@ -65,6 +70,10 @@ src/
 - **Any `components/` subdirectories** follow the same barrel rule as component-library `ComponentName/components/`: they are grouping folders and require an `index.ts` with explicit named exports. Sub-components within a screen are always imported from `./components`, never by direct path.
   - ✅ `import { StepSection } from './components'`
   - ❌ `import { StepSection } from './components/StepSection/StepSection'`
+
+### providers/
+
+**providers/** is for app-level UI infrastructure — React Context providers that wrap the app root and expose hooks. Data infrastructure (e.g., `TanstackQueryClientProvider`) stays in `data-access-layer/`. `providers/` is a grouping folder: its `index.ts` uses explicit named exports. Each provider lives in its own module directory with a required `index.ts` barrel.
 
 ### Component Library
 
