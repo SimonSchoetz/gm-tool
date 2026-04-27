@@ -1,21 +1,8 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { PopUpContainer, DeleteDialog } from '@/components';
 import type { FCProps } from '@/types';
-
-type DeleteDialogContextValue = {
-  openDeleteDialog: (name: string, action: () => void) => void;
-};
-
-const DeleteDialogContext = createContext<DeleteDialogContextValue | null>(
-  null,
-);
+import { DeleteDialogContext } from './DeleteDialogContext';
 
 type Props = { children: ReactNode };
 
@@ -64,14 +51,4 @@ export const DeleteDialogProvider: FCProps<Props> = ({ children }) => {
         )}
     </>
   );
-};
-
-export const useDeleteDialog = (): DeleteDialogContextValue => {
-  const value = useContext(DeleteDialogContext);
-  if (value === null) {
-    throw new Error(
-      'useDeleteDialog must be called within a DeleteDialogProvider',
-    );
-  }
-  return value;
 };
