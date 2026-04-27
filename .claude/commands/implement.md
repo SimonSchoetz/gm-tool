@@ -12,14 +12,16 @@ A spec file path. Read the spec in full before doing anything else.
 
 Before starting any sub-feature:
 
-1. Check the current branch: run `git branch --show-current`. If on `main`, ask the user for a feature branch name, create it with `git checkout -b <name>`, and confirm the switch before continuing. Never begin implementation work on `main`.
+1. Check the current branch: run `git branch --show-current`. If on `main`, derive a branch name from the spec: use the spec's primary feature type as the branch type and a kebab-case summary of the spec title or primary concern as the branch name (`<type>/<branch-name>` per CLAUDE.md convention). Create it with `git checkout -b <name>` and confirm the switch before continuing. Never begin implementation work on `main`.
 2. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, stop and surface them to the user before proceeding. Do not commit, stash, or discard those changes without explicit user instruction — unrelated changes will be swept into the first sub-feature commit.
-3. Run `npm test` from root dir.
+3. Run each baseline check independently — never chain them: `npx tsc --noEmit`, then `npx eslint .` (from `app/`), then `npx vitest run`. Running them independently prevents a tsc failure from short-circuiting eslint or vitest — all three results must be known before proceeding.
 4. If everything is clean: proceed to the implementation phase.
 5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
-   - If no: present the errors to the user and propose a fix following all established conventions and instructions. Do not apply the fix until the user approves.
-6. If the user approves the fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
+   - If no: classify each error as minor or major per the definitions in CLAUDE.md.
+     - **Minor** (mechanical to fix — adding or removing a field to match a changed type — and requiring no design judgment): fix autonomously, commit (`chore(<branch>): fix pre-existing test fixture errors`), and proceed to the implementation phase without surfacing to the user.
+     - **Major** (requires choosing between valid alternatives, or cause is ambiguous from the error output alone): present the errors to the user and propose a fix. Do not apply until the user approves.
+6. If the user approves a major fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
 
 ### Implementation phase
 
@@ -29,9 +31,10 @@ For each sub-feature defined in the spec, in order:
 
 1. Implement the sub-feature fully, applying all invariants below.
 2. Run `npx tsc --noEmit`. Resolve every error before continuing.
-3. Do not run the full test suite between sub-features — intermediate states produce failures that are not yet meaningful. TypeScript type-correctness is sufficient verification at this stage.
-4. Commit with a conventional commit message scoped to the current branch name.
-5. Move to the next sub-feature.
+3. Run `npx eslint .` from `app/`. Resolve every error before continuing. Run each check independently — do not chain them via `npm test`, so a tsc failure cannot block eslint.
+4. Do not run vitest between sub-features — intermediate states produce failures that are not yet meaningful.
+5. Commit with a conventional commit message. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
+6. Move to the next sub-feature.
 
 Do not invoke code-reviewer between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
 
