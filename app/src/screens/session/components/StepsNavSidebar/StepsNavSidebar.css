@@ -6,7 +6,7 @@
 }
 
 .steps-sidebar-nav {
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   border-width: 0;
 }
 

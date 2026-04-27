@@ -1,6 +1,6 @@
 import { useSession } from '@/data-access-layer';
 import './SessionHeader.css';
-import { Button, Input, DateInput, LabeledToggleButton } from '@/components';
+import { Button, Input, DateInput } from '@/components';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -57,17 +57,6 @@ export const SessionHeader: FCProps<Props> = ({
       </label>
 
       <div className='view-options-section'>
-        <LabeledToggleButton
-          options={[
-            { value: 'prep', label: 'Prep' },
-            { value: 'ingame', label: 'In Game' },
-          ]}
-          value={session.active_view}
-          onChange={(newView) => {
-            updateSession({ active_view: newView });
-          }}
-        />
-
         <Button
           className='toggle-all-tooltips-btn'
           onClick={onToggleAllTooltips}

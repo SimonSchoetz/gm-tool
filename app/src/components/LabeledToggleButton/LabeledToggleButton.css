@@ -3,7 +3,7 @@
   position: relative;
   color: var(--color-primary);
   transition: var(--transition-hover-on);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
 }
 
 .labeled-toggle-panel:hover {
@@ -21,14 +21,16 @@
     left var(--transition-fast),
     width var(--transition-fast);
   transition-timing-function: ease-in;
+  opacity: 0.7;
 }
 
 .labeled-toggle-label {
   position: relative;
   z-index: 1;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   opacity: 0.4;
   transition: opacity var(--transition-slow);
+  flex: 1;
 }
 
 .labeled-toggle-label--active {

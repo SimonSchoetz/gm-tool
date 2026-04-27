@@ -17,7 +17,7 @@ import { useSession, useSessionSteps } from '@/data-access-layer';
 import { Button, GlassPanel, NewItemBtn } from '@/components';
 import './StepsNavSidebar.css';
 import { useParams, useRouter } from '@tanstack/react-router';
-import { SortableStepItem } from './components';
+import { SortableStepItem, ToggleSessionViewBtn } from './components';
 import { useDeleteDialog } from '@/providers';
 
 export const StepsNavSidebar = () => {
@@ -55,6 +55,8 @@ export const StepsNavSidebar = () => {
 
   return (
     <aside className='steps-sidebar'>
+      <ToggleSessionViewBtn />
+
       <GlassPanel className='steps-sidebar-nav' intensity='off'>
         <DndContext
           sensors={sensors}

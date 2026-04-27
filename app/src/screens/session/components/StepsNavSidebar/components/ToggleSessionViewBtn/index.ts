@@ -1,2 +1,1 @@
-export { SortableStepItem } from './SortableStepItem';
 export { ToggleSessionViewBtn } from './ToggleSessionViewBtn';
