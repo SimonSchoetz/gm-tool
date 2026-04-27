@@ -1,2 +1,3 @@
-export { SortableStepItem } from './SortableStepItem';
 export { ToggleSessionViewBtn } from './ToggleSessionViewBtn';
+export { SessionStepsNav } from './SessionStepsNav';
+export { DeleteSessionBtn } from './DeleteSessionBtn';

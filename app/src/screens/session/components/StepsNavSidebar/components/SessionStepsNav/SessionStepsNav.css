@@ -1,0 +1,23 @@
+.steps-sidebar-nav {
+  border-radius: var(--radius-xl);
+  border-width: 0;
+}
+
+.steps-sidebar-nav:hover {
+  box-shadow: var(--box-shadow-active);
+}
+
+.new-step-section-btn:hover {
+  transition: background-color var(--transition-fast);
+  background-color: var(--color-bg-hover);
+}
+
+.new-step-section-btn,
+.new-step-section-btn > * {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.new-step-section-btn > * > * {
+  font-size: var(--font-size-2xl);
+}

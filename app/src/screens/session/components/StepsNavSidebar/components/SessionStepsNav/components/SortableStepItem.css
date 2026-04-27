@@ -25,7 +25,7 @@
 
 .steps-nav-drag-handle {
   cursor: grab;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   user-select: none;
   padding: var(--spacing-xs) var(--spacing-sm);
   height: 100%;
