@@ -30,11 +30,13 @@ describe('getAllBySession', () => {
       id: 'step-1',
       session_id: 'sess-id',
       sort_order: 0,
+      checked: 0,
     };
     const step2: SessionStep = {
       id: 'step-2',
       session_id: 'sess-id',
       sort_order: 1,
+      checked: 0,
     };
 
     mockSelect.mockResolvedValue([step1, step2]);

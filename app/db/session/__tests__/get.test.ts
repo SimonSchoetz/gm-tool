@@ -34,6 +34,7 @@ describe('get', () => {
       adventure_id: 'adventure-id-1',
       name: 'Test Session',
       description: 'Test Description',
+      active_view: 'prep',
     };
 
     mockSelect.mockResolvedValue([mockSession]);

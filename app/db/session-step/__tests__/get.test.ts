@@ -30,6 +30,7 @@ describe('get', () => {
       id: 'step-id',
       session_id: 'sess-1',
       sort_order: 0,
+      checked: 0,
     };
 
     mockSelect.mockResolvedValue([mockStep]);
