@@ -159,7 +159,5 @@ full session context in the TeamCreate prompt so the new instances can continue
 without loss. A timed-out teammate behaves identically to a dismissed one:
 SendMessage returns success but the message is never received.
 
-Once the user confirms they are satisfied — or ends the session without further
-requests — dismiss any active teammates so no long-running instances remain.
-Never send a shutdown request in the same response as an invitation to confirm
-satisfaction — ask first, wait for the user's answer, then dismiss.
+To end the session: Ask if the user is satisfied and wait for their answer.
+Once the user confirms they are satisfied, ONLY THEN dismiss any active teammates so no long-running instances remain.

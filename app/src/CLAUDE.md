@@ -169,7 +169,7 @@ When a constant is shared by two or more files within the same module directory,
 ### Styles
 
 - `.css` files in `/styles` are for variables and globals
-- Each component and screen has their own `.css` file that lives in parallel with them
+- Each component and screen has their own `.css` file that lives in parallel with them. When a sub-component is extracted, CSS scoped to that sub-component moves into the sub-component's directory — it does not stay in the parent's `.css` file.
 
 **CSS class naming — flat BEM-ish:**
 
