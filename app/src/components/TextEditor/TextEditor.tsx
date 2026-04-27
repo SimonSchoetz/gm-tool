@@ -18,7 +18,6 @@ import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown';
 import { FloatingToolbar } from './components';
 import { MentionTypeaheadPlugin, CheckboxReadOnlyPlugin } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
-import { useState } from 'react';
 import { parseSafeEditorState } from './helper';
 
 type Props = {
@@ -63,8 +62,6 @@ export const TextEditor: FCProps<Props> = ({
   readOnly = false,
   ...props
 }) => {
-  const [isFirstRender, setIsFirstRender] = useState(true);
-
   const initialConfig = {
     namespace: textEditorId,
     theme,
@@ -77,12 +74,6 @@ export const TextEditor: FCProps<Props> = ({
   };
 
   const handleChange = (editorState: EditorState) => {
-    // Skip onChange on first render to avoid triggering update with initial value
-    if (isFirstRender) {
-      setIsFirstRender(false);
-      return;
-    }
-
     if (onChange) {
       onChange(
         editorState.isEmpty() ? '' : JSON.stringify(editorState.toJSON()),
@@ -107,7 +98,7 @@ export const TextEditor: FCProps<Props> = ({
           transformers={[UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]}
         />
 
-        {!readOnly && <OnChangePlugin onChange={handleChange} />}
+        {onChange && <OnChangePlugin onChange={handleChange} />}
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
