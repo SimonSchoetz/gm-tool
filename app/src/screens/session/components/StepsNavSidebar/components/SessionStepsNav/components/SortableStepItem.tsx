@@ -4,6 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { ActionContainer } from '@/components';
 import { cn } from '@/util';
 import './SortableStepItem.css';
+import { LAZY_DM_STEPS } from '@/domain';
 
 type SortableStepItemProps = {
   step: SessionStep;
@@ -27,6 +28,9 @@ export const SortableStepItem = ({ step }: SortableStepItemProps) => {
     });
   };
 
+  const lazyStep = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
+  const stepName = step.name ?? lazyStep?.name ?? 'Untitled Sepp';
+
   return (
     <ActionContainer
       ref={setNodeRef}
@@ -35,7 +39,7 @@ export const SortableStepItem = ({ step }: SortableStepItemProps) => {
         `steps-nav-item`,
         step.checked === 1 && 'steps-nav-item--checked',
       )}
-      label={step.name ?? 'Untitled Step'}
+      label={stepName}
       onClick={scrollToStep}
       {...attributes}
     >
@@ -43,7 +47,7 @@ export const SortableStepItem = ({ step }: SortableStepItemProps) => {
         ⠿
       </span>
 
-      <div className='steps-nav-item-label'>{step.name ?? 'Untitled Step'}</div>
+      <div className='steps-nav-item-label'>{stepName}</div>
     </ActionContainer>
   );
 };
