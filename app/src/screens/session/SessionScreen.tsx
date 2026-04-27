@@ -50,15 +50,15 @@ export const SessionScreen = () => {
 
   return (
     <GlassPanel className='session-screen'>
-      <SessionHeader
-        areTooltipsVisible={visibleTooltips.size > 0}
-        onToggleAllTooltips={toggleAllTooltips}
-      />
+      <SessionHeader />
 
       <HorizontalDivider />
 
       <div className='session-body'>
-        <StepsNavSidebar />
+        <StepsNavSidebar
+          areTooltipsVisible={visibleTooltips.size > 0}
+          onToggleAllTooltips={toggleAllTooltips}
+        />
 
         <CustomScrollArea>
           {(session?.active_view ?? 'prep') === 'prep' ? (

@@ -19,21 +19,3 @@
 .session-date__label {
   color: rgb(var(--color-fg-rgb), 0.6);
 }
-
-.view-options-section {
-  display: flex;
-  justify-content: space-between;
-}
-
-.toggle-all-tooltips-btn {
-  width: fit-content;
-  border-radius: var(--radius-md);
-}
-
-.toggle-all-tooltips-btn:hover {
-  background-color: transparent;
-}
-.toggle-all-tooltips-btn > * {
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--radius-md);
-}

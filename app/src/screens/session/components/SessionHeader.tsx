@@ -1,19 +1,11 @@
 import { useSession } from '@/data-access-layer';
 import './SessionHeader.css';
-import { Button, Input, DateInput } from '@/components';
-import { FCProps } from '@/types';
+import { Input, DateInput } from '@/components';
+import { FCProps, HtmlProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
 
-type Props = {
-  areTooltipsVisible: boolean;
-  onToggleAllTooltips: () => void;
-};
-
-export const SessionHeader: FCProps<Props> = ({
-  areTooltipsVisible,
-  onToggleAllTooltips,
-}) => {
+export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   const { sessionId, adventureId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
@@ -55,14 +47,6 @@ export const SessionHeader: FCProps<Props> = ({
           }}
         />
       </label>
-
-      <div className='view-options-section'>
-        <Button
-          className='toggle-all-tooltips-btn'
-          onClick={onToggleAllTooltips}
-          label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
-        />
-      </div>
     </header>
   );
 };
