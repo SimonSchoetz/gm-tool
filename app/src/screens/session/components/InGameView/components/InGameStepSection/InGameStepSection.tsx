@@ -16,24 +16,13 @@ export const InGameStepSection = ({ step }: InGameStepSectionProps) => {
 
   return (
     <div id={`step-section-${step.id}`} className='in-game-step-section'>
-      <div className='in-game-step-header'>
-        <input
-          type='checkbox'
-          className='in-game-step-checkbox'
-          checked={step.checked === 1}
-          onChange={() => {
-            updateStep(step.id, { checked: step.checked ? 0 : 1 });
-          }}
-        />
-        <span className='in-game-step-name'>
-          {step.name ?? 'Untitled Step'}
-        </span>
-      </div>
-
       <TextEditor
         textEditorId={`in-game-step-${step.id}`}
         value={step.content ?? ''}
         readOnly
+        onChange={(content) => {
+          updateStep(step.id, { content });
+        }}
       />
     </div>
   );
