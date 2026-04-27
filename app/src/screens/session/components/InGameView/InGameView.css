@@ -1,29 +1,21 @@
 .in-game-view {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.in-game-main {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--spacing-md);
+  min-height: 0;
 }
 
 .in-game-summary {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-xl);
+}
+
+.in-game-summary-scroll-area {
   height: 180px;
-  flex-shrink: 0;
-  overflow: hidden;
-  padding: 8px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .in-game-steps {
-  flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
+  gap: var(--spacing-md);
 }

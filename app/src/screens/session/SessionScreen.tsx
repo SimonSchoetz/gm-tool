@@ -8,7 +8,7 @@ import {
   StepsNavSidebar,
 } from './components';
 import './SessionScreen.css';
-import { CustomScrollArea, GlassPanel, HorizontalDivider } from '@/components';
+import { GlassPanel } from '@/components';
 
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({
@@ -52,24 +52,20 @@ export const SessionScreen = () => {
     <GlassPanel className='session-screen'>
       <SessionHeader />
 
-      <HorizontalDivider />
-
       <div className='session-body'>
         <StepsNavSidebar
           areTooltipsVisible={visibleTooltips.size > 0}
           onToggleAllTooltips={toggleAllTooltips}
         />
 
-        <CustomScrollArea>
-          {(session?.active_view ?? 'prep') === 'prep' ? (
-            <PrepView
-              visibleTooltips={visibleTooltips}
-              onToggleTooltip={toggleTooltipForStep}
-            />
-          ) : (
-            <InGameView />
-          )}
-        </CustomScrollArea>
+        {(session?.active_view ?? 'prep') === 'prep' ? (
+          <PrepView
+            visibleTooltips={visibleTooltips}
+            onToggleTooltip={toggleTooltipForStep}
+          />
+        ) : (
+          <InGameView />
+        )}
       </div>
     </GlassPanel>
   );
