@@ -17,6 +17,9 @@ db/
 
 Follows the global file organization conventions from the root CLAUDE.md, plus:
 
+- **All `index.ts` barrel files in `db/` use explicit named exports — `export *` is banned.** This applies to both domain barrels (`db/adventure/index.ts`) and utility barrels (`db/util/index.ts`).
+  - ✅ GOOD: `export { create } from './create'` — explicit, no leakage
+  - ❌ BAD: `export * from './build-create-query'` — leaks every symbol the source file happens to export
 - All functions for 1 table should be grouped in a directory
 - Defensive input validation with clear error messages
 - All tables have at least the following columns:
