@@ -21,6 +21,7 @@
 - Feature: Places Screens
 - Feature: References List (Where each screen is tagged)
 - Feature: Session Log Screen
+- Feature: Breadcrumbs in header section can be used for navigation
 
 ### Tech Debt
 
