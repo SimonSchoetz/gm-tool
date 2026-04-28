@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { generateId } from '../util';
+import { generateId, buildCreateQuery } from '../util';
 import { getDatabase } from '../database';
 import { CreateImageInput } from './types';
 
@@ -23,19 +23,19 @@ export const create = async ({
 
   const id = generateId();
 
-  // Save the image file to app data directory and get file size
   const fileSize = await invoke<number>('save_image', {
     sourcePath: filePath,
     id,
     extension,
   });
 
-  // Create database record
   const db = await getDatabase();
-  await db.execute(
-    'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-    [id, extension, originalFilename, fileSize],
-  );
+  const { sql, values } = buildCreateQuery('images', id, {
+    file_extension: extension,
+    original_filename: originalFilename,
+    file_size: fileSize,
+  });
+  await db.execute(sql, values);
 
   return id;
 };

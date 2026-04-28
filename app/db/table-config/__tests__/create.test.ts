@@ -49,14 +49,14 @@ describe('create', () => {
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO table_config (table_name, color, tagging_enabled, scope, layout, id) VALUES ($1, $2, $3, $4, $5, $6)',
+      'INSERT INTO table_config (id, table_name, color, tagging_enabled, scope, layout) VALUES ($1, $2, $3, $4, $5, $6)',
       [
+        'test-generated-id',
         'npcs',
         '#3498db',
         1,
         'adventure',
         JSON.stringify(validLayout),
-        'test-generated-id',
       ],
     );
     expect(result).toBe('test-generated-id');
