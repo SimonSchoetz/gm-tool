@@ -1,13 +1,15 @@
 import { GlassPanel } from '@/components';
-import type { AppRoute, FCProps } from '@/types';
+import type { FCProps } from '@/types';
 import { cn } from '@/util';
 import { Link, useMatch } from '@tanstack/react-router';
 import '../NavButton.css';
 import './ScreenNavBtn.css';
+import type { RegisteredRouter } from '@tanstack/react-router';
+import type { RouteToPath } from '@tanstack/router-core';
 
 type Props = {
   label: string;
-  to: AppRoute;
+  to: RouteToPath<RegisteredRouter>;
   params?: Record<string, string>;
   searchParams?: Record<string, string>;
   isDisabled?: boolean;
