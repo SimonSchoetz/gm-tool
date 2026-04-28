@@ -1,5 +1,5 @@
 import { getDatabase } from '../database';
-import { generateId } from '../../util';
+import { generateId } from '../util';
 import { tableConfigTable } from './schema';
 import { tableLayoutSchema } from './layout-schema';
 import type { CreateTableConfigInput } from './types';

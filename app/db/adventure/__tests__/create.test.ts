@@ -10,14 +10,18 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
 
-vi.mock('../../../util', () => ({
-  generateId: vi.fn(() => 'test-generated-id'),
-}));
+vi.mock('../../util', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../util')>();
+  return {
+    ...actual,
+    generateId: vi.fn(() => 'test-generated-id'),
+  };
+});
 
 import { create } from '../create';
 
@@ -43,7 +47,7 @@ describe('create', () => {
 
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT INTO adventures (id, name) VALUES ($1, $2)',
-      ['test-generated-id', 'Test Adventure']
+      ['test-generated-id', 'Test Adventure'],
     );
     expect(adventureId).toBe('test-generated-id');
   });
@@ -59,7 +63,7 @@ describe('create', () => {
 
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT INTO adventures (id, name) VALUES ($1, $2)',
-      ['test-generated-id', '']
+      ['test-generated-id', ''],
     );
     expect(adventureId).toBe('test-generated-id');
   });

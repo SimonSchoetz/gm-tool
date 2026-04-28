@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { generateId } from '../../util';
+import { generateId } from '../util';
 import { getDatabase } from '../database';
 import { CreateImageInput } from './types';
 

@@ -1,5 +1,5 @@
 import { getDatabase } from '../database';
-import { generateId } from '../../util';
+import { generateId } from '../util';
 import { adventureTable } from './schema';
 import type { CreateAdventureInput } from './types';
 
@@ -20,7 +20,7 @@ export const create = async (data: CreateAdventureInput): Promise<string> => {
   const db = await getDatabase();
   await db.execute(
     `INSERT INTO adventures (${columnNames.join(', ')}) VALUES (${paramIndex})`,
-    values
+    values,
   );
   return id;
 };

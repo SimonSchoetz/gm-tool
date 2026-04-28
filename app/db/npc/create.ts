@@ -1,5 +1,5 @@
 import { getDatabase } from '../database';
-import { generateId } from '../../util';
+import { generateId } from '../util';
 import { npcTable } from './schema';
 import type { CreateNpcInput, Npc } from './types';
 
