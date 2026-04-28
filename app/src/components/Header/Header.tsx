@@ -10,20 +10,17 @@ type Props = object;
 export const Header: FCProps<Props> = ({ ...props }) => {
   const router = useRouterState();
 
-  // Extract adventureId from route if present
   const adventureIdMatch = /\/adventure\/([^/]+)/.exec(router.location.href);
   const adventureId = adventureIdMatch ? adventureIdMatch[1] : '';
 
-  // Extract npcId from route if present
   const npcIdMatch = /\/npc\/([^/]+)/.exec(router.location.href);
   const npcId = npcIdMatch ? npcIdMatch[1] : '';
 
-  // Extract sessionId from route if present
   const sessionIdMatch = /\/session\/([^/]+)/.exec(router.location.href);
   const sessionId = sessionIdMatch ? sessionIdMatch[1] : '';
 
   const { adventure } = useAdventure(adventureId);
-  const { npc } = useNpc(npcId);
+  const { npc } = useNpc(npcId, adventureId);
   const { session } = useSession(sessionId, adventureId);
 
   const getMainRoute = (): string => {
@@ -37,7 +34,10 @@ export const Header: FCProps<Props> = ({ ...props }) => {
   };
 
   const getRouteLevel1 = (): string => {
-    if (router.location.href.includes('npcs') || router.location.href.includes('/npc/')) {
+    if (
+      router.location.href.includes('npcs') ||
+      router.location.href.includes('/npc/')
+    ) {
       return ' > NPCs';
     }
     if (
