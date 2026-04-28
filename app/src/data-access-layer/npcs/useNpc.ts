@@ -10,10 +10,10 @@ export type UseNpcReturn = {
   npc: Npc | null;
   loading: boolean;
   updateNpc: (data: UpdateNpcData) => void;
-  deleteNpc: (adventureId: string) => Promise<void>;
+  deleteNpc: () => Promise<void>;
 };
 
-export const useNpc = (npcId: string): UseNpcReturn => {
+export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateNpcData>({});
@@ -39,43 +39,42 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     mutationFn: ({ id, data }: { id: string; data: UpdateNpcData }) =>
       service.updateNpc(id, data),
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: npcKeys.detail(variables.id) });
-      if (npcData?.adventure_id) {
-        void queryClient.invalidateQueries({ queryKey: npcKeys.list(npcData.adventure_id) });
-      }
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.detail(variables.id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.list(adventureId),
+      });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: ({ npcId }: { npcId: string; adventureId: string }) =>
-      service.deleteNpc(npcId),
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: npcKeys.list(variables.adventureId) });
+    mutationFn: (npcId: string) => service.deleteNpc(npcId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.list(adventureId),
+      });
     },
   });
 
   const updateNpc = (data: UpdateNpcData) => {
     if (!npcData) return;
 
-    // Optimistic cache update for instant UI response
     queryClient.setQueryData<Npc>(npcKeys.detail(npcId), (old) => {
       if (!old) return old;
       const { imgFilePath: _imgFilePath, ...patch } = data;
       return mergeUpdate(old, patch);
     });
 
-    // Accumulate pending updates
     pendingUpdatesRef.current = {
       ...pendingUpdatesRef.current,
       ...data,
     };
 
-    // Clear previous debounce timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Debounce DB save (500ms after last change)
     debounceTimeoutRef.current = setTimeout(() => {
       const updates = { ...pendingUpdatesRef.current };
       pendingUpdatesRef.current = {};
@@ -85,8 +84,8 @@ export const useNpc = (npcId: string): UseNpcReturn => {
     }, 500);
   };
 
-  const deleteNpc = async (adventureId: string): Promise<void> => {
-    await deleteMutation.mutateAsync({ npcId, adventureId });
+  const deleteNpc = async (): Promise<void> => {
+    await deleteMutation.mutateAsync(npcId);
   };
 
   return {
