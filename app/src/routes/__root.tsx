@@ -6,7 +6,7 @@ import * as adventureService from '@/services/adventureService';
 import { ensureInitialized } from '@/services/database';
 
 export type RouterContext = {
-  adventureService: typeof adventureService;
+  adventureService: typeof adventureService; //why is this here
 };
 
 const RootLayout = () => (

@@ -20,7 +20,6 @@ export const StepSectionHeader: FCProps<Props> = ({
   onToggleTooltip,
   tooltipVisible,
 }) => {
-  console.log(tooltipVisible);
   const { sessionId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });

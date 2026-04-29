@@ -27,6 +27,7 @@
 
 - Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+- `__root.tsx` -> resolve question in line 9
 
 ---
 
