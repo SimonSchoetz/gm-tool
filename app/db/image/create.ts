@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { generateId, buildCreateQuery } from '../util';
 import { getDatabase } from '../database';
-import { CreateImageInput } from './types';
+import type { CreateImageInput } from './types';
 
 export const create = async ({
   filePath,
