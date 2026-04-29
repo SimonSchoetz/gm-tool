@@ -31,3 +31,7 @@
   color: var(--color-danger);
   border-bottom-color: var(--color-danger);
 }
+
+.one-click-confirm-btn {
+  width: 100%;
+}

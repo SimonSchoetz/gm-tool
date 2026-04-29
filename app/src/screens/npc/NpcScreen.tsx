@@ -56,8 +56,12 @@ export const NpcScreen = () => {
         <Button
           label='Delete NPC'
           onClick={() => {
-            openDeleteDialog(npc.name, () => {
-              void handleNpcDelete();
+            openDeleteDialog({
+              name: npc.name,
+              onDeletionConfirm: () => {
+                void handleNpcDelete();
+              },
+              oneClickConfirm: false,
             });
           }}
           buttonStyle={'danger'}

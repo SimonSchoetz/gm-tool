@@ -3,18 +3,21 @@ import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 import Input from '../Input/Input';
 import './DeleteDialog.css';
+import { Button } from '../Button/Button';
 
 type DeleteDialogProps = {
   name: string;
   onDeletionConfirm: () => void;
+  oneClickConfirm: boolean;
 };
 
 export const DeleteDialog = ({
   name,
   onDeletionConfirm,
+  oneClickConfirm,
 }: DeleteDialogProps) => {
   const [intensity, setIntensity] = useState(0);
-  const confirmText = `DELETE ${name}`;
+  const confirmText = `DELETE ${name}`.trim();
 
   const handleInputChange = (input: string) => {
     const targetSubString = confirmText.substring(0, input.length);
@@ -38,20 +41,32 @@ export const DeleteDialog = ({
       }}
     >
       <h1 className='delete-dialog-title'>Delete {name}</h1>
-      <p>
-        You are about to delete {name} with all associated data. This action
-        cannot be undone.
-      </p>
-      <p>
-        Type
-        <span className='delete-dialog-confirm-text'>{` ${confirmText} `}</span>
-        below to confirm this action:
-      </p>
-      <Input
-        className='delete-dialog-input'
-        placeholder={confirmText}
-        onChange={(e) => { handleInputChange(e.target.value); }}
-      />
+      {oneClickConfirm ? (
+        <>
+          <p>Are you sure you want to delete {name}?</p>
+          <Button
+            className='one-click-confirm-btn'
+            onClick={onDeletionConfirm}
+            label='CONFIRM'
+            buttonStyle='danger'
+          />
+        </>
+      ) : (
+        <>
+          <p>
+            Type
+            <span className='delete-dialog-confirm-text'>{` ${confirmText} `}</span>
+            below to confirm this action:
+          </p>
+          <Input
+            className='delete-dialog-input'
+            placeholder={confirmText}
+            onChange={(e) => {
+              handleInputChange(e.target.value);
+            }}
+          />
+        </>
+      )}
     </GlassPanel>
   );
 };

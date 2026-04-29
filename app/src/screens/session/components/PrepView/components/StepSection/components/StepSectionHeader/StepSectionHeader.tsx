@@ -30,6 +30,9 @@ export const StepSectionHeader: FCProps<Props> = ({
 
   if (!step) return null;
 
+  const lazyStep = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
+  const stepName = step.name ?? lazyStep?.name ?? 'Untitled Sepp';
+
   return (
     <div className='step-section-header'>
       <Checkbox
@@ -63,13 +66,12 @@ export const StepSectionHeader: FCProps<Props> = ({
         title='Delete step'
         label='Delete step'
         onClick={() => {
-          const stepName =
-            step.default_step_key !== null
-              ? (LAZY_DM_STEPS.find((s) => s.key === step.default_step_key)
-                  ?.name ?? 'Untitled Step')
-              : (step.name ?? 'Untitled Step');
-          openDeleteDialog(stepName, () => {
-            void deleteStep(step.id);
+          openDeleteDialog({
+            name: `Step: ${stepName}`,
+            onDeletionConfirm: () => {
+              void deleteStep(step.id);
+            },
+            oneClickConfirm: true,
           });
         }}
       >

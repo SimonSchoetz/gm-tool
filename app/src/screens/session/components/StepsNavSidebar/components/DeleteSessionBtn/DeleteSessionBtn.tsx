@@ -23,8 +23,12 @@ export const DeleteSessionBtn = () => {
     <Button
       label='Delete Session'
       onClick={() => {
-        openDeleteDialog(session.name ?? '', () => {
-          void handleSessionDelete();
+        openDeleteDialog({
+          name: session.name ?? '',
+          onDeletionConfirm: () => {
+            void handleSessionDelete();
+          },
+          oneClickConfirm: false,
         });
       }}
       buttonStyle={'danger'}

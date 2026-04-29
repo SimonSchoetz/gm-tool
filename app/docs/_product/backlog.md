@@ -32,6 +32,7 @@
 
 ### Done
 
+- Feature: One-click-capability for delete dialog
 - Fix: exactOptionalPropertyTypes cleanup
 - Refactor: Enums to types
 - Fix: Claude's .md formatting vs lint rules

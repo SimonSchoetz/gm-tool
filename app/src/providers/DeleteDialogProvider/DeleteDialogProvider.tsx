@@ -6,20 +6,23 @@ import { DeleteDialogContext } from './DeleteDialogContext';
 
 type Props = { children: ReactNode };
 
+type DeleteDialogProps = React.ComponentProps<typeof DeleteDialog>;
+
 export const DeleteDialogProvider: FCProps<Props> = ({ children }) => {
-  const [dialog, setDialog] = useState<{
-    name: string;
-    action: () => void;
-  } | null>(null);
+  const [dialog, setDialog] = useState<DeleteDialogProps | null>(null);
   const [popupState, setPopupState] = useState<'open' | 'closed'>('closed');
 
-  const openDeleteDialog = (name: string, action: () => void) => {
-    setDialog({ name, action });
+  const openDeleteDialog = ({
+    name,
+    onDeletionConfirm,
+    oneClickConfirm,
+  }: DeleteDialogProps) => {
+    setDialog({ name, onDeletionConfirm, oneClickConfirm });
     setPopupState('open');
   };
 
   const onDeletionConfirm = () => {
-    dialog?.action();
+    dialog?.onDeletionConfirm();
     setPopupState('closed');
   };
 
@@ -45,6 +48,7 @@ export const DeleteDialogProvider: FCProps<Props> = ({ children }) => {
             <DeleteDialog
               name={dialog.name}
               onDeletionConfirm={onDeletionConfirm}
+              oneClickConfirm={dialog.oneClickConfirm}
             />
           </PopUpContainer>,
           document.body,

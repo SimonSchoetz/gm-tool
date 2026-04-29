@@ -58,8 +58,12 @@ export const AdventureScreen = () => {
         <Button
           label='Delete Adventure'
           onClick={() => {
-            openDeleteDialog(adventure.name, () => {
-              void handleAdventureDelete();
+            openDeleteDialog({
+              name: adventure.name,
+              onDeletionConfirm: () => {
+                void handleAdventureDelete();
+              },
+              oneClickConfirm: false,
             });
           }}
           buttonStyle={'danger'}
