@@ -49,7 +49,7 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (npcId: string) => service.deleteNpc(npcId),
+    mutationFn: () => service.deleteNpc(npcId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: npcKeys.list(adventureId),
@@ -85,7 +85,7 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   };
 
   const deleteNpc = async (): Promise<void> => {
-    await deleteMutation.mutateAsync(npcId);
+    await deleteMutation.mutateAsync();
   };
 
   return {
