@@ -40,12 +40,14 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
       service.updateAdventure(id, data),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
-      void queryClient.invalidateQueries({ queryKey: adventureKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({
+        queryKey: adventureKeys.detail(variables.id),
+      });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (adventureId: string) => service.deleteAdventure(adventureId),
+    mutationFn: () => service.deleteAdventure(adventureId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
     },
@@ -81,7 +83,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   };
 
   const deleteAdventure = async (): Promise<void> => {
-    await deleteMutation.mutateAsync(adventureId);
+    await deleteMutation.mutateAsync();
   };
 
   return {
