@@ -114,6 +114,16 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    derived type to reflect narrowed prop"). A "Files affected" list that names
    only direct violation sites is incomplete if downstream structural derivations
    exist.
+
+   **Layer consistency when a structural pattern is introduced or changed**: When
+   the spec introduces or changes a structural rule that applies to a whole layer
+   — not a local fix to a single file — scan all files in that layer for existing
+   sites where the same pattern should now apply. If violations exist outside the
+   spec's touched set, add a consistency sub-feature to the spec covering those
+   sites. This scan applies only when the spec is the origin of the rule change.
+   Do not apply it when the spec implements a rule that already exists in CLAUDE.md
+   and the user has pointed out a single violation — that is a local fix, not a
+   layer-level pattern introduction.
 6. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
    layers in dependency order: DB → Services → DAL → Frontend. A layer may
    only reference what layers below it have already specified.
@@ -125,6 +135,12 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    that cannot be reconciled with CLAUDE.md must be corrected before emitting.
    Any detail a Claude instance could interpret in more than one way must be
    resolved or surfaced as an explicit question.
+
+   For every code example in the spec: verify it is consistent with every
+   principle or rule stated elsewhere in the same spec. A code example that
+   contradicts a declared principle is an internal inconsistency — correct the
+   example before emitting. The CLAUDE.md compliance check above is outward-only;
+   it does not catch contradictions between two parts of the same spec.
 
 ## Output
 
