@@ -49,7 +49,7 @@ export const useSession = (
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => service.deleteSession(id),
+    mutationFn: () => service.deleteSession(sessionId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: sessionKeys.list(adventureId),
@@ -88,7 +88,7 @@ export const useSession = (
   };
 
   const deleteSession = async (): Promise<void> => {
-    await deleteMutation.mutateAsync(sessionId);
+    await deleteMutation.mutateAsync();
   };
 
   return {

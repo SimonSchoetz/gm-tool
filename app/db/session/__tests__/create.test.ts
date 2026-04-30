@@ -14,9 +14,13 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
   },
 }));
 
-vi.mock('../../../util', () => ({
-  generateId: vi.fn(() => 'test-generated-id'),
-}));
+vi.mock('../../util', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../util')>();
+  return {
+    ...actual,
+    generateId: vi.fn(() => 'test-generated-id'),
+  };
+});
 
 import { create } from '../create';
 

@@ -19,7 +19,7 @@ export const NpcScreen = () => {
     from: '/adventure/$adventureId/npc/$npcId',
   });
 
-  const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId);
+  const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
   const [npcName, setNpcName] = useState(npc?.name ?? '');
@@ -35,7 +35,7 @@ export const NpcScreen = () => {
   }
 
   const handleNpcDelete = async () => {
-    await deleteNpc(adventureId);
+    await deleteNpc();
     void router.navigate({ to: `/adventure/${adventureId}/npcs` });
   };
 
