@@ -35,7 +35,7 @@ describe('generateId', () => {
 
   it('should consistently generate IDs of the same length', () => {
     const ids = Array.from({ length: 100 }, () => generateId());
-    const allSameLength = ids.every(id => id.length === 21);
+    const allSameLength = ids.every((id) => id.length === 21);
 
     expect(allSameLength).toBe(true);
   });

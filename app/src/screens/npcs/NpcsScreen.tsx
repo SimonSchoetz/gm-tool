@@ -16,7 +16,7 @@ export const NpcsScreen = () => {
   const npcsTableConfig = tableConfigs.find((c) => c.table_name === 'npcs');
 
   const handleNpcCreation = async () => {
-    const newNpcId = await createNpc(adventureId);
+    const newNpcId = await createNpc();
     void router.navigate({ to: `/adventure/${adventureId}/npc/${newNpcId}` });
   };
 
@@ -28,8 +28,12 @@ export const NpcsScreen = () => {
     <SortableList<Npc>
       tableConfigId={npcsTableConfig.id}
       items={npcs}
-      onRowClick={(npc) => { void router.navigate({ to: `/adventure/${adventureId}/npc/${npc.id}` }); }}
-      onCreateNew={() => { void handleNpcCreation(); }}
+      onRowClick={(npc) => {
+        void router.navigate({ to: `/adventure/${adventureId}/npc/${npc.id}` });
+      }}
+      onCreateNew={() => {
+        void handleNpcCreation();
+      }}
       searchPlaceholder='e.g. "name, profession, some text in description"'
     />
   );

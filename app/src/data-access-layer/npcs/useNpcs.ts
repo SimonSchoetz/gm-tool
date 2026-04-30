@@ -6,7 +6,7 @@ import { npcKeys } from './npcKeys';
 export type UseNpcsReturn = {
   npcs: Npc[];
   loading: boolean;
-  createNpc: (adventureId: string) => Promise<string>;
+  createNpc: () => Promise<string>;
 };
 
 export const useNpcs = (adventureId: string): UseNpcsReturn => {
@@ -20,15 +20,15 @@ export const useNpcs = (adventureId: string): UseNpcsReturn => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (adventureId: string) => service.createNpc(adventureId),
-    onSuccess: (_id, adventureId) => {
-      void queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
+    mutationFn: () => service.createNpc(adventureId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.list(adventureId),
+      });
     },
   });
 
-  const createNpc = async (adventureId: string): Promise<string> => {
-    return createMutation.mutateAsync(adventureId);
-  };
+  const createNpc = async (): Promise<string> => createMutation.mutateAsync();
 
   return {
     npcs,

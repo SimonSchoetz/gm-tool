@@ -12,9 +12,13 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
   },
 }));
 
-vi.mock('../../../util', () => ({
-  generateId: vi.fn(() => 'test-generated-id'),
-}));
+vi.mock('../../util', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../util')>();
+  return {
+    ...actual,
+    generateId: vi.fn(() => 'test-generated-id'),
+  };
+});
 
 import { create } from '../create';
 
@@ -45,14 +49,14 @@ describe('create', () => {
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO table_config (table_name, color, tagging_enabled, scope, layout, id) VALUES ($1, $2, $3, $4, $5, $6)',
+      'INSERT INTO table_config (id, table_name, color, tagging_enabled, scope, layout) VALUES ($1, $2, $3, $4, $5, $6)',
       [
+        'test-generated-id',
         'npcs',
         '#3498db',
         1,
         'adventure',
         JSON.stringify(validLayout),
-        'test-generated-id',
       ],
     );
     expect(result).toBe('test-generated-id');

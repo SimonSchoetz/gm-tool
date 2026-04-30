@@ -1,6 +1,5 @@
 import { getDatabase } from '../database';
-import { generateId } from '../../util';
-import { buildCreateQuery } from '../util';
+import { generateId, buildCreateQuery } from '../util';
 import { sessionStepTable } from './schema';
 import type { CreateSessionStepInput } from './types';
 

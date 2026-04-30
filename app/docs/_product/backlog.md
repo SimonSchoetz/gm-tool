@@ -21,10 +21,10 @@
 - Feature: Places Screens
 - Feature: References List (Where each screen is tagged)
 - Feature: Session Log Screen
+- Feature: Breadcrumbs in header section can be used for navigation
 
 ### Tech Debt
 
-- Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
 - Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
 
@@ -40,3 +40,4 @@
 - Feature: Automated commit message generation from branch name
 - Fix: Tests
 - Feature: Session Screens (incl. Lazy DM Steps)
+- Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
