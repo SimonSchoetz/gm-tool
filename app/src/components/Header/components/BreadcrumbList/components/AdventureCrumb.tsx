@@ -1,10 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
-import { FCProps } from '@/types';
 
-type Props = object;
-
-export const AdventureCrumb: FCProps<Props> = () => {
+export const AdventureCrumb = () => {
   const { adventureId } = useParams({ strict: false });
   const { adventure } = useAdventure(adventureId ?? '');
 
