@@ -1,12 +1,10 @@
 import { AnyRouteMatch, Link, useMatches } from '@tanstack/react-router';
-import { FCProps } from '@/types';
-import { buildBreadcrumbs, BreadcrumbConfig } from '../helper';
-import { AdventureCrumb } from './AdventureCrumb';
-import { SessionCrumb } from './SessionCrumb';
-import { NpcCrumb } from './NpcCrumb';
+import { FCProps, HtmlProps } from '@/types';
+import { buildBreadcrumbs, BreadcrumbConfig } from '../../helper';
+import { AdventureCrumb, SessionCrumb, NpcCrumb } from './components';
 import './BreadcrumbList.css';
 
-type Props = Record<string, never>;
+type BreadcrumbListProps = HtmlProps<'nav'>;
 
 const renderCrumb = (item: BreadcrumbConfig, index: number) => {
   switch (item.kind) {
@@ -42,14 +40,14 @@ const renderCrumb = (item: BreadcrumbConfig, index: number) => {
   }
 };
 
-export const BreadcrumbList: FCProps<Props> = () => {
+export const BreadcrumbList: FCProps<BreadcrumbListProps> = ({ ...props }) => {
   const matches = useMatches();
   const crumbs = buildBreadcrumbs(matches as AnyRouteMatch[]);
 
-  if (crumbs.length === 0) return <nav />;
+  if (crumbs.length === 0) return <nav {...props} />;
 
   return (
-    <nav>
+    <nav {...props}>
       <ol className='breadcrumb-list'>{crumbs.map(renderCrumb)}</ol>
     </nav>
   );

@@ -2,7 +2,7 @@ import { Link, useParams } from '@tanstack/react-router';
 import { useSession } from '@/data-access-layer';
 import { FCProps } from '@/types';
 
-type Props = Record<string, never>;
+type Props = object;
 
 export const SessionCrumb: FCProps<Props> = () => {
   const { adventureId, sessionId } = useParams({ strict: false });

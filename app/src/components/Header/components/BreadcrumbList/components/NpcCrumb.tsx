@@ -2,7 +2,7 @@ import { Link, useParams } from '@tanstack/react-router';
 import { useNpc } from '@/data-access-layer';
 import { FCProps } from '@/types';
 
-type Props = Record<string, never>;
+type Props = object;
 
 export const NpcCrumb: FCProps<Props> = () => {
   const { adventureId, npcId } = useParams({ strict: false });
