@@ -3,41 +3,52 @@ import { FCProps, HtmlProps } from '@/types';
 import { buildBreadcrumbs, BreadcrumbConfig } from '../../helper';
 import { AdventureCrumb, SessionCrumb, NpcCrumb } from './components';
 import './BreadcrumbList.css';
+import { JSX } from 'react/jsx-runtime';
+import { ChevronRightIcon } from 'lucide-react';
 
 type BreadcrumbListProps = HtmlProps<'nav'>;
 
 const renderCrumb = (item: BreadcrumbConfig, index: number) => {
+  let listItem: JSX.Element;
+
   switch (item.kind) {
     case 'static':
-      return (
-        <li
-          key={`${index}-${item.kind}-${item.to}`}
-          className='breadcrumb-item'
-        >
+      listItem = (
+        <li key={`${index}-${item.kind}-${item.to}`}>
           <Link to={item.to} params={item.params}>
             {item.label}
           </Link>
         </li>
       );
+      break;
     case 'adventure':
-      return (
-        <li key={`${index}-${item.kind}`} className='breadcrumb-item'>
+      listItem = (
+        <li key={`${index}-${item.kind}`}>
           <AdventureCrumb />
         </li>
       );
+      break;
     case 'session':
-      return (
-        <li key={`${index}-${item.kind}`} className='breadcrumb-item'>
+      listItem = (
+        <li key={`${index}-${item.kind}`}>
           <SessionCrumb />
         </li>
       );
+      break;
     case 'npc':
-      return (
-        <li key={`${index}-${item.kind}`} className='breadcrumb-item'>
+      listItem = (
+        <li key={`${index}-${item.kind}`}>
           <NpcCrumb />
         </li>
       );
+      break;
   }
+
+  return (
+    <>
+      {index !== 0 && <ChevronRightIcon />} {listItem}
+    </>
+  );
 };
 
 export const BreadcrumbList: FCProps<BreadcrumbListProps> = ({ ...props }) => {

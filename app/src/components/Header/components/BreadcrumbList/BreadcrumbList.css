@@ -1,18 +1,17 @@
 .breadcrumb-list {
   display: flex;
+  gap: var(--spacing-xs);
   align-items: center;
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
-.breadcrumb-item {
-  display: flex;
-  align-items: center;
+.breadcrumb-list li {
+  font-size: var(--font-size-lg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
 }
 
-.breadcrumb-item + .breadcrumb-item::before {
-  content: '>';
-  padding: 0 var(--spacing-xs);
-  color: var(--color-text-muted);
+.breadcrumb-list svg {
+  color: var(--color-fg-hover);
 }
