@@ -1,12 +1,11 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { Checkbox, ActionContainer } from '@/components';
+import { Checkbox, ClickableIcon } from '@/components';
 import { LAZY_DM_STEPS } from '@/domain';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
 import { FCProps } from '@/types';
 import { CircleQuestionMarkIcon, Trash2Icon } from 'lucide-react';
 import { StepSectionHeaderTitle, StepSectionHeaderMoveBtn } from './components';
-import { cn } from '@/util';
 import { useDeleteDialog } from '@/providers';
 
 type Props = {
@@ -45,23 +44,20 @@ export const StepSectionHeader: FCProps<Props> = ({
       <StepSectionHeaderTitle stepId={step.id} />
 
       {step.default_step_key !== null && (
-        <ActionContainer
-          className={cn(
-            'step-tooltip-btn',
-            tooltipVisible && 'step-tooltip-btn__active',
-          )}
+        <ClickableIcon
+          icon={<CircleQuestionMarkIcon />}
+          isActive={tooltipVisible}
           onClick={onToggleTooltip}
           title='Show Tooltips'
           label='Show Tooltips'
-        >
-          <CircleQuestionMarkIcon />
-        </ActionContainer>
+        />
       )}
 
       <StepSectionHeaderMoveBtn stepId={stepId} />
 
-      <ActionContainer
-        className='step-delete-btn'
+      <ClickableIcon
+        icon={<Trash2Icon />}
+        variant='danger'
         title='Delete step'
         label='Delete step'
         onClick={() => {
@@ -73,9 +69,7 @@ export const StepSectionHeader: FCProps<Props> = ({
             oneClickConfirm: true,
           });
         }}
-      >
-        <Trash2Icon />
-      </ActionContainer>
+      />
     </div>
   );
 };

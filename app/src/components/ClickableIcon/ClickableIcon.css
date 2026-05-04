@@ -1,0 +1,20 @@
+.clickable-icon {
+  color: var(--color-primary);
+  transition: color var(--transition-fast);
+}
+
+.clickable-icon:hover {
+  color: var(--color-fg);
+}
+
+.clickable-icon--active {
+  color: var(--color-fg);
+}
+
+.clickable-icon--active:hover {
+  color: var(--color-fg-hover);
+}
+
+.clickable-icon--danger:hover {
+  color: var(--color-danger);
+}

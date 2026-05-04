@@ -3,23 +3,3 @@
   align-items: center;
   gap: var(--spacing-md);
 }
-
-.step-tooltip-btn,
-.step-delete-btn {
-  cursor: pointer;
-  color: var(--color-primary);
-  transition: color var(--transition-fast);
-}
-
-.step-tooltip-btn:hover,
-.step-delete-btn:hover {
-  color: var(--color-fg);
-}
-
-.step-tooltip-btn__active {
-  transition: color var(--transition-fast);
-  color: var(--color-fg);
-}
-.step-tooltip-btn__active:hover {
-  color: var(--color-fg-hover);
-}
