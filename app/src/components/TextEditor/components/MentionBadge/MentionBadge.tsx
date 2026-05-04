@@ -106,7 +106,7 @@ export const MentionBadge: FCProps<Props> = ({
       <span
         ref={badgeRef}
         className='mention-badge'
-        style={{ color }}
+        style={{ '--rt-color': color } as React.CSSProperties}
         onClick={handleClick}
         onMouseEnter={handleBadgeMouseEnter}
         onMouseLeave={handleBadgeMouseLeave}

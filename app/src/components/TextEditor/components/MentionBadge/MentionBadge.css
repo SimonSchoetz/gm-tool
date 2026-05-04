@@ -1,4 +1,5 @@
 .mention-badge {
   cursor: pointer;
   font-weight: 500;
+  color: var(--rt-color);
 }
