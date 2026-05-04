@@ -14,7 +14,7 @@ export {
 } from './adventures';
 
 export type { MentionSearchError } from './mentions';
-export { mentionSearchError } from './mentions';
+export { mentionSearchError, buildEntityPath } from './mentions';
 
 export type {
   NpcNotFoundError,

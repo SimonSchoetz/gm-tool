@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { createPortal } from 'react-dom';
 import { usePinnedPopups } from '@/providers';
 import { FCProps } from '@/types';
-import { buildEntityPath } from '@/util';
+import { buildEntityPath } from '@/domain';
 import { MentionPopup } from '../../../MentionPopup';
 import type { PopupPosition, PopupPlacement } from '../../../MentionPopup';
 import './MentionBadge.css';

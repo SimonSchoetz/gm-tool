@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { cn, buildEntityPath } from '@/util';
+import { cn } from '@/util';
+import { buildEntityPath } from '@/domain';
 import { useDraggable } from '@/hooks';
 import { PinIcon, PinOffIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import GlassPanel from '../GlassPanel/GlassPanel';
