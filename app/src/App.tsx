@@ -9,7 +9,7 @@ import {
   GlassPanel,
 } from './components';
 import { TanstackQueryClientProvider } from './data-access-layer/TanstackQueryClientProvider';
-import { DeleteDialogProvider } from '@/providers';
+import { DeleteDialogProvider, PinnedPopupsProvider } from '@/providers';
 import './App.css';
 
 export const App = () => {
@@ -17,22 +17,24 @@ export const App = () => {
     <DeleteDialogProvider>
       <ErrorBoundary>
         <TanstackQueryClientProvider>
-          <Backdrop />
-          <LightSource intensity='bright' />
+          <PinnedPopupsProvider>
+            <Backdrop />
+            <LightSource intensity='bright' />
 
-          <main className='app'>
-            <SideBarNav />
+            <main className='app'>
+              <SideBarNav />
 
-            <div className='screens-container'>
-              <Header />
+              <div className='screens-container'>
+                <Header />
 
-              <ErrorBoundary>
-                <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
-                  <Outlet />
-                </Suspense>
-              </ErrorBoundary>
-            </div>
-          </main>
+                <ErrorBoundary>
+                  <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
+                    <Outlet />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+            </main>
+          </PinnedPopupsProvider>
         </TanstackQueryClientProvider>
       </ErrorBoundary>
     </DeleteDialogProvider>
