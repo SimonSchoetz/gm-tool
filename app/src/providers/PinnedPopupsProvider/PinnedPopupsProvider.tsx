@@ -12,9 +12,9 @@ import {
 
 type PinnedPopupEntry = PinPopupArgs & { zIndex: number };
 
-export const PinnedPopupsProvider: FCProps<{ children: ReactNode }> = ({
-  children,
-}) => {
+type Props = { children: ReactNode };
+
+export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
   const [popups, setPopups] = useState<PinnedPopupEntry[]>([]);
   const topZRef = useRef(1000);
 

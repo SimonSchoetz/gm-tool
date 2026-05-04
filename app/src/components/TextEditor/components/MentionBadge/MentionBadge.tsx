@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { createPortal } from 'react-dom';
 import { usePinnedPopups } from '@/providers';
+import { FCProps } from '@/types';
+import { buildEntityPath } from '@/util';
 import { MentionPopup } from '../../../MentionPopup';
 import type { PopupPosition, PopupPlacement } from '../../../MentionPopup';
 import './MentionBadge.css';
@@ -14,13 +16,13 @@ type Props = {
   adventureId?: string | null;
 };
 
-export const MentionBadge = ({
+export const MentionBadge: FCProps<Props> = ({
   entityId,
   entityType,
   displayName,
   color,
   adventureId,
-}: Props) => {
+}) => {
   const navigate = useNavigate();
   const { pinPopup, isPinned } = usePinnedPopups();
 
@@ -89,10 +91,7 @@ export const MentionBadge = ({
 
   const handleClick = () => {
     closePopup();
-    const entitySegment = entityType.slice(0, -1);
-    const path = adventureId
-      ? `/adventure/${adventureId}/${entitySegment}/${entityId}`
-      : `/${entitySegment}/${entityId}`;
+    const path = buildEntityPath(entityType, entityId, adventureId ?? null);
     void navigate({ to: path });
   };
 

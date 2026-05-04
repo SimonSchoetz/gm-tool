@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { cn } from '@/util';
+import { cn, buildEntityPath } from '@/util';
 import { useDraggable } from '@/hooks';
 import { PinIcon, PinOffIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import GlassPanel from '../GlassPanel/GlassPanel';
@@ -54,10 +54,7 @@ export const MentionPopup: FCProps<Props> = ({
   const navigate = useNavigate();
 
   const handleNavigate = () => {
-    const entitySegment = entityType.slice(0, -1);
-    const path = adventureId
-      ? `/adventure/${adventureId}/${entitySegment}/${entityId}`
-      : `/${entitySegment}/${entityId}`;
+    const path = buildEntityPath(entityType, entityId, adventureId);
     onRemove();
     void navigate({ to: path });
   };
