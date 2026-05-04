@@ -1,0 +1,21 @@
+.npc-popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.npc-popup-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.npc-popup-loading {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}

@@ -25,3 +25,4 @@ export { DateInput } from './DateInput/DateInput';
 export { LabeledToggleButton } from './LabeledToggleButton/LabeledToggleButton';
 export { Checkbox } from './Checkbox/Checkbox.tsx';
 export { ClickableIcon } from './ClickableIcon';
+export { MentionPopupContent } from './MentionPopupContent';
