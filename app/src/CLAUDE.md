@@ -80,13 +80,18 @@ src/
 - each component has its own folder
 - each component has its own `.css` file
 - Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
-- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`.
+- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`. When a sub-component is rendered by two or more unrelated parents, it belongs to neither — place it as a peer module directory at the nearest shared ancestor. For top-level components in `components/`, this means a standalone `components/SubComponentName/` directory alongside its consumers, not nested under either of them.
+  - ✅ `components/MentionPopup/` — rendered by both `MentionBadge` and `PinnedPopupsProvider`; belongs at the top level of `components/`, not inside either consumer's `components/` subdirectory
+  - ❌ `MentionBadge/components/MentionPopup/` when `PinnedPopupsProvider` also renders `MentionPopup`
 - `helper/` and `components/` each have an `index.ts` as a within-module grouping barrel — explicit named exports, never re-exported from the parent `ComponentName/index.ts`. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory). A flat single-file sub-component is exported directly from the `components/` barrel.
   - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
   - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
   - ✅ Parent imports `import { AvatarCell } from './components'`
   - ❌ `import { AvatarCell } from '../components/AvatarCell/AvatarCell'` — double-name import, always wrong regardless of nesting depth
   - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
+- **Sibling imports within `components/` use relative paths, never the barrel.** A component inside `components/` that needs another top-level component from the same grouping folder must import it via a relative path (e.g., `../GlassPanel/GlassPanel`) — never via `@/components`. Importing through the grouping barrel from within the folder it exports creates a circular dependency.
+  - ✅ `import { GlassPanel } from '../GlassPanel/GlassPanel'` — from inside `MentionPopup/MentionPopup.tsx`
+  - ❌ `import { GlassPanel } from '@/components'` — circular: the barrel exports `MentionPopup`, which imports from the barrel
 
 ### Component Internals
 
