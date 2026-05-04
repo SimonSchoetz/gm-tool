@@ -2,7 +2,7 @@
 
 ## MVP
 
-### Horizontal Build
+### Vertical Build
 
 - Fix: Claude's Frontend Implementation
 - Feature: Summary Popup
@@ -11,16 +11,16 @@
 - Feature: Image Drag&Drop
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: Random Tables
+- Feature: References List (Where each screen is tagged)
+- Feature: Session Log Screen
 
-### Vertical Build
+### Horizontal Build
 
 - Feature: PC Screens
 - Feature: Faction Screens
 - Feature: Monster Screens
 - Feature: Items Screens
 - Feature: Places Screens
-- Feature: References List (Where each screen is tagged)
-- Feature: Session Log Screen
 
 ### Tech Debt
 
