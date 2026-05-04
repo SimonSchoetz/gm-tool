@@ -1,0 +1,28 @@
+.mention-popup {
+  position: fixed;
+  left: var(--rt-x);
+  width: 280px;
+}
+
+.mention-popup--below {
+  top: var(--rt-y);
+}
+
+.mention-popup--above {
+  bottom: calc(100vh - var(--rt-y));
+}
+
+.mention-popup-drag-handle {
+  cursor: default;
+}
+
+.mention-popup-drag-handle:active {
+  cursor: grabbing;
+}
+
+.mention-popup-menu-bar {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: flex-end;
+  padding: var(--spacing-xs);
+}
