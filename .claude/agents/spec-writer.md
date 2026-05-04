@@ -124,6 +124,15 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    Do not apply it when the spec implements a rule that already exists in CLAUDE.md
    and the user has pointed out a single violation — that is a local fix, not a
    layer-level pattern introduction.
+
+   **Violations found during context scanning**: When step 5 context scanning
+   reveals a CLAUDE.md violation in a file that is not listed as Modified and
+   is not covered by the layer-consistency check above — audit that file only
+   if it is in the same domain layer or module as the feature being specced.
+   If a violation is found, add a cleanup sub-feature to the spec covering
+   that file. Do not scan files outside the feature's domain layer or module
+   for this purpose — context scanning is bounded by the feature's neighborhood,
+   not the whole codebase.
 6. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
    layers in dependency order: DB → Services → DAL → Frontend. A layer may
    only reference what layers below it have already specified.

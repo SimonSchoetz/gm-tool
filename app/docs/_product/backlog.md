@@ -21,11 +21,9 @@
 - Feature: Places Screens
 - Feature: References List (Where each screen is tagged)
 - Feature: Session Log Screen
-- Feature: Breadcrumbs in header section can be used for navigation
 
 ### Tech Debt
 
-- Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
 - `__root.tsx` -> resolve question in line 9
 
@@ -33,6 +31,8 @@
 
 ### Done
 
+- Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
+- Feature: Breadcrumbs in header section can be used for navigation
 - Feature: One-click-capability for delete dialog
 - Fix: exactOptionalPropertyTypes cleanup
 - Refactor: Enums to types

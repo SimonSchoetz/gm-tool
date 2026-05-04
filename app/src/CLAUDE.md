@@ -80,7 +80,7 @@ src/
 - each component has its own folder
 - each component has its own `.css` file
 - Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
-- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`.
+- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`.
 - `helper/` and `components/` each have an `index.ts` as a within-module grouping barrel — explicit named exports, never re-exported from the parent `ComponentName/index.ts`. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory). A flat single-file sub-component is exported directly from the `components/` barrel.
   - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
   - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
@@ -101,18 +101,23 @@ Never leave an IIFE in a render return.
 
 **Props pattern — three cases, pick exactly one:**
 
-1. `HtmlProps<'element'>` — the component is a thin styled wrapper over a native HTML element and must forward all native attributes to it.
+Selection is a strict gate — apply in order, stopping at the first match. The question at each step is "what does the root node render?", not "what props does the consumer currently pass?":
+
+1. Does the root node render a native HTML element and forward attributes to it? → `HtmlProps<'element'>`
    - ✅ `type GlassPanelProps = { radius?: RadiusSize } & HtmlProps<'div'>`
    - ❌ `DivHTMLAttributes<HTMLDivElement>` or `React.HTMLProps<HTMLDivElement>` — always use the `HtmlProps` alias, never the raw React type
 
-2. `React.ComponentProps<typeof Parent>` — the component extends a specific existing component and must stay in sync with its prop shape.
+2. Does the root node render a specific existing component and stay in sync with its prop shape? → `React.ComponentProps<typeof Parent>`
    - ✅ `type Props = { buttonStyle?: 'danger' } & React.ComponentProps<typeof ActionContainer>`
 
-3. `FCProps<Props>` — the component has a closed API that does not extend any HTML element or parent component. Always declare the props as a named `type Props = { ... }` and type the component assignment as `FCProps<Props>`.
+3. Neither of the above? → `FCProps<Props>` — closed API. Always declare the props as a named `type Props = { ... }` and type the component assignment as `FCProps<Props>`.
    - ✅ `type Props = { onSearch: (term: string) => void; placeholder?: string }`
         `export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => { ... }`
    - ❌ `const SearchInput = ({ onSearch }: { onSearch: () => void }) => { ... }` — inline props destructuring without FCProps
    - ❌ `const SearchInput: React.FC<Props> = ...` — use FCProps, not React.FC
+   - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely — do not write `type Props = object` or `type Props = Record<string, never>`.
+     - ✅ `export const AdventureCrumb = () => { ... }`
+     - ❌ `export const AdventureCrumb: FCProps<Props> = () => { ... }` with an empty or placeholder Props body
 
 **Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
 
