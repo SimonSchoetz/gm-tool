@@ -1,7 +1,5 @@
 # Frontend
 
-Follows the global file organization conventions from the root CLAUDE.md.
-
 ## Structure
 
 ```text
@@ -63,6 +61,28 @@ src/
 └── main.tsx
 ```
 
+## File Organization
+
+### Barrel Files
+
+Two directory types exist — distinguish them before adding or deleting a barrel:
+
+- **Module directory**: owns a single domain entity (`npcs/`, `adventures/`, `table-config/`). Always exposes its public API through an `index.ts`. This barrel is required.
+- **Grouping folder**: organizes module directories but owns no domain itself (`data-access-layer/`, `components/`, `util/`, `hooks/`, `services/`). Every grouping folder under `src/` **requires** a barrel (`index.ts`) with explicit named exports — `export *` is banned in grouping barrels. External consumers always import from exactly one level: `@/components`, `@/data-access-layer`, `@/util`, etc. — never deeper. Within-module imports use the module directory barrel via relative path (`./SortableListItem`, not `@/components/SortableList/SortableListItem`). Exceptions with no barrel: `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only), `assets/`.
+- `@db` is an explicit exception: no grouping barrel exists at the db root. See `app/db/CLAUDE.md` — Naming for the authoritative import depth rule.
+- In **module directory barrels**, `export *` is permitted when the file has a single, obvious public concern (one component + its types) with no internals to leak. Use explicit named exports when a file exports multiple distinct things or has implementation details that should stay private. The trigger: if you would have to think about whether a new export should be public, use explicit exports.
+  - ✅ GOOD: `data-access-layer/npcs/index.ts` — module directory, barrel required
+  - ✅ GOOD: `export { useNpcs, useNpc } from './npcs'` in a grouping barrel — explicit named exports only, never `export *`
+  - ❌ BAD: missing `data-access-layer/index.ts` — grouping barrels are unconditionally required, not optional
+  - ❌ BAD: `export * from './npcKeys'` in `npcs/index.ts` — accidentally leaks internal query key factories; if `npcKeys` is public API, name it explicitly
+
+### 1 Concern → 1 File (frontend examples)
+
+In the data-access-layer, one concern = one file:
+
+- ✅ GOOD: `sessionKeys.ts` owns all query key factories for sessions; `useSession.ts` owns the single-entity query + mutations; `useSessions.ts` owns the collection query + mutations — no provider, TanStack Query's shared cache deduplicates across hooks
+- ❌ BAD: A `DomainProvider` that owns mutations and passes them as props — TanStack Query replaces manual providers; the hooks ARE the data access layer
+
 ### Screens
 
 - screens are what would be different pages on a website
@@ -74,6 +94,30 @@ src/
 ### providers/
 
 **providers/** is for app-level UI infrastructure — React Context providers that wrap the app root and expose hooks. Data infrastructure (e.g., `TanstackQueryClientProvider`) stays in `data-access-layer/`. `providers/` is a grouping folder: its `index.ts` uses explicit named exports. Each provider lives in its own module directory with a required `index.ts` barrel.
+
+### Coding Style
+
+- TypeScript only. No JavaScript files in `src/`.
+- Use modern arrow function syntax. Classes are permitted only where a third-party framework API requires inheritance — e.g., Lexical node types (extending `DecoratorNode`, `TextNode`, etc.) and `MenuOption` subclasses. Do not introduce classes for any other reason.
+- **Error types use factory functions, not classes.** Create typed errors with a factory function and type narrowing — never `class XxxError extends Error`. `instanceof` is not used in this codebase — all errors route to the Error Boundary via `throwOnError: true`.
+
+  ```ts
+  // ✅ GOOD
+  export type SessionLoadError = Error & { name: 'SessionLoadError' };
+  export const sessionLoadError = (cause?: unknown): SessionLoadError => {
+    const error = new Error(`Failed to load sessions: ${String(cause)}`) as SessionLoadError;
+    error.name = 'SessionLoadError';
+    return error;
+  };
+
+  // ❌ BAD
+  export class SessionLoadError extends Error { ... }
+  ```
+
+- Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
+  - ❌ BAD: `let session: Session | undefined;`
+  - ✅ GOOD: `let session: Session | null = null;`
+- **`useLayoutEffect` over `useEffect` only when a DOM measurement or paint-synchronous side effect is required** — the canonical case is reading layout geometry (`getBoundingClientRect`, `scrollWidth`, `offsetHeight`) and applying a state update that must not cause a visible flash. All other effects use `useEffect`. When `useLayoutEffect` is chosen, an inline comment stating the specific paint-synchronous requirement is required — "avoids flicker" alone is not sufficient.
 
 ### Component Library
 
@@ -211,7 +255,7 @@ When a constant is shared by two or more files within the same module directory,
 
 **What belongs in `domain/`:**
 
-- Error factory functions and their types (see root CLAUDE.md — Error types use factory functions)
+- Error factory functions and their types (see `### Coding Style` above)
 - Domain-specific TypeScript types that are not derived from the db schema
 - Validation rules that express business constraints (e.g. allowed values, formats)
 
