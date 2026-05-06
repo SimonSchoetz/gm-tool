@@ -111,6 +111,8 @@ An element included because it was present in context (a system prompt, a
 template, a prior example) without an independent reason for its value in this
 specific proposal must be dropped or flagged before output.
 
+**Criterion 3 — Restatement completeness:** When any teammate submits a "no change — existing rule covers this" verdict, the coordinator must require that teammate to state explicitly which step or clause of the cited rule fires and why it applies to this specific case. A named rule with no stated firing mechanism is not a complete verdict — block it and ask for the mechanism before accepting the verdict or moving to Phase 2.
+
 ## Output to User
 
 Present a unified summary:

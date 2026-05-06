@@ -120,6 +120,9 @@ Never open a response with a positive affirmation directed at the user or a team
 - **Ownership boundaries are not negotiable**: If a structural constraint seems to justify putting logic in a component that the separation-of-concerns rules say should not own it, find an alternative — do not centralise and do not defend the decision if challenged. When the user questions why a component owns something it shouldn't, treat that as an instruction to refactor, not an invitation to explain the rationale.
   - ❌ BAD: "I put grid layout in `SortableList` because header and items are siblings and need a shared value"
   - ✅ GOOD: Find a way for each component to derive what it needs independently (e.g. both read from `TableConfigProvider` directly)
+- **Context value types must contain only what external consumers call through the hook.** A function called exclusively inside the provider's own module is not part of the public API — it belongs in local scope, not on the `ContextValue` type. Placing provider-internal functions on the context type widens the public interface beyond what consumers need and obscures which operations are genuinely external.
+  - ❌ BAD: `updatePopupZIndex` and `updatePopupPosition` on `PinnedPopupsContextValue` when only the provider's render loop calls them
+  - ✅ GOOD: `updatePopupZIndex` and `updatePopupPosition` defined as local functions inside the provider; `PinnedPopupsContextValue` exposes only what `usePinnedPopups()` callers actually invoke
 - **DRY (Don't Repeat Yourself)**: Always reuse existing functions instead of duplicating logic
   - If a function already exists that performs the needed operation, call it instead of reimplementing
   - Compose complex operations from existing simple functions
