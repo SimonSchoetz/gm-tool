@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { PopupPosition, PopupPlacement } from '@/components';
+import type { PopupPlacement, PopupPosition } from '@/components';
 
 export type ShowPopupArgs = {
   entityId: string;
@@ -18,8 +18,6 @@ export type PinnedPopupsContextValue = {
   pinPopup: (entityId: string) => void;
   removePopup: (entityId: string) => void;
   hasPopup: (entityId: string) => boolean;
-  updatePopupZIndex: (entityId: string, zIndex: number) => void;
-  updatePopupPosition: (entityId: string, position: PopupPosition) => void;
 };
 
 export const PinnedPopupsContext =

@@ -97,8 +97,6 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
     pinPopup,
     removePopup,
     hasPopup,
-    updatePopupZIndex,
-    updatePopupPosition,
   };
 
   return (
