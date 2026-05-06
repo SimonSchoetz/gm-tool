@@ -40,8 +40,14 @@ boundaries. You own the details that would trip up an implementing instance:
 - For every first-party import path named in the spec — whether proposed by an
   upstream agent or derived independently — verify it resolves from the importing
   file's location. Confirm the importer's directory, resolve the relative segments,
-  and verify the result exists before including the path. A target that exists at
-  the right name does not make the import valid from every importer location.
+  and verify the result is a specific file (not a directory) before including the
+  path. A target that exists at the right name does not make the import valid from
+  every importer location. When an import resolves into a directory whose
+  component file shares the directory name (e.g., `ComponentName/ComponentName`),
+  check whether a barrel (`index.ts`) exists at that directory. If a barrel
+  exists, use the barrel form (`ComponentName`) — the explicit double-name file
+  form is wrong. If no barrel exists, the explicit file form
+  (`ComponentName/ComponentName`) is the only valid import and must be used.
 
 ## Audience
 
@@ -154,6 +160,15 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    contradicts a declared principle is an internal inconsistency — correct the
    example before emitting. The CLAUDE.md compliance check above is outward-only;
    it does not catch contradictions between two parts of the same spec.
+
+   For every code example in the spec: read `app/tsconfig.json` compilerOptions
+   and `app/eslint.config.js` before finalizing the example. Verify the example
+   is valid under the active compiler flags (e.g., `exactOptionalPropertyTypes`
+   makes assigning `T | undefined` to an optional property typed as `T` a type
+   error) and the active ESLint plugin rules (e.g., `react-hooks` ref-access
+   restrictions ban reading a ref inside a render callback). A code example that
+   passes type declaration checks but violates a strictness flag or plugin rule
+   will fail at implementation time.
 
 ## Output
 

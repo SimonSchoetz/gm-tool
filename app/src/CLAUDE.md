@@ -124,11 +124,9 @@ In the data-access-layer, one concern = one file:
 - each component has its own folder
 - each component has its own `.css` file
 - Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
-- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`. When a sub-component is rendered by two or more unrelated parents, it belongs to neither — place it as a peer module directory at the nearest shared ancestor. For top-level components in `components/`, this means a standalone `components/SubComponentName/` directory alongside its consumers, not nested under either of them.
+- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`. When a sub-component is rendered by two or more unrelated parents, it belongs to neither — place it as a peer module directory at the nearest shared ancestor. For top-level components in `components/`, this means a standalone `components/SubComponentName/` directory alongside its consumers, not nested under either of them. **Sub-component ownership does not apply to provider modules.** A component rendered exclusively by a provider belongs in `components/`, not inside the provider's module directory. `providers/` is infrastructure; its `components/` subdirectory (if any) is reserved for provider-internal structural fragments, not domain UI.
   - ✅ `components/MentionPopup/` — domain UI components belong in `components/` regardless of consumer count; the sub-component ownership rule applies within the component library only, not to provider modules
   - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — provider modules are infrastructure; they do not adopt domain UI components as sub-components even when they are the sole renderer
-
-**Sub-component ownership does not apply to provider modules.** A component rendered exclusively by a provider belongs in `components/`, not inside the provider's module directory. `providers/` is infrastructure; its `components/` subdirectory (if any) is reserved for provider-internal structural fragments, not domain UI.
 - `helper/` and `components/` each have an `index.ts` as a within-module grouping barrel — explicit named exports, never re-exported from the parent `ComponentName/index.ts`. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory). A flat single-file sub-component is exported directly from the `components/` barrel.
   - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
   - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
@@ -136,7 +134,6 @@ In the data-access-layer, one concern = one file:
   - ❌ `import { AvatarCell } from '../components/AvatarCell/AvatarCell'` — double-name import, always wrong regardless of nesting depth
   - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
 - **Sibling imports within `components/` use relative paths, never the barrel.** A component inside `components/` that needs another top-level component from the same grouping folder must import it via a relative path (e.g., `../GlassPanel/GlassPanel`) — never via `@/components`. Importing through the grouping barrel from within the folder it exports creates a circular dependency.
-  - ✅ `import { GlassPanel } from '../GlassPanel/GlassPanel'` — from inside `MentionPopup/MentionPopup.tsx`
   - ❌ `import { GlassPanel } from '@/components'` — circular: the barrel exports `MentionPopup`, which imports from the barrel
 
 ### Component Internals
@@ -163,7 +160,7 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
 
 3. Neither of the above? → `FCProps<Props>` — closed API. Always declare the props as a named `type Props = { ... }` and type the component assignment as `FCProps<Props>`.
    - ✅ `type Props = { onSearch: (term: string) => void; placeholder?: string }`
-        `export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => { ... }`
+     `export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => { ... }`
    - ❌ `const SearchInput = ({ onSearch }: { onSearch: () => void }) => { ... }` — inline props destructuring without FCProps
    - ❌ `const SearchInput: React.FC<Props> = ...` — use FCProps, not React.FC
    - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely — do not write `type Props = object` or `type Props = Record<string, never>`.
