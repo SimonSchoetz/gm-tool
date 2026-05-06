@@ -3,10 +3,9 @@ import { useNavigate } from '@tanstack/react-router';
 import { cn } from '@/util';
 import { buildEntityPath } from '@/domain';
 import { useDraggable } from '@/hooks';
-import { PinIcon, PinOffIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import GlassPanel from '../GlassPanel/GlassPanel';
-import { ClickableIcon } from '../ClickableIcon';
 import { MentionPopupContent } from '../MentionPopupContent';
+import { MentionPopupHeader } from './components';
 import { FCProps } from '@/types';
 import './MentionPopup.css';
 
@@ -17,6 +16,7 @@ type Props = {
   entityId: string;
   entityType: string;
   adventureId: string | null;
+  name: string;
   position: PopupPosition;
   placement: PopupPlacement;
   zIndex?: number;
@@ -33,6 +33,7 @@ export const MentionPopup: FCProps<Props> = ({
   entityId,
   entityType,
   adventureId,
+  name,
   position,
   placement,
   zIndex,
@@ -45,7 +46,6 @@ export const MentionPopup: FCProps<Props> = ({
   onMouseLeaveBridge,
 }) => {
   const [isPinned, setIsPinned] = useState(initialIsPinned);
-  const [isHovered, setIsHovered] = useState(false);
 
   const { position: dragPosition, draggableProps } = useDraggable(
     position,
@@ -65,20 +65,11 @@ export const MentionPopup: FCProps<Props> = ({
     onPin?.();
   };
 
-  const handleUnpin = () => {
-    setIsPinned(false);
-    if (!isHovered) {
-      onRemove();
-    }
-  };
-
   const handleMouseEnter = () => {
-    setIsHovered(true);
     onMouseEnterBridge?.();
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
     onMouseLeaveBridge?.();
     if (!isPinned) {
       onRemove();
@@ -99,41 +90,14 @@ export const MentionPopup: FCProps<Props> = ({
       onMouseLeave={handleMouseLeave}
       onMouseDown={() => onBringToFront?.()}
     >
-      <div
-        className='mention-popup-drag-handle'
-        {...(isPinned ? draggableProps : {})}
-      >
-        <div className='mention-popup-menu-bar'>
-          {!isPinned && (
-            <ClickableIcon
-              icon={<PinIcon />}
-              onClick={handlePin}
-              label='Pin popup'
-              title='Pin'
-            />
-          )}
-          {isPinned && (
-            <ClickableIcon
-              icon={<PinOffIcon />}
-              onClick={handleUnpin}
-              label='Unpin popup'
-              title='Unpin'
-            />
-          )}
-          <ClickableIcon
-            icon={<ExternalLinkIcon />}
-            onClick={handleNavigate}
-            label='Navigate to entity'
-            title='Navigate'
-          />
-          <ClickableIcon
-            icon={<XIcon />}
-            onClick={onRemove}
-            label='Close popup'
-            title='Close'
-          />
-        </div>
-      </div>
+      <MentionPopupHeader
+        name={name}
+        isPinned={isPinned}
+        draggableProps={draggableProps}
+        onPin={handlePin}
+        onRemove={onRemove}
+        onNavigate={handleNavigate}
+      />
 
       <MentionPopupContent
         entityId={entityId}

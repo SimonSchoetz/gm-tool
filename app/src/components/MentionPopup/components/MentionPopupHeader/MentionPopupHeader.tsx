@@ -1,0 +1,65 @@
+import React from 'react';
+import { FCProps } from '@/types';
+import { cn } from '@/util';
+import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
+import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
+import './MentionPopupHeader.css';
+
+type DraggableProps = {
+  onPointerDown: (e: React.PointerEvent) => void;
+  onPointerMove: (e: React.PointerEvent) => void;
+  onPointerUp: (e: React.PointerEvent) => void;
+};
+
+type Props = {
+  name: string;
+  isPinned: boolean;
+  draggableProps: DraggableProps;
+  onPin: () => void;
+  onRemove: () => void;
+  onNavigate: () => void;
+};
+
+export const MentionPopupHeader: FCProps<Props> = ({
+  name,
+  isPinned,
+  draggableProps,
+  onPin,
+  onRemove,
+  onNavigate,
+}) => (
+  <div
+    className={cn(
+      'mention-popup-drag-handle',
+      isPinned && 'mention-popup-drag-handle--pinned',
+    )}
+    {...(isPinned ? draggableProps : {})}
+  >
+    <span className='mention-popup-drag-icon'>⠿</span>
+    <div className='mention-popup-drag-name'>{name}</div>
+    <div className='mention-popup-menu-bar'>
+      {!isPinned && (
+        <ClickableIcon
+          icon={<PinIcon />}
+          onClick={onPin}
+          label='Pin popup'
+          title='Pin'
+        />
+      )}
+      {isPinned && (
+        <ClickableIcon
+          icon={<XIcon />}
+          onClick={onRemove}
+          label='Close popup'
+          title='Close'
+        />
+      )}
+      <ClickableIcon
+        icon={<ExternalLinkIcon />}
+        onClick={onNavigate}
+        label='Navigate to entity'
+        title='Navigate'
+      />
+    </div>
+  </div>
+);
