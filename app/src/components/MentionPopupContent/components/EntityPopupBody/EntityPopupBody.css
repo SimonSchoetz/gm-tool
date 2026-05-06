@@ -1,0 +1,14 @@
+.entity-popup-body {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.entity-popup-image {
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.entity-popup-summary {
+  overflow-y: auto;
+}
