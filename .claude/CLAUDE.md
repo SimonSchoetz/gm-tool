@@ -37,6 +37,13 @@ Constraints: Does not reinterpret or challenge architectural decisions — route
 
 ## commands
 
+### /plan-feature
+
+Intent: Run the full story-to-spec pipeline in a single context — story review, architectural decisions, and spec writing in sequence
+Input: A user story in any state of completeness
+Output: A completed spec file, ready for /implement
+Constraints: Each step runs its full interview process before producing output; does not skip steps unless the user explicitly requests it
+
 ### /implement
 
 Intent: Implement a spec file and dealing with execution realism the spec writer can not account for. Additionally, orchestrating iterative review and fix loop
