@@ -65,10 +65,6 @@ export const MentionPopup: FCProps<Props> = ({
     onPin?.();
   };
 
-  const handleMouseEnter = () => {
-    onMouseEnterBridge?.();
-  };
-
   const handleMouseLeave = () => {
     onMouseLeaveBridge?.();
     if (!isPinned) {
@@ -86,7 +82,7 @@ export const MentionPopup: FCProps<Props> = ({
           ...(zIndex !== undefined && { zIndex }),
         } as React.CSSProperties
       }
-      onMouseEnter={handleMouseEnter}
+      onMouseEnter={onMouseEnterBridge}
       onMouseLeave={handleMouseLeave}
       onMouseDown={() => onBringToFront?.()}
     >
