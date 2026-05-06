@@ -66,3 +66,9 @@ a:hover {
 .global-btn-styles:active {
   transform: translateY(1px);
 }
+
+/* 200px is a deliberate one-off for popup avatar sizing — no design token exists for this value */
+.avatar-dimensions {
+  width: 200px;
+  aspect-ratio: 1 / 1;
+}

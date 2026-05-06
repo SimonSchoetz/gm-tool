@@ -1,7 +1,6 @@
 .mention-popup {
   position: fixed;
   left: var(--rt-x);
-  width: 280px;
 }
 
 .mention-popup--below {
