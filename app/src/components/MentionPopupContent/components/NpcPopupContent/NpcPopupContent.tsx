@@ -1,6 +1,6 @@
 import { FCProps } from '@/types';
 import { useNpc } from '@/data-access-layer';
-import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
+import { EntityPopupBody } from '../EntityPopupBody';
 import './NpcPopupContent.css';
 
 type Props = {
