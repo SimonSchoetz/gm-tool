@@ -1,18 +1,23 @@
 import { createContext } from 'react';
 import type { PopupPosition, PopupPlacement } from '@/components';
 
-export type PinPopupArgs = {
+export type ShowPopupArgs = {
   entityId: string;
   entityType: string;
   adventureId: string | null;
+  name: string;
   position: PopupPosition;
   placement: PopupPlacement;
+  onMouseEnterBridge?: () => void;
+  onMouseLeaveBridge?: () => void;
 };
 
 export type PinnedPopupsContextValue = {
-  pinPopup: (args: PinPopupArgs) => void;
+  showPopup: (args: ShowPopupArgs) => void;
+  hidePopup: (entityId: string) => void;
+  pinPopup: (entityId: string) => void;
   removePopup: (entityId: string) => void;
-  isPinned: (entityId: string) => boolean;
+  hasPopup: (entityId: string) => boolean;
   updatePopupZIndex: (entityId: string, zIndex: number) => void;
   updatePopupPosition: (entityId: string, position: PopupPosition) => void;
 };

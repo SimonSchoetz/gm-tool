@@ -3,19 +3,30 @@ import { createPortal } from 'react-dom';
 import { useRouterState } from '@tanstack/react-router';
 import { FCProps } from '@/types';
 import { MentionPopup } from '@/components';
-import type { PopupPosition } from '@/components';
+import type { PopupPosition, PopupPlacement } from '@/components';
 import {
   PinnedPopupsContext,
-  PinPopupArgs,
+  ShowPopupArgs,
   PinnedPopupsContextValue,
 } from './PinnedPopupsContext';
 
-type PinnedPopupEntry = PinPopupArgs & { zIndex: number };
+type PopupEntry = {
+  entityId: string;
+  entityType: string;
+  adventureId: string | null;
+  name: string;
+  position: PopupPosition;
+  placement: PopupPlacement;
+  zIndex: number;
+  pinned: boolean;
+  onMouseEnterBridge: (() => void) | null;
+  onMouseLeaveBridge: (() => void) | null;
+};
 
 type Props = { children: ReactNode };
 
 export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
-  const [popups, setPopups] = useState<PinnedPopupEntry[]>([]);
+  const [popups, setPopups] = useState<PopupEntry[]>([]);
   const topZRef = useRef(1000);
 
   const routerState = useRouterState();
@@ -25,19 +36,47 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
     setPopups([]);
   }, [routerState.location.pathname]);
 
-  const pinPopup = (args: PinPopupArgs) => {
+  const showPopup = (args: ShowPopupArgs) => {
+    const { onMouseEnterBridge, onMouseLeaveBridge, ...entry } = args;
     topZRef.current += 1;
     setPopups((prev) => [
       ...prev.filter((p) => p.entityId !== args.entityId),
-      { ...args, zIndex: topZRef.current },
+      {
+        ...entry,
+        zIndex: topZRef.current,
+        pinned: false,
+        onMouseEnterBridge: onMouseEnterBridge ?? null,
+        onMouseLeaveBridge: onMouseLeaveBridge ?? null,
+      },
     ]);
+  };
+
+  const hidePopup = (entityId: string) => {
+    setPopups((prev) =>
+      prev.filter((p) => p.entityId !== entityId || p.pinned),
+    );
+  };
+
+  const pinPopup = (entityId: string) => {
+    setPopups((prev) =>
+      prev.map((p) =>
+        p.entityId === entityId
+          ? {
+              ...p,
+              pinned: true,
+              onMouseEnterBridge: null,
+              onMouseLeaveBridge: null,
+            }
+          : p,
+      ),
+    );
   };
 
   const removePopup = (entityId: string) => {
     setPopups((prev) => prev.filter((p) => p.entityId !== entityId));
   };
 
-  const isPinned = (entityId: string) =>
+  const hasPopup = (entityId: string) =>
     popups.some((p) => p.entityId === entityId);
 
   const updatePopupZIndex = (entityId: string, zIndex: number) => {
@@ -53,9 +92,11 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
   };
 
   const contextValue: PinnedPopupsContextValue = {
+    showPopup,
+    hidePopup,
     pinPopup,
     removePopup,
-    isPinned,
+    hasPopup,
     updatePopupZIndex,
     updatePopupPosition,
   };
@@ -65,28 +106,36 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
       {children}
       {createPortal(
         <>
-          {popups.map((entry) => (
-            <MentionPopup
-              key={entry.entityId}
-              entityId={entry.entityId}
-              entityType={entry.entityType}
-              adventureId={entry.adventureId}
-              position={entry.position}
-              placement={entry.placement}
-              zIndex={entry.zIndex}
-              initialIsPinned
-              onRemove={() => {
-                removePopup(entry.entityId);
-              }}
-              onPositionChange={(pos) => {
-                updatePopupPosition(entry.entityId, pos);
-              }}
-              onBringToFront={() => {
-                topZRef.current += 1;
-                updatePopupZIndex(entry.entityId, topZRef.current);
-              }}
-            />
-          ))}
+          {popups.map((entry) => {
+            const {
+              pinned,
+              onMouseEnterBridge,
+              onMouseLeaveBridge,
+              ...entrySpread
+            } = entry;
+            return (
+              <MentionPopup
+                key={entry.entityId}
+                {...entrySpread}
+                initialIsPinned={pinned}
+                onRemove={() => {
+                  removePopup(entry.entityId);
+                }}
+                onPin={() => {
+                  pinPopup(entry.entityId);
+                }}
+                onPositionChange={(pos) => {
+                  updatePopupPosition(entry.entityId, pos);
+                }}
+                onBringToFront={() => {
+                  topZRef.current += 1;
+                  updatePopupZIndex(entry.entityId, topZRef.current);
+                }}
+                {...(onMouseEnterBridge !== null && { onMouseEnterBridge })}
+                {...(onMouseLeaveBridge !== null && { onMouseLeaveBridge })}
+              />
+            );
+          })}
         </>,
         document.body,
       )}
