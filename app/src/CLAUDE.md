@@ -241,9 +241,9 @@ When a constant is shared by two or more files within the same module directory,
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
 
-**DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-` to distinguish them from global tokens at a glance.
+**DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance.
 
-- ✅ `style={{ '--rt-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-color)`
+- ✅ `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
 
 **No unilateral additions to `variables.css`:** Never add a new CSS variable to `variables.css` on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime.
