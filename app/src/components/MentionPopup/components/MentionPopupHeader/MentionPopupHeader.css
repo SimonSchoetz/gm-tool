@@ -18,26 +18,24 @@
   cursor: grabbing;
 }
 
-.mention-popup-drag-icon {
-  font-size: var(--font-size-lg);
-  user-select: none;
-  padding: 0 var(--spacing-xs);
-  transition: background-color var(--transition-fast);
-}
-
 .mention-popup-drag-name {
   flex: 1;
-  padding: var(--spacing-xs);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
-  padding-left: var(--spacing-sm);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 0 var(--spacing-xs);
 }
 
 .mention-popup-menu-bar {
   display: flex;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
+}
+
+.mention-popup-menu-bar > * {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-xs);
+}
+.mention-popup-menu-bar > *:hover {
+  scale: 1.1;
 }

@@ -1,6 +1,7 @@
 :root {
   --color-primary-rgb: 57, 156, 187;
   --color-primary: rgb(var(--color-primary-rgb));
+  --color-primary-light: rgb(var(--color-primary-rgb), 0.5);
   --color-primary-hover: rgb(var(--color-primary-rgb), 0.5);
 
   --color-secondary-rgb: 43, 77, 87;

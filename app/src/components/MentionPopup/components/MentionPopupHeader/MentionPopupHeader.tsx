@@ -35,8 +35,10 @@ export const MentionPopupHeader: FCProps<Props> = ({
     )}
     {...(isPinned ? draggableProps : {})}
   >
-    <span className='mention-popup-drag-icon'>⠿</span>
-    <div className='mention-popup-drag-name'>{name}</div>
+    {' '}
+    <div className='mention-popup-drag-name'>
+      {isPinned && <>⠿</>} {name}
+    </div>
     <div className='mention-popup-menu-bar'>
       <ClickableIcon
         icon={<ExternalLinkIcon />}
@@ -57,6 +59,7 @@ export const MentionPopupHeader: FCProps<Props> = ({
           onClick={onRemove}
           label='Close popup'
           title='Close'
+          variant='danger'
         />
       )}
     </div>
