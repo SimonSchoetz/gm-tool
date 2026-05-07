@@ -8,8 +8,8 @@
 }
 
 .screens-container {
-  height: 100%;
+  min-height: 0;
   display: grid;
-  grid-template-rows: auto calc(95vh - 3 * var(--spacing-sm));
+  grid-template-rows: auto 1fr;
   gap: var(--spacing-sm);
 }
