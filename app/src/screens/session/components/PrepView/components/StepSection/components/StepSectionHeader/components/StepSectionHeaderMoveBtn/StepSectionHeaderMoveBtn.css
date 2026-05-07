@@ -5,9 +5,10 @@
   overflow-y: hidden;
 }
 
-/*.step-move-btn-container:hover {
-  border-color: var(--color-fg);
-}*/
+.step-move-btn-container:hover {
+  transition: scale var(--transition-fast);
+  scale: 1.1;
+}
 
 .step-move-btn {
   cursor: pointer;

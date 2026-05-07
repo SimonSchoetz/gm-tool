@@ -5,6 +5,7 @@
 
 .clickable-icon:hover {
   color: var(--color-fg);
+  scale: 1.1;
 }
 
 .clickable-icon--active {

@@ -36,6 +36,3 @@
   display: flex;
   padding: var(--spacing-sm) var(--spacing-xs);
 }
-.mention-popup-menu-bar > *:hover {
-  scale: 1.1;
-}
