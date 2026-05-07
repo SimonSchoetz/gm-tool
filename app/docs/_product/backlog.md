@@ -42,6 +42,18 @@
 
 ## Post MVP
 
+### Beta Ready
+
+- Stable build for mac and windows (maybe linux)
+  - hard drive access sorted out
+- full data export for manual backups
+- import with merging strategy
+- local network to autosync between different devices?
+
+### General
+
+- Feature (Text Editor): External links
+- Feature (Text Editor): Embedded images
 - Feature: Implement prefetching
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: References List (Where each screen is tagged)
