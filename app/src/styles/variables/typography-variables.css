@@ -1,0 +1,14 @@
+:root {
+  --font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-sm: 0.5rem;
+  --font-size-md: 0.75rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: 2.5rem;
+  --line-height-base: 24px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}

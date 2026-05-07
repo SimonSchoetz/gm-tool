@@ -2,10 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import type { RouterContext } from './routes/__root';
-import './styles/reset.css';
-import './styles/variables.css';
-import './styles/global.css';
-import './styles/scrollbar.css';
+import './styles/index.css';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
