@@ -4,15 +4,9 @@
 
 ### Vertical Build
 
-- Fix: Claude's Frontend Implementation
-- Feature: Summary Popup
-  - Feature: Pin-to-foreground functionality
+- Fix: Claude's Frontend Implementation (Ongoing)
 - Feature: Image detail vs reupload
-- Feature: Image Drag&Drop
-- Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: Random Tables
-- Feature: References List (Where each screen is tagged)
-- Feature: Session Log Screen
 
 ### Horizontal Build
 
@@ -31,6 +25,8 @@
 
 ### Done
 
+- Feature: Summary Popup
+  - Feature: Pin-to-foreground functionality
 - Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
 - Feature: Breadcrumbs in header section can be used for navigation
 - Feature: One-click-capability for delete dialog
@@ -43,3 +39,11 @@
 - Fix: Tests
 - Feature: Session Screens (incl. Lazy DM Steps)
 - Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
+
+## Post MVP
+
+- Feature: Implement prefetching
+- Feature: Pin favorites in list screens and make them orderable via drag&drop
+- Feature: References List (Where each screen is tagged)
+- Feature: Session Log Screen
+- Feature: Image Drag&Drop
