@@ -1,6 +1,8 @@
 .entity-popup-body {
   display: flex;
   gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: var(--color-bg-light);
 }
 
 .entity-popup-image {
@@ -10,5 +12,7 @@
 }
 
 .entity-popup-summary {
-  overflow-y: auto;
+  max-width: 400px; /* one-off */
+  min-width: 200px; /* one-off */
+  max-height: var(--summary-content-height);
 }

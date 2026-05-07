@@ -30,23 +30,28 @@ export const MentionPopupHeader: FCProps<Props> = ({
 }) => (
   <div
     className={cn(
-      'mention-popup-drag-handle',
-      isPinned && 'mention-popup-drag-handle--pinned',
+      'mention-popup-header',
+      isPinned && 'mention-popup-header--pinned',
     )}
     {...(isPinned ? draggableProps : {})}
   >
     <span className='mention-popup-drag-icon'>⠿</span>
     <div className='mention-popup-drag-name'>{name}</div>
     <div className='mention-popup-menu-bar'>
-      {!isPinned && (
+      <ClickableIcon
+        icon={<ExternalLinkIcon />}
+        onClick={onNavigate}
+        label='Navigate to entity'
+        title='Navigate'
+      />
+      {!isPinned ? (
         <ClickableIcon
           icon={<PinIcon />}
           onClick={onPin}
           label='Pin popup'
           title='Pin'
         />
-      )}
-      {isPinned && (
+      ) : (
         <ClickableIcon
           icon={<XIcon />}
           onClick={onRemove}
@@ -54,12 +59,6 @@ export const MentionPopupHeader: FCProps<Props> = ({
           title='Close'
         />
       )}
-      <ClickableIcon
-        icon={<ExternalLinkIcon />}
-        onClick={onNavigate}
-        label='Navigate to entity'
-        title='Navigate'
-      />
     </div>
   </div>
 );

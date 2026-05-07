@@ -1,12 +1,17 @@
 .mention-popup {
   position: fixed;
-  left: var(--rt-x);
+  left: var(--rt-mention-pop-up-x);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* one-off: simulates 1px border */
+  box-shadow: var(--shadow-md);
 }
 
 .mention-popup--below {
-  top: var(--rt-y);
+  top: var(--rt-mention-pop-up-y);
 }
 
 .mention-popup--above {
-  bottom: calc(100vh - var(--rt-y));
+  bottom: calc(100vh - var(--rt-mention-pop-up-y));
 }

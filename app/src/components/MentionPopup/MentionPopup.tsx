@@ -74,11 +74,12 @@ export const MentionPopup: FCProps<Props> = ({
 
   return (
     <GlassPanel
+      intensity='bright'
       className={cn('mention-popup', `mention-popup--${placement}`)}
       style={
         {
-          '--rt-x': `${dragPosition.x}px`,
-          '--rt-y': `${dragPosition.y}px`,
+          '--rt-mention-pop-up-x': `${dragPosition.x}px`,
+          '--rt-mention-pop-up-y': `${dragPosition.y}px`,
           ...(zIndex !== undefined && { zIndex }),
         } as React.CSSProperties
       }

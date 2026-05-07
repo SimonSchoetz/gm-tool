@@ -57,7 +57,7 @@ export const MentionBadge: FCProps<Props> = ({
   const handleBadgeMouseEnter = () => {
     if (hasPopup(entityId)) return;
     isMouseOnBadgeRef.current = true;
-    hoverTimerRef.current = setTimeout(showPopupFromBadge, 2000);
+    hoverTimerRef.current = setTimeout(showPopupFromBadge, 500);
   };
 
   const handleBadgeMouseLeave = () => {
@@ -87,7 +87,7 @@ export const MentionBadge: FCProps<Props> = ({
     <span
       ref={badgeRef}
       className='mention-badge'
-      style={{ '--rt-color': color } as React.CSSProperties}
+      style={{ '--rt-mention-pop-up-color': color } as React.CSSProperties}
       onClick={handleClick}
       onMouseEnter={handleBadgeMouseEnter}
       onMouseLeave={handleBadgeMouseLeave}

@@ -13,6 +13,7 @@
 
   --color-bg-rgb: 3, 19, 34;
   --color-bg: rgb(var(--color-bg-rgb));
+  --color-bg-light: rgb(var(--color-bg-rgb), 0.5);
   --color-bg-hover: rgb(var(--color-bg-rgb), 0.5);
 
   --color-danger-rgb: 208, 37, 48;

@@ -1,44 +1,39 @@
-.mention-popup-drag-handle {
+.mention-popup-header {
   display: flex;
   align-items: center;
   color: var(--color-primary);
+  background-color: var(--color-bg-light);
 }
 
-.mention-popup-drag-handle:hover {
+.mention-popup-header:hover {
   color: var(--color-fg);
+  background-color: transparent;
 }
 
-.mention-popup-drag-handle--pinned {
+.mention-popup-header--pinned {
   cursor: grab;
 }
 
-.mention-popup-drag-handle--pinned:active {
+.mention-popup-header--pinned:active {
   cursor: grabbing;
 }
 
 .mention-popup-drag-icon {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   user-select: none;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 0 var(--spacing-xs);
   transition: background-color var(--transition-fast);
-}
-
-.mention-popup-drag-handle:hover .mention-popup-drag-icon {
-  background-color: var(--color-primary-hover);
 }
 
 .mention-popup-drag-name {
   flex: 1;
   padding: var(--spacing-xs);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
   padding-left: var(--spacing-sm);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: background-color var(--transition-fast);
-}
-
-.mention-popup-drag-handle:hover .mention-popup-drag-name {
-  background-color: var(--color-bg-hover);
 }
 
 .mention-popup-menu-bar {

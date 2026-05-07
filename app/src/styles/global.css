@@ -69,6 +69,6 @@ a:hover {
 
 /* 200px is a deliberate one-off for popup avatar sizing — no design token exists for this value */
 .avatar-dimensions {
-  width: 200px;
+  width: var(--summary-content-height);
   aspect-ratio: 1 / 1;
 }
