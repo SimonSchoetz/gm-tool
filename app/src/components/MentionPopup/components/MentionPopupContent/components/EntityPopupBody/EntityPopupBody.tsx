@@ -1,7 +1,7 @@
 import { FCProps } from '@/types';
-import { ImageById } from '../../../ImageById/ImageById';
-import { TextEditor } from '../../../TextEditor/TextEditor';
-import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
+import { ImageById } from '../../../../../ImageById/ImageById';
+import { TextEditor } from '../../../../../TextEditor/TextEditor';
+import { CustomScrollArea } from '../../../../../CustomScrollArea/CustomScrollArea';
 import './EntityPopupBody.css';
 
 type Props = {

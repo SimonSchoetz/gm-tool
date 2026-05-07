@@ -26,6 +26,7 @@ export const MentionBadge: FCProps<Props> = ({
 
   const badgeRef = useRef<HTMLSpanElement>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMouseOnBadgeRef = useRef(false);
   const isMouseOnPopupRef = useRef(false);
 
@@ -44,6 +45,10 @@ export const MentionBadge: FCProps<Props> = ({
       placement,
       onMouseEnterBridge: () => {
         isMouseOnPopupRef.current = true;
+        if (hideTimerRef.current) {
+          clearTimeout(hideTimerRef.current);
+          hideTimerRef.current = null;
+        }
       },
       onMouseLeaveBridge: () => {
         isMouseOnPopupRef.current = false;
@@ -66,9 +71,12 @@ export const MentionBadge: FCProps<Props> = ({
       clearTimeout(hoverTimerRef.current);
       hoverTimerRef.current = null;
     }
-    if (!isMouseOnPopupRef.current) {
-      hidePopup(entityId);
-    }
+    hideTimerRef.current = setTimeout(() => {
+      hideTimerRef.current = null;
+      if (!isMouseOnPopupRef.current) {
+        hidePopup(entityId);
+      }
+    }, 0);
   };
 
   const handleClick = () => {
@@ -80,6 +88,7 @@ export const MentionBadge: FCProps<Props> = ({
   useEffect(() => {
     return () => {
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, []);
 

@@ -4,8 +4,7 @@ import { cn } from '@/util';
 import { buildEntityPath } from '@/domain';
 import { useDraggable } from '@/hooks';
 import GlassPanel from '../GlassPanel/GlassPanel';
-import { MentionPopupContent } from '../MentionPopupContent';
-import { MentionPopupHeader } from './components';
+import { MentionPopupHeader, MentionPopupContent } from './components';
 import { FCProps } from '@/types';
 import './MentionPopup.css';
 
