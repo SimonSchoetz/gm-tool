@@ -37,7 +37,7 @@ Do not read files to build general context. Do not re-read a file already read i
    declared complete.
 5. Propose alternatives: at least one concrete alternative structure with explicit trade-offs
 6. Deliver a verdict
-7. If the verdict produces a refactoring brief: scan every line for unresolved forks ("or", "if needed", "may need to"). Resolve each one against CLAUDE.md conventions and codebase patterns, or surface it to the user as an explicit question before emitting.
+7. If the verdict produces a refactoring brief: scan every line for unresolved forks ("or", "if needed", "may need to"). Resolve each one against CLAUDE.md conventions and codebase patterns, or surface it to the user as an explicit question before emitting. Then, for every file path named in the brief, verify placement against the applicable rules in `app/src/CLAUDE.md`. Architectural intent — "designed for reuse," "likely to gain more consumers," "structurally independent" — is not a valid basis for placement. Placement is determined by actual current facts: who consumes the file today, what layer it belongs to, and what the relevant rule says. If a path violates any placement rule, correct it before emitting.
 
 ## Output Format
 
