@@ -6,7 +6,6 @@
 
 - Fix: Claude's Frontend Implementation (Ongoing)
 - Feature: Image detail vs reupload
-- Feature: Random Tables
 
 ### Horizontal Build
 
@@ -40,18 +39,33 @@
 - Feature: Session Screens (incl. Lazy DM Steps)
 - Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
 
+---
+
 ## Post MVP
 
-### Beta Ready
+### Closed Beta Ready
 
-- Stable build for mac and windows (maybe linux)
-  - hard drive access sorted out
-- full data export for manual backups
-- import with merging strategy
-- local network to autosync between different devices?
+- Epic: Stable build for mac and windows (maybe linux)
+  - hard drive access
+  - managing data directory
+- Feature: full data export for manual backups
+- Feature: data import from manual backups
+- Feature(POC): local network to autosync between different devices
+  - import with merging strategy
 
-### General
+### Open Beta Ready
 
+- Epic: Website to download the latest build
+- Epic: Online community forum
+- Feature: automatic updates
+- Feature: Onboarding
+
+### Ideas Dump (unsorted)
+
+- Feature: Random Tables (see feature outline)
+- Feature: NPC Generator
+  - config like lists of traits & quirks, backgrounds, species, etc.
+    - For quick, random generation: mechanic how common e. g. a species in this world is
 - Feature (Text Editor): External links
 - Feature (Text Editor): Embedded images
 - Feature: Implement prefetching
@@ -59,3 +73,10 @@
 - Feature: References List (Where each screen is tagged)
 - Feature: Session Log Screen
 - Feature: Image Drag&Drop
+- Feature: Loot generator
+- Feature: Monster generator
+- Feature: Combat generator
+- Feature: Combat screen
+  - displays combatants and their order, conditions, turns, and combat events. ect.
+- Feature: Source Material organization
+  - Feature: Bulk import material, e. g. items
