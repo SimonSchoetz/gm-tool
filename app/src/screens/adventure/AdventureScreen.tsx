@@ -8,7 +8,7 @@ import {
   UploadImgBtn,
 } from '@/components';
 import { cn } from '@/util';
-import { getDateTimeString } from '@util/getDateTimeString';
+import { getDateTimeString } from '@util';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
 import { useState } from 'react';
