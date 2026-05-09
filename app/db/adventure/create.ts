@@ -1,10 +1,6 @@
 import { getDatabase } from '../database';
-import {
-  generateId,
-  buildCreateQuery,
-  generateDbTimestamps,
-  getDateTimeString,
-} from '../util';
+import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
+import { getDateTimeString } from '@util/getDateTimeString';
 
 export const create = async (): Promise<string> => {
   const id = generateId();
