@@ -4,8 +4,8 @@
 
 ### Vertical Build
 
-- Fix: Claude's Frontend Implementation (Ongoing)
 - Feature: Image detail vs reupload
+- Feature: Image upload with area selection
 
 ### Horizontal Build
 
@@ -56,14 +56,15 @@
 ### Open Beta Ready
 
 - Epic: Website to download the latest build
-- Epic: Online community forum
+- Epic: Online community
 - Feature: automatic updates
-- Feature: Onboarding
+- Feature (Content): Onboarding
+- Feature (Content): Session Zero
 
 ### Ideas Dump (unsorted)
 
 - Feature: Random Tables (see feature outline)
-- Feature: NPC Generator
+- Epic: NPC Generator
   - config like lists of traits & quirks, backgrounds, species, etc.
     - For quick, random generation: mechanic how common e. g. a species in this world is
 - Feature (Text Editor): External links
@@ -73,10 +74,10 @@
 - Feature: References List (Where each screen is tagged)
 - Feature: Session Log Screen
 - Feature: Image Drag&Drop
-- Feature: Loot generator
-- Feature: Monster generator
-- Feature: Combat generator
-- Feature: Combat screen
+- Epic: Loot generator
+- Epic: Monster generator
+- Epic: Combat generator
+- Epic: Combat screen
   - displays combatants and their order, conditions, turns, and combat events. ect.
 - Feature: Source Material organization
   - Feature: Bulk import material, e. g. items
