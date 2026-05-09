@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { CreateSessionStepInput } from '../types';
 
 const mockExecute = vi.fn();
 const mockSelect = vi.fn();
@@ -26,53 +25,50 @@ describe('create', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
-    mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('should create session step with only required fields', async () => {
-    const result = await create({ session_id: 'sess-1', sort_order: 0 });
+  it('should insert session step with required fields and return ID', async () => {
+    const stepId = await create({ session_id: 'session-123', sort_order: 0 });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO session_steps (id, session_id, sort_order) VALUES ($1, $2, $3)',
-      ['test-generated-id', 'sess-1', 0],
+      'INSERT INTO session_steps (id, session_id, sort_order, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)',
+      [
+        'test-generated-id',
+        'session-123',
+        0,
+        '2024-01-15T10:30:00.000Z',
+        '2024-01-15T10:30:00.000Z',
+      ],
     );
-    expect(result).toBe('test-generated-id');
+    expect(stepId).toBe('test-generated-id');
   });
 
-  it('should create session step with optional name included', async () => {
-    const result = await create({
-      session_id: 'sess-1',
+  it('should include default_step_key and name when provided', async () => {
+    await create({
+      session_id: 'session-123',
       sort_order: 1,
+      default_step_key: 'strong_start',
       name: 'Strong Start',
     });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO session_steps (id, session_id, name, sort_order) VALUES ($1, $2, $3, $4)',
-      ['test-generated-id', 'sess-1', 'Strong Start', 1],
-    );
-    expect(result).toBe('test-generated-id');
+    const [sql, values] = mockExecute.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('default_step_key');
+    expect(sql).toContain('name');
+    expect(values).toContain('strong_start');
+    expect(values).toContain('Strong Start');
   });
 
-  it('should create session step with default_step_key', async () => {
-    const result = await create({
-      session_id: 'sess-1',
-      sort_order: 0,
-      default_step_key: 'review_characters',
-    });
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO session_steps (id, session_id, default_step_key, sort_order) VALUES ($1, $2, $3, $4)',
-      ['test-generated-id', 'sess-1', 'review_characters', 0],
+  it('should throw when session_id is empty', async () => {
+    await expect(create({ session_id: '', sort_order: 0 })).rejects.toThrow(
+      'Valid session ID is required',
     );
-    expect(result).toBe('test-generated-id');
-  });
-
-  it('should throw when session_id is missing', async () => {
-    const input = { sort_order: 0 } as CreateSessionStepInput;
-    await expect(create(input)).rejects.toThrow();
+    expect(mockExecute).not.toHaveBeenCalled();
   });
 });

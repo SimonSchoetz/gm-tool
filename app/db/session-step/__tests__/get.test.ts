@@ -31,6 +31,8 @@ describe('get', () => {
       session_id: 'sess-1',
       sort_order: 0,
       checked: 0,
+      created_at: '2024-01-15T10:30:00.000Z',
+      updated_at: '2024-01-15T10:30:00.000Z',
     };
 
     mockSelect.mockResolvedValue([mockStep]);

@@ -31,12 +31,16 @@ describe('getAllBySession', () => {
       session_id: 'sess-id',
       sort_order: 0,
       checked: 0,
+      created_at: '2024-01-15T10:30:00.000Z',
+      updated_at: '2024-01-15T10:30:00.000Z',
     };
     const step2: SessionStep = {
       id: 'step-2',
       session_id: 'sess-id',
       sort_order: 1,
       checked: 0,
+      created_at: '2024-01-15T10:30:00.000Z',
+      updated_at: '2024-01-15T10:30:00.000Z',
     };
 
     mockSelect.mockResolvedValue([step1, step2]);
