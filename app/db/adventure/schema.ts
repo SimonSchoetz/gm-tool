@@ -30,13 +30,13 @@ export const adventureTable = defineTable({
     },
     created_at: {
       type: 'TEXT',
-      default: 'CURRENT_TIMESTAMP',
-      zod: z.string().optional(),
+      notNull: true,
+      zod: z.string(),
     },
     updated_at: {
       type: 'TEXT',
-      default: 'CURRENT_TIMESTAMP',
-      zod: z.string().optional(),
+      notNull: true,
+      zod: z.string(),
     },
   },
 });

@@ -1,26 +1,19 @@
-import { getDateTimeString } from '@/util';
 import { getDatabase } from '../database';
-import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
-
-type DbTimestamps = {
-  created_at: string;
-  updated_at: string;
-};
-
-type CreationData = {
-  name: string;
-} & DbTimestamps;
+import {
+  generateId,
+  buildCreateQuery,
+  generateDbTimestamps,
+  getDateTimeString,
+} from '../util';
 
 export const create = async (): Promise<string> => {
   const id = generateId();
-
-  const { now, ...timeStamps } = generateDbTimestamps();
+  const { now, ...timestamps } = generateDbTimestamps();
   const name = `New adventure ${getDateTimeString(now)}`;
 
-  const { sql, values } = buildCreateQuery<CreationData>('adventures', id, {
+  const { sql, values } = buildCreateQuery('adventures', id, {
     name,
-    ...timeStamps,
-    test: 'test',
+    ...timestamps,
   });
 
   const db = await getDatabase();
