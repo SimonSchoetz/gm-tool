@@ -13,7 +13,7 @@ type ColumnDefinition = {
     onDelete?: 'CASCADE' | 'SET NULL' | 'RESTRICT';
   };
   zod: z.ZodType;
-  updateZod?: z.ZodType; // Optional: different validation for updates
+  updateZod?: z.ZodType;
 };
 
 type TableDefinition = {
@@ -21,23 +21,10 @@ type TableDefinition = {
   columns: Record<string, ColumnDefinition>;
 };
 
-// Extract Zod schema shape from column definitions
 type ExtractZodShape<T extends Record<string, ColumnDefinition>> = {
   [K in keyof T]: T[K]['zod'];
 };
 
-// Extract create schema shape (excludes id, created_at, updated_at; auto-optional for defaulted columns)
-type ExtractCreateShape<T extends Record<string, ColumnDefinition>> = {
-  [K in keyof T as T[K]['primaryKey'] extends true
-    ? never
-    : K extends 'created_at' | 'updated_at'
-      ? never
-      : K]: T[K] extends { default: string }
-    ? z.ZodOptional<T[K]['zod']>
-    : T[K]['zod'];
-};
-
-// Extract update schema shape (same as create but all optional)
 type ExtractUpdateShape<T extends Record<string, ColumnDefinition>> = {
   [K in keyof T as T[K]['primaryKey'] extends true
     ? never
@@ -52,7 +39,6 @@ type TableSchema<T extends TableDefinition> = {
   name: T['name'];
   createTableSQL: string;
   zodSchema: z.ZodObject<ExtractZodShape<T['columns']>>;
-  createSchema: z.ZodObject<ExtractCreateShape<T['columns']>>;
   updateSchema: z.ZodObject<ExtractUpdateShape<T['columns']>>;
 };
 
@@ -66,9 +52,6 @@ export const defineTable = <T extends TableDefinition>(
     createTableSQL: generateCreateTableSQL(name, columns),
     zodSchema: generateZodSchema(columns) as z.ZodObject<
       ExtractZodShape<T['columns']>
-    >,
-    createSchema: generateCreateSchema(columns) as z.ZodObject<
-      ExtractCreateShape<T['columns']>
     >,
     updateSchema: generateUpdateSchema(columns) as z.ZodObject<
       ExtractUpdateShape<T['columns']>
@@ -117,23 +100,6 @@ const generateZodSchema = (columns: Record<string, ColumnDefinition>) => {
   return z.object(zodSchemaShape);
 };
 
-const generateCreateSchema = (columns: Record<string, ColumnDefinition>) => {
-  const createSchemaShape: Record<string, z.ZodType> = {};
-  for (const [columnName, columnDef] of Object.entries(columns)) {
-    if (
-      !columnDef.primaryKey &&
-      columnName !== 'created_at' &&
-      columnName !== 'updated_at'
-    ) {
-      createSchemaShape[columnName] =
-        columnDef.default !== undefined
-          ? columnDef.zod.optional()
-          : columnDef.zod;
-    }
-  }
-  return z.object(createSchemaShape);
-};
-
 const generateUpdateSchema = (columns: Record<string, ColumnDefinition>) => {
   const updateSchemaShape: Record<string, z.ZodType> = {};
   for (const [columnName, columnDef] of Object.entries(columns)) {
@@ -142,7 +108,6 @@ const generateUpdateSchema = (columns: Record<string, ColumnDefinition>) => {
       columnName !== 'created_at' &&
       columnName !== 'updated_at'
     ) {
-      // Use updateZod if provided, otherwise use zod
       const zodSchema = columnDef.updateZod ?? columnDef.zod;
       updateSchemaShape[columnName] = zodSchema.optional();
     }
