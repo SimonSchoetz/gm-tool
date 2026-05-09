@@ -25,6 +25,7 @@ describe('create', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
+    mockSelect.mockResolvedValue([]);
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
@@ -37,7 +38,10 @@ describe('create', () => {
   it('should insert NPC and return generated ID', async () => {
     const npcId = await create('adventure-123');
 
-    expect(mockExecute).toHaveBeenCalledTimes(1);
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO npcs'),
+      expect.arrayContaining(['test-generated-id']),
+    );
     expect(npcId).toBe('test-generated-id');
   });
 

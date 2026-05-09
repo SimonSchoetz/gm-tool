@@ -28,6 +28,7 @@ describe('create', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
+    mockSelect.mockResolvedValue([]);
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
@@ -40,7 +41,10 @@ describe('create', () => {
   it('should insert adventure and return generated ID', async () => {
     const adventureId = await create();
 
-    expect(mockExecute).toHaveBeenCalledTimes(1);
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO adventures'),
+      expect.arrayContaining(['test-generated-id']),
+    );
     expect(adventureId).toBe('test-generated-id');
   });
 
