@@ -7,7 +7,12 @@ export const create = async (): Promise<string> => {
   const { now, ...timestamps } = generateDbTimestamps();
   const name = `New adventure ${getDateTimeString(now)}`;
 
-  const { sql, values } = buildCreateQuery('adventures', id, {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  const { sql, values } = buildCreateQuery<{
+    name: string;
+    created_at: string;
+    updated_at: string;
+  }>('adventures', id, {
     name,
     ...timestamps,
   });

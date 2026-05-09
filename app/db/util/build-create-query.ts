@@ -3,10 +3,13 @@ type CreateQuery = {
   values: unknown[];
 };
 
-export const buildCreateQuery = (
+/* eslint-disable @typescript-eslint/no-unnecessary-type-parameters */
+export const buildCreateQuery = <
+  T extends Record<string, string | number | null>,
+>(
   tableName: string,
   id: string,
-  data: Record<string, string | number | null>,
+  data: T,
 ): CreateQuery => {
   const columns: string[] = ['id'];
   const placeholders: string[] = ['$1'];

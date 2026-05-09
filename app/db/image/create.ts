@@ -32,7 +32,14 @@ export const create = async ({
   const { created_at, updated_at } = generateDbTimestamps();
 
   const db = await getDatabase();
-  const { sql, values } = buildCreateQuery('images', id, {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  const { sql, values } = buildCreateQuery<{
+    file_extension: string;
+    original_filename: string | null;
+    file_size: number;
+    created_at: string;
+    updated_at: string;
+  }>('images', id, {
     file_extension: extension,
     original_filename: originalFilename,
     file_size: fileSize,

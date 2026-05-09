@@ -12,7 +12,12 @@ export const create = async (adventure_id: string): Promise<string> => {
   const id = generateId();
   const { created_at, updated_at } = generateDbTimestamps();
 
-  const { sql, values } = buildCreateQuery('sessions', id, {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  const { sql, values } = buildCreateQuery<{
+    adventure_id: string;
+    created_at: string;
+    updated_at: string;
+  }>('sessions', id, {
     adventure_id,
     created_at,
     updated_at,

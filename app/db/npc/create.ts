@@ -18,7 +18,14 @@ export const create = async (adventure_id: string): Promise<string> => {
   const { now, ...timestamps } = generateDbTimestamps();
   const name = `New NPC ${getDateTimeString(now)}`;
 
-  const { sql, values } = buildCreateQuery('npcs', id, {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  const { sql, values } = buildCreateQuery<{
+    adventure_id: string;
+    name: string;
+    summary: string;
+    created_at: string;
+    updated_at: string;
+  }>('npcs', id, {
     adventure_id,
     name,
     summary: templates.summary,

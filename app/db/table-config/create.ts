@@ -12,7 +12,14 @@ export const create = async (data: CreateTableConfigInput): Promise<string> => {
   const id = generateId();
   const { created_at, updated_at } = generateDbTimestamps();
 
-  const { sql, values } = buildCreateQuery('table_config', id, {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  const { sql, values } = buildCreateQuery<{
+    table_name: string;
+    color: string;
+    layout: string;
+    created_at: string;
+    updated_at: string;
+  }>('table_config', id, {
     table_name: data.table_name,
     color: data.color,
     layout: JSON.stringify(layoutResult.data),

@@ -3,10 +3,11 @@ type UpdateQuery = {
   values: unknown[];
 };
 
-export const buildUpdateQuery = (
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export const buildUpdateQuery = <T extends Record<string, unknown>>(
   tableName: string,
   id: string,
-  validated: Record<string, unknown>,
+  validated: T,
 ): UpdateQuery => {
   const fields: string[] = [];
   const values: unknown[] = [];

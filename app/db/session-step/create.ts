@@ -12,7 +12,13 @@ export const create = async (data: CreateSessionStepInput): Promise<string> => {
   const id = generateId();
   const { created_at, updated_at } = generateDbTimestamps();
 
-  const { sql, values } = buildCreateQuery('session_steps', id, {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  const { sql, values } = buildCreateQuery<{
+    session_id: string;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+  }>('session_steps', id, {
     session_id: data.session_id,
     sort_order: data.sort_order,
     created_at,
