@@ -14,14 +14,16 @@ describe('buildCreateQuery', () => {
     expect(values).toEqual(['test-id', 'adv-1', 'Session 1']);
   });
 
-  it('should skip undefined fields', () => {
+  it('should include null values as SQL NULL', () => {
     const { sql, values } = buildCreateQuery('sessions', 'test-id', {
       adventure_id: 'adv-1',
-      name: undefined,
+      name: null,
     });
 
-    expect(sql).toBe('INSERT INTO sessions (id, adventure_id) VALUES ($1, $2)');
-    expect(values).toEqual(['test-id', 'adv-1']);
+    expect(sql).toBe(
+      'INSERT INTO sessions (id, adventure_id, name) VALUES ($1, $2, $3)',
+    );
+    expect(values).toEqual(['test-id', 'adv-1', null]);
   });
 
   it('should produce INSERT with only id when validated object has no defined fields', () => {

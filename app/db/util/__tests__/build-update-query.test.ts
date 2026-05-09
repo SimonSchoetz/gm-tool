@@ -1,16 +1,25 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { buildUpdateQuery } from '../build-update-query';
 
 describe('buildUpdateQuery', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should generate UPDATE SQL for a single field', () => {
     const { sql, values } = buildUpdateQuery('adventures', 'test-id', {
       name: 'New Name',
     });
 
     expect(sql).toBe(
-      'UPDATE adventures SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      'UPDATE adventures SET name = $1, updated_at = $2 WHERE id = $3',
     );
-    expect(values).toEqual(['New Name', 'test-id']);
+    expect(values).toEqual(['New Name', '2024-01-15T10:30:00.000Z', 'test-id']);
   });
 
   it('should generate UPDATE SQL for multiple fields in entry order', () => {
@@ -20,9 +29,14 @@ describe('buildUpdateQuery', () => {
     });
 
     expect(sql).toBe(
-      'UPDATE adventures SET name = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
+      'UPDATE adventures SET name = $1, description = $2, updated_at = $3 WHERE id = $4',
     );
-    expect(values).toEqual(['New Name', 'New Desc', 'test-id']);
+    expect(values).toEqual([
+      'New Name',
+      'New Desc',
+      '2024-01-15T10:30:00.000Z',
+      'test-id',
+    ]);
   });
 
   it('should skip undefined values', () => {
@@ -32,9 +46,9 @@ describe('buildUpdateQuery', () => {
     });
 
     expect(sql).toBe(
-      'UPDATE adventures SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      'UPDATE adventures SET name = $1, updated_at = $2 WHERE id = $3',
     );
-    expect(values).toEqual(['Name', 'test-id']);
+    expect(values).toEqual(['Name', '2024-01-15T10:30:00.000Z', 'test-id']);
   });
 
   it('should use the correct final parameter index for id', () => {
@@ -43,7 +57,7 @@ describe('buildUpdateQuery', () => {
       summary: 'B',
     });
 
-    expect(sql).toContain('updated_at = CURRENT_TIMESTAMP WHERE id = $3');
-    expect(values[2]).toBe('sess-id');
+    expect(sql).toContain('updated_at = $3 WHERE id = $4');
+    expect(values[3]).toBe('sess-id');
   });
 });

@@ -18,9 +18,12 @@ describe('update', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -28,8 +31,8 @@ describe('update', () => {
     await update('test-id', { name: 'Updated NPC' });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE npcs SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['Updated NPC', 'test-id'],
+      'UPDATE npcs SET name = $1, updated_at = $2 WHERE id = $3',
+      ['Updated NPC', '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 
@@ -37,8 +40,8 @@ describe('update', () => {
     await update('test-id', { name: 'New Name', summary: 'New summary' });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE npcs SET name = $1, summary = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
-      ['New Name', 'New summary', 'test-id'],
+      'UPDATE npcs SET name = $1, summary = $2, updated_at = $3 WHERE id = $4',
+      ['New Name', 'New summary', '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 

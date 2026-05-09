@@ -25,9 +25,12 @@ describe('update', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -35,8 +38,8 @@ describe('update', () => {
     await update('test-id', { table_name: 'sessions' });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE table_config SET table_name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['sessions', 'test-id'],
+      'UPDATE table_config SET table_name = $1, updated_at = $2 WHERE id = $3',
+      ['sessions', '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 
@@ -44,8 +47,8 @@ describe('update', () => {
     await update('test-id', { layout: validLayout });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE table_config SET layout = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      [JSON.stringify(validLayout), 'test-id'],
+      'UPDATE table_config SET layout = $1, updated_at = $2 WHERE id = $3',
+      [JSON.stringify(validLayout), '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 

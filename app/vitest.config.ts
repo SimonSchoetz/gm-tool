@@ -17,6 +17,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@db': path.resolve(__dirname, './db'),
+      '@util': path.resolve(__dirname, './util'),
     },
   },
 });

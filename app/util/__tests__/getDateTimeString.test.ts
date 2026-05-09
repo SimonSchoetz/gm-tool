@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getDateTimeString } from '../getDateTimeString';
+import { getDateTimeString } from '@util/getDateTimeString';
 
 describe('getDateTimeString', () => {
   it('includes the year from the input date string', () => {

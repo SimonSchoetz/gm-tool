@@ -18,9 +18,12 @@ describe('update', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -28,8 +31,8 @@ describe('update', () => {
     await update('step-id', { name: 'Updated Name' });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE session_steps SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['Updated Name', 'step-id'],
+      'UPDATE session_steps SET name = $1, updated_at = $2 WHERE id = $3',
+      ['Updated Name', '2024-01-15T10:30:00.000Z', 'step-id'],
     );
   });
 
@@ -37,8 +40,8 @@ describe('update', () => {
     await update('step-id', { checked: 1 });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE session_steps SET checked = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      [1, 'step-id'],
+      'UPDATE session_steps SET checked = $1, updated_at = $2 WHERE id = $3',
+      [1, '2024-01-15T10:30:00.000Z', 'step-id'],
     );
   });
 

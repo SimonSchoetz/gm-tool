@@ -9,7 +9,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -21,9 +21,12 @@ describe('update', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -34,8 +37,13 @@ describe('update', () => {
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE adventures SET name = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
-      ['Updated Name', 'Updated Description', 'test-id']
+      'UPDATE adventures SET name = $1, description = $2, updated_at = $3 WHERE id = $4',
+      [
+        'Updated Name',
+        'Updated Description',
+        '2024-01-15T10:30:00.000Z',
+        'test-id',
+      ],
     );
   });
 
@@ -45,14 +53,14 @@ describe('update', () => {
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE adventures SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['Updated Name', 'test-id']
+      'UPDATE adventures SET name = $1, updated_at = $2 WHERE id = $3',
+      ['Updated Name', '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 
   it('should throw error when id is empty', async () => {
     await expect(update('', { name: 'Test' })).rejects.toThrow(
-      'Valid adventure ID is required'
+      'Valid adventure ID is required',
     );
     expect(mockExecute).not.toHaveBeenCalled();
   });
@@ -61,8 +69,8 @@ describe('update', () => {
     await update('test-id', { name: '' });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE adventures SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['', 'test-id']
+      'UPDATE adventures SET name = $1, updated_at = $2 WHERE id = $3',
+      ['', '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 });

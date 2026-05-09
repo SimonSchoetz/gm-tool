@@ -21,6 +21,7 @@ export default defineConfig(async () => ({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@db': path.resolve(__dirname, './db'),
+      '@util': path.resolve(__dirname, './util'),
     },
     dedupe: ['react', 'react-dom'],
   },

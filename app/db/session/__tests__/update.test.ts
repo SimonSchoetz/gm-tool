@@ -22,9 +22,12 @@ describe('update', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -39,12 +42,13 @@ describe('update', () => {
     await update('test-id-1', updates);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE sessions SET name = $1, description = $2, summary = $3, session_date = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5',
+      'UPDATE sessions SET name = $1, description = $2, summary = $3, session_date = $4, updated_at = $5 WHERE id = $6',
       [
         'Updated Name',
         'Updated Description',
         'Updated summary',
         '2025-10-14',
+        '2024-01-15T10:30:00.000Z',
         'test-id-1',
       ],
     );
@@ -58,8 +62,8 @@ describe('update', () => {
     await update('test-id-1', updates);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE sessions SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['New Name Only', 'test-id-1'],
+      'UPDATE sessions SET name = $1, updated_at = $2 WHERE id = $3',
+      ['New Name Only', '2024-01-15T10:30:00.000Z', 'test-id-1'],
     );
   });
 
@@ -69,8 +73,8 @@ describe('update', () => {
     await update('test-id-1', updates);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE sessions SET active_view = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      ['ingame', 'test-id-1'],
+      'UPDATE sessions SET active_view = $1, updated_at = $2 WHERE id = $3',
+      ['ingame', '2024-01-15T10:30:00.000Z', 'test-id-1'],
     );
   });
 
