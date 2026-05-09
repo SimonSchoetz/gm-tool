@@ -42,7 +42,7 @@ Constraints: Does not reinterpret or challenge architectural decisions — route
 Intent: Run the full story-to-spec pipeline in a single context — story review, architectural decisions, and spec writing in sequence
 Input: A user story in any state of completeness
 Output: A completed spec file, ready for /implement
-Constraints: Each step runs its full interview process before producing output; does not skip steps unless the user explicitly requests it
+Constraints: Each step runs its full interview process before producing output; pauses after Steps 1 and 2 require explicit user approval before the next phase begins; does not skip steps unless the user explicitly requests it
 
 ### /implement
 
@@ -100,7 +100,7 @@ The registry is a caller's reference, not an executor's handbook. Each field has
 If yes → it belongs in the registry constraints field.
 If no → it belongs in the agent or command file only.
 
-A constraint that only governs the executor's own internal process (step ordering, pacing, error handling) does not belong in the registry. Mirroring such constraints creates two sources of truth that will drift. The agent or command file is the authoritative source for executor behavior.
+A constraint that only governs the executor's own internal process (step ordering, pacing, error handling) does not belong in the registry. Mirroring such constraints creates two sources of truth that will drift. The agent or command file is the authoritative source for executor behavior. Note: a full pipeline halt that requires the caller to act before the command continues is not pacing — it changes what the caller must expect and belongs in the registry.
 
 ## Automation Forms
 

@@ -9,15 +9,17 @@ writing. Each step has its own interview phase before producing output.
 ### Step 1 — Story Review
 
 Apply the full process from `.claude/commands/review-story.md` in this context.
-When the arch-review brief is ready and confirmed by the user, proceed to Step 2
-without asking.
+When the arch-review brief is ready, present the final user story to the user and
+stop. Wait for explicit approval before proceeding. Do not begin Step 2 until the
+user confirms.
 
 ### Step 2 — Architectural Decisions
 
 Apply the full process from `.claude/agents/architect.md` in this context. The
 arch-review brief from Step 1 is your input — do not ask the user to re-paste it.
-When the verdict and implementation brief are complete, proceed to Step 3 without
-asking.
+When the verdict and implementation brief are complete, present them to the user
+and stop. Wait for explicit approval before proceeding. Do not begin Step 3 until
+the user confirms.
 
 ### Step 3 — Spec Writing
 

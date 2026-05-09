@@ -92,6 +92,9 @@ Always use Conventional Commits with scope required:
   - ❌ BAD: `const handleMouseEnter = () => onMouseEnterBridge(); <Foo onMouseEnter={handleMouseEnter} />`
   - ✅ GOOD: `<Foo onMouseEnter={onMouseEnterBridge} />`
   - A wrapper is permitted only when it adds a transformation (`() => onClose(id)`), a guard (`() => { if (enabled) onSubmit() }`), or adapts a signature mismatch (`(e: MouseEvent) => onSelect(e.currentTarget.dataset.id)`).
+- **When a file is moved or promoted to a new location, update all consumers to import from the new location — never introduce a re-export in the old barrel solely to preserve existing import paths.** A backward-compat re-export hides the migration, leaves consumers pointing at a stale path through an indirection layer, and violates the principle that imports should reflect where symbols actually live.
+  - ❌ BAD: Adding `export { getDateTimeString } from '@util/getDateTimeString'` to `src/util/index.ts` so existing callers do not need updating
+  - ✅ GOOD: Remove the barrel re-export; update every consumer to `import { getDateTimeString } from '@util/getDateTimeString'` directly
 
 ### Accountability on Missed Requirements
 

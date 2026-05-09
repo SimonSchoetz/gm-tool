@@ -49,6 +49,22 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
   - ❌ BAD: `active_view: z.enum(['prep', 'run']).optional()` on the base schema — allows `undefined` in read types, misrepresenting `NOT NULL`
   - ✅ GOOD: `active_view: z.enum(['prep', 'run'])` on the base schema; `generateCreateSchema` wraps it automatically
 
+### Default Placement Hierarchy
+
+Place defaults as close to the database as possible. Use this hierarchy:
+
+1. **SQL schema** (`DEFAULT` clause in `schema.ts`) — for short static strings (e.g. `'active'`) and numeric literals. These are single-value constants the DB can own entirely.
+2. **`create.ts`** — for any default that cannot be expressed as a SQL literal: computed strings (e.g. `'New Adventure ' + readableDatetimeString()`), and timestamps (e.g. `new Date().toISOString()` for `created_at` / `updated_at` — SQLite's `CURRENT_TIMESTAMP` produces `YYYY-MM-DD HH:MM:SS`, which is not ISO 8601 UTC).
+
+**Exception:** Stringified JSON that is interpreted by a downstream consumer (e.g. a rich-text editor) belongs in `create.ts` even when the value is a static string. The schema is not the right owner for content whose structure is defined by an external component.
+
+Never place defaults in the service layer or frontend. A default that travels up the call stack has left the layer that owns the schema contract.
+
+- ❌ BAD: `adventureService.create()` supplies `name: 'New Adventure ' + readableDatetimeString()` and passes it to `adventure.create()`
+- ✅ GOOD: `adventure/create.ts` computes `name: 'New Adventure ' + readableDatetimeString()` when `input.name` is absent
+- ❌ BAD: Schema column `status TEXT NOT NULL` with no `DEFAULT` — service passes `'active'` on every call
+- ✅ GOOD: Schema column `status TEXT NOT NULL DEFAULT 'active'` — no caller involvement needed
+
 ### INSERT Best Practice
 
 Only specify required fields in INSERT statements. Let the database handle NULL for omitted optional columns:
