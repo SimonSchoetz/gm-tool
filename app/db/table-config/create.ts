@@ -1,6 +1,5 @@
 import { getDatabase } from '../database';
-import { generateId, buildCreateQuery } from '../util';
-import { tableConfigTable } from './schema';
+import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
 import { tableLayoutSchema } from './layout-schema';
 import type { CreateTableConfigInput } from './types';
 
@@ -10,13 +9,20 @@ export const create = async (data: CreateTableConfigInput): Promise<string> => {
     throw new Error(`Invalid layout: ${layoutResult.error.message}`);
   }
 
-  const validated = tableConfigTable.createSchema.parse({
-    ...data,
-    layout: JSON.stringify(layoutResult.data),
-  });
-
   const id = generateId();
-  const { sql, values } = buildCreateQuery('table_config', id, validated);
+  const { created_at, updated_at } = generateDbTimestamps();
+
+  const { sql, values } = buildCreateQuery('table_config', id, {
+    table_name: data.table_name,
+    color: data.color,
+    layout: JSON.stringify(layoutResult.data),
+    created_at,
+    updated_at,
+    ...(data.tagging_enabled !== undefined
+      ? { tagging_enabled: data.tagging_enabled }
+      : {}),
+    ...(data.scope !== undefined ? { scope: data.scope } : {}),
+  });
 
   const db = await getDatabase();
   await db.execute(sql, values);

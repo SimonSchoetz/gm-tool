@@ -33,9 +33,12 @@ describe('create', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -49,17 +52,35 @@ describe('create', () => {
     });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO table_config (id, table_name, color, tagging_enabled, scope, layout) VALUES ($1, $2, $3, $4, $5, $6)',
+      'INSERT INTO table_config (id, table_name, color, layout, created_at, updated_at, tagging_enabled, scope) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
       [
         'test-generated-id',
         'npcs',
         '#3498db',
+        JSON.stringify(validLayout),
+        '2024-01-15T10:30:00.000Z',
+        '2024-01-15T10:30:00.000Z',
         1,
         'adventure',
-        JSON.stringify(validLayout),
       ],
     );
     expect(result).toBe('test-generated-id');
+  });
+
+  it('should omit tagging_enabled and scope from INSERT when not provided', async () => {
+    await create({
+      table_name: 'test',
+      color: '#fff',
+      layout: {
+        searchable_columns: [],
+        columns: [],
+        sort_state: { column: 'name', direction: 'asc' },
+      },
+    });
+
+    const [sql] = mockExecute.mock.calls[0] as [string, unknown[]];
+    expect(sql).not.toContain('tagging_enabled');
+    expect(sql).not.toContain('scope');
   });
 
   it('should throw when layout is invalid', async () => {
