@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { CreateNpcInput } from '../types';
 
 const mockExecute = vi.fn();
 const mockSelect = vi.fn();
@@ -26,46 +25,35 @@ describe('create', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
-    mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('should insert NPC with required fields and return generated ID', async () => {
-    const result = await create({
-      adventure_id: 'test-adventure-id',
-      name: 'Test NPC',
-    });
+  it('should insert NPC and return generated ID', async () => {
+    const npcId = await create('adventure-123');
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO npcs (id, adventure_id, name, summary) VALUES ($1, $2, $3, $4)',
-      [
-        'test-generated-id',
-        'test-adventure-id',
-        'Test NPC',
-        expect.any(String),
-      ],
-    );
-    expect(result).toBe('test-generated-id');
+    expect(mockExecute).toHaveBeenCalledTimes(1);
+    expect(npcId).toBe('test-generated-id');
   });
 
-  it('should allow empty name', async () => {
-    const result = await create({
-      adventure_id: 'test-adventure-id',
-      name: '',
-    });
+  it('should set adventure_id, default name, summary, and ISO timestamps', async () => {
+    await create('adventure-123');
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO npcs (id, adventure_id, name, summary) VALUES ($1, $2, $3, $4)',
-      ['test-generated-id', 'test-adventure-id', '', expect.any(String)],
-    );
-    expect(result).toBe('test-generated-id');
+    const [sql, values] = mockExecute.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('INSERT INTO npcs');
+    expect(values).toContain('adventure-123');
+    const name = values[2] as string;
+    expect(name).toMatch(/^New NPC /);
+    expect(values).toContain('2024-01-15T10:30:00.000Z');
   });
 
-  it('should throw when adventure_id is missing', async () => {
-    const input = { name: 'Test NPC' } as CreateNpcInput;
-    await expect(create(input)).rejects.toThrow();
+  it('should throw when adventure_id is empty', async () => {
+    await expect(create('')).rejects.toThrow('Valid adventure ID is required');
+    expect(mockExecute).not.toHaveBeenCalled();
   });
 });

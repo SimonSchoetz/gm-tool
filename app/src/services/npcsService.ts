@@ -1,6 +1,6 @@
 import * as npcDb from '@db/npc';
 import * as imageService from '@/services/imageService';
-import type { Npc, CreateNpcInput, UpdateNpcInput } from '@db/npc';
+import type { Npc, UpdateNpcInput } from '@db/npc';
 import {
   npcNotFoundError,
   npcLoadError,
@@ -8,7 +8,6 @@ import {
   npcUpdateError,
   npcDeleteError,
 } from '@/domain/npcs';
-import { getDateTimeString } from '@/util';
 
 export type UpdateNpcData = UpdateNpcInput & {
   imgFilePath?: string;
@@ -34,12 +33,7 @@ export const getNpcById = async (id: string): Promise<Npc> => {
 
 export const createNpc = async (adventureId: string): Promise<string> => {
   try {
-    const dto: CreateNpcInput = {
-      adventure_id: adventureId,
-      name: `New NPC ${getDateTimeString(new Date().toISOString())}`,
-    };
-
-    return await npcDb.create(dto);
+    return await npcDb.create(adventureId);
   } catch (err) {
     throw npcCreateError(err);
   }
