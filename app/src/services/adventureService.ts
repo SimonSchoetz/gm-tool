@@ -1,10 +1,6 @@
 import * as adventureDb from '@db/adventure';
 import * as imageService from '@/services/imageService';
-import type {
-  Adventure,
-  CreateAdventureInput,
-  UpdateAdventureInput,
-} from '@db/adventure';
+import type { Adventure, UpdateAdventureInput } from '@db/adventure';
 import {
   adventureNotFoundError,
   adventureLoadError,
@@ -12,7 +8,6 @@ import {
   adventureUpdateError,
   adventureDeleteError,
 } from '@/domain/adventures';
-import { getDateTimeString } from '@/util';
 
 export type UpdateAdventureData = UpdateAdventureInput & {
   imgFilePath?: string;
@@ -39,11 +34,7 @@ export const getAdventureById = async (id: string): Promise<Adventure> => {
 
 export const createAdventure = async (): Promise<string> => {
   try {
-    const dto: CreateAdventureInput = {
-      name: `New adventure $${getDateTimeString(new Date().toISOString())}`,
-    };
-
-    return await adventureDb.create(dto);
+    return await adventureDb.create();
   } catch (err) {
     throw adventureCreateError(err);
   }

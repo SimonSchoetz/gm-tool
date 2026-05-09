@@ -1,13 +1,27 @@
+import { getDateTimeString } from '@/util';
 import { getDatabase } from '../database';
-import { generateId, buildCreateQuery } from '../util';
-import { adventureTable } from './schema';
-import type { CreateAdventureInput } from './types';
+import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
 
-export const create = async (data: CreateAdventureInput): Promise<string> => {
-  const validated = adventureTable.createSchema.parse(data);
+type DbTimestamps = {
+  created_at: string;
+  updated_at: string;
+};
 
+type CreationData = {
+  name: string;
+} & DbTimestamps;
+
+export const create = async (): Promise<string> => {
   const id = generateId();
-  const { sql, values } = buildCreateQuery('adventures', id, validated);
+
+  const { now, ...timeStamps } = generateDbTimestamps();
+  const name = `New adventure ${getDateTimeString(now)}`;
+
+  const { sql, values } = buildCreateQuery<CreationData>('adventures', id, {
+    name,
+    ...timeStamps,
+    test: 'test',
+  });
 
   const db = await getDatabase();
   await db.execute(sql, values);

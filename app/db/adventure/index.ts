@@ -5,7 +5,6 @@ export { update } from './update';
 export { remove } from './remove';
 export type {
   Adventure,
-  CreateAdventureInput,
   UpdateAdventureInput,
   PaginationParams,
   PaginatedResponse,

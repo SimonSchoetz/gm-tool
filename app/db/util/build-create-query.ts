@@ -6,7 +6,7 @@ type CreateQuery = {
 export const buildCreateQuery = (
   tableName: string,
   id: string,
-  validated: Record<string, unknown>
+  validated: Record<string, unknown>,
 ): CreateQuery => {
   const columns: string[] = ['id'];
   const placeholders: string[] = ['$1'];
