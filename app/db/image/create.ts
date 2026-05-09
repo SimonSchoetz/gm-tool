@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { generateId, buildCreateQuery } from '../util';
+import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
 import { getDatabase } from '../database';
 import type { CreateImageInput } from './types';
 
@@ -29,11 +29,15 @@ export const create = async ({
     extension,
   });
 
+  const { created_at, updated_at } = generateDbTimestamps();
+
   const db = await getDatabase();
   const { sql, values } = buildCreateQuery('images', id, {
     file_extension: extension,
     original_filename: originalFilename,
     file_size: fileSize,
+    created_at,
+    updated_at,
   });
   await db.execute(sql, values);
 

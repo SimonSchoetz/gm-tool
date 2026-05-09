@@ -34,9 +34,12 @@ describe('image.create', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
     mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
@@ -48,8 +51,15 @@ describe('image.create', () => {
     const result = await create(input);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-      [expect.any(String), 'jpg', 'my-photo.jpg', 1024],
+      'INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
+      [
+        expect.any(String),
+        'jpg',
+        'my-photo.jpg',
+        1024,
+        '2024-01-15T10:30:00.000Z',
+        '2024-01-15T10:30:00.000Z',
+      ],
     );
 
     expect(typeof result).toBe('string');
@@ -64,8 +74,15 @@ describe('image.create', () => {
     const result = await create(input);
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-      [expect.any(String), 'png', 'image.png', 1024],
+      'INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
+      [
+        expect.any(String),
+        'png',
+        'image.png',
+        1024,
+        '2024-01-15T10:30:00.000Z',
+        '2024-01-15T10:30:00.000Z',
+      ],
     );
 
     expect(typeof result).toBe('string');
@@ -87,12 +104,28 @@ describe('image.create', () => {
       const result = await create(input);
 
       expect(mockExecute).toHaveBeenCalledWith(
-        'INSERT INTO images (id, file_extension, original_filename, file_size) VALUES ($1, $2, $3, $4)',
-        [expect.any(String), ext, `image.${ext}`, 1024],
+        'INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
+        [
+          expect.any(String),
+          ext,
+          `image.${ext}`,
+          1024,
+          '2024-01-15T10:30:00.000Z',
+          '2024-01-15T10:30:00.000Z',
+        ],
       );
       expect(typeof result).toBe('string');
       expect(result).toBeTruthy();
     }
+  });
+
+  it('should set created_at and updated_at as ISO 8601 timestamps', async () => {
+    mockExecute.mockResolvedValue({});
+    await create({ filePath: '/path/to/image.png' });
+
+    const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
+    expect(values[values.length - 2]).toBe('2024-01-15T10:30:00.000Z');
+    expect(values[values.length - 1]).toBe('2024-01-15T10:30:00.000Z');
   });
 
   it('should throw validation error for invalid file extension', async () => {
