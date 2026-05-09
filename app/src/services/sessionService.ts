@@ -1,9 +1,5 @@
 import * as sessionDb from '@db/session';
-import type {
-  Session,
-  CreateSessionInput,
-  UpdateSessionInput,
-} from '@db/session';
+import type { Session, UpdateSessionInput } from '@db/session';
 import * as sessionStepService from './sessionStepService';
 import {
   sessionNotFoundError,
@@ -34,13 +30,9 @@ export const getSessionById = async (id: string): Promise<Session> => {
   return session;
 };
 
-export const createSession = async (
-  data: CreateSessionInput,
-): Promise<string> => {
+export const createSession = async (adventureId: string): Promise<string> => {
   try {
-    const newSessionId = await sessionDb.create({
-      adventure_id: data.adventure_id,
-    });
+    const newSessionId = await sessionDb.create(adventureId);
     await sessionStepService.initDefaultSteps(newSessionId);
     return newSessionId;
   } catch (err) {

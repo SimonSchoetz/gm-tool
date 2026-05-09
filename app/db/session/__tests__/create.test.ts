@@ -28,39 +28,32 @@ describe('create', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({});
-    mockSelect.mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('should insert session including optional name when provided and return generated ID', async () => {
-    const sessionId = await create({
-      name: 'Test Session',
-      adventure_id: 'test-adventure-id',
-    });
+  it('should insert session and return generated ID', async () => {
+    const sessionId = await create('adventure-123');
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, name, adventure_id) VALUES ($1, $2, $3)',
-      ['test-generated-id', 'Test Session', 'test-adventure-id'],
+      'INSERT INTO sessions (id, adventure_id, created_at, updated_at) VALUES ($1, $2, $3, $4)',
+      [
+        'test-generated-id',
+        'adventure-123',
+        '2024-01-15T10:30:00.000Z',
+        '2024-01-15T10:30:00.000Z',
+      ],
     );
     expect(sessionId).toBe('test-generated-id');
   });
 
-  it('should insert session without name (let DB default to NULL)', async () => {
-    const sessionId = await create({
-      adventure_id: 'test-adventure-id',
-    });
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, adventure_id) VALUES ($1, $2)',
-      ['test-generated-id', 'test-adventure-id'],
-    );
-    expect(sessionId).toBe('test-generated-id');
-  });
-
-  it('should throw error when adventure_id is missing', async () => {
-    await expect(create({} as Parameters<typeof create>[0])).rejects.toThrow();
+  it('should throw when adventure_id is empty', async () => {
+    await expect(create('')).rejects.toThrow('Valid adventure ID is required');
+    expect(mockExecute).not.toHaveBeenCalled();
   });
 });

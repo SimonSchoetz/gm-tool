@@ -34,14 +34,16 @@ describe('getAll', () => {
         id: 'id-2',
         adventure_id: 'adv-1',
         name: 'Newer Session',
-        created_at: '2025-10-13',
+        created_at: '2025-10-13T00:00:00.000Z',
+        updated_at: '2025-10-13T00:00:00.000Z',
         active_view: 'prep',
       },
       {
         id: 'id-1',
         adventure_id: 'adv-1',
         name: 'Older Session',
-        created_at: '2025-10-12',
+        created_at: '2025-10-12T00:00:00.000Z',
+        updated_at: '2025-10-12T00:00:00.000Z',
         active_view: 'prep',
       },
     ];

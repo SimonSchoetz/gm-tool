@@ -35,6 +35,8 @@ describe('get', () => {
       name: 'Test Session',
       description: 'Test Description',
       active_view: 'prep',
+      created_at: '2024-01-15T10:30:00.000Z',
+      updated_at: '2024-01-15T10:30:00.000Z',
     };
 
     mockSelect.mockResolvedValue([mockSession]);

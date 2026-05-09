@@ -3,4 +3,4 @@ export { getAll } from './get-all';
 export { get } from './get';
 export { update } from './update';
 export { remove } from './remove';
-export type { Session, CreateSessionInput, UpdateSessionInput } from './types';
+export type { Session, UpdateSessionInput } from './types';
