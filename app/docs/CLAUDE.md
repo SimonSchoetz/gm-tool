@@ -16,6 +16,13 @@ Always use the following structure when writing a spec or plan:
 
 The progress tracker is a sequencing reference. The implementing instance reads it to understand the order and dependencies of sub-features before starting work. It is not a live status document — do not modify it during implementation.
 
+**Foundation SFs must be annotated.** A foundation SF is one that modifies a shared utility or type that all other SFs in the batch depend on — its changes make baseline checks (tsc, eslint) structurally impossible to pass until the dependent SFs are also complete. When a SF is a foundation SF:
+
+- Mark it in the progress tracker with `[FOUNDATION]` appended to its name, so the implementer sees at planning time that the batch has a dependency constraint.
+- In the SF body's opening description, add the full annotation naming every dependent SF: `[FOUNDATION: SF2–SF6 depend on this]`.
+
+Both annotations are required. The tracker marker is a planning-time signal; the SF body annotation is the actionable instruction visible when the implementer is actively in that SF.
+
 ### Key Architectural Decisions
 
 Required section in every spec, placed after the progress tracker and before the first sub-feature section. Document every non-obvious structural choice the implementing instance needs to understand — data model shape, state ownership, persistence decisions, naming corrections, and anything the architecture implies but does not make explicit.

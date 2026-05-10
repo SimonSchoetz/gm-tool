@@ -143,10 +143,29 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    that file. Do not scan files outside the feature's domain layer or module
    for this purpose — context scanning is bounded by the feature's neighborhood,
    not the whole codebase.
-7. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
+7. **Foundation SF detection** — Before writing any SF, scan the full set of
+   sub-features for cross-SF breaking dependencies. A sub-feature is a
+   Foundation SF when it modifies a shared utility (a function, type, or
+   module) that one or more other SFs in the same batch also depend on, and
+   that modification leaves the shared utility in a state where baseline checks
+   (tsc, eslint) structurally cannot pass until all dependent SFs are complete.
+
+   For each Foundation SF found:
+   - Add a lightweight `[FOUNDATION]` marker to the sub-feature's progress
+     tracker entry — this signals at planning time that the batch must be
+     sequenced as a unit.
+   - Add a full `[FOUNDATION: SF<x>–SF<y> depend on this]` annotation to the
+     sub-feature's opening description in the spec body, naming every dependent
+     SF, followed immediately by: "Do not run baseline checks after this SF
+     alone — run only after all SFs named in the annotation are complete."
+
+   If no SF meets this condition, proceed to the next step without adding
+   anything to the spec.
+
+8. Write the spec following the format defined in `app/docs/CLAUDE.md`. Write
    layers in dependency order: DB → Services → DAL → Frontend. A layer may
    only reference what layers below it have already specified.
-8. Before emitting: for every file placement, directory structure decision, and
+9. Before emitting: for every file placement, directory structure decision, and
    implementation detail in the spec, verify it satisfies the applicable rule in
    CLAUDE.md — do not rely on the codebase scan in step 6 to have caught all
    violations. Treat each proposed file as a claim: confirm its location,

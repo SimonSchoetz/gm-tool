@@ -120,3 +120,5 @@ Functions that operate across multiple tables (e.g., `mention-search.ts`) live a
 Every public function in a domain directory (`create`, `get`, `getAll`, `update`, `remove`) must have a corresponding test file in a `__tests__/` subdirectory within that domain directory. See `db/adventure/__tests__/` and `db/session/__tests__/` as reference implementations.
 
 Every test file that calls `vi.mock('@tauri-apps/plugin-sql', ...)` at module scope must include `afterEach(() => { vi.resetModules(); })`. Without it, hoisted module mocks leak across files sharing the same vitest worker, causing order-dependent test failures.
+
+Every test that calls `getDatabase()` exercises the full database init path, which runs migrations and calls `seedTableConfig()`. `seedTableConfig()` calls `database.select()`. If `mockSelect.mockResolvedValue([])` is not set before `getDatabase()` is called, the init will crash on `undefined.length`. Any test file that invokes `getDatabase()` — directly or indirectly — must call `mockSelect.mockResolvedValue([])` in its `beforeEach` block before any other setup.
