@@ -1,7 +1,8 @@
 import * as sessionDb from '@db/session';
 import type { Session, UpdateSessionInput } from '@db/session';
-import * as sessionStepService from './sessionStepService';
+import * as sessionStepDb from '@db/session-step';
 import {
+  LAZY_DM_STEPS,
   sessionNotFoundError,
   sessionLoadError,
   sessionCreateError,
@@ -33,7 +34,13 @@ export const getSessionById = async (id: string): Promise<Session> => {
 export const createSession = async (adventureId: string): Promise<string> => {
   try {
     const newSessionId = await sessionDb.create(adventureId);
-    await sessionStepService.initDefaultSteps(newSessionId);
+    for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
+      await sessionStepDb.create({
+        session_id: newSessionId,
+        sort_order: index,
+        default_step_key: LAZY_DM_STEPS[index].key,
+      });
+    }
     return newSessionId;
   } catch (err) {
     throw sessionCreateError(err);

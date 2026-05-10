@@ -5,7 +5,6 @@ import type {
   UpdateSessionStepInput,
 } from '@db/session-step';
 import {
-  LAZY_DM_STEPS,
   sessionStepLoadError,
   sessionStepCreateError,
   sessionStepUpdateError,
@@ -63,7 +62,7 @@ export const createCustomStep = async (
     return await sessionStepDb.create({
       session_id: sessionId,
       sort_order: maxSortOrder + 1,
-      name: name ?? 'New Step',
+      ...(name !== undefined ? { name } : {}),
     });
   } catch (err) {
     throw sessionStepCreateError(err);
@@ -101,20 +100,5 @@ export const bulkReorderSteps = async (
     }
   } catch (err) {
     throw sessionStepReorderError(err);
-  }
-};
-
-export const initDefaultSteps = async (sessionId: string): Promise<void> => {
-  try {
-    for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
-      const step = LAZY_DM_STEPS[index];
-      await sessionStepDb.create({
-        session_id: sessionId,
-        sort_order: index,
-        default_step_key: step.key,
-      });
-    }
-  } catch (err) {
-    throw sessionStepCreateError(err);
   }
 };
