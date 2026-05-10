@@ -3,7 +3,7 @@ type CreateQuery = {
   values: unknown[];
 };
 
-/* eslint-disable @typescript-eslint/no-unnecessary-type-parameters */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-parameters -- T appears only once, but callers supply an explicit type argument to activate excess property checking on the INSERT data object */
 export const buildCreateQuery = <
   T extends Record<string, string | number | null>,
 >(

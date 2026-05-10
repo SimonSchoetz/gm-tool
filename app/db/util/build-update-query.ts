@@ -3,7 +3,7 @@ type UpdateQuery = {
   values: unknown[];
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters -- T appears only once, but keeping the generic lets callers pass an explicit type argument to activate excess property checking on the UPDATE data object
 export const buildUpdateQuery = <T extends Record<string, unknown>>(
   tableName: string,
   id: string,

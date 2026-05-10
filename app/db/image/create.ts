@@ -32,7 +32,7 @@ export const create = async ({
   const { created_at, updated_at } = generateDbTimestamps();
 
   const db = await getDatabase();
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments -- explicit type argument triggers excess property checking; inference alone does not
   const { sql, values } = buildCreateQuery<{
     file_extension: string;
     original_filename: string | null;
