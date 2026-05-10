@@ -201,6 +201,7 @@ A complete spec file ready to save and hand to a fresh Claude instance.
   type files. For every barrel file listed, specify the required export style
   (explicit named exports vs. `export *`) per the barrel convention in CLAUDE.md —
   never leave this implicit for the implementing instance to infer.
+- When a sub-feature relocates a file, list it under `Moved:` in the "Files affected" subsection — never decompose a move into a `New:` entry plus a deletion note under `Modified:`. When the relocated file also requires content changes, add a note to the `Moved:` entry stating what must change (e.g. internal import paths).
 - Never use "or", "if needed", or "may" for implementation details — resolve them
 - When the spec is expected to exceed ~400 lines, use the split format (root index
   file + per-sub-feature files) as defined in `app/docs/CLAUDE.md`; decide at

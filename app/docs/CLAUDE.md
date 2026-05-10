@@ -35,12 +35,15 @@ In split format, this section lives exclusively in the root index file. Sub-feat
 
 Each sub-feature gets a heading with its name and a short description of its intent, followed by:
 
-**Files affected** — required subsection before the layered breakdown. Two labeled lists:
+**Files affected** — required subsection before the layered breakdown. Three labeled lists:
 
 - `Modified:` — existing files changed by this sub-feature
 - `New:` — files created by this sub-feature
+- `Moved:` — files relocated without content changes: `mv <source> <destination>`
 
 Every file touched must appear here — including barrel files, index files, and type files. No file may appear only in prose.
+
+When a file is relocated, use `Moved:` — never decompose a move into a `New:` entry plus a deletion note under `Modified:`. When the relocated file also requires content changes (e.g. internal import paths must be updated), list it under `Moved:` and add the content changes as a note: `mv <source> <destination>, then update <what changes>`.
 
 **Layered breakdown** — layers in dependency order:
 
