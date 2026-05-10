@@ -1,6 +1,6 @@
 export const getPositionOnPath = (
   path: { x: number; y: number }[],
-  distance: number
+  distance: number,
 ): { x: number; y: number } | null => {
   if (path.length < 2) return null;
 
@@ -20,5 +20,5 @@ export const getPositionOnPath = (
     accumulated += segmentLength;
   }
 
-  return path[path.length - 1];
+  return path.at(-1) ?? null;
 };

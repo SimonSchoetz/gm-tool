@@ -124,8 +124,8 @@ describe('image.create', () => {
     await create({ filePath: '/path/to/image.png' });
 
     const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values[values.length - 2]).toBe('2024-01-15T10:30:00.000Z');
-    expect(values[values.length - 1]).toBe('2024-01-15T10:30:00.000Z');
+    expect(values.at(-2)).toBe('2024-01-15T10:30:00.000Z');
+    expect(values.at(-1)).toBe('2024-01-15T10:30:00.000Z');
   });
 
   it('should throw validation error for invalid file extension', async () => {
