@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import * as imageService from '@/services/imageService';
+import * as imageService from '@services/imageService';
 import { imageKeys } from './imageKeys';
 
 type UseImageMutationsReturn = {

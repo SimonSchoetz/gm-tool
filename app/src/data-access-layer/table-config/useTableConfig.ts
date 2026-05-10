@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { TableConfig, UpdateTableConfigInput } from '@db/table-config';
 import type { SortDirection } from '@db/table-config/layout-schema';
-import * as service from '@/services/tableConfigService';
+import * as service from '@services/tableConfigService';
 import { tableConfigKeys } from './tableConfigKeys';
 
 type UseTableConfigReturn = {

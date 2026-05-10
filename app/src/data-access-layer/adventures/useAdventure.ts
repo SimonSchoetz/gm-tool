@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Adventure } from '@db/adventure';
-import * as service from '@/services/adventureService';
-import type { UpdateAdventureData } from '@/services/adventureService';
+import * as service from '@services/adventureService';
+import type { UpdateAdventureData } from '@services/adventureService';
 import { adventureKeys } from './adventureKeys';
 import { mergeUpdate } from '../mergeUpdate';
 

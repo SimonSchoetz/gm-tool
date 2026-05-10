@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Npc } from '@db/npc';
-import * as service from '@/services/npcsService';
-import type { UpdateNpcData } from '@/services/npcsService';
+import * as service from '@services/npcsService';
+import type { UpdateNpcData } from '@services/npcsService';
 import { npcKeys } from './npcKeys';
 import { mergeUpdate } from '../mergeUpdate';
 

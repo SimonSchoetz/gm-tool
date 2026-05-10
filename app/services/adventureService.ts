@@ -1,5 +1,5 @@
 import * as adventureDb from '@db/adventure';
-import * as imageService from '@/services/imageService';
+import * as imageService from '@services/imageService';
 import type { Adventure, UpdateAdventureInput } from '@db/adventure';
 import {
   adventureNotFoundError,

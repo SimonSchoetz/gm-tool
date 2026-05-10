@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Adventure } from '@db/adventure';
-import * as service from '@/services/adventureService';
+import * as service from '@services/adventureService';
 import { adventureKeys } from './adventureKeys';
 
 type UseAdventuresReturn = {

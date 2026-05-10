@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Npc } from '@db/npc';
-import * as service from '@/services/npcsService';
+import * as service from '@services/npcsService';
 import { npcKeys } from './npcKeys';
 
 export type UseNpcsReturn = {

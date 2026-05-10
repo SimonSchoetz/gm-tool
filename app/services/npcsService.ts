@@ -1,5 +1,5 @@
 import * as npcDb from '@db/npc';
-import * as imageService from '@/services/imageService';
+import * as imageService from '@services/imageService';
 import type { Npc, UpdateNpcInput } from '@db/npc';
 import {
   npcNotFoundError,

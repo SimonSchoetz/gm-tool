@@ -9,8 +9,8 @@ import {
 import { TextNode } from 'lexical';
 import { useParams } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
-import * as mentionSearchService from '@/services/mentionSearchService';
-import type { MentionSearchResult } from '@/services/mentionSearchService';
+import * as mentionSearchService from '@services/mentionSearchService';
+import type { MentionSearchResult } from '@services/mentionSearchService';
 import { MentionNode } from '../nodes';
 import { formatTableLabel } from '@/util';
 import './MentionTypeaheadPlugin.css';

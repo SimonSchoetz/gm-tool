@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { TableConfig } from '@db/table-config';
-import * as service from '@/services/tableConfigService';
+import * as service from '@services/tableConfigService';
 import { tableConfigKeys } from './tableConfigKeys';
 
 type UseTableConfigsReturn = {

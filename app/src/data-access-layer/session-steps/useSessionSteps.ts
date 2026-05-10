@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { SessionStep, UpdateSessionStepInput } from '@db/session-step';
-import * as service from '@/services/sessionStepService';
+import * as service from '@services/sessionStepService';
 import { sessionStepKeys } from './sessionStepKeys';
 import { mergeUpdate } from '../mergeUpdate';
 

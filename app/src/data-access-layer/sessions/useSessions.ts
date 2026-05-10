@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session } from '@db/session';
-import * as service from '@/services/sessionService';
+import * as service from '@services/sessionService';
 import { sessionKeys } from './sessionKeys';
 
 type UseSessionsReturn = {
