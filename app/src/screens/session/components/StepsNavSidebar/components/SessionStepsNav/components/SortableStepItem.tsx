@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { ActionContainer } from '@/components';
 import { cn } from '@/util';
 import './SortableStepItem.css';
-import { LAZY_DM_STEPS } from '@/domain';
+import { LAZY_DM_STEPS } from '@domain';
 
 type SortableStepItemProps = {
   step: SessionStep;

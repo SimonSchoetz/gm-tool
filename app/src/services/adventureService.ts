@@ -7,7 +7,7 @@ import {
   adventureCreateError,
   adventureUpdateError,
   adventureDeleteError,
-} from '@/domain/adventures';
+} from '@domain/adventures';
 
 export type UpdateAdventureData = UpdateAdventureInput & {
   imgFilePath?: string;

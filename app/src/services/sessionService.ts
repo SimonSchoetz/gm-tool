@@ -8,7 +8,7 @@ import {
   sessionCreateError,
   sessionUpdateError,
   sessionDeleteError,
-} from '@/domain';
+} from '@domain';
 
 export const getAllSessions = async (
   adventureId: string,

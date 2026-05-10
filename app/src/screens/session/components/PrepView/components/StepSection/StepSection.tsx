@@ -4,7 +4,7 @@ import { StepSectionHeader, TooltipPanel } from './components';
 import './StepSection.css';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
-import { LAZY_DM_STEPS } from '@/domain';
+import { LAZY_DM_STEPS } from '@domain';
 
 type Props = {
   stepId: string;

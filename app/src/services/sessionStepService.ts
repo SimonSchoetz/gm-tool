@@ -10,7 +10,7 @@ import {
   sessionStepUpdateError,
   sessionStepDeleteError,
   sessionStepReorderError,
-} from '@/domain';
+} from '@domain';
 
 export const getStepsBySessionId = async (
   sessionId: string,

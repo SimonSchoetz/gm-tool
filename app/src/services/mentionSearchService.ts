@@ -1,6 +1,6 @@
 import * as mentionSearch from '@db/mention-search';
 import type { TableConfig } from '@db/table-config';
-import { mentionSearchError } from '@/domain/mentions';
+import { mentionSearchError } from '@domain/mentions';
 
 export type MentionSearchResult = {
   id: string;

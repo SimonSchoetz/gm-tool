@@ -7,7 +7,7 @@ import {
   tableConfigNotFoundError,
   tableConfigLoadError,
   tableConfigUpdateError,
-} from '@/domain/table-config';
+} from '@domain/table-config';
 
 export const getAllTableConfigs = async (): Promise<TableConfig[]> => {
   try {

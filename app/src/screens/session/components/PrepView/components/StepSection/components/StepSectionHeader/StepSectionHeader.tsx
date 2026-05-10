@@ -1,6 +1,6 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { Checkbox, ClickableIcon } from '@/components';
-import { LAZY_DM_STEPS } from '@/domain';
+import { LAZY_DM_STEPS } from '@domain';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
 import { FCProps } from '@/types';

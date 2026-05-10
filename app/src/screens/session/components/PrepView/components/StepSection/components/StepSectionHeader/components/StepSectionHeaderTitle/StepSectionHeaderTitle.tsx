@@ -1,6 +1,6 @@
 import { Input } from '@/components';
 import { useSessionSteps } from '@/data-access-layer';
-import { LAZY_DM_STEPS } from '@/domain';
+import { LAZY_DM_STEPS } from '@domain';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';

@@ -7,7 +7,7 @@ import {
   npcCreateError,
   npcUpdateError,
   npcDeleteError,
-} from '@/domain/npcs';
+} from '@domain/npcs';
 
 export type UpdateNpcData = UpdateNpcInput & {
   imgFilePath?: string;

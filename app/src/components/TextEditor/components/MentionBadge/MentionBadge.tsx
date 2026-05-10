@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { usePinnedPopups } from '@/providers';
 import { FCProps } from '@/types';
-import { buildEntityPath } from '@/domain';
+import { buildEntityPath } from '@domain';
 import type { PopupPlacement } from '@/components';
 import './MentionBadge.css';
 

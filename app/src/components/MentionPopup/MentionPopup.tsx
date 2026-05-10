@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { cn } from '@/util';
-import { buildEntityPath } from '@/domain';
+import { buildEntityPath } from '@domain';
 import { useDraggable } from '@/hooks';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { MentionPopupHeader, MentionPopupContent } from './components';
