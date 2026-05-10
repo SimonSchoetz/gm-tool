@@ -10,12 +10,6 @@ src/
 │   │   ├── ComponentA.tsx
 │   │   └── ComponentA.css
 │   └── index.ts
-├── domain/ # business concepts (errors, types, validation)
-│   ├── domainA/
-│   │   ├── index.ts
-│   │   ├── types.ts # domain specific types when needed
-│   │   ├── validation.ts # business rules when needed
-│   │   └── errors.ts
 ├── hooks/ # reusable React hooks
 │   ├── index.ts
 │   ├── simpleHook.ts # flat file when no helpers needed
@@ -44,9 +38,6 @@ src/
 │   │   ├── ScreenA.css
 │   │   └── components/
 │   └── index.ts
-├── services/ # operations (CRUD, business logic), uses db types and domain errors
-│   ├── index.ts
-│   └── serviceA.ts
 ├── styles/
 │   ├── global.css
 │   ├── reset.css
@@ -248,24 +239,6 @@ When a constant is shared by two or more files within the same module directory,
 
 **No unilateral additions to `variables.css`:** Never add a new CSS variable to `variables.css` on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime.
 
-### Domain Layer
-
-`domain/` owns the frontend's business concepts: error types, domain-specific TypeScript types, and validation rules. It has no runtime dependencies on services, data-access-layer, or db — it is the vocabulary layer that everything else imports from.
-
-**What belongs in `domain/`:**
-
-- Error factory functions and their types (see `### Coding Style` above)
-- Domain-specific TypeScript types that are not derived from the db schema
-- Validation rules that express business constraints (e.g. allowed values, formats)
-
-**What does NOT belong in `domain/`:**
-
-- Types that are purely re-exports of db types — import directly from `@db/domainName`
-- Business operations or CRUD logic — those belong in `services/`
-- React-specific types (props, ref types) — those belong in `types/` or co-located with their component
-
-**Barrel requirement:** `domain/` is a grouping folder. It requires a grouping barrel (`domain/index.ts`) with explicit named exports — `export *` is banned. Each domain entity has its own module directory (`domain/domainA/`) with a required `index.ts`.
-
 ### Types Directory
 
 `types/` owns React-infrastructure types and cross-cutting utility types that are not domain concepts: prop aliases, HTML element type aliases, and generic utility types reused across unrelated modules.
@@ -279,7 +252,7 @@ When a constant is shared by two or more files within the same module directory,
 **What does NOT belong in `types/`:**
 
 - Domain error types — those belong in `domain/domainName/errors.ts`
-- Domain entity types — those belong in `domain/domainName/types.ts`
+- Domain entity types — those belong in `@domain/<domainName>/types.ts`
 - Types derived from db schemas — import directly from `@db/domainName`
 - Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file.
   - ❌ `SessionScreen.types.ts` alongside `SessionScreen.tsx` — same directory does not satisfy this rule; the type must be in `SessionScreen.tsx` itself
@@ -296,7 +269,7 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 
 **Layer responsibilities:**
 
-- `services/` — business logic, wraps DB calls, throws domain errors from `/domain`
+- `app/services/` — business logic, wraps DB calls, throws domain errors from `@domain`. Import via `@services/<file>`.
   - **Service layer must not supply fallback defaults for nullable or DB-defaulted columns.** A nullable column's correct value when not provided is `NULL` — supplying a fallback in the service layer misrepresents domain state. Service functions pass values through as-is or omit them; they do not apply `?? 'fallback'` or similar substitutions.
     - ❌ BAD: `name: data.name ?? 'New Session'` in a service `create` function — implies the session has a name when it doesn't
     - ✅ GOOD: `name: data.name` — pass the value through; the DB handles NULL
