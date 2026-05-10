@@ -27,15 +27,22 @@ Project to build the app I want for my personal use without constraints like acc
 ### App Structure (`app/`)
 
 app/
-├── db/ # SQLite database
-│ └── CLAUDE.md
-├── docs/ # planning docs — see app/docs/CLAUDE.md
-├── public/ # Static assets
-├── src/ # React frontend source
-│ └── CLAUDE.md
-├── src-tauri/ # Rust backend (Tauri)
-│ └── CLAUDE.md
+├── CLAUDE.md
+├── db/          # SQLite database
+│   └── CLAUDE.md
+├── docs/        # planning docs — see app/docs/CLAUDE.md
+├── domain/      # application vocabulary layer (errors, types, validation)
+│   └── CLAUDE.md
+├── public/      # static assets
+├── services/    # business logic layer
+│   └── CLAUDE.md
+├── src/         # React frontend source
+│   └── CLAUDE.md
+├── src-tauri/   # Rust backend (Tauri)
+│   └── CLAUDE.md
 └── util/
+
+See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`, and `domain/`.
 
 ### Development Commands
 

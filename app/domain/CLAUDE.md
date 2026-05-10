@@ -9,7 +9,7 @@ TypeScript types, and validation rules.
 
 ## What Belongs Here
 
-- Error factory functions and their types (see factory function pattern in root CLAUDE.md)
+- Error factory functions and their types (see factory function pattern in [app/CLAUDE.md](../CLAUDE.md))
 - Domain-specific TypeScript types not derived from the db schema
 - Validation rules that express business constraints
 
@@ -22,8 +22,7 @@ TypeScript types, and validation rules.
 
 ## Structure
 
-Each domain entity has its own module directory with a required `index.ts` barrel.
-`domain/index.ts` is a grouping barrel — explicit named exports only, `export *` banned.
+Each domain entity has its own module directory (`index.ts` barrel required). `domain/index.ts` is the grouping barrel. See [app/CLAUDE.md](../CLAUDE.md) for the general barrel rule.
 
 ## Imports
 
