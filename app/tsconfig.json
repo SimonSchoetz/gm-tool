@@ -20,7 +20,10 @@
       "@/*": ["./src/*"],
       "@db/*": ["./db/*"],
       "@util": ["./util/index.ts"],
-      "@util/*": ["./util/*"]
+      "@util/*": ["./util/*"],
+      "@services/*": ["./services/*"],
+      "@domain": ["./domain/index.ts"],
+      "@domain/*": ["./domain/*"]
     },
 
     /* Linting */
@@ -31,6 +34,6 @@
     "erasableSyntaxOnly": true,
     "exactOptionalPropertyTypes": true
   },
-  "include": ["src", "db", "util"],
+  "include": ["src", "db", "util", "services", "domain"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

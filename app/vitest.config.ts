@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: './src/__tests__/setup.ts',
     css: true,
     coverage: {
-      include: ['src/**/*.{ts,tsx}'],
+      include: ['src/**/*.{ts,tsx}', 'services/**/*.ts', 'domain/**/*.ts'],
     },
   },
   resolve: {
@@ -18,6 +18,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       '@db': path.resolve(__dirname, './db'),
       '@util': path.resolve(__dirname, './util'),
+      '@services': path.resolve(__dirname, './services'),
+      '@domain': path.resolve(__dirname, './domain'),
     },
   },
 });
