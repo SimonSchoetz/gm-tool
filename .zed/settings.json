@@ -12,5 +12,8 @@
     "JavaScript": {
       "colorize_brackets": true,
     },
+    "Markdown": {
+      "colorize_brackets": true,
+    },
   },
 }
