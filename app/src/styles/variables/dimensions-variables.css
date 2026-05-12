@@ -1,5 +1,5 @@
 :root {
   --summary-content-height: 200px;
-  --dialog-max-width: 90vw;
-  --dialog-max-height: 90vh;
+  --dialog-max-width: calc(100vw - var(--spacing-xl));
+  --dialog-max-height: calc(100vh - var(--spacing-xl));
 }

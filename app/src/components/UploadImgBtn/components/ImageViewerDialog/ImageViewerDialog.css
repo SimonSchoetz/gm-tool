@@ -3,7 +3,6 @@
   flex-direction: column;
   max-width: var(--dialog-max-width);
   max-height: var(--dialog-max-height);
-  overflow: hidden;
 }
 
 .image-viewer-dialog-header {
@@ -18,21 +17,13 @@
 }
 
 .image-viewer-dialog-content {
-  overflow: hidden;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: var(--spacing-md);
 }
 
 .image-viewer-dialog-img {
   max-width: 100%;
   max-height: calc(
-    var(--dialog-max-height)
-    - var(--rt-image-viewer-dialog-header-h, 0px)
-    - 2 * var(--spacing-md)
+    var(--dialog-max-height) - var(--rt-image-viewer-dialog-header-h, 0px)
   );
-  width: auto;
-  height: auto;
-  display: block;
 }

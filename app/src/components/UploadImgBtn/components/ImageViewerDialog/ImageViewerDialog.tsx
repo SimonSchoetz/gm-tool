@@ -58,7 +58,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
   };
 
   return (
-    <GlassPanel className='image-viewer-dialog'>
+    <GlassPanel intensity='bright' className='image-viewer-dialog'>
       <div ref={headerRef} className='image-viewer-dialog-header'>
         <span className='image-viewer-dialog-title'>{title}</span>
         <ClickableIcon

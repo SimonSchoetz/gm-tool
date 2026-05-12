@@ -16,8 +16,6 @@
 }
 
 .popup-content {
-  max-width: 90vw;
-  max-height: 90vh;
   animation: popUpContentPlopIn var(--transition-base)
     cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
