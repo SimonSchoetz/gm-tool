@@ -41,7 +41,13 @@ src/
 ├── styles/
 │   ├── global.css
 │   ├── reset.css
-│   └── variables.css
+│   └── variables/
+│       ├── border-variables.css
+│       ├── color-variables.css
+│       ├── dimensions-variables.css
+│       ├── spacing-variables.css
+│       ├── transition-variables.css
+│       └── typography-variables.css
 ├── types/
 │   ├── index.ts
 │   └── domain.types.ts
@@ -208,9 +214,9 @@ When a constant is shared by two or more files within the same module directory,
 
 **Design token obligation:**
 
-- All CSS property values must reference tokens from `styles/variables.css` (e.g., `var(--spacing-sm)`, `var(--radius-xl)`).
+- All CSS property values must reference tokens from `styles/variables/` (e.g., `var(--spacing-sm)`, `var(--radius-xl)`).
 - Raw pixel, color, and `rem` values are banned in component `.css` files.
-- If a needed token does not exist in `variables.css`, add it there first — never hardcode at the component level.
+- If a needed token does not exist in `styles/variables/`, add it to the appropriate file there first — never hardcode at the component level.
   - ✅ `padding: var(--spacing-sm)`
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
@@ -220,7 +226,7 @@ When a constant is shared by two or more files within the same module directory,
 - ✅ `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
 
-**No unilateral additions to `variables.css`:** Never add a new CSS variable to `variables.css` on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime.
+**No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime.
 
 ### Types Directory
 
