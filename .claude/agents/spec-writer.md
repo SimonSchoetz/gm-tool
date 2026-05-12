@@ -174,6 +174,11 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    Any detail a Claude instance could interpret in more than one way must be
    resolved or surfaced as an explicit question.
 
+   For every relative import path named in the spec: trace it mechanically from
+   the importer's file location — count each `../` segment from the actual file,
+   not from a feature root or module boundary. A path that reaches the right
+   target from the wrong anchor is still wrong.
+
    For every code example in the spec: verify it is consistent with every
    principle or rule stated elsewhere in the same spec. A code example that
    contradicts a declared principle is an internal inconsistency — correct the
