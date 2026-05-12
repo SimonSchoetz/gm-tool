@@ -1,20 +1,44 @@
+.date-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 .date-input {
   font-size: var(--font-size-base);
   font-family: inherit;
-  color: var(--color-text);
+  color: var(--color-primary);
   border: none;
   background-color: transparent;
-  padding: 0;
-  margin: 0;
-  transition: var(--transition-fast);
+  transition: var(--transition-hover-off);
   cursor: pointer;
 }
 
+.date-input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
 .date-input:hover {
-  color: var(--color-primary);
+  transition: var(--transition-hover-on);
+  color: var(--color-fg);
 }
 
 .date-input:focus {
   outline: none;
+  color: var(--color-fg);
+}
+
+.date-input-icon {
+  opacity: 0.6;
+  transition: var(--transition-hover-off);
+  width: var(--font-size-base);
+}
+
+.date-input-icon:hover {
+  transition: var(--transition-on);
+  opacity: 1;
+}
+
+.date-input-wrapper:hover .date-input-icon {
+  transition: var(--transition-on);
   color: var(--color-fg);
 }
