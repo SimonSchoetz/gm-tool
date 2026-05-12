@@ -10,7 +10,7 @@ import {
 import { cn } from '@/util';
 import { getDateTimeString } from '@util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useAdventure } from '@/data-access-layer';
+import { useAdventure, useImageMutations } from '@/data-access-layer';
 import { useState } from 'react';
 import { useDeleteDialog } from '@/providers';
 
@@ -23,6 +23,7 @@ export const AdventureScreen = () => {
   const { adventure, updateAdventure, deleteAdventure, loading } =
     useAdventure(adventureId);
   const { openDeleteDialog } = useDeleteDialog();
+  const { deleteImage } = useImageMutations();
 
   const [adventureName, setAdventureName] = useState(adventure?.name ?? '');
   const [syncedAdventureId, setSyncedAdventureId] = useState(adventure?.id);
@@ -49,11 +50,15 @@ export const AdventureScreen = () => {
       <aside className='adventure-sidebar'>
         <UploadImgBtn
           image_id={adventure.image_id ?? null}
+          title={adventure.name}
           uploadFn={(filePath) => {
-            updateAdventure({
-              imgFilePath: filePath,
-              image_id: adventure.image_id,
-            });
+            updateAdventure({ imgFilePath: filePath, image_id: adventure.image_id });
+          }}
+          deleteFn={() => {
+            if (adventure.image_id) {
+              void deleteImage(adventure.image_id);
+              updateAdventure({ image_id: null });
+            }
           }}
         />
         <Button

@@ -8,7 +8,7 @@ import {
 } from '@/components';
 import { cn } from '@/util';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { useNpc } from '@/data-access-layer';
+import { useNpc, useImageMutations } from '@/data-access-layer';
 import { useState } from 'react';
 import { useDeleteDialog } from '@/providers';
 import './NpcScreen.css';
@@ -21,6 +21,7 @@ export const NpcScreen = () => {
 
   const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
+  const { deleteImage } = useImageMutations();
 
   const [npcName, setNpcName] = useState(npc?.name ?? '');
   const [syncedNpcId, setSyncedNpcId] = useState(npc?.id);
@@ -45,11 +46,15 @@ export const NpcScreen = () => {
         <UploadImgBtn
           dimensions={{ width: '200px', height: '200px' }}
           image_id={npc.image_id ?? null}
+          title={npc.name}
           uploadFn={(filePath) => {
-            updateNpc({
-              imgFilePath: filePath,
-              image_id: npc.image_id,
-            });
+            updateNpc({ imgFilePath: filePath, image_id: npc.image_id });
+          }}
+          deleteFn={() => {
+            if (npc.image_id) {
+              void deleteImage(npc.image_id);
+              updateNpc({ image_id: null });
+            }
           }}
         />
 
