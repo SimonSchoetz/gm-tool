@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import { Trash2Icon, UploadIcon, XIcon } from 'lucide-react';
 import { FCProps } from '@/types';
 import { filePicker } from '@/util';
@@ -23,6 +24,19 @@ export const ImageViewerDialog: FCProps<Props> = ({
   deleteFn,
 }) => {
   const { openDeleteDialog } = useDeleteDialog();
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    // Measures header height so the image can derive its own max-height via
+    // calc() without needing a definite parent height — which max-height alone
+    // cannot establish for CSS percentage resolution.
+    header.parentElement?.style.setProperty(
+      '--rt-image-viewer-dialog-header-h',
+      `${header.offsetHeight}px`,
+    );
+  }, []);
 
   const handleDeleteClick = () => {
     openDeleteDialog({
@@ -45,7 +59,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
 
   return (
     <GlassPanel className='image-viewer-dialog'>
-      <div className='image-viewer-dialog-header'>
+      <div ref={headerRef} className='image-viewer-dialog-header'>
         <span className='image-viewer-dialog-title'>{title}</span>
         <ClickableIcon
           icon={<Trash2Icon />}
