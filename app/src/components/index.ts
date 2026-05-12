@@ -15,7 +15,7 @@ export { CustomScrollArea } from './CustomScrollArea/CustomScrollArea';
 export { Button } from './Button/Button.tsx';
 export { TextEditor } from './TextEditor/TextEditor.tsx';
 export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
-export { UploadImgBtn } from './UploadImgBtn/UploadImgBtn.tsx';
+export { UploadImgBtn } from './UploadImgBtn';
 export { DeleteDialog } from './DeleteDialog/DeleteDialog.tsx';
 export { ImagePlaceholderFrame } from './ImagePlaceholderFrame/ImagePlaceholderFrame.tsx';
 export { SearchInput } from './SearchInput/SearchInput';

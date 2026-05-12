@@ -1,7 +1,10 @@
 import { cn, filePicker } from '@/util';
+import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { ActionContainer, HoloImg } from '@/components';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
+import PopUpContainer from '../PopUpContainer/PopUpContainer';
+import { ImageViewerDialog } from './components';
 import './UploadImgBtn.css';
 
 type Props = {
@@ -9,6 +12,7 @@ type Props = {
   title?: string;
   dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
   uploadFn: (filePath: string) => void;
+  deleteFn: () => void;
 };
 
 export const UploadImgBtn = ({
@@ -16,9 +20,11 @@ export const UploadImgBtn = ({
   title = '',
   dimensions,
   uploadFn,
+  deleteFn,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [popupState, setPopupState] = useState<'open' | 'closed'>('closed');
 
   const handleClick = async () => {
     if (isLoading) return;
@@ -39,14 +45,26 @@ export const UploadImgBtn = ({
   };
 
   return image_id ? (
-    <ActionContainer
-      onClick={() => {
-        void handleClick();
-      }}
-      label='Replace cover image'
-    >
-      <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
-    </ActionContainer>
+    <>
+      <ActionContainer
+        onClick={() => { setPopupState('open'); }}
+        label='View image'
+      >
+        <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
+      </ActionContainer>
+      {createPortal(
+        <PopUpContainer state={popupState} setState={setPopupState}>
+          <ImageViewerDialog
+            image_id={image_id}
+            title={title}
+            onClose={() => { setPopupState('closed'); }}
+            uploadFn={uploadFn}
+            deleteFn={deleteFn}
+          />
+        </PopUpContainer>,
+        document.body,
+      )}
+    </>
   ) : (
     <ActionContainer
       className={cn('upload-adventure-img-btn')}

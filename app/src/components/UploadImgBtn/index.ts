@@ -1,0 +1,1 @@
+export { UploadImgBtn } from './UploadImgBtn';
