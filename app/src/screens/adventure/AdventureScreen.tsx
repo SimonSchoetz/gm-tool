@@ -49,6 +49,7 @@ export const AdventureScreen = () => {
     <GlassPanel className={cn('adventure-screen')}>
       <aside className='adventure-sidebar'>
         <UploadImgBtn
+          dimensions={{ width: 200, height: 350 }}
           image_id={adventure.image_id ?? null}
           title={adventure.name}
           uploadFn={(filePath) => {

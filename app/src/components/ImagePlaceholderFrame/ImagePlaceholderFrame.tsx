@@ -20,8 +20,8 @@ export const ImagePlaceholderFrame = ({
   return (
     <GlassPanel
       style={{
-        width: dimensions?.width ?? '200px',
-        height: dimensions?.height ?? '350px',
+        width: dimensions?.width ?? 200,
+        height: dimensions?.height ?? 350,
       }}
       intensity='bright'
       className={cn('adventure-frame', className)}
