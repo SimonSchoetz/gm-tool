@@ -1,0 +1,49 @@
+.framing-overlay {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.framing-overlay:active {
+  cursor: grabbing;
+}
+
+.framing-overlay-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--rt-framing-overlay-x, 50%) var(--rt-framing-overlay-y, 0%);
+  transform: scale(var(--rt-framing-overlay-zoom, 1));
+  transform-origin: var(--rt-framing-overlay-x, 50%) var(--rt-framing-overlay-y, 0%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.framing-overlay-mask {
+  position: absolute;
+  inset: 0;
+  /* Blurs and dims the region outside the frame indicator.
+     Technique: backdrop-filter on the full overlay with a CSS mask cutout
+     centered at the frame indicator rect. The mask-composite: exclude
+     creates a transparent hole where the frame sits, leaving that region clear. */
+  backdrop-filter: blur(var(--blur)) brightness(0.5);
+  mask-image: linear-gradient(black, black), linear-gradient(black, black);
+  mask-size: 100% 100%, var(--rt-framing-overlay-frame-w, 200px) var(--rt-framing-overlay-frame-h, 350px);
+  mask-position: 0 0, 50% 50%;
+  mask-repeat: no-repeat;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.framing-overlay-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+  border: 2px solid var(--color-primary);
+  pointer-events: none;
+}
