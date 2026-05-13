@@ -30,12 +30,10 @@ describe('image.update', () => {
   it('updates frame successfully', async () => {
     await update('test-id', { frame_x: 50, frame_y: 25, frame_zoom: 2.0 });
 
-    expect(mockExecute).toHaveBeenCalledOnce();
-    const sql: string = mockExecute.mock.calls[0][0] as string;
-    expect(sql).toContain('frame_x');
-    expect(sql).toContain('frame_y');
-    expect(sql).toContain('frame_zoom');
-    expect(sql).toContain('updated_at');
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringMatching(/frame_x.*frame_y.*frame_zoom.*updated_at/s),
+      expect.arrayContaining([50, 25, 2.0, 'test-id']),
+    );
   });
 
   it('throws when id is empty', async () => {
@@ -47,6 +45,9 @@ describe('image.update', () => {
   it('sets null frame values', async () => {
     await update('test-id', { frame_x: null, frame_y: null, frame_zoom: null });
 
-    expect(mockExecute).toHaveBeenCalledOnce();
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE images'),
+      expect.arrayContaining(['test-id']),
+    );
   });
 });
