@@ -1,0 +1,10 @@
+.image-viewer-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.image-viewer-dialog-title {
+  flex: 1;
+}

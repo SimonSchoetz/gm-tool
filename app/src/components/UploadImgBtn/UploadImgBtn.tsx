@@ -60,6 +60,7 @@ export const UploadImgBtn = ({
             onClose={() => { setPopupState('closed'); }}
             uploadFn={uploadFn}
             deleteFn={deleteFn}
+            {...(dimensions !== undefined ? { dimensions } : {})}
           />
         </PopUpContainer>,
         document.body,
