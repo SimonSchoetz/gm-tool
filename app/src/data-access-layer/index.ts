@@ -1,5 +1,6 @@
 export { useAdventures, useAdventure, adventureKeys } from './adventures';
-export { useImage, useImageMutations, imageKeys } from './images';
+export { useImage, useImageMutations, imageKeys, useUpdateImageFrame } from './images';
+export type { ImageFrame } from './images';
 export { useNpcs, useNpc, npcKeys } from './npcs';
 export { useSessions, useSession, sessionKeys } from './sessions';
 export { useTableConfig, useTableConfigs, tableConfigKeys } from './table-config';
