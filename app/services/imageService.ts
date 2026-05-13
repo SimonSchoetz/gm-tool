@@ -22,3 +22,14 @@ export const getImageUrl = async (id: string, extension: string): Promise<string
   const path = await invoke<string>('get_image_url', { id, extension });
   return convertFileSrc(path);
 };
+
+export const updateImageFrame = async (
+  id: string,
+  frame: { x: number; y: number; zoom: number },
+): Promise<void> => {
+  await imageDb.update(id, {
+    frame_x: frame.x,
+    frame_y: frame.y,
+    frame_zoom: frame.zoom,
+  });
+};
