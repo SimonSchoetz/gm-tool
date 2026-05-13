@@ -2,6 +2,7 @@ import { FCProps, HtmlProps } from '@/types';
 import { useRef } from 'react';
 import { HoloFX, useTiltFX } from '../HoloFX';
 import { cn } from '@/util';
+import { useImage } from '@/data-access-layer';
 
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
@@ -22,6 +23,7 @@ export const HoloImg: FCProps<Props> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { cardVars, isActive } = useTiltFX(containerRef);
+  const { frame } = useImage(image_id);
   return (
     <div
       ref={containerRef}
@@ -40,6 +42,15 @@ export const HoloImg: FCProps<Props> = ({
           imageId={image_id}
           alt={`${title} preview`}
           className={cn('holo-img', isActive && 'active')}
+          {...(frame !== null
+            ? {
+                style: {
+                  '--rt-holo-img-frame-x': `${frame.x}%`,
+                  '--rt-holo-img-frame-y': `${frame.y}%`,
+                  '--rt-holo-img-frame-zoom': frame.zoom,
+                } as React.CSSProperties,
+              }
+            : {})}
         />
       </ImagePlaceholderFrame>
     </div>
