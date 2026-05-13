@@ -31,6 +31,18 @@ export const imageTable = defineTable({
       type: 'INTEGER',
       zod: z.number().nullable().optional(),
     },
+    frame_x: {
+      type: 'REAL',
+      zod: z.number().nullable().optional(),
+    },
+    frame_y: {
+      type: 'REAL',
+      zod: z.number().nullable().optional(),
+    },
+    frame_zoom: {
+      type: 'REAL',
+      zod: z.number().nullable().optional(),
+    },
     created_at: {
       type: 'TEXT',
       notNull: true,
