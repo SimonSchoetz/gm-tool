@@ -1,6 +1,7 @@
 import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import * as imageDb from '@db/image';
 import type { Image } from '@db/image';
+import { imageUpdateFrameError } from '@domain';
 
 export const createImage = async (filePath: string): Promise<string> =>
   imageDb.create({ filePath });
@@ -27,9 +28,13 @@ export const updateImageFrame = async (
   id: string,
   frame: { x: number; y: number; zoom: number },
 ): Promise<void> => {
-  await imageDb.update(id, {
-    frame_x: frame.x,
-    frame_y: frame.y,
-    frame_zoom: frame.zoom,
-  });
+  try {
+    await imageDb.update(id, {
+      frame_x: frame.x,
+      frame_y: frame.y,
+      frame_zoom: frame.zoom,
+    });
+  } catch (cause) {
+    throw imageUpdateFrameError(cause);
+  }
 };

@@ -5,6 +5,7 @@ import { useImage, useUpdateImageFrame } from '@/data-access-layer';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { clampFrame, computePanDelta } from './helper';
 import type { FrameState } from './helper';
+import { DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT } from './FramingOverlay.constants';
 import './FramingOverlay.css';
 
 const MAX_ZOOM = 5;
@@ -86,8 +87,8 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
     '--rt-framing-overlay-zoom': frameState.zoom,
   } as CSSProperties;
 
-  const frameWidth = dimensions?.width ?? 200;
-  const frameHeight = dimensions?.height ?? 350;
+  const frameWidth = dimensions?.width ?? DEFAULT_FRAME_WIDTH;
+  const frameHeight = dimensions?.height ?? DEFAULT_FRAME_HEIGHT;
   const aspectRatio = `${String(frameWidth)} / ${String(frameHeight)}`;
 
   const maskStyle: CSSProperties = maskSize !== null

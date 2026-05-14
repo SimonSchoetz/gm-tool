@@ -1,3 +1,6 @@
+export type { ImageUpdateFrameError } from './images';
+export { imageUpdateFrameError } from './images';
+
 export type {
   AdventureNotFoundError,
   AdventureLoadError,

@@ -30,6 +30,7 @@
      creates a transparent hole where the frame sits, leaving that region clear. */
   backdrop-filter: blur(var(--blur)) brightness(0.5);
   mask-image: linear-gradient(black, black), linear-gradient(black, black);
+  /* fallback pixel dimensions match DEFAULT_FRAME_WIDTH/HEIGHT in FramingOverlay.constants.ts */
   mask-size: 100% 100%, var(--rt-framing-overlay-frame-w, 200px) var(--rt-framing-overlay-frame-h, 350px);
   mask-position: 0 0, 50% 50%;
   mask-repeat: no-repeat;
