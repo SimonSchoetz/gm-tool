@@ -19,6 +19,7 @@
 
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
 - `__root.tsx` -> resolve question in line 9
+- Refactor: components/AdventureComponents to sub components of adventures screen
 
 ---
 
