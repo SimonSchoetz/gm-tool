@@ -7,13 +7,13 @@ import { useState } from 'react';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
 type Props = {
-  type: 'adventure' | 'list-item';
+  dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
   label: string;
   onClick: () => void;
 } & HtmlProps<'div'>;
 
 export const NewItemBtn: FCProps<Props> = ({
-  type,
+  dimensions,
   label,
   onClick,
   className,
@@ -23,7 +23,9 @@ export const NewItemBtn: FCProps<Props> = ({
   const letAnimationPlayBeforeAction = () => {
     setHideBtn(true);
     const timeoutId = setTimeout(onClick, 500);
-    return () => { clearTimeout(timeoutId); };
+    return () => {
+      clearTimeout(timeoutId);
+    };
   };
 
   return (
@@ -36,12 +38,11 @@ export const NewItemBtn: FCProps<Props> = ({
         hideBtn && 'animate-new-item-btn-on-click',
       )}
     >
-      {type === 'adventure' && (
-        <ImagePlaceholderFrame>
+      {dimensions ? (
+        <ImagePlaceholderFrame dimensions={dimensions}>
           <div className='new-item-btn-adventure-label'>{label}</div>
         </ImagePlaceholderFrame>
-      )}
-      {type === 'list-item' && (
+      ) : (
         <GlassPanel className='new-item-btn-list-item-container'>
           <div className='new-item-btn-list-item-label'>{label}</div>
         </GlassPanel>

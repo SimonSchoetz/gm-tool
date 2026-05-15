@@ -103,7 +103,7 @@ export const SortableList = <
         <ul className='sortable-list__table'>
           {showCreateNewBtn && (
             <li key='new-item-button'>
-              <NewItemBtn type='list-item' label='+' onClick={onCreateNew} />
+              <NewItemBtn label='+' onClick={onCreateNew} />
             </li>
           )}
 

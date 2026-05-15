@@ -2,12 +2,11 @@ import { GlassPanel } from '@/components';
 import { cn } from '@/util';
 
 import './ImagePlaceholderFrame.css';
-import { CSSProperties } from 'react';
 
 type Props = React.ComponentProps<typeof GlassPanel> & {
   dimensions: {
-    width: CSSProperties['width'];
-    height: CSSProperties['height'];
+    width: number;
+    height: number;
   };
 };
 
