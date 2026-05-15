@@ -11,7 +11,7 @@ import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFram
 type Props = {
   image_id: string | null;
   title: string;
-  dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
+  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
 } & HtmlProps<'div'>;
 
 export const HoloImg: FCProps<Props> = ({
@@ -32,7 +32,7 @@ export const HoloImg: FCProps<Props> = ({
       {...props}
     >
       <ImagePlaceholderFrame
-        {...(dimensions !== undefined ? { dimensions } : {})}
+        dimensions={dimensions}
         className={cn('tilt-fx', isActive && 'active', className)}
       >
         <HoloFX shimmerContent={title} isActive={isActive} />

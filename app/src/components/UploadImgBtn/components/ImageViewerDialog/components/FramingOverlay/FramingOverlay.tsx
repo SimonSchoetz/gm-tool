@@ -1,11 +1,17 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import type { CSSProperties } from 'react';
 import { FCProps } from '@/types';
 import { useImage, useUpdateImageFrame } from '@/data-access-layer';
 import { ImageById } from '../../../../../ImageById/ImageById';
+import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { clampFrame, computePanDelta } from './helper';
 import type { FrameState } from './helper';
-import { DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT } from './FramingOverlay.constants';
 import './FramingOverlay.css';
 
 const MAX_ZOOM = 5;
@@ -14,7 +20,7 @@ const PERSIST_DEBOUNCE_MS = 600;
 
 type Props = {
   imageId: string;
-  dimensions?: { width: CSSProperties['width']; height: CSSProperties['height'] };
+  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
 };
 
 export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
@@ -27,10 +33,12 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
   const { updateFrame } = useUpdateImageFrame(imageId);
 
   const [frameState, setFrameState] = useState<FrameState>(
-    () => frame ?? { x: 50, y: 0, zoom: 1 }
+    () => frame ?? { x: 50, y: 0, zoom: 1 },
   );
 
-  const [maskSize, setMaskSize] = useState<{ w: number; h: number } | null>(null);
+  const [maskSize, setMaskSize] = useState<{ w: number; h: number } | null>(
+    null,
+  );
 
   useLayoutEffect(() => {
     // Measures the rendered frame indicator size so the mask hole matches exactly.
@@ -42,39 +50,54 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      void updateFrame({ x: frameState.x, y: frameState.y, zoom: frameState.zoom });
+      void updateFrame({
+        x: frameState.x,
+        y: frameState.y,
+        zoom: frameState.zoom,
+      });
     }, PERSIST_DEBOUNCE_MS);
-    return () => { clearTimeout(timer); };
+    return () => {
+      clearTimeout(timer);
+    };
   }, [frameState, updateFrame]);
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setFrameState(prev =>
-      clampFrame({ ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP }, MAX_ZOOM)
+    setFrameState((prev) =>
+      clampFrame({ ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP }, MAX_ZOOM),
     );
   }, []);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    isDraggingRef.current = true;
-    lastPointerRef.current = { x: e.clientX, y: e.clientY };
-    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
-  }, []);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      isDraggingRef.current = true;
+      lastPointerRef.current = { x: e.clientX, y: e.clientY };
+      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    },
+    [],
+  );
 
-  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || lastPointerRef.current === null) return;
-    const container = containerRef.current;
-    if (container === null) return;
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDraggingRef.current || lastPointerRef.current === null) return;
+      const container = containerRef.current;
+      if (container === null) return;
 
-    const dx = e.clientX - lastPointerRef.current.x;
-    const dy = e.clientY - lastPointerRef.current.y;
-    lastPointerRef.current = { x: e.clientX, y: e.clientY };
+      const dx = e.clientX - lastPointerRef.current.x;
+      const dy = e.clientY - lastPointerRef.current.y;
+      lastPointerRef.current = { x: e.clientX, y: e.clientY };
 
-    const { width, height } = container.getBoundingClientRect();
-    setFrameState(prev => {
-      const delta = computePanDelta(dx, dy, width, height, prev.zoom);
-      return clampFrame({ ...prev, x: prev.x - delta.dx, y: prev.y - delta.dy }, MAX_ZOOM);
-    });
-  }, []);
+      const { width, height } = container.getBoundingClientRect();
+      setFrameState((prev) => {
+        const delta = computePanDelta(dx, dy, width, height, prev.zoom);
+        return clampFrame(
+          { ...prev, x: prev.x - delta.dx, y: prev.y - delta.dy },
+          MAX_ZOOM,
+        );
+      });
+    },
+    [],
+  );
 
   const handlePointerUp = useCallback(() => {
     isDraggingRef.current = false;
@@ -87,16 +110,17 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
     '--rt-framing-overlay-zoom': frameState.zoom,
   } as CSSProperties;
 
-  const frameWidth = dimensions?.width ?? DEFAULT_FRAME_WIDTH;
-  const frameHeight = dimensions?.height ?? DEFAULT_FRAME_HEIGHT;
+  const frameWidth = dimensions.width;
+  const frameHeight = dimensions.height;
   const aspectRatio = `${String(frameWidth)} / ${String(frameHeight)}`;
 
-  const maskStyle: CSSProperties = maskSize !== null
-    ? {
-        '--rt-framing-overlay-frame-w': `${maskSize.w}px`,
-        '--rt-framing-overlay-frame-h': `${maskSize.h}px`,
-      } as CSSProperties
-    : {};
+  const maskStyle: CSSProperties =
+    maskSize !== null
+      ? ({
+          '--rt-framing-overlay-frame-w': `${maskSize.w}px`,
+          '--rt-framing-overlay-frame-h': `${maskSize.h}px`,
+        } as CSSProperties)
+      : {};
 
   return (
     <div

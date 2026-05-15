@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { CSSProperties } from 'react';
 import { FCProps } from '@/types';
 import { filePicker } from '@/util';
 import { useDeleteDialog } from '@/providers';
@@ -7,6 +6,7 @@ import GlassPanel from '../../../GlassPanel/GlassPanel';
 import { ImageById } from '../../../ImageById/ImageById';
 import { ImageViewerDialogHeader, FramingOverlay } from './components';
 import './ImageViewerDialog.css';
+import ImagePlaceholderFrame from '../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
 type Props = {
   image_id: string;
@@ -14,7 +14,7 @@ type Props = {
   onClose: () => void;
   uploadFn: (filePath: string) => void;
   deleteFn: () => void;
-  dimensions?: { width: CSSProperties['width']; height: CSSProperties['height'] };
+  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
 };
 
 export const ImageViewerDialog: FCProps<Props> = ({
@@ -52,8 +52,12 @@ export const ImageViewerDialog: FCProps<Props> = ({
       <ImageViewerDialogHeader
         title={title}
         onDeleteClick={handleDeleteClick}
-        onReplaceClick={() => { void handleReplaceClick(); }}
-        onSettingsClick={() => { setMode(m => m === 'view' ? 'framing' : 'view'); }}
+        onReplaceClick={() => {
+          void handleReplaceClick();
+        }}
+        onSettingsClick={() => {
+          setMode((m) => (m === 'view' ? 'framing' : 'view'));
+        }}
         onClose={onClose}
       />
       {mode === 'view' && (
@@ -66,10 +70,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
         </div>
       )}
       {mode === 'framing' && (
-        <FramingOverlay
-          imageId={image_id}
-          {...(dimensions !== undefined ? { dimensions } : {})}
-        />
+        <FramingOverlay imageId={image_id} dimensions={dimensions} />
       )}
     </GlassPanel>
   );

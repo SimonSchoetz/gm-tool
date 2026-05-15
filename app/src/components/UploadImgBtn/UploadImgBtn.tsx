@@ -10,7 +10,7 @@ import './UploadImgBtn.css';
 type Props = {
   image_id?: string | null;
   title?: string;
-  dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
+  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
   uploadFn: (filePath: string) => void;
   deleteFn: () => void;
 };
@@ -47,7 +47,9 @@ export const UploadImgBtn = ({
   return image_id ? (
     <>
       <ActionContainer
-        onClick={() => { setPopupState('open'); }}
+        onClick={() => {
+          setPopupState('open');
+        }}
         label='View image'
       >
         <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
@@ -57,10 +59,12 @@ export const UploadImgBtn = ({
           <ImageViewerDialog
             image_id={image_id}
             title={title}
-            onClose={() => { setPopupState('closed'); }}
+            onClose={() => {
+              setPopupState('closed');
+            }}
             uploadFn={uploadFn}
             deleteFn={deleteFn}
-            {...(dimensions !== undefined ? { dimensions } : {})}
+            dimensions={dimensions}
           />
         </PopUpContainer>,
         document.body,
@@ -74,9 +78,7 @@ export const UploadImgBtn = ({
       }}
       label='Upload cover image'
     >
-      <ImagePlaceholderFrame
-        {...(dimensions !== undefined ? { dimensions } : {})}
-      >
+      <ImagePlaceholderFrame dimensions={dimensions}>
         <p
           className='img-upload-textbox'
           style={{

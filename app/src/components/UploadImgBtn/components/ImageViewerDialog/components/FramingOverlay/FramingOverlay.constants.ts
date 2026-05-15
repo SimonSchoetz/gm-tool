@@ -1,2 +1,0 @@
-export const DEFAULT_FRAME_WIDTH = 200;
-export const DEFAULT_FRAME_HEIGHT = 350;

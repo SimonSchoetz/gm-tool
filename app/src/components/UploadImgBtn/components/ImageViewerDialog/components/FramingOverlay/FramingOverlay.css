@@ -14,9 +14,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--rt-framing-overlay-x, 50%) var(--rt-framing-overlay-y, 0%);
+  object-position: var(--rt-framing-overlay-x, 50%)
+    var(--rt-framing-overlay-y, 0%);
   transform: scale(var(--rt-framing-overlay-zoom, 1));
-  transform-origin: var(--rt-framing-overlay-x, 50%) var(--rt-framing-overlay-y, 0%);
+  transform-origin: var(--rt-framing-overlay-x, 50%)
+    var(--rt-framing-overlay-y, 0%);
   pointer-events: none;
   user-select: none;
 }
@@ -31,8 +33,13 @@
   backdrop-filter: blur(var(--blur)) brightness(0.5);
   mask-image: linear-gradient(black, black), linear-gradient(black, black);
   /* fallback pixel dimensions match DEFAULT_FRAME_WIDTH/HEIGHT in FramingOverlay.constants.ts */
-  mask-size: 100% 100%, var(--rt-framing-overlay-frame-w, 200px) var(--rt-framing-overlay-frame-h, 350px);
-  mask-position: 0 0, 50% 50%;
+  mask-size:
+    100% 100%,
+    var(--rt-framing-overlay-frame-w, 200px)
+      var(--rt-framing-overlay-frame-h, 350px);
+  mask-position:
+    0 0,
+    50% 50%;
   mask-repeat: no-repeat;
   mask-composite: exclude;
   pointer-events: none;
