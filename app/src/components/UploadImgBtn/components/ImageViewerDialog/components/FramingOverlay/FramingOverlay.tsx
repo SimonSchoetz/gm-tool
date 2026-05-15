@@ -132,13 +132,14 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
     '--rt-ipfo-frame-w': `${dimensions.width}px`,
     '--rt-ipfo-frame-h': `${dimensions.height}px`,
   } as CSSProperties;
-  console.log(`${frameState.x}%`);
+  console.log(`${frameState.x}%`, 12.5 - (frameState.x / 100) * 25);
 
   const bgImageStyles = {
     '--rt-ipfo-scaled-w':
       naturalSize !== null ? `${naturalSize.w * coverScale}px` : '0px',
     '--rt-ipfo-scaled-h':
       naturalSize !== null ? `${naturalSize.h * coverScale}px` : '0px',
+    '--rt-ipfo-bg-x-offset': `${12.5 - (frameState.x / 100) * 25}%`,
   } as CSSProperties;
 
   return (
