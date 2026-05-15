@@ -43,7 +43,7 @@
     var(--rt-ipfo-bg-ty, 0px);
   transform-origin: var(--rt-ipfo-x, 50%) var(--rt-ipfo-y, 0%);
   transform: scale(var(--rt-ipfo-zoom, 1));
-  filter: blur(1px) brightness(0.5);
+  filter: blur(var(--blur)) brightness(0.5);
   pointer-events: none;
   user-select: none;
 }
