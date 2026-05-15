@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useCallback,
-} from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import { FCProps } from '@/types';
 import { useImage, useUpdateImageFrame } from '@/data-access-layer';
@@ -24,33 +18,37 @@ type Props = {
 };
 
 export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const frameIndicatorRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
 
   const { frame } = useImage(imageId);
   const { updateFrame } = useUpdateImageFrame(imageId);
+  // Ref keeps updateFrame current without making it a reactive dep — avoids a
+  // mutation-invalidation → re-render → new updateFrame ref → re-effect loop.
+  const updateFrameRef = useRef(updateFrame);
+  useEffect(() => {
+    updateFrameRef.current = updateFrame;
+  });
 
   const [frameState, setFrameState] = useState<FrameState>(
     () => frame ?? { x: 50, y: 0, zoom: 1 },
   );
 
-  const [maskSize, setMaskSize] = useState<{ w: number; h: number } | null>(
-    null,
-  );
+  const [naturalSize, setNaturalSize] = useState<{
+    w: number;
+    h: number;
+  } | null>(null);
 
-  useLayoutEffect(() => {
-    // Measures the rendered frame indicator size so the mask hole matches exactly.
-    const indicator = frameIndicatorRef.current;
-    if (!indicator) return;
-    const { width, height } = indicator.getBoundingClientRect();
-    setMaskSize({ w: width, h: height });
-  }, [dimensions]);
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    setNaturalSize({
+      w: e.currentTarget.naturalWidth,
+      h: e.currentTarget.naturalHeight,
+    });
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      void updateFrame({
+      void updateFrameRef.current({
         x: frameState.x,
         y: frameState.y,
         zoom: frameState.zoom,
@@ -59,13 +57,25 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
     return () => {
       clearTimeout(timer);
     };
-  }, [frameState, updateFrame]);
+  }, [frameState]);
 
-  const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setFrameState((prev) =>
-      clampFrame({ ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP }, MAX_ZOOM),
-    );
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = overlayRef.current;
+    if (el === null) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setFrameState((prev) =>
+        clampFrame(
+          { ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP },
+          MAX_ZOOM,
+        ),
+      );
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+    };
   }, []);
 
   const handlePointerDown = useCallback(
@@ -80,23 +90,26 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isDraggingRef.current || lastPointerRef.current === null) return;
-      const container = containerRef.current;
-      if (container === null) return;
 
       const dx = e.clientX - lastPointerRef.current.x;
       const dy = e.clientY - lastPointerRef.current.y;
       lastPointerRef.current = { x: e.clientX, y: e.clientY };
 
-      const { width, height } = container.getBoundingClientRect();
       setFrameState((prev) => {
-        const delta = computePanDelta(dx, dy, width, height, prev.zoom);
+        const delta = computePanDelta(
+          dx,
+          dy,
+          dimensions.width,
+          dimensions.height,
+          prev.zoom,
+        );
         return clampFrame(
           { ...prev, x: prev.x - delta.dx, y: prev.y - delta.dy },
           MAX_ZOOM,
         );
       });
     },
-    [],
+    [dimensions],
   );
 
   const handlePointerUp = useCallback(() => {
@@ -104,29 +117,35 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
     lastPointerRef.current = null;
   }, []);
 
-  const frameStyle = {
-    '--rt-framing-overlay-x': `${frameState.x}%`,
-    '--rt-framing-overlay-y': `${frameState.y}%`,
-    '--rt-framing-overlay-zoom': frameState.zoom,
+  const coverScale =
+    naturalSize !== null
+      ? Math.max(
+          dimensions.width / naturalSize.w,
+          dimensions.height / naturalSize.h,
+        )
+      : 0;
+
+  const overlayStyle = {
+    '--rt-ipfo-x': `${frameState.x}%`,
+    '--rt-ipfo-y': `${frameState.y}%`,
+    '--rt-ipfo-zoom': frameState.zoom,
+    '--rt-ipfo-frame-w': `${dimensions.width}px`,
+    '--rt-ipfo-frame-h': `${dimensions.height}px`,
   } as CSSProperties;
+  console.log(`${frameState.x}%`);
 
-  const frameWidth = dimensions.width;
-  const frameHeight = dimensions.height;
-  const aspectRatio = `${String(frameWidth)} / ${String(frameHeight)}`;
-
-  const maskStyle: CSSProperties =
-    maskSize !== null
-      ? ({
-          '--rt-framing-overlay-frame-w': `${maskSize.w}px`,
-          '--rt-framing-overlay-frame-h': `${maskSize.h}px`,
-        } as CSSProperties)
-      : {};
+  const bgImageStyles = {
+    '--rt-ipfo-scaled-w':
+      naturalSize !== null ? `${naturalSize.w * coverScale}px` : '0px',
+    '--rt-ipfo-scaled-h':
+      naturalSize !== null ? `${naturalSize.h * coverScale}px` : '0px',
+  } as CSSProperties;
 
   return (
     <div
-      ref={containerRef}
-      className='framing-overlay'
-      onWheel={handleWheel}
+      ref={overlayRef}
+      className='ipfo'
+      style={overlayStyle}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -134,16 +153,18 @@ export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
     >
       <ImageById
         imageId={imageId}
-        alt='Framing preview'
-        className='framing-overlay-image'
-        style={frameStyle}
+        alt='Framing preview background'
+        className='ipfo-image--bg'
+        style={bgImageStyles}
       />
-      <div className='framing-overlay-mask' style={maskStyle} />
-      <div
-        ref={frameIndicatorRef}
-        className='framing-overlay-frame'
-        style={{ aspectRatio }}
-      />
+      <div className='ipfo-image-frame'>
+        <ImageById
+          imageId={imageId}
+          alt='Framing preview'
+          className='ipfo-image'
+          onLoad={handleImageLoad}
+        />
+      </div>
     </div>
   );
 };

@@ -1,57 +1,49 @@
-.framing-overlay {
+.ipfo {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 600px;
+  aspect-ratio: 1/1;
   overflow: hidden;
   cursor: grab;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.framing-overlay:active {
+.ipfo:active {
   cursor: grabbing;
 }
 
-.framing-overlay-image {
+.ipfo-image-frame {
+  position: relative;
+  width: var(--rt-ipfo-frame-w);
+  height: var(--rt-ipfo-frame-h);
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  border: 2px solid var(--color-primary);
+  box-sizing: content-box;
+}
+
+.ipfo-image {
+  position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--rt-framing-overlay-x, 50%)
-    var(--rt-framing-overlay-y, 0%);
-  transform: scale(var(--rt-framing-overlay-zoom, 1));
-  transform-origin: var(--rt-framing-overlay-x, 50%)
-    var(--rt-framing-overlay-y, 0%);
+  transform: scale(var(--rt-ipfo-zoom, 1));
+  object-position: var(--rt-ipfo-x, 50%) var(--rt-ipfo-y, 0%);
+  transform-origin: var(--rt-ipfo-x, 50%) var(--rt-ipfo-y, 0%);
   pointer-events: none;
   user-select: none;
 }
 
-.framing-overlay-mask {
+.ipfo-image--bg {
   position: absolute;
-  inset: 0;
-  /* Blurs and dims the region outside the frame indicator.
-     Technique: backdrop-filter on the full overlay with a CSS mask cutout
-     centered at the frame indicator rect. The mask-composite: exclude
-     creates a transparent hole where the frame sits, leaving that region clear. */
-  backdrop-filter: blur(var(--blur)) brightness(0.5);
-  mask-image: linear-gradient(black, black), linear-gradient(black, black);
-  /* fallback pixel dimensions match DEFAULT_FRAME_WIDTH/HEIGHT in FramingOverlay.constants.ts */
-  mask-size:
-    100% 100%,
-    var(--rt-framing-overlay-frame-w, 200px)
-      var(--rt-framing-overlay-frame-h, 350px);
-  mask-position:
-    0 0,
-    50% 50%;
-  mask-repeat: no-repeat;
-  mask-composite: exclude;
+  width: var(--rt-ipfo-scaled-w);
+  height: var(--rt-ipfo-scaled-h);
+  translate: var(--rt-ipfo-bg-tx, 0px) var(--rt-ipfo-bg-ty, 0px);
+  transform-origin: var(--rt-ipfo-x, 50%) var(--rt-ipfo-y, 0%);
+  transform: scale(var(--rt-ipfo-zoom, 1));
+  filter: blur(1px) brightness(0.5);
   pointer-events: none;
-}
-
-.framing-overlay-frame {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 100%;
-  max-height: 100%;
-  border: 2px solid var(--color-primary);
-  pointer-events: none;
+  user-select: none;
+  /*right: 23%;*/
 }
