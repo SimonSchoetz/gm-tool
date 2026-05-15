@@ -1,2 +1,1 @@
-export { ImageViewerDialogHeader } from './ImageViewerDialogHeader';
 export { ImagePreviewFramingOverlay } from './ImagePreviewFramingOverlay';

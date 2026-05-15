@@ -4,7 +4,10 @@ import { filePicker } from '@/util';
 import { useDeleteDialog } from '@/providers';
 import GlassPanel from '../../../GlassPanel/GlassPanel';
 import { ImageById } from '../../../ImageById/ImageById';
-import { ImageViewerDialogHeader, FramingOverlay } from './components';
+import {
+  ImageViewerDialogHeader,
+  ImagePreviewFramingOverlay,
+} from './components';
 import './ImageViewerDialog.css';
 import ImagePlaceholderFrame from '../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
@@ -70,7 +73,10 @@ export const ImageViewerDialog: FCProps<Props> = ({
         </div>
       )}
       {mode === 'framing' && (
-        <FramingOverlay imageId={image_id} dimensions={dimensions} />
+        <ImagePreviewFramingOverlay
+          imageId={image_id}
+          dimensions={dimensions}
+        />
       )}
     </GlassPanel>
   );

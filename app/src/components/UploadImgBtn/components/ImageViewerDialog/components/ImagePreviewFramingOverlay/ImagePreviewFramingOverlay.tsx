@@ -6,7 +6,7 @@ import { ImageById } from '../../../../../ImageById/ImageById';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { clampFrame, computePanDelta } from './helper';
 import type { FrameState } from './helper';
-import './FramingOverlay.css';
+import './ImagePreviewFramingOverlay.css';
 
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.001;
@@ -17,7 +17,10 @@ type Props = {
   dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
 };
 
-export const FramingOverlay: FCProps<Props> = ({ imageId, dimensions }) => {
+export const ImagePreviewFramingOverlay: FCProps<Props> = ({
+  imageId,
+  dimensions,
+}) => {
   const isDraggingRef = useRef(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
 
