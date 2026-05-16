@@ -1,0 +1,11 @@
+.ipfo-bg-img {
+  position: absolute;
+  width: var(--rt-ipfo-scaled-w);
+  height: var(--rt-ipfo-scaled-h);
+  translate: var(--rt-ipfo-bg-x-offset) var(--rt-ipfo-bg-y-offset);
+  transform-origin: var(--rt-ipfo-x, 50%) var(--rt-ipfo-y, 0%);
+  transform: scale(var(--rt-ipfo-zoom, 1));
+  filter: blur(var(--blur)) brightness(0.5);
+  pointer-events: none;
+  user-select: none;
+}

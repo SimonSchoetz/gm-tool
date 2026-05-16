@@ -7,6 +7,8 @@ import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePla
 import { clampFrame, computePanDelta } from './helper';
 import type { FrameState } from './helper';
 import './ImagePreviewFramingOverlay.css';
+import { IpfoBgImg } from './components';
+import { IPFO_FRAME_BORDER_WIDTH } from './ImagePreviewFramingOverlay.constants';
 
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.001;
@@ -36,18 +38,6 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
   const [frameState, setFrameState] = useState<FrameState>(
     () => frame ?? { x: 50, y: 0, zoom: 1 },
   );
-
-  const [naturalSize, setNaturalSize] = useState<{
-    w: number;
-    h: number;
-  } | null>(null);
-
-  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    setNaturalSize({
-      w: e.currentTarget.naturalWidth,
-      h: e.currentTarget.naturalHeight,
-    });
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -120,29 +110,13 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
     lastPointerRef.current = null;
   }, []);
 
-  const coverScale =
-    naturalSize !== null
-      ? Math.max(
-          dimensions.width / naturalSize.w,
-          dimensions.height / naturalSize.h,
-        )
-      : 0;
-
   const overlayStyle = {
     '--rt-ipfo-x': `${frameState.x}%`,
     '--rt-ipfo-y': `${frameState.y}%`,
     '--rt-ipfo-zoom': frameState.zoom,
     '--rt-ipfo-frame-w': `${dimensions.width}px`,
     '--rt-ipfo-frame-h': `${dimensions.height}px`,
-  } as CSSProperties;
-  console.log(`${frameState.x}%`, 12.5 - (frameState.x / 100) * 25);
-
-  const bgImageStyles = {
-    '--rt-ipfo-scaled-w':
-      naturalSize !== null ? `${naturalSize.w * coverScale}px` : '0px',
-    '--rt-ipfo-scaled-h':
-      naturalSize !== null ? `${naturalSize.h * coverScale}px` : '0px',
-    '--rt-ipfo-bg-x-offset': `${12.5 - (frameState.x / 100) * 25}%`,
+    '--ipfo-frame-border-width': `${IPFO_FRAME_BORDER_WIDTH}px`,
   } as CSSProperties;
 
   return (
@@ -155,18 +129,16 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
-      <ImageById
+      <IpfoBgImg
         imageId={imageId}
-        alt='Framing preview background'
-        className='ipfo-image--bg'
-        style={bgImageStyles}
+        dimensions={dimensions}
+        frameState={frameState}
       />
       <div className='ipfo-image-frame'>
         <ImageById
           imageId={imageId}
           alt='Framing preview'
           className='ipfo-image'
-          onLoad={handleImageLoad}
         />
       </div>
     </div>
