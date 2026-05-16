@@ -182,10 +182,11 @@ A function that fails either condition stays local to its consumer in `Component
 
 ### Constants
 
-When a constant is shared by two or more files within the same module directory, extract it to `ComponentName.constants.ts` at the level of the **smallest directory that contains all consumers**. A constant used only within a single file stays inlined — no constants file for single consumers.
+When a constant is shared by two or more TypeScript files within the same module directory, extract it to `ComponentName.constants.ts` at the level of the **smallest directory that contains all consumers**. A constant used only within a single file stays inlined — no constants file for single consumers. Only TypeScript files count as consumers — a CSS file that hardcodes a numerically identical value is not a consumer and does not trigger extraction.
 
 - ✅ `DEFAULT_COLUMN_WIDTH` shared by `SortingTableHeader` and `SortableListItem` (both under `SortableList/`) → `SortableList/SortableList.constants.ts`
 - ❌ A constant used only in `SortingTableHeader` → stays inlined in `SortingTableHeader.tsx`
+- ❌ `FramingOverlay.tsx` uses `200` and `FramingOverlay.css` hardcodes `200px` — the CSS file cannot import from TS; the value stays inlined in the `.tsx` file
 
 ### List Conventions
 
@@ -221,8 +222,9 @@ When a constant is shared by two or more files within the same module directory,
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
 
-**DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance.
+**DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, include both in a single object cast — do not split them across two props or two casts.
 
+- ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ✅ `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
 

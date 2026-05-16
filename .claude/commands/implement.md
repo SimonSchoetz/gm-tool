@@ -143,15 +143,18 @@ When the user provides input mid-cycle — decisions, fix direction, an entry po
 
 ## Engineering Validity
 
-Before executing any spec instruction, read it as a coder. Ask whether the
-code it requires makes sense — not whether the architecture behind it is
-correct, but whether the implementation itself is coherent. If it is not,
-stop. State the instruction, describe what is wrong with the code it produces,
-and wait for the user to resolve it before proceeding.
+Before executing any instruction — whether from the spec or from spec-writer
+output in the review loop — read it as a coder. Ask whether the code it
+requires makes sense — not whether the architecture behind it is correct, but
+whether the implementation itself is coherent. If it is not, stop. State the
+instruction, describe what is wrong with the code it produces, and wait for
+the user to resolve it before proceeding.
 
 This is not a license to challenge architectural decisions. The question is
 whether the code makes sense, not whether you would have designed it
-differently.
+differently. An instruction that is physically impossible to execute (e.g.,
+a CSS file cannot import from a TypeScript module) is incoherent regardless
+of its architectural rationale — stop and surface it.
 
 ## Signature Changes
 
