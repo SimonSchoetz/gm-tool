@@ -2,11 +2,6 @@
 
 ## MVP
 
-### Vertical Build
-
-- Feature: Image detail vs reupload
-- Feature: Image upload with area selection
-
 ### Horizontal Build
 
 - Feature: PC Screens
@@ -25,6 +20,8 @@
 
 ### Done
 
+- Feature: Image detail vs reupload
+- Feature: Image upload with area selection
 - Feature: Summary Popup
   - Feature: Pin-to-foreground functionality
 - Fix: Apply `buildCreateQuery` to all remaining DB `create.ts` files (adventure, npc, image, table-config)
