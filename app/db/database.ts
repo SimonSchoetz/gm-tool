@@ -43,26 +43,6 @@ export const initDatabase = async () => {
         );
       }
 
-      try {
-        await database.execute(
-          `ALTER TABLE sessions ADD COLUMN active_view TEXT NOT NULL DEFAULT 'prep'`,
-        );
-      } catch (err) {
-        if (!String(err).toLowerCase().includes('duplicate column name')) {
-          throw err;
-        }
-      }
-
-      for (const column of ['frame_x', 'frame_y', 'frame_zoom']) {
-        try {
-          await database.execute(`ALTER TABLE images ADD COLUMN ${column} REAL`);
-        } catch (err) {
-          if (!String(err).toLowerCase().includes('duplicate column name')) {
-            throw err;
-          }
-        }
-      }
-
       // Seed table_config with defaults
       db = database;
       await seedTableConfig(database);
