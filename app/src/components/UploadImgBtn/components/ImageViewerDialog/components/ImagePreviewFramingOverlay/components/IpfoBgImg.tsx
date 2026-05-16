@@ -1,6 +1,6 @@
-import { ImageById } from '@/components/ImageById/ImageById';
+import { ImageById } from '../../../../../../ImageById/ImageById';
 import { FCProps } from '@/types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './IpfoBgImg.css';
 import { FrameState } from '../helper';
 import { IPFO_FRAME_BORDER_WIDTH } from '../ImagePreviewFramingOverlay.constants';
@@ -21,9 +21,6 @@ export const IpfoBgImg: FCProps<Props> = ({
     h: number;
   } | null>(null);
 
-  const [xOffset, setXOffset] = useState(0);
-  const [yOffset, setYOffset] = useState(0);
-
   const imageWidth = naturalSize?.w ?? 0;
   const imageHeight = naturalSize?.h ?? 0;
 
@@ -32,20 +29,13 @@ export const IpfoBgImg: FCProps<Props> = ({
     dimensions.height / imageHeight,
   );
 
-  useEffect(() => {
-    if (!naturalSize) return;
-    const { width, height } = dimensions;
-    const { w, h } = naturalSize;
-    const overWidth = w * coverScale - width;
-    const overHeight = h * coverScale - height;
-    const borderOffset = IPFO_FRAME_BORDER_WIDTH * 2;
-
-    const offsetX = overWidth + borderOffset;
-    setXOffset(offsetX / 2 - (frameState.x / 100) * offsetX);
-
-    const offsetY = overHeight + borderOffset;
-    setYOffset(offsetY / 2 - (frameState.y / 100) * offsetY);
-  }, [dimensions, naturalSize, frameState, coverScale]);
+  const borderOffset = IPFO_FRAME_BORDER_WIDTH * 2;
+  const offsetX = imageWidth * coverScale - dimensions.width + borderOffset;
+  const offsetY = imageHeight * coverScale - dimensions.height + borderOffset;
+  const xOffset =
+    naturalSize !== null ? offsetX / 2 - (frameState.x / 100) * offsetX : 0;
+  const yOffset =
+    naturalSize !== null ? offsetY / 2 - (frameState.y / 100) * offsetY : 0;
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     setNaturalSize({
