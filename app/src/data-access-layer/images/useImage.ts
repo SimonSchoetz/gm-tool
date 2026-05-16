@@ -15,14 +15,19 @@ export const useImage = (imageId: string | null): UseImageReturn => {
     queryFn: async () => {
       if (imageId === null) return null;
       const image = await imageService.getImageById(imageId);
-      const url = await imageService.getImageUrl(image.id, image.file_extension);
-      const frame: ImageFrame | null =
-        typeof image.frame_x === 'number' &&
-        typeof image.frame_y === 'number' &&
-        typeof image.frame_zoom === 'number'
-          ? { x: image.frame_x, y: image.frame_y, zoom: image.frame_zoom }
-          : null;
-      return { url, frame };
+      const url = await imageService.getImageUrl(
+        image.id,
+        image.file_extension,
+      );
+
+      const frame = {
+        x: image.frame_x,
+        y: image.frame_y,
+        zoom: image.frame_zoom,
+      } as ImageFrame;
+      const isFrame = assertIsFrame(frame);
+
+      return { url, frame: isFrame ? frame : null };
     },
     enabled: imageId !== null,
     throwOnError: true,
@@ -33,4 +38,12 @@ export const useImage = (imageId: string | null): UseImageReturn => {
     frame: data?.frame ?? null,
     loading,
   };
+};
+
+const assertIsFrame = (frame: ImageFrame): frame is ImageFrame => {
+  return (
+    typeof frame.x === 'number' &&
+    typeof frame.y === 'number' &&
+    typeof frame.zoom === 'number'
+  );
 };
