@@ -5,6 +5,10 @@ import { FCProps, HtmlProps } from '@/types';
 
 import { HoloImg } from '@/components';
 import { Adventure } from '@db/adventure';
+import {
+  ADVENTURE_PREVIEW_WIDTH,
+  ADVENTURE_PREVIEW_HEIGHT,
+} from '../../../screens.constants';
 
 type Props = {
   adventure: Adventure;
@@ -21,7 +25,10 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
       <HoloImg
         image_id={adventure.image_id ?? null}
         title={adventure.name}
-        dimensions={{ width: 200, height: 350 }}
+        dimensions={{
+          width: ADVENTURE_PREVIEW_WIDTH,
+          height: ADVENTURE_PREVIEW_HEIGHT,
+        }}
       />
     </Link>
   );

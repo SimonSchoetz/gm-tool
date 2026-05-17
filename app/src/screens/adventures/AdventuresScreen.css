@@ -5,11 +5,11 @@
 }
 
 .new-adventure-btn {
-  width: 200px;
-  height: 350px;
+  width: var(--adventure-preview-width);
+  height: var(--adventure-preview-height);
 }
 
 .new-adventure-btn svg {
   height: var(--font-size-4xl);
-  width: var(--font-size-34l);
+  width: var(--font-size-4xl);
 }

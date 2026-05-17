@@ -3,6 +3,10 @@ import { useAdventure, useImageMutations } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './AdventureScreenSidebar.css';
+import {
+  ADVENTURE_PREVIEW_HEIGHT,
+  ADVENTURE_PREVIEW_WIDTH,
+} from '../../../screens.constants';
 
 export const AdventureScreenSidebar = () => {
   const router = useRouter();
@@ -25,7 +29,10 @@ export const AdventureScreenSidebar = () => {
   return (
     <aside className='adventure-sidebar'>
       <UploadImgBtn
-        dimensions={{ width: 200, height: 350 }}
+        dimensions={{
+          width: ADVENTURE_PREVIEW_WIDTH,
+          height: ADVENTURE_PREVIEW_HEIGHT,
+        }}
         image_id={adventure.image_id ?? null}
         uploadFn={(filePath) => {
           updateAdventure({
