@@ -2,27 +2,20 @@ import { ActionContainer, GlassPanel } from '@/components';
 import './NewItemBtn.css';
 import { cn } from '@/util';
 
-import { FCProps, HtmlProps } from '@/types';
-import { useState } from 'react';
-import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
+import { FCProps } from '@/types';
+import { CSSProperties, useState } from 'react';
+import { PlusIcon } from 'lucide-react';
 
-type Props = {
-  dimensions?: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
-  label: string;
-  onClick: () => void;
-} & HtmlProps<'div'>;
+type Props = React.ComponentProps<typeof ActionContainer>;
 
-export const NewItemBtn: FCProps<Props> = ({
-  dimensions,
-  label,
-  onClick,
-  className,
-}) => {
+const ANIMATION_DURATION = 500;
+
+export const NewItemBtn: FCProps<Props> = ({ className, ...props }) => {
   const [hideBtn, setHideBtn] = useState(false);
 
   const letAnimationPlayBeforeAction = () => {
     setHideBtn(true);
-    const timeoutId = setTimeout(onClick, 500);
+    const timeoutId = setTimeout(props.onClick, ANIMATION_DURATION);
     return () => {
       clearTimeout(timeoutId);
     };
@@ -31,22 +24,21 @@ export const NewItemBtn: FCProps<Props> = ({
   return (
     <ActionContainer
       onClick={letAnimationPlayBeforeAction}
-      label={'Create new adventure'}
       className={cn(
-        'new-item-btn',
+        'ni-btn',
         className,
-        hideBtn && 'animate-new-item-btn-on-click',
+        hideBtn && 'ni-btn-animation-on-click',
       )}
+      style={
+        {
+          '--ni-btn-animation-duration': `${ANIMATION_DURATION}ms`,
+        } as CSSProperties
+      }
+      {...props}
     >
-      {dimensions ? (
-        <ImagePlaceholderFrame dimensions={dimensions}>
-          <div className='new-item-btn-adventure-label'>{label}</div>
-        </ImagePlaceholderFrame>
-      ) : (
-        <GlassPanel className='new-item-btn-list-item-container'>
-          <div className='new-item-btn-list-item-label'>{label}</div>
-        </GlassPanel>
-      )}
+      <GlassPanel className='ni-btn-content-container content-center'>
+        <PlusIcon className='ni-btn-icon' />
+      </GlassPanel>
     </ActionContainer>
   );
 };

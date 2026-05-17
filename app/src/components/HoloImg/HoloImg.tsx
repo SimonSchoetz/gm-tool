@@ -35,23 +35,26 @@ export const HoloImg: FCProps<Props> = ({
         dimensions={dimensions}
         className={cn('tilt-fx', isActive && 'active', className)}
       >
-        <HoloFX shimmerContent={title} isActive={isActive} />
+        <HoloFX shimmerContent={image_id ? title : ''} isActive={isActive} />
 
         {!image_id && title && <p className='holo-img-title'>{title}</p>}
-        <ImageById
-          imageId={image_id}
-          alt={`${title} preview`}
-          className={cn('holo-img', isActive && 'active')}
-          {...(frame !== null
-            ? {
-                style: {
-                  '--rt-holo-img-frame-x': `${frame.x}%`,
-                  '--rt-holo-img-frame-y': `${frame.y}%`,
-                  '--rt-holo-img-frame-zoom': frame.zoom,
-                } as React.CSSProperties,
-              }
-            : {})}
-        />
+
+        {image_id && (
+          <ImageById
+            imageId={image_id}
+            alt={title}
+            className={cn('holo-img', isActive && 'active')}
+            {...(frame !== null
+              ? {
+                  style: {
+                    '--rt-holo-img-frame-x': `${frame.x}%`,
+                    '--rt-holo-img-frame-y': `${frame.y}%`,
+                    '--rt-holo-img-frame-zoom': frame.zoom,
+                  } as React.CSSProperties,
+                }
+              : {})}
+          />
+        )}
       </ImagePlaceholderFrame>
     </div>
   );

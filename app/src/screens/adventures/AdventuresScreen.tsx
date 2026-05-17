@@ -22,8 +22,8 @@ export const AdventuresScreen = () => {
       <ul className='content-center adventure-list-container'>
         <li key='new-adventure'>
           <NewItemBtn
-            dimensions={{ width: 200, height: 350 }}
-            label='+'
+            className='new-adventure-btn'
+            label={'Create new adventure'}
             onClick={() => {
               void handleAdventureCreation();
             }}

@@ -3,3 +3,13 @@
   flex-wrap: wrap;
   list-style-type: none;
 }
+
+.new-adventure-btn {
+  width: 200px;
+  height: 350px;
+}
+
+.new-adventure-btn svg {
+  height: var(--font-size-4xl);
+  width: var(--font-size-34l);
+}

@@ -63,7 +63,7 @@ export const SessionStepsNav = () => {
       {session?.active_view === 'prep' && (
         <NewItemBtn
           className='new-step-section-btn'
-          label='+'
+          label='Add step'
           onClick={() => {
             void createStep();
           }}
