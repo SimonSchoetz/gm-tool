@@ -1,7 +1,12 @@
 .ni-btn {
   border-radius: var(--radius-2xl);
   width: 100%;
-  transition: box-shadow var(--transition-hover-off);
+  transition:
+    box-shadow var(--transition-hover-off),
+    opacity var(--ni-btn-animation-duration),
+    transform var(--ni-btn-animation-duration);
+  transform: scale(1) translateZ(0);
+  opacity: 1;
 }
 
 .ni-btn-content-container {
@@ -12,7 +17,10 @@
 }
 
 .ni-btn:hover {
-  transition: box-shadow var(--transition-hover-on);
+  transition:
+    box-shadow var(--transition-hover-on),
+    opacity var(--ni-btn-animation-duration),
+    transform var(--ni-btn-animation-duration);
   box-shadow: var(--box-shadow-active);
 }
 
@@ -32,10 +40,9 @@
 }
 
 .ni-btn-animation-on-click {
-  transition: var(--ni-btn-animation-duration);
   opacity: 0;
   transform: scale(1.5) translateZ(0);
   text-shadow: 0 0 1rem var(--color-primary);
-  will-change: font-size;
+  will-change: opacity, transform;
   color: var(--color-text);
 }

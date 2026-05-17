@@ -64,6 +64,7 @@ export const SessionStepsNav = () => {
         <NewItemBtn
           className='new-step-section-btn'
           label='Add step'
+          suppressAnimation
           onClick={() => {
             void createStep();
           }}
