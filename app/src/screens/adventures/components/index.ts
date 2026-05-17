@@ -1,1 +1,1 @@
-export * from './ToAdventureBtn/ToAdventureBtn';
+export { ToAdventureBtn } from './ToAdventureBtn/ToAdventureBtn';

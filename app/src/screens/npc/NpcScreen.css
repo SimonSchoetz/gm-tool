@@ -5,34 +5,9 @@
   grid-template-columns: auto 1fr;
 }
 
-.npc-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.save-error-message {
-  font-size: var(--font-size-xl);
-  color: var(--color-warning);
-}
-
 .npc-text-edit-area {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
   gap: var(--spacing-md);
-}
-
-.npc-summary {
-  display: grid;
-  gap: var(--spacing-sm);
-  grid-template-rows: auto 1fr;
-  padding: var(--spacing-md);
-  height: var(--summary-content-height);
-  max-width: 600px;
-}
-
-.npc-name-input {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-medium);
 }

@@ -1,103 +1,28 @@
-import {
-  Button,
-  CustomScrollArea,
-  GlassPanel,
-  Input,
-  TextEditor,
-  UploadImgBtn,
-} from '@/components';
+import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
 import { cn } from '@/util';
-import { useRouter, useParams } from '@tanstack/react-router';
-import { useNpc, useImageMutations } from '@/data-access-layer';
-import { useState } from 'react';
-import { useDeleteDialog } from '@/providers';
+import { useNpc } from '@/data-access-layer';
 import './NpcScreen.css';
+import { useParams } from '@tanstack/react-router';
+import { NpcHeader, NpcSidebar } from './components';
 
 export const NpcScreen = () => {
-  const router = useRouter();
   const { adventureId, npcId } = useParams({
     from: '/adventure/$adventureId/npc/$npcId',
   });
 
-  const { npc, updateNpc, deleteNpc, loading } = useNpc(npcId, adventureId);
-  const { openDeleteDialog } = useDeleteDialog();
-  const { deleteImage } = useImageMutations();
-
-  const [npcName, setNpcName] = useState(npc?.name ?? '');
-  const [syncedNpcId, setSyncedNpcId] = useState(npc?.id);
-
-  if (npc?.id !== syncedNpcId) {
-    setSyncedNpcId(npc?.id);
-    setNpcName(npc?.name ?? '');
-  }
+  const { npc, updateNpc, loading } = useNpc(npcId, adventureId);
 
   if (loading || !npc) {
     return <div>Loading...</div>;
   }
 
-  const handleNpcDelete = async () => {
-    await deleteNpc();
-    void router.navigate({ to: `/adventure/${adventureId}/npcs` });
-  };
-
   return (
     <GlassPanel className={cn('npc-screen')}>
-      <aside className='npc-sidebar'>
-        <UploadImgBtn
-          dimensions={{ width: 200, height: 200 }}
-          image_id={npc.image_id ?? null}
-          title={npc.name}
-          uploadFn={(filePath) => {
-            updateNpc({ imgFilePath: filePath, image_id: npc.image_id });
-          }}
-          deleteFn={() => {
-            if (npc.image_id) {
-              void deleteImage(npc.image_id);
-              updateNpc({ image_id: null });
-            }
-          }}
-        />
-
-        <Button
-          label='Delete NPC'
-          onClick={() => {
-            openDeleteDialog({
-              name: npc.name,
-              onDeletionConfirm: () => {
-                void handleNpcDelete();
-              },
-              oneClickConfirm: false,
-            });
-          }}
-          buttonStyle={'danger'}
-        />
-      </aside>
+      <NpcSidebar />
 
       <CustomScrollArea>
         <div className={cn('npc-text-edit-area')}>
-          <GlassPanel className='npc-summary' intensity='bright'>
-            <Input
-              placeholder='Name'
-              value={npcName}
-              onChange={(e) => {
-                setNpcName(e.target.value);
-                updateNpc({ name: e.target.value });
-              }}
-              className='npc-name-input'
-              required
-            />
-
-            <CustomScrollArea>
-              <TextEditor
-                placeholder='Summmary'
-                value={npc.summary ?? ''}
-                textEditorId={`NPC_${npc.id}_summary`}
-                onChange={(summary) => {
-                  updateNpc({ summary });
-                }}
-              />
-            </CustomScrollArea>
-          </GlassPanel>
+          <NpcHeader />
 
           <TextEditor
             value={npc.description ?? ''}

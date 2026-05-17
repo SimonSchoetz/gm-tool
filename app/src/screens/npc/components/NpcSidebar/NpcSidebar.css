@@ -1,6 +1,5 @@
-.steps-sidebar {
+.npc-sidebar {
   display: flex;
   flex-direction: column;
-  width: 200px; /* one off */
   gap: var(--spacing-md);
 }
