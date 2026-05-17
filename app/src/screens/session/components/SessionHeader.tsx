@@ -27,7 +27,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
     <header className='session-header'>
       <Input
         className='session-name-input'
-        placeholder='Session name'
+        placeholder='Session name, i. e. ingame date'
         value={sessionName}
         onChange={(e) => {
           setSessionName(e.target.value);
