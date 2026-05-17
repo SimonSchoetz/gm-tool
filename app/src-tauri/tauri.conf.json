@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
+  "productName": "GM Tool",
   "version": "0.1.0",
-  "identifier": "com.simonschoetz.tauri-app",
+  "identifier": "com.gm-tool",
   "build": {
     "beforeDevCommand": "npm run web",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
+        "title": "GM Tool",
         "width": 1920,
         "height": 1080
       }

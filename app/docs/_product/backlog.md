@@ -55,7 +55,7 @@
 
 - Epic: Website to download the latest build
 - Epic: Online community
-- Feature: automatic updates
+- Feature: (automatic) updates
 - Feature (Content): Onboarding
 - Feature (Content): Session Zero
 
