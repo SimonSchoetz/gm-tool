@@ -1,6 +1,6 @@
 import { useAdventures } from '@/data-access-layer';
 import './AdventuresScreen.css';
-import { ToAdventureBtn } from '../../components/AdventureComponents';
+import { ToAdventureBtn } from './components';
 import { NewItemBtn } from '@/components';
 import { useRouter } from '@tanstack/react-router';
 

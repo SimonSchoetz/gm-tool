@@ -9,7 +9,6 @@ import { Adventure } from '@db/adventure';
 type Props = {
   adventure: Adventure;
 } & HtmlProps<'div'>;
-/* TODO: refactor components/AdventureComponents to sub components of adventures screen */
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
   const route = `/adventure/${adventure.id}`;
 
