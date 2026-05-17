@@ -10,15 +10,13 @@ export const AdventureScreenSidebar = () => {
     from: '/adventure/$adventureId/',
   });
 
-  const { adventure, updateAdventure, deleteAdventure, loading } =
+  const { adventure, updateAdventure, deleteAdventure } =
     useAdventure(adventureId);
 
   const { openDeleteDialog } = useDeleteDialog();
   const { deleteImage } = useImageMutations();
 
-  if (loading || !adventure) {
-    return <div>Loading...</div>;
-  }
+  if (!adventure) return;
 
   const handleAdventureDelete = async () => {
     await deleteAdventure();

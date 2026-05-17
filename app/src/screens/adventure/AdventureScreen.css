@@ -10,21 +10,3 @@
   grid-template-rows: auto 1fr;
   height: 100%;
 }
-
-.adventure-title-input {
-  margin-top: var(--spacing-sm);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-medium);
-}
-
-.adventure-facts {
-  display: flex;
-  list-style-type: none;
-  gap: var(--spacing-xl);
-  color: rgb(var(--color-fg-rgb), 0.6);
-  margin-bottom: var(--spacing-md);
-}
-
-.adventure-facts span {
-  color: var(--color-fg);
-}
