@@ -13,15 +13,8 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
 
   const [sessionName, setSessionName] = useState(session?.name ?? '');
   const [sessionDate, setSessionDate] = useState(session?.session_date ?? '');
-  const [syncedSessionId, setSyncedSessionId] = useState(session?.id);
 
   if (!session) return null;
-
-  if (session.id !== syncedSessionId) {
-    setSyncedSessionId(session.id);
-    setSessionName(session.name ?? '');
-    setSessionDate(session.session_date ?? '');
-  }
 
   return (
     <header className='session-header'>
