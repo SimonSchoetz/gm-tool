@@ -9,7 +9,8 @@ export type BreadcrumbConfig =
     }
   | { kind: 'adventure' }
   | { kind: 'session' }
-  | { kind: 'npc' };
+  | { kind: 'npc' }
+  | { kind: 'foe' };
 
 export const buildBreadcrumbs = (
   matches: AnyRouteMatch[],
@@ -61,6 +62,25 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
           { kind: 'npc' },
+        ];
+      case '/adventure/$adventureId/foes':
+        return [
+          {
+            kind: 'static',
+            label: 'Foes',
+            to: '/adventure/$adventureId/foes',
+            params: { adventureId: p.adventureId },
+          },
+        ];
+      case '/adventure/$adventureId/foe/$foeId':
+        return [
+          {
+            kind: 'static',
+            label: 'Foes',
+            to: '/adventure/$adventureId/foes',
+            params: { adventureId: p.adventureId },
+          },
+          { kind: 'foe' },
         ];
       case '/adventure/$adventureId/sessions':
         return [
