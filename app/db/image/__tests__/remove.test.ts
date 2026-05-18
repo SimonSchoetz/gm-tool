@@ -36,7 +36,7 @@ describe('image.remove', () => {
   });
 
   it('should throw error when id is empty', async () => {
-    await expect(remove('')).rejects.toThrow('Image ID is required');
+    await expect(remove('')).rejects.toThrow('Valid image ID is required');
   });
 
   it('should not throw error when deleting non-existent image', async () => {
