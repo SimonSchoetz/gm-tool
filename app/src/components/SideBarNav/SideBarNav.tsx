@@ -24,15 +24,20 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
           <ScreenNavBtn label='Adventures' to='/adventures' />
 
           <ScreenNavBtn
+            label='Sessions'
+            to='/adventure/$adventureId/sessions'
+            params={{ adventureId: adventureId ?? '' }}
+            isDisabled={!adventureId}
+          />
+          <ScreenNavBtn
             label='NPCs'
             to='/adventure/$adventureId/npcs'
             params={{ adventureId: adventureId ?? '' }}
             isDisabled={!adventureId}
           />
-
           <ScreenNavBtn
-            label='Sessions'
-            to='/adventure/$adventureId/sessions'
+            label='Foes'
+            to='/adventure/$adventureId/foes'
             params={{ adventureId: adventureId ?? '' }}
             isDisabled={!adventureId}
           />

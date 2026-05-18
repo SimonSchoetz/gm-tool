@@ -321,6 +321,21 @@ export { [Plural]Screen } from './[plural]/[Plural]Screen';
 export { [Singular]Screen } from './[singular]/[Singular]Screen';
 ```
 
+### Sidebar Navigation
+
+**`app/src/components/SideBarNav/SideBarNav.tsx`** (Modified) — add a `ScreenNavBtn`
+entry to the adventure-scoped button group (`<div className='sidebar-nav-btn-group'>`),
+after the existing domain entries:
+
+```tsx
+<ScreenNavBtn
+  label='[Plural]'
+  to='/adventure/$adventureId/[plural]'
+  params={{ adventureId: adventureId ?? '' }}
+  isDisabled={!adventureId}
+/>
+```
+
 ### Breadcrumbs
 
 NPC reference: `src/components/Header/`.

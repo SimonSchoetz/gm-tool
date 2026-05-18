@@ -14,6 +14,7 @@ New:
 Modified:
   app/src/screens/index.ts — add FoesScreen and FoeScreen exports
   app/src/data-access-layer/index.ts — add useFoes, useFoe, foeKeys exports
+  app/src/components/SideBarNav/SideBarNav.tsx — add Foes ScreenNavBtn to adventure-scoped group
 ```
 
 ## Frontend Layer — Routes
@@ -46,6 +47,25 @@ export const Route = createFileRoute(
 
 TanStack Router regenerates `src/routeTree.gen.ts` automatically on the next dev server
 start after these files are created. No manual edit to `routeTree.gen.ts` is required.
+
+## Frontend Layer — Sidebar Navigation
+
+### `app/src/components/SideBarNav/SideBarNav.tsx` changes
+
+Add a `ScreenNavBtn` for Foes inside the `<div className='sidebar-nav-btn-group'>` block,
+after the NPCs entry:
+
+```tsx
+<ScreenNavBtn
+  label='Foes'
+  to='/adventure/$adventureId/foes'
+  params={{ adventureId: adventureId ?? '' }}
+  isDisabled={!adventureId}
+/>
+```
+
+Note: this entry may already be present if added manually before spec implementation.
+Verify before applying — add only if absent.
 
 ## Barrel Registrations
 
