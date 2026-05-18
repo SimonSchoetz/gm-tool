@@ -26,7 +26,7 @@ export const NpcSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={npc.image_id ?? null}
-        title={npc.name}
+        title={npc.name ?? ''}
         uploadFn={(filePath) => {
           updateNpc({ imgFilePath: filePath, image_id: npc.image_id });
         }}
@@ -42,7 +42,7 @@ export const NpcSidebar = () => {
         label='Delete NPC'
         onClick={() => {
           openDeleteDialog({
-            name: npc.name,
+            name: npc.name ?? '',
             onDeletionConfirm: () => {
               void handleNpcDelete();
             },

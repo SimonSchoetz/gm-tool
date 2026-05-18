@@ -24,7 +24,7 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
     >
       <HoloImg
         image_id={adventure.image_id ?? null}
-        title={adventure.name}
+        title={adventure.name ?? ''}
         dimensions={{
           width: ADVENTURE_PREVIEW_WIDTH,
           height: ADVENTURE_PREVIEW_HEIGHT,

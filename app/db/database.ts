@@ -43,6 +43,53 @@ export const initDatabase = async () => {
         );
       }
 
+      // TEMPORARY MIGRATION — delete after first run
+      await database.execute('PRAGMA foreign_keys = OFF');
+
+      await database.execute('DROP TABLE IF EXISTS adventures_migration_temp');
+      await database.execute(`
+        CREATE TABLE adventures_migration_temp (
+          id TEXT PRIMARY KEY,
+          name TEXT,
+          description TEXT,
+          image_id TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE SET NULL
+        )
+      `);
+      await database.execute(
+        'INSERT INTO adventures_migration_temp SELECT * FROM adventures',
+      );
+      await database.execute('DROP TABLE adventures');
+      await database.execute(
+        'ALTER TABLE adventures_migration_temp RENAME TO adventures',
+      );
+
+      await database.execute('DROP TABLE IF EXISTS npcs_migration_temp');
+      await database.execute(`
+        CREATE TABLE npcs_migration_temp (
+          id TEXT PRIMARY KEY,
+          adventure_id TEXT NOT NULL,
+          name TEXT,
+          summary TEXT,
+          description TEXT,
+          image_id TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (adventure_id) REFERENCES adventures(id) ON DELETE CASCADE,
+          FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE SET NULL
+        )
+      `);
+      await database.execute(
+        'INSERT INTO npcs_migration_temp SELECT * FROM npcs',
+      );
+      await database.execute('DROP TABLE npcs');
+      await database.execute('ALTER TABLE npcs_migration_temp RENAME TO npcs');
+
+      await database.execute('PRAGMA foreign_keys = ON');
+      // END TEMPORARY MIGRATION
+
       // Seed table_config with defaults
       db = database;
       await seedTableConfig(database);

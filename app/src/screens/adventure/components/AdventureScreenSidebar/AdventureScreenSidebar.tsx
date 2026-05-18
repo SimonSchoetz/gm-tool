@@ -51,7 +51,7 @@ export const AdventureScreenSidebar = () => {
         label='Delete Adventure'
         onClick={() => {
           openDeleteDialog({
-            name: adventure.name,
+            name: adventure.name ?? '',
             onDeletionConfirm: () => {
               void handleAdventureDelete();
             },

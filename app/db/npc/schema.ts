@@ -21,9 +21,7 @@ export const npcTable = defineTable({
     },
     name: {
       type: 'TEXT',
-      notNull: true,
-      zod: z.string(),
-      updateZod: z.string(),
+      zod: z.string().optional(),
     },
     summary: {
       type: 'TEXT',

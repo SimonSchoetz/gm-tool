@@ -11,9 +11,7 @@ export const adventureTable = defineTable({
     },
     name: {
       type: 'TEXT',
-      notNull: true,
-      zod: z.string(),
-      updateZod: z.string(),
+      zod: z.string().optional(),
     },
     description: {
       type: 'TEXT',
