@@ -44,8 +44,11 @@
 ### Closed Beta Ready
 
 - Epic: Stable build for mac and windows (maybe linux)
-  - hard drive access
+  - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
+    - first start: should ask if relocate or create new
+      - relocate db functonality
+      - chosing db/asset location functionality
 - Feature: full data export for manual backups
 - Feature: data import from manual backups
 - Feature(POC): local network to autosync between different devices
