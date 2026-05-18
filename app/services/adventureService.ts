@@ -71,11 +71,8 @@ export const updateAdventure = async (
 
 export const deleteAdventure = async (
   id: string,
-  adventure?: Adventure,
+  adventure: Adventure | null = null,
 ): Promise<void> => {
-  /**
-   * TODO: Needs to delete all corresponding sessions ect. in the future
-   */
   try {
     const adventureToDelete = adventure ?? (await getAdventureById(id));
 

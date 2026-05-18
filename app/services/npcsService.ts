@@ -68,7 +68,7 @@ export const updateNpc = async (
   }
 };
 
-export const deleteNpc = async (id: string, npc?: Npc): Promise<void> => {
+export const deleteNpc = async (id: string, npc: Npc | null = null): Promise<void> => {
   try {
     const npcToDelete = npc ?? (await getNpcById(id));
 
