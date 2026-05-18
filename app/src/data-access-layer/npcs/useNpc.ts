@@ -36,15 +36,10 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateNpcData }) =>
-      service.updateNpc(id, data),
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: npcKeys.detail(variables.id),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: npcKeys.list(adventureId),
-      });
+    mutationFn: (data: UpdateNpcData) => service.updateNpc(npcId, data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: npcKeys.detail(npcId) });
+      void queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
     },
   });
 
@@ -80,7 +75,7 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
 
-      updateMutation.mutate({ id: npcId, data: updates });
+      updateMutation.mutate(updates);
     }, 500);
   };
 

@@ -36,13 +36,10 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateAdventureData }) =>
-      service.updateAdventure(id, data),
-    onSuccess: (_data, variables) => {
+    mutationFn: (data: UpdateAdventureData) => service.updateAdventure(adventureId, data),
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
-      void queryClient.invalidateQueries({
-        queryKey: adventureKeys.detail(variables.id),
-      });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.detail(adventureId) });
     },
   });
 
@@ -77,8 +74,9 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     debounceTimeoutRef.current = setTimeout(() => {
       const updates = { ...pendingUpdatesRef.current };
       pendingUpdatesRef.current = {};
+      debounceTimeoutRef.current = null;
 
-      updateMutation.mutate({ id: adventureId, data: updates });
+      updateMutation.mutate(updates);
     }, 500);
   };
 

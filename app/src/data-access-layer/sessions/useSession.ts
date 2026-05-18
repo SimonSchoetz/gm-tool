@@ -36,8 +36,7 @@ export const useSession = (
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) =>
-      service.updateSession(id, data),
+    mutationFn: (data: UpdateSessionInput) => service.updateSession(sessionId, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: sessionKeys.detail(sessionId),
@@ -83,7 +82,7 @@ export const useSession = (
       const updates = { ...pendingUpdatesRef.current };
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
-      updateMutation.mutate({ id: sessionId, data: updates });
+      updateMutation.mutate(updates);
     }, 500);
   };
 
