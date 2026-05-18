@@ -4,6 +4,7 @@ import { adventureTable } from './adventure/schema';
 import { sessionTable } from './session/schema';
 import { sessionStepTable } from './session-step/schema';
 import { npcTable } from './npc/schema';
+import { foeTable } from './foe/schema';
 import { tableConfigTable } from './table-config/schema';
 import { seedTableConfig } from './table-config/seed';
 
@@ -31,6 +32,7 @@ export const initDatabase = async () => {
         { name: 'sessions', sql: sessionTable.createTableSQL },
         { name: 'session_steps', sql: sessionStepTable.createTableSQL },
         { name: 'npcs', sql: npcTable.createTableSQL },
+        { name: 'foes', sql: foeTable.createTableSQL },
         { name: 'table_config', sql: tableConfigTable.createTableSQL },
       ];
 
