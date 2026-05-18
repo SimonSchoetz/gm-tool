@@ -4,9 +4,9 @@
 
 ### Horizontal Build
 
-- Feature: PC Screens
-- Feature: Faction Screens
-- Feature: Monster Screens
+- Feature: PCs Screens
+- Feature: Factions Screens
+- Feature: Foes Screens
 - Feature: Items Screens
 - Feature: Places Screens
 
@@ -43,6 +43,7 @@
 
 ### Closed Beta Ready
 
+- Feature: db migrations
 - Epic: Stable build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
