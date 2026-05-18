@@ -68,6 +68,17 @@ export const updateNpc = async (
   }
 };
 
+export const removeNpcImage = async (npcId: string): Promise<void> => {
+  try {
+    const npc = await getNpcById(npcId);
+    if (!npc.image_id) return;
+    await imageService.deleteImage(npc.image_id);
+    await npcDb.update(npcId, { image_id: null });
+  } catch (err) {
+    throw npcUpdateError(npcId, err);
+  }
+};
+
 export const deleteNpc = async (id: string, npc: Npc | null = null): Promise<void> => {
   try {
     const npcToDelete = npc ?? (await getNpcById(id));

@@ -1,5 +1,5 @@
 import { UploadImgBtn, Button } from '@/components';
-import { useNpc, useImageMutations } from '@/data-access-layer';
+import { useNpc } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
@@ -10,9 +10,8 @@ export const NpcSidebar = () => {
   const { adventureId, npcId } = useParams({
     from: '/adventure/$adventureId/npc/$npcId',
   });
-  const { npc, updateNpc, deleteNpc } = useNpc(npcId, adventureId);
+  const { npc, updateNpc, deleteNpc, removeNpcImage } = useNpc(npcId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
-  const { deleteImage } = useImageMutations();
 
   if (!npc) return;
 
@@ -31,10 +30,7 @@ export const NpcSidebar = () => {
           updateNpc({ imgFilePath: filePath, image_id: npc.image_id });
         }}
         deleteFn={() => {
-          if (npc.image_id) {
-            void deleteImage(npc.image_id);
-            updateNpc({ image_id: null });
-          }
+          if (npc.image_id) void removeNpcImage();
         }}
       />
 

@@ -1,5 +1,5 @@
 import { UploadImgBtn, Button } from '@/components';
-import { useAdventure, useImageMutations } from '@/data-access-layer';
+import { useAdventure } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './AdventureScreenSidebar.css';
@@ -14,11 +14,10 @@ export const AdventureScreenSidebar = () => {
     from: '/adventure/$adventureId/',
   });
 
-  const { adventure, updateAdventure, deleteAdventure } =
+  const { adventure, updateAdventure, deleteAdventure, removeAdventureImage } =
     useAdventure(adventureId);
 
   const { openDeleteDialog } = useDeleteDialog();
-  const { deleteImage } = useImageMutations();
 
   if (!adventure) return;
 
@@ -41,10 +40,7 @@ export const AdventureScreenSidebar = () => {
           });
         }}
         deleteFn={() => {
-          if (adventure.image_id) {
-            void deleteImage(adventure.image_id);
-            updateAdventure({ image_id: null });
-          }
+          if (adventure.image_id) void removeAdventureImage();
         }}
       />
       <Button

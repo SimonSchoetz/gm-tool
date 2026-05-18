@@ -11,6 +11,7 @@ export type UseNpcReturn = {
   loading: boolean;
   updateNpc: (data: UpdateNpcData) => void;
   deleteNpc: () => Promise<void>;
+  removeNpcImage: () => Promise<void>;
 };
 
 export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
@@ -52,6 +53,14 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     },
   });
 
+  const removeNpcImageMutation = useMutation({
+    mutationFn: () => service.removeNpcImage(npcId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: npcKeys.detail(npcId) });
+      void queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
+    },
+  });
+
   const updateNpc = (data: UpdateNpcData) => {
     if (!npcData) return;
 
@@ -83,10 +92,15 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     await deleteMutation.mutateAsync();
   };
 
+  const removeNpcImage = async (): Promise<void> => {
+    await removeNpcImageMutation.mutateAsync();
+  };
+
   return {
     npc: npcData ?? null,
     loading: isLoadingNpc,
     updateNpc,
     deleteNpc,
+    removeNpcImage,
   };
 };

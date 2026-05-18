@@ -69,6 +69,17 @@ export const updateAdventure = async (
   }
 };
 
+export const removeAdventureImage = async (adventureId: string): Promise<void> => {
+  try {
+    const adventure = await getAdventureById(adventureId);
+    if (!adventure.image_id) return;
+    await imageService.deleteImage(adventure.image_id);
+    await adventureDb.update(adventureId, { image_id: null });
+  } catch (err) {
+    throw adventureUpdateError(adventureId, err);
+  }
+};
+
 export const deleteAdventure = async (
   id: string,
   adventure: Adventure | null = null,

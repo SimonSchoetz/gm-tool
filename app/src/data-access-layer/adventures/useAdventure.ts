@@ -11,6 +11,7 @@ type UseAdventureReturn = {
   loading: boolean;
   updateAdventure: (data: UpdateAdventureData) => void;
   deleteAdventure: () => Promise<void>;
+  removeAdventureImage: () => Promise<void>;
 };
 
 export const useAdventure = (adventureId: string): UseAdventureReturn => {
@@ -50,6 +51,14 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     },
   });
 
+  const removeAdventureImageMutation = useMutation({
+    mutationFn: () => service.removeAdventureImage(adventureId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.detail(adventureId) });
+      void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
+    },
+  });
+
   const updateAdventure = (data: UpdateAdventureData) => {
     if (!adventureData) return;
 
@@ -84,10 +93,15 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     await deleteMutation.mutateAsync();
   };
 
+  const removeAdventureImage = async (): Promise<void> => {
+    await removeAdventureImageMutation.mutateAsync();
+  };
+
   return {
     adventure: adventureData ?? null,
     loading,
     updateAdventure,
     deleteAdventure,
+    removeAdventureImage,
   };
 };
