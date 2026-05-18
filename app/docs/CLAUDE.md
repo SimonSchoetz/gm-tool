@@ -3,6 +3,10 @@
 This directory contains specs and planning documents.
 Specs are temporary and will be deleted when implemented.
 
+`domain-scaffold.md` is a long-living infrastructure reference document — it is NOT a
+temporary spec and must not be deleted after implementation. Update it when core domain
+infrastructure changes (new layers, changed conventions, new ambient systems).
+
 ## Spec / Implementation Plan Format
 
 Always use the following structure when writing a spec or plan:
