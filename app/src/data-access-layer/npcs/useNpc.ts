@@ -6,7 +6,7 @@ import type { UpdateNpcData } from '@services/npcsService';
 import { npcKeys } from './npcKeys';
 import { mergeUpdate } from '../mergeUpdate';
 
-export type UseNpcReturn = {
+type UseNpcReturn = {
   npc: Npc | null;
   loading: boolean;
   updateNpc: (data: UpdateNpcData) => void;

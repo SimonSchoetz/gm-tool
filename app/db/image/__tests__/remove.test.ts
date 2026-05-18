@@ -39,6 +39,10 @@ describe('image.remove', () => {
     await expect(remove('')).rejects.toThrow('Valid image ID is required');
   });
 
+  it('should throw error when id is whitespace only', async () => {
+    await expect(remove('   ')).rejects.toThrow('Valid image ID is required');
+  });
+
   it('should not throw error when deleting non-existent image', async () => {
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
 
