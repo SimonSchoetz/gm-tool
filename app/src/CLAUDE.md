@@ -281,6 +281,13 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
   - ✅ GOOD: `const useDeleteNpc = (npcId: string) => useMutation({ mutationFn: () => npcService.deleteNpc(npcId) })`
   - ❌ BAD: `const useDeleteNpc = (npcId: string) => useMutation({ mutationFn: (id: string) => npcService.deleteNpc(id) })`
 
+- **Hook return functions are typed to the caller's contract — never expose TanStack Query internals.** Every function on a DAL hook's return type must be declared as a named wrapper with a concrete signature reflecting exactly what the caller receives. Never re-export `mutateAsync`, `mutate`, or any other TanStack Query primitive directly. The return type must express the domain operation — not the framework's dispatch mechanism.
+  - ✅ GOOD: `deleteNpc: () => Promise<void>` — caller sees a domain operation
+  - ✅ GOOD: `updateNpc: (data: UpdateNpcData) => void` — caller sees the domain payload shape
+  - ✅ GOOD: `createNpc: () => Promise<string>` — caller sees the domain return value
+  - ❌ BAD: `deleteNpc: typeof deleteMutation.mutateAsync` — exposes a TanStack internal
+  - ❌ BAD: `mutate: UseMutateAsyncFunction<...>` — TanStack primitive on the return type
+
 **Controlled inputs that drive auto-save mutations use local state for the displayed value.** When a text or date input is bound to a server value and calls a mutation on change, bind `value` to a `useState` variable — not directly to the query result. Call both the local setter and the debounced updater in `onChange`. Binding `value` directly to the query result causes the input to jump mid-keystroke when TanStack Query re-fetches after invalidation. The `?? ''` initializer is correct at this boundary: HTML inputs require a string, and the empty string represents "nothing displayed" — a distinct concept from the nullable DB column representing "nothing stored."
 
 - ✅ GOOD:

@@ -95,7 +95,7 @@ Always use Conventional Commits with scope required:
   A comment that would need to be duplicated in more than one file is not a comment — it is a missing CLAUDE.md rule.
 
 - **Markdown files must comply with markdownlint rules as defined in `.markdownlint.json` at the repo root.** Key configured rules: no line-length limit (MD013 off), blank-lines-around-lists not enforced (MD032 off), bold uses asterisk style `**bold**` (MD050). All other markdownlint defaults apply — code blocks must declare a language (MD040), first line must be H1 (MD041), blank lines around fences (MD031).
-- **Pass props directly when no transformation, guard, or renaming is needed — never wrap them in a named function.** A wrapper function that only forwards its argument unchanged to another function adds no logic and must not exist. Inline the prop reference directly.
+- **Pass props directly when no transformation, guard, or renaming is needed — never wrap them in a named function.** A wrapper function that only forwards its argument unchanged to another function adds no logic and must not exist. Inline the prop reference directly. This rule applies to JSX prop wiring — it does not govern hook return types or public API boundaries where a wrapper hides implementation details and presents a domain-typed interface.
   - ❌ BAD: `const handleMouseEnter = () => onMouseEnterBridge(); <Foo onMouseEnter={handleMouseEnter} />`
   - ✅ GOOD: `<Foo onMouseEnter={onMouseEnterBridge} />`
   - A wrapper is permitted only when it adds a transformation (`() => onClose(id)`), a guard (`() => { if (enabled) onSubmit() }`), or adapts a signature mismatch (`(e: MouseEvent) => onSelect(e.currentTarget.dataset.id)`).

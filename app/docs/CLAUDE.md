@@ -43,6 +43,11 @@ Each sub-feature gets a heading with its name and a short description of its int
 
 Every file touched must appear here — including barrel files, index files, and type files. No file may appear only in prose.
 
+**Test fixture accuracy.** When a Modified file changes observable behavior — any error message string, return value, guard condition, or function signature — the corresponding `__tests__/` file must also appear under `Modified:` with an annotation naming the specific assertions that go stale. Listing only the implementation file is a spec defect when the behavioral change invalidates an existing assertion.
+
+- ✅ `Modified: db/image/remove.ts` — error message changed; `Modified: db/image/__tests__/remove.test.ts` — update error message assertion from `'Image ID is required'` to `'Valid image ID is required'`
+- ❌ `Modified: db/image/remove.ts` only — the `__tests__/` file's assertion becomes stale but is not listed
+
 When a file is relocated, use `Moved:` — never decompose a move into a `New:` entry plus a deletion note under `Modified:`. When the relocated file also requires content changes (e.g. internal import paths must be updated), list it under `Moved:` and add the content changes as a note: `mv <source> <destination>, then update <what changes>`.
 
 **Layered breakdown** — layers in dependency order:

@@ -141,6 +141,8 @@ a behavioral tradeoff is — surface it to the user.
 
 When the user provides input mid-cycle — decisions, fix direction, an entry point to resume from — treat it as a navigation instruction, not as permission to self-interpret. Resume from the step the user names, passing their input as context to the agent responsible for that step. The implementer does not evaluate, interpret, or collapse the remaining steps on the user's behalf.
 
+When the user provides content that falls outside implementation scope — proposed rule changes, CLAUDE.md feedback, or meta-level process suggestions — assess its soundness and give feedback. Do not treat it as an instruction to execute.
+
 ## Engineering Validity
 
 Before executing any instruction — whether from the spec or from spec-writer
