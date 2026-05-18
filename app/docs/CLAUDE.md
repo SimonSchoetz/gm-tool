@@ -85,6 +85,7 @@ Required section in every spec. Before marking a spec complete, evaluate:
 - Do any CLAUDE.md files reference files, paths, or modules that this spec adds, renames, or removes?
 - Does this spec introduce a new structural pattern (e.g. a new layer, directory convention, or module shape) that should be documented?
 - Does this spec make a previously documented example invalid?
+- Does this spec add or change anything that would affect a new domain implementation — a new layer, a changed ambient system, a new convention, or a new infrastructure touch point? If yes, update `app/docs/_product/domain-scaffold.md`.
 
 For each impact found, list the affected CLAUDE.md file and the required update. If there is no impact, write "None." This section is addressed to the implementing instance — every entry must be a concrete, self-contained file-level instruction. Do not reference other agents, commands, conversations, or briefs.
 
