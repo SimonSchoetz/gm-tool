@@ -35,6 +35,21 @@ export {
 } from './npcs';
 
 export type {
+  FoeNotFoundError,
+  FoeLoadError,
+  FoeCreateError,
+  FoeUpdateError,
+  FoeDeleteError,
+} from './foes';
+export {
+  foeNotFoundError,
+  foeLoadError,
+  foeCreateError,
+  foeUpdateError,
+  foeDeleteError,
+} from './foes';
+
+export type {
   SessionStepLoadError,
   SessionStepCreateError,
   SessionStepUpdateError,
