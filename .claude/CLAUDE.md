@@ -30,7 +30,7 @@ Constraints: Never validates without challenging first; code in output is permit
 
 ### spec-writer
 
-Intent: Translate architectural decisions into a complete, unambiguous implementation spec for the implementer. Final gate for fact chacks like file paths and sources
+Intent: Translate architectural decisions into a complete, unambiguous implementation spec for the implementer. Final gate for fact checks like file paths and sources
 Input: An arch-review verdict (structured) or a feature outline + informal architectural decisions (unstructured — confirms derived decisions with user before proceeding)
 Output: A complete spec file following the canonical format defined in app/docs/CLAUDE.md
 Constraints: Does not reinterpret or challenge architectural decisions — routes those back to architect; never offers to implement the spec; resolves ambiguities silently from CLAUDE.md and codebase before asking the user; verifies every named library type or export against installed type declarations before writing — code in a spec must be sound
@@ -46,7 +46,7 @@ Constraints: Each step runs its full interview process before producing output; 
 
 ### /implement
 
-Intent: Implement a spec file and dealing with execution realism the spec writer can not account for. Additionally, orchestrating iterative review and fix loop
+Intent: Implement a spec file and dealing with execution realism the spec writer cannot account for. Additionally, orchestrating iterative review and fix loop
 Input: A spec file path
 Output: Committed implementation across all sub-features, and — when friction occurred — a friction brief output to the user as the handoff artifact for a future /refine-claude session; when the review loop surfaces out-of-scope violations, a deferred violations brief is output to the user listing each violation, its source, and why it was out of scope
 Constraints: does not resolve ambiguity by itself

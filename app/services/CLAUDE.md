@@ -17,6 +17,9 @@ throw typed domain errors. They have no React dependencies and no UI logic.
 - The service function that creates an entity with mandatory initialization is
   the single exported entry point — no separately-callable initialization
   function that can bypass the contract.
+- **Extract coordinated multi-step operations to a service function when second-step failure would leave first-step effects in an inconsistent state.** A component must not orchestrate two service calls in sequence when the failure of the second would leave the first's effect dangling. The canonical case: deleting a stored asset (image, file) and then updating the entity FK to null — if the FK update fails, the asset is gone but the entity still references it. The **owning service is the entity whose FK column is being updated** — `npcsService` when `npc.image_id` is being nulled, `adventureService` when `adventure.image_id` is being nulled. The rule fires on the failure-inconsistency condition, not on call count alone — two independent service calls that leave no inconsistent state if one fails may remain in the component.
+  - ✅ GOOD: `npcsService.removeNpcImage(npcId)` — the NPC service owns NPC image lifecycle; component calls one mutation
+  - ❌ BAD: component calls `deleteImage(npc.image_id)` then `updateNpc({ image_id: null })` — service layer gap exposed at the component
 
 ## What Does NOT Belong Here
 
