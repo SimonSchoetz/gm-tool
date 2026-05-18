@@ -4,4 +4,6 @@ export { SessionsScreen } from './sessions/SessionsScreen';
 export { SessionScreen } from './session/SessionScreen';
 export { NpcsScreen } from './npcs/NpcsScreen';
 export { NpcScreen } from './npc/NpcScreen';
+export { FoesScreen } from './foes/FoesScreen';
+export { FoeScreen } from './foe/FoeScreen';
 export { SettingsScreen } from './settings/SettingsScreen';
