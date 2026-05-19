@@ -73,6 +73,26 @@ user instruction.
 | `created_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set in `create.ts` |
 | `updated_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set by `buildUpdateQuery` |
 
+## Implementation Notes
+
+**Validate reference implementations before replicating.** Before using any domain file as
+a pattern reference, verify it against current CLAUDE.md conventions. Convention changes
+retroactively invalidate previously correct code — a stale reference propagates violations
+to every new domain that copies it. When a violation is found during this check, fix it
+before using the file as a template.
+
+**`routeTree.gen.ts` is gitignored.** TanStack Router regenerates it automatically on dev
+server start, but `tsc --noEmit` requires it during implementation. After creating new route
+files, manually add the two new route entries to `routeTree.gen.ts` so that type checks pass.
+This manual edit does not need to be committed — the dev server will regenerate the file
+correctly from the route files on first start.
+
+**SF coupling: screens + barrel registrations must be committed together.** The detail and
+list screen components import from `@/data-access-layer` (e.g. `usePc`, `usePcs`), which
+only exports those hooks after the barrel registration SF. tsc will fail on the screens SF
+alone. Implement the barrel registrations SF before running any baseline checks, and commit
+both SFs as a unit.
+
 ## Layer Patterns
 
 ### DB Layer (`db/[singular]/`)
@@ -348,6 +368,11 @@ export const Route = createFileRoute('/adventure/$adventureId/[singular]/$[singu
 });
 ```
 
+After creating these files, manually add the two new route entries to
+`src/routeTree.gen.ts` so that `tsc --noEmit` passes during implementation.
+This edit is ephemeral — `routeTree.gen.ts` is gitignored and regenerates on
+dev server start.
+
 **`screens/index.ts`** (Modified) — add two exports:
 
 ```ts
@@ -367,6 +392,7 @@ after the existing domain entries:
   to='/adventure/$adventureId/[plural]'
   params={{ adventureId: adventureId ?? '' }}
   isDisabled={!adventureId}
+  configColor={getTableColor('[plural]')}
 />
 ```
 
