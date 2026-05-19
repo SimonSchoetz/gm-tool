@@ -6,6 +6,7 @@ import '../NavButton.css';
 import './ScreenNavBtn.css';
 import type { RegisteredRouter } from '@tanstack/react-router';
 import type { RouteToPath } from '@tanstack/router-core';
+import { CSSProperties } from 'react';
 
 type Props = {
   label: string;
@@ -13,6 +14,7 @@ type Props = {
   params?: Record<string, string>;
   searchParams?: Record<string, string>;
   isDisabled?: boolean;
+  configColor?: string;
 };
 
 export const ScreenNavBtn: FCProps<Props> = ({
@@ -21,6 +23,7 @@ export const ScreenNavBtn: FCProps<Props> = ({
   params,
   searchParams,
   isDisabled = false,
+  configColor,
 }) => {
   // shouldThrow: false is required — omitting it causes a runtime error when the route is not active
   const isAtTarget = !!useMatch({ from: to, shouldThrow: false });
@@ -34,6 +37,11 @@ export const ScreenNavBtn: FCProps<Props> = ({
         isDisabled && 'disabled',
         isAtTarget && 'active',
       )}
+      style={
+        {
+          '--domain-color': configColor ?? 'var(--color-fg)',
+        } as CSSProperties
+      }
     >
       <Link
         to={to}
