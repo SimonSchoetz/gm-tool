@@ -20,6 +20,7 @@ import { get } from '../get';
 describe('get', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSelect.mockResolvedValue([]);
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
   });
 
