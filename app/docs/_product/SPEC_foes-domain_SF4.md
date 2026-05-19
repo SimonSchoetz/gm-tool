@@ -165,12 +165,20 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     }, 500);
   };
 
+  const deleteFoe = async (): Promise<void> => {
+    await deleteMutation.mutateAsync();
+  };
+
+  const removeFoeImage = async (): Promise<void> => {
+    await removeFoeImageMutation.mutateAsync();
+  };
+
   return {
     foe: foeData ?? null,
     loading: isLoadingFoe,
     updateFoe,
-    deleteFoe: deleteMutation.mutateAsync,
-    removeFoeImage: removeFoeImageMutation.mutateAsync,
+    deleteFoe,
+    removeFoeImage,
   };
 };
 ```

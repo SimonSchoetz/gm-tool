@@ -31,8 +31,10 @@ new foes and navigates to the detail screen on row click.
 **Behavior**: Reads `adventureId` via `useParams({ from: '/adventure/$adventureId/foes' })`.
 Fetches via `useFoes(adventureId)` and `useTableConfigs()`. Finds config by
 `c.table_name === 'foes'`. On create: `await createFoe()` → navigate to
-`` `/adventure/${adventureId}/foe/${newFoeId}` ``. Loading or missing config: return
-`<div className='content-center'>Loading...</div>`.
+`` `/adventure/${adventureId}/foe/${newFoeId}` ``. While loading: return
+`<div className='content-center'>Loading...</div>`. If config is missing after
+loading completes: throw `tableConfigNotFoundError('foes')` — never treat a missing
+config as a loading state.
 
 **UI**: `SortableList<Foe>` with `tableConfigId={foesTableConfig.id}`, `items={foes}`,
 `onRowClick` navigates to `` `/adventure/${adventureId}/foe/${foe.id}` ``,
@@ -44,6 +46,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useFoes, useTableConfigs } from '@/data-access-layer';
 import { SortableList } from '@/components';
 import type { Foe } from '@db/foe';
+import { tableConfigNotFoundError } from '@domain/table-config';
 import './FoesScreen.css';
 
 export const FoesScreen = () => {
@@ -62,8 +65,12 @@ export const FoesScreen = () => {
     void router.navigate({ to: `/adventure/${adventureId}/foe/${newFoeId}` });
   };
 
-  if (foesLoading || configsLoading || !foesTableConfig) {
+  if (foesLoading || configsLoading) {
     return <div className='content-center'>Loading...</div>;
+  }
+
+  if (!foesTableConfig) {
+    throw tableConfigNotFoundError('foes');
   }
 
   return (

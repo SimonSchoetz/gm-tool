@@ -187,8 +187,26 @@ Six exported functions:
 | `get[Singular]ById(id)` | `[singular]NotFoundError` on null |
 | `create[Singular](adventureId)` | `[singular]CreateError` |
 | `update[Singular](id, data)` | `[singular]UpdateError` |
-| `remove[Singular]Image([singular]Id)` | `[singular]UpdateError` |
+| `remove[Singular]Image([singular]Id)` | `[singular]UpdateError` (fetch + early-return guard are outside the `try` — see note below) |
 | `delete[Singular](id, [singular]?)` | `[singular]DeleteError` |
+
+**`remove[Singular]Image` structure note**: call `get[Singular]ById` and the early-return
+guard (`if (!entity.image_id) return;`) *before* the `try` block, not inside it. This
+ensures a not-found error surfaces as `[singular]NotFoundError`, not `[singular]UpdateError`.
+Only the image deletion and DB update go inside the `try`.
+
+```ts
+export const remove[Singular]Image = async ([singular]Id: string): Promise<void> => {
+  const [singular] = await get[Singular]ById([singular]Id);
+  if (![singular].image_id) return;
+  try {
+    await imageService.deleteImage([singular].image_id);
+    await [singular]Db.update([singular]Id, { image_id: null });
+  } catch (err) {
+    throw [singular]UpdateError([singular]Id, err);
+  }
+};
+```
 
 ### DAL (`src/data-access-layer/[plural]/`)
 
@@ -215,6 +233,18 @@ via `mergeUpdate`, delete, remove image). Each mutation invalidates the relevant
 Returns `{ [singular]: [Singular] | null, loading: boolean, update[Singular]: (data) => void,
 delete[Singular]: () => Promise<void>, remove[Singular]Image: () => Promise<void> }`.
 Import `mergeUpdate` from `'../mergeUpdate'`.
+`delete[Singular]` and `remove[Singular]Image` must be declared as named wrapper functions
+— never assign `mutation.mutateAsync` directly on the return object (violates the
+"never expose TanStack internals" rule in `src/CLAUDE.md`).
+
+```ts
+const delete[Singular] = async (): Promise<void> => {
+  await deleteMutation.mutateAsync();
+};
+const remove[Singular]Image = async (): Promise<void> => {
+  await remove[Singular]ImageMutation.mutateAsync();
+};
+```
 
 **index.ts** — explicit named exports: `use[Plural]`, `use[Singular]`, `[singular]Keys`.
 
@@ -231,6 +261,10 @@ export { use[Plural], use[Singular], [singular]Keys } from './[plural]';
 **Behavior**: `useParams({ from: '/adventure/$adventureId/[plural]' })`. Fetches via
 `use[Plural](adventureId)` and `useTableConfigs()`. Finds config: `tableConfigs.find(c => c.table_name === '[plural]')`. On create: calls `create[Singular]()`, navigates to
 `/adventure/${adventureId}/[singular]/${new[Singular]Id}`.
+Loading guard: `if ([plural]Loading || configsLoading) return <div className='content-center'>Loading...</div>`.
+Missing config guard (separate, after loading): `if (![plural]TableConfig) throw tableConfigNotFoundError('[plural]')`.
+Import `tableConfigNotFoundError` from `@domain/table-config`. Never fold the missing-config
+case into the loading guard — a missing config is an error, not a loading state.
 
 **UI**: `SortableList<[Singular]>` with `tableConfigId`, `items`, `onRowClick`,
 `onCreateNew`, `searchPlaceholder`.

@@ -85,9 +85,9 @@ export const updateFoe = async (
 };
 
 export const removeFoeImage = async (foeId: string): Promise<void> => {
+  const foe = await getFoeById(foeId);
+  if (!foe.image_id) return;
   try {
-    const foe = await getFoeById(foeId);
-    if (!foe.image_id) return null;
     await imageService.deleteImage(foe.image_id);
     await foeDb.update(foeId, { image_id: null });
   } catch (err) {
