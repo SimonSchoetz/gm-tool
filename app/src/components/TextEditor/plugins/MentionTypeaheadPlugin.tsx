@@ -38,7 +38,7 @@ export const MentionTypeaheadPlugin = () => {
     (matchingString: string | null) => {
       if (matchingString === null) {
         setOptions([]);
-        return;
+        return null;
       }
       const generation = ++queryGenerationRef.current;
       mentionSearchService

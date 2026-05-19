@@ -63,7 +63,10 @@ export const updateFoe = async (
     let imageId: string | null = null;
 
     if (data.imgFilePath && data.image_id) {
-      imageId = await imageService.replaceImage(data.image_id, data.imgFilePath);
+      imageId = await imageService.replaceImage(
+        data.image_id,
+        data.imgFilePath,
+      );
     }
 
     if (data.imgFilePath && !data.image_id) {
@@ -84,7 +87,7 @@ export const updateFoe = async (
 export const removeFoeImage = async (foeId: string): Promise<void> => {
   try {
     const foe = await getFoeById(foeId);
-    if (!foe.image_id) return;
+    if (!foe.image_id) return null;
     await imageService.deleteImage(foe.image_id);
     await foeDb.update(foeId, { image_id: null });
   } catch (err) {

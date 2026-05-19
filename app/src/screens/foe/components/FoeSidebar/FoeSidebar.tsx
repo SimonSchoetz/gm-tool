@@ -10,10 +10,13 @@ export const FoeSidebar = () => {
   const { adventureId, foeId } = useParams({
     from: '/adventure/$adventureId/foe/$foeId',
   });
-  const { foe, updateFoe, deleteFoe, removeFoeImage } = useFoe(foeId, adventureId);
+  const { foe, updateFoe, deleteFoe, removeFoeImage } = useFoe(
+    foeId,
+    adventureId,
+  );
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!foe) return;
+  if (!foe) return null;
 
   const handleFoeDelete = async () => {
     await deleteFoe();

@@ -27,13 +27,13 @@ export const UploadImgBtn = ({
   const [popupState, setPopupState] = useState<'open' | 'closed'>('closed');
 
   const handleClick = async () => {
-    if (isLoading) return;
+    if (isLoading) return null;
     setIsLoading(true);
 
     try {
       const filePath = await filePicker('image');
       if (filePath === null) {
-        return;
+        return null;
       } else {
         uploadFn(filePath);
       }

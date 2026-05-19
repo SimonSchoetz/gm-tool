@@ -36,7 +36,7 @@ export const useDraggable = (
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (dragRef.current === null) return;
+    if (dragRef.current === null) return null;
     const dx = e.clientX - dragRef.current.startX;
     const dy = e.clientY - dragRef.current.startY;
     const newPos = {
@@ -48,7 +48,7 @@ export const useDraggable = (
   };
 
   const onPointerUp = (_e: React.PointerEvent) => {
-    if (dragRef.current === null) return;
+    if (dragRef.current === null) return null;
     dragRef.current = null;
     onChange?.(positionRef.current);
   };

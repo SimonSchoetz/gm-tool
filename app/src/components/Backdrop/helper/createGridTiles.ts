@@ -6,7 +6,7 @@ export const createGridTiles = (
   gridRef: RefObject<Grid>,
   offscreenCtx: OffscreenCanvasRenderingContext2D,
 ) => {
-  if (!gridRef.current) return;
+  if (!gridRef.current) return null;
   const { squareSize, cols, rows, offsetX, offsetY } = gridRef.current;
 
   const primaryRgb = getComputedStyle(document.documentElement)

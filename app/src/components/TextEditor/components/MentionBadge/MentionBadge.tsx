@@ -31,7 +31,7 @@ export const MentionBadge: FCProps<Props> = ({
   const isMouseOnPopupRef = useRef(false);
 
   const showPopupFromBadge = () => {
-    if (!badgeRef.current) return;
+    if (!badgeRef.current) return null;
     const rect = badgeRef.current.getBoundingClientRect();
     const placement: PopupPlacement =
       rect.top > window.innerHeight / 2 ? 'above' : 'below';
@@ -60,7 +60,7 @@ export const MentionBadge: FCProps<Props> = ({
   };
 
   const handleBadgeMouseEnter = () => {
-    if (hasPopup(entityId)) return;
+    if (hasPopup(entityId)) return null;
     isMouseOnBadgeRef.current = true;
     hoverTimerRef.current = setTimeout(showPopupFromBadge, 500);
   };

@@ -15,7 +15,7 @@ export const AdventureScreenHeader = () => {
 
   const [adventureName, setAdventureName] = useState(adventure?.name ?? '');
 
-  if (!adventure) return;
+  if (!adventure) return null;
 
   const startDate = getDateTimeString(adventure.created_at);
 

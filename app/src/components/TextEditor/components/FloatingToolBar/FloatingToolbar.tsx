@@ -34,24 +34,24 @@ export const FloatingToolbar = ({ ...props }) => {
 
     if (!$isRangeSelection(selection)) {
       setIsVisible(false);
-      return;
+      return null;
     }
 
     const nativeSelection = window.getSelection();
     if (!nativeSelection || nativeSelection.rangeCount === 0) {
       setIsVisible(false);
-      return;
+      return null;
     }
 
     const selectedText = nativeSelection.toString();
     if (!selectedText || selectedText.length === 0) {
       setIsVisible(false);
-      return;
+      return null;
     }
 
     if (!isFocused) {
       setIsVisible(false);
-      return;
+      return null;
     }
 
     // Calculate toolbar position

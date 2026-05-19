@@ -40,7 +40,9 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     mutationFn: (data: UpdateNpcData) => service.updateNpc(npcId, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: npcKeys.detail(npcId) });
-      void queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.list(adventureId),
+      });
     },
   });
 
@@ -57,12 +59,14 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     mutationFn: () => service.removeNpcImage(npcId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: npcKeys.detail(npcId) });
-      void queryClient.invalidateQueries({ queryKey: npcKeys.list(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.list(adventureId),
+      });
     },
   });
 
   const updateNpc = (data: UpdateNpcData) => {
-    if (!npcData) return;
+    if (!npcData) return null;
 
     queryClient.setQueryData<Npc>(npcKeys.detail(npcId), (old) => {
       if (!old) return old;

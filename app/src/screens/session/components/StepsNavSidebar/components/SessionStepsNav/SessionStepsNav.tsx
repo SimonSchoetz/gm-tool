@@ -36,7 +36,7 @@ export const SessionStepsNav = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id) return null;
 
     const oldIndex = steps.findIndex((s) => s.id === active.id);
     const newIndex = steps.findIndex((s) => s.id === over.id);

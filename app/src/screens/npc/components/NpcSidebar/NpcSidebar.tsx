@@ -10,10 +10,13 @@ export const NpcSidebar = () => {
   const { adventureId, npcId } = useParams({
     from: '/adventure/$adventureId/npc/$npcId',
   });
-  const { npc, updateNpc, deleteNpc, removeNpcImage } = useNpc(npcId, adventureId);
+  const { npc, updateNpc, deleteNpc, removeNpcImage } = useNpc(
+    npcId,
+    adventureId,
+  );
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!npc) return;
+  if (!npc) return null;
 
   const handleNpcDelete = async () => {
     await deleteNpc();

@@ -21,7 +21,7 @@ const drawBeams = (
   ctx: CanvasRenderingContext2D,
 ) => {
   beamsRef.current.forEach((beam) => {
-    if (beam.particles.length === 0) return;
+    if (beam.particles.length === 0) return null;
 
     ctx.shadowBlur = 0;
     ctx.shadowColor = beam.color;

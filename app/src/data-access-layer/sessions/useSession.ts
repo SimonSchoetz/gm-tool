@@ -36,7 +36,8 @@ export const useSession = (
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateSessionInput) => service.updateSession(sessionId, data),
+    mutationFn: (data: UpdateSessionInput) =>
+      service.updateSession(sessionId, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: sessionKeys.detail(sessionId),
@@ -57,7 +58,7 @@ export const useSession = (
   });
 
   const updateSession = (data: UpdateSessionInput) => {
-    if (!sessionData) return;
+    if (!sessionData) return null;
 
     queryClient.setQueryData<Session>(sessionKeys.detail(sessionId), (old) => {
       if (!old) return old;

@@ -13,7 +13,7 @@ export const FoeHeader = () => {
 
   const [foeName, setFoeName] = useState(foe?.name ?? '');
 
-  if (!foe) return;
+  if (!foe) return null;
 
   return (
     <GlassPanel className='foe-summary' intensity='bright'>

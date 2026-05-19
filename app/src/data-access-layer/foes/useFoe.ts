@@ -40,7 +40,9 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     mutationFn: (data: UpdateFoeData) => service.updateFoe(foeId, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: foeKeys.detail(foeId) });
-      void queryClient.invalidateQueries({ queryKey: foeKeys.list(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: foeKeys.list(adventureId),
+      });
     },
   });
 
@@ -57,12 +59,14 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     mutationFn: () => service.removeFoeImage(foeId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: foeKeys.detail(foeId) });
-      void queryClient.invalidateQueries({ queryKey: foeKeys.list(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: foeKeys.list(adventureId),
+      });
     },
   });
 
   const updateFoe = (data: UpdateFoeData) => {
-    if (!foeData) return;
+    if (!foeData) return null;
 
     queryClient.setQueryData<Foe>(foeKeys.detail(foeId), (old) => {
       if (!old) return old;

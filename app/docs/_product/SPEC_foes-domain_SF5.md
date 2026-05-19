@@ -198,7 +198,7 @@ export const FoeHeader = () => {
 
   const [foeName, setFoeName] = useState(foe?.name ?? '');
 
-  if (!foe) return;
+  if (!foe) return null;
 
   return (
     <GlassPanel className='foe-summary' intensity='bright'>
@@ -256,9 +256,9 @@ export const FoeHeader = () => {
 Calls `useFoe(foeId, adventureId)`, `useDeleteDialog()`, `useRouter()`. Returns `undefined`
 guard if no foe. On delete: `await deleteFoe()` then
 `router.navigate({ to: \`/adventure/${adventureId}/foes\` })`.
-`uploadFn` passes `{ imgFilePath: filePath, image_id: foe.image_id }` to `updateFoe`.
+`uploadFn`passes`{ imgFilePath: filePath, image_id: foe.image_id }`to`updateFoe`.
 `deleteFn`: `if (foe.image_id) void removeFoeImage()`.
-Imports `PREVIEW_WIDTH` and `PREVIEW_HEIGHT` from `'@/screens/screens.constants'`.
+Imports `PREVIEW_WIDTH`and`PREVIEW_HEIGHT`from`'@/screens/screens.constants'`.
 
 **UI**: `<aside className='foe-sidebar'>` (flex column, `gap: var(--spacing-md)`).
 `UploadImgBtn` with `dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}`,
@@ -279,10 +279,13 @@ export const FoeSidebar = () => {
   const { adventureId, foeId } = useParams({
     from: '/adventure/$adventureId/foe/$foeId',
   });
-  const { foe, updateFoe, deleteFoe, removeFoeImage } = useFoe(foeId, adventureId);
+  const { foe, updateFoe, deleteFoe, removeFoeImage } = useFoe(
+    foeId,
+    adventureId,
+  );
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!foe) return;
+  if (!foe) return null;
 
   const handleFoeDelete = async () => {
     await deleteFoe();

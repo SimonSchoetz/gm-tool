@@ -13,7 +13,7 @@ export const NpcHeader = () => {
 
   const [npcName, setNpcName] = useState(npc?.name ?? '');
 
-  if (!npc) return;
+  if (!npc) return null;
 
   return (
     <GlassPanel className='npc-summary' intensity='bright'>

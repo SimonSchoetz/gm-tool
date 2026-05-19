@@ -46,7 +46,7 @@ export const LabeledToggleButton = <T extends string>({
   useLayoutEffect(() => {
     const activeLabel = labelRefs.current[displayIndex];
     const slider = sliderRef.current;
-    if (!activeLabel || !slider) return;
+    if (!activeLabel || !slider) return null;
     slider.style.left = `${activeLabel.offsetLeft}px`;
     slider.style.width = `${activeLabel.offsetWidth}px`;
   }, [displayIndex]);

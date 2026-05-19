@@ -47,7 +47,10 @@ export const updateFoe = async (
     let imageId: string | null = null;
 
     if (data.imgFilePath && data.image_id) {
-      imageId = await imageService.replaceImage(data.image_id, data.imgFilePath);
+      imageId = await imageService.replaceImage(
+        data.image_id,
+        data.imgFilePath,
+      );
     }
 
     if (data.imgFilePath && !data.image_id) {

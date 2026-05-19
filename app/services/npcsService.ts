@@ -79,7 +79,10 @@ export const removeNpcImage = async (npcId: string): Promise<void> => {
   }
 };
 
-export const deleteNpc = async (id: string, npc: Npc | null = null): Promise<void> => {
+export const deleteNpc = async (
+  id: string,
+  npc: Npc | null = null,
+): Promise<void> => {
   try {
     const npcToDelete = npc ?? (await getNpcById(id));
 

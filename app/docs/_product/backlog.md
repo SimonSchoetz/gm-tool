@@ -4,6 +4,8 @@
 
 ### Horizontal Build
 
+- fix: tests
+  - need revision if written tests make sense
 - Feature: PCs Screens
 - Feature: Factions Screens
 - Feature: Foes Screens
@@ -44,6 +46,7 @@
 ### Closed Beta Ready
 
 - Feature: db migrations
+  - seed data like colors
 - Epic: Stable build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory

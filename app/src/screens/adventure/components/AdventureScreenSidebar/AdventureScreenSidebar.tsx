@@ -19,7 +19,7 @@ export const AdventureScreenSidebar = () => {
 
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!adventure) return;
+  if (!adventure) return null;
 
   const handleAdventureDelete = async () => {
     await deleteAdventure();

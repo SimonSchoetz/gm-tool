@@ -82,7 +82,8 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!isDraggingRef.current || lastPointerRef.current === null) return;
+      if (!isDraggingRef.current || lastPointerRef.current === null)
+        return null;
 
       const dx = e.clientX - lastPointerRef.current.x;
       const dy = e.clientY - lastPointerRef.current.y;

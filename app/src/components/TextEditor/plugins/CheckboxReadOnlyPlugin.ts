@@ -31,7 +31,7 @@ export const CheckboxReadOnlyPlugin = (): null => {
         (parentNode as unknown as { __lexicalListType?: string })
           .__lexicalListType !== 'check'
       )
-        return;
+        return null;
 
       const rect = target.getBoundingClientRect();
       const beforeStyles = window.getComputedStyle(target, '::before');

@@ -69,7 +69,9 @@ export const updateAdventure = async (
   }
 };
 
-export const removeAdventureImage = async (adventureId: string): Promise<void> => {
+export const removeAdventureImage = async (
+  adventureId: string,
+): Promise<void> => {
   try {
     const adventure = await getAdventureById(adventureId);
     if (!adventure.image_id) return;

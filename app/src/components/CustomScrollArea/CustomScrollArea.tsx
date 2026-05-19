@@ -58,7 +58,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   useEffect(() => {
     const container = containerRef.current;
     const thumb = thumbRef.current;
-    if (!container || !thumb || !isScrollNeeded) return;
+    if (!container || !thumb || !isScrollNeeded) return null;
 
     const updateThumbPosition = () => {
       thumb.style.top = `${container.scrollTop * (1 + scalingRef.current) + spacing}px`;
@@ -69,7 +69,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       const scrollHeight = container.scrollHeight;
       const maxScrollTop = scrollHeight - viewport.height;
 
-      if (maxScrollTop <= 0) return;
+      if (maxScrollTop <= 0) return null;
 
       const thumbHeight =
         Math.max(Math.pow(viewport.height, 2) / scrollHeight, thumbMinHeight) -
@@ -153,8 +153,12 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
     <div
       ref={containerRef}
       className={cn('custom-scroll-area', className)}
-      onMouseEnter={() => { setIsHovered(true); }}
-      onMouseLeave={() => { setIsHovered(false); }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}
       {...props}
     >
       {isScrollNeeded && (

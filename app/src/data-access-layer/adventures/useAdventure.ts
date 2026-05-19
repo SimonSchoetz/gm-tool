@@ -37,10 +37,13 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateAdventureData) => service.updateAdventure(adventureId, data),
+    mutationFn: (data: UpdateAdventureData) =>
+      service.updateAdventure(adventureId, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
-      void queryClient.invalidateQueries({ queryKey: adventureKeys.detail(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: adventureKeys.detail(adventureId),
+      });
     },
   });
 
@@ -54,13 +57,15 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   const removeAdventureImageMutation = useMutation({
     mutationFn: () => service.removeAdventureImage(adventureId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adventureKeys.detail(adventureId) });
+      void queryClient.invalidateQueries({
+        queryKey: adventureKeys.detail(adventureId),
+      });
       void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
     },
   });
 
   const updateAdventure = (data: UpdateAdventureData) => {
-    if (!adventureData) return;
+    if (!adventureData) return null;
 
     queryClient.setQueryData<Adventure>(
       adventureKeys.detail(adventureId),
