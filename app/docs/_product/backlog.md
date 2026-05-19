@@ -16,6 +16,7 @@
 
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
 - `__root.tsx` -> resolve question in line 9
+- get rgb from input type=color instead of hex
 
 ---
 
@@ -46,7 +47,9 @@
 ### Closed Beta Ready
 
 - Feature: db migrations
-  - seed data like colors
+  - Baseline:
+    - seed data like colors
+    - table config sorting
 - Epic: Stable build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
