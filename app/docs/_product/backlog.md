@@ -6,7 +6,6 @@
 
 - fix: tests
   - need revision if written tests make sense
-- Feature: PCs Screens
 - Feature: Factions Screens
 - Feature: Items Screens
 - Feature: Places Screens
@@ -21,6 +20,7 @@
 
 ### Done
 
+- Feature: PCs Screens
 - Feature: Foes Screens
 - Refactor: components/AdventureComponents to sub components of adventures screen
 - Feature: Image detail vs reupload
