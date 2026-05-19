@@ -40,4 +40,9 @@ describe('remove', () => {
     await expect(remove('')).rejects.toThrow('Valid adventure ID is required');
     expect(mockExecute).not.toHaveBeenCalled();
   });
+
+  it('should throw error when id is whitespace only', async () => {
+    await expect(remove('   ')).rejects.toThrow('Valid adventure ID is required');
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
 });
