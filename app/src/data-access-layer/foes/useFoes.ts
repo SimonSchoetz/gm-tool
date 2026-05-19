@@ -3,7 +3,7 @@ import type { Foe } from '@db/foe';
 import * as service from '@services/foesService';
 import { foeKeys } from './foeKeys';
 
-export type UseFoesReturn = {
+type UseFoesReturn = {
   foes: Foe[];
   loading: boolean;
   createFoe: () => Promise<string>;

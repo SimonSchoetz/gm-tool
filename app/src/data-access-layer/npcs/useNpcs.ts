@@ -3,7 +3,7 @@ import type { Npc } from '@db/npc';
 import * as service from '@services/npcsService';
 import { npcKeys } from './npcKeys';
 
-export type UseNpcsReturn = {
+type UseNpcsReturn = {
   npcs: Npc[];
   loading: boolean;
   createNpc: () => Promise<string>;
