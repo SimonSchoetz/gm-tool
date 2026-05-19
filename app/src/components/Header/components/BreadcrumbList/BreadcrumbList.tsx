@@ -1,7 +1,7 @@
 import { AnyRouteMatch, Link, useMatches } from '@tanstack/react-router';
 import { FCProps, HtmlProps } from '@/types';
 import { buildBreadcrumbs, BreadcrumbConfig } from '../../helper';
-import { AdventureCrumb, SessionCrumb, NpcCrumb, FoeCrumb } from './components';
+import { AdventureCrumb, SessionCrumb, NpcCrumb, FoeCrumb, PcCrumb } from './components';
 import './BreadcrumbList.css';
 import { JSX } from 'react/jsx-runtime';
 import { ChevronRightIcon } from 'lucide-react';
@@ -46,6 +46,13 @@ const renderCrumb = (item: BreadcrumbConfig, index: number) => {
       listItem = (
         <li key={`${index}-${item.kind}`}>
           <FoeCrumb />
+        </li>
+      );
+      break;
+    case 'pc':
+      listItem = (
+        <li key={`${index}-${item.kind}`}>
+          <PcCrumb />
         </li>
       );
       break;

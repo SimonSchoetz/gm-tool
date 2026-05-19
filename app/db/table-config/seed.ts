@@ -2,6 +2,7 @@ import type Database from '@tauri-apps/plugin-sql';
 import type { Adventure } from '@db/adventure';
 import type { Npc } from '@db/npc';
 import type { Foe } from '@db/foe';
+import type { Pc } from '@db/pc';
 import type { Session } from '@db/session';
 import { create } from './create';
 import type { CreateTableConfigInput, TypedCreateTableConfigInput } from './types';
@@ -68,6 +69,29 @@ const foesConfig: TypedCreateTableConfigInput<Foe> = {
   },
 };
 
+const pcsConfig: TypedCreateTableConfigInput<Pc> = {
+  table_name: 'pcs',
+  color: '#1abc9c',
+  tagging_enabled: 1,
+  scope: 'adventure',
+  layout: {
+    searchable_columns: ['name', 'summary', 'description'],
+    columns: [
+      {
+        key: 'image_id',
+        label: 'Avatar',
+        sortable: false,
+        resizable: false,
+        width: 136,
+      },
+      { key: 'name', label: 'Name', width: 250 },
+      { key: 'created_at', label: 'Created At', width: 250 },
+      { key: 'updated_at', label: 'Last updated', width: 250 },
+    ],
+    sort_state: { column: 'updated_at', direction: 'desc' },
+  },
+};
+
 const sessionsConfig: TypedCreateTableConfigInput<Session> = {
   table_name: 'sessions',
   color: '#51cf66',
@@ -89,6 +113,7 @@ const defaultConfigs: CreateTableConfigInput[] = [
   adventuresConfig,
   npcsConfig,
   foesConfig,
+  pcsConfig,
   sessionsConfig,
 ];
 
