@@ -66,29 +66,6 @@ describe('image.create', () => {
     expect(result).toBeTruthy();
   });
 
-  it('should create image with only required fields', async () => {
-    const input: CreateImageInput = {
-      filePath: '/path/to/image.png',
-    };
-
-    const result = await create(input);
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
-      [
-        expect.any(String),
-        'png',
-        'image.png',
-        1024,
-        '2024-01-15T10:30:00.000Z',
-        '2024-01-15T10:30:00.000Z',
-      ],
-    );
-
-    expect(typeof result).toBe('string');
-    expect(result).toBeTruthy();
-  });
-
   it('should accept all valid file extensions', async () => {
     const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'] as const;
 

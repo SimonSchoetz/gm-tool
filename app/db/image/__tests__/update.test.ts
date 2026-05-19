@@ -42,12 +42,18 @@ describe('image.update', () => {
     ).rejects.toThrow('Valid image ID is required');
   });
 
+  it('throws when id is whitespace only', async () => {
+    await expect(
+      update('   ', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 })
+    ).rejects.toThrow('Valid image ID is required');
+  });
+
   it('sets null frame values', async () => {
     await update('test-id', { frame_x: null, frame_y: null, frame_zoom: null });
 
     expect(mockExecute).toHaveBeenCalledWith(
       expect.stringContaining('UPDATE images'),
-      expect.arrayContaining(['test-id']),
+      expect.arrayContaining([null, null, null, 'test-id']),
     );
   });
 });
