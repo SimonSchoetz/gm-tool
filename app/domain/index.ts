@@ -50,6 +50,21 @@ export {
 } from './foes';
 
 export type {
+  PcNotFoundError,
+  PcLoadError,
+  PcCreateError,
+  PcUpdateError,
+  PcDeleteError,
+} from './pcs';
+export {
+  pcNotFoundError,
+  pcLoadError,
+  pcCreateError,
+  pcUpdateError,
+  pcDeleteError,
+} from './pcs';
+
+export type {
   SessionStepLoadError,
   SessionStepCreateError,
   SessionStepUpdateError,
