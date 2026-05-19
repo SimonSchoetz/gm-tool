@@ -2,10 +2,11 @@
   height: 100%;
   width: 100%;
   object-fit: cover;
-  object-position: var(--rt-holo-img-frame-x, 50%) var(--rt-holo-img-frame-y, 0%);
+  object-position: var(--rt-holo-img-frame-x, 50%)
+    var(--rt-holo-img-frame-y, 0%);
   transform: scale(var(--rt-holo-img-frame-zoom, 1));
-  transform-origin: var(--rt-holo-img-frame-x, 50%) var(--rt-holo-img-frame-y, 0%);
-  transition: var(--transition-hover-off);
+  transform-origin: var(--rt-holo-img-frame-x, 50%)
+    var(--rt-holo-img-frame-y, 0%);
   filter: brightness(1) contrast(1) saturate(1);
 }
 
