@@ -52,14 +52,15 @@ describe('create', () => {
     await create();
 
     const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values[1]).toMatch(/^New adventure /);
+    const name = values.find((v): v is string => typeof v === 'string' && v.startsWith('New adventure '));
+    expect(name).toBeDefined();
   });
 
   it('should set created_at and updated_at as ISO 8601 timestamps', async () => {
     await create();
 
     const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values[2]).toBe('2024-01-15T10:30:00.000Z');
-    expect(values[3]).toBe('2024-01-15T10:30:00.000Z');
+    expect(values.at(-2)).toBe('2024-01-15T10:30:00.000Z');
+    expect(values.at(-1)).toBe('2024-01-15T10:30:00.000Z');
   });
 });
