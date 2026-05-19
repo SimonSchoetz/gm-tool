@@ -46,6 +46,7 @@
 
 ### Closed Beta Ready
 
+- Fix: White BG on app start
 - Feature: db migrations
   - Baseline:
     - seed data like colors

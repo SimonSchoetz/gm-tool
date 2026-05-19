@@ -194,6 +194,8 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    passes type declaration checks but violates a strictness flag or plugin rule
    will fail at implementation time.
 
+   For every removal claim in the input — any assertion that a construct is unnecessary, can be deleted, or "no X is needed" — verify against `app/eslint.config.js` that no active rule independently requires the construct's existence before writing the removal into the spec. A construct whose removal would trigger an ESLint error is not removable regardless of how it was classified by an upstream agent. If a removal claim cannot be confirmed safe, flag it to the user before including it.
+
 ## Output
 
 A complete spec file ready to save and hand to a fresh Claude instance.
