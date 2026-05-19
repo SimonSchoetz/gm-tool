@@ -3,9 +3,4 @@ export { get } from './get';
 export { getAll } from './get-all';
 export { update } from './update';
 export { remove } from './remove';
-export type {
-  Adventure,
-  UpdateAdventureInput,
-  PaginationParams,
-  PaginatedResponse,
-} from './types';
+export type { Adventure, UpdateAdventureInput } from './types';

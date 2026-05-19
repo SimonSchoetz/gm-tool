@@ -15,8 +15,7 @@ export type UpdateAdventureData = UpdateAdventureInput & {
 
 export const getAllAdventures = async (): Promise<Adventure[]> => {
   try {
-    const result = await adventureDb.getAll();
-    return result.data;
+    return await adventureDb.getAll();
   } catch (err) {
     throw adventureLoadError(err);
   }
