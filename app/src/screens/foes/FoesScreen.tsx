@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useFoes, useTableConfigs } from '@/data-access-layer';
 import { SortableList } from '@/components';
 import type { Foe } from '@db/foe';
+import { tableConfigNotFoundError } from '@domain/table-config';
 import './FoesScreen.css';
 
 export const FoesScreen = () => {
@@ -20,8 +21,12 @@ export const FoesScreen = () => {
     void router.navigate({ to: `/adventure/${adventureId}/foe/${newFoeId}` });
   };
 
-  if (foesLoading || configsLoading || !foesTableConfig) {
+  if (foesLoading || configsLoading) {
     return <div className='content-center'>Loading...</div>;
+  }
+
+  if (!foesTableConfig) {
+    throw tableConfigNotFoundError('foes');
   }
 
   return (

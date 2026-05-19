@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs, useTableConfigs } from '@/data-access-layer';
 import { SortableList } from '@/components';
 import type { Npc } from '@db/npc';
+import { tableConfigNotFoundError } from '@domain/table-config';
 import './NpcsScreen.css';
 
 export const NpcsScreen = () => {
@@ -20,8 +21,12 @@ export const NpcsScreen = () => {
     void router.navigate({ to: `/adventure/${adventureId}/npc/${newNpcId}` });
   };
 
-  if (npcsLoading || configsLoading || !npcsTableConfig) {
+  if (npcsLoading || configsLoading) {
     return <div className='content-center'>Loading...</div>;
+  }
+
+  if (!npcsTableConfig) {
+    throw tableConfigNotFoundError('npcs');
   }
 
   return (
