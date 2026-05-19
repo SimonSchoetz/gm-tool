@@ -52,6 +52,13 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
             isDisabled={!adventureId}
             configColor={getTableColor('foes')}
           />
+          <ScreenNavBtn
+            label='PCs'
+            to='/adventure/$adventureId/pcs'
+            params={{ adventureId: adventureId ?? '' }}
+            isDisabled={!adventureId}
+            configColor={getTableColor('pcs')}
+          />
         </div>
 
         <ScreenNavBtn label='Settings' to='/settings' />
