@@ -8,7 +8,6 @@
   - need revision if written tests make sense
 - Feature: PCs Screens
 - Feature: Factions Screens
-- Feature: Foes Screens
 - Feature: Items Screens
 - Feature: Places Screens
 
@@ -22,6 +21,7 @@
 
 ### Done
 
+- Feature: Foes Screens
 - Refactor: components/AdventureComponents to sub components of adventures screen
 - Feature: Image detail vs reupload
 - Feature: Image upload with area selection
