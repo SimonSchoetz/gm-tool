@@ -3,7 +3,7 @@ import type { Pc } from '@db/pc';
 import * as service from '@services/pcsService';
 import { pcKeys } from './pcKeys';
 
-export type UsePcsReturn = {
+type UsePcsReturn = {
   pcs: Pc[];
   loading: boolean;
   createPc: () => Promise<string>;
