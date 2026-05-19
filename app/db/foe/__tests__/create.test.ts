@@ -48,12 +48,17 @@ describe('create', () => {
   it('should set adventure_id, default name, summary, and ISO timestamps', async () => {
     await create('adventure-123');
 
-    const [sql, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(sql).toContain('INSERT INTO foes');
-    expect(values).toContain('adventure-123');
-    const name = values[2] as string;
-    expect(name).toMatch(/^New Foe /);
-    expect(values).toContain('2024-01-15T10:30:00.000Z');
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO foes'),
+      [
+        'test-generated-id',
+        'adventure-123',
+        expect.stringMatching(/^New Foe /),
+        expect.stringContaining('"type":"root"'),
+        '2024-01-15T10:30:00.000Z',
+        '2024-01-15T10:30:00.000Z',
+      ],
+    );
   });
 
   it('should throw when adventure_id is empty', async () => {
