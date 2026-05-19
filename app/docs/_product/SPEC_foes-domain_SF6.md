@@ -25,9 +25,7 @@ Modified:
 import { createFileRoute } from '@tanstack/react-router';
 import { FoesScreen } from '@/screens';
 
-export const Route = createFileRoute(
-  '/adventure/$adventureId/foes',
-)({
+export const Route = createFileRoute('/adventure/$adventureId/foes')({
   component: FoesScreen,
 });
 ```
@@ -38,9 +36,7 @@ export const Route = createFileRoute(
 import { createFileRoute } from '@tanstack/react-router';
 import { FoeScreen } from '@/screens';
 
-export const Route = createFileRoute(
-  '/adventure/$adventureId/foe/$foeId',
-)({
+export const Route = createFileRoute('/adventure/$adventureId/foe/$foeId')({
   component: FoeScreen,
 });
 ```
@@ -56,11 +52,12 @@ Add a `ScreenNavBtn` for Foes inside the `<div className='sidebar-nav-btn-group'
 after the NPCs entry:
 
 ```tsx
-<ScreenNavBtn
+<ScreenNavBtnW
   label='Foes'
   to='/adventure/$adventureId/foes'
   params={{ adventureId: adventureId ?? '' }}
   isDisabled={!adventureId}
+  configColor={getTableColor('sessions')}
 />
 ```
 
