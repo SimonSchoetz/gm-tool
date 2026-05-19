@@ -58,8 +58,11 @@ describe('get', () => {
     expect(session).toBeNull();
   });
 
-  it('should throw error when id is invalid', async () => {
+  it('should throw error when id is empty', async () => {
     await expect(get('')).rejects.toThrow('Valid session ID is required');
+  });
+
+  it('should throw error when id is whitespace only', async () => {
     await expect(get('   ')).rejects.toThrow('Valid session ID is required');
   });
 });

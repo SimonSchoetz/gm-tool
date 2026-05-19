@@ -78,12 +78,17 @@ describe('update', () => {
     );
   });
 
-  it('should throw error when id is invalid', async () => {
+  it('should throw error when id is empty', async () => {
     const updates: Partial<Session> = { name: 'Test' };
 
     await expect(update('', updates)).rejects.toThrow(
       'Valid session ID is required',
     );
+  });
+
+  it('should throw error when id is whitespace only', async () => {
+    const updates: Partial<Session> = { name: 'Test' };
+
     await expect(update('   ', updates)).rejects.toThrow(
       'Valid session ID is required',
     );

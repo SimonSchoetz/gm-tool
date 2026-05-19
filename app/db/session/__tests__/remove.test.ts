@@ -36,8 +36,11 @@ describe('remove', () => {
     );
   });
 
-  it('should throw error when id is invalid', async () => {
+  it('should throw error when id is empty', async () => {
     await expect(remove('')).rejects.toThrow('Valid session ID is required');
+  });
+
+  it('should throw error when id is whitespace only', async () => {
     await expect(remove('   ')).rejects.toThrow('Valid session ID is required');
   });
 });
