@@ -58,7 +58,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   useEffect(() => {
     const container = containerRef.current;
     const thumb = thumbRef.current;
-    if (!container || !thumb || !isScrollNeeded) return null;
+    if (!container || !thumb || !isScrollNeeded) return;
 
     const updateThumbPosition = () => {
       thumb.style.top = `${container.scrollTop * (1 + scalingRef.current) + spacing}px`;
