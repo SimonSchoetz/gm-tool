@@ -92,11 +92,19 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     }, 500);
   };
 
+  const deleteNpc = async (): Promise<void> => {
+    await deleteMutation.mutateAsync();
+  };
+
+  const removeNpcImage = async (): Promise<void> => {
+    await removeNpcImageMutation.mutateAsync();
+  };
+
   return {
     npc: npcData ?? null,
     loading: isLoadingNpc,
     updateNpc,
-    deleteNpc: deleteMutation.mutateAsync,
-    removeNpcImage: removeNpcImageMutation.mutateAsync,
+    deleteNpc,
+    removeNpcImage,
   };
 };
