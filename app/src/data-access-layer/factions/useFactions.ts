@@ -3,13 +3,13 @@ import type { Faction } from '@db/faction';
 import * as service from '@services/factionsService';
 import { factionKeys } from './factionKeys';
 
-type UseFractionsReturn = {
+type UseFactionsReturn = {
   factions: Faction[];
   loading: boolean;
   createFaction: () => Promise<string>;
 };
 
-export const useFactions = (adventureId: string): UseFractionsReturn => {
+export const useFactions = (adventureId: string): UseFactionsReturn => {
   const queryClient = useQueryClient();
 
   const { data: factions = [], isPending: isLoadingFactions } = useQuery({
