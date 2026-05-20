@@ -5,7 +5,6 @@
 ### Horizontal Build
 
 - Feature: Items Screens
-- Feature: Locations Screens
 
 ### Tech Debt
 
@@ -17,6 +16,7 @@
 
 ### Done
 
+- Feature: Locations Screens
 - Feature: Factions Screens
 - fix: tests
   - need revision if written tests make sense
