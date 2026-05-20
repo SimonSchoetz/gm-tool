@@ -20,7 +20,12 @@ Always use the following structure when writing a spec or plan:
 
 The progress tracker is a sequencing reference. The implementing instance reads it to understand the order and dependencies of sub-features before starting work. It is not a live status document — do not modify it during implementation.
 
-**Foundation SFs must be annotated.** A foundation SF is one that modifies a shared utility or type that all other SFs in the batch depend on — its changes make baseline checks (tsc, eslint) structurally impossible to pass until the dependent SFs are also complete. When a SF is a foundation SF:
+**Foundation SFs must be annotated.** A Foundation SF is any SF that, if committed alone, would leave baseline checks (tsc, eslint) structurally unable to pass. Two conditions trigger this:
+
+- **Modification direction**: the SF modifies a shared utility or type that one or more other SFs in the same batch depend on, and that modification leaves the utility in a state where baseline checks cannot pass until all dependent SFs are complete.
+- **Provider direction**: the SF adds exports to a shared module that one or more earlier SFs in the spec already import — meaning those earlier SFs fail tsc until this SF is implemented.
+
+When a SF meets either condition:
 
 - Mark it in the progress tracker with `[FOUNDATION]` appended to its name, so the implementer sees at planning time that the batch has a dependency constraint.
 - In the SF body's opening description, add the full annotation naming every dependent SF: `[FOUNDATION: SF2–SF6 depend on this]`.
@@ -77,6 +82,8 @@ For the **Frontend** layer, always specify:
 - **UI / Visual** — layout structure, component composition, styling notes
 
 A Frontend layer entry that omits any of the three is incomplete.
+
+Specs must carry decisions, not derivations. When a sub-feature's implementation can be fully derived from a named reference file plus a mechanical substitution table (e.g., a new domain entity following an established scaffold pattern), do not reproduce the file body in the spec. Name the reference file and state the substitution table. The spec must still fully specify: (1) any content that differs from the reference, (2) the required assertion list for each test file (specific strings, error messages, SQL shapes), and (3) cross-SF consumer annotations. A spec that reproduces zero-decision content at full length is not more complete — it dilutes signal with noise and increases the cost of reading without adding implementation guidance.
 
 ### CLAUDE.md impact
 

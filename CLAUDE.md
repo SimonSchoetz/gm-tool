@@ -150,9 +150,9 @@ Never open a response with a positive affirmation directed at the user or a team
   3. Trace every exported symbol (error type, factory function, constant, utility) to at least one import or call site in the codebase. If nothing imports or calls it, remove it.
   - ❌ BAD: Keeping `render` on `ListColumn<T>` after a refactor because it was there before, without checking if any caller sets it or any reader accesses it
   - ✅ GOOD: After refactor, scanning every field of `ListColumn<T>` and finding `render` is never called → remove the field and the dead branch
-- **Validate before replicating**: Never assume existing code is compliant with current conventions. Before using any file as a reference implementation or pattern to follow, re-validate it against current CLAUDE.md rules. Convention changes retroactively invalidate previously correct code — if the reference is stale, the violation propagates to every new module that copies it. Fix violations found during this check, or surface them to the user, before proceeding.
+- **Validate before replicating**: Never assume existing code is compliant with current conventions. Before using any file as a reference implementation or pattern to follow, re-validate it against current CLAUDE.md rules — regardless of source: whether the reference was discovered during codebase scanning or named in the input by an upstream agent, the same validation pass applies. This applies to structural patterns (naming, file layout) and behavioral patterns (async handling, error wrapping, query patterns) equally. Convention changes retroactively invalidate previously correct code — if the reference is stale, the violation propagates to every new module that copies it. Fix violations found during this check, or surface them to the user, before proceeding.
   - ❌ BAD: "Follow the NPC pattern" → copy the barrel file shape without checking it against the barrel convention
-  - ✅ GOOD: "Follow the NPC pattern" → read `npcs/index.ts`, verify it matches current barrel file rules, fix or flag any violations, then use it as a template
+  - ✅ GOOD: "Follow the NPC pattern" → read `npcs/index.ts`, verify it matches current barrel file rules (structural conventions) and current behavioral patterns (async handling, error wrapping), fix or flag any violations, then use it as a template
 
 ### Epistemological Discipline
 

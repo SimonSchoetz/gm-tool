@@ -93,9 +93,10 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    - Before asking: ask the user if they have an example component in mind — "Do you have an existing component this should follow?" If they name one, read it and use it as the reference. If they cannot name one, explore `app/src/` for a relevant pattern. Only read files the user names or that a targeted search confirms are relevant — do not scan broadly.
    - If the feature has no UI surface, skip this step.
 6. Scan the codebase for existing patterns relevant to this feature — import
-   conventions, type ownership, naming, barrel file patterns. For each pattern
-   found, verify it against current CLAUDE.md conventions before using it as
-   a reference. If a pattern exists in the codebase but conflicts with current
+   conventions, type ownership, naming, barrel file patterns. For every file used
+   as a reference implementation — whether discovered during this scan or named in
+   the input by an upstream agent — verify it against current CLAUDE.md conventions
+   before citing it. If a pattern exists in the codebase but conflicts with current
    conventions, do not use it as a reference — flag it to the user instead:
    "Found existing pattern in [file] but it predates/conflicts with [convention].
    Proceeding with current convention."
@@ -145,10 +146,17 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    not the whole codebase.
 7. **Foundation SF detection** — Before writing any SF, scan the full set of
    sub-features for cross-SF breaking dependencies. A sub-feature is a
-   Foundation SF when it modifies a shared utility (a function, type, or
-   module) that one or more other SFs in the same batch also depend on, and
-   that modification leaves the shared utility in a state where baseline checks
-   (tsc, eslint) structurally cannot pass until all dependent SFs are complete.
+   Foundation SF when committing it alone would leave baseline checks (tsc,
+   eslint) structurally unable to pass. Two conditions trigger this:
+
+   - **Modification direction**: the SF modifies a shared utility (a function,
+     type, or module) that one or more other SFs in the same batch also depend
+     on, and that modification leaves the shared utility in a state where
+     baseline checks cannot pass until all dependent SFs are complete.
+   - **Provider direction**: the SF adds exports to a shared module that one or
+     more earlier SFs in the spec already import — meaning those earlier SFs
+     fail tsc until this SF is implemented. Scan explicitly for SFs that appear
+     later in spec order but whose outputs are imported by earlier SFs.
 
    For each Foundation SF found:
    - Add a lightweight `[FOUNDATION]` marker to the sub-feature's progress
@@ -226,3 +234,5 @@ A complete spec file ready to save and hand to a fresh Claude instance.
 - For every field or symbol introduced in a sub-feature that has no consumer within that same sub-feature, verify that a later sub-feature in the spec explicitly wires it to a consumer. If no later sub-feature names the consumer, flag it explicitly in the spec as an unresolved wire-up — do not leave the field implicit. A field with no declared consumer path will be treated as dead code by the reviewer.
 - **Design pushback**: When a design choice in the input conflicts with an existing pattern in the codebase, push back once before implementing. State the existing pattern, state the conflict, and ask the user to confirm the divergence is intentional. If the user confirms, write the spec as instructed — do not push back again on the same choice.
 - **Style gap obligation**: When a design decision cannot be resolved by reference to any existing component pattern in the codebase, flag it in the chat response (not in the spec): "No existing pattern covers [X] — this is a style gap. Proceeding with [stated choice] unless you redirect." Then proceed. Do not block on the absence of a style guide.
+- **Decision vs. substitution filter**: Before writing the body of any file section, determine whether the file requires a decision — a non-obvious choice, a type shape, a query parameter, an edge case — or whether it is pure name substitution from a known reference. If it is pure substitution, apply the format rule in `app/docs/CLAUDE.md`: name the reference file and write the substitution table; do not reproduce the body. A file that is partly substitution and partly decision is Mixed — reproduce only the decision content and pointer the rest.
+- **Build-time vs. runtime correctness for generated files**: When the spec makes a claim about a generated or gitignored file (e.g., a route tree, a schema output, a codegen artifact), verify the claim against two distinct contexts: (1) runtime — what the dev server or build pipeline produces automatically, and (2) implementation-time — what state the file must be in for tsc to pass during the implementation phase before the dev server has run. These are not the same. A file that regenerates automatically at runtime may still need a manual edit during implementation so that tsc passes. When they differ, the spec must address both: state what the file's automatic behavior is, and state explicitly what manual step is required during implementation and why.

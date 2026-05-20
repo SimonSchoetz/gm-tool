@@ -95,6 +95,22 @@ Produce a friction summary covering:
 
 Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself.
 
+### Spec quality brief
+
+This step always runs at the end of the session, regardless of whether friction occurred.
+
+Produce a spec quality summary covering:
+
+**Over-specified** (if any): sections where the spec reproduced derivable content in full — file bodies that were pure name substitution, test structure descriptions the implementer re-derived from source files anyway. Name the specific sections.
+
+**Under-specified or wrong** (if any): gaps that caused friction — missing implementation-time details, incorrect claims about generated files, missing tsc-blocker annotations for cross-SF dependencies. Name the specific gaps and what the spec should have said.
+
+**Decisions vs. substitutions** — for each file group in the spec, classify: was the spec content a decision (non-obvious choice the implementer could not derive), a substitution (name-only change from a reference), or mixed? This is the raw material for spec-writer improvement.
+
+**Format observations** (if any): structural suggestions — sections that could have been shorter, sections that were missing, ordering that caused friction.
+
+Output the summary to the user. This is the handoff artifact for a `/refine-claude` session focused on spec-writer improvement.
+
 ---
 
 These invariants apply to all steps above. They are not a process — they are constraints that hold throughout.
