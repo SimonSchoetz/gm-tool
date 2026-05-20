@@ -53,6 +53,13 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
             configColor={getTableColor('foes')}
           />
           <ScreenNavBtn
+            label='Items'
+            to='/adventure/$adventureId/items'
+            params={{ adventureId: adventureId ?? '' }}
+            isDisabled={!adventureId}
+            configColor={getTableColor('items')}
+          />
+          <ScreenNavBtn
             label='Locations'
             to='/adventure/$adventureId/locations'
             params={{ adventureId: adventureId ?? '' }}
