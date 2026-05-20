@@ -9,7 +9,7 @@ import {
 import { Beam, Grid } from './types';
 
 const AMOUNT_BEAMS = 6;
-const BEAM_SPEED = 8;
+const BEAM_SPEED = 4;
 
 const Backdrop = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

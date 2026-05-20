@@ -15,7 +15,7 @@ export const initBeams = (
       nextSpawnTime: Date.now() + Math.random() * 10000 + i * 2000,
       progress: 0,
       pathLength: 0,
-      speed: beamSpeed + i * 0.5,
+      speed: beamSpeed + i,
       active: false,
     });
   }
