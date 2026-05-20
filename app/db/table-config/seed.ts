@@ -2,6 +2,7 @@ import type Database from '@tauri-apps/plugin-sql';
 import type { Adventure } from '@db/adventure';
 import type { Npc } from '@db/npc';
 import type { Foe } from '@db/foe';
+import type { Item } from '@db/item';
 import type { Location } from '@db/location';
 import type { Faction } from '@db/faction';
 import type { Pc } from '@db/pc';
@@ -51,6 +52,29 @@ const npcsConfig: TypedCreateTableConfigInput<Npc> = {
 const foesConfig: TypedCreateTableConfigInput<Foe> = {
   table_name: 'foes',
   color: '#e67e22',
+  tagging_enabled: 1,
+  scope: 'adventure',
+  layout: {
+    searchable_columns: ['name', 'summary', 'description'],
+    columns: [
+      {
+        key: 'image_id',
+        label: 'Avatar',
+        sortable: false,
+        resizable: false,
+        width: 136,
+      },
+      { key: 'name', label: 'Name', width: 250 },
+      { key: 'created_at', label: 'Created At', width: 250 },
+      { key: 'updated_at', label: 'Last updated', width: 250 },
+    ],
+    sort_state: { column: 'updated_at', direction: 'desc' },
+  },
+};
+
+const itemsConfig: TypedCreateTableConfigInput<Item> = {
+  table_name: 'items',
+  color: '#9b59b6',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -161,6 +185,7 @@ const defaultConfigs: CreateTableConfigInput[] = [
   adventuresConfig,
   npcsConfig,
   foesConfig,
+  itemsConfig,
   locationsConfig,
   factionsConfig,
   pcsConfig,
