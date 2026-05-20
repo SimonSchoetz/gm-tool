@@ -4,3 +4,4 @@ export { NpcCrumb } from './NpcCrumb';
 export { FoeCrumb } from './FoeCrumb';
 export { PcCrumb } from './PcCrumb';
 export { FactionCrumb } from './FactionCrumb';
+export { LocationCrumb } from './LocationCrumb';
