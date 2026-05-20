@@ -22,7 +22,12 @@ export const getAllFactions = async (adventureId: string): Promise<Faction[]> =>
 };
 
 export const getFactionById = async (id: string): Promise<Faction> => {
-  const faction = await factionDb.get(id);
+  let faction: Faction | null;
+  try {
+    faction = await factionDb.get(id);
+  } catch (err) {
+    throw factionLoadError(err);
+  }
 
   if (!faction) {
     throw factionNotFoundError(id);

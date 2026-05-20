@@ -22,7 +22,12 @@ export const getAllPcs = async (adventureId: string): Promise<Pc[]> => {
 };
 
 export const getPcById = async (id: string): Promise<Pc> => {
-  const pc = await pcDb.get(id);
+  let pc: Pc | null;
+  try {
+    pc = await pcDb.get(id);
+  } catch (err) {
+    throw pcLoadError(err);
+  }
 
   if (!pc) {
     throw pcNotFoundError(id);

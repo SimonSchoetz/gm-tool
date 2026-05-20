@@ -22,7 +22,12 @@ export const getAllNpcs = async (adventureId: string): Promise<Npc[]> => {
 };
 
 export const getNpcById = async (id: string): Promise<Npc> => {
-  const npc = await npcDb.get(id);
+  let npc: Npc | null;
+  try {
+    npc = await npcDb.get(id);
+  } catch (err) {
+    throw npcLoadError(err);
+  }
 
   if (!npc) {
     throw npcNotFoundError(id);

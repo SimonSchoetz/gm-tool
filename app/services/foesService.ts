@@ -22,7 +22,12 @@ export const getAllFoes = async (adventureId: string): Promise<Foe[]> => {
 };
 
 export const getFoeById = async (id: string): Promise<Foe> => {
-  const foe = await foeDb.get(id);
+  let foe: Foe | null;
+  try {
+    foe = await foeDb.get(id);
+  } catch (err) {
+    throw foeLoadError(err);
+  }
 
   if (!foe) {
     throw foeNotFoundError(id);
