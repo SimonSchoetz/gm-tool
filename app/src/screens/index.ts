@@ -6,6 +6,8 @@ export { NpcsScreen } from './npcs/NpcsScreen';
 export { NpcScreen } from './npc/NpcScreen';
 export { FoesScreen } from './foes/FoesScreen';
 export { FoeScreen } from './foe/FoeScreen';
+export { LocationsScreen } from './locations/LocationsScreen';
+export { LocationScreen } from './location/LocationScreen';
 export { FactionsScreen } from './factions/FactionsScreen';
 export { FactionScreen } from './faction/FactionScreen';
 export { PcsScreen } from './pcs/PcsScreen';

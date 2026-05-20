@@ -50,6 +50,21 @@ export {
 } from './foes';
 
 export type {
+  LocationNotFoundError,
+  LocationLoadError,
+  LocationCreateError,
+  LocationUpdateError,
+  LocationDeleteError,
+} from './locations';
+export {
+  locationNotFoundError,
+  locationLoadError,
+  locationCreateError,
+  locationUpdateError,
+  locationDeleteError,
+} from './locations';
+
+export type {
   FactionNotFoundError,
   FactionLoadError,
   FactionCreateError,

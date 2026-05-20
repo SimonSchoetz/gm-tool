@@ -19,8 +19,8 @@ import { remove } from '../remove';
 describe('remove', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    mockExecute.mockResolvedValue({});
   });
 
   afterEach(() => {

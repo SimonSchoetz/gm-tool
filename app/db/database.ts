@@ -6,6 +6,7 @@ import { sessionStepTable } from './session-step/schema';
 import { npcTable } from './npc/schema';
 import { foeTable } from './foe/schema';
 import { factionTable } from './faction/schema';
+import { locationTable } from './location/schema';
 import { pcTable } from './pc/schema';
 import { tableConfigTable } from './table-config/schema';
 import { seedTableConfig } from './table-config/seed';
@@ -35,6 +36,7 @@ export const initDatabase = async () => {
         { name: 'session_steps', sql: sessionStepTable.createTableSQL },
         { name: 'npcs', sql: npcTable.createTableSQL },
         { name: 'foes', sql: foeTable.createTableSQL },
+        { name: 'locations', sql: locationTable.createTableSQL },
         { name: 'factions', sql: factionTable.createTableSQL },
         { name: 'pcs', sql: pcTable.createTableSQL },
         { name: 'table_config', sql: tableConfigTable.createTableSQL },

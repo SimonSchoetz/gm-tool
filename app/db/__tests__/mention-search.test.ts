@@ -16,8 +16,8 @@ import { searchByName } from '../mention-search';
 describe('searchByName', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    mockExecute.mockResolvedValue({});
   });
 
   afterEach(() => {

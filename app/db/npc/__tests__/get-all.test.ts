@@ -17,8 +17,8 @@ import { getAll } from '../get-all';
 describe('getAll', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    mockExecute.mockResolvedValue({});
   });
 
   afterEach(() => {
