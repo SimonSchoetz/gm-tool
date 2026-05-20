@@ -18,6 +18,7 @@
 
 ### Done
 
+- Feature: Factions Screens
 - fix: tests
   - need revision if written tests make sense
 - Feature: PCs Screens
