@@ -4,7 +4,6 @@
 
 ### Horizontal Build
 
-- Feature: Factions Screens
 - Feature: Items Screens
 - Feature: Locations Screens
 
@@ -18,6 +17,7 @@
 
 ### Done
 
+- Feature: Factions Screens
 - fix: tests
   - need revision if written tests make sense
 - Feature: PCs Screens
