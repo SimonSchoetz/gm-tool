@@ -1,5 +1,4 @@
 import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
-import { cn } from '@/util';
 import { useNpc } from '@/data-access-layer';
 import './NpcScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -17,11 +16,11 @@ export const NpcScreen = () => {
   }
 
   return (
-    <GlassPanel className={cn('npc-screen')}>
+    <GlassPanel className='npc-screen'>
       <NpcSidebar />
 
       <CustomScrollArea>
-        <div className={cn('npc-text-edit-area')}>
+        <div className='npc-text-edit-area'>
           <NpcHeader />
 
           <TextEditor

@@ -28,7 +28,7 @@ export const HoloImg: FCProps<Props> = ({
     <div
       ref={containerRef}
       style={cardVars}
-      className={cn('tilt-fx-container')}
+      className='tilt-fx-container'
       {...props}
     >
       <ImagePlaceholderFrame

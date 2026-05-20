@@ -1,5 +1,4 @@
 import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
-import { cn } from '@/util';
 import { useFoe } from '@/data-access-layer';
 import './FoeScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -17,11 +16,11 @@ export const FoeScreen = () => {
   }
 
   return (
-    <GlassPanel className={cn('foe-screen')}>
+    <GlassPanel className='foe-screen'>
       <FoeSidebar />
 
       <CustomScrollArea>
-        <div className={cn('foe-text-edit-area')}>
+        <div className='foe-text-edit-area'>
           <FoeHeader />
 
           <TextEditor

@@ -5,7 +5,6 @@ import {
 } from 'react-error-boundary';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { Button } from '../Button/Button';
-import { cn } from '@/util';
 import './ErrorBoundary.css';
 
 const ErrorFallback: FunctionComponent<FallbackProps> = ({
@@ -18,7 +17,7 @@ const ErrorFallback: FunctionComponent<FallbackProps> = ({
   const errorStack = error instanceof Error ? (error.stack ?? null) : null;
 
   return (
-    <GlassPanel className={cn('error-boundary-panel')} intensity='bright'>
+    <GlassPanel className='error-boundary-panel' intensity='bright'>
       <h1 className='error-boundary-title'>Something went wrong</h1>
 
       <p className='error-boundary-message'>{errorMessage}</p>
@@ -47,7 +46,12 @@ export const ErrorBoundary = ({ children, onReset }: ErrorBoundaryProps) => {
   return (
     <ReactErrorBoundary
       FallbackComponent={ErrorFallback}
-      onReset={onReset ?? (() => { /* noop */ })}
+      onReset={
+        onReset ??
+        (() => {
+          /* noop */
+        })
+      }
       onError={(error, errorInfo) => {
         // Log to console in development
         if (import.meta.env.DEV) {

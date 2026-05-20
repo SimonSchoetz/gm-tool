@@ -1,4 +1,4 @@
-import { cn, filePicker } from '@/util';
+import { filePicker } from '@/util';
 import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { ActionContainer, HoloImg } from '@/components';
@@ -72,7 +72,7 @@ export const UploadImgBtn = ({
     </>
   ) : (
     <ActionContainer
-      className={cn('upload-adventure-img-btn')}
+      className='upload-adventure-img-btn'
       onClick={() => {
         void handleClick();
       }}

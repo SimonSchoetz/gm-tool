@@ -1,5 +1,4 @@
 import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
-import { cn } from '@/util';
 import { usePc } from '@/data-access-layer';
 import './PcScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -17,11 +16,11 @@ export const PcScreen = () => {
   }
 
   return (
-    <GlassPanel className={cn('pc-screen')}>
+    <GlassPanel className='pc-screen'>
       <PcSidebar />
 
       <CustomScrollArea>
-        <div className={cn('pc-text-edit-area')}>
+        <div className='pc-text-edit-area'>
           <PcHeader />
 
           <TextEditor

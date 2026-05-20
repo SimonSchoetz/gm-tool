@@ -1,6 +1,5 @@
 import { Input } from '@/components';
 import { useAdventure } from '@/data-access-layer';
-import { cn } from '@/util';
 import { useParams } from '@tanstack/react-router';
 import { getDateTimeString } from '@util';
 import { useState } from 'react';
@@ -31,7 +30,7 @@ export const AdventureScreenHeader = () => {
         className='adventure-title-input'
       />
 
-      <ul className={cn('adventure-facts')}>
+      <ul className='adventure-facts'>
         <li>
           Started: <span>{startDate}</span>
         </li>

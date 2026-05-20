@@ -21,7 +21,7 @@ export const HoloExample: FCProps<Props> = ({
       style={cardVars}
       {...props}
     >
-      <div className={cn('holo-fx__rotator')}>
+      <div className='holo-fx__rotator'>
         {children}
         <HoloFX />
       </div>

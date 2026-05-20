@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import GlassPanel from '../GlassPanel/GlassPanel';
-import { cn } from '@/util';
 import Input from '../Input/Input';
 import './DeleteDialog.css';
 import { Button } from '../Button/Button';
@@ -34,7 +33,7 @@ export const DeleteDialog = ({
 
   return (
     <GlassPanel
-      className={cn('delete-dialog')}
+      className='delete-dialog'
       style={{
         boxShadow: `inset 0 -${intensity * 5}px ${intensity * 10}px rgb(var(--color-danger-hover-rgb), ${intensity / 2})`,
         background: `radial-gradient(ellipse 50% 80% at 50% 100%, rgb(var(--color-danger-hover-rgb), ${intensity}), transparent)`,

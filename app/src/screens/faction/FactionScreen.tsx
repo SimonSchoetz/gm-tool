@@ -1,5 +1,4 @@
 import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
-import { cn } from '@/util';
 import { useFaction } from '@/data-access-layer';
 import './FactionScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -10,18 +9,21 @@ export const FactionScreen = () => {
     from: '/adventure/$adventureId/faction/$factionId',
   });
 
-  const { faction, updateFaction, loading } = useFaction(factionId, adventureId);
+  const { faction, updateFaction, loading } = useFaction(
+    factionId,
+    adventureId,
+  );
 
   if (loading || !faction) {
     return <div>Loading...</div>;
   }
 
   return (
-    <GlassPanel className={cn('faction-screen')}>
+    <GlassPanel className='faction-screen'>
       <FactionSidebar />
 
       <CustomScrollArea>
-        <div className={cn('faction-text-edit-area')}>
+        <div className='faction-text-edit-area'>
           <FactionHeader />
 
           <TextEditor

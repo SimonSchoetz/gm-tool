@@ -1,6 +1,6 @@
 import './AdventureScreen.css';
 import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
-import { cn } from '@/util';
+
 import { useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ export const AdventureScreen = () => {
   }
 
   return (
-    <GlassPanel className={cn('adventure-screen')}>
+    <GlassPanel className='adventure-screen'>
       <AdventureScreenSidebar />
 
       <CustomScrollArea>

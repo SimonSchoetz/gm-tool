@@ -11,7 +11,6 @@ import {
 import './FloatingToolbar.css';
 import { TextFormatBtn, HeadingBtn, ListBtn } from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
-import { cn } from '@/util';
 
 type Position = {
   top: number;
@@ -206,5 +205,5 @@ export const FloatingToolbar = ({ ...props }) => {
 };
 
 const Divider = () => {
-  return <div className={cn('divider')}></div>;
+  return <div className='divider'></div>;
 };
