@@ -1,5 +1,4 @@
 import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
-import { cn } from '@/util';
 import { useLocation } from '@/data-access-layer';
 import './LocationScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -17,11 +16,11 @@ export const LocationScreen = () => {
   }
 
   return (
-    <GlassPanel className={cn('location-screen')}>
+    <GlassPanel className="location-screen">
       <LocationSidebar />
 
       <CustomScrollArea>
-        <div className={cn('location-text-edit-area')}>
+        <div className="location-text-edit-area">
           <LocationHeader />
 
           <TextEditor
