@@ -66,7 +66,7 @@ export const useFaction = (factionId: string, adventureId: string): UseFactionRe
   });
 
   const updateFaction = (data: UpdateFactionData) => {
-    if (!factionData) return null;
+    if (!factionData) return;
 
     queryClient.setQueryData<Faction>(factionKeys.detail(factionId), (old) => {
       if (!old) return old;

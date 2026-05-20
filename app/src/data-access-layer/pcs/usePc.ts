@@ -66,7 +66,7 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
   });
 
   const updatePc = (data: UpdatePcData) => {
-    if (!pcData) return null;
+    if (!pcData) return;
 
     queryClient.setQueryData<Pc>(pcKeys.detail(pcId), (old) => {
       if (!old) return old;

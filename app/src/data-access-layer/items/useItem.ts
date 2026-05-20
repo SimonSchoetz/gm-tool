@@ -66,7 +66,7 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
   });
 
   const updateItem = (data: UpdateItemData) => {
-    if (!itemData) return null;
+    if (!itemData) return;
 
     queryClient.setQueryData<Item>(itemKeys.detail(itemId), (old) => {
       if (!old) return old;

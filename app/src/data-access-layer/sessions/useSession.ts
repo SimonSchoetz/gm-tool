@@ -58,7 +58,7 @@ export const useSession = (
   });
 
   const updateSession = (data: UpdateSessionInput) => {
-    if (!sessionData) return null;
+    if (!sessionData) return;
 
     queryClient.setQueryData<Session>(sessionKeys.detail(sessionId), (old) => {
       if (!old) return old;

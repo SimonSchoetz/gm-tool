@@ -66,7 +66,7 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   });
 
   const updateNpc = (data: UpdateNpcData) => {
-    if (!npcData) return null;
+    if (!npcData) return;
 
     queryClient.setQueryData<Npc>(npcKeys.detail(npcId), (old) => {
       if (!old) return old;

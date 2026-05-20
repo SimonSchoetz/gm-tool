@@ -66,7 +66,7 @@ export const useLocation = (locationId: string, adventureId: string): UseLocatio
   });
 
   const updateLocation = (data: UpdateLocationData) => {
-    if (!locationData) return null;
+    if (!locationData) return;
 
     queryClient.setQueryData<Location>(locationKeys.detail(locationId), (old) => {
       if (!old) return old;

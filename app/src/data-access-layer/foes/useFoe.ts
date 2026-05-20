@@ -66,7 +66,7 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
   });
 
   const updateFoe = (data: UpdateFoeData) => {
-    if (!foeData) return null;
+    if (!foeData) return;
 
     queryClient.setQueryData<Foe>(foeKeys.detail(foeId), (old) => {
       if (!old) return old;

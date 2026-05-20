@@ -65,7 +65,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   });
 
   const updateAdventure = (data: UpdateAdventureData) => {
-    if (!adventureData) return null;
+    if (!adventureData) return;
 
     queryClient.setQueryData<Adventure>(
       adventureKeys.detail(adventureId),
