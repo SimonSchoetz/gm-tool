@@ -11,6 +11,7 @@ export type BreadcrumbConfig =
   | { kind: 'session' }
   | { kind: 'npc' }
   | { kind: 'foe' }
+  | { kind: 'faction' }
   | { kind: 'pc' };
 
 export const buildBreadcrumbs = (
@@ -82,6 +83,25 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
           { kind: 'foe' },
+        ];
+      case '/adventure/$adventureId/factions':
+        return [
+          {
+            kind: 'static',
+            label: 'Factions',
+            to: '/adventure/$adventureId/factions',
+            params: { adventureId: p.adventureId },
+          },
+        ];
+      case '/adventure/$adventureId/faction/$factionId':
+        return [
+          {
+            kind: 'static',
+            label: 'Factions',
+            to: '/adventure/$adventureId/factions',
+            params: { adventureId: p.adventureId },
+          },
+          { kind: 'faction' },
         ];
       case '/adventure/$adventureId/pcs':
         return [

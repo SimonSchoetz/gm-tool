@@ -186,6 +186,40 @@ describe('buildBreadcrumbs', () => {
     expect(result[3]).toEqual({ kind: 'pc' });
   });
 
+  it('maps /adventure/$adventureId/factions to Factions static', () => {
+    const result = buildBreadcrumbs([
+      match('__root__'),
+      match('/adventure/$adventureId', { adventureId: 'adv-1' }),
+      match('/adventure/$adventureId/factions', { adventureId: 'adv-1' }),
+    ]);
+    expect(result).toHaveLength(3);
+    expect(result[2]).toEqual({
+      kind: 'static',
+      label: 'Factions',
+      to: '/adventure/$adventureId/factions',
+      params: { adventureId: 'adv-1' },
+    });
+  });
+
+  it('maps /adventure/$adventureId/faction/$factionId to Factions static + faction crumb', () => {
+    const result = buildBreadcrumbs([
+      match('__root__'),
+      match('/adventure/$adventureId', { adventureId: 'adv-1' }),
+      match('/adventure/$adventureId/faction/$factionId', {
+        adventureId: 'adv-1',
+        factionId: 'faction-1',
+      }),
+    ]);
+    expect(result).toHaveLength(4);
+    expect(result[2]).toEqual({
+      kind: 'static',
+      label: 'Factions',
+      to: '/adventure/$adventureId/factions',
+      params: { adventureId: 'adv-1' },
+    });
+    expect(result[3]).toEqual({ kind: 'faction' });
+  });
+
   it('silently ignores unknown routeIds', () => {
     const result = buildBreadcrumbs([match('/unknown-route')]);
     expect(result).toHaveLength(0);

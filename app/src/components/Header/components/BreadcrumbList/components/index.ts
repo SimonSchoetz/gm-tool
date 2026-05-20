@@ -3,3 +3,4 @@ export { SessionCrumb } from './SessionCrumb';
 export { NpcCrumb } from './NpcCrumb';
 export { FoeCrumb } from './FoeCrumb';
 export { PcCrumb } from './PcCrumb';
+export { FactionCrumb } from './FactionCrumb';
