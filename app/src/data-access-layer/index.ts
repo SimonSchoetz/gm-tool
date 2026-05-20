@@ -3,6 +3,7 @@ export { useImage, imageKeys, useUpdateImageFrame } from './images';
 export type { ImageFrame } from './images';
 export { useNpcs, useNpc, npcKeys } from './npcs';
 export { useFoes, useFoe, foeKeys } from './foes';
+export { useFactions, useFaction, factionKeys } from './factions';
 export { usePcs, usePc, pcKeys } from './pcs';
 export { useSessions, useSession, sessionKeys } from './sessions';
 export { useTableConfig, useTableConfigs, tableConfigKeys } from './table-config';

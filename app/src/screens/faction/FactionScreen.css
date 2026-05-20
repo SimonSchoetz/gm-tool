@@ -1,0 +1,13 @@
+.faction-screen {
+  padding: var(--spacing-md);
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: auto 1fr;
+}
+
+.faction-text-edit-area {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  gap: var(--spacing-md);
+}
