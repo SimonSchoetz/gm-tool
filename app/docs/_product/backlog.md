@@ -4,11 +4,9 @@
 
 ### Horizontal Build
 
-- fix: tests
-  - need revision if written tests make sense
 - Feature: Factions Screens
 - Feature: Items Screens
-- Feature: Places Screens
+- Feature: Locations Screens
 
 ### Tech Debt
 
@@ -20,6 +18,8 @@
 
 ### Done
 
+- fix: tests
+  - need revision if written tests make sense
 - Feature: PCs Screens
 - Feature: Foes Screens
 - Refactor: components/AdventureComponents to sub components of adventures screen
