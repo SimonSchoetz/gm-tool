@@ -50,6 +50,21 @@ export {
 } from './foes';
 
 export type {
+  ItemNotFoundError,
+  ItemLoadError,
+  ItemCreateError,
+  ItemUpdateError,
+  ItemDeleteError,
+} from './items';
+export {
+  itemNotFoundError,
+  itemLoadError,
+  itemCreateError,
+  itemUpdateError,
+  itemDeleteError,
+} from './items';
+
+export type {
   LocationNotFoundError,
   LocationLoadError,
   LocationCreateError,
