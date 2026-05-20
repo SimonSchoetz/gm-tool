@@ -50,6 +50,21 @@ export {
 } from './foes';
 
 export type {
+  FactionNotFoundError,
+  FactionLoadError,
+  FactionCreateError,
+  FactionUpdateError,
+  FactionDeleteError,
+} from './factions';
+export {
+  factionNotFoundError,
+  factionLoadError,
+  factionCreateError,
+  factionUpdateError,
+  factionDeleteError,
+} from './factions';
+
+export type {
   PcNotFoundError,
   PcLoadError,
   PcCreateError,
