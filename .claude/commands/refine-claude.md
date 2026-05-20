@@ -150,16 +150,14 @@ dismissed, skip SendMessage for that teammate and spawn a replacement via
 TeamCreate before continuing — SendMessage to a dismissed teammate succeeds
 silently and the message is never received.
 
-Before routing any follow-up via SendMessage, check whether the gap since the
-last known teammate interaction exceeds 30 minutes. Get the current time with
-`date +%s` (Unix epoch seconds) and compare it against the timestamp of the
-last interaction recorded in the conversation. If the gap exceeds 1800 seconds,
-treat all active teammates as potentially timed out — send each a shutdown
-request as a cleanup measure (it will likely succeed silently), then spawn
-replacements via TeamCreate instead of routing via SendMessage, providing the
-full session context in the TeamCreate prompt so the new instances can continue
-without loss. A timed-out teammate behaves identically to a dismissed one:
-SendMessage returns success but the message is never received.
+When routing a follow-up to an active teammate via SendMessage, send the
+message and wait for a reply in the same turn. If no reply arrives, treat the
+teammate as timed out — SendMessage to an exited teammate returns success
+silently and the message is never received. In that case: spawn a replacement
+via TeamCreate with the full session context so the new instance can continue
+without loss, then route the follow-up to the replacement. Do not proactively
+send shutdown requests or spawn replacements based on elapsed time alone —
+time elapsed is not evidence of teammate exit.
 
 To end the session: Ask if the user is satisfied and wait for their answer.
 Once the user confirms they are satisfied, ONLY THEN dismiss any active teammates so no long-running instances remain.

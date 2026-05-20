@@ -162,6 +162,11 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
   - ❌ `isDanger?: boolean; isPrimary?: boolean`
   - ❌ `style={{ color: 'red' }}` to express a variant
 
+- **`cn()` usage — conditional and computed classes only:** Use `cn()` when class names are conditional or computed at runtime. A single static string must use `className="..."` directly — never `cn('static-string')`.
+  - ✅ GOOD: `cn('button-wrapper', buttonStyle && \`button-wrapper--${buttonStyle}\`)` — conditional, cn() is correct
+  - ✅ GOOD: `className="button-wrapper"` — static, plain className is correct
+  - ❌ BAD: `cn('button-wrapper')` — single static string, cn() adds no value
+
 ### Util vs. Helper Placement
 
 A function belongs in `/src/util/` only when **both** conditions are met:
