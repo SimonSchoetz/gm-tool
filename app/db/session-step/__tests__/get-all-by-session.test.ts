@@ -17,8 +17,8 @@ import { getAllBySession } from '../get-all-by-session';
 describe('getAllBySession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExecute.mockResolvedValue({});
     mockSelect.mockResolvedValue([]);
+    mockExecute.mockResolvedValue({});
   });
 
   afterEach(() => {
