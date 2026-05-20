@@ -24,6 +24,10 @@ TypeScript conventions that apply to all TypeScript layers under `app/` (`src/`,
   - ❌ BAD: `let session: Session | undefined;`
   - ✅ GOOD: `let session: Session | null = null;`
 
+- **In any function typed `void` — whether annotated explicitly or inferred from a `void` return-type slot in a containing type — use a bare `return;` for early exits. Never use `return null;` as an early exit in a void context.** `return null;` implies a return value exists and misleads readers into looking for a consumer; bare `return;` correctly signals "stop here, nothing is returned."
+  - ❌ BAD: `const updateItem = (data: UpdateItemData) => { if (!itemData) return null; ... }` where `updateItem` is typed `() => void`
+  - ✅ GOOD: `const updateItem = (data: UpdateItemData) => { if (!itemData) return; ... }`
+
 ## Directory Structure (all TypeScript layers)
 
 Two directory types exist — distinguish them before adding or deleting a barrel:
