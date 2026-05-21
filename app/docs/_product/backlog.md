@@ -1,14 +1,58 @@
 # Product Backlog
 
-## MVP
+## Post MVP -> Closed Beta Ready
 
-### Tech Debt
+- Feature: db migrations
+  - Baseline:
+    - seed data like colors
+    - table config sorting
+- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+- Fix: White BG on app start
+- Epic: Stable build for mac and windows (maybe linux)
+  - hard drive access (as wide as need be, as narrow as possible)
+  - managing data directory
+    - first start: should ask if relocate or create new
+      - relocate db functonality
+      - chosing db/asset location functionality
+- Feature: full data export for manual backups
+- Feature: data import from manual backups
+  - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
 
----
+### Open Beta Ready
+
+- Epic: Website to download the latest build
+- Epic: Online community
+- Feature: (automatic) updates
+- Feature (Content): Onboarding
+- Feature (Content): Session Zero
+- Feature(POC): local network to autosync between different devices
+  - import with merging strategy
+
+### Ideas Dump (unsorted)
+
+- Feature: Random Tables (see feature outline)
+- Epic: NPC Generator
+  - config like lists of traits & quirks, backgrounds, species, etc.
+    - For quick, random generation: mechanic how common e. g. a species in this world is
+- Feature (Text Editor): External links
+- Feature (Text Editor): Embedded images
+- Feature: Implement prefetching
+- Feature: Pin favorites in list screens and make them orderable via drag&drop
+- Feature: References List (Where each screen is tagged)
+- Feature: Session Log Screen
+- Feature: Image Drag&Drop
+- Epic: Loot generator
+- Epic: Monster generator
+- Epic: Combat generator
+- Epic: Combat screen
+  - displays combatants and their order, conditions, turns, and combat events. ect.
+- Feature: Source Material organization
+  - Feature: Bulk import material, e. g. items
 
 ### Done
 
-- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+## MVP
+
 - `__root.tsx` -> resolve question in line 9
 - get rgb from input type=color instead of hex
 - Feature: Items Screens
@@ -37,53 +81,3 @@
 - Fix: Move `AppRoute` type declaration into `ScreenNavBtn.tsx`, delete `types/appRoute.type.ts`
 
 ---
-
-## Post MVP
-
-### Closed Beta Ready
-
-- Fix: White BG on app start
-- Feature: db migrations
-  - Baseline:
-    - seed data like colors
-    - table config sorting
-- Epic: Stable build for mac and windows (maybe linux)
-  - hard drive access (as wide as need be, as narrow as possible)
-  - managing data directory
-    - first start: should ask if relocate or create new
-      - relocate db functonality
-      - chosing db/asset location functionality
-- Feature: full data export for manual backups
-- Feature: data import from manual backups
-  - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
-- Feature(POC): local network to autosync between different devices
-  - import with merging strategy
-
-### Open Beta Ready
-
-- Epic: Website to download the latest build
-- Epic: Online community
-- Feature: (automatic) updates
-- Feature (Content): Onboarding
-- Feature (Content): Session Zero
-
-### Ideas Dump (unsorted)
-
-- Feature: Random Tables (see feature outline)
-- Epic: NPC Generator
-  - config like lists of traits & quirks, backgrounds, species, etc.
-    - For quick, random generation: mechanic how common e. g. a species in this world is
-- Feature (Text Editor): External links
-- Feature (Text Editor): Embedded images
-- Feature: Implement prefetching
-- Feature: Pin favorites in list screens and make them orderable via drag&drop
-- Feature: References List (Where each screen is tagged)
-- Feature: Session Log Screen
-- Feature: Image Drag&Drop
-- Epic: Loot generator
-- Epic: Monster generator
-- Epic: Combat generator
-- Epic: Combat screen
-  - displays combatants and their order, conditions, turns, and combat events. ect.
-- Feature: Source Material organization
-  - Feature: Bulk import material, e. g. items
