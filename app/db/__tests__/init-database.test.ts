@@ -35,4 +35,16 @@ describe('initDatabase', () => {
     await initDatabase();
     expect(mockSelect).toHaveBeenCalledWith('SELECT id FROM _migrations');
   });
+
+  it('should run the initial schema migration on a fresh database', async () => {
+    await initDatabase();
+    expect(mockExecute).toHaveBeenCalledWith(expect.stringContaining('BEGIN'));
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringContaining('CREATE TABLE IF NOT EXISTS sessions'),
+    );
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO _migrations'),
+    );
+    expect(mockExecute).toHaveBeenCalledWith(expect.stringContaining('COMMIT'));
+  });
 });
