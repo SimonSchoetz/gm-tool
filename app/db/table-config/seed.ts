@@ -12,7 +12,7 @@ import type { CreateTableConfigInput, TypedCreateTableConfigInput } from './type
 
 const adventuresConfig: TypedCreateTableConfigInput<Adventure> = {
   table_name: 'adventures',
-  color: '#4a9eff',
+  color: '74, 158, 255',
   tagging_enabled: 0,
   scope: 'global',
   layout: {
@@ -28,7 +28,7 @@ const adventuresConfig: TypedCreateTableConfigInput<Adventure> = {
 
 const npcsConfig: TypedCreateTableConfigInput<Npc> = {
   table_name: 'npcs',
-  color: '#ff6b6b',
+  color: '255, 107, 107',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -51,7 +51,7 @@ const npcsConfig: TypedCreateTableConfigInput<Npc> = {
 
 const foesConfig: TypedCreateTableConfigInput<Foe> = {
   table_name: 'foes',
-  color: '#e67e22',
+  color: '230, 126, 34',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -74,7 +74,7 @@ const foesConfig: TypedCreateTableConfigInput<Foe> = {
 
 const itemsConfig: TypedCreateTableConfigInput<Item> = {
   table_name: 'items',
-  color: '#9b59b6',
+  color: '155, 89, 182',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -97,7 +97,7 @@ const itemsConfig: TypedCreateTableConfigInput<Item> = {
 
 const locationsConfig: TypedCreateTableConfigInput<Location> = {
   table_name: 'locations',
-  color: '#2ecc71',
+  color: '46, 204, 113',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -120,7 +120,7 @@ const locationsConfig: TypedCreateTableConfigInput<Location> = {
 
 const factionsConfig: TypedCreateTableConfigInput<Faction> = {
   table_name: 'factions',
-  color: '#f39c12',
+  color: '243, 156, 18',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -143,7 +143,7 @@ const factionsConfig: TypedCreateTableConfigInput<Faction> = {
 
 const pcsConfig: TypedCreateTableConfigInput<Pc> = {
   table_name: 'pcs',
-  color: '#1abc9c',
+  color: '26, 188, 156',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -166,7 +166,7 @@ const pcsConfig: TypedCreateTableConfigInput<Pc> = {
 
 const sessionsConfig: TypedCreateTableConfigInput<Session> = {
   table_name: 'sessions',
-  color: '#51cf66',
+  color: '81, 207, 102',
   tagging_enabled: 0,
   scope: 'adventure',
   layout: {

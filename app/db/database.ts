@@ -100,6 +100,10 @@ export const initDatabase = async () => {
       await database.execute('PRAGMA foreign_keys = ON');
       // END TEMPORARY MIGRATION
 
+      // TEMPORARY MIGRATION — delete after first run
+      await database.execute('DELETE FROM table_config');
+      // END TEMPORARY MIGRATION
+
       // Seed table_config with defaults
       db = database;
       await seedTableConfig(database);
