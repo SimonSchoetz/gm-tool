@@ -1,6 +1,7 @@
 import type { FCProps } from '@/types';
 import { useTableConfig } from '@/data-access-layer';
 import { ColorInput, GlassPanel } from '@/components';
+import './TableConfigRow.css';
 
 type TableConfigRowProps = { tableConfigId: string };
 
