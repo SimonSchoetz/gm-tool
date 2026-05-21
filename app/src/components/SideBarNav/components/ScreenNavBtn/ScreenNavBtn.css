@@ -8,7 +8,7 @@
 }
 
 .screen-nav-btn-content:hover {
-  color: var(--domain-color);
+  color: rgb(var(--domain-color));
 }
 
 .screen-nav-btn-content.active {
