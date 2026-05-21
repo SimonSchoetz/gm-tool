@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { initDatabase } from '../database';
 
 const mockExecute = vi.fn();
 const mockSelect = vi.fn();
@@ -15,6 +14,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
 
 describe('initDatabase', () => {
   beforeEach(() => {
+    vi.resetModules();
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
     mockSelect.mockResolvedValue([]);
@@ -25,6 +25,7 @@ describe('initDatabase', () => {
   });
 
   it('should create the _migrations tracking table', async () => {
+    const { initDatabase } = await import('../database');
     await initDatabase();
     expect(mockExecute).toHaveBeenCalledWith(
       expect.stringContaining('CREATE TABLE IF NOT EXISTS _migrations'),
@@ -32,11 +33,13 @@ describe('initDatabase', () => {
   });
 
   it('should query applied migrations on init', async () => {
+    const { initDatabase } = await import('../database');
     await initDatabase();
     expect(mockSelect).toHaveBeenCalledWith('SELECT id FROM _migrations');
   });
 
   it('should run the initial schema migration on a fresh database', async () => {
+    const { initDatabase } = await import('../database');
     await initDatabase();
     expect(mockExecute).toHaveBeenCalledWith(expect.stringContaining('BEGIN'));
     expect(mockExecute).toHaveBeenCalledWith(
@@ -44,6 +47,7 @@ describe('initDatabase', () => {
     );
     expect(mockExecute).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO _migrations'),
+      expect.any(Array),
     );
     expect(mockExecute).toHaveBeenCalledWith(expect.stringContaining('COMMIT'));
   });
