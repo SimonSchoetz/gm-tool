@@ -3,9 +3,10 @@
 ## Structure
 
 db/
-├── database.ts # Init, table registration, migrations
-├── util/ # Schema builder (defineTable)
-├── adventure/ # schema, types, CRUD, index
+├── database.ts  # Init, _migrations bootstrap, migration runner call
+├── migrations/  # Migration runner and migration files
+├── util/        # Schema builder (defineTable)
+├── adventure/   # schema, types, CRUD, index
 ├── session/
 ├── npc/
 ├── image/
@@ -114,6 +115,18 @@ Functions that operate across multiple tables (e.g., `mention-search.ts`) live a
 - Seeds are called from `database.ts` during init (after migrations)
 - Seeds are idempotent — they check for existing rows before inserting
 - Keep seed data co-located with the table it belongs to, not in `database.ts`
+
+## Migrations
+
+Every schema change (ADD COLUMN, DROP COLUMN, change column constraint, new table, dropped table) requires a new migration file in `db/migrations/`. Never alter `createTableSQL` in a `schema.ts` without a corresponding migration file.
+
+Migration file naming: `{ms_timestamp}_{description}.ts`, where the timestamp is `Date.now()` at the time of file creation, assigned once and never changed. Timestamps must be unique.
+
+Each migration file exports a named const with shape `{ id: string, up: (db: Database) => Promise<void> }`. The `id` must match the timestamp in the file name. After creating the file, add it to the `migrations` array in `db/migrations/index.ts` in ascending timestamp order.
+
+All migrations must be idempotent: use `CREATE TABLE IF NOT EXISTS` for new tables; for column-level changes, use `DROP TABLE IF EXISTS` on any temp table before creating it.
+
+The `_migrations` table is infrastructure owned by `database.ts`. Never reference or modify it in domain code or migrations.
 
 ## Testing
 

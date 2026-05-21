@@ -145,13 +145,7 @@ export type { [Singular], Update[Singular]Input } from './types';
 `vi.useFakeTimers()` / `vi.setSystemTime()` + `vi.useRealTimers()` in afterEach.
 NPC reference: `db/npc/__tests__/`.
 
-**`db/database.ts`** (Modified) — add schema import and register table:
-
-```ts
-import { [singular]Table } from './[singular]/schema';
-// in tableSchemas array:
-{ name: '[plural]', sql: [singular]Table.createTableSQL },
-```
+**`db/migrations/`** (New migration file) — Create a new migration file named `{Date.now()}_{domain-plural}.ts` that executes `[singular]Table.createTableSQL`. Add it to the `migrations` array in `db/migrations/index.ts`. Do not modify `db/database.ts`.
 
 ### Domain Layer (`domain/[plural]/`)
 
