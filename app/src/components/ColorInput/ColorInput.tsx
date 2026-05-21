@@ -19,7 +19,9 @@ export const ColorInput: FCProps<Props> = ({ value, onChange }) => {
         type='color'
         className='color-input-hidden'
         value={rgbToHex(value)}
-        onChange={(e) => { onChange(hexToRgb(e.target.value)); }}
+        onChange={(e) => {
+          onChange(hexToRgb(e.target.value));
+        }}
       />
       <span
         className='color-input-dot'

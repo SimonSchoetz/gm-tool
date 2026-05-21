@@ -2,20 +2,16 @@
 
 ## MVP
 
-### Horizontal Build
-
-- Feature: Items Screens
-
 ### Tech Debt
-
-- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
-- `__root.tsx` -> resolve question in line 9
-- get rgb from input type=color instead of hex
 
 ---
 
 ### Done
 
+- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+- `__root.tsx` -> resolve question in line 9
+- get rgb from input type=color instead of hex
+- Feature: Items Screens
 - Feature: Locations Screens
 - Feature: Factions Screens
 - fix: tests
