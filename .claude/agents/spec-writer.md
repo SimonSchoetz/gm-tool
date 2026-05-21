@@ -108,13 +108,15 @@ The spec-writer has broader read scope than other read-only roles — verifying 
    "Found existing pattern in [file] but it predates/conflicts with [convention].
    Proceeding with current convention."
 
-   For every file listed as Modified in any "Files affected" subsection: audit
-   its current contents against CLAUDE.md conventions and identify anything the
-   feature will make dead (orphaned exports, unreachable code, fields with no
-   remaining reader). List each as an explicit cleanup task in the sub-feature's
-   layered breakdown — not as a note, not as optional. An implementing instance
-   that receives a "Files affected" list with no cleanup tasks will assume the
-   file is already clean.
+   For every file listed as Modified in any "Files affected" subsection: during
+   the path-verification read you are already performing, note any CLAUDE.md
+   violations visible in the file content and identify anything the feature will
+   make dead (orphaned exports, unreachable code, fields with no remaining
+   reader). List each as an explicit cleanup task in the sub-feature's layered
+   breakdown — not as a note, not as optional. This is not a full CLAUDE.md
+   audit pass — only violations observed in the content you are already reading
+   count. An implementing instance that receives a "Files affected" list with no
+   cleanup tasks will assume the file is already clean.
 
    For every file the spec concludes needs no change — including barrel files,
    index files, and any file where the instruction is "no change needed" — verify

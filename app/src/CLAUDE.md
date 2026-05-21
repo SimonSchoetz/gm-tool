@@ -208,7 +208,7 @@ When a constant is shared by two or more TypeScript files within the same module
 ### Styles
 
 - `.css` files in `/styles` are for variables and globals
-- Each component and screen has their own `.css` file that lives in parallel with them. When a sub-component is extracted, CSS scoped to that sub-component moves into the sub-component's directory — it does not stay in the parent's `.css` file.
+- Each component and screen has their own `.css` file that lives in parallel with them. When a sub-component is extracted, CSS scoped to that sub-component moves into the sub-component's directory — it does not stay in the parent's `.css` file. When CSS moves, all class names must be re-namespaced to the sub-component's own block name (its component name, kebab-cased) — class names derived from a prior parent's name are a violation.
 
 **CSS class naming — flat BEM-ish:**
 
