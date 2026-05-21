@@ -39,7 +39,7 @@ export const ScreenNavBtn: FCProps<Props> = ({
       )}
       style={
         {
-          '--domain-color': configColor ?? 'var(--color-fg-rgb)',
+          '--rt-screen-nav-btn-color': configColor ?? 'var(--color-fg-rgb)',
         } as CSSProperties
       }
     >

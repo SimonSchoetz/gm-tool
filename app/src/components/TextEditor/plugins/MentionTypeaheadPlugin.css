@@ -6,13 +6,13 @@
 }
 
 .mention-typeahead-content-container {
-  max-height: 14rem; /* 14rem translates to <=7 visible rows */
+  max-height: var(--mention-popup-max-height);
 }
 
 .mention-typeahead-item {
   cursor: pointer;
   font-size: var(--font-size-base);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: rgb(var(--rt-mention-typeahead-item-color));
   padding: var(--spacing-xs) var(--spacing-sm);
   display: flex;
