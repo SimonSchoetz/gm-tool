@@ -5,5 +5,7 @@
     "lucide-preact",
     "lucide-react-native",
     "lucide-vue-next"
-  ]
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.requireConfig": true
 }
