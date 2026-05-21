@@ -24,11 +24,15 @@ describe('initDatabase', () => {
     vi.resetModules();
   });
 
-  it('should load database and create sessions table', async () => {
+  it('should create the _migrations tracking table', async () => {
     await initDatabase();
-
     expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('CREATE TABLE IF NOT EXISTS sessions')
+      expect.stringContaining('CREATE TABLE IF NOT EXISTS _migrations'),
     );
+  });
+
+  it('should query applied migrations on init', async () => {
+    await initDatabase();
+    expect(mockSelect).toHaveBeenCalledWith('SELECT id FROM _migrations');
   });
 });
