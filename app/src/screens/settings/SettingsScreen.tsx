@@ -1,5 +1,5 @@
 import { useTableConfig, useTableConfigs } from '@/data-access-layer';
-import { GlassPanel, CustomScrollArea } from '@/components';
+import { ColorInput, GlassPanel, CustomScrollArea } from '@/components';
 import './SettingsScreen.css';
 
 export const SettingsScreen = () => {
@@ -29,10 +29,6 @@ const TableConfigRow = ({ tableConfigId }: { tableConfigId: string }) => {
 
   const isTaggingEnabled = config.tagging_enabled === 1;
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    void updateTableConfig({ color: e.target.value });
-  };
-
   const handleTaggingToggle = () => {
     void updateTableConfig({ tagging_enabled: isTaggingEnabled ? 0 : 1 });
   };
@@ -41,18 +37,10 @@ const TableConfigRow = ({ tableConfigId }: { tableConfigId: string }) => {
     <li>
       <GlassPanel intensity='bright' className='settings-config-row'>
         <div className='settings-config-name'>
-          <label className='settings-color-dot-wrapper'>
-            <input
-              type='color'
-              value={config.color}
-              onChange={handleColorChange}
-              className='settings-color-input-hidden'
-            />
-            <span
-              className='settings-color-dot'
-              style={{ backgroundColor: config.color }}
-            />
-          </label>
+          <ColorInput
+            value={config.color}
+            onChange={(value) => { void updateTableConfig({ color: value }); }}
+          />
           <span>{config.table_name}</span>
 
           <span className='settings-label'>Scope</span>
