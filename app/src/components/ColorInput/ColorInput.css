@@ -1,0 +1,28 @@
+.color-input-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+}
+
+.color-input-hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.color-input-dot {
+  /* one-off size — no matching dimension token */
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  background-color: rgb(var(--rt-color-input-color));
+  transition: transform var(--transition-fast);
+}
+
+.color-input-dot:hover {
+  transform: scale(1.3);
+}
