@@ -59,6 +59,7 @@
       - chosing db/asset location functionality
 - Feature: full data export for manual backups
 - Feature: data import from manual backups
+  - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
 - Feature(POC): local network to autosync between different devices
   - import with merging strategy
 
