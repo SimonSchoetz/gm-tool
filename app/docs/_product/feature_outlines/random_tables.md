@@ -24,7 +24,7 @@ Global lists are
 - lists that are not tied to any specific adventure, like random tables or lists of items of source material, e.g. Arcana of the Ancient.
   -> This will probably a whole own feature "Source Material" that again has sub lists like random tables, list of items, list of monsters, ect.
 
-Maybe source material has influence on the random npc generators, when they have lists of species that are comon in this world. For example, Esper Genesis has a completely different list of species than classic D&D.
+Maybe source material has influence on the random npc generators, when they have lists of ancestries that are comon in this world. For example, Esper Genesis has a completely different list of ancestries than classic D&D.
 
 ## how to handle rarity levels
 
@@ -33,7 +33,7 @@ Maybe source material has influence on the random npc generators, when they have
 - how to input / edit
 - how to handle tagables (e.g. a random table curated from items)
   - list types that are tied to other lists like items
-  - other random tables, like species, could be embedded in screens like npc creation
+  - other random tables, like ancestries, could be embedded in screens like npc creation
 
 - global vs adventure-specific tables
   -> we are rule agnostic in first instance. But that doesnt mean anything. When I know I run E5 all the time, I might want to have the random table for items globally. But that would also mean that I might want to have the item list globally as well.
@@ -54,10 +54,10 @@ like items by rarity
 - strong start: time of day
 - potential scenes: weather
 - fantastic location: descriptive adjectives, location types (from interplenar objects or realms, down to a fancy fountain square as the center of a village)
-- important npcs: names, species, traits, quirks, profession, ect <- Full blown NPC creator
+- important npcs: names, ancestries, traits, quirks, profession, ect <- Full blown NPC creator
 -
 
 ## Usage
 
-Let's say you are in the middle of a session and need to generate a NPC quickly. You want a good preconfigured NPC creator. You want the list of species, maybe a tweak how common they are. I was just thinking how different species have different types of skin or evern furr. We don't need to make a full fletched character builder like in Baldurs Gate 3. A type of species already triggers imagination. So let's stick with very basic body types (tall to small, skinny to obese), obvious status (rich/powerfull to poor), age (young, middle-aged to old) and something that make them very specific like a "chipped horn" or something like that (thats something random I just came up with). A fat elve with a chipped horn -> has a not so prestine horn it is drinking from. A tiny tiefling with a chipped horn could be a porson with an actual damaged horn on its head.
+Let's say you are in the middle of a session and need to generate a NPC quickly. You want a good preconfigured NPC creator. You want the list of ancestries, maybe a tweak how common they are. I was just thinking how different ancestries have different types of skin or evern furr. We don't need to make a full fletched character builder like in Baldurs Gate 3. A type of ancestries already triggers imagination. So let's stick with very basic body types (tall to small, skinny to obese), obvious status (rich/powerfull to poor), age (young, middle-aged to old) and something that make them very specific like a "chipped horn" or something like that (thats something random I just came up with). A fat elve with a chipped horn -> has a not so prestine horn it is drinking from. A tiny tiefling with a chipped horn could be a porson with an actual damaged horn on its head.
 -> **system wide list of adjectives and nouns**

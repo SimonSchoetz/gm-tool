@@ -12,6 +12,12 @@
     - first start: should ask if relocate or create new
       - relocate db functonality
       - chosing db/asset location functionality
+- Text editor enhancements
+  - embedded links
+  - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
+  - embedded images
+  - '/' command to open text formatter so one can start typing a header from the beginning
+  - list fix: removing the last remaining tab it should end ind a new line, not in the previews list item
 
 ### Done
 
@@ -40,8 +46,8 @@
 - Feature: Session export (i.e. as pdf)
 - Feature: Random Tables (see feature outline)
 - Epic: NPC Generator
-  - config like lists of traits & quirks, backgrounds, species, etc.
-    - For quick, random generation: mechanic how common e. g. a species in this world is
+  - config like lists of traits & quirks, backgrounds, ancestries, etc.
+  - For quick, random generation: mechanic how common e. g. a ancestries in this world is
 - Feature (Text Editor): External links
 - Feature (Text Editor): Embedded images
 - Feature: Implement prefetching
