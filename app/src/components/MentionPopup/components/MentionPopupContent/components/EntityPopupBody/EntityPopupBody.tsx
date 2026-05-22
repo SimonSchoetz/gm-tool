@@ -2,6 +2,8 @@ import { FCProps } from '@/types';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor/TextEditor';
 import { CustomScrollArea } from '../../../../../CustomScrollArea/CustomScrollArea';
+import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
+import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import './EntityPopupBody.css';
 
 type Props = {
@@ -17,10 +19,15 @@ export const EntityPopupBody: FCProps<Props> = ({
 }) => (
   <div className='entity-popup-body'>
     {imageId !== null && (
-      <ImageById
-        imageId={imageId}
-        className='entity-popup-image avatar-dimensions'
-      />
+      <ImagePlaceholderFrame
+        className='entity-popup-image'
+        dimensions={{
+          width: PREVIEW_WIDTH,
+          height: PREVIEW_HEIGHT,
+        }}
+      >
+        <ImageById imageId={imageId} className='avatar-dimensions' />
+      </ImagePlaceholderFrame>
     )}
     {summary !== null && (
       <CustomScrollArea className='entity-popup-summary'>

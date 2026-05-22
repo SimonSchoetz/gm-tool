@@ -6,9 +6,7 @@
 }
 
 .entity-popup-image {
-  object-fit: cover;
   border-radius: var(--radius-md);
-  flex-shrink: 0;
 }
 
 .entity-popup-summary {
