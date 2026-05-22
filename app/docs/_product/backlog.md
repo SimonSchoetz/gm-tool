@@ -2,25 +2,28 @@
 
 ## Post MVP -> Closed Beta Ready
 
-- Feature: db migrations
-  - Baseline:
-    - seed data like colors
-    - table config sorting
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+- Feature (Content): Revise All existing texts like session step tooltips and templates
 - Fix: White BG on app start
+- Fix: Adventure stats (facts)
 - Epic: Stable build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
     - first start: should ask if relocate or create new
       - relocate db functonality
       - chosing db/asset location functionality
-- Feature: full data export for manual backups
-- Feature: data import from manual backups
-  - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
 
-### Open Beta Ready
+### Done
+
+- Feature: db migrations
+  - Baseline:
+    - seed data like colors
+    - table config sorting
+
+## Open Beta Ready
 
 - Epic: Website to download the latest build
+  - needs versioning
 - Epic: Online community
 - Feature: (automatic) updates
 - Feature (Content): Onboarding
@@ -28,8 +31,13 @@
 - Feature(POC): local network to autosync between different devices
   - import with merging strategy
 
-### Ideas Dump (unsorted)
+## Ideas Dump (unsorted)
 
+- Feature: full data export for manual backups
+- Feature: data import from manual backups
+  - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
+
+- Feature: Session export (i.e. as pdf)
 - Feature: Random Tables (see feature outline)
 - Epic: NPC Generator
   - config like lists of traits & quirks, backgrounds, species, etc.
@@ -49,9 +57,9 @@
 - Feature: Source Material organization
   - Feature: Bulk import material, e. g. items
 
-### Done
+## Done
 
-## MVP
+### MVP
 
 - `__root.tsx` -> resolve question in line 9
 - get rgb from input type=color instead of hex
