@@ -11,8 +11,6 @@ import { CSSProperties } from 'react';
 type Props = {
   label: string;
   to: RouteToPath<RegisteredRouter>;
-  params?: Record<string, string>;
-  searchParams?: Record<string, string>;
   isDisabled?: boolean;
   configColor?: string;
 };
@@ -20,8 +18,6 @@ type Props = {
 export const ScreenNavBtn: FCProps<Props> = ({
   label,
   to,
-  params,
-  searchParams,
   isDisabled = false,
   configColor,
 }) => {
@@ -45,8 +41,6 @@ export const ScreenNavBtn: FCProps<Props> = ({
     >
       <Link
         to={to}
-        {...(params !== undefined ? { params } : {})}
-        {...(searchParams !== undefined ? { search: searchParams } : {})}
         disabled={isDisabled}
         aria-disabled={isDisabled || isAtTarget}
         aria-label={`Navigate to ${label}`}

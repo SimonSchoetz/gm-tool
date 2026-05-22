@@ -28,57 +28,57 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
     <aside className='sidebar-nav' {...props}>
       <GlassPanel>
         <FwBwNav />
+
         <div className='sidebar-nav-btn-group'>
           <ScreenNavBtn label='Adventures' to='/adventures' />
 
           <ScreenNavBtn
             label='Sessions'
             to='/adventure/$adventureId/sessions'
-            params={{ adventureId: adventureId ?? '' }}
             isDisabled={!adventureId}
             configColor={getTableColor('sessions')}
           />
-          <ScreenNavBtn
-            label='NPCs'
-            to='/adventure/$adventureId/npcs'
-            params={{ adventureId: adventureId ?? '' }}
-            isDisabled={!adventureId}
-            configColor={getTableColor('npcs')}
-          />
-          <ScreenNavBtn
-            label='Foes'
-            to='/adventure/$adventureId/foes'
-            params={{ adventureId: adventureId ?? '' }}
-            isDisabled={!adventureId}
-            configColor={getTableColor('foes')}
-          />
-          <ScreenNavBtn
-            label='Items'
-            to='/adventure/$adventureId/items'
-            params={{ adventureId: adventureId ?? '' }}
-            isDisabled={!adventureId}
-            configColor={getTableColor('items')}
-          />
-          <ScreenNavBtn
-            label='Locations'
-            to='/adventure/$adventureId/locations'
-            params={{ adventureId: adventureId ?? '' }}
-            isDisabled={!adventureId}
-            configColor={getTableColor('locations')}
-          />
-          <ScreenNavBtn
-            label='Factions'
-            to='/adventure/$adventureId/factions'
-            params={{ adventureId: adventureId ?? '' }}
-            isDisabled={!adventureId}
-            configColor={getTableColor('factions')}
-          />
+
           <ScreenNavBtn
             label='PCs'
             to='/adventure/$adventureId/pcs'
-            params={{ adventureId: adventureId ?? '' }}
             isDisabled={!adventureId}
             configColor={getTableColor('pcs')}
+          />
+
+          <ScreenNavBtn
+            label='NPCs'
+            to='/adventure/$adventureId/npcs'
+            isDisabled={!adventureId}
+            configColor={getTableColor('npcs')}
+          />
+
+          <ScreenNavBtn
+            label='Factions'
+            to='/adventure/$adventureId/factions'
+            isDisabled={!adventureId}
+            configColor={getTableColor('factions')}
+          />
+
+          <ScreenNavBtn
+            label='Locations'
+            to='/adventure/$adventureId/locations'
+            isDisabled={!adventureId}
+            configColor={getTableColor('locations')}
+          />
+
+          <ScreenNavBtn
+            label='Foes'
+            to='/adventure/$adventureId/foes'
+            isDisabled={!adventureId}
+            configColor={getTableColor('foes')}
+          />
+
+          <ScreenNavBtn
+            label='Items'
+            to='/adventure/$adventureId/items'
+            isDisabled={!adventureId}
+            configColor={getTableColor('items')}
           />
         </div>
 
