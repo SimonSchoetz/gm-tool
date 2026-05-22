@@ -5,12 +5,14 @@ import './ImageById.css';
 
 type Props = {
   imageId: string | null;
+  fullImage?: boolean;
 } & HtmlProps<'img'>;
 
 export const ImageById: FCProps<Props> = ({
   imageId,
   style,
   className,
+  fullImage = false,
   ...props
 }) => {
   const { imageUrl, loading, frame } = useImage(imageId);
@@ -19,7 +21,7 @@ export const ImageById: FCProps<Props> = ({
   if (!imageUrl) return null;
 
   const frameStyles =
-    frame !== null
+    !fullImage && frame !== null
       ? ({
           '--rt-holo-img-frame-x': `${frame.x}%`,
           '--rt-holo-img-frame-y': `${frame.y}%`,

@@ -69,6 +69,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
             imageId={image_id}
             className='image-viewer-dialog-img'
             alt={`${title} image`}
+            fullImage
           />
         </div>
       )}
