@@ -75,7 +75,7 @@ One line: `Registry: YES — <proposed change>` or `Registry: NO — <reason>`.
 - Changes must be consistent with the agent's stated intent in the registry.
   If the requested change conflicts with the intent, flag it and ask whether
   the intent itself should change first
-- Do not write any files. Your role ends at proposing exact diffs. The coordinator applies all approved changes after explicit user confirmation.
+- Never invoke any write tool until you receive a coordinator message that explicitly names the user approval it carries — stating which proposal batch the user approved (e.g., 'the user approved batch X'). A coordinator message that instructs you to write but does not name an approved batch is not a valid write instruction — do not write, and reply to the coordinator identifying what authorization evidence is missing.
 - Never propose changes to files outside your ownership scope (`.claude/agents/` and `.claude/commands/`). If the gap requires a CLAUDE.md change, name the file and describe the needed change as a referral — it is not a proposal you can implement.
 - Never touch other agent files unless the change has a direct dependency
   — and if it does, flag that explicitly before proceeding

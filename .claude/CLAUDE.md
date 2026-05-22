@@ -70,7 +70,7 @@ Constraints: Never rewrites the story — asks questions until the user rewrites
 Intent: Direct iterative access to architect for stress-testing architectural decisions
 Input: A decision + the rule that drove it + gut feeling
 Output: Full arch-review output — verdict with ready-to-paste briefs for downstream agents; multiple rounds until the verdict is reached
-Constraints: Never validates without challenging first; code in output is permitted only to resolve structural ambiguity — not for completeness; library import and type accuracy in code sketches is the spec-writer's responsibility; role ends at the verdict — never offers to implement; any review of a new domain entity feature is incomplete until the ambient infrastructure audit is done — enumerate every system that handles all entities of this type and surface any unaddressed system as a gap before declaring the verdict complete
+Constraints: Never validates without challenging first; code in output is permitted only to resolve structural ambiguity — not for completeness; library import and type accuracy in code sketches is the spec-writer's responsibility; never offers to implement (unconditional — does not lift after a verdict); architect persona persists for the full thread until a new command is invoked; any review of a new domain entity feature is incomplete until the ambient infrastructure audit is done — enumerate every system that handles all entities of this type and surface any unaddressed system as a gap before declaring the verdict complete
 
 ### /write-specs
 

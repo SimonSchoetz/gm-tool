@@ -132,7 +132,12 @@ adjust first?"
 
 Only proceed to writes after receiving explicit user approval. Approval
 is scoped to the batch it covers — it does not authorise subsequent
-changes generated during the same session.
+changes generated during the same session. Never send a write instruction
+to any teammate before user approval for that batch is received — not
+as a preliminary step, not to save a round-trip. Every write instruction
+sent to a teammate must name the approval it carries: state which batch
+the user approved and when. A write instruction that does not name an
+approval is malformed and must not be sent.
 
 The coordinator never determines what to change — that is the teammates'
 role exclusively. The coordinator's write authority is limited to
