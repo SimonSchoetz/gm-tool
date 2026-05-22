@@ -22,7 +22,7 @@ export const ImagePlaceholderFrame = ({
     <GlassPanel
       style={{ width, height }}
       intensity='bright'
-      className={cn('adventure-frame', className)}
+      className={cn('image-placeholder-frame', className)}
       {...props}
     >
       {children}

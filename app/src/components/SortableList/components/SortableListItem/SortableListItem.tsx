@@ -36,7 +36,7 @@ export const SortableListItem = ({
       <GlassPanel intensity='bright'>
         <ActionContainer
           label={`Go to ${name}`}
-          className='sortable-list-item__content-container'
+          className='sortable-list-item--content-container'
           style={{ gridTemplateColumns }}
           onClick={() => {
             onClick(item);

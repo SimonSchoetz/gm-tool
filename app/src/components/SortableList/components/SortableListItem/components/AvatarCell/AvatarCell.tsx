@@ -1,16 +1,20 @@
 import { UserSquareIcon } from 'lucide-react';
 import { ImageById, ImagePlaceholderFrame } from '@/components';
+import './AvatarCell.css';
 
 type AvatarCellProps = {
   imageId: string;
 };
 
 export const AvatarCell = ({ imageId }: AvatarCellProps) => (
-  <ImagePlaceholderFrame dimensions={{ width: 100, height: 100 }}>
+  <ImagePlaceholderFrame
+    className='avatar-cell'
+    dimensions={{ width: 100, height: 100 }}
+  >
     {imageId ? (
-      <ImageById imageId={imageId} className='sortable-list-item__avatar-img' />
+      <ImageById imageId={imageId} />
     ) : (
-      <UserSquareIcon className='sortable-list-item__avatar-icon' />
+      <UserSquareIcon className='avatar-cell--icon' />
     )}
   </ImagePlaceholderFrame>
 );
