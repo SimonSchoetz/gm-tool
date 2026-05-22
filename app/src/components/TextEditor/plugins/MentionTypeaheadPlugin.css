@@ -2,7 +2,8 @@
   background: var(--color-surface);
   z-index: 1000;
   width: max-content;
-  max-width: 250px;
+  max-width: 250px; /* one-off */
+  border-radius: var(--radius-lg);
 }
 
 .mention-typeahead-content-container {
@@ -33,4 +34,6 @@
 
 .mention-typeahead-item-table-label {
   font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
 }
