@@ -18,6 +18,7 @@
   - embedded images
   - '/' command to open text formatter so one can start typing a header from the beginning
   - list fix: removing the last remaining tab it should end ind a new line, not in the previews list item
+  - Tables
 
 ### Done
 
