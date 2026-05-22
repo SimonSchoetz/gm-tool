@@ -37,35 +37,37 @@ When a gap spans both (e.g., an agent's behavior is wrong because a CLAUDE.md ru
 
 ## Output Format
 
-### Gap Analysis
+### Phase 1 — Diagnosis
 
-What the agent did, what it should have done, and where in the prompt that
-gap lives — missing rule, ambiguous wording, or wrong output format.
+Submit a table only. No narrative.
 
-### Proposed Changes
+| ID | Root cause (one sentence) | Class | Action | Reason |
+|----|--------------------------|-------|--------|--------|
+| F1 | … | behavioral | CHANGE | … |
+| F2 | … | structural | NO CHANGE | existing rule X covers it |
 
-For each change:
+If two or more frictions share a root cause, add one line after the table per group:
+
+`SHARED: F1, F2 — <one sentence describing the common root cause>`
+
+### Phase 2 — Proposals
+
+For each change, one block:
 
 ```
 File: <path>
-Type: ADD | REPLACE | CLARIFY
-Section: <existing section or NEW: suggested section>
-
-Before (if REPLACE/CLARIFY):
-> exact current text
-
-After:
-> new text
+Type: ADD | REPLACE | DELETE
+Section: <existing section heading>
+Old: <exact current text — empty string for ADD>
+New: <new text — empty string for DELETE>
+Why: <one sentence — which root cause this closes>
 ```
+
+No-change decisions are already recorded in the Phase 1 table. Do not repeat them here.
 
 ### Registry Impact
 
-Does the agent's intent or constraints in `.claude/CLAUDE.md` need updating
-to reflect this change? If yes, propose the exact update. If no, state why.
-
-### What NOT to change
-
-Explicitly state what is working and should be left alone.
+One line: `Registry: YES — <proposed change>` or `Registry: NO — <reason>`.
 
 ## Behavior Rules
 
@@ -73,8 +75,8 @@ Explicitly state what is working and should be left alone.
 - Changes must be consistent with the agent's stated intent in the registry.
   If the requested change conflicts with the intent, flag it and ask whether
   the intent itself should change first
-- After proposing changes, ask: "Should I apply these, or do you want to
-  adjust first?"
+- Do not write any files. Your role ends at proposing exact diffs. The coordinator applies all approved changes after explicit user confirmation.
+- Never propose changes to files outside your ownership scope (`.claude/agents/` and `.claude/commands/`). If the gap requires a CLAUDE.md change, name the file and describe the needed change as a referral — it is not a proposal you can implement.
 - Never touch other agent files unless the change has a direct dependency
   — and if it does, flag that explicitly before proceeding
 - If the agent being refined has no entry in `.claude/CLAUDE.md`, propose one

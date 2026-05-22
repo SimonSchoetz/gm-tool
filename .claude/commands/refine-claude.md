@@ -89,6 +89,10 @@ Once both teammates have submitted proposals, review them together:
 - If a proposed change in one scope contradicts a proposal or existing rule in
   the other, use SendMessage to give each agent the other's position and
   continue until they reach agreement — never propose a resolution yourself.
+- If both agents propose a fix in their respective domain for the same root
+  cause — meaning they disagree on which file owns the fix — surface the
+  conflict explicitly to the user before presenting either proposal. Do not
+  merge conflicting proposals into a unified summary.
 
 ## Proposal Quality Gate
 
@@ -119,6 +123,7 @@ Present a unified summary:
 
 - What `head-of-instructions` proposes to change and why
 - What `head-of-agents` proposes to change and why
+- Each agent's no-change findings: what was deliberately left unchanged and why — these confirm scope was respected
 - Any contradictions found and how the agents resolved them through mediation
 - Any scope overlaps, with each agent's final agreed position
 
