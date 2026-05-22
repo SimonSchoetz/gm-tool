@@ -33,10 +33,11 @@ export const MentionPopupHeader: FCProps<Props> = ({
       'mention-popup-header',
       isPinned && 'mention-popup-header--pinned',
     )}
-    {...(isPinned ? draggableProps : {})}
   >
-    {' '}
-    <div className='mention-popup-drag-name'>
+    <div
+      {...(isPinned ? draggableProps : {})}
+      className='mention-popup-drag-name'
+    >
       {isPinned && <>⠿</>} {name}
     </div>
     <div className='mention-popup-menu-bar'>
