@@ -28,15 +28,13 @@ export const MentionPopupHeader: FCProps<Props> = ({
   onRemove,
   onNavigate,
 }) => (
-  <div
-    className={cn(
-      'mention-popup-header',
-      isPinned && 'mention-popup-header--pinned',
-    )}
-  >
+  <div className='mention-popup-header'>
     <div
       {...(isPinned ? draggableProps : {})}
-      className='mention-popup-drag-name'
+      className={cn(
+        'mention-popup-name',
+        isPinned && 'mention-popup-name--pinned',
+      )}
     >
       {isPinned && <>⠿</>} {name}
     </div>
