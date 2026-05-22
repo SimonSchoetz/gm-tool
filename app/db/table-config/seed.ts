@@ -8,11 +8,14 @@ import type { Faction } from '@db/faction';
 import type { Pc } from '@db/pc';
 import type { Session } from '@db/session';
 import { create } from './create';
-import type { CreateTableConfigInput, TypedCreateTableConfigInput } from './types';
+import type {
+  CreateTableConfigInput,
+  TypedCreateTableConfigInput,
+} from './types';
 
 const adventuresConfig: TypedCreateTableConfigInput<Adventure> = {
   table_name: 'adventures',
-  color: '74, 158, 255',
+  color: '248, 255, 255',
   tagging_enabled: 0,
   scope: 'global',
   layout: {
@@ -28,7 +31,7 @@ const adventuresConfig: TypedCreateTableConfigInput<Adventure> = {
 
 const npcsConfig: TypedCreateTableConfigInput<Npc> = {
   table_name: 'npcs',
-  color: '255, 107, 107',
+  color: '222, 56, 255',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -51,7 +54,7 @@ const npcsConfig: TypedCreateTableConfigInput<Npc> = {
 
 const foesConfig: TypedCreateTableConfigInput<Foe> = {
   table_name: 'foes',
-  color: '230, 126, 34',
+  color: '234, 77, 77',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -74,7 +77,7 @@ const foesConfig: TypedCreateTableConfigInput<Foe> = {
 
 const itemsConfig: TypedCreateTableConfigInput<Item> = {
   table_name: 'items',
-  color: '155, 89, 182',
+  color: '206, 194, 59',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -120,7 +123,7 @@ const locationsConfig: TypedCreateTableConfigInput<Location> = {
 
 const factionsConfig: TypedCreateTableConfigInput<Faction> = {
   table_name: 'factions',
-  color: '243, 156, 18',
+  color: '26, 136, 255',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -143,7 +146,7 @@ const factionsConfig: TypedCreateTableConfigInput<Faction> = {
 
 const pcsConfig: TypedCreateTableConfigInput<Pc> = {
   table_name: 'pcs',
-  color: '26, 188, 156',
+  color: '0, 189, 151',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
@@ -166,7 +169,7 @@ const pcsConfig: TypedCreateTableConfigInput<Pc> = {
 
 const sessionsConfig: TypedCreateTableConfigInput<Session> = {
   table_name: 'sessions',
-  color: '81, 207, 102',
+  color: '248, 255, 255',
   tagging_enabled: 0,
   scope: 'adventure',
   layout: {
@@ -183,13 +186,13 @@ const sessionsConfig: TypedCreateTableConfigInput<Session> = {
 
 const defaultConfigs: CreateTableConfigInput[] = [
   adventuresConfig,
+  sessionsConfig,
+  pcsConfig,
   npcsConfig,
+  factionsConfig,
+  locationsConfig,
   foesConfig,
   itemsConfig,
-  locationsConfig,
-  factionsConfig,
-  pcsConfig,
-  sessionsConfig,
 ];
 
 export const seedTableConfig = async (database: Database) => {
