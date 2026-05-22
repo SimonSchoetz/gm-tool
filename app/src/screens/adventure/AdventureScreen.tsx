@@ -28,15 +28,17 @@ export const AdventureScreen = () => {
       <AdventureScreenSidebar />
 
       <CustomScrollArea>
-        <AdventureScreenHeader />
+        <div className='adventure-text-edit-area'>
+          <AdventureScreenHeader />
 
-        <TextEditor
-          value={adventure.description ?? ''}
-          textEditorId={`Adventure_${adventure.id}`}
-          onChange={(description) => {
-            updateAdventure({ description });
-          }}
-        />
+          <TextEditor
+            value={adventure.description ?? ''}
+            textEditorId={`Adventure_${adventure.id}`}
+            onChange={(description) => {
+              updateAdventure({ description });
+            }}
+          />
+        </div>
       </CustomScrollArea>
     </GlassPanel>
   );
