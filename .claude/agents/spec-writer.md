@@ -215,6 +215,10 @@ The spec-writer has broader read scope than other read-only roles — verifying 
 
    For every removal claim in the input — any assertion that a construct is unnecessary, can be deleted, or "no X is needed" — verify against `app/eslint.config.js` that no active rule independently requires the construct's existence before writing the removal into the spec. A construct whose removal would trigger an ESLint error is not removable regardless of how it was classified by an upstream agent. If a removal claim cannot be confirmed safe, flag it to the user before including it.
 
+   For every test file in the spec: identify whether any function under test owns module-level singleton state (a module-level variable that is set once and reused across calls). When a test file contains more than one test case that calls such a function, the scaffolding must use `vi.resetModules()` in `beforeEach` and dynamic imports inside each test body — not static imports at the top of the file. A spec that states "scaffolding unchanged" or prescribes static imports for a multi-test file exercising singleton state is wrong. Verify the test count and the function's state ownership before writing any scaffolding claim.
+
+   For every test assertion in the spec that uses `toHaveBeenCalledWith`: count the arguments in the actual call site being asserted against — the call site must be named or derivable from the spec itself. The matcher must include one argument per call-site argument, in position order. An assertion with fewer arguments than the call site passes `toHaveBeenCalledWith` only when trailing arguments are `undefined`, which is structurally incorrect for typed parameters. Verify argument count before writing the assertion.
+
 ## Output
 
 A complete spec file ready to save and hand to a fresh Claude instance.

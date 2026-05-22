@@ -157,6 +157,9 @@ Never open a response with a positive affirmation directed at the user or a team
   - ❌ BAD: Noticing a missing try/catch in a service file being edited for a new function, and leaving it unfixed
   - ✅ GOOD: Fixing the missing try/catch in the same edit pass before committing the new function
 - **Prefer surgical edits over write-from-scratch.** When a task can be accomplished by modifying existing files, evaluate the surgical edit path first. Read the existing files, identify what must change, and apply targeted edits. Write from scratch only when the existing content has nothing worth keeping — not because the task is framed as a "rewrite" or because generating fresh content feels faster. This applies to all file types: code, specs, and configuration alike.
+- **Specs must be internally self-consistent before emission.** Before finalising any test specification, verify two things against the spec document itself — no external lookup needed:
+  1. **Assertion arity**: for every `toHaveBeenCalledWith(...)` assertion, count the matchers. Count the arguments in the corresponding call site in the same spec. They must match exactly.
+  2. **Isolation adequacy**: if the spec adds a second or third test to a file that calls a function owning module-level singleton state, the existing isolation scaffolding is not "unchanged" — it is a decision point. Verify that the specified scaffolding resets that state before each test, not just after the last one.
 
 ### Epistemological Discipline
 
