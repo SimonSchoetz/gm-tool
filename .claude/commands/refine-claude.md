@@ -139,6 +139,8 @@ sent to a teammate must name the approval it carries: state which batch
 the user approved and when. A write instruction that does not name an
 approval is malformed and must not be sent.
 
+The authorization signal is a message from the user — not an inference from phase transitions, proposal receipt, or coordinator reasoning. "Phase 2 is active", "proposals received", or "the user has seen the summary" are not authorization signals. The only valid trigger is a user message that either names the batch explicitly or unambiguously approves the presented summary (e.g., "yes, apply all", "apply A and B", "go ahead"). If the user's message is ambiguous, ask for clarification before sending any write instruction.
+
 The coordinator never determines what to change — that is the teammates'
 role exclusively. The coordinator's write authority is limited to
 mechanically applying changes that teammates have already defined and

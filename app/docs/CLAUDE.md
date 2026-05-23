@@ -32,6 +32,11 @@ When a SF meets either condition:
 
 Both annotations are required. The tracker marker is a planning-time signal; the SF body annotation is the actionable instruction visible when the implementer is actively in that SF.
 
+**Foundation SF annotations must enumerate every file to stage as a unit.** When a Foundation SF spans files across more than one directory level, the SF body annotation must include a "Stage as unit:" line listing every file path that belongs in the Foundation commit — including files in parent directories of any subdirectory being staged. A directory path is never a sufficient proxy for this list; directory staging silently omits sibling files at adjacent levels.
+
+- ✅ `[FOUNDATION: SF2–SF4 depend on this. Stage as unit: src/components/Foo/Foo.tsx, src/components/Foo/components/Bar.tsx, src/components/Foo/components/index.ts]`
+- ❌ `[FOUNDATION: SF2–SF4 depend on this]` — no file list; implementer must infer scope and risks missing files at adjacent directory levels
+
 ### Key Architectural Decisions
 
 Required section in every spec, placed after the progress tracker and before the first sub-feature section. Document every non-obvious structural choice the implementing instance needs to understand — data model shape, state ownership, persistence decisions, naming corrections, and anything the architecture implies but does not make explicit.
@@ -58,6 +63,8 @@ Every file touched must appear here — including barrel files, index files, and
 - ❌ `Modified: db/image/remove.ts` only — the `__tests__/` file's assertion becomes stale but is not listed
 
 When a file is relocated, use `Moved:` — never decompose a move into a `New:` entry plus a deletion note under `Modified:`. When the relocated file also requires content changes (e.g. internal import paths must be updated), list it under `Moved:` and add the content changes as a note: `mv <source> <destination>, then update <what changes>`.
+
+**Insertion anchor validity.** When a spec instructs the implementer to insert code at a named anchor line within an existing file (e.g., "add directly after `const [x, setX]`"), verify before writing that the anchor line appears after every dependency of the inserted declarations. If the inserted declarations reference a value declared below the proposed anchor, the anchor is wrong — state the correct anchor that appears after the last required dependency. A spec that names an anchor that precedes a dependency of the inserted code is a spec defect that will cause a tsc-blocking ordering error.
 
 **Layered breakdown** — layers in dependency order:
 

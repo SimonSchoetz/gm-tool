@@ -33,7 +33,7 @@ For each sub-feature defined in the spec, in order:
 2. Run `npx tsc --noEmit`. Resolve every error before continuing.
 3. Run `npx eslint .` from `app/`. Resolve every error before continuing. Run each check independently — do not chain them via `npm test`, so a tsc failure cannot block eslint.
 4. Do not run vitest between sub-features — intermediate states produce failures that are not yet meaningful.
-5. Commit with a conventional commit message. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
+5. Stage and commit with a conventional commit message. To stage: cross-reference the spec's "Files affected" list for this sub-feature and build an explicit `git add <file1> <file2> ...` argument from it — never stage by directory path, glob, or shorthand. Verify the staged file list matches the "Files affected" list before committing. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
 6. Move to the next sub-feature.
 
 Do not invoke code-reviewer between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.

@@ -219,6 +219,10 @@ The spec-writer has broader read scope than other read-only roles — verifying 
 
    For every test assertion in the spec that uses `toHaveBeenCalledWith`: count the arguments in the actual call site being asserted against — the call site must be named or derivable from the spec itself. The matcher must include one argument per call-site argument, in position order. An assertion with fewer arguments than the call site passes `toHaveBeenCalledWith` only when trailing arguments are `undefined`, which is structurally incorrect for typed parameters. Verify argument count before writing the assertion.
 
+   For every insertion anchor instruction in the spec (e.g., "add this declaration directly after line X" or "insert after the Y call"): verify that the anchor point appears after every declaration the inserted construct depends on in the target file. An anchor that precedes a dependency of the inserted construct is incoherent — move the anchor to after the last dependency before emitting.
+
+   For every Foundation annotation in the spec: verify the annotation enumerates every file that must be staged as part of the atomic commit unit — not only the SF dependency relationship, but the complete explicit file list. A Foundation annotation that names only the dependent SFs without listing the specific files is incomplete.
+
 ## Output
 
 A complete spec file ready to save and hand to a fresh Claude instance.
