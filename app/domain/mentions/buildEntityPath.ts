@@ -1,6 +1,11 @@
 const ENTITY_SEGMENT: Record<string, string> = {
   npcs: 'npc',
   sessions: 'session',
+  foes: 'foe',
+  pcs: 'pc',
+  factions: 'faction',
+  locations: 'location',
+  items: 'item',
 };
 
 export const buildEntityPath = (
