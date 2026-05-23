@@ -482,6 +482,41 @@ const [plural]Config: TypedCreateTableConfigInput<[Singular]> = {
 
 Add `[plural]Config` to the `defaultConfigs` array.
 
+### MentionPopup Registration
+
+Every domain entity that supports tagging must be registered in two places so that hovering
+a mention tag displays the entity's popup body and the Navigate button routes correctly.
+
+**`domain/mentions/buildEntityPath.ts`** (Modified) — add one entry to `ENTITY_SEGMENT`:
+
+```ts
+[plural]: '[singular]',
+```
+
+Segment string is the route's singular path segment, matching the detail route file name
+`adventure.$adventureId.[singular].$[singular]Id.tsx`.
+
+**`src/components/MentionPopup/components/MentionPopupContent/components/`** (New directory) —
+create `[Singular]PopupContent/[Singular]PopupContent.tsx` and
+`[Singular]PopupContent/[Singular]PopupContent.css` (empty). Reference:
+`NpcPopupContent/NpcPopupContent.tsx`. Substitution:
+`NpcPopupContent → [Singular]PopupContent`, `useNpc → use[Singular]`,
+`npc → [singular]`, `` `npc-popup-${entityId}` → `[singular]-popup-${entityId}` ``.
+
+**`MentionPopupContent/components/index.ts`** (Modified) — add:
+
+```ts
+export { [Singular]PopupContent } from './[Singular]PopupContent/[Singular]PopupContent';
+```
+
+**`MentionPopupContent/MentionPopupContent.tsx`** (Modified) — add one case to
+the `switch (entityType)` block:
+
+```tsx
+case '[plural]':
+  return <[Singular]PopupContent entityId={entityId} adventureId={adventureId} />;
+```
+
 ## Customization Points
 
 Resolve these at spec-generation time. Provide them in the `/write-specs` prompt.
