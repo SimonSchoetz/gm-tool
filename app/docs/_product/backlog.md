@@ -2,7 +2,10 @@
 
 ## Post MVP -> Closed Beta Ready
 
-- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+- Feature: (automatic) updates
+  - needs versioning
+  - hosted via github
+  - setting to either make automatic updates or on-demand
 - Feature (Content): Revise All existing texts like session step tooltips and templates
 - Fix: White BG on app start
 - Fix: Adventure stats (facts)
@@ -26,13 +29,13 @@
   - Baseline:
     - seed data like colors
     - table config sorting
+- clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
+
 
 ## Open Beta Ready
 
 - Epic: Website to download the latest build
-  - needs versioning
 - Epic: Online community
-- Feature: (automatic) updates
 - Feature (Content): Onboarding
 - Feature (Content): Session Zero
 - Feature(POC): local network to autosync between different devices
