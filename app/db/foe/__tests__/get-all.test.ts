@@ -65,6 +65,8 @@ describe('getAll', () => {
   });
 
   it('should throw when adventureId is whitespace only', async () => {
-    await expect(getAll('   ')).rejects.toThrow('Valid Adventure ID is required');
+    await expect(getAll('   ')).rejects.toThrow(
+      'Valid Adventure ID is required',
+    );
   });
 });

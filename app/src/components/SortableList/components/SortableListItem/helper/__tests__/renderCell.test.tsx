@@ -14,7 +14,10 @@ describe('renderCell', () => {
       const node = renderCell('image_id', { image_id: 'img-123' });
       const { getByTestId } = render(<>{node}</>);
       expect(getByTestId('avatar-cell')).toBeInTheDocument();
-      expect(getByTestId('avatar-cell')).toHaveAttribute('data-image-id', 'img-123');
+      expect(getByTestId('avatar-cell')).toHaveAttribute(
+        'data-image-id',
+        'img-123',
+      );
     });
 
     it('renders AvatarCell with empty data-image-id when image_id is absent', () => {
@@ -26,13 +29,17 @@ describe('renderCell', () => {
 
   describe('date keys', () => {
     it('returns a formatted date string for created_at', () => {
-      const result = renderCell('created_at', { created_at: '2024-03-15T10:30:00' });
+      const result = renderCell('created_at', {
+        created_at: '2024-03-15T10:30:00',
+      });
       expect(typeof result).toBe('string');
       expect(result as string).toContain('2024');
     });
 
     it('returns a formatted date string for updated_at', () => {
-      const result = renderCell('updated_at', { updated_at: '2024-06-01T00:00:00' });
+      const result = renderCell('updated_at', {
+        updated_at: '2024-06-01T00:00:00',
+      });
       expect(typeof result).toBe('string');
       expect(result as string).toContain('2024');
     });

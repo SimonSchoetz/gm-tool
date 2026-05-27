@@ -5,10 +5,12 @@ const mockSelect = vi.fn();
 
 vi.mock('@tauri-apps/plugin-sql', () => ({
   default: {
-    load: vi.fn(() => Promise.resolve({
-      execute: mockExecute,
-      select: mockSelect,
-    })),
+    load: vi.fn(() =>
+      Promise.resolve({
+        execute: mockExecute,
+        select: mockSelect,
+      }),
+    ),
   },
 }));
 

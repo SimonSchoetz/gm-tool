@@ -1,9 +1,16 @@
 import { getDatabase } from '../database';
-import { assertValidId, assertHasUpdateFields, buildUpdateQuery } from '../util';
+import {
+  assertValidId,
+  assertHasUpdateFields,
+  buildUpdateQuery,
+} from '../util';
 import { sessionStepTable } from './schema';
 import type { UpdateSessionStepInput } from './types';
 
-export const update = async (id: string, data: UpdateSessionStepInput): Promise<void> => {
+export const update = async (
+  id: string,
+  data: UpdateSessionStepInput,
+): Promise<void> => {
   assertValidId(id, 'SessionStep');
   assertHasUpdateFields(data);
 

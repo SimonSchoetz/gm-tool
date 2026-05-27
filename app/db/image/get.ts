@@ -9,7 +9,7 @@ export const get = async (id: string): Promise<Image | null> => {
   const db = await getDatabase();
   const result = await db.select<Image[]>(
     'SELECT * FROM images WHERE id = $1',
-    [id]
+    [id],
   );
 
   return result[0] ?? null;

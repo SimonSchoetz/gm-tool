@@ -1,11 +1,15 @@
 import { getDatabase } from '../database';
-import { assertValidId, assertHasUpdateFields, buildUpdateQuery } from '../util';
+import {
+  assertValidId,
+  assertHasUpdateFields,
+  buildUpdateQuery,
+} from '../util';
 import { pcTable } from './schema';
 import type { UpdatePcInput } from './types';
 
 export const update = async (
   id: string,
-  data: UpdatePcInput
+  data: UpdatePcInput,
 ): Promise<void> => {
   assertValidId(id, 'Pc');
   assertHasUpdateFields(data);

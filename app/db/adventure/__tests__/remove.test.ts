@@ -9,7 +9,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -32,7 +32,7 @@ describe('remove', () => {
 
     expect(mockExecute).toHaveBeenCalledWith(
       'DELETE FROM adventures WHERE id = $1',
-      ['test-id']
+      ['test-id'],
     );
   });
 
@@ -42,7 +42,9 @@ describe('remove', () => {
   });
 
   it('should throw error when id is whitespace only', async () => {
-    await expect(remove('   ')).rejects.toThrow('Valid adventure ID is required');
+    await expect(remove('   ')).rejects.toThrow(
+      'Valid adventure ID is required',
+    );
     expect(mockExecute).not.toHaveBeenCalled();
   });
 });

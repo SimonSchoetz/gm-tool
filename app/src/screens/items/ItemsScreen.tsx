@@ -34,7 +34,9 @@ export const ItemsScreen = () => {
       tableConfigId={itemsTableConfig.id}
       items={items}
       onRowClick={(item) => {
-        void router.navigate({ to: `/adventure/${adventureId}/item/${item.id}` });
+        void router.navigate({
+          to: `/adventure/${adventureId}/item/${item.id}`,
+        });
       }}
       onCreateNew={() => {
         void handleItemCreation();

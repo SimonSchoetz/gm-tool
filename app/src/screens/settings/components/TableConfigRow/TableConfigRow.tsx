@@ -5,7 +5,9 @@ import './TableConfigRow.css';
 
 type TableConfigRowProps = { tableConfigId: string };
 
-export const TableConfigRow: FCProps<TableConfigRowProps> = ({ tableConfigId }) => {
+export const TableConfigRow: FCProps<TableConfigRowProps> = ({
+  tableConfigId,
+}) => {
   const { config, updateTableConfig } = useTableConfig(tableConfigId);
   if (!config) return null;
 
@@ -21,7 +23,9 @@ export const TableConfigRow: FCProps<TableConfigRowProps> = ({ tableConfigId }) 
         <div className='settings-config-name'>
           <ColorInput
             value={config.color}
-            onChange={(value) => { void updateTableConfig({ color: value }); }}
+            onChange={(value) => {
+              void updateTableConfig({ color: value });
+            }}
           />
           <span>{config.table_name}</span>
 

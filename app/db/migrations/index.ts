@@ -9,7 +9,9 @@ export type Migration = {
 export const migrations: Migration[] = [initialSchemaMigration];
 
 export const runMigrations = async (db: Database): Promise<void> => {
-  const applied = await db.select<{ id: string }[]>('SELECT id FROM _migrations');
+  const applied = await db.select<{ id: string }[]>(
+    'SELECT id FROM _migrations',
+  );
   const appliedIds = new Set(applied.map((r) => r.id));
 
   const pending = migrations

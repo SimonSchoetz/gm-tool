@@ -10,7 +10,11 @@ import {
 } from '@lexical/list';
 import { LucideIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW, mergeRegister } from 'lexical';
+import {
+  SELECTION_CHANGE_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  mergeRegister,
+} from 'lexical';
 import { BaseBtn } from '../BaseBtn/BaseBtn';
 import './ListBtn.css';
 
@@ -40,7 +44,7 @@ export const ListBtn: FCProps<ListBtnProps> = ({
           : anchorNode.getTopLevelElementOrThrow();
 
       if ($isListNode(element)) {
-        return (element).getListType() === listType;
+        return element.getListType() === listType;
       }
       return false;
     },

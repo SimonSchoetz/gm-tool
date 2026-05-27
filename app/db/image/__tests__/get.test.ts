@@ -10,7 +10,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -44,7 +44,7 @@ describe('image.get', () => {
 
     expect(mockSelect).toHaveBeenCalledWith(
       'SELECT * FROM images WHERE id = $1',
-      ['test-id-1']
+      ['test-id-1'],
     );
     expect(image).toEqual(mockImage);
   });

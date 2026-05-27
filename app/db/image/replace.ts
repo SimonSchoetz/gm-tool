@@ -4,7 +4,7 @@ import type { CreateImageInput } from './types';
 
 export const replace = async (
   oldId: string,
-  data: CreateImageInput
+  data: CreateImageInput,
 ): Promise<string> => {
   await remove(oldId);
   const newId = await create(data);

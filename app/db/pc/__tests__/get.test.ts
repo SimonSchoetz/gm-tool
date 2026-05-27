@@ -38,10 +38,9 @@ describe('get', () => {
 
     const result = await get('test-id');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM pcs WHERE id = $1',
-      ['test-id'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith('SELECT * FROM pcs WHERE id = $1', [
+      'test-id',
+    ]);
     expect(result).toEqual(mockPc);
   });
 

@@ -9,7 +9,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -30,9 +30,10 @@ describe('image.remove', () => {
   it('should delete image by id', async () => {
     await remove('test-id-1');
 
-    expect(mockExecute).toHaveBeenCalledWith('DELETE FROM images WHERE id = $1', [
-      'test-id-1',
-    ]);
+    expect(mockExecute).toHaveBeenCalledWith(
+      'DELETE FROM images WHERE id = $1',
+      ['test-id-1'],
+    );
   });
 
   it('should throw error when id is empty', async () => {

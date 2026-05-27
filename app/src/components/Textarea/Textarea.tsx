@@ -17,10 +17,10 @@ const Textarea = ({
     .join(' ');
 
   return (
-    <div className="textarea-wrapper">
-      {label && <label className="textarea-label">{label}</label>}
+    <div className='textarea-wrapper'>
+      {label && <label className='textarea-label'>{label}</label>}
       <textarea className={classNames} {...props} />
-      {error && <span className="textarea-error">{error}</span>}
+      {error && <span className='textarea-error'>{error}</span>}
     </div>
   );
 };

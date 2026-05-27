@@ -12,13 +12,18 @@ type UseUpdateImageFrameReturn = {
   updateFrame: (frame: ImageFrame) => Promise<void>;
 };
 
-export const useUpdateImageFrame = (imageId: string): UseUpdateImageFrameReturn => {
+export const useUpdateImageFrame = (
+  imageId: string,
+): UseUpdateImageFrameReturn => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (frame: ImageFrame) => imageService.updateImageFrame(imageId, frame),
+    mutationFn: (frame: ImageFrame) =>
+      imageService.updateImageFrame(imageId, frame),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: imageKeys.detail(imageId) });
+      void queryClient.invalidateQueries({
+        queryKey: imageKeys.detail(imageId),
+      });
     },
   });
 

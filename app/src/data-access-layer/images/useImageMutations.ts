@@ -33,6 +33,7 @@ export const useImageMutations = (): UseImageMutationsReturn => {
   return {
     createImage: (filePath) => createMutation.mutateAsync(filePath),
     deleteImage: (id) => deleteMutation.mutateAsync(id),
-    replaceImage: (oldId, filePath) => replaceMutation.mutateAsync({ oldId, filePath }),
+    replaceImage: (oldId, filePath) =>
+      replaceMutation.mutateAsync({ oldId, filePath }),
   };
 };

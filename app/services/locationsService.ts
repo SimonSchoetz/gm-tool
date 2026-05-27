@@ -13,7 +13,9 @@ export type UpdateLocationData = UpdateLocationInput & {
   imgFilePath?: string;
 };
 
-export const getAllLocations = async (adventureId: string): Promise<Location[]> => {
+export const getAllLocations = async (
+  adventureId: string,
+): Promise<Location[]> => {
   try {
     return await locationDb.getAll(adventureId);
   } catch (err) {
@@ -73,7 +75,9 @@ export const updateLocation = async (
   }
 };
 
-export const removeLocationImage = async (locationId: string): Promise<void> => {
+export const removeLocationImage = async (
+  locationId: string,
+): Promise<void> => {
   const location = await getLocationById(locationId);
   if (!location.image_id) return;
   try {

@@ -14,11 +14,12 @@ export const DateInput: FCProps<DateInputProps> = ({ className, ...props }) => {
     <div className={cn('date-input-wrapper', className)}>
       <input ref={inputRef} type='date' className='date-input' {...props} />
       <ClickableIcon
-
         icon={<CalendarIcon className='date-input-icon' />}
         label='Open date picker'
         title='Open date picker'
-        onClick={() => { inputRef.current?.showPicker(); }}
+        onClick={() => {
+          inputRef.current?.showPicker();
+        }}
       />
     </div>
   );

@@ -52,7 +52,10 @@ describe('create', () => {
     await create();
 
     const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    const name = values.find((v): v is string => typeof v === 'string' && v.startsWith('New adventure '));
+    const name = values.find(
+      (v): v is string =>
+        typeof v === 'string' && v.startsWith('New adventure '),
+    );
     expect(name).toBeDefined();
   });
 

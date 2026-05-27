@@ -9,18 +9,21 @@ export const LocationScreen = () => {
     from: '/adventure/$adventureId/location/$locationId',
   });
 
-  const { location, updateLocation, loading } = useLocation(locationId, adventureId);
+  const { location, updateLocation, loading } = useLocation(
+    locationId,
+    adventureId,
+  );
 
   if (loading || !location) {
     return <div>Loading...</div>;
   }
 
   return (
-    <GlassPanel className="location-screen">
+    <GlassPanel className='location-screen'>
       <LocationSidebar />
 
       <CustomScrollArea>
-        <div className="location-text-edit-area">
+        <div className='location-text-edit-area'>
           <LocationHeader />
 
           <TextEditor

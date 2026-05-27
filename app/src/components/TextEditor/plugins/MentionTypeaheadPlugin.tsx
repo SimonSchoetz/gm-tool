@@ -117,7 +117,11 @@ export const MentionTypeaheadPlugin = () => {
                   onMouseEnter={() => {
                     setHighlightedIndex(i);
                   }}
-                  style={{ '--rt-mention-typeahead-item-color': option.result.color } as React.CSSProperties}
+                  style={
+                    {
+                      '--rt-mention-typeahead-item-color': option.result.color,
+                    } as React.CSSProperties
+                  }
                 >
                   <span className='mention-typeahead-item-name'>
                     {option.result.name}

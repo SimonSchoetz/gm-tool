@@ -11,14 +11,22 @@ export const LocationsScreen = () => {
     from: '/adventure/$adventureId/locations',
   });
 
-  const { locations, loading: locationsLoading, createLocation } = useLocations(adventureId);
+  const {
+    locations,
+    loading: locationsLoading,
+    createLocation,
+  } = useLocations(adventureId);
   const { tableConfigs, loading: configsLoading } = useTableConfigs();
 
-  const locationsTableConfig = tableConfigs.find((c) => c.table_name === 'locations');
+  const locationsTableConfig = tableConfigs.find(
+    (c) => c.table_name === 'locations',
+  );
 
   const handleLocationCreation = async () => {
     const newLocationId = await createLocation();
-    void router.navigate({ to: `/adventure/${adventureId}/location/${newLocationId}` });
+    void router.navigate({
+      to: `/adventure/${adventureId}/location/${newLocationId}`,
+    });
   };
 
   if (locationsLoading || configsLoading) {
@@ -34,7 +42,9 @@ export const LocationsScreen = () => {
       tableConfigId={locationsTableConfig.id}
       items={locations}
       onRowClick={(location) => {
-        void router.navigate({ to: `/adventure/${adventureId}/location/${location.id}` });
+        void router.navigate({
+          to: `/adventure/${adventureId}/location/${location.id}`,
+        });
       }}
       onCreateNew={() => {
         void handleLocationCreation();

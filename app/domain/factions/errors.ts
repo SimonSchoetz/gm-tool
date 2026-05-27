@@ -1,6 +1,8 @@
 export type FactionNotFoundError = Error & { name: 'FactionNotFoundError' };
 export const factionNotFoundError = (id: string): FactionNotFoundError => {
-  const error = new Error(`Faction with id ${id} not found`) as FactionNotFoundError;
+  const error = new Error(
+    `Faction with id ${id} not found`,
+  ) as FactionNotFoundError;
   error.name = 'FactionNotFoundError';
   return error;
 };
@@ -24,7 +26,10 @@ export const factionCreateError = (cause?: unknown): FactionCreateError => {
 };
 
 export type FactionUpdateError = Error & { name: 'FactionUpdateError' };
-export const factionUpdateError = (id: string, cause?: unknown): FactionUpdateError => {
+export const factionUpdateError = (
+  id: string,
+  cause?: unknown,
+): FactionUpdateError => {
   const error = new Error(
     `Failed to update Faction ${id}: ${String(cause)}`,
   ) as FactionUpdateError;
@@ -33,7 +38,10 @@ export const factionUpdateError = (id: string, cause?: unknown): FactionUpdateEr
 };
 
 export type FactionDeleteError = Error & { name: 'FactionDeleteError' };
-export const factionDeleteError = (id: string, cause?: unknown): FactionDeleteError => {
+export const factionDeleteError = (
+  id: string,
+  cause?: unknown,
+): FactionDeleteError => {
   const error = new Error(
     `Failed to delete Faction ${id}: ${String(cause)}`,
   ) as FactionDeleteError;

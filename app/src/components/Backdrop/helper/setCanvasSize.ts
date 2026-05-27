@@ -1,6 +1,6 @@
 export const setCanvasSize = (
   canvas: HTMLCanvasElement,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = window.innerWidth * dpr;

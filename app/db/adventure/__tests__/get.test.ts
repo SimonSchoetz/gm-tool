@@ -10,7 +10,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -43,7 +43,7 @@ describe('get', () => {
 
     expect(mockSelect).toHaveBeenCalledWith(
       'SELECT * FROM adventures WHERE id = $1',
-      ['test-id']
+      ['test-id'],
     );
     expect(result).toEqual(mockAdventure);
   });

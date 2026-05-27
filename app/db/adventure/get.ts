@@ -9,7 +9,7 @@ export const get = async (id: string): Promise<Adventure | null> => {
   const db = await getDatabase();
   const result = await db.select<Adventure[]>(
     'SELECT * FROM adventures WHERE id = $1',
-    [id]
+    [id],
   );
 
   return result.length > 0 ? result[0] : null;

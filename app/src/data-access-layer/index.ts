@@ -8,5 +8,9 @@ export { useLocations, useLocation, locationKeys } from './locations';
 export { useFactions, useFaction, factionKeys } from './factions';
 export { usePcs, usePc, pcKeys } from './pcs';
 export { useSessions, useSession, sessionKeys } from './sessions';
-export { useTableConfig, useTableConfigs, tableConfigKeys } from './table-config';
+export {
+  useTableConfig,
+  useTableConfigs,
+  tableConfigKeys,
+} from './table-config';
 export { useSessionSteps, sessionStepKeys } from './session-steps';

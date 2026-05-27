@@ -95,7 +95,7 @@ In the data-access-layer, one concern = one file:
 ### Coding Style
 
 - TypeScript only. No JavaScript files in `src/`.
-See [app/CLAUDE.md](../CLAUDE.md) — TypeScript Coding Style.
+  See [app/CLAUDE.md](../CLAUDE.md) — TypeScript Coding Style.
 
 - **`useLayoutEffect` over `useEffect` only when a DOM measurement or paint-synchronous side effect is required** — the canonical case is reading layout geometry (`getBoundingClientRect`, `scrollWidth`, `offsetHeight`) and applying a state update that must not cause a visible flash. All other effects use `useEffect`. When `useLayoutEffect` is chosen, an inline comment stating the specific paint-synchronous requirement is required — "avoids flicker" alone is not sufficient.
 
@@ -298,11 +298,20 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 - ✅ GOOD:
   ```tsx
   const [name, setName] = useState(npc?.name ?? '');
-  <Input value={name} onChange={(e) => { setName(e.target.value); updateNpc({ name: e.target.value }); }} />
+  <Input
+    value={name}
+    onChange={(e) => {
+      setName(e.target.value);
+      updateNpc({ name: e.target.value });
+    }}
+  />;
   ```
 - ❌ BAD:
   ```tsx
-  <Input value={npc.name ?? ''} onChange={(e) => updateNpc({ name: e.target.value })} />
+  <Input
+    value={npc.name ?? ''}
+    onChange={(e) => updateNpc({ name: e.target.value })}
+  />
   ```
 
 **Framework context is not a prop.** Never relay a value as a prop when the receiving component can obtain it directly from a framework-managed context. This prohibition covers data-fetching results, data-fetching callbacks, and routing context (URL params via `useParams`). Props are reserved for state that genuinely belongs to a parent: cross-component coordination such as tooltip visibility, modal open/close, or selection state shared between siblings. Pass a callback down only when the parent owns the coordination state and the child reports events up. If a component has a button, that component owns the button's action — it does not receive a callback from two levels up.

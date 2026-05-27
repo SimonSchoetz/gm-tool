@@ -11,14 +11,22 @@ export const FactionsScreen = () => {
     from: '/adventure/$adventureId/factions',
   });
 
-  const { factions, loading: factionsLoading, createFaction } = useFactions(adventureId);
+  const {
+    factions,
+    loading: factionsLoading,
+    createFaction,
+  } = useFactions(adventureId);
   const { tableConfigs, loading: configsLoading } = useTableConfigs();
 
-  const factionsTableConfig = tableConfigs.find((c) => c.table_name === 'factions');
+  const factionsTableConfig = tableConfigs.find(
+    (c) => c.table_name === 'factions',
+  );
 
   const handleFactionCreation = async () => {
     const newFactionId = await createFaction();
-    void router.navigate({ to: `/adventure/${adventureId}/faction/${newFactionId}` });
+    void router.navigate({
+      to: `/adventure/${adventureId}/faction/${newFactionId}`,
+    });
   };
 
   if (factionsLoading || configsLoading) {
@@ -34,7 +42,9 @@ export const FactionsScreen = () => {
       tableConfigId={factionsTableConfig.id}
       items={factions}
       onRowClick={(faction) => {
-        void router.navigate({ to: `/adventure/${adventureId}/faction/${faction.id}` });
+        void router.navigate({
+          to: `/adventure/${adventureId}/faction/${faction.id}`,
+        });
       }}
       onCreateNew={() => {
         void handleFactionCreation();

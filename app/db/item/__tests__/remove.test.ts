@@ -27,9 +27,10 @@ describe('remove', () => {
   it('should delete item by id', async () => {
     await remove('test-id');
 
-    expect(mockExecute).toHaveBeenCalledWith('DELETE FROM items WHERE id = $1', [
-      'test-id',
-    ]);
+    expect(mockExecute).toHaveBeenCalledWith(
+      'DELETE FROM items WHERE id = $1',
+      ['test-id'],
+    );
   });
 
   it('should throw when id is empty', async () => {

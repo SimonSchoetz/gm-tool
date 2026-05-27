@@ -1,7 +1,16 @@
 import { AnyRouteMatch, Link, useMatches } from '@tanstack/react-router';
 import { FCProps, HtmlProps } from '@/types';
 import { buildBreadcrumbs, BreadcrumbConfig } from '../../helper';
-import { AdventureCrumb, SessionCrumb, NpcCrumb, FoeCrumb, ItemCrumb, FactionCrumb, PcCrumb, LocationCrumb } from './components';
+import {
+  AdventureCrumb,
+  SessionCrumb,
+  NpcCrumb,
+  FoeCrumb,
+  ItemCrumb,
+  FactionCrumb,
+  PcCrumb,
+  LocationCrumb,
+} from './components';
 import './BreadcrumbList.css';
 import { JSX } from 'react/jsx-runtime';
 import { ChevronRightIcon } from 'lucide-react';

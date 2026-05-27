@@ -3,7 +3,11 @@ import { buildGridTemplate } from '../buildGridTemplate';
 
 describe('buildGridTemplate', () => {
   it('formats all columns as fixed px except the last, which uses minmax', () => {
-    const result = buildGridTemplate(['a', 'b', 'c'], { a: 100, b: 200, c: 300 });
+    const result = buildGridTemplate(['a', 'b', 'c'], {
+      a: 100,
+      b: 200,
+      c: 300,
+    });
     expect(result).toBe('100px 200px minmax(300px, 1fr)');
   });
 

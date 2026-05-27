@@ -1,5 +1,9 @@
 import { getDatabase } from '../database';
-import { assertValidId, assertHasUpdateFields, buildUpdateQuery } from '../util';
+import {
+  assertValidId,
+  assertHasUpdateFields,
+  buildUpdateQuery,
+} from '../util';
 import { itemTable } from './schema';
 import type { UpdateItemInput } from './types';
 

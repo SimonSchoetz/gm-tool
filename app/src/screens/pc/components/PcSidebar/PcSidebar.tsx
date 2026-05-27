@@ -10,10 +10,7 @@ export const PcSidebar = () => {
   const { adventureId, pcId } = useParams({
     from: '/adventure/$adventureId/pc/$pcId',
   });
-  const { pc, updatePc, deletePc, removePcImage } = usePc(
-    pcId,
-    adventureId,
-  );
+  const { pc, updatePc, deletePc, removePcImage } = usePc(pcId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
   if (!pc) return null;

@@ -1,8 +1,5 @@
 import * as tableConfigDb from '@db/table-config';
-import type {
-  TableConfig,
-  UpdateTableConfigInput,
-} from '@db/table-config';
+import type { TableConfig, UpdateTableConfigInput } from '@db/table-config';
 import {
   tableConfigNotFoundError,
   tableConfigLoadError,
@@ -29,7 +26,7 @@ export const getTableConfigById = async (id: string): Promise<TableConfig> => {
 
 export const updateTableConfig = async (
   id: string,
-  data: UpdateTableConfigInput
+  data: UpdateTableConfigInput,
 ): Promise<void> => {
   try {
     await tableConfigDb.update(id, data);

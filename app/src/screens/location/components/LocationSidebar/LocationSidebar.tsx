@@ -10,10 +10,8 @@ export const LocationSidebar = () => {
   const { adventureId, locationId } = useParams({
     from: '/adventure/$adventureId/location/$locationId',
   });
-  const { location, updateLocation, deleteLocation, removeLocationImage } = useLocation(
-    locationId,
-    adventureId,
-  );
+  const { location, updateLocation, deleteLocation, removeLocationImage } =
+    useLocation(locationId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
   if (!location) return null;
@@ -30,7 +28,10 @@ export const LocationSidebar = () => {
         image_id={location.image_id ?? null}
         title={location.name ?? ''}
         uploadFn={(filePath) => {
-          updateLocation({ imgFilePath: filePath, image_id: location.image_id });
+          updateLocation({
+            imgFilePath: filePath,
+            image_id: location.image_id,
+          });
         }}
         deleteFn={() => {
           if (location.image_id) void removeLocationImage();

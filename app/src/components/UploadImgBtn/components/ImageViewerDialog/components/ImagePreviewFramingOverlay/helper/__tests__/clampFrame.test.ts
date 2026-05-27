@@ -27,10 +27,18 @@ describe('clampFrame', () => {
   });
 
   it('returns valid values within range unchanged', () => {
-    expect(clampFrame({ x: 40, y: 60, zoom: 2 }, 5)).toEqual({ x: 40, y: 60, zoom: 2 });
+    expect(clampFrame({ x: 40, y: 60, zoom: 2 }, 5)).toEqual({
+      x: 40,
+      y: 60,
+      zoom: 2,
+    });
   });
 
   it('returns x=50, y=50, zoom=1 unchanged with maxZoom=5', () => {
-    expect(clampFrame({ x: 50, y: 50, zoom: 1 }, 5)).toEqual({ x: 50, y: 50, zoom: 1 });
+    expect(clampFrame({ x: 50, y: 50, zoom: 1 }, 5)).toEqual({
+      x: 50,
+      y: 50,
+      zoom: 1,
+    });
   });
 });

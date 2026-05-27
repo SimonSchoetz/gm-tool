@@ -16,7 +16,11 @@ import { LucideIcon } from 'lucide-react';
 
 import './HeadingBtn.css';
 import { useCallback, useEffect, useState } from 'react';
-import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW, mergeRegister } from 'lexical';
+import {
+  SELECTION_CHANGE_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  mergeRegister,
+} from 'lexical';
 import { BaseBtn } from '../BaseBtn/BaseBtn';
 
 /**

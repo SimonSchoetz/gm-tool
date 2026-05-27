@@ -28,7 +28,8 @@ export const useFactions = (adventureId: string): UseFactionsReturn => {
     },
   });
 
-  const createFaction = async (): Promise<string> => createMutation.mutateAsync();
+  const createFaction = async (): Promise<string> =>
+    createMutation.mutateAsync();
 
   return {
     factions,

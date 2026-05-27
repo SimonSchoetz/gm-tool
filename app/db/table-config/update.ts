@@ -1,5 +1,9 @@
 import { getDatabase } from '../database';
-import { assertValidId, assertHasUpdateFields, buildUpdateQuery } from '../util';
+import {
+  assertValidId,
+  assertHasUpdateFields,
+  buildUpdateQuery,
+} from '../util';
 import { tableConfigTable } from './schema';
 import { tableLayoutSchema } from './layout-schema';
 import type { UpdateTableConfigInput } from './types';

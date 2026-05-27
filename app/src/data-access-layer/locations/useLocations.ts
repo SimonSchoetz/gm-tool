@@ -28,7 +28,8 @@ export const useLocations = (adventureId: string): UseLocationsReturn => {
     },
   });
 
-  const createLocation = async (): Promise<string> => createMutation.mutateAsync();
+  const createLocation = async (): Promise<string> =>
+    createMutation.mutateAsync();
 
   return {
     locations,

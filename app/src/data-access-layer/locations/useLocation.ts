@@ -14,7 +14,10 @@ type UseLocationReturn = {
   removeLocationImage: () => Promise<void>;
 };
 
-export const useLocation = (locationId: string, adventureId: string): UseLocationReturn => {
+export const useLocation = (
+  locationId: string,
+  adventureId: string,
+): UseLocationReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateLocationData>({});
@@ -37,9 +40,12 @@ export const useLocation = (locationId: string, adventureId: string): UseLocatio
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateLocationData) => service.updateLocation(locationId, data),
+    mutationFn: (data: UpdateLocationData) =>
+      service.updateLocation(locationId, data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: locationKeys.detail(locationId) });
+      void queryClient.invalidateQueries({
+        queryKey: locationKeys.detail(locationId),
+      });
       void queryClient.invalidateQueries({
         queryKey: locationKeys.list(adventureId),
       });
@@ -58,7 +64,9 @@ export const useLocation = (locationId: string, adventureId: string): UseLocatio
   const removeLocationImageMutation = useMutation({
     mutationFn: () => service.removeLocationImage(locationId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: locationKeys.detail(locationId) });
+      void queryClient.invalidateQueries({
+        queryKey: locationKeys.detail(locationId),
+      });
       void queryClient.invalidateQueries({
         queryKey: locationKeys.list(adventureId),
       });
@@ -68,11 +76,14 @@ export const useLocation = (locationId: string, adventureId: string): UseLocatio
   const updateLocation = (data: UpdateLocationData) => {
     if (!locationData) return;
 
-    queryClient.setQueryData<Location>(locationKeys.detail(locationId), (old) => {
-      if (!old) return old;
-      const { imgFilePath: _imgFilePath, ...patch } = data;
-      return mergeUpdate(old, patch);
-    });
+    queryClient.setQueryData<Location>(
+      locationKeys.detail(locationId),
+      (old) => {
+        if (!old) return old;
+        const { imgFilePath: _imgFilePath, ...patch } = data;
+        return mergeUpdate(old, patch);
+      },
+    );
 
     pendingUpdatesRef.current = {
       ...pendingUpdatesRef.current,

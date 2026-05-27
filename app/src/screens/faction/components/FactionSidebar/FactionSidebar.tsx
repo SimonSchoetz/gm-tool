@@ -10,10 +10,8 @@ export const FactionSidebar = () => {
   const { adventureId, factionId } = useParams({
     from: '/adventure/$adventureId/faction/$factionId',
   });
-  const { faction, updateFaction, deleteFaction, removeFactionImage } = useFaction(
-    factionId,
-    adventureId,
-  );
+  const { faction, updateFaction, deleteFaction, removeFactionImage } =
+    useFaction(factionId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
   if (!faction) return null;

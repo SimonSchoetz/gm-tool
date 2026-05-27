@@ -13,7 +13,9 @@ export type UpdateFactionData = UpdateFactionInput & {
   imgFilePath?: string;
 };
 
-export const getAllFactions = async (adventureId: string): Promise<Faction[]> => {
+export const getAllFactions = async (
+  adventureId: string,
+): Promise<Faction[]> => {
   try {
     return await factionDb.getAll(adventureId);
   } catch (err) {

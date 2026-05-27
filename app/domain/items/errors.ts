@@ -24,7 +24,10 @@ export const itemCreateError = (cause?: unknown): ItemCreateError => {
 };
 
 export type ItemUpdateError = Error & { name: 'ItemUpdateError' };
-export const itemUpdateError = (id: string, cause?: unknown): ItemUpdateError => {
+export const itemUpdateError = (
+  id: string,
+  cause?: unknown,
+): ItemUpdateError => {
   const error = new Error(
     `Failed to update Item ${id}: ${String(cause)}`,
   ) as ItemUpdateError;
@@ -33,7 +36,10 @@ export const itemUpdateError = (id: string, cause?: unknown): ItemUpdateError =>
 };
 
 export type ItemDeleteError = Error & { name: 'ItemDeleteError' };
-export const itemDeleteError = (id: string, cause?: unknown): ItemDeleteError => {
+export const itemDeleteError = (
+  id: string,
+  cause?: unknown,
+): ItemDeleteError => {
   const error = new Error(
     `Failed to delete Item ${id}: ${String(cause)}`,
   ) as ItemDeleteError;

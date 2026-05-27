@@ -14,7 +14,10 @@ type UseFactionReturn = {
   removeFactionImage: () => Promise<void>;
 };
 
-export const useFaction = (factionId: string, adventureId: string): UseFactionReturn => {
+export const useFaction = (
+  factionId: string,
+  adventureId: string,
+): UseFactionReturn => {
   const queryClient = useQueryClient();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UpdateFactionData>({});
@@ -37,9 +40,12 @@ export const useFaction = (factionId: string, adventureId: string): UseFactionRe
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateFactionData) => service.updateFaction(factionId, data),
+    mutationFn: (data: UpdateFactionData) =>
+      service.updateFaction(factionId, data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: factionKeys.detail(factionId) });
+      void queryClient.invalidateQueries({
+        queryKey: factionKeys.detail(factionId),
+      });
       void queryClient.invalidateQueries({
         queryKey: factionKeys.list(adventureId),
       });
@@ -58,7 +64,9 @@ export const useFaction = (factionId: string, adventureId: string): UseFactionRe
   const removeFactionImageMutation = useMutation({
     mutationFn: () => service.removeFactionImage(factionId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: factionKeys.detail(factionId) });
+      void queryClient.invalidateQueries({
+        queryKey: factionKeys.detail(factionId),
+      });
       void queryClient.invalidateQueries({
         queryKey: factionKeys.list(adventureId),
       });

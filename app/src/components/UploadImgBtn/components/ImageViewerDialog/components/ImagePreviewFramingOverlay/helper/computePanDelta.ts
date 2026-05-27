@@ -5,6 +5,6 @@ export const computePanDelta = (
   containerHeight: number,
   zoom: number,
 ): { dx: number; dy: number } => ({
-  dx: (dx / containerWidth) * 100 / zoom,
-  dy: (dy / containerHeight) * 100 / zoom,
+  dx: ((dx / containerWidth) * 100) / zoom,
+  dy: ((dy / containerHeight) * 100) / zoom,
 });

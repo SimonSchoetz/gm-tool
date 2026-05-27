@@ -9,7 +9,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
       Promise.resolve({
         execute: mockExecute,
         select: mockSelect,
-      })
+      }),
     ),
   },
 }));
@@ -38,13 +38,13 @@ describe('image.update', () => {
 
   it('throws when id is empty', async () => {
     await expect(
-      update('', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 })
+      update('', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 }),
     ).rejects.toThrow('Valid image ID is required');
   });
 
   it('throws when id is whitespace only', async () => {
     await expect(
-      update('   ', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 })
+      update('   ', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 }),
     ).rejects.toThrow('Valid image ID is required');
   });
 
