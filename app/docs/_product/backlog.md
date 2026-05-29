@@ -1,11 +1,12 @@
 # Product Backlog
 
 ## Post MVP -> Closed Beta Ready
-
-- Feature: (automatic) updates
+- Epic: (automatic) updates
   - needs versioning
   - hosted via github
   - setting to either make automatic updates or on-demand
+- Fix: Data access and db location/localization
+  - encryption?
 - Feature (Content): Revise All existing texts like session step tooltips and templates
 - Fix: White BG on app start
 - Fix: Adventure stats (facts)
@@ -46,7 +47,6 @@
 - Feature: full data export for manual backups
 - Feature: data import from manual backups
   - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
-
 - Feature: Session export (i.e. as pdf)
 - Feature: Random Tables (see feature outline)
 - Epic: NPC Generator
