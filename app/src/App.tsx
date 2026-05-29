@@ -13,6 +13,8 @@ import { useCheckUpdate } from '@/data-access-layer';
 import { AppProviders } from '@/providers';
 import './App.css';
 
+// useCheckUpdate calls useQuery, which requires TanstackQueryClientProvider above it in the tree.
+// App wraps the provider, so the hook cannot be called in App directly.
 const AppContent = () => {
   useCheckUpdate();
   return (

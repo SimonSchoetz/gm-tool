@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 const mockExecute = vi.fn();
 const mockSelect = vi.fn();
@@ -20,10 +20,6 @@ describe('get', () => {
     vi.clearAllMocks();
     mockExecute.mockResolvedValue({ lastInsertId: 0 });
     mockSelect.mockResolvedValue([]);
-  });
-
-  afterEach(() => {
-    vi.resetModules();
   });
 
   it('returns the stored value for an existing key', async () => {
