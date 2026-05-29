@@ -1,5 +1,5 @@
-// Command modules
 pub mod images;
+pub mod updater;
 
-// Re-export all commands for easy registration
 pub use images::{delete_image, get_image_url, save_image};
+pub use updater::{check_update, install_update};

@@ -35,5 +35,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "REPLACE_WITH_PUBLIC_KEY",
+      "endpoints": [
+        "https://github.com/REPLACE_WITH_GITHUB_USERNAME/REPLACE_WITH_REPO_NAME/releases/latest/download/latest.json"
+      ]
+    }
   }
 }
