@@ -9,30 +9,38 @@ import {
   GlassPanel,
 } from './components';
 import { TanstackQueryClientProvider } from './data-access-layer/TanstackQueryClientProvider';
+import { useCheckUpdate } from '@/data-access-layer';
 import { AppProviders } from '@/providers';
 import './App.css';
+
+const AppContent = () => {
+  useCheckUpdate();
+  return (
+    <AppProviders>
+      <Backdrop />
+      <LightSource intensity='bright' />
+
+      <main className='app'>
+        <SideBarNav />
+
+        <div className='screens-container'>
+          <Header />
+
+          <ErrorBoundary>
+            <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+      </main>
+    </AppProviders>
+  );
+};
 
 export const App = () => (
   <ErrorBoundary>
     <TanstackQueryClientProvider>
-      <AppProviders>
-        <Backdrop />
-        <LightSource intensity='bright' />
-
-        <main className='app'>
-          <SideBarNav />
-
-          <div className='screens-container'>
-            <Header />
-
-            <ErrorBoundary>
-              <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
-                <Outlet />
-              </Suspense>
-            </ErrorBoundary>
-          </div>
-        </main>
-      </AppProviders>
+      <AppContent />
     </TanstackQueryClientProvider>
   </ErrorBoundary>
 );
