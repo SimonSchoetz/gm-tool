@@ -1,5 +1,4 @@
 import Database from '@tauri-apps/plugin-sql';
-import { seedTableConfig } from './table-config/seed';
 import { runMigrations } from './migrations';
 
 let db: Database | null = null;
@@ -42,7 +41,6 @@ export const initDatabase = async () => {
       await runMigrations(database);
 
       db = database;
-      await seedTableConfig(database);
       return database;
     } catch (error) {
       console.error('Database initialization failed:', error);

@@ -6,11 +6,12 @@ db/
 ├── database.ts # Init, \_migrations bootstrap, migration runner call
 ├── migrations/ # Migration runner and migration files
 ├── util/ # Schema builder (defineTable)
+├── _system/ # key TEXT PRIMARY KEY, value TEXT (JSON); infrastructure key-value store
 ├── adventure/ # schema, types, CRUD, index
 ├── session/
 ├── npc/
 ├── image/
-└── table-config/ # includes seed.ts
+└── table-config/
 
 **Schema source of truth:** Each domain's `schema.ts` defines the table via `defineTable()`. Don't maintain a separate schema list — read the `schema.ts` files directly.
 
@@ -27,6 +28,7 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
   - `id` as PK (created with nanoid)
   - `created_at`
   - `updated_at`
+- **Infrastructure tables prefixed with `_` (e.g., `_migrations`, `_system`) are exempt from the domain column requirements (`id`, `created_at`, `updated_at`).** They define their own schema to match their structural purpose.
 - **Naming consistency**: All entities use `name` as the primary identifier column
   - Use `name`, not `title`, `label`, or other variations
   - Example: `adventures.name`, `npcs.name`, `sessions.name`
@@ -111,10 +113,9 @@ Functions that operate across multiple tables (e.g., `mention-search.ts`) live a
 
 ## Seeds
 
-- Seed files live within their domain directory: `db/table-config/seed.ts`
-- Seeds are called from `database.ts` during init (after migrations)
-- Seeds are idempotent — they check for existing rows before inserting
-- Keep seed data co-located with the table it belongs to, not in `database.ts`
+With the migration system in place, initial data rows for new domain tables belong in the migration
+that creates the table — not in a separate `seed.ts` file. The `seedTableConfig` pattern is legacy.
+Do not replicate it for new tables.
 
 ## Migrations
 
@@ -134,4 +135,4 @@ Every public function in a domain directory (`create`, `get`, `getAll`, `update`
 
 Every test file that calls `vi.mock('@tauri-apps/plugin-sql', ...)` at module scope must reset module registry between tests. For a **single-test file**, `afterEach(() => { vi.resetModules(); })` is sufficient. For any file with **two or more tests that invoke a function owning module-level singleton state** (e.g. `initDatabase`, `getDatabase`): place `vi.resetModules()` in `beforeEach` instead, and use `await import('../moduleName')` dynamically inside each test body — never import the module statically at the top of the file. Static imports at module scope capture the singleton at load time; `beforeEach` reset with dynamic per-test import is required to re-capture it fresh.
 
-Every test that calls `getDatabase()` exercises the full database init path, which runs migrations and calls `seedTableConfig()`. `seedTableConfig()` calls `database.select()`. If `mockSelect.mockResolvedValue([])` is not set before `getDatabase()` is called, the init will crash on `undefined.length`. Any test file that invokes `getDatabase()` — directly or indirectly — must call `mockSelect.mockResolvedValue([])` in its `beforeEach` block before any other setup.
+Every test that calls `getDatabase()` exercises the full database init path, which runs migrations. The migration runner calls `database.select()` to check applied migrations. If `mockSelect.mockResolvedValue([])` is not set before `getDatabase()` is called, the init will crash. Any test file that invokes `getDatabase()` — directly or indirectly — must call `mockSelect.mockResolvedValue([])` in its `beforeEach` block before any other setup.

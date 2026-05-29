@@ -1,12 +1,16 @@
 import type Database from '@tauri-apps/plugin-sql';
 import { initialSchemaMigration } from './1779321600000_initial_schema';
+import { seedTableConfigMigration } from './1780099200000_seed_table_config';
 
 export type Migration = {
   id: string;
   up: (db: Database) => Promise<void>;
 };
 
-export const migrations: Migration[] = [initialSchemaMigration];
+export const migrations: Migration[] = [
+  initialSchemaMigration,
+  seedTableConfigMigration,
+];
 
 export const runMigrations = async (db: Database): Promise<void> => {
   const applied = await db.select<{ id: string }[]>(
