@@ -32,7 +32,7 @@ TypeScript conventions that apply to all TypeScript layers under `app/` (`src/`,
 
 Two directory types exist — distinguish them before adding or deleting a barrel:
 
-- **Module directory**: owns a single domain entity. Always exposes its public API through an `index.ts`. This barrel is required.
+- **Module directory**: owns a single table or concern. Always exposes its public API through an `index.ts`. This barrel is required.
 - **Grouping folder**: organizes module directories but owns no domain itself. Requires an `index.ts` barrel with explicit named exports — `export *` is banned in grouping barrels.
 
 This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific applications of this rule (which directories are grouping folders, import depth conventions) are documented in each layer's own CLAUDE.md.
