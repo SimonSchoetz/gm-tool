@@ -46,13 +46,12 @@ pub async fn save_image(
         return Err(format!("Source file does not exist: {}", source_path));
     }
 
-    let metadata = fs::metadata(&source)
-        .map_err(|e| format!("Failed to get file metadata: {}", e))?;
+    let metadata =
+        fs::metadata(&source).map_err(|e| format!("Failed to get file metadata: {}", e))?;
     let file_size = metadata.len();
 
     // Copy file
-    fs::copy(&source, &destination_path)
-        .map_err(|e| format!("Failed to copy file: {}", e))?;
+    fs::copy(&source, &destination_path).map_err(|e| format!("Failed to copy file: {}", e))?;
 
     Ok(file_size)
 }
