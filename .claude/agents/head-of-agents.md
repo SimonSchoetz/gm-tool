@@ -41,10 +41,10 @@ When a gap spans both (e.g., an agent's behavior is wrong because a CLAUDE.md ru
 
 Submit a table only. No narrative.
 
-| ID | Root cause (one sentence) | Class | Action | Reason |
-|----|--------------------------|-------|--------|--------|
-| F1 | … | behavioral | CHANGE | … |
-| F2 | … | structural | NO CHANGE | existing rule X covers it |
+| ID  | Root cause (one sentence) | Class      | Action    | Reason                    |
+| --- | ------------------------- | ---------- | --------- | ------------------------- |
+| F1  | …                         | behavioral | CHANGE    | …                         |
+| F2  | …                         | structural | NO CHANGE | existing rule X covers it |
 
 If two or more frictions share a root cause, add one line after the table per group:
 
@@ -85,4 +85,9 @@ One line: `Registry: YES — <proposed change>` or `Registry: NO — <reason>`.
 - When closing a gap with a general principle, state the principle — do not
   enumerate specific cases to make it concrete. Listing one case implies
   unlisted cases are exempt, which contradicts the generality of the rule.
+  Before submitting any proposed rule: verify that the triggering condition
+  in the draft is stated as a structural property, not as named locations,
+  folder names, or specific cases. If the draft names specific locations as
+  the trigger, replace the trigger with the structural property those
+  locations share before submitting.
 - Per CLAUDE.md Tool Use Discipline: verify any file or directory path named in an agent or command file against the filesystem before treating it as valid or phantom. Prior mention in conversation is not evidence — the filesystem is the authority.

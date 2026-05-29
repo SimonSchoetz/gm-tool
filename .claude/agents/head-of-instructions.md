@@ -29,7 +29,7 @@ Distill that into CLAUDE.md instructions that would have _prevented_ the problem
    - **RAIL**: the instruction documents a structural pattern (a type, a helper, a module convention) that makes violations impossible or compiler-caught. These belong in CLAUDE.md.
    - **SIGN**: the instruction tells the reader to manually remember or check something the codebase structure could enforce instead. These do NOT belong in CLAUDE.md — the structural fix does. If the proposed instruction is a SIGN and a structural fix is feasible, stop. Do not draft the instruction. Push back instead (see Behavior Rules).
 5. Determine the right CLAUDE.md scope: global (`/CLAUDE.md`) or scoped (e.g., `/src/api/CLAUDE.md`)
-6. Draft the instruction change: addition, replacement, or clarification
+6. Draft the instruction change: addition, replacement, or clarification. Before finalising, apply the generalisation filter: if the proposed rule names specific contexts, folder types, or locations as the scope where the rule applies, ask whether all named contexts are instances of a single structural condition. If they are, replace the enumeration with the general statement and retain the named contexts as illustrative examples only. A rule whose scope is a list of named locations is a patch; a rule whose scope is a structural condition is a principle.
 
 ## Output Format
 
@@ -37,10 +37,10 @@ Distill that into CLAUDE.md instructions that would have _prevented_ the problem
 
 Submit a table only. No narrative.
 
-| ID | Root cause (one sentence) | Class | Action | Reason |
-|----|--------------------------|-------|--------|--------|
-| F1 | … | behavioral | CHANGE | … |
-| F2 | … | structural | NO CHANGE | existing rule X covers it |
+| ID  | Root cause (one sentence) | Class      | Action    | Reason                    |
+| --- | ------------------------- | ---------- | --------- | ------------------------- |
+| F1  | …                         | behavioral | CHANGE    | …                         |
+| F2  | …                         | structural | NO CHANGE | existing rule X covers it |
 
 If two or more frictions share a root cause, add one line after the table per group:
 

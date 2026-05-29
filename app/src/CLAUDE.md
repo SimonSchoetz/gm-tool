@@ -113,8 +113,11 @@ In the data-access-layer, one concern = one file:
   - ✅ Parent imports `import { AvatarCell } from './components'`
   - ❌ `import { AvatarCell } from '../components/AvatarCell/AvatarCell'` — double-name import, always wrong regardless of nesting depth
   - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
-- **Sibling imports within `components/` use relative paths, never the barrel.** A component inside `components/` that needs another top-level component from the same grouping folder must import it via a relative path (e.g., `../GlassPanel/GlassPanel`) — never via `@/components`. Importing through the grouping barrel from within the folder it exports creates a circular dependency.
-  - ❌ `import { GlassPanel } from '@/components'` — circular: the barrel exports `MentionPopup`, which imports from the barrel
+- **A file inside any grouping folder must never import siblings through that folder's own barrel.** Barrels exist for external consumers; a file importing through a barrel it is part of creates a circular dependency. Always use a direct relative path to the sibling instead.
+  - ❌ `import { GlassPanel } from '@/components'` — circular: `MentionPopup` is inside `src/components/`, which exports it; importing through `@/components` from within that folder closes the cycle
+  - ❌ `import { TableConfigRow } from '../components'` — circular: `TableConfigSection` is inside `screenName/components/`, which exports it; `../components` resolves to that same barrel
+  - ✅ `import { GlassPanel } from '../GlassPanel/GlassPanel'` — direct relative path, no barrel involved
+  - ✅ `import { TableConfigRow } from '../TableConfigRow/TableConfigRow'` — direct relative path, no barrel involved
 
 ### Component Internals
 
@@ -265,14 +268,14 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 
 **Layer responsibilities:**
 
-- `app/services/` — business logic, wraps DB calls, throws domain errors from `@domain`. Import via `@services/<file>`.
+- `app/services/` — business logic, wraps DB calls and Tauri API calls that require business logic, compose multiple operations, or need domain-typed error handling; throws domain errors from `@domain`. Import via `@services/<file>`.
   - **Service layer must not supply fallback defaults for nullable or DB-defaulted columns.** A nullable column's correct value when not provided is `NULL` — supplying a fallback in the service layer misrepresents domain state. Service functions pass values through as-is or omit them; they do not apply `?? 'fallback'` or similar substitutions.
     - ❌ BAD: `name: data.name ?? 'New Session'` in a service `create` function — implies the session has a name when it doesn't
     - ✅ GOOD: `name: data.name` — pass the value through; the DB handles NULL
   - **Never replicate a DB default value at a call site.** When a column has a SQL `DEFAULT`, omit the field — the database supplies the value. When a `NOT NULL DEFAULT x` column appears non-optional at a call site, the fix is `generateCreateSchema` — never patch the call site.
     - ❌ BAD: `active_view: 'prep'` in a service `create` call because the column became non-optional
     - ✅ GOOD: omit `active_view` entirely — `generateCreateSchema` makes it optional at the schema level; the DB default fires
-- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch
+- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch. Tauri API calls that are pure reads with no business logic and no domain error transformation go directly here — never through `services/`.
 - `screens/` — UI only, no error handling, no try/catch
 - Error Boundary at app level catches all unhandled async errors
 
