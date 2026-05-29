@@ -27,6 +27,18 @@ export const initDatabase = async () => {
         )
       `);
 
+      await database.execute(`
+        CREATE TABLE IF NOT EXISTS _system (
+          key TEXT PRIMARY KEY,
+          value TEXT
+        )
+      `);
+
+      await database.execute(
+        'INSERT OR IGNORE INTO _system (key, value) VALUES ($1, $2)',
+        ['versioning', null],
+      );
+
       await runMigrations(database);
 
       db = database;
