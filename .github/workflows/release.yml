@@ -10,15 +10,18 @@ jobs:
     permissions:
       contents: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
             args: ''
           - os: macos-latest
-            args: '--target universal-apple-darwin'
+            args: '--target aarch64-apple-darwin'
+          - os: macos-latest
+            args: '--target x86_64-apple-darwin'
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -33,10 +36,8 @@ jobs:
           node-version: lts/*
 
       - uses: dtolnay/rust-toolchain@stable
-
-      - name: Add macOS universal binary targets
-        if: matrix.os == 'macos-latest'
-        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && matrix.args == '--target aarch64-apple-darwin' && 'aarch64-apple-darwin' || matrix.os == 'macos-latest' && 'x86_64-apple-darwin' || '' }}
 
       - name: Install frontend dependencies
         run: npm install
