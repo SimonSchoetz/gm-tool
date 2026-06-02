@@ -1,21 +1,19 @@
 # Product Backlog
 
 ## Post MVP -> Closed Beta Ready
-- Epic: (automatic) updates
-  - needs versioning
-  - hosted via github
-  - setting to either make automatic updates or on-demand
-- Fix: Data access and db location/localization
-  - encryption?
-- Feature (Content): Revise All existing texts like session step tooltips and templates
-- Fix: White BG on app start
-- Fix: Adventure stats (facts)
+- Feature: Automatic updates
+  - UX update so user can trigger update manually
 - Epic: Stable build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
     - first start: should ask if relocate or create new
       - relocate db functonality
       - chosing db/asset location functionality
+- Fix: Data access and db location/localization
+  - encryption?
+- Feature (Content): Revise All existing texts like session step tooltips and templates
+- Fix: White BG on app start
+- Fix: Adventure stats (facts)
 - Text editor enhancements
   - embedded links
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
@@ -26,6 +24,8 @@
 
 ### Done
 
+- Feature: Automatic updates
+  - versioning, github pipeline
 - Feature: db migrations
   - Baseline:
     - seed data like colors

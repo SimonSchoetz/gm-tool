@@ -38,9 +38,9 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "REPLACE_WITH_PUBLIC_KEY",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFCMjY0Njg1MUIzRERGMwpSV1R6M2JOUmFHU3lDditFa3FTNXlqNzZieCtTZVYvVDRkMlhRd3Qxa0o0ZTBEd3VsRDFTYS9XUAo=",
       "endpoints": [
-        "https://github.com/REPLACE_WITH_GITHUB_USERNAME/REPLACE_WITH_REPO_NAME/releases/latest/download/latest.json"
+        "https://github.com/SimonSchoetz/gm-tool/releases/latest/download/latest.json"
       ]
     }
   }

@@ -1,5 +1,7 @@
 {
   "name": "gm-tool",
+  "description": "A TTRGP session management tool",
+  "author": "Simon Schötz",
   "private": true,
   "version": "0.1.0",
   "type": "module",
