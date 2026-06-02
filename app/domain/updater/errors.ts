@@ -1,9 +1,19 @@
-export type UpdateCheckError = Error & { name: 'UpdateCheckError' };
-export const updateCheckError = (cause?: unknown): UpdateCheckError => {
+export type UpdateCheckErrorReason = 'network' | 'server';
+
+export type UpdateCheckError = Error & {
+  name: 'UpdateCheckError';
+  reason: UpdateCheckErrorReason;
+};
+
+export const updateCheckError = (
+  cause?: unknown,
+  reason: UpdateCheckErrorReason = 'server',
+): UpdateCheckError => {
   const error = new Error(
     `Failed to check for updates: ${String(cause)}`,
   ) as UpdateCheckError;
   error.name = 'UpdateCheckError';
+  error.reason = reason;
   return error;
 };
 

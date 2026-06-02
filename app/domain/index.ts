@@ -151,5 +151,5 @@ export {
   tableConfigUpdateError,
 } from './table-config';
 
-export type { UpdateCheckError, UpdateInstallError } from './updater';
+export type { UpdateCheckError, UpdateCheckErrorReason, UpdateInstallError } from './updater';
 export { updateCheckError, updateInstallError } from './updater';

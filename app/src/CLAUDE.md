@@ -281,7 +281,7 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 
 **Non-negotiable rules:**
 
-- Always add `throwOnError: true` to every `useQuery` call. Without it, query errors are silently swallowed into the query's internal error state and never surface to the Error Boundary.
+- Always add `throwOnError: true` to every `useQuery` call. Without it, query errors are silently swallowed into the query's internal error state and never surface to the Error Boundary. The only permitted exception is a query explicitly designated as a non-blocking background check, where: (a) `throwOnError` is intentionally omitted — never set to `false` explicitly — with a block comment on the `useQuery` call documenting why the Error Boundary is not the correct destination, and (b) the hook's return type exposes the error as a named, typed field (e.g., `checkError: UpdateCheckError | null`) so callers can handle it locally. A non-blocking background check that does not expose its error through the return type is not an exception — it is a violation.
 - Never destructure `error` from `useQuery` and handle it locally — let it propagate.
 - Never wrap `mutateAsync` in try/catch in data access hooks or screens — mutations use `throwOnError: true` via QueryClient defaults.
 - Never add try/catch blocks to data access hooks or screens. If an error needs handling, it belongs in the service layer or the Error Boundary.
