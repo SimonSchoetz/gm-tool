@@ -28,9 +28,10 @@
 
 ## Cutting the release
 
-Push a version tag matching the version in `tauri.conf.json`:
+The CI workflow verifies that the tagged commit is on `main` before building. The branch must be on the remote before the tag is pushed — pushing the tag first will fail the verification check.
 
 ```bash
+git push origin main
 git tag v1.2.3
 git push origin v1.2.3
 ```
