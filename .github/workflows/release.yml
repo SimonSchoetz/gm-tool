@@ -12,6 +12,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag is on main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
 
       - uses: actions/setup-node@v4
         with:
