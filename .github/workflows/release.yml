@@ -3,19 +3,27 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   release:
     permissions:
       contents: write
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            args: ''
+          - os: macos-latest
+            args: '--target universal-apple-darwin'
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Verify tag is on main
+        shell: bash
         run: |
           git fetch origin main
           git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
@@ -25,6 +33,10 @@ jobs:
           node-version: lts/*
 
       - uses: dtolnay/rust-toolchain@stable
+
+      - name: Add macOS universal binary targets
+        if: matrix.os == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Install frontend dependencies
         run: npm install
@@ -41,3 +53,4 @@ jobs:
           releaseDraft: false
           prerelease: false
           projectPath: app
+          args: ${{ matrix.args }}

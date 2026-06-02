@@ -26,7 +26,7 @@
 
 - Feature: Automatic updates
   - versioning
-  - github pipeline for automated builds (windows)
+  - github pipeline for automated builds (windows & macos)
 - Feature: db migrations
   - Baseline:
     - seed data like colors
