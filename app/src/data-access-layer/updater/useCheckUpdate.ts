@@ -11,7 +11,8 @@ type UseCheckUpdateReturn = {
 export const useCheckUpdate = (): UseCheckUpdateReturn => {
   const { data, isFetching, refetch } = useQuery({
     queryKey: updaterKeys.check(),
-    queryFn: updaterService.checkUpdate,
+    // Skip network check in dev — endpoint is not available locally
+    queryFn: import.meta.env.DEV ? () => Promise.resolve(null) : updaterService.checkUpdate,
     staleTime: Infinity,
     throwOnError: true,
   });
