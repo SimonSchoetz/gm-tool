@@ -74,6 +74,8 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 Run `npm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
+Run `npm run build:frontend` from `app/` and surface any warnings and errors.
+
 Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced).
 
 ### Friction brief
