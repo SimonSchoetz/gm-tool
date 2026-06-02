@@ -3,7 +3,7 @@
 ## Post MVP -> Closed Beta Ready
 - Feature: Automatic updates
   - UX update so user can trigger update manually
-- Epic: Stable build for mac and windows (maybe linux)
+- Epic: Stable and secure build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
     - first start: should ask if relocate or create new
@@ -25,7 +25,8 @@
 ### Done
 
 - Feature: Automatic updates
-  - versioning, github pipeline
+  - versioning
+  - github pipeline for automated builds (windows)
 - Feature: db migrations
   - Baseline:
     - seed data like colors
