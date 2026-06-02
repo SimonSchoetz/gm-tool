@@ -1,6 +1,7 @@
 # Product Backlog
 
 ## Post MVP -> Closed Beta Ready
+- Feature: Own placeholder logo that replaces the tauri logo
 - Feature: Automatic updates
   - UX update so user can trigger update manually
 - Epic: Stable and secure build for mac and windows (maybe linux)
