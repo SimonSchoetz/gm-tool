@@ -187,6 +187,8 @@ This allows downstream agents and future cycles to treat verified facts as estab
 
 **Every handoff artifact must carry the full citation record.** When producing a brief, review output, or any artifact passed to another agent or cycle, include all `[Role_N: source]` citations from prior work — not only the citations introduced in the current output. Citations must not be dropped, summarized, or merged when forwarding. A downstream agent receiving an artifact without its full citation record cannot distinguish established facts from unverified claims and must treat all facts as unverified.
 
+**When an external system misbehaves, verify its specification before proposing any diagnosis.** When an external system produces an unexpected error, unexpected output, or unexpected behavior — and Claude is about to propose a causal explanation — read the relevant section of that system's documentation before proposing any cause. This is a pre-proposal gate, not a pre-commit gate: the documentation read must happen before the first diagnosis is stated, not after fix attempts have already been made. Assuming the existing configuration is complete and correct — and proceeding directly to reasoning about environment, credentials, versions, or runtime state — is the failure mode this rule closes. The trigger is "something is misbehaving and I am about to explain why"; the required action is "read the spec first."
+
 ### Third-Party Libraries
 
 The general verification obligation above applies to all external systems. For **npm packages specifically**, the lookup procedure is:
