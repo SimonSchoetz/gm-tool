@@ -1,5 +1,6 @@
 import { UserSquareIcon } from 'lucide-react';
-import { ImageById, ImagePlaceholderFrame } from '@/components';
+import { ImageById } from '../../../../../ImageById/ImageById';
+import { ImagePlaceholderFrame } from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import './AvatarCell.css';
 
 type AvatarCellProps = {

@@ -2,8 +2,8 @@ import { useState, useRef, useEffect, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouterState } from '@tanstack/react-router';
 import { FCProps } from '@/types';
-import { MentionPopup } from '@/components';
-import type { PopupPosition, PopupPlacement } from '@/components';
+import { MentionPopup } from '../../components/MentionPopup';
+import type { PopupPosition, PopupPlacement } from '../../components/MentionPopup';
 import {
   PinnedPopupsContext,
   ShowPopupArgs,

@@ -1,4 +1,4 @@
-import { GlassPanel } from '@/components';
+import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 
 import './ImagePlaceholderFrame.css';

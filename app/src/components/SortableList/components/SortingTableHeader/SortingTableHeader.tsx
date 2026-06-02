@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useRef, useMemo } from 'react';
 import { ChevronUpIcon } from 'lucide-react';
-import { ActionContainer } from '@/components';
+import ActionContainer from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
 import './SortingTableHeader.css';
 import { cn } from '@/util';

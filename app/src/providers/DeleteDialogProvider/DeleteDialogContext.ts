@@ -1,4 +1,4 @@
-import { DeleteDialog } from '@/components';
+import { DeleteDialog } from '../../components/DeleteDialog/DeleteDialog';
 import { createContext } from 'react';
 
 export type DeleteDialogContextValue = {

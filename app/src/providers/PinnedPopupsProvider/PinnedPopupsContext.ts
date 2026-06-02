@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { PopupPlacement, PopupPosition } from '@/components';
+import type { PopupPlacement, PopupPosition } from '../../components/MentionPopup';
 
 export type ShowPopupArgs = {
   entityId: string;

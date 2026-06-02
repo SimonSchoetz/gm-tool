@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSortable, useListFilter } from '@/hooks';
 import { useTableConfig } from '@/data-access-layer';
 import { cn } from '@/util';
-import {
-  GlassPanel,
-  SearchInput,
-  CustomScrollArea,
-  NewItemBtn,
-  HorizontalDivider,
-} from '@/components';
+import GlassPanel from '../GlassPanel/GlassPanel';
+import { SearchInput } from '../SearchInput/SearchInput';
+import { CustomScrollArea } from '../CustomScrollArea/CustomScrollArea';
+import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
+import { HorizontalDivider } from '../HorizontalDivider/HorizontalDivider';
 import './SortableList.css';
 import { SortableListItem, SortingTableHeader } from './components';
 

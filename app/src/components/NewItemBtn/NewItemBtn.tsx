@@ -1,4 +1,5 @@
-import { ActionContainer, GlassPanel } from '@/components';
+import ActionContainer from '../ActionContainer/ActionContainer';
+import GlassPanel from '../GlassPanel/GlassPanel';
 import './NewItemBtn.css';
 import { cn } from '@/util';
 

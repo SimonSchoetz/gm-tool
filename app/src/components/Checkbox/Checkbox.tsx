@@ -1,7 +1,7 @@
 import { FCProps, HtmlProps } from '@/types';
 import './Checkbox.css';
 import { cn } from '@/util';
-import { GlassPanel } from '@/components';
+import GlassPanel from '../GlassPanel/GlassPanel';
 import { CheckIcon } from 'lucide-react';
 
 /**
