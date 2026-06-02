@@ -166,7 +166,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
 ### Epistemological Discipline
 
-**Training data confers reasoning capability, never factual authority about external state.** Before stating any fact about something outside the conversation — an ESLint plugin's exported rules, a library's API surface, a CLI flag's behavior, an IDE or editor's config format, a file's contents, a config schema, or any external tooling — verify it in the current context window first. Do not state the fact and verify later. Training knowledge is a starting point for knowing *where* to look and *what questions to ask*; it is never sufficient to state that something exists, works a certain way, or does not exist.
+**Training data confers reasoning capability, never factual authority about external state.** Any claim about what an external system accepts, exposes, or requires — regardless of surface: a library's API, a CI action's input schema, a CLI flag, a config file format, a REST endpoint's request body, or any other specification defined outside this repository — must be verified in the current context window before being stated. The surface type is irrelevant; the obligation is the same. Do not state the fact and verify later. Training knowledge is a starting point for knowing *where* to look and *what questions to ask*; it is never sufficient to state that something exists, works a certain way, or does not exist.
 
 The corollary: **absence is not provable from training knowledge.** Claiming that a rule, symbol, or feature does not exist based on not recognizing it from training is always wrong — only a lookup that returns no result proves absence.
 
@@ -189,7 +189,7 @@ This allows downstream agents and future cycles to treat verified facts as estab
 
 ### Third-Party Libraries
 
-Never assume training knowledge is current for third-party libraries. Before suggesting or implementing anything that depends on a specific library API, version, or feature:
+The general verification obligation above applies to all external systems. For **npm packages specifically**, the lookup procedure is:
 
 1. Check the installed version in `package.json`
 2. Fetch the official documentation for that exact version from the internet
