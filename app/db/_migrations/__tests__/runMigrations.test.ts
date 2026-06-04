@@ -13,8 +13,9 @@ describe('runMigrations', () => {
   it('should call ROLLBACK and re-throw when migration.up() throws', async () => {
     const migrationError = new Error('migration failed');
 
+    mockExecute.mockResolvedValueOnce(undefined); // CREATE TABLE IF NOT EXISTS _migrations
     mockExecute.mockResolvedValueOnce(undefined); // BEGIN
-    mockExecute.mockRejectedValueOnce(migrationError); // first db.execute inside up()
+    mockExecute.mockRejectedValueOnce(migrationError); // first execute inside migration.up()
     mockExecute.mockResolvedValueOnce(undefined); // ROLLBACK
 
     const mockDb = {
