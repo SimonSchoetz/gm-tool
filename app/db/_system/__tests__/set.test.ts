@@ -26,7 +26,7 @@ describe('set', () => {
     const { set } = await import('../set');
     await set('versioning', null);
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO _system (key, value) VALUES ($1, $2)',
+      'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
       ['versioning', null],
     );
   });
@@ -35,7 +35,7 @@ describe('set', () => {
     const { set } = await import('../set');
     await set('versioning', '{"snoozed_update_version":"1.2.3"}');
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO _system (key, value) VALUES ($1, $2)',
+      'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
       ['versioning', '{"snoozed_update_version":"1.2.3"}'],
     );
   });

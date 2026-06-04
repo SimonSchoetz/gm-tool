@@ -28,7 +28,7 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
   - `id` as PK (created with nanoid)
   - `created_at`
   - `updated_at`
-- **Infrastructure tables prefixed with `_` (e.g., `_migrations`, `_system`) are exempt from the domain column requirements (`id`, `created_at`, `updated_at`).** They define their own schema to match their structural purpose.
+- **Infrastructure tables prefixed with `_` (e.g., `_migrations`, `_system`) are exempt from the `created_at` and `updated_at` domain column requirements. The `id TEXT PRIMARY KEY` naming rule is **not** exempt — all tables, including infrastructure tables, use `id` as the primary key column name. Infrastructure tables define their own schema otherwise to match their structural purpose.**
 - **Naming consistency**: All entities use `name` as the primary identifier column
   - Use `name`, not `title`, `label`, or other variations
   - Example: `adventures.name`, `npcs.name`, `sessions.name`

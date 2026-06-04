@@ -33,7 +33,7 @@ describe('get', () => {
     const result = await get('versioning');
     expect(result).toBe('some-json');
     expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT value FROM _system WHERE key = $1',
+      'SELECT value FROM _system WHERE id = $1',
       ['versioning'],
     );
   });
