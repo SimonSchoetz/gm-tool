@@ -119,11 +119,11 @@ Do not replicate it for new tables.
 
 ## Migrations
 
-Every schema change (ADD COLUMN, DROP COLUMN, change column constraint, new table, dropped table) requires a new migration file in `db/migrations/`. Never alter `createTableSQL` in a `schema.ts` without a corresponding migration file.
+Every schema change (ADD COLUMN, DROP COLUMN, change column constraint, new table, dropped table) requires a new migration file in `db/_migrations/`. Never alter `createTableSQL` in a `schema.ts` without a corresponding migration file.
 
 Migration file naming: `{ms_timestamp}_{description}.ts`, where the timestamp is `Date.now()` at the time of file creation, assigned once and never changed. Timestamps must be unique.
 
-Each migration file exports a named const with shape `{ id: string, up: (db: Database) => Promise<void> }`. The `id` must match the timestamp in the file name. After creating the file, add it to the `migrations` array in `db/migrations/index.ts` in ascending timestamp order.
+Each migration file exports a named const with shape `{ id: string, up: (db: Database) => Promise<void> }`. The `id` must match the timestamp in the file name. After creating the file, add it to the `migrations` array in `db/_migrations/index.ts` in ascending timestamp order.
 
 All migrations must be idempotent: use `CREATE TABLE IF NOT EXISTS` for new tables; for column-level changes, use `DROP TABLE IF EXISTS` on any temp table before creating it.
 
