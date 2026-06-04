@@ -15,7 +15,8 @@
     "test": "cd app && npm run test",
     "dev": "cd app && npm run dev",
     "web": "cd app && npm run web",
-    "lint": "cd app && npx eslint ."
+    "lint": "cd app && npx eslint .",
+    "build-local": "cd app && npm run tauri build -- --debug"
   },
   "devDependencies": {
     "simple-git-hooks": "latest"

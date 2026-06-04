@@ -5,9 +5,8 @@
 1. **Update the version** in two places:
    - `app/src-tauri/tauri.conf.json` → `"version"` field
    - `app/src-tauri/Cargo.toml` → `[package] version` field
-   Both must match. Use semver: `MAJOR.MINOR.PATCH`.
-
-   > **v0.1.0 only:** Both files already contain `0.1.0`. Skip this step for the first release.
+   - `app/package.json` → `version` field
+   All must match. Use semver: `MAJOR.MINOR.PATCH`.
 
 2. **Update CHANGELOG.md** (ask Claude to do this):
    - Move all entries under `[Unreleased]` to a new versioned section:
