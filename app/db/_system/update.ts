@@ -1,6 +1,6 @@
 import { getDatabase } from '../database';
 
-export const set = async (key: string, value: string | null): Promise<void> => {
+export const update = async (key: string, value: string | null): Promise<void> => {
   const db = await getDatabase();
   await db.execute(
     'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
