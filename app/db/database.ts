@@ -18,19 +18,6 @@ export const initDatabase = async () => {
       console.log('Attempting to load database...');
       const database = await Database.load('sqlite:gm_tool.db');
       console.log('Database loaded successfully');
-
-      await database.execute(`
-        CREATE TABLE IF NOT EXISTS _system (
-          key TEXT PRIMARY KEY,
-          value TEXT
-        )
-      `);
-
-      await database.execute(
-        'INSERT OR IGNORE INTO _system (key, value) VALUES ($1, $2)',
-        ['versioning', null],
-      );
-
       await runMigrations(database);
 
       db = database;
