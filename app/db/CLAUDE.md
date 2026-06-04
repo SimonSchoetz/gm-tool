@@ -3,10 +3,10 @@
 ## Structure
 
 db/
-├── database.ts # Init, \_migrations bootstrap, migration runner call
-├── migrations/ # Migration runner and migration files
+├── \_migrations/ # Migration runner and migration files
+├── \_system/ # Infrastructure key-value store
+├── database.ts # Init, migration runner call
 ├── util/ # Schema builder (defineTable)
-├── _system/ # key TEXT PRIMARY KEY, value TEXT (JSON); infrastructure key-value store
 ├── adventure/ # schema, types, CRUD, index
 ├── session/
 ├── npc/

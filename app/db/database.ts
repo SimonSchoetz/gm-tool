@@ -1,5 +1,5 @@
 import Database from '@tauri-apps/plugin-sql';
-import { runMigrations } from './migrations';
+import { runMigrations } from './_migrations';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
@@ -18,13 +18,6 @@ export const initDatabase = async () => {
       console.log('Attempting to load database...');
       const database = await Database.load('sqlite:gm_tool.db');
       console.log('Database loaded successfully');
-
-      await database.execute(`
-        CREATE TABLE IF NOT EXISTS _migrations (
-          id TEXT PRIMARY KEY,
-          applied_at TEXT NOT NULL
-        )
-      `);
 
       await database.execute(`
         CREATE TABLE IF NOT EXISTS _system (
