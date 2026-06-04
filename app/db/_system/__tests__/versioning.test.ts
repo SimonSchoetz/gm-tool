@@ -34,7 +34,20 @@ describe('versioning', () => {
     expect(result).toEqual({ snoozed_update_version: null });
   });
 
-  it('getVersioning returns null when the row value is null', async () => {
+  it('getVersioning returns null when no row exists for the key', async () => {
+    // beforeEach default: mockSelect.mockResolvedValue([]) — no row returned
+    const { getVersioning } = await import('../versioning');
+    const result = await getVersioning();
+    expect(result).toBeNull();
+  });
+
+  it('getVersioning returns null when the row exists but its value is SQL NULL', async () => {
+    mockSelect.mockImplementation((query: string) => {
+      if (query.includes('SELECT value FROM _system')) {
+        return Promise.resolve([{ value: null }]);
+      }
+      return Promise.resolve([]);
+    });
     const { getVersioning } = await import('../versioning');
     const result = await getVersioning();
     expect(result).toBeNull();
