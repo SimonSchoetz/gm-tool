@@ -4,7 +4,11 @@
 
 db/
 ├── \_migrations/ # Migration runner and migration files
-├── \_system/ # Infrastructure key-value store
+├── \_system/          # Infrastructure key-value store
+│   ├── schema.ts     # Zod schemas and derived types for each key's value shape
+│   ├── versioning.ts # Typed accessors for the versioning key (public API)
+│   ├── get.ts        # Raw SQL utility — internal, not exported from barrel
+│   └── update.ts     # Raw SQL utility — internal, not exported from barrel
 ├── database.ts # Init, migration runner call
 ├── util/ # Schema builder (defineTable)
 ├── adventure/ # schema, types, CRUD, index
