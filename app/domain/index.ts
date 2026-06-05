@@ -151,5 +151,15 @@ export {
   tableConfigUpdateError,
 } from './table-config';
 
-export type { UpdateCheckError, UpdateCheckErrorReason, UpdateInstallError } from './updater';
-export { updateCheckError, updateInstallError } from './updater';
+export type {
+  UpdateCheckError,
+  UpdateCheckErrorReason,
+  UpdateDownloadError,
+  UpdateInstallAndRelaunchError,
+} from './updater';
+export {
+  updateCheckError,
+  updateDownloadError,
+  updateInstallAndRelaunchError,
+} from './updater';
+export type { DownloadProgressEvent } from './updater';

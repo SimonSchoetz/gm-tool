@@ -17,11 +17,24 @@ export const updateCheckError = (
   return error;
 };
 
-export type UpdateInstallError = Error & { name: 'UpdateInstallError' };
-export const updateInstallError = (cause?: unknown): UpdateInstallError => {
+export type UpdateDownloadError = Error & { name: 'UpdateDownloadError' };
+export const updateDownloadError = (cause?: unknown): UpdateDownloadError => {
+  const error = new Error(
+    `Failed to download update: ${String(cause)}`,
+  ) as UpdateDownloadError;
+  error.name = 'UpdateDownloadError';
+  return error;
+};
+
+export type UpdateInstallAndRelaunchError = Error & {
+  name: 'UpdateInstallAndRelaunchError';
+};
+export const updateInstallAndRelaunchError = (
+  cause?: unknown,
+): UpdateInstallAndRelaunchError => {
   const error = new Error(
     `Failed to install update: ${String(cause)}`,
-  ) as UpdateInstallError;
-  error.name = 'UpdateInstallError';
+  ) as UpdateInstallAndRelaunchError;
+  error.name = 'UpdateInstallAndRelaunchError';
   return error;
 };
