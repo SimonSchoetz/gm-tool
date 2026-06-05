@@ -1,8 +1,10 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, Channel } from '@tauri-apps/api/core';
 import {
   updateCheckError,
-  updateInstallError,
+  updateDownloadError,
+  updateInstallAndRelaunchError,
   type UpdateCheckErrorReason,
+  type DownloadProgressEvent,
 } from '@domain';
 
 const categorizeCheckError = (cause: unknown): UpdateCheckErrorReason => {
@@ -26,10 +28,20 @@ export const checkUpdate = async (): Promise<string | null> => {
   }
 };
 
-export const installUpdate = async (): Promise<void> => {
+export const downloadUpdate = async (
+  onProgress: Channel<DownloadProgressEvent>,
+): Promise<void> => {
   try {
-    await invoke('install_update');
+    await invoke('download_update', { onEvent: onProgress });
   } catch (cause) {
-    throw updateInstallError(cause);
+    throw updateDownloadError(cause);
+  }
+};
+
+export const installAndRelaunch = async (): Promise<void> => {
+  try {
+    await invoke('install_and_relaunch');
+  } catch (cause) {
+    throw updateInstallAndRelaunchError(cause);
   }
 };
