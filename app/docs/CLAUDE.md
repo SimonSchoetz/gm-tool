@@ -36,6 +36,7 @@ Both annotations are required. The tracker marker is a planning-time signal; the
 
 - ✅ `[FOUNDATION: SF2–SF4 depend on this. Stage as unit: src/components/Foo/Foo.tsx, src/components/Foo/components/Bar.tsx, src/components/Foo/components/index.ts]`
 - ❌ `[FOUNDATION: SF2–SF4 depend on this]` — no file list; implementer must infer scope and risks missing files at adjacent directory levels
+- ❌ `[FOUNDATION: SF2–SF4 depend on this. Stage as unit: same as SF3's Foundation annotation]` — delegation to another SF's file list is not permitted; every Foundation annotation must enumerate its own complete file list inline; an implementer starting from that SF will not re-read another annotation to reconstruct the stage set
 
 ### Key Architectural Decisions
 
@@ -44,6 +45,8 @@ Required section in every spec, placed after the progress tracker and before the
 Each entry: a short heading stating the decision, followed by one paragraph of rationale. Cross-reference the CLAUDE.md rule that drove it when one applies. State decisions as facts — never attribute them to a conversation, a person, or a prior agent. The spec is consumed by a fresh implementing instance with no conversational context; provenance is noise.
 
 In split format, this section lives exclusively in the root index file. Sub-feature files do not contain their own decision sections.
+
+**SF self-containment for architectural consequences.** When a KAD produces a structural choice in a specific SF that an implementer reading only that SF file would find surprising — a type from a foreign layer appearing as a parameter, a deliberate deviation from a boundary rule, or any choice whose rationale lives only in the root KAD section — the SF body must include a brief inline rationale note at the decision site. The note must name the KAD heading it corresponds to. An SF that contains a surprising structural choice with no inline rationale is a spec defect: the implementing instance has no basis to distinguish intentional design from error.
 
 ### Per sub-feature section
 

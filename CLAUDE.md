@@ -201,6 +201,12 @@ This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and
 
 To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
 
+For **Tauri configuration values** (`tauri.conf.json` and related config files), the lookup procedure is:
+
+1. Locate the `$schema` field in the config file (e.g. `"$schema": "https://schema.tauri.app/config/2"`)
+2. Fetch the JSON schema at that URL
+3. Read the accepted enum strings or string literals directly from the schema — never infer them from prose documentation, which may use colloquial language that does not match the schema's declared values
+
 ### Tool Use Discipline
 
 - **Always Read a file immediately before editing it — this rule is a pre-edit gate, not a general reading habit.** Treat any prior read state as lost after context compaction — do not assume a file read earlier in the session is still accurate. Re-read before each edit. Do not re-read a file after editing it to verify the write — trust the edit result. This rule applies only to writing roles; read-only roles (reviewer, architect, spec-writer in read-pass) have no edits to gate and must not apply it as a defensive habit.
