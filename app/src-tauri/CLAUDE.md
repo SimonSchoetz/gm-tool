@@ -10,11 +10,17 @@ src-tauri/src/
 ├── lib.rs            # Main library with app setup
 └── commands/         # Tauri commands organized by feature
     ├── mod.rs        # Command module exports
-    └── images/       # Image-related commands
+    ├── images/       # Image-related commands
+    │   ├── mod.rs
+    │   ├── save_image.rs
+    │   ├── get_image_url.rs
+    │   └── delete_image.rs
+    └── updater/      # Auto-update commands
         ├── mod.rs
-        ├── save_image.rs
-        ├── get_image_url.rs
-        └── delete_image.rs
+        ├── check_update.rs
+        ├── download_update.rs
+        ├── install_and_relaunch.rs
+        └── pending_install.rs
 ```
 
 ## Code Organization
@@ -171,6 +177,42 @@ Deletes an image file from the filesystem.
 
 **Behavior:** Returns success even if file doesn't exist (already gone)
 
+## Updater Commands
+
+The updater uses a two-phase flow: `download_update` fetches and stores the binary in `PendingInstallState`; `install_and_relaunch` consumes it and restarts the app. Both commands require `PendingInstallState` to be registered in `lib.rs` via `.manage(PendingInstallState::new(None))`.
+
+### check_update
+
+Checks whether a new version is available via `tauri-plugin-updater`.
+
+**Arguments:** none
+
+**Returns:** `Result<Option<String>, String>` — `Some(version_string)` if an update is available; `None` if already up to date; `Err(message)` on network or plugin failure.
+
+### download_update
+
+Downloads the update binary and stores it in `PendingInstallState` for a subsequent `install_and_relaunch` call.
+
+**Arguments:**
+- `on_event: Channel<DownloadEvent>` — IPC channel for streaming download progress to the frontend
+
+**`DownloadEvent` variants** (serialized with `tag = "event", content = "data"`, camelCase):
+- `Progress { chunkLength: number, contentLength: number | null }` — emitted once per downloaded chunk
+
+**Returns:** `Result<(), String>` — `Ok(())` on success; `Err(message)` if no update is available or the download fails.
+
+**Behavior:** Calls `updater.check()` internally — errors if no update is available rather than no-op.
+
+### install_and_relaunch
+
+Installs the previously downloaded update and restarts the application.
+
+**Arguments:** none
+
+**Returns:** `Result<(), String>` — errors with `"No downloaded update available"` if `download_update` was not called first; otherwise does not return (`app.restart()` is diverging).
+
+**Behavior:** Takes the pending install out of state (leaving `None`), calls `update.install(bytes)`, then calls `app.restart()`. Calling this without a prior successful `download_update` is an error.
+
 ## Testing
 
 TODO: Add testing patterns when implemented
@@ -182,4 +224,5 @@ Current dependencies in `Cargo.toml`:
 - `tauri-plugin-dialog` - File dialogs
 - `tauri-plugin-opener` - Opening files/URLs
 - `tauri-plugin-sql` - SQLite support
+- `tauri-plugin-updater` - Update checking, download, and installation
 
