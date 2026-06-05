@@ -109,7 +109,7 @@ await db.execute(
 - Import as namespace in consuming files: `import * as tableName from '@db/tableName'`
 - `@db/domainName` is the expected import depth for **all consumers** — including type imports from the frontend. Never reach into `@db/domainName/types` or deeper.
 - Usage example: `session.create()`, `session.getAll()`, `session.update()`
-- File names match function names: `create.ts`, `get.ts`, `get-all.ts`, `update.ts`, `remove.ts`
+- File names match function names: `create.ts`, `get.ts`, `get-all.ts`, `update.ts`, `remove.ts`. This list applies only to files that implement a single CRUD operation. Non-CRUD files — schema definitions, derived types, shared utilities — are named by their concern (e.g., `schema.ts`, `types.ts`). The root CLAUDE.md `1 concern → 1 file` rule governs these.
 
 ## Cross-table utilities
 

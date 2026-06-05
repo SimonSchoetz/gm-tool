@@ -27,7 +27,7 @@ The user's input may include findings or proposed fixes from other agents — `/
 
 ## Coordination Protocol
 
-Neither teammate writes anything to disk during this phase. Their job is analysis and proposal only. The protocol runs in two explicit phases — diagnosis before proposals. Do not accept proposals in the first round.
+Teammates never write anything to disk at any point in this session — their job is analysis and proposal only. The coordinator applies all approved changes directly; a write instruction is never sent to a teammate. The protocol runs in two explicit phases — diagnosis before proposals. Do not accept proposals in the first round.
 
 ### Phase 1 — Diagnosis
 

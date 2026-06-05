@@ -57,6 +57,8 @@ Each sub-feature gets a heading with its name and a short description of its int
 
 Every file touched must appear here — including barrel files, index files, and type files. No file may appear only in prose.
 
+**Test coverage from architectural decisions.** When the Key Architectural Decisions section identifies two or more distinct code paths (e.g., "row is absent" vs. "row value is SQL NULL"), the test section must enumerate one named test per path. The decision text is the authoritative source for test names — collapsing two named paths into one test, or naming a test after the wrong path, is a spec defect.
+
 **Test fixture accuracy.** When a Modified file changes observable behavior — any error message string, return value, guard condition, or function signature — the corresponding `__tests__/` file must also appear under `Modified:` with an annotation naming the specific assertions that go stale. Listing only the implementation file is a spec defect when the behavioral change invalidates an existing assertion.
 
 - ✅ `Modified: db/image/remove.ts` — error message changed; `Modified: db/image/__tests__/remove.test.ts` — update error message assertion from `'Image ID is required'` to `'Valid image ID is required'`
