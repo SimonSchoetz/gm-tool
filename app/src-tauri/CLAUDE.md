@@ -26,6 +26,18 @@ src-tauri/src/
 - **Module files** - Each directory has a `mod.rs` that re-exports its commands
 - **Flat exports** - The top-level `commands/mod.rs` re-exports all commands for easy registration
 
+### State Management
+
+When a command needs to persist data for use by a subsequent command, use a shared app state type registered in `lib.rs` via `.manage()` and accessed in commands via `State<'_, T>`.
+
+The canonical pattern is `Mutex<Option<PendingInstall>>` (defined in `commands/updater/pending_install.rs`): the first command acquires the lock and writes `Some(data)`; the second command takes the value out (`take()`) and returns `None` as the new state. Register the type alias as the managed state in `lib.rs`:
+
+```rust
+.manage(PendingInstallState::new(None))
+```
+
+Only the type alias (`PendingInstallState`) is re-exported from the module barrel — the inner struct (`PendingInstall`) stays private to the module.
+
 ### Adding New Commands
 
 1. **Create a new file** in the appropriate subdirectory:
