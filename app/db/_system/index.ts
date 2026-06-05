@@ -1,2 +1,2 @@
-export { get } from './get';
-export { set } from './set';
+export type { VersioningData } from './schema';
+export { getVersioning, updateVersioning } from './versioning';

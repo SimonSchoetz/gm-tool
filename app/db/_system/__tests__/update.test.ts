@@ -14,7 +14,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
   },
 }));
 
-describe('set', () => {
+describe('update', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -23,8 +23,8 @@ describe('set', () => {
   });
 
   it('inserts a new row', async () => {
-    const { set } = await import('../set');
-    await set('versioning', null);
+    const { update } = await import('../update');
+    await update('versioning', null);
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
       ['versioning', null],
@@ -32,8 +32,8 @@ describe('set', () => {
   });
 
   it('replaces an existing row', async () => {
-    const { set } = await import('../set');
-    await set('versioning', '{"snoozed_update_version":"1.2.3"}');
+    const { update } = await import('../update');
+    await update('versioning', '{"snoozed_update_version":"1.2.3"}');
     expect(mockExecute).toHaveBeenCalledWith(
       'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
       ['versioning', '{"snoozed_update_version":"1.2.3"}'],
