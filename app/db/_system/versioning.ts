@@ -5,7 +5,7 @@ import { versioningDataSchema, type VersioningData } from './schema';
 export const getVersioning = async (): Promise<VersioningData | null> => {
   const raw = await get('versioning');
   if (raw === null) return null;
-  return versioningDataSchema.parse(JSON.parse(raw) as unknown);
+  return versioningDataSchema.parse(JSON.parse(raw));
 };
 
 export const updateVersioning = async (data: VersioningData): Promise<void> => {
