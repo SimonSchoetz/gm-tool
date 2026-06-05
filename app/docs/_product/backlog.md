@@ -3,8 +3,6 @@
 ## Post MVP -> Closed Beta Ready
 - Feature: Automatic updates
   - UX update so user can trigger update manually
-- Feature: Own placeholder logo that replaces the tauri logo
-  - #164257 upper left to #031322 lower right, lines with #F8FBFB
 - Feature: Custom title bar
 - Epic: Stable and secure build for mac and windows (maybe linux)
   - hard drive access (as wide as need be, as narrow as possible)
@@ -27,6 +25,8 @@
 
 ### Done
 
+- Feature: Own placeholder logo that replaces the tauri logo
+  - #164257 upper left to #031322 lower right, lines with #F8FBFB
 - Feature: Automatic updates
   - versioning
   - github pipeline for automated builds (windows & macos)
