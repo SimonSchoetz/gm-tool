@@ -1,11 +1,9 @@
 mod commands;
 
-use commands::{check_update, delete_image, get_image_url, install_update, save_image};
-
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use commands::{
+    PendingInstallState, check_update, delete_image, download_update, get_image_url,
+    install_and_relaunch, save_image,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -14,13 +12,14 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(PendingInstallState::new(None))
         .invoke_handler(tauri::generate_handler![
-            greet,
-            save_image,
-            get_image_url,
-            delete_image,
             check_update,
-            install_update,
+            delete_image,
+            download_update,
+            get_image_url,
+            install_and_relaunch,
+            save_image,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
