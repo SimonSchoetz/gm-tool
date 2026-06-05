@@ -12,6 +12,14 @@
   color: var(--color-primary);
 }
 
+.app-version-section-progress {
+  color: var(--color-primary);
+}
+
+.app-version-section-error {
+  color: var(--color-danger);
+}
+
 .app-version-section-actions {
   display: flex;
   gap: var(--spacing-sm);

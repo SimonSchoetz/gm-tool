@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Suspense } from 'react';
 import { Outlet } from '@tanstack/react-router';
 import {
@@ -10,26 +9,14 @@ import {
   GlassPanel,
 } from './components';
 import { TanstackQueryClientProvider } from './data-access-layer/TanstackQueryClientProvider';
-import { useCheckUpdate, useInstallUpdate } from '@/data-access-layer';
+import { useCheckUpdate } from '@/data-access-layer';
 import { AppProviders } from '@/providers';
 import './App.css';
 
 // useCheckUpdate calls useQuery, which requires TanstackQueryClientProvider above it in the tree.
 // App wraps the provider, so the hook cannot be called in App directly.
 const AppContent = () => {
-  const { availableVersion } = useCheckUpdate();
-  const { installUpdate } = useInstallUpdate();
-
-  // Temporary: auto-install on startup until the update UI is built.
-  // installUpdate is excluded from deps — it is not memoised and would re-run
-  // the effect on every render. availableVersion changes at most once (null → version),
-  // so the effect fires exactly once when an update is found.
-  useEffect(() => {
-    if (availableVersion !== null) {
-      void installUpdate();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableVersion]);
+  useCheckUpdate();
 
   return (
     <AppProviders>

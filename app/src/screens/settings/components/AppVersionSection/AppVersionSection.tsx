@@ -1,11 +1,19 @@
-import { useAppVersion, useCheckUpdate, useInstallUpdate } from '@/data-access-layer';
+import {
+  useAppVersion,
+  useCheckUpdate,
+  useDownloadUpdate,
+  useInstallAndRelaunch,
+} from '@/data-access-layer';
 import { Button } from '@/components';
 import './AppVersionSection.css';
 
 export const AppVersionSection = () => {
   const { currentVersion } = useAppVersion();
-  const { availableVersion, isChecking, checkUpdate } = useCheckUpdate();
-  const { installUpdate, isInstalling } = useInstallUpdate();
+  const { availableVersion, isChecking, checkError, checkUpdate } =
+    useCheckUpdate();
+  const { downloadUpdate, isDownloading, downloadProgress, isDownloaded } =
+    useDownloadUpdate();
+  const { installAndRelaunch, isInstalling } = useInstallAndRelaunch();
 
   return (
     <section className='app-version-section'>
@@ -16,17 +24,37 @@ export const AppVersionSection = () => {
           Update available: {availableVersion}
         </p>
       )}
+      {isDownloading && (
+        <p className='app-version-section-progress'>
+          {downloadProgress !== null
+            ? `Downloading... ${downloadProgress}%`
+            : 'Downloading...'}
+        </p>
+      )}
+      {checkError && (
+        <p className='app-version-section-error'>{checkError.message}</p>
+      )}
       <div className='app-version-section-actions'>
-        <Button
-          label={isChecking ? 'Checking...' : 'Check for Updates'}
-          onClick={checkUpdate}
-          disabled={isChecking}
-        />
-        {availableVersion && (
+        {!isDownloading && !isDownloaded && (
           <Button
-            label={isInstalling ? 'Installing...' : 'Install Update'}
+            label={isChecking ? 'Checking...' : 'Check for Updates'}
+            onClick={checkUpdate}
+            disabled={isChecking}
+          />
+        )}
+        {availableVersion && !isDownloading && !isDownloaded && (
+          <Button
+            label='Download Update'
             onClick={() => {
-              void installUpdate();
+              void downloadUpdate();
+            }}
+          />
+        )}
+        {isDownloaded && (
+          <Button
+            label={isInstalling ? 'Installing...' : 'Restart Now'}
+            onClick={() => {
+              void installAndRelaunch();
             }}
             disabled={isInstalling}
           />
