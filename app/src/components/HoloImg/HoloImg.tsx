@@ -5,7 +5,7 @@ import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { useTiltFX } from './hooks';
-import { HoloFX } from './components';
+import { HoloFX, HoloImgTitle } from './components';
 
 type Props = {
   image_id: string | null;
@@ -35,7 +35,10 @@ export const HoloImg: FCProps<Props> = ({
       >
         <HoloFX isActive={isActive} />
 
-        {title && <p className='holo-img-title content-center'>{title}</p>}
+        <HoloImgTitle
+          title={title}
+          className={cn(!image_id && 'always-active')}
+        />
 
         {image_id && (
           <ImageById

@@ -11,7 +11,7 @@ export const HoloFX: FCProps<Props> = ({ isActive }) => {
   return (
     <div className={cn('holo-fx-container', isActive && 'active')}>
       <Glare />
-      {/*<Shimmer />*/}
+      <Shimmer />
     </div>
   );
 };

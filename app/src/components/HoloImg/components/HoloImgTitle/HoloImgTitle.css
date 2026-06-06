@@ -1,0 +1,26 @@
+.holo-img-title {
+  height: 100%;
+  position: absolute;
+  padding: var(--spacing-md);
+  z-index: 2;
+  text-align: center;
+  font-size: var(--font-size-2xl);
+  text-transform: capitalize;
+  text-wrap: wrap;
+  word-break: break-word;
+  line-height: var(--font-size-2xl);
+  opacity: 0;
+  transition: opacity var(--transition-hover-off);
+  text-shadow: calc(var(--ry-num, 0) * -6px) calc(var(--rx-num, 0) * 4px) 2px
+    var(--color-bg);
+}
+
+.holo-img-title:hover {
+  transition: opacity var(--transition-hover-on);
+  opacity: 1;
+}
+
+.always-active {
+  transition: opacity var(--transition-hover-on);
+  opacity: 0.5;
+}

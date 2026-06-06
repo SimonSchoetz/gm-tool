@@ -5,10 +5,10 @@
   background: radial-gradient(
     farthest-corner circle at var(--mx, 50%) var(--my, 50%),
     var(--color-fg) 0%,
-    rgb(var(--color-fg-rgb), 0.4) 30%,
-    rgb(var(--color-fg-rgb), 0.2) 70%
+    rgb(var(--color-fg-rgb), 0.6) 20%,
+    rgb(var(--color-fg-rgb), 0.1) 80%
   );
 
   mix-blend-mode: overlay;
-  opacity: calc(var(--hyp, 0) * 0.05 + 0.2);
+  opacity: calc(var(--hyp, 0) * 0.7);
 }
