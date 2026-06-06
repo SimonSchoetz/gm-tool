@@ -1,7 +1,6 @@
 .holo-fx-glare {
   position: absolute;
   inset: 0;
-  pointer-events: none;
 
   background: radial-gradient(
     farthest-corner circle at var(--mx, 50%) var(--my, 50%),

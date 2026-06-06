@@ -5,14 +5,13 @@ import './HoloFX.css';
 
 type Props = {
   isActive: boolean;
-  shimmerContent?: string;
 };
 
-export const HoloFX: FCProps<Props> = ({ shimmerContent = '', isActive }) => {
+export const HoloFX: FCProps<Props> = ({ isActive }) => {
   return (
     <div className={cn('holo-fx-container', isActive && 'active')}>
       <Glare />
-      <Shimmer shimmerContent={shimmerContent} />
+      {/*<Shimmer />*/}
     </div>
   );
 };
