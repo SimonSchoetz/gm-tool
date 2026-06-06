@@ -11,5 +11,5 @@
   );
 
   mix-blend-mode: overlay;
-  opacity: calc(var(--hyp, 0) * 0.2 + 0.2);
+  opacity: calc(var(--hyp, 0) * 0.05 + 0.2);
 }

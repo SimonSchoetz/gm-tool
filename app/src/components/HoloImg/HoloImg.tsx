@@ -1,10 +1,11 @@
 import { FCProps, HtmlProps } from '@/types';
 import { useRef } from 'react';
-import { HoloFX, useTiltFX } from '../HoloFX';
 import { cn } from '@/util';
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
+import { useTiltFX } from './hooks';
+import { HoloFX } from './components';
 
 type Props = {
   image_id: string | null;
@@ -34,7 +35,7 @@ export const HoloImg: FCProps<Props> = ({
       >
         <HoloFX shimmerContent={image_id ? title : ''} isActive={isActive} />
 
-        {!image_id && title && <p className='holo-img-title'>{title}</p>}
+        {title && <p className='holo-img-title'>{title}</p>}
 
         {image_id && (
           <ImageById
