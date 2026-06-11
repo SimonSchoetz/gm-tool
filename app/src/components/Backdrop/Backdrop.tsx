@@ -24,6 +24,7 @@ const Backdrop = () => {
   const beamsRef = useRef<Beam[]>([]);
   const gridRef = useRef<Grid>(null);
   const lastTickTimeRef = useRef(0);
+  const wakeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const gridCanvas = gridCanvasRef.current;
@@ -83,6 +84,21 @@ const Backdrop = () => {
         }
       }
 
+      const isIdle =
+        beamsRef.current.length > 0 &&
+        beamsRef.current.every(
+          (beam) => !beam.active && beam.particles.length === 0,
+        );
+
+      if (isIdle) {
+        const nextSpawnTime = Math.min(
+          ...beamsRef.current.map((beam) => beam.nextSpawnTime),
+        );
+        const delay = Math.max(0, nextSpawnTime - Date.now());
+        wakeTimeoutRef.current = window.setTimeout(startLoop, delay);
+        return;
+      }
+
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -95,6 +111,11 @@ const Backdrop = () => {
     };
 
     const updateCanvasOnResize = () => {
+      if (wakeTimeoutRef.current !== null) {
+        clearTimeout(wakeTimeoutRef.current);
+        wakeTimeoutRef.current = null;
+      }
+      cancelAnimationFrame(animationFrameRef.current);
       setCanvasSize(gridCanvas, gridCtx);
       setCanvasSize(beamCanvas, beamCtx);
       setGridDimensions(gridRef);
@@ -102,6 +123,7 @@ const Backdrop = () => {
       beamsRef.current = [];
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
       beamCtx.clearRect(0, 0, beamCanvas.width, beamCanvas.height);
+      startLoop();
     };
 
     initCanvas();
@@ -112,6 +134,9 @@ const Backdrop = () => {
       window.removeEventListener('resize', updateCanvasOnResize);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (wakeTimeoutRef.current !== null) {
+        clearTimeout(wakeTimeoutRef.current);
       }
     };
   }, []);
