@@ -5,3 +5,4 @@ export { getBeamBounds } from './getBeamBounds';
 export { initBeams } from './initBeams';
 export { setCanvasSize } from './setCanvasSize';
 export { setGridDimensions } from './setGridDimensions';
+export { rebuildCanvas } from './rebuildCanvas';

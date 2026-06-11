@@ -1,12 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { BEAM_BOUNDS_PADDING } from './Backdrop.constants';
 import {
-  createGridTiles,
   drawBeams,
   getBeamBounds,
   initBeams,
-  setCanvasSize,
-  setGridDimensions,
+  rebuildCanvas,
   updateBeams,
 } from './helper';
 import { Beam, Bounds, Grid } from './types';
@@ -111,28 +109,7 @@ const Backdrop = () => {
     };
 
     const initCanvas = () => {
-      setCanvasSize(canvas, ctx);
-      setGridDimensions(gridRef);
-      const dpr = window.devicePixelRatio || 1;
-      dprRef.current = dpr;
-      const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
-      offscreenCanvasRef.current = offscreen;
-      const offscreenCtx = offscreen.getContext('2d');
-      if (offscreenCtx) {
-        offscreenCtx.scale(dpr, dpr);
-        createGridTiles(gridRef, offscreenCtx);
-      }
-      ctx.drawImage(
-        offscreen,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-        0,
-        0,
-        window.innerWidth,
-        window.innerHeight,
-      );
+      rebuildCanvas(canvas, ctx, gridRef, dprRef, offscreenCanvasRef);
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED, performance.now());
     };
 
@@ -142,28 +119,7 @@ const Backdrop = () => {
         wakeTimeoutRef.current = null;
       }
       cancelAnimationFrame(animationFrameRef.current);
-      setCanvasSize(canvas, ctx);
-      setGridDimensions(gridRef);
-      const dpr = window.devicePixelRatio || 1;
-      dprRef.current = dpr;
-      const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
-      offscreenCanvasRef.current = offscreen;
-      const offscreenCtx = offscreen.getContext('2d');
-      if (offscreenCtx) {
-        offscreenCtx.scale(dpr, dpr);
-        createGridTiles(gridRef, offscreenCtx);
-      }
-      ctx.drawImage(
-        offscreen,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-        0,
-        0,
-        window.innerWidth,
-        window.innerHeight,
-      );
+      rebuildCanvas(canvas, ctx, gridRef, dprRef, offscreenCanvasRef);
       beamsRef.current = [];
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED, performance.now());
       startLoop();
