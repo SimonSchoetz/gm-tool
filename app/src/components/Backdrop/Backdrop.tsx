@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { BEAM_BOUNDS_PADDING } from './Backdrop.constants';
 import {
   createGridTiles,
   drawBeams,
@@ -15,7 +16,6 @@ const AMOUNT_BEAMS = 6;
 const BEAM_SPEED = 4;
 const SIMULATION_TICK_MS = 1000 / 20;
 const MAX_TICKS_PER_FRAME = 4;
-const BEAM_BOUNDS_PADDING = 4;
 
 const Backdrop = () => {
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getBeamBounds } from '../getBeamBounds';
 import { getCumulativeLengths } from '../getCumulativeLengths';
+import { BEAM_BOUNDS_PADDING } from '../../Backdrop.constants';
 import type { Beam } from '../../types';
 
 const makePath = () => [
@@ -48,7 +49,7 @@ describe('getBeamBounds', () => {
 
   it('applies padding uniformly on all sides', () => {
     const beam = makeBeam([makeParticle(25), makeParticle(75)]);
-    const result = getBeamBounds(beam, 4);
+    const result = getBeamBounds(beam, BEAM_BOUNDS_PADDING);
     expect(result).toEqual({ x: 21, y: -4, width: 58, height: 8 });
   });
 
