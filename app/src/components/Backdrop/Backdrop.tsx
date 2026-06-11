@@ -8,7 +8,7 @@ import {
   setGridDimensions,
   updateBeams,
 } from './helper';
-import { Beam, Grid } from './types';
+import { Beam, Bounds, Grid } from './types';
 import './Backdrop.css';
 
 const AMOUNT_BEAMS = 6;
@@ -52,12 +52,7 @@ const Backdrop = () => {
           updateBeams(beamsRef, gridRef, now);
         }
 
-        const dirtyRects: ({
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        } | null)[] = [];
+        const dirtyRects: (Bounds | null)[] = [];
         for (const beam of beamsRef.current) {
           dirtyRects.push(beam.lastDrawnBounds);
           const newBounds = getBeamBounds(beam, BEAM_BOUNDS_PADDING);
@@ -66,8 +61,7 @@ const Backdrop = () => {
         }
 
         const activeDirtyRects = dirtyRects.filter(
-          (r): r is { x: number; y: number; width: number; height: number } =>
-            r !== null,
+          (r): r is Bounds => r !== null,
         );
 
         if (
