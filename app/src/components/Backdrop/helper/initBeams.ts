@@ -8,6 +8,7 @@ export const initBeams = (
   beamsRef: RefObject<Beam[]>,
   numBeams: number,
   beamSpeed: number,
+  now: number,
 ) => {
   for (let i = 0; i < numBeams; i++) {
     const color = getColor('--color-primary');
@@ -15,7 +16,7 @@ export const initBeams = (
       path: [],
       particles: [],
       color,
-      nextSpawnTime: Date.now() + Math.random() * 10000 + i * 2000,
+      nextSpawnTime: now + Math.random() * 10000 + i * 2000,
       progress: 0,
       pathLength: 0,
       speed: beamSpeed + i,

@@ -49,7 +49,7 @@ const Backdrop = () => {
       if (ticks > 0) {
         lastTickTimeRef.current += ticks * SIMULATION_TICK_MS;
         for (let t = 0; t < ticks; t++) {
-          updateBeams(beamsRef, gridRef);
+          updateBeams(beamsRef, gridRef, now);
         }
 
         const dirtyRects: ({
@@ -108,7 +108,7 @@ const Backdrop = () => {
         const nextSpawnTime = Math.min(
           ...beamsRef.current.map((beam) => beam.nextSpawnTime),
         );
-        const delay = Math.max(0, nextSpawnTime - Date.now());
+        const delay = Math.max(0, nextSpawnTime - performance.now());
         wakeTimeoutRef.current = window.setTimeout(startLoop, delay);
         return;
       }
@@ -139,7 +139,7 @@ const Backdrop = () => {
         window.innerWidth,
         window.innerHeight,
       );
-      initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
+      initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED, performance.now());
     };
 
     const updateCanvasOnResize = () => {
@@ -171,7 +171,7 @@ const Backdrop = () => {
         window.innerHeight,
       );
       beamsRef.current = [];
-      initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
+      initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED, performance.now());
       startLoop();
     };
 

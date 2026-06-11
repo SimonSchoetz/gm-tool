@@ -9,9 +9,8 @@ import { getPositionOnPath } from './getPositionOnPath';
 export const updateBeams = (
   beamsRef: RefObject<Beam[]>,
   gridRef: RefObject<Grid>,
+  now: number,
 ) => {
-  const now = Date.now();
-
   beamsRef.current.forEach((beam) => {
     if (now > beam.nextSpawnTime && !beam.active) {
       beam.path = generateZigzagPath(gridRef);
