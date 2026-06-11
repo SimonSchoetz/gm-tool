@@ -1,4 +1,5 @@
 import { Particle } from './particle.type';
+import { Bounds } from './bounds.type';
 
 export type Beam = {
   path: { x: number; y: number }[];
@@ -9,4 +10,7 @@ export type Beam = {
   pathLength: number;
   speed: number;
   active: boolean;
+  cumulativeLengths: number[];
+  colorTriplet: string | null;
+  lastDrawnBounds: Bounds | null;
 };
