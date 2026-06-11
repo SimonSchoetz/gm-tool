@@ -41,7 +41,13 @@ const configs = [
     layout: {
       searchable_columns: ['name', 'summary', 'description'],
       columns: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
+        {
+          key: 'image_id',
+          label: 'Avatar',
+          sortable: false,
+          resizable: false,
+          width: 136,
+        },
         { key: 'name', label: 'Name', width: 250 },
         { key: 'created_at', label: 'Created At', width: 250 },
         { key: 'updated_at', label: 'Last updated', width: 250 },
@@ -57,7 +63,13 @@ const configs = [
     layout: {
       searchable_columns: ['name', 'summary', 'description'],
       columns: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
+        {
+          key: 'image_id',
+          label: 'Avatar',
+          sortable: false,
+          resizable: false,
+          width: 136,
+        },
         { key: 'name', label: 'Name', width: 250 },
         { key: 'created_at', label: 'Created At', width: 250 },
         { key: 'updated_at', label: 'Last updated', width: 250 },
@@ -73,7 +85,13 @@ const configs = [
     layout: {
       searchable_columns: ['name', 'summary', 'description'],
       columns: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
+        {
+          key: 'image_id',
+          label: 'Avatar',
+          sortable: false,
+          resizable: false,
+          width: 136,
+        },
         { key: 'name', label: 'Name', width: 250 },
         { key: 'created_at', label: 'Created At', width: 250 },
         { key: 'updated_at', label: 'Last updated', width: 250 },
@@ -89,7 +107,13 @@ const configs = [
     layout: {
       searchable_columns: ['name', 'summary', 'description'],
       columns: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
+        {
+          key: 'image_id',
+          label: 'Avatar',
+          sortable: false,
+          resizable: false,
+          width: 136,
+        },
         { key: 'name', label: 'Name', width: 250 },
         { key: 'created_at', label: 'Created At', width: 250 },
         { key: 'updated_at', label: 'Last updated', width: 250 },
@@ -105,7 +129,13 @@ const configs = [
     layout: {
       searchable_columns: ['name', 'summary', 'description'],
       columns: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
+        {
+          key: 'image_id',
+          label: 'Avatar',
+          sortable: false,
+          resizable: false,
+          width: 136,
+        },
         { key: 'name', label: 'Name', width: 250 },
         { key: 'created_at', label: 'Created At', width: 250 },
         { key: 'updated_at', label: 'Last updated', width: 250 },
@@ -121,7 +151,13 @@ const configs = [
     layout: {
       searchable_columns: ['name', 'summary', 'description'],
       columns: [
-        { key: 'image_id', label: 'Avatar', sortable: false, resizable: false, width: 136 },
+        {
+          key: 'image_id',
+          label: 'Avatar',
+          sortable: false,
+          resizable: false,
+          width: 136,
+        },
         { key: 'name', label: 'Name', width: 250 },
         { key: 'created_at', label: 'Created At', width: 250 },
         { key: 'updated_at', label: 'Last updated', width: 250 },
