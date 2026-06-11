@@ -8,11 +8,8 @@ export const setGridDimensions = (gridRef: RefObject<Grid>) => {
   const cols = window.innerWidth / squareSize + 1;
   const rows = window.innerHeight / squareSize + 1;
 
-  const offset = -squareSize / 2;
-
-  const offsetX = offset;
-
-  const offsetY = offset;
+  const offsetX = -squareSize / 2;
+  const offsetY = -squareSize / 2;
 
   gridRef.current = { squareSize, cols, rows, offsetX, offsetY };
 };
