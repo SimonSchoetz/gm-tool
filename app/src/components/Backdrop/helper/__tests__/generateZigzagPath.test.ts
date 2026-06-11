@@ -27,6 +27,12 @@ describe('generateZigzagPath', () => {
     expect(path[0].y).toBe(grid.offsetY);
   });
 
+  it('ends one row below the declared grid height', () => {
+    const path = generateZigzagPath(makeGridRef(grid));
+    const expectedEndY = grid.offsetY + (grid.rows + 1) * grid.squareSize;
+    expect(path[path.length - 1].y).toBe(expectedEndY);
+  });
+
   it('keeps all x coordinates within grid horizontal bounds', () => {
     const path = generateZigzagPath(makeGridRef(grid));
     const minX = grid.offsetX;
