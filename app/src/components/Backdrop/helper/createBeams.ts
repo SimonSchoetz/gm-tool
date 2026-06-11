@@ -7,15 +7,6 @@ import { getColor } from './getColor';
 import { getPositionOnPath } from './getPositionOnPath';
 import { getWaypointsBetween } from './getWaypointsBetween';
 
-export const createBeams = (
-  beamsRef: RefObject<Beam[]>,
-  ctx: CanvasRenderingContext2D,
-  gridRef: RefObject<Grid>,
-) => {
-  drawBeams(beamsRef, ctx);
-  updateBeams(beamsRef, gridRef);
-};
-
 export const drawBeams = (
   beamsRef: RefObject<Beam[]>,
   ctx: CanvasRenderingContext2D,
