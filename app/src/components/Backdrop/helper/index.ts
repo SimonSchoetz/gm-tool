@@ -1,4 +1,4 @@
-export { drawBeams, updateBeams } from './createBeams';
+export { drawBeams, updateBeams } from './drawAndUpdateBeams';
 export { createGridTiles } from './createGridTiles';
 export { getBeamBounds } from './getBeamBounds';
 export { initBeams } from './initBeams';
