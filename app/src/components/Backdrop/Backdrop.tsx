@@ -7,52 +7,45 @@ import {
   setGridDimensions,
 } from './helper';
 import { Beam, Grid } from './types';
+import './Backdrop.css';
 
 const AMOUNT_BEAMS = 6;
 const BEAM_SPEED = 4;
 
 const Backdrop = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gridCanvasRef = useRef<HTMLCanvasElement>(null);
+  const beamCanvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef(0);
   const beamsRef = useRef<Beam[]>([]);
   const gridRef = useRef<Grid>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const gridCanvas = gridCanvasRef.current;
+    const beamCanvas = beamCanvasRef.current;
+    if (!gridCanvas || !beamCanvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) return;
-
-    let offscreenCanvas: OffscreenCanvas | null = null;
+    const gridCtx = gridCanvas.getContext('2d', { alpha: false });
+    const beamCtx = beamCanvas.getContext('2d');
+    if (!gridCtx || !beamCtx) return;
 
     const animate = () => {
-      if (offscreenCanvas) ctx.drawImage(offscreenCanvas, 0, 0);
-      createBeams(beamsRef, ctx, gridRef);
+      createBeams(beamsRef, beamCtx, gridRef);
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
     const initCanvas = () => {
-      setCanvasSize(canvas, ctx);
+      setCanvasSize(gridCanvas, gridCtx);
+      setCanvasSize(beamCanvas, beamCtx);
       setGridDimensions(gridRef);
-      offscreenCanvas = new OffscreenCanvas(
-        window.innerWidth,
-        window.innerHeight,
-      );
-      const offscreenCtx = offscreenCanvas.getContext('2d');
-      if (offscreenCtx) createGridTiles(gridRef, offscreenCtx);
+      createGridTiles(gridRef, gridCtx);
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
     };
 
     const updateCanvasOnResize = () => {
-      setCanvasSize(canvas, ctx);
+      setCanvasSize(gridCanvas, gridCtx);
+      setCanvasSize(beamCanvas, beamCtx);
       setGridDimensions(gridRef);
-      offscreenCanvas = new OffscreenCanvas(
-        window.innerWidth,
-        window.innerHeight,
-      );
-      const offscreenCtx = offscreenCanvas.getContext('2d');
-      if (offscreenCtx) createGridTiles(gridRef, offscreenCtx);
+      createGridTiles(gridRef, gridCtx);
       beamsRef.current = [];
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
     };
@@ -70,16 +63,10 @@ const Backdrop = () => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: -10,
-        transition: 'opacity 0.1s ease-in-out',
-      }}
-    />
+    <>
+      <canvas ref={gridCanvasRef} className='backdrop-grid' />
+      <canvas ref={beamCanvasRef} className='backdrop-beams' />
+    </>
   );
 };
 
