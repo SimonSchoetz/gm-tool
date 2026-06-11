@@ -17,4 +17,12 @@ describe('rgbToHex', () => {
   it('converts 255, 107, 107 to #ff6b6b', () => {
     expect(rgbToHex('255, 107, 107')).toBe('#ff6b6b');
   });
+
+  it('returns #000000 for an empty string', () => {
+    expect(rgbToHex('')).toBe('#000000');
+  });
+
+  it('returns #000000 for a non-rgb string like a hex value', () => {
+    expect(rgbToHex('#f8ffff')).toBe('#000000');
+  });
 });
