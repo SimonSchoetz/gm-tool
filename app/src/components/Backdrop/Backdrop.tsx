@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import {
   createGridTiles,
   drawBeams,
+  getBeamBounds,
   initBeams,
   setCanvasSize,
   setGridDimensions,
@@ -14,6 +15,7 @@ const AMOUNT_BEAMS = 6;
 const BEAM_SPEED = 4;
 const SIMULATION_TICK_MS = 1000 / 60;
 const MAX_TICKS_PER_FRAME = 4;
+const BEAM_BOUNDS_PADDING = 4;
 
 const Backdrop = () => {
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,7 +51,36 @@ const Backdrop = () => {
         for (let t = 0; t < ticks; t++) {
           updateBeams(beamsRef, gridRef);
         }
-        drawBeams(beamsRef, beamCtx);
+
+        const dirtyRects: ({
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        } | null)[] = [];
+        for (const beam of beamsRef.current) {
+          dirtyRects.push(beam.lastDrawnBounds);
+          const newBounds = getBeamBounds(beam, BEAM_BOUNDS_PADDING);
+          beam.lastDrawnBounds = newBounds;
+          dirtyRects.push(newBounds);
+        }
+
+        const activeDirtyRects = dirtyRects.filter(
+          (r): r is { x: number; y: number; width: number; height: number } =>
+            r !== null,
+        );
+
+        if (activeDirtyRects.length > 0) {
+          beamCtx.save();
+          const clipPath = new Path2D();
+          for (const r of activeDirtyRects) {
+            beamCtx.clearRect(r.x, r.y, r.width, r.height);
+            clipPath.rect(r.x, r.y, r.width, r.height);
+          }
+          beamCtx.clip(clipPath);
+          drawBeams(beamsRef, beamCtx);
+          beamCtx.restore();
+        }
       }
 
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -70,6 +101,7 @@ const Backdrop = () => {
       createGridTiles(gridRef, gridCtx);
       beamsRef.current = [];
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
+      beamCtx.clearRect(0, 0, beamCanvas.width, beamCanvas.height);
     };
 
     initCanvas();
