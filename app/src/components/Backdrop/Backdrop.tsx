@@ -19,21 +19,20 @@ const BEAM_BOUNDS_PADDING = 4;
 
 const Backdrop = () => {
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
-  const beamCanvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef(0);
+  const offscreenCanvasRef = useRef<OffscreenCanvas | null>(null);
+  const dprRef = useRef(1);
   const beamsRef = useRef<Beam[]>([]);
   const gridRef = useRef<Grid>(null);
   const lastTickTimeRef = useRef(0);
   const wakeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const gridCanvas = gridCanvasRef.current;
-    const beamCanvas = beamCanvasRef.current;
-    if (!gridCanvas || !beamCanvas) return;
+    const canvas = gridCanvasRef.current;
+    if (!canvas) return;
 
-    const gridCtx = gridCanvas.getContext('2d', { alpha: false });
-    const beamCtx = beamCanvas.getContext('2d');
-    if (!gridCtx || !beamCtx) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
 
     const startLoop = () => {
       lastTickTimeRef.current = performance.now();
@@ -71,16 +70,31 @@ const Backdrop = () => {
             r !== null,
         );
 
-        if (activeDirtyRects.length > 0) {
-          beamCtx.save();
+        if (
+          activeDirtyRects.length > 0 &&
+          offscreenCanvasRef.current !== null
+        ) {
+          const offscreen = offscreenCanvasRef.current;
+          const dpr = dprRef.current;
+          ctx.save();
           const clipPath = new Path2D();
           for (const r of activeDirtyRects) {
-            beamCtx.clearRect(r.x, r.y, r.width, r.height);
+            ctx.drawImage(
+              offscreen,
+              r.x * dpr,
+              r.y * dpr,
+              r.width * dpr,
+              r.height * dpr,
+              r.x,
+              r.y,
+              r.width,
+              r.height,
+            );
             clipPath.rect(r.x, r.y, r.width, r.height);
           }
-          beamCtx.clip(clipPath);
-          drawBeams(beamsRef, beamCtx);
-          beamCtx.restore();
+          ctx.clip(clipPath);
+          drawBeams(beamsRef, ctx);
+          ctx.restore();
         }
       }
 
@@ -103,10 +117,28 @@ const Backdrop = () => {
     };
 
     const initCanvas = () => {
-      setCanvasSize(gridCanvas, gridCtx);
-      setCanvasSize(beamCanvas, beamCtx);
+      setCanvasSize(canvas, ctx);
       setGridDimensions(gridRef);
-      createGridTiles(gridRef, gridCtx);
+      const dpr = window.devicePixelRatio || 1;
+      dprRef.current = dpr;
+      const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
+      offscreenCanvasRef.current = offscreen;
+      const offscreenCtx = offscreen.getContext('2d');
+      if (offscreenCtx) {
+        offscreenCtx.scale(dpr, dpr);
+        createGridTiles(gridRef, offscreenCtx);
+      }
+      ctx.drawImage(
+        offscreen,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+        0,
+        0,
+        window.innerWidth,
+        window.innerHeight,
+      );
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
     };
 
@@ -116,13 +148,30 @@ const Backdrop = () => {
         wakeTimeoutRef.current = null;
       }
       cancelAnimationFrame(animationFrameRef.current);
-      setCanvasSize(gridCanvas, gridCtx);
-      setCanvasSize(beamCanvas, beamCtx);
+      setCanvasSize(canvas, ctx);
       setGridDimensions(gridRef);
-      createGridTiles(gridRef, gridCtx);
+      const dpr = window.devicePixelRatio || 1;
+      dprRef.current = dpr;
+      const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
+      offscreenCanvasRef.current = offscreen;
+      const offscreenCtx = offscreen.getContext('2d');
+      if (offscreenCtx) {
+        offscreenCtx.scale(dpr, dpr);
+        createGridTiles(gridRef, offscreenCtx);
+      }
+      ctx.drawImage(
+        offscreen,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+        0,
+        0,
+        window.innerWidth,
+        window.innerHeight,
+      );
       beamsRef.current = [];
       initBeams(beamsRef, AMOUNT_BEAMS, BEAM_SPEED);
-      beamCtx.clearRect(0, 0, beamCanvas.width, beamCanvas.height);
       startLoop();
     };
 
@@ -141,12 +190,7 @@ const Backdrop = () => {
     };
   }, []);
 
-  return (
-    <>
-      <canvas ref={gridCanvasRef} className='backdrop-grid' />
-      <canvas ref={beamCanvasRef} className='backdrop-beams' />
-    </>
-  );
+  return <canvas ref={gridCanvasRef} className='backdrop-grid' />;
 };
 
 export default Backdrop;

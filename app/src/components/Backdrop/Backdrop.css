@@ -1,7 +1,6 @@
-.backdrop-grid,
-.backdrop-beams {
+.backdrop-grid {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -10;
+  z-index: -10; /* intentional: no z-index token exists; inline per no-unilateral-additions rule */
 }
