@@ -75,8 +75,8 @@ export const Backdrop = () => {
       const primaryColor = getColor('--color-primary');
       const bgCompositeColor = buildCompositeColor();
 
-      app = new Application();
-      await app.init({
+      const newApp = new Application();
+      await newApp.init({
         width: window.innerWidth,
         height: window.innerHeight,
         backgroundColor: new Color(bgCompositeColor),
@@ -86,10 +86,11 @@ export const Backdrop = () => {
       });
 
       if (cancelled) {
-        app.destroy({ removeView: true }, true);
+        newApp.destroy({ removeView: true }, true);
         return;
       }
 
+      app = newApp;
       const pixiApp = app;
       container.appendChild(pixiApp.canvas);
 
