@@ -9,9 +9,7 @@ export const createGridTiles = (
   if (!gridRef.current) return;
   const { squareSize, cols, rows, offsetX, offsetY } = gridRef.current;
 
-  const primaryRgb = getComputedStyle(document.documentElement)
-    .getPropertyValue('--color-primary-rgb')
-    .trim();
+  const primaryRgb = getColor('--color-primary-rgb');
   offscreenCtx.fillStyle = `rgb(${primaryRgb}, 0.1)`;
   offscreenCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
