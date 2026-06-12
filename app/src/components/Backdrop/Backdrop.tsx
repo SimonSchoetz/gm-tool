@@ -5,8 +5,6 @@ import './Backdrop.css';
 
 export const Backdrop = () => {
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
-  const offscreenCanvasRef = useRef<OffscreenCanvas | null>(null);
-  const dprRef = useRef(1);
   const gridRef = useRef<Grid>(null);
 
   useEffect(() => {
@@ -17,7 +15,7 @@ export const Backdrop = () => {
     if (!ctx) return;
 
     const paintGrid = () => {
-      rebuildCanvas(canvas, ctx, gridRef, dprRef, offscreenCanvasRef);
+      rebuildCanvas(canvas, ctx, gridRef);
     };
 
     paintGrid();

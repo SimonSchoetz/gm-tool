@@ -12,18 +12,18 @@ const cssVariables = new Map([
 
 let fillStyleAtCall: string[] = [];
 
-const makeOffscreenCtx = () => {
-  const offscreenCtx = {
+const makeCtx = () => {
+  const ctx = {
     fillStyle: '',
     fillRect: vi.fn(() => {
-      fillStyleAtCall.push(offscreenCtx.fillStyle);
+      fillStyleAtCall.push(ctx.fillStyle);
     }),
   };
-  return offscreenCtx;
+  return ctx;
 };
 
-const asOffscreenContext = (ctx: ReturnType<typeof makeOffscreenCtx>) =>
-  ctx as unknown as OffscreenCanvasRenderingContext2D;
+const asRenderingContext = (ctx: ReturnType<typeof makeCtx>) =>
+  ctx as unknown as CanvasRenderingContext2D;
 
 describe('createGridTiles', () => {
   beforeEach(() => {
@@ -38,35 +38,35 @@ describe('createGridTiles', () => {
   });
 
   it('draws nothing when the grid is null', () => {
-    const offscreenCtx = makeOffscreenCtx();
-    createGridTiles(makeGridRef(null), asOffscreenContext(offscreenCtx));
-    expect(offscreenCtx.fillRect).not.toHaveBeenCalled();
+    const ctx = makeCtx();
+    createGridTiles(makeGridRef(null), asRenderingContext(ctx));
+    expect(ctx.fillRect).not.toHaveBeenCalled();
   });
 
   it('fills each tile with the half-opacity background color', () => {
-    const offscreenCtx = makeOffscreenCtx();
+    const ctx = makeCtx();
     createGridTiles(
       makeGridRef({ squareSize: 10, cols: 1, rows: 1, offsetX: 0, offsetY: 0 }),
-      asOffscreenContext(offscreenCtx),
+      asRenderingContext(ctx),
     );
     expect(fillStyleAtCall[1]).toBe('rgb(10, 20, 30, 0.5)');
   });
 
   it('sizes inner quads from (squareSize - 1) / 2', () => {
-    const offscreenCtx = makeOffscreenCtx();
+    const ctx = makeCtx();
     createGridTiles(
       makeGridRef({ squareSize: 11, cols: 1, rows: 1, offsetX: 0, offsetY: 0 }),
-      asOffscreenContext(offscreenCtx),
+      asRenderingContext(ctx),
     );
-    expect(offscreenCtx.fillRect).toHaveBeenCalledWith(0, 0, 5, 5);
+    expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 5, 5);
   });
 
   it('fills every tile across the declared rows and cols', () => {
-    const offscreenCtx = makeOffscreenCtx();
+    const ctx = makeCtx();
     createGridTiles(
       makeGridRef({ squareSize: 10, cols: 3, rows: 2, offsetX: 0, offsetY: 0 }),
-      asOffscreenContext(offscreenCtx),
+      asRenderingContext(ctx),
     );
-    expect(offscreenCtx.fillRect).toHaveBeenCalledTimes(46);
+    expect(ctx.fillRect).toHaveBeenCalledTimes(46);
   });
 });
