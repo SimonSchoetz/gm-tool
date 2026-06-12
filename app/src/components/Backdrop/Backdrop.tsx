@@ -15,7 +15,7 @@ const BEAM_SPEED = 4;
 const SIMULATION_TICK_MS = 1000 / 20;
 const MAX_TICKS_PER_FRAME = 4;
 
-const Backdrop = () => {
+export const Backdrop = () => {
   const gridCanvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef(0);
   const offscreenCanvasRef = useRef<OffscreenCanvas | null>(null);
@@ -33,7 +33,10 @@ const Backdrop = () => {
     if (!ctx) return;
 
     const startLoop = () => {
-      lastTickTimeRef.current = performance.now();
+      // backdated by one tick so the first frame after start/wake simulates
+      // immediately — a fresh clock never accumulates a full tick before the
+      // idle branch resets it again, so beams would never activate
+      lastTickTimeRef.current = performance.now() - SIMULATION_TICK_MS;
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -142,5 +145,3 @@ const Backdrop = () => {
 
   return <canvas ref={gridCanvasRef} className='backdrop-grid' />;
 };
-
-export default Backdrop;
