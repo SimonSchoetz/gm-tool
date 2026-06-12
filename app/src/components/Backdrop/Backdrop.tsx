@@ -9,6 +9,7 @@ import {
 } from 'pixi.js';
 import { useEffect, useRef } from 'react';
 import {
+  buildCompositeColor,
   createGridTileTexture,
   generateZigzagPath,
   getCumulativeLengths,
@@ -71,14 +72,8 @@ export const Backdrop = () => {
 
     const init = async () => {
       const bgRgb = getColor('--color-bg-rgb');
-      const primaryRgb = getColor('--color-primary-rgb');
       const primaryColor = getColor('--color-primary');
-      const [br, bg_c, bb] = bgRgb.split(',').map(Number);
-      const [pr, pg, pb] = primaryRgb.split(',').map(Number);
-      const compositeR = Math.round(br + pr * 0.1);
-      const compositeG = Math.round(bg_c + pg * 0.1);
-      const compositeB = Math.round(bb + pb * 0.1);
-      const bgCompositeColor = `rgb(${compositeR}, ${compositeG}, ${compositeB})`;
+      const bgCompositeColor = buildCompositeColor();
 
       app = new Application();
       await app.init({
@@ -190,14 +185,6 @@ export const Backdrop = () => {
       });
 
       spawnAllBeams();
-    };
-
-    const buildCompositeColor = () => {
-      const bgRgb = getColor('--color-bg-rgb');
-      const primaryRgb = getColor('--color-primary-rgb');
-      const [br, bg_c, bb] = bgRgb.split(',').map(Number);
-      const [pr, pg, pb] = primaryRgb.split(',').map(Number);
-      return `rgb(${Math.round(br + pr * 0.1)}, ${Math.round(bg_c + pg * 0.1)}, ${Math.round(bb + pb * 0.1)})`;
     };
 
     const handleResize = () => {

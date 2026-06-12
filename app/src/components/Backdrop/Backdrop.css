@@ -2,6 +2,6 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -10; /* intentional: no z-index token exists; inline per no-unilateral-additions rule */
+  z-index: -10; /* temporary: no z-index token exists yet — inline pending user approval of a new token per no-unilateral-additions rule */
   pointer-events: none;
 }

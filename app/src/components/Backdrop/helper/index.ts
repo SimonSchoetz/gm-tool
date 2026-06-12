@@ -1,3 +1,4 @@
+export { buildCompositeColor } from './buildCompositeColor';
 export { createGridTileTexture } from './createGridTileTexture';
 export { generateZigzagPath } from './generateZigzagPath';
 export { getCumulativeLengths } from './getCumulativeLengths';
