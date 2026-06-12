@@ -23,6 +23,11 @@ export const rebuildCanvas = (
   const offscreenCtx = offscreen.getContext('2d', { alpha: false });
   if (offscreenCtx) {
     offscreenCtx.scale(dpr, dpr);
+    // explicit opaque base: engines may ignore the alpha context option on
+    // OffscreenCanvas, and the grid fills are semi-transparent washes — every
+    // restore blit must overwrite old beam pixels, never blend over them
+    offscreenCtx.fillStyle = '#000';
+    offscreenCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
     createGridTiles(gridRef, offscreenCtx);
   }
   ctx.drawImage(

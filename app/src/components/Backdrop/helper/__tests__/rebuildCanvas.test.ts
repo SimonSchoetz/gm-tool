@@ -17,11 +17,18 @@ const makeCtx = () => ({
 const asRenderingContext = (ctx: ReturnType<typeof makeCtx>) =>
   ctx as unknown as CanvasRenderingContext2D;
 
-const makeOffscreenCtx = () => ({
-  scale: vi.fn(),
-  fillStyle: '',
-  fillRect: vi.fn(),
-});
+const makeOffscreenCtx = () => {
+  const fillStyleAtCall: string[] = [];
+  const offscreenCtx = {
+    scale: vi.fn(),
+    fillStyle: '',
+    fillRect: vi.fn(() => {
+      fillStyleAtCall.push(offscreenCtx.fillStyle);
+    }),
+    fillStyleAtCall,
+  };
+  return offscreenCtx;
+};
 
 // new OffscreenCanvas(...) requires a constructable value — an arrow-function
 // stub cannot be constructed, so a class is the only erasable-syntax option.
@@ -111,6 +118,28 @@ describe('rebuildCanvas', () => {
       offscreenCanvasRef,
     );
     expect(getContextSpy).toHaveBeenCalledWith('2d', { alpha: false });
+  });
+
+  it('paints an opaque base across the viewport before the grid', () => {
+    vi.stubGlobal('devicePixelRatio', 1);
+    const offscreenCtx = makeOffscreenCtx();
+    stubOffscreenCanvas(offscreenCtx);
+    const { gridRef, dprRef, offscreenCanvasRef } = makeRefs();
+    rebuildCanvas(
+      makeVisibleCanvas(),
+      asRenderingContext(makeCtx()),
+      gridRef,
+      dprRef,
+      offscreenCanvasRef,
+    );
+    expect(offscreenCtx.fillStyleAtCall[0]).toBe('#000');
+    expect(offscreenCtx.fillRect).toHaveBeenNthCalledWith(
+      1,
+      0,
+      0,
+      window.innerWidth,
+      window.innerHeight,
+    );
   });
 
   it('scales the offscreen context by dpr and paints the grid into it', () => {
