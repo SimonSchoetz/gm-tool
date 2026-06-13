@@ -4,37 +4,25 @@ import {
   Graphics,
   RenderTexture,
   Sprite,
-  Ticker,
   TilingSprite,
 } from 'pixi.js';
 import { useEffect, useRef } from 'react';
 import {
   buildCompositeColor,
   createGridTileTexture,
-  generateZigzagPath,
-  getCumulativeLengths,
   getColor,
-  getPositionOnPath,
   setGridDimensions,
+  spawnBeam,
+  tickBeams,
 } from './helper';
-import type { Grid } from './types';
+import type { Beam, Grid } from './types';
 import './Backdrop.css';
 
 const AMOUNT_BEAMS = 5;
-const BEAM_SPEED = 0.4;
 const BEAM_TAIL_ALPHA = 0.05;
 const IDLE_RESPAWN_DELAY_MS = 1000;
 const BASE_DELEAY_BETWEEN_BEAMS = 10000;
 const FPS = 60;
-
-type Beam = {
-  path: { x: number; y: number }[];
-  cumulativeLengths: number[];
-  headDistance: number;
-  speed: number;
-  active: boolean;
-  spawnDelay: number;
-};
 
 export const Backdrop = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -55,23 +43,14 @@ export const Backdrop = () => {
       path: [],
       cumulativeLengths: [],
       headDistance: 0,
-      speed: BEAM_SPEED,
+      speed: 0,
       active: false,
       spawnDelay: 0,
     }));
 
-    const spawnBeam = (beam: Beam, delay = 0) => {
-      beam.path = generateZigzagPath(gridRef);
-      beam.cumulativeLengths = getCumulativeLengths(beam.path);
-      beam.headDistance = 0;
-      beam.speed = BEAM_SPEED * (0.5 + Math.random() * 0.6);
-      beam.spawnDelay = delay;
-      beam.active = delay === 0;
-    };
-
     const spawnAllBeams = () => {
       beams.forEach((beam) => {
-        spawnBeam(beam, Math.random() * BASE_DELEAY_BETWEEN_BEAMS);
+        spawnBeam(beam, gridRef, Math.random() * BASE_DELEAY_BETWEEN_BEAMS);
       });
       app?.ticker.start();
     };
@@ -127,80 +106,22 @@ export const Backdrop = () => {
       const fadeGraphics = new Graphics();
       const headGraphics = new Graphics();
 
-      pixiApp.ticker.add((ticker: Ticker) => {
+      pixiApp.ticker.add((ticker) => {
         if (!beamRenderTexture) return;
-        const brt = beamRenderTexture;
-        const { deltaMS } = ticker;
-
-        fadeGraphics
-          .clear()
-          .rect(0, 0, window.innerWidth, window.innerHeight)
-          .fill({ color: 'black', alpha: BEAM_TAIL_ALPHA });
-        pixiApp.renderer.render({
-          container: fadeGraphics,
-          target: brt,
-          clear: false,
+        tickBeams({
+          beams,
+          beamRenderTexture,
+          primaryColor,
+          app: pixiApp,
+          headGraphics,
+          fadeGraphics,
+          deltaMS: ticker.deltaMS,
+          beamTailAlpha: BEAM_TAIL_ALPHA,
+          onIdle: () => {
+            pixiApp.ticker.stop();
+            idleTimeoutId = setTimeout(spawnAllBeams, IDLE_RESPAWN_DELAY_MS);
+          },
         });
-
-        headGraphics.clear();
-        let anyActive = false;
-
-        for (const beam of beams) {
-          if (beam.spawnDelay > 0) {
-            anyActive = true;
-            beam.spawnDelay -= deltaMS;
-            if (beam.spawnDelay <= 0) {
-              beam.spawnDelay = 0;
-              beam.active = true;
-            }
-          }
-          if (!beam.active) continue;
-          anyActive = true;
-
-          const totalLength = beam.cumulativeLengths.at(-1) ?? 0;
-          const prevDistance = beam.headDistance;
-          beam.headDistance += beam.speed * deltaMS;
-
-          if (beam.headDistance >= totalLength) {
-            beam.active = false;
-            continue;
-          }
-
-          const pos = getPositionOnPath(
-            beam.path,
-            beam.cumulativeLengths,
-            beam.headDistance,
-          );
-          const prevPos = getPositionOnPath(
-            beam.path,
-            beam.cumulativeLengths,
-            Math.max(0, prevDistance),
-          );
-
-          if (pos && prevPos) {
-            headGraphics.moveTo(prevPos.x, prevPos.y);
-            for (let k = 1; k < beam.path.length; k++) {
-              const cornerDist = beam.cumulativeLengths[k];
-              if (cornerDist > prevDistance && cornerDist < beam.headDistance) {
-                headGraphics.lineTo(beam.path[k].x, beam.path[k].y);
-              }
-            }
-            headGraphics
-              .lineTo(pos.x, pos.y)
-              .stroke({ width: 1, color: new Color(primaryColor), alpha: 1 });
-          }
-        }
-
-        pixiApp.renderer.render({
-          container: headGraphics,
-          target: brt,
-          clear: false,
-        });
-
-        if (!anyActive) {
-          pixiApp.ticker.stop();
-          idleTimeoutId = setTimeout(spawnAllBeams, IDLE_RESPAWN_DELAY_MS);
-        }
       });
 
       spawnAllBeams();

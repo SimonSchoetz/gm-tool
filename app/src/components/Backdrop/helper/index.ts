@@ -5,3 +5,5 @@ export { getCumulativeLengths } from './getCumulativeLengths';
 export { getColor } from './getColor';
 export { getPositionOnPath } from './getPositionOnPath';
 export { setGridDimensions } from './setGridDimensions';
+export { spawnBeam } from './spawnBeam';
+export { tickBeams } from './tickBeams';

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Graphics } from 'pixi.js';
+import { Graphics, Rectangle } from 'pixi.js';
 import type { Application } from 'pixi.js';
 import type { RenderTexture } from 'pixi.js';
 import { createGridTileTexture } from '../createGridTileTexture';
@@ -28,12 +28,15 @@ describe('createGridTileTexture', () => {
     vi.restoreAllMocks();
   });
 
-  it('calls generateTexture once with a Graphics container', () => {
+  it('calls generateTexture once with a Graphics target and exact frame', () => {
     const mockTexture = {} as RenderTexture;
     const { app, generateTexture } = makeMockApp(mockTexture);
     createGridTileTexture(app, 120);
     expect(generateTexture).toHaveBeenCalledTimes(1);
-    expect(generateTexture).toHaveBeenCalledWith(expect.any(Graphics));
+    expect(generateTexture).toHaveBeenCalledWith({
+      target: expect.any(Graphics) as unknown,
+      frame: expect.any(Rectangle) as unknown,
+    });
   });
 
   it('returns the texture produced by generateTexture', () => {
