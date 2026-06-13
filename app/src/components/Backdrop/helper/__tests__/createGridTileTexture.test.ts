@@ -4,7 +4,10 @@ import type { Application } from 'pixi.js';
 import type { RenderTexture } from 'pixi.js';
 import { createGridTileTexture } from '../createGridTileTexture';
 
-const cssVariables = new Map([['--color-bg-rgb', '3, 19, 34']]);
+const cssVariables = new Map([
+  ['--color-bg-rgb', '3, 19, 34'],
+  ['--color-primary-rgb', '57, 156, 187'],
+]);
 
 const makeMockApp = (mockTexture: RenderTexture) => {
   const generateTexture = vi.fn().mockReturnValue(mockTexture);

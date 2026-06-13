@@ -2,8 +2,7 @@ import { RefObject } from 'react';
 import { Grid } from '../types';
 
 export const setGridDimensions = (gridRef: RefObject<Grid>) => {
-  const maxSquareDimensions = 120;
-  const squareSize = Math.min(window.innerWidth / 8, maxSquareDimensions);
+  const squareSize = 120;
 
   const cols = window.innerWidth / squareSize + 1;
   const rows = window.innerHeight / squareSize + 1;

@@ -22,39 +22,24 @@ describe('setGridDimensions', () => {
     setWindowSize(1024, 768);
   });
 
-  it('sets squareSize to innerWidth / 8 when that is below 120', () => {
+  it('always sets squareSize to 120', () => {
     setWindowSize(800, 600);
     const gridRef = makeGridRef();
     setGridDimensions(gridRef);
-    expect(gridRef.current).toEqual({
-      squareSize: 100,
-      cols: 9,
-      rows: 7,
-      offsetX: -50,
-      offsetY: -50,
-    });
+    expect(gridRef.current?.squareSize).toBe(120);
   });
 
-  it('caps squareSize at 120 when innerWidth / 8 exceeds 120', () => {
+  it('sets cols to innerWidth / 120 + 1', () => {
     setWindowSize(1200, 900);
     const gridRef = makeGridRef();
     setGridDimensions(gridRef);
-    expect(gridRef.current).toEqual({
-      squareSize: 120,
-      cols: 11,
-      rows: 8.5,
-      offsetX: -60,
-      offsetY: -60,
-    });
+    expect(gridRef.current?.cols).toBe(1200 / 120 + 1);
   });
 
-  it('sets offsetX and offsetY to -squareSize / 2', () => {
-    setWindowSize(640, 480);
+  it('sets rows to innerHeight / 120 + 1', () => {
+    setWindowSize(1200, 900);
     const gridRef = makeGridRef();
     setGridDimensions(gridRef);
-    const squareSize = gridRef.current?.squareSize ?? 0;
-    expect(squareSize).toBeGreaterThan(0);
-    expect(gridRef.current?.offsetX).toBe(-squareSize / 2);
-    expect(gridRef.current?.offsetY).toBe(-squareSize / 2);
+    expect(gridRef.current?.rows).toBe(900 / 120 + 1);
   });
 });

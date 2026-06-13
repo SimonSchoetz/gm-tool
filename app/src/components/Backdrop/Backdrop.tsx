@@ -24,6 +24,7 @@ const AMOUNT_BEAMS = 5;
 const BEAM_SPEED = 0.4;
 const BEAM_TAIL_ALPHA = 0.05;
 const IDLE_RESPAWN_DELAY_MS = 1000;
+const BASE_DELEAY_BETWEEN_BEAMS = 10000;
 const FPS = 60;
 
 type Beam = {
@@ -48,7 +49,6 @@ export const Backdrop = () => {
     let tilingSprite: TilingSprite | null = null;
     let beamRenderTexture: RenderTexture | null = null;
     let beamSprite: Sprite | null = null;
-    let tileTexture: ReturnType<typeof createGridTileTexture> | null = null;
     let idleTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const beams: Beam[] = Array.from({ length: AMOUNT_BEAMS }, () => ({
@@ -70,7 +70,9 @@ export const Backdrop = () => {
     };
 
     const spawnAllBeams = () => {
-      beams.forEach((beam) => spawnBeam(beam, Math.random() * 10000));
+      beams.forEach((beam) => {
+        spawnBeam(beam, Math.random() * BASE_DELEAY_BETWEEN_BEAMS);
+      });
       app?.ticker.start();
     };
 
@@ -101,7 +103,7 @@ export const Backdrop = () => {
       const grid = gridRef.current;
       if (!grid) return;
 
-      tileTexture = createGridTileTexture(pixiApp, grid.squareSize);
+      const tileTexture = createGridTileTexture(pixiApp, grid.squareSize);
       tilingSprite = new TilingSprite({
         texture: tileTexture,
         width: window.innerWidth,
@@ -209,18 +211,12 @@ export const Backdrop = () => {
 
     const handleResize = () => {
       if (!app || !tilingSprite || !beamSprite) return;
-      const grid = gridRef.current;
-      if (!grid) return;
 
       app.renderer.resize(window.innerWidth, window.innerHeight);
       tilingSprite.width = window.innerWidth;
       tilingSprite.height = window.innerHeight;
 
       setGridDimensions(gridRef);
-
-      tileTexture?.destroy(true);
-      tileTexture = createGridTileTexture(app, grid.squareSize);
-      tilingSprite.texture = tileTexture;
 
       beamRenderTexture?.destroy(true);
       beamRenderTexture = RenderTexture.create({

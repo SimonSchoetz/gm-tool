@@ -1,4 +1,4 @@
-import { Application, Color, Graphics } from 'pixi.js';
+import { Application, Color, Graphics, Rectangle } from 'pixi.js';
 import { getColor } from './getColor';
 
 export const createGridTileTexture = (app: Application, squareSize: number) => {
@@ -32,5 +32,8 @@ export const createGridTileTexture = (app: Application, squareSize: number) => {
     }
   }
 
-  return app.renderer.textureGenerator.generateTexture(g);
+  return app.renderer.textureGenerator.generateTexture({
+    target: g,
+    frame: new Rectangle(0, 0, squareSize, squareSize),
+  });
 };
