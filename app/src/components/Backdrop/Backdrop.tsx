@@ -78,7 +78,7 @@ export const Backdrop = () => {
 
     const init = async () => {
       const primaryColor = getColor('--color-primary');
-      const bgCompositeColor = buildCompositeColor();
+      const bgCompositeColor = buildCompositeColor(); // black when we implement high contrast with no grid
 
       const newApp = new Application();
       await newApp.init({
@@ -117,10 +117,7 @@ export const Backdrop = () => {
         height: window.innerHeight,
         dynamic: true,
       });
-      // pixiApp.renderer.clear({
-      //   target: beamRenderTexture,
-      //   clearColor: new Color('black'),
-      // });
+
       beamSprite = new Sprite(beamRenderTexture);
       beamSprite.blendMode = 'add';
       pixiApp.stage.addChild(beamSprite);
@@ -224,10 +221,7 @@ export const Backdrop = () => {
         height: window.innerHeight,
         dynamic: true,
       });
-      // app.renderer.clear({
-      //   target: beamRenderTexture,
-      //   clearColor: new Color('black'),
-      // });
+
       beamSprite.texture = beamRenderTexture;
 
       if (idleTimeoutId !== null) {
