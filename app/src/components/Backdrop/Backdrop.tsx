@@ -19,7 +19,7 @@ import type { Beam, Grid } from './types';
 import './Backdrop.css';
 
 const AMOUNT_BEAMS = 5;
-const BEAM_TAIL_ALPHA = 0.05;
+const BEAM_TAIL_ALPHA = 0.08;
 const IDLE_RESPAWN_DELAY_MS = 1000;
 const BASE_DELEAY_BETWEEN_BEAMS = 10000;
 const FPS = 60;

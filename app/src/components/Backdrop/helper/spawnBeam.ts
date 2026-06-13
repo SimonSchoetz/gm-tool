@@ -4,7 +4,7 @@ import { generateZigzagPath } from './generateZigzagPath';
 import type { Beam } from '../types';
 import type { Grid } from '../types';
 
-const BEAM_SPEED = 0.4;
+const BEAM_SPEED = 0.8;
 
 export const spawnBeam = (
   beam: Beam,
