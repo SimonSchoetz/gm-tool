@@ -21,9 +21,10 @@ import type { Grid } from './types';
 import './Backdrop.css';
 
 const AMOUNT_BEAMS = 5;
-const BEAM_SPEED = 0.15;
+const BEAM_SPEED = 0.4;
 const BEAM_TAIL_ALPHA = 0.05;
-const IDLE_RESPAWN_DELAY_MS = 2000;
+const IDLE_RESPAWN_DELAY_MS = 1000;
+const FPS = 60;
 
 type Beam = {
   path: { x: number; y: number }[];
@@ -31,6 +32,7 @@ type Beam = {
   headDistance: number;
   speed: number;
   active: boolean;
+  spawnDelay: number;
 };
 
 export const Backdrop = () => {
@@ -55,23 +57,24 @@ export const Backdrop = () => {
       headDistance: 0,
       speed: BEAM_SPEED,
       active: false,
+      spawnDelay: 0,
     }));
 
-    const spawnBeam = (beam: Beam) => {
+    const spawnBeam = (beam: Beam, delay = 0) => {
       beam.path = generateZigzagPath(gridRef);
       beam.cumulativeLengths = getCumulativeLengths(beam.path);
       beam.headDistance = 0;
-      beam.speed = BEAM_SPEED * (0.8 + Math.random() * 0.4);
-      beam.active = true;
+      beam.speed = BEAM_SPEED * (0.5 + Math.random() * 0.6);
+      beam.spawnDelay = delay;
+      beam.active = delay === 0;
     };
 
     const spawnAllBeams = () => {
-      beams.forEach(spawnBeam);
+      beams.forEach((beam) => spawnBeam(beam, Math.random() * 10000));
       app?.ticker.start();
     };
 
     const init = async () => {
-      const bgRgb = getColor('--color-bg-rgb');
       const primaryColor = getColor('--color-primary');
       const bgCompositeColor = buildCompositeColor();
 
@@ -104,6 +107,7 @@ export const Backdrop = () => {
         width: window.innerWidth,
         height: window.innerHeight,
       });
+      tilingSprite.tilePosition.set(grid.squareSize / 2, grid.squareSize / 2);
       pixiApp.stage.addChild(tilingSprite);
 
       beamRenderTexture = RenderTexture.create({
@@ -111,14 +115,15 @@ export const Backdrop = () => {
         height: window.innerHeight,
         dynamic: true,
       });
-      pixiApp.renderer.clear({
-        target: beamRenderTexture,
-        clearColor: new Color(bgCompositeColor),
-      });
+      // pixiApp.renderer.clear({
+      //   target: beamRenderTexture,
+      //   clearColor: new Color('black'),
+      // });
       beamSprite = new Sprite(beamRenderTexture);
+      beamSprite.blendMode = 'add';
       pixiApp.stage.addChild(beamSprite);
 
-      pixiApp.ticker.maxFPS = 30;
+      pixiApp.ticker.maxFPS = FPS;
 
       const fadeGraphics = new Graphics();
       const headGraphics = new Graphics();
@@ -131,7 +136,7 @@ export const Backdrop = () => {
         fadeGraphics
           .clear()
           .rect(0, 0, window.innerWidth, window.innerHeight)
-          .fill({ color: new Color(`rgb(${bgRgb})`), alpha: BEAM_TAIL_ALPHA });
+          .fill({ color: 'black', alpha: BEAM_TAIL_ALPHA });
         pixiApp.renderer.render({
           container: fadeGraphics,
           target: brt,
@@ -142,6 +147,14 @@ export const Backdrop = () => {
         let anyActive = false;
 
         for (const beam of beams) {
+          if (beam.spawnDelay > 0) {
+            anyActive = true;
+            beam.spawnDelay -= deltaMS;
+            if (beam.spawnDelay <= 0) {
+              beam.spawnDelay = 0;
+              beam.active = true;
+            }
+          }
           if (!beam.active) continue;
           anyActive = true;
 
@@ -166,10 +179,16 @@ export const Backdrop = () => {
           );
 
           if (pos && prevPos) {
+            headGraphics.moveTo(prevPos.x, prevPos.y);
+            for (let k = 1; k < beam.path.length; k++) {
+              const cornerDist = beam.cumulativeLengths[k];
+              if (cornerDist > prevDistance && cornerDist < beam.headDistance) {
+                headGraphics.lineTo(beam.path[k].x, beam.path[k].y);
+              }
+            }
             headGraphics
-              .moveTo(prevPos.x, prevPos.y)
               .lineTo(pos.x, pos.y)
-              .stroke({ width: 2, color: new Color(primaryColor), alpha: 1 });
+              .stroke({ width: 1, color: new Color(primaryColor), alpha: 1 });
           }
         }
 
@@ -209,10 +228,10 @@ export const Backdrop = () => {
         height: window.innerHeight,
         dynamic: true,
       });
-      app.renderer.clear({
-        target: beamRenderTexture,
-        clearColor: new Color(buildCompositeColor()),
-      });
+      // app.renderer.clear({
+      //   target: beamRenderTexture,
+      //   clearColor: new Color('black'),
+      // });
       beamSprite.texture = beamRenderTexture;
 
       if (idleTimeoutId !== null) {
