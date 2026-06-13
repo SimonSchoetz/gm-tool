@@ -3,7 +3,10 @@ import { createPortal } from 'react-dom';
 import { useRouterState } from '@tanstack/react-router';
 import { FCProps } from '@/types';
 import { MentionPopup } from '../../components/MentionPopup';
-import type { PopupPosition, PopupPlacement } from '../../components/MentionPopup';
+import type {
+  PopupPosition,
+  PopupPlacement,
+} from '../../components/MentionPopup';
 import {
   PinnedPopupsContext,
   ShowPopupArgs,

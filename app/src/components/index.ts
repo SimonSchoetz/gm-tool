@@ -1,5 +1,5 @@
 export { default as ActionContainer } from './ActionContainer/ActionContainer.tsx';
-export { default as Backdrop } from './Backdrop/Backdrop.tsx';
+export { Backdrop } from './Backdrop';
 export { default as GlassPanel } from './GlassPanel/GlassPanel.tsx';
 export { default as Input } from './Input/Input.tsx';
 export { default as LightSource } from './LightSource/LightSource.tsx';

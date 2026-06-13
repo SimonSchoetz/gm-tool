@@ -14,4 +14,10 @@ export {
   tableConfigKeys,
 } from './table-config';
 export { useSessionSteps, sessionStepKeys } from './session-steps';
-export { useAppVersion, useCheckUpdate, useDownloadUpdate, useInstallAndRelaunch, updaterKeys } from './updater';
+export {
+  useAppVersion,
+  useCheckUpdate,
+  useDownloadUpdate,
+  useInstallAndRelaunch,
+  updaterKeys,
+} from './updater';

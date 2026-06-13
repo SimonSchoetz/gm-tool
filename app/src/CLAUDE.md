@@ -103,7 +103,7 @@ In the data-access-layer, one concern = one file:
 
 - each component has its own folder
 - each component has its own `.css` file
-- Pure functions (transformations, formatters, predicates) that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
+- Functions that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. This covers both pure functions (transformations, formatters, predicates) and non-pure helpers (DOM/canvas mutation drivers). Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
 - Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`. When a sub-component is rendered by two or more unrelated parents, it belongs to neither — place it as a peer module directory at the nearest shared ancestor. For top-level components in `components/`, this means a standalone `components/SubComponentName/` directory alongside its consumers, not nested under either of them. **Sub-component ownership does not apply to provider modules.** A component rendered exclusively by a provider belongs in `components/`, not inside the provider's module directory. `providers/` is infrastructure; its `components/` subdirectory (if any) is reserved for provider-internal structural fragments, not domain UI.
   - ✅ `components/MentionPopup/` — domain UI components belong in `components/` regardless of consumer count; the sub-component ownership rule applies within the component library only, not to provider modules
   - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — provider modules are infrastructure; they do not adopt domain UI components as sub-components even when they are the sole renderer
@@ -205,7 +205,7 @@ When a constant is shared by two or more TypeScript files within the same module
 
 ### Testing Policy
 
-- **Required**: All helper functions (`ComponentName/helper/`) and all util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name.
+- **Required**: All helper functions (`ComponentName/helper/`) and all util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name. Exception: a helper whose entire body consists of DOM or canvas mutations with no branching, no derived data, and no multi-step logic is exempt — it has no independently verifiable output to assert against.
 - **Forbidden**: React components — files whose exported function returns JSX — must not have unit tests. Components change shape frequently; testing helpers and the data layer provides sufficient coverage at lower cost.
 
 ### Styles
@@ -236,7 +236,7 @@ When a constant is shared by two or more TypeScript files within the same module
 - ✅ `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
 
-**No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime.
+**No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime. This inline fallback is a narrow exception to the Design token obligation above — it applies only while waiting for user approval on a new token, not as a permanent state.
 
 ### Types Directory
 

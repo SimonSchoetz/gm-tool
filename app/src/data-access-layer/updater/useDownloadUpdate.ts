@@ -30,9 +30,7 @@ export const useDownloadUpdate = (): UseDownloadUpdateReturn => {
   });
 
   const downloadProgress =
-    total !== null && total > 0
-      ? Math.round((downloaded / total) * 100)
-      : null;
+    total !== null && total > 0 ? Math.round((downloaded / total) * 100) : null;
 
   return {
     downloadUpdate: () => mutation.mutateAsync(),

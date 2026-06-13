@@ -1,5 +1,9 @@
-export { createBeams } from './createBeams';
-export { createGridTiles } from './createGridTiles';
-export { initBeams } from './initBeams';
-export { setCanvasSize } from './setCanvasSize';
+export { buildCompositeColor } from './buildCompositeColor';
+export { createGridTileTexture } from './createGridTileTexture';
+export { generateZigzagPath } from './generateZigzagPath';
+export { getCumulativeLengths } from './getCumulativeLengths';
+export { getColor } from './getColor';
+export { getPositionOnPath } from './getPositionOnPath';
 export { setGridDimensions } from './setGridDimensions';
+export { spawnBeam } from './spawnBeam';
+export { tickBeams } from './tickBeams';

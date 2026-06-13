@@ -28,6 +28,15 @@ TypeScript conventions that apply to all TypeScript layers under `app/` (`src/`,
   - ❌ BAD: `const updateItem = (data: UpdateItemData) => { if (!itemData) return null; ... }` where `updateItem` is typed `() => void`
   - ✅ GOOD: `const updateItem = (data: UpdateItemData) => { if (!itemData) return; ... }`
 
+- **Banned TypeScript forms — enforced by the strict ESLint preset (`tseslint.configs.strictTypeChecked`), not visible as named rules in `eslint.config.js`:**
+  - `Array<T>` — always use the `T[]` shorthand instead.
+    - ❌ `Array<string>`
+    - ✅ `string[]`
+  - `useRef<T>(value)` when `T` is directly inferrable from the initializer — omit the annotation.
+    - ❌ `useRef<number>(0)` — `number` is fully inferrable from `0`
+    - ✅ `useRef(0)`
+    - Note: DOM refs initialised with `null` require the explicit type argument (`useRef<HTMLDivElement | null>(null)`) — without it TypeScript infers `RefObject<null>`, not `RefObject<HTMLDivElement | null>`. That annotation is not redundant and must be kept.
+
 ## Directory Structure (all TypeScript layers)
 
 Two directory types exist — distinguish them before adding or deleting a barrel:
