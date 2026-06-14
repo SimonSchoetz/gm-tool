@@ -8,5 +8,28 @@
 .holo-fx-container.active {
   will-change: opacity;
   transition: opacity var(--transition-base) ease-out;
+
   opacity: 1;
+}
+
+.holo-fx-glare {
+  position: absolute;
+  inset: 0;
+
+  --light-fx-position: calc(100% - var(--tilt-fx-cursor-x-percent))
+    calc(100% - var(--tilt-fx-cursor-y-percent));
+
+  --light-fx-form: ellipse
+    max(100%, calc(300% * var(--tilt-fx-distance-from-center-y)))
+    max(100%, calc(300% * var(--tilt-fx-distance-from-center-x)));
+  background: radial-gradient(
+    var(--light-fx-form) at var(--light-fx-position),
+    rgb(var(--color-fg-rgb), 1) 0%,
+    rgb(var(--color-fg-rgb), 0.2) 20%,
+
+    transparent 100%
+  );
+
+  mix-blend-mode: overlay;
+  opacity: calc(var(--tilt-fx-distance-from-center, 0) * 0.5);
 }

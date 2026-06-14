@@ -1,32 +1,38 @@
 import { useEffect, type RefObject, type CSSProperties, useState } from 'react';
 
 type CardVars = {
-  '--mx': string;
-  '--my': string;
-  '--posx': string;
-  '--posy': string;
-  '--rx': string;
-  '--ry': string;
-  '--rx-num': number;
-  '--ry-num': number;
-  '--hyp': string;
+  '--tilt-fx-cursor-x-percent': string;
+  '--tilt-fx-cursor-y-percent': string;
+  '--tilt-fx-rotation-x-degrees': string;
+  '--tilt-fx-rotation-y-degrees': string;
+  '--tilt-fx-rotation-x-degrees-num': number;
+  '--tilt-fx-rotation-y-degrees-num': number;
+  '--tilt-fx-distance-from-center': string;
+  '--tilt-fx-distance-from-center-x': string;
+  '--tilt-fx-distance-from-center-y': string;
 } & CSSProperties;
 
 type CardState = {
-  mx: number;
-  my: number;
-  rx: number;
-  ry: number;
-  hyp: number;
+  cursorXPercent: number;
+  cursorYPercent: number;
+  rotationX: number;
+  rotationY: number;
+  distanceFromCenter: number;
+  distanceFromCenterX: number;
+  distanceFromCenterY: number;
+
   isActive: boolean;
 };
 
 const initialState: CardState = {
-  mx: 50,
-  my: 50,
-  rx: 0,
-  ry: 0,
-  hyp: 0,
+  cursorXPercent: 50,
+  cursorYPercent: 50,
+  rotationX: 0,
+  rotationY: 0,
+  distanceFromCenter: 0,
+  distanceFromCenterX: 0,
+  distanceFromCenterY: 0,
+
   isActive: false,
 };
 
@@ -53,18 +59,32 @@ export const useTiltFX = (
         const w = rect.width;
         const h = rect.height;
 
-        const mx = (x / w) * 100;
-        const my = (y / h) * 100;
+        const cursorXPercent = (x / w) * 100;
+        const cursorYPercent = (y / h) * 100;
 
-        const maxRotation = 1;
-        const rx = ((my - 50) / 50) * -maxRotation;
-        const ry = ((mx - 50) / 50) * maxRotation;
+        const maxRotation = 2;
+        const rotationX = ((cursorYPercent - 50) / 50) * -maxRotation;
+        const rotationY = ((cursorXPercent - 50) / 50) * maxRotation;
 
-        const centerX = mx - 50;
-        const centerY = my - 50;
-        const hyp = Math.min(Math.sqrt(centerX ** 2 + centerY ** 2) / 50, 1);
+        const centerX = cursorXPercent - 50;
+        const centerY = cursorYPercent - 50;
+        const distanceFromCenter = Math.min(
+          Math.sqrt(centerX ** 2 + centerY ** 2) / 50,
+          1,
+        );
+        const distanceFromCenterX = Math.abs(centerX) / 50;
+        const distanceFromCenterY = Math.abs(centerY) / 50;
 
-        setState({ mx, my, rx, ry, hyp, isActive: true });
+        setState({
+          cursorXPercent,
+          cursorYPercent,
+          rotationX,
+          rotationY,
+          distanceFromCenter,
+          distanceFromCenterX,
+          distanceFromCenterY,
+          isActive: true,
+        });
       });
     };
 
@@ -89,15 +109,15 @@ export const useTiltFX = (
   }, [containerRef]);
 
   const cardVars: CardVars = {
-    '--mx': `${state.mx}%`,
-    '--my': `${state.my}%`,
-    '--posx': `${state.mx}%`,
-    '--posy': `${state.my}%`,
-    '--rx': `${state.rx}deg`,
-    '--ry': `${state.ry}deg`,
-    '--rx-num': state.rx,
-    '--ry-num': state.ry,
-    '--hyp': String(state.hyp),
+    '--tilt-fx-cursor-x-percent': `${state.cursorXPercent}%`,
+    '--tilt-fx-cursor-y-percent': `${state.cursorYPercent}%`,
+    '--tilt-fx-rotation-x-degrees': `${state.rotationX}deg`,
+    '--tilt-fx-rotation-y-degrees': `${state.rotationY}deg`,
+    '--tilt-fx-rotation-x-degrees-num': state.rotationX,
+    '--tilt-fx-rotation-y-degrees-num': state.rotationY,
+    '--tilt-fx-distance-from-center': String(state.distanceFromCenter),
+    '--tilt-fx-distance-from-center-x': String(state.distanceFromCenterX),
+    '--tilt-fx-distance-from-center-y': String(state.distanceFromCenterY),
   };
 
   return {

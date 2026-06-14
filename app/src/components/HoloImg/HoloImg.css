@@ -12,7 +12,8 @@
 
 .tilt-fx {
   position: relative;
-  transform: rotateY(var(--ry)) rotateX(var(--rx));
+  transform: rotateY(var(--tilt-fx-rotation-y-degrees))
+    rotateX(var(--tilt-fx-rotation-x-degrees));
   transition: var(--transition-base);
   outline: 1px solid transparent;
   box-shadow: 0 0 5px 1px transparent;
