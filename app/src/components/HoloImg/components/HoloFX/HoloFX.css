@@ -30,5 +30,7 @@
   );
 
   mix-blend-mode: overlay;
-  opacity: calc(var(--glare-distance-from-center) * 0.5);
+  opacity: calc(
+    var(--glare-distance-from-center) * var(--glare-distance-from-center) * 0.5
+  );
 }
