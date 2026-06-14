@@ -28,7 +28,7 @@ export const FoeSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={foe.image_id ?? null}
-        title={foe.name ?? ''}
+        title=''
         uploadFn={(filePath) => {
           updateFoe({ imgFilePath: filePath, image_id: foe.image_id });
         }}

@@ -28,7 +28,7 @@ export const NpcSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={npc.image_id ?? null}
-        title={npc.name ?? ''}
+        title=''
         uploadFn={(filePath) => {
           updateNpc({ imgFilePath: filePath, image_id: npc.image_id });
         }}

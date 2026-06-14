@@ -26,7 +26,7 @@ export const LocationSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={location.image_id ?? null}
-        title={location.name ?? ''}
+        title=''
         uploadFn={(filePath) => {
           updateLocation({
             imgFilePath: filePath,

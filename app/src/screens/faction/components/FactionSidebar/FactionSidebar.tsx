@@ -26,7 +26,7 @@ export const FactionSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={faction.image_id ?? null}
-        title={faction.name ?? ''}
+        title=''
         uploadFn={(filePath) => {
           updateFaction({ imgFilePath: filePath, image_id: faction.image_id });
         }}

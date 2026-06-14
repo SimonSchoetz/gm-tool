@@ -28,7 +28,7 @@ export const ItemSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={item.image_id ?? null}
-        title={item.name ?? ''}
+        title=''
         uploadFn={(filePath) => {
           updateItem({ imgFilePath: filePath, image_id: item.image_id });
         }}

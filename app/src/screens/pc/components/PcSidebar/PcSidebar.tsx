@@ -25,7 +25,7 @@ export const PcSidebar = () => {
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={pc.image_id ?? null}
-        title={pc.name ?? ''}
+        title=''
         uploadFn={(filePath) => {
           updatePc({ imgFilePath: filePath, image_id: pc.image_id });
         }}
