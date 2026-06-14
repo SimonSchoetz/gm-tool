@@ -1,1 +1,1 @@
-export { useTiltFX } from './useTiltFX';
+export { useTiltFX, type TiltFX } from './useTiltFX';

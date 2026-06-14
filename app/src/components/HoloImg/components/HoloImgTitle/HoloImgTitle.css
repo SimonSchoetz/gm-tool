@@ -11,9 +11,10 @@
   line-height: var(--font-size-2xl);
   opacity: 0;
   transition: opacity var(--transition-hover-off);
-  --text-shadow-position: calc(var(--tilt-fx-rotation-y-degrees-num, 0) * 6px)
-    calc(var(--tilt-fx-rotation-x-degrees-num, 0) * -4px);
-  text-shadow: var(--text-shadow-position) 2px var(--color-bg);
+
+  text-shadow: calc(var(--holo-img-x-offset) * 2px)
+    calc(var(--holo-img-y-offset) * -2px)
+    calc(var(--holo-img-tilt-magnitude) * 2.5px) var(--color-bg);
 }
 
 .holo-img-title:hover {

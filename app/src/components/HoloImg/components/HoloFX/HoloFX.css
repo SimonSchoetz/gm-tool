@@ -16,20 +16,19 @@
   position: absolute;
   inset: 0;
 
-  --light-fx-position: calc(100% - var(--tilt-fx-cursor-x-percent))
-    calc(100% - var(--tilt-fx-cursor-y-percent));
+  --glare-form: ellipse
+    max(var(--glare-base-dimensions), var(--glare-ellipse-y))
+    max(var(--glare-base-dimensions), var(--glare-ellipse-x));
 
-  --light-fx-form: ellipse
-    max(100%, calc(300% * var(--tilt-fx-distance-from-center-y)))
-    max(100%, calc(300% * var(--tilt-fx-distance-from-center-x)));
+  --glare-position: var(--glare-position-x) var(--glare-position-y);
+
   background: radial-gradient(
-    var(--light-fx-form) at var(--light-fx-position),
+    var(--glare-form) at var(--glare-position),
     rgb(var(--color-fg-rgb), 1) 0%,
-    rgb(var(--color-fg-rgb), 0.2) 20%,
-
+    rgb(var(--color-fg-rgb), 0.2) 30%,
     transparent 100%
   );
 
   mix-blend-mode: overlay;
-  opacity: calc(var(--tilt-fx-distance-from-center, 0) * 0.5);
+  opacity: calc(var(--glare-distance-from-center) * 0.5);
 }

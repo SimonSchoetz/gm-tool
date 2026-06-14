@@ -1,5 +1,5 @@
 import { FCProps, HtmlProps } from '@/types';
-import { useRef } from 'react';
+import { useRef, type CSSProperties } from 'react';
 import { cn } from '@/util';
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
@@ -21,22 +21,26 @@ export const HoloImg: FCProps<Props> = ({
   ...props
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { cardVars, isActive } = useTiltFX(containerRef);
+  const tiltFX = useTiltFX(containerRef);
   return (
     <div
       ref={containerRef}
-      style={cardVars}
+      style={{
+        '--tilt-fx-rotation-x-degrees': `${tiltFX.rotationX}deg`,
+        '--tilt-fx-rotation-y-degrees': `${tiltFX.rotationY}deg`,
+      } as CSSProperties}
       className='tilt-fx-container'
       {...props}
     >
       <ImagePlaceholderFrame
         dimensions={dimensions}
-        className={cn('tilt-fx', isActive && 'active', className)}
+        className={cn('tilt-fx', tiltFX.isActive && 'active', className)}
       >
-        <HoloFX isActive={isActive} />
+        <HoloFX tiltFX={tiltFX} />
 
         <HoloImgTitle
           title={title}
+          tiltFX={tiltFX}
           className={cn(!image_id && 'always-active')}
         />
 
@@ -44,7 +48,7 @@ export const HoloImg: FCProps<Props> = ({
           <ImageById
             imageId={image_id}
             alt={title}
-            className={cn('holo-img', isActive && 'active')}
+            className={cn('holo-img', tiltFX.isActive && 'active')}
           />
         )}
       </ImagePlaceholderFrame>
