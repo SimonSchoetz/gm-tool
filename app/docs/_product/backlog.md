@@ -14,7 +14,8 @@
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
   - embedded images
   - '/' command to open text formatter so one can start typing a header from the beginning
-  - list fix: removing the last remaining tab it should end ind a new line, not in the previews list item
+  - name tags should update when the reference changes
+  - Auto-Correct off
   - Tables
 
 ### Done
