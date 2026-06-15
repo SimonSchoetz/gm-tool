@@ -5,6 +5,7 @@ import { CheckIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ActionContainer } from '../../../../../ActionContainer/ActionContainer';
 import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
+import { Input } from '../../../../../Input/Input';
 
 import './LinkInput.css';
 
@@ -25,7 +26,7 @@ export const LinkInput: FCProps<Props> = ({ onClose }) => {
 
   return (
     <GlassPanel className='link-input'>
-      <input
+      <Input
         value={url}
         onChange={(e) => {
           setUrl(e.target.value);
