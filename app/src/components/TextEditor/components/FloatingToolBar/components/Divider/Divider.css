@@ -1,5 +1,5 @@
 .divider {
-  width: 1px; /* no border-width token exists — flagged for user review */
-  margin: 0.375rem 0.125rem; /* no spacing token for these values — flagged for user review */
+  width: 1px; /* one-off */
+  margin: 0.375rem 0.125rem; /* one-off */
   background-color: var(--color-primary);
 }

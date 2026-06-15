@@ -1,6 +1,6 @@
 .link-popup-wrapper {
   position: absolute;
-  z-index: 1001; /* no z-index token family exists — flagged for user review */
+  z-index: var(--most-front);
 }
 
 .link-popup {
@@ -13,7 +13,7 @@
 .link-popup-url {
   font-size: var(--font-size-sm);
   color: var(--color-text);
-  max-width: 240px; /* no dimension token exists for popup max-width */
+  max-width: 240px; /* one-off */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
