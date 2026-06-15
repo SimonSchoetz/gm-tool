@@ -19,8 +19,9 @@ import {
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
 import { GlassPanel } from '../../GlassPanel/GlassPanel';
-import { ActionContainer } from '../../ActionContainer/ActionContainer';
+
 import './EmbeddedLinkPlugin.css';
+import { ClickableIcon } from '../../ClickableIcon/ClickableIcon';
 
 const isHttpUrl = (text: string): boolean => {
   try {
@@ -84,8 +85,8 @@ export const EmbeddedLinkPlugin = () => {
           if (url !== null) {
             setLinkPopup({
               url,
-              x: event.clientX + window.scrollX,
-              y: event.clientY + window.scrollY,
+              x: event.clientX,
+              y: event.clientY + 10,
             });
             return true;
           }
@@ -118,15 +119,14 @@ export const EmbeddedLinkPlugin = () => {
         >
           <GlassPanel className='link-popup'>
             <span className='link-popup-url'>{linkPopup.url}</span>
-            <ActionContainer
+            <ClickableIcon
+              icon={<ExternalLinkIcon />}
               label='Open in browser'
               onClick={() => {
                 void openUrl(linkPopup.url);
                 setLinkPopup(null);
               }}
-            >
-              <ExternalLinkIcon />
-            </ActionContainer>
+            />
           </GlassPanel>
         </div>,
         document.body,

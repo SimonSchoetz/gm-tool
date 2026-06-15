@@ -8,10 +8,11 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
 }
 
 .link-popup-url {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   color: var(--color-text);
   max-width: 240px; /* one-off */
   overflow: hidden;

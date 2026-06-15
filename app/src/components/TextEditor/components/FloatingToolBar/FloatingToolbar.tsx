@@ -9,7 +9,14 @@ import {
   mergeRegister,
 } from 'lexical';
 import './FloatingToolbar.css';
-import { TextFormatBtn, HeadingBtn, ListBtn, LinkBtn, LinkInput, Divider } from './components';
+import {
+  TextFormatBtn,
+  HeadingBtn,
+  ListBtn,
+  LinkBtn,
+  LinkInput,
+  Divider,
+} from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
 
 type Position = {
@@ -176,22 +183,43 @@ export const FloatingToolbar = () => {
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
-      onMouseDown={isLinkInputMode ? undefined : (e) => { e.preventDefault(); }}
+      onMouseDown={
+        isLinkInputMode
+          ? undefined
+          : (e) => {
+              e.preventDefault();
+            }
+      }
     >
       {isLinkInputMode ? (
         <LinkInput onClose={exitLinkInputMode} />
       ) : (
         <>
           {headingBtns.map((btn) => (
-            <HeadingBtn key={btn.headingType} label={btn.label} headingType={btn.headingType} icon={btn.icon} />
+            <HeadingBtn
+              key={btn.headingType}
+              label={btn.label}
+              headingType={btn.headingType}
+              icon={btn.icon}
+            />
           ))}
           <Divider />
           {textFormatBtns.map((btn) => (
-            <TextFormatBtn key={btn.formatType} label={btn.label} formatType={btn.formatType} icon={btn.icon} />
+            <TextFormatBtn
+              key={btn.formatType}
+              label={btn.label}
+              formatType={btn.formatType}
+              icon={btn.icon}
+            />
           ))}
           <Divider />
           {listBtns.map((btn) => (
-            <ListBtn key={btn.listType} label={btn.label} listType={btn.listType} icon={btn.icon} />
+            <ListBtn
+              key={btn.listType}
+              label={btn.label}
+              listType={btn.listType}
+              icon={btn.icon}
+            />
           ))}
           <Divider />
           <LinkBtn onRequestLinkInput={enterLinkInputMode} />
