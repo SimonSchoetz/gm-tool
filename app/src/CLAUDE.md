@@ -170,6 +170,15 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
   - ✅ GOOD: `className="button-wrapper"` — static, plain className is correct
   - ❌ BAD: `cn('button-wrapper')` — single static string, cn() adds no value
 
+**UI primitive wrappers — prefer the component over the bare HTML element.** Two match types apply, checked in order:
+1. **Name-match**: when a component in `src/components/` shares the exact name of a native HTML element (PascalCase vs lowercase — e.g., `Input` / `<input>`), always use the component instead of the bare element.
+2. **Semantic-match**: before using a typed variant of an HTML element (e.g., `<input type="color">`), check `src/components/` for a specialized component that handles that variant. The naming pattern is `[Modifier][ElementName]` (e.g., `ColorInput`, `DateInput`). If one exists, use it — never fall back to the generic wrapper with a `type` attribute.
+- When consuming either type of wrapper from inside `src/components/` (the importer is itself a sibling in the `components/` grouping folder), the barrel-circular-import rule applies — never import through `@/components`. Use a direct relative path: `import { Input } from '../Input/Input'`.
+- ✅ `<Input value={val} onChange={handler} />` — name-match: `Input` component exists, use it
+- ✅ `<ColorInput value={val} onChange={handler} />` — semantic-match: typed color variant covered by `ColorInput`, use it
+- ❌ `<input value={val} onChange={handler} />` — bare element when a name-match wrapper exists
+- ❌ `<Input type="color" value={val} onChange={handler} />` — typed variant when a semantic-match wrapper exists
+
 ### Util vs. Helper Placement
 
 A function belongs in `/src/util/` only when **both** conditions are met:
@@ -224,7 +233,7 @@ When a constant is shared by two or more TypeScript files within the same module
 **Design token obligation:**
 
 - All CSS property values must reference tokens from `styles/variables/` (e.g., `var(--spacing-sm)`, `var(--radius-xl)`).
-- Raw pixel, color, and `rem` values are banned in component `.css` files.
+- Raw pixel, color, `rem`, and unitless z-index integer values are banned in component `.css` files. If no z-index token exists in `styles/variables/`, follow the no-unilateral-additions rule: flag the needed token to the user rather than hardcoding.
 - If a needed token does not exist in `styles/variables/`, add it to the appropriate file there first — never hardcode at the component level.
   - ✅ `padding: var(--spacing-sm)`
   - ❌ `padding: 8px`
@@ -235,6 +244,12 @@ When a constant is shared by two or more TypeScript files within the same module
 - ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ✅ `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
+
+**Static CSS custom properties:** When a component-scoped CSS value is not DB-sourced but also cannot use a global token (e.g., a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component), declare it as a static custom property on the component's root element. Prefix with `--[component-name]-` (kebab-cased component name, no `rt` segment) to distinguish from both global tokens and runtime values.
+
+- ✅ `--toolbar-final-position: 8px` (set in CSS), consumed via `var(--toolbar-final-position)` within the same component
+- ✅ `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value), consumed via `var(--floating-toolbar-offset)`
+- ❌ `--rt-toolbar-position: 8px` — the `--rt-` prefix signals DB-sourced; do not use it for static or JS-computed values that are not DB-derived
 
 **No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime. This inline fallback is a narrow exception to the Design token obligation above — it applies only while waiting for user approval on a new token, not as a permanent state.
 
