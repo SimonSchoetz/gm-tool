@@ -9,7 +9,7 @@ import {
   mergeRegister,
 } from 'lexical';
 import './FloatingToolbar.css';
-import { TextFormatBtn, HeadingBtn, ListBtn } from './components';
+import { TextFormatBtn, HeadingBtn, ListBtn, LinkBtn, LinkInput } from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
 
 type Position = {
@@ -19,7 +19,7 @@ type Position = {
 
 const initPosition: Position = { top: 0, left: 0 };
 
-export const FloatingToolbar = ({ ...props }) => {
+export const FloatingToolbar = () => {
   const [editor] = useLexicalComposerContext();
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState(initPosition);
@@ -28,7 +28,22 @@ export const FloatingToolbar = ({ ...props }) => {
   const [isFocused, setIsFocused] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
+  const [isLinkInputMode, setIsLinkInputMode] = useState(false);
+  const isLinkInputModeRef = useRef(false);
+
+  const enterLinkInputMode = () => {
+    isLinkInputModeRef.current = true;
+    setIsLinkInputMode(true);
+  };
+
+  const exitLinkInputMode = () => {
+    isLinkInputModeRef.current = false;
+    setIsLinkInputMode(false);
+  };
+
   const updateToolbar = useCallback(() => {
+    if (isLinkInputModeRef.current) return null;
+
     const selection = $getSelection();
 
     if (!$isRangeSelection(selection)) {
@@ -53,7 +68,6 @@ export const FloatingToolbar = ({ ...props }) => {
       return null;
     }
 
-    // Calculate toolbar position
     if (selected !== selectedText) {
       setSelected(selectedText);
 
@@ -66,7 +80,6 @@ export const FloatingToolbar = ({ ...props }) => {
     setIsVisible(true);
   }, [cursorPosition, isFocused, selected]);
 
-  // Track mouse position
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       setCursorPosition({
@@ -82,7 +95,6 @@ export const FloatingToolbar = ({ ...props }) => {
     };
   }, []);
 
-  // Track editor focus state to hide toolbar when it's not focused
   useEffect(() => {
     const rootElement = editor.getRootElement();
 
@@ -90,6 +102,7 @@ export const FloatingToolbar = ({ ...props }) => {
       setIsFocused(true);
     };
     const handleBlur = () => {
+      if (isLinkInputModeRef.current) return;
       setIsFocused(false);
       setIsVisible(false);
     };
@@ -164,41 +177,27 @@ export const FloatingToolbar = ({ ...props }) => {
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-      }}
-      {...props}
+      onMouseDown={isLinkInputMode ? undefined : (e) => { e.preventDefault(); }}
     >
-      {headingBtns.map((btn) => (
-        <HeadingBtn
-          key={btn.headingType}
-          label={btn.label}
-          headingType={btn.headingType}
-          icon={btn.icon}
-        />
-      ))}
-
-      <Divider />
-
-      {textFormatBtns.map((btn) => (
-        <TextFormatBtn
-          key={btn.formatType}
-          label={btn.label}
-          formatType={btn.formatType}
-          icon={btn.icon}
-        />
-      ))}
-
-      <Divider />
-
-      {listBtns.map((btn) => (
-        <ListBtn
-          key={btn.listType}
-          label={btn.label}
-          listType={btn.listType}
-          icon={btn.icon}
-        />
-      ))}
+      {isLinkInputMode ? (
+        <LinkInput onClose={exitLinkInputMode} />
+      ) : (
+        <>
+          {headingBtns.map((btn) => (
+            <HeadingBtn key={btn.headingType} label={btn.label} headingType={btn.headingType} icon={btn.icon} />
+          ))}
+          <Divider />
+          {textFormatBtns.map((btn) => (
+            <TextFormatBtn key={btn.formatType} label={btn.label} formatType={btn.formatType} icon={btn.icon} />
+          ))}
+          <Divider />
+          {listBtns.map((btn) => (
+            <ListBtn key={btn.listType} label={btn.label} listType={btn.listType} icon={btn.icon} />
+          ))}
+          <Divider />
+          <LinkBtn onRequestLinkInput={enterLinkInputMode} />
+        </>
+      )}
     </div>,
     document.body,
   );

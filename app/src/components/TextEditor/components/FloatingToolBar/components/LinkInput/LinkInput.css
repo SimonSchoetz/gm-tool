@@ -1,0 +1,16 @@
+.link-input {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+}
+
+.link-input input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-primary);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  outline: none;
+  width: 180px; /* no dimension token for input width */
+}
