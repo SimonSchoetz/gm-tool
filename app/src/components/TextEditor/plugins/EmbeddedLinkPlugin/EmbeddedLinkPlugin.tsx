@@ -18,10 +18,10 @@ import {
 } from '@lexical/link';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
-import { GlassPanel } from '../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 
 import './EmbeddedLinkPlugin.css';
-import { ClickableIcon } from '../../ClickableIcon/ClickableIcon';
+import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
 
 const isHttpUrl = (text: string): boolean => {
   try {
