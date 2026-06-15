@@ -3,7 +3,6 @@
 ## Post MVP -> Closed Beta Ready
 - Feature: Automatic updates
   - UX update so user can trigger update manually
-- Feature: Custom title bar
 - Fix: Data access and db location/localization
   - encryption?
 - Feature (Content): Revise All existing texts like session step tooltips and templates
@@ -16,6 +15,10 @@
   - name tags should update when the reference changes
   - Auto-Correct off
   - Tables
+  - Enforce toolbar within window
+  - drag-and-drop content within editor
+  - drag-and-drop content into editor
+    - images, pdfs -> how to handle these?
 
 ### Done
 
@@ -46,6 +49,7 @@
 - Feature (Content): Session Zero
 - Feature(POC): local network to autosync between different devices
   - import with merging strategy
+- Feature: Custom title bar
 
 ## Ideas Dump (unsorted)
 
