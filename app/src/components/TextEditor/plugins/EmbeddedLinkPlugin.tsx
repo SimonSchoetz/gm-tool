@@ -68,17 +68,15 @@ export const EmbeddedLinkPlugin = () => {
       editor.registerCommand(
         CLICK_COMMAND,
         (event) => {
-          const url = editor.getEditorState().read(() => {
-            const node = $getNearestNodeFromDOMNode(event.target as Node);
-            if (!node) return null;
-            const parent = node.getParent();
-            const linkNode = $isLinkNode(node)
-              ? node
-              : $isLinkNode(parent)
-                ? parent
-                : null;
-            return linkNode ? linkNode.getURL() : null;
-          });
+          const node = $getNearestNodeFromDOMNode(event.target as Node);
+          if (!node) return false;
+          const parent = node.getParent();
+          const linkNode = $isLinkNode(node)
+            ? node
+            : $isLinkNode(parent)
+              ? parent
+              : null;
+          const url = linkNode ? linkNode.getURL() : null;
           if (url !== null) {
             setLinkPopup({ url, x: event.clientX + window.scrollX, y: event.clientY + window.scrollY });
             return true;
