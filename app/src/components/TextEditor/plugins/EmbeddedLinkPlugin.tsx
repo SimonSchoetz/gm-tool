@@ -11,11 +11,15 @@ import {
   $isRangeSelection,
   mergeRegister,
 } from 'lexical';
-import { $createLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import {
+  $createLinkNode,
+  $isLinkNode,
+  TOGGLE_LINK_COMMAND,
+} from '@lexical/link';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
 import GlassPanel from '../../GlassPanel/GlassPanel';
-import ActionContainer from '../../ActionContainer/ActionContainer';
+import { ActionContainer } from '../../ActionContainer/ActionContainer';
 import './EmbeddedLinkPlugin.css';
 
 const isHttpUrl = (text: string): boolean => {
@@ -78,7 +82,11 @@ export const EmbeddedLinkPlugin = () => {
               : null;
           const url = linkNode ? linkNode.getURL() : null;
           if (url !== null) {
-            setLinkPopup({ url, x: event.clientX + window.scrollX, y: event.clientY + window.scrollY });
+            setLinkPopup({
+              url,
+              x: event.clientX + window.scrollX,
+              y: event.clientY + window.scrollY,
+            });
             return true;
           }
           return false;
@@ -96,7 +104,9 @@ export const EmbeddedLinkPlugin = () => {
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => { document.removeEventListener('mousedown', handleOutsideClick); };
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
   }, [linkPopup]);
 
   return linkPopup
