@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import GlassPanel from '../GlassPanel/GlassPanel';
+import { GlassPanel } from '../GlassPanel/GlassPanel';
 import Input from '../Input/Input';
 import './DeleteDialog.css';
 import { Button } from '../Button/Button';

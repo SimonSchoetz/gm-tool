@@ -1,6 +1,6 @@
 import { FCProps, HtmlProps } from '@/types';
 import './Header.css';
-import GlassPanel from '../GlassPanel/GlassPanel';
+import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { BreadcrumbList } from './components';
 
 type HeaderProps = HtmlProps<'header'>;

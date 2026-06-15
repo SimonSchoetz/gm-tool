@@ -1,4 +1,4 @@
-import GlassPanel from '../../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import type { FCProps } from '@/types';
 import { cn } from '@/util';
 import { Link, useMatch } from '@tanstack/react-router';

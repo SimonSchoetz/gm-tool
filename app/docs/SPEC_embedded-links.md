@@ -128,7 +128,7 @@ import {
 import { $createLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
-import GlassPanel from '../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../ActionContainer/ActionContainer';
 import './EmbeddedLinkPlugin.css';
 ```

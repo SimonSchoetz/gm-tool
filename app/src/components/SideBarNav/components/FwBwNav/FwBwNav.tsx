@@ -1,5 +1,5 @@
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
-import GlassPanel from '../../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { FCProps, HtmlProps } from '@/types';
 import { cn } from '@/util';

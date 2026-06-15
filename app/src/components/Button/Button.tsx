@@ -2,7 +2,7 @@ import { FCProps } from '@/types';
 
 import './Button.css';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
-import GlassPanel from '../GlassPanel/GlassPanel';
+import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 
 type Props = { buttonStyle?: 'danger' } & React.ComponentProps<

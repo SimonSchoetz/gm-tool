@@ -3,7 +3,7 @@ import {
   FallbackProps,
   ErrorBoundary as ReactErrorBoundary,
 } from 'react-error-boundary';
-import GlassPanel from '../GlassPanel/GlassPanel';
+import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { Button } from '../Button/Button';
 import './ErrorBoundary.css';
 

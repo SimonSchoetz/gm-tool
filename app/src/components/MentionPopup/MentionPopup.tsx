@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
 import { useDraggable } from '@/hooks';
-import GlassPanel from '../GlassPanel/GlassPanel';
+import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { MentionPopupHeader, MentionPopupContent } from './components';
 import { FCProps } from '@/types';
 import './MentionPopup.css';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FCProps } from '@/types';
 import { filePicker } from '@/util';
 import { useDeleteDialog } from '@/providers';
-import GlassPanel from '../../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ImageById } from '../../../ImageById/ImageById';
 import {
   ImageViewerDialogHeader,

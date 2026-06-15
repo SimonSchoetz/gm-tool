@@ -3,7 +3,9 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
-import ActionContainer from '../../../../../ActionContainer/ActionContainer';
+import { ActionContainer } from '../../../../../ActionContainer/ActionContainer';
+import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
+
 import './LinkInput.css';
 
 type Props = {
@@ -22,10 +24,12 @@ export const LinkInput: FCProps<Props> = ({ onClose }) => {
   };
 
   return (
-    <div className='link-input'>
+    <GlassPanel className='link-input'>
       <input
         value={url}
-        onChange={(e) => { setUrl(e.target.value); }}
+        onChange={(e) => {
+          setUrl(e.target.value);
+        }}
         placeholder='https://...'
         onKeyDown={(e) => {
           if (e.key === 'Enter') handleApply();
@@ -39,6 +43,6 @@ export const LinkInput: FCProps<Props> = ({ onClose }) => {
       <ActionContainer label='Cancel' onClick={onClose}>
         <XIcon />
       </ActionContainer>
-    </div>
+    </GlassPanel>
   );
 };

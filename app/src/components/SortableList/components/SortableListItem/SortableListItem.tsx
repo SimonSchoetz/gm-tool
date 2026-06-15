@@ -1,6 +1,6 @@
 import './SortableListItem.css';
 import { useMemo } from 'react';
-import GlassPanel from '../../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
 import { buildGridTemplate } from '../../helper';

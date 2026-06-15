@@ -7,7 +7,7 @@ type GlassPanelProps = {
   intensity?: React.ComponentProps<typeof LightSource>['intensity'];
 } & HtmlProps<'div'>;
 
-const GlassPanel = ({
+export const GlassPanel = ({
   className = '',
   children,
   intensity = 'dim',
@@ -20,5 +20,3 @@ const GlassPanel = ({
     </div>
   );
 };
-
-export default GlassPanel;

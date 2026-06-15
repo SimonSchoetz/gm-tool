@@ -15,7 +15,7 @@ import { MentionNode } from '../nodes';
 import { formatTableLabel } from '@/util';
 import './MentionTypeaheadPlugin.css';
 import { CustomScrollArea } from '../../CustomScrollArea/CustomScrollArea';
-import GlassPanel from '../../GlassPanel/GlassPanel';
+import { GlassPanel } from '../../GlassPanel/GlassPanel';
 
 class MentionMenuOption extends MenuOption {
   result: MentionSearchResult;
