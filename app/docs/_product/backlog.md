@@ -7,7 +7,6 @@
 - Fix: Data access and db location/localization
   - encryption?
 - Feature (Content): Revise All existing texts like session step tooltips and templates
-- Fix: White BG on app start
 - Fix: Adventure stats (facts)
 - Text editor enhancements
   - embedded links
@@ -20,6 +19,7 @@
 
 ### Done
 
+- Fix: White BG on app start
 - Feature: Own placeholder logo that replaces the tauri logo
   - #164257 upper left to #031322 lower right, lines with #F8FBFB
 - Feature: Automatic updates

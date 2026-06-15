@@ -14,7 +14,8 @@
       {
         "title": "GM Tool",
         "width": 1920,
-        "height": 1080
+        "height": 1080,
+        "backgroundColor": "#031322"
       }
     ],
     "security": {
