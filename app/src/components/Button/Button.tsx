@@ -1,7 +1,7 @@
 import { FCProps } from '@/types';
 
 import './Button.css';
-import ActionContainer from '../ActionContainer/ActionContainer';
+import { ActionContainer } from '../ActionContainer/ActionContainer';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 

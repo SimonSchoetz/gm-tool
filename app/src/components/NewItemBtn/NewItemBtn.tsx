@@ -1,4 +1,4 @@
-import ActionContainer from '../ActionContainer/ActionContainer';
+import { ActionContainer } from '../ActionContainer/ActionContainer';
 import GlassPanel from '../GlassPanel/GlassPanel';
 import './NewItemBtn.css';
 import { cn } from '@/util';

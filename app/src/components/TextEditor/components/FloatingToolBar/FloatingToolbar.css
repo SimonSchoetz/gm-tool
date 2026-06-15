@@ -7,7 +7,7 @@
   z-index: 1000;
   animation: floatingToolbarFadeIn 0.2s ease-in-out;
   background-color: var(--color-surface);
-  padding: 1px; /* no border-width token — flagged for user review */
+  padding: 1px; /* one-off */
   border-radius: var(--radius-md);
   width: max-content;
 }

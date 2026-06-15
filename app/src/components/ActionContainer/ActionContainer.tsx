@@ -7,7 +7,7 @@ type ActionContainerProps = {
   label: string;
 } & HtmlProps<'button'>;
 
-const ActionContainer = ({
+export const ActionContainer = ({
   label,
   className = '',
   children,
@@ -24,5 +24,3 @@ const ActionContainer = ({
     </button>
   );
 };
-
-export default ActionContainer;

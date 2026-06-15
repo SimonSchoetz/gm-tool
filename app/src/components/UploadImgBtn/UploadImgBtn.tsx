@@ -1,7 +1,7 @@
 import { filePicker } from '@/util';
 import { createPortal } from 'react-dom';
 import { useState } from 'react';
-import ActionContainer from '../ActionContainer/ActionContainer';
+import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { HoloImg } from '../HoloImg/HoloImg';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import PopUpContainer from '../PopUpContainer/PopUpContainer';

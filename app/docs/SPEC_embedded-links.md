@@ -129,7 +129,7 @@ import { $createLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
 import GlassPanel from '../../GlassPanel/GlassPanel';
-import ActionContainer from '../../ActionContainer/ActionContainer';
+import { ActionContainer } from '../../ActionContainer/ActionContainer';
 import './EmbeddedLinkPlugin.css';
 ```
 
@@ -350,7 +350,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
-import ActionContainer from '../../../../../ActionContainer/ActionContainer';
+import { ActionContainer } from '../../../../../ActionContainer/ActionContainer';
 import './LinkInput.css';
 ```
 

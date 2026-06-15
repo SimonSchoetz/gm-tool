@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { cn } from '@/util';
-import ActionContainer from '../ActionContainer/ActionContainer';
+import { ActionContainer } from '../ActionContainer/ActionContainer';
 import './ClickableIcon.css';
 
 type Props = {
