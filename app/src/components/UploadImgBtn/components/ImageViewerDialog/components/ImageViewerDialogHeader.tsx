@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { Trash2Icon, UploadIcon, Settings2Icon, XIcon } from 'lucide-react';
 import { FCProps } from '@/types';
-import { ClickableIcon } from '../../../../ClickableIcon';
+import { ClickableIcon } from '../../../../ClickableIcon/ClickableIcon';
 import './ImageViewerDialogHeader.css';
 
 type Props = {

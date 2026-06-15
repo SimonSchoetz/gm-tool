@@ -24,6 +24,6 @@ export { DateInput } from './DateInput/DateInput.tsx';
 export { ColorInput } from './ColorInput';
 export { LabeledToggleButton } from './LabeledToggleButton/LabeledToggleButton.tsx';
 export { Checkbox } from './Checkbox/Checkbox.tsx';
-export { ClickableIcon } from './ClickableIcon';
+export { ClickableIcon } from './ClickableIcon/ClickableIcon.tsx';
 export { MentionPopup } from './MentionPopup';
 export type { PopupPosition, PopupPlacement } from './MentionPopup';

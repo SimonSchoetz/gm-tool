@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/util';
 import { FCProps, HtmlProps } from '@/types';
-import { ClickableIcon } from '../ClickableIcon';
+import { ClickableIcon } from '../ClickableIcon/ClickableIcon';
 import './DateInput.css';
 
 type DateInputProps = Omit<HtmlProps<'input'>, 'type'>;

@@ -2,7 +2,7 @@ import React from 'react';
 import { FCProps } from '@/types';
 import { cn } from '@/util';
 import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
-import { ClickableIcon } from '../../../ClickableIcon';
+import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
 import './MentionPopupHeader.css';
 
 type DraggableProps = {
