@@ -130,3 +130,17 @@
   opacity: 0.5;
   text-decoration: line-through;
 }
+
+/*
+    Link styles
+*/
+
+.editor-link {
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.editor-link:hover {
+  text-decoration-color: var(--color-fg);
+}

@@ -15,8 +15,10 @@ import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { LinkNode } from '@lexical/link';
 import { FloatingToolbar } from './components';
-import { MentionTypeaheadPlugin, CheckboxReadOnlyPlugin } from './plugins';
+import { MentionTypeaheadPlugin, CheckboxReadOnlyPlugin, EmbeddedLinkPlugin } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { parseSafeEditorState } from './helper';
 
@@ -52,6 +54,7 @@ const theme: EditorThemeClasses = {
     },
   },
   mention: 'editor-mention',
+  link: 'editor-link',
 };
 
 export const TextEditor: FCProps<Props> = ({
@@ -68,7 +71,7 @@ export const TextEditor: FCProps<Props> = ({
     onError: (err: Error) => {
       console.error('Lexical error:', err);
     },
-    nodes: [HeadingNode, ListNode, ListItemNode, MentionNode],
+    nodes: [HeadingNode, ListNode, ListItemNode, MentionNode, LinkNode],
     editorState: value ? parseSafeEditorState(value) : null,
     editable: !readOnly,
   };
@@ -94,6 +97,8 @@ export const TextEditor: FCProps<Props> = ({
         <ListPlugin />
         <CheckListPlugin />
         <TabIndentationPlugin />
+        <LinkPlugin />
+        <EmbeddedLinkPlugin />
         <MarkdownShortcutPlugin
           transformers={[UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]}
         />

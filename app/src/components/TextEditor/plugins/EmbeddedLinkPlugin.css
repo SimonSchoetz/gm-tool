@@ -1,0 +1,20 @@
+.link-popup-wrapper {
+  position: absolute;
+  z-index: 1001;
+}
+
+.link-popup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.link-popup-url {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  max-width: 240px; /* no dimension token exists for popup max-width */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
