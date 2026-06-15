@@ -1,6 +1,6 @@
 .link-popup-wrapper {
   position: absolute;
-  z-index: 1001;
+  z-index: 1001; /* no z-index token family exists — flagged for user review */
 }
 
 .link-popup {

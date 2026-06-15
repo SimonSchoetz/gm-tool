@@ -93,7 +93,7 @@
 .editor-listitem-unchecked {
   position: relative;
   list-style-type: none;
-  padding-left: 1.75rem;
+  padding-left: 1.75rem; /* no spacing token for 1.75rem — flagged for user review */
   cursor: default;
 }
 
@@ -104,10 +104,10 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid var(--color-text-muted, #888);
-  border-radius: 3px;
+  width: var(--spacing-md);
+  height: var(--spacing-md);
+  border: 2px solid var(--color-text-muted); /* no border-width token for 2px — flagged for user review */
+  border-radius: 3px; /* no radius token for 3px — flagged for user review */
   background: transparent;
   cursor: pointer;
 }
@@ -116,7 +116,7 @@
   background: var(--color-success);
   border-color: var(--color-success);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='black'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z'/%3E%3C/svg%3E");
-  background-size: 0.75rem;
+  background-size: 0.75rem; /* no background-size token — flagged for user review */
   background-repeat: no-repeat;
   background-position: center;
 }

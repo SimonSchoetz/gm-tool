@@ -9,7 +9,7 @@ import {
   mergeRegister,
 } from 'lexical';
 import './FloatingToolbar.css';
-import { TextFormatBtn, HeadingBtn, ListBtn, LinkBtn, LinkInput } from './components';
+import { TextFormatBtn, HeadingBtn, ListBtn, LinkBtn, LinkInput, Divider } from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
 
 type Position = {
@@ -42,30 +42,30 @@ export const FloatingToolbar = () => {
   };
 
   const updateToolbar = useCallback(() => {
-    if (isLinkInputModeRef.current) return null;
+    if (isLinkInputModeRef.current) return;
 
     const selection = $getSelection();
 
     if (!$isRangeSelection(selection)) {
       setIsVisible(false);
-      return null;
+      return;
     }
 
     const nativeSelection = window.getSelection();
     if (!nativeSelection || nativeSelection.rangeCount === 0) {
       setIsVisible(false);
-      return null;
+      return;
     }
 
     const selectedText = nativeSelection.toString();
     if (!selectedText || selectedText.length === 0) {
       setIsVisible(false);
-      return null;
+      return;
     }
 
     if (!isFocused) {
       setIsVisible(false);
-      return null;
+      return;
     }
 
     if (selected !== selectedText) {
@@ -138,7 +138,6 @@ export const FloatingToolbar = () => {
     );
   }, [editor, updateToolbar]);
 
-  // Adjust position based on actual toolbar width after render
   useEffect(() => {
     if (!isVisible || !toolbarRef.current) return;
 
@@ -201,8 +200,4 @@ export const FloatingToolbar = () => {
     </div>,
     document.body,
   );
-};
-
-const Divider = () => {
-  return <div className='divider'></div>;
 };
