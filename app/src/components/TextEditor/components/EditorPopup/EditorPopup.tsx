@@ -23,6 +23,9 @@ export const EditorPopup: FCProps<Props> = ({
   const [horizontalOffset, setHorizontalOffset] = useState(0);
 
   useEffect(() => {
+    // body disables window-level scrolling (overflow: hidden); CustomScrollArea is the
+    // real scroll container, so the anchor rect must be re-read on scroll, not frozen.
+    // Capture phase catches its scroll events without needing a reference to it.
     const handleScroll = () => {
       forceRerender();
     };
