@@ -1,24 +1,8 @@
 .floating-toolbar {
-  --toolbar-final-position: -150%;
-  position: absolute;
   display: flex;
   gap: var(--spacing-xs);
-  transform: translateX(-50%) translateY(var(--toolbar-final-position));
-  z-index: 1000;
-  animation: floatingToolbarFadeIn 0.2s ease-in-out;
   background-color: var(--color-surface);
   padding: 1px; /* one-off */
   border-radius: var(--radius-md);
   width: max-content;
-}
-
-@keyframes floatingToolbarFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(0);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(var(--toolbar-final-position));
-  }
 }
