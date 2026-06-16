@@ -1,0 +1,15 @@
+.editor-popup {
+  position: fixed;
+  transform: translateX(-50%) translateY(-100%);
+  z-index: var(--most-front);
+  animation: editorPopupFadeIn var(--transition-fast) ease-in-out;
+}
+
+@keyframes editorPopupFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

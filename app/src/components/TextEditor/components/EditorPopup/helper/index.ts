@@ -1,0 +1,1 @@
+export { calculateHorizontalClampOffset } from './calculateHorizontalClampOffset';
