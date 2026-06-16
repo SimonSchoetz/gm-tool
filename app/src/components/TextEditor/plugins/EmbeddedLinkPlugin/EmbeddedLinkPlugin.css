@@ -1,8 +1,3 @@
-.link-popup-wrapper {
-  position: absolute;
-  z-index: var(--most-front);
-}
-
 .link-popup {
   display: flex;
   align-items: center;

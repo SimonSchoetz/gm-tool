@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   CLICK_COMMAND,
@@ -20,6 +19,7 @@ import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
+import { EditorPopup } from '../../components/EditorPopup/EditorPopup';
 
 import './EmbeddedLinkPlugin.css';
 
@@ -32,12 +32,10 @@ const isHttpUrl = (text: string): boolean => {
   }
 };
 
-type LinkPopup = { url: string; x: number; y: number };
-
 export const EmbeddedLinkPlugin = () => {
   const [editor] = useLexicalComposerContext();
-  const [linkPopup, setLinkPopup] = useState<LinkPopup | null>(null);
-  const popupRef = useRef<HTMLDivElement | null>(null);
+  const [linkUrl, setLinkUrl] = useState<string | null>(null);
+  const linkElementRef = useRef<Element | null>(null);
 
   useEffect(() => {
     return mergeRegister(
@@ -83,11 +81,8 @@ export const EmbeddedLinkPlugin = () => {
               : null;
           const url = linkNode ? linkNode.getURL() : null;
           if (url !== null) {
-            setLinkPopup({
-              url,
-              x: event.clientX,
-              y: event.clientY + 10,
-            });
+            linkElementRef.current = (event.target as Element).closest('a');
+            setLinkUrl(url);
             return true;
           }
           return false;
@@ -97,39 +92,28 @@ export const EmbeddedLinkPlugin = () => {
     );
   }, [editor]);
 
-  useEffect(() => {
-    if (!linkPopup) return;
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
-        setLinkPopup(null);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [linkPopup]);
+  if (linkUrl === null) return null;
 
-  return linkPopup
-    ? createPortal(
-        <div
-          ref={popupRef}
-          className='link-popup-wrapper'
-          style={{ top: linkPopup.y, left: linkPopup.x }}
-        >
-          <GlassPanel className='link-popup'>
-            <span className='link-popup-url'>{linkPopup.url}</span>
-            <ClickableIcon
-              icon={<ExternalLinkIcon />}
-              label='Open in browser'
-              onClick={() => {
-                void openUrl(linkPopup.url);
-                setLinkPopup(null);
-              }}
-            />
-          </GlassPanel>
-        </div>,
-        document.body,
-      )
-    : null;
+  return (
+    <EditorPopup
+      getAnchorRect={() =>
+        linkElementRef.current?.getBoundingClientRect() ?? null
+      }
+      onClickOutside={() => {
+        setLinkUrl(null);
+      }}
+    >
+      <GlassPanel className='link-popup'>
+        <span className='link-popup-url'>{linkUrl}</span>
+        <ClickableIcon
+          icon={<ExternalLinkIcon />}
+          label='Open in browser'
+          onClick={() => {
+            void openUrl(linkUrl);
+            setLinkUrl(null);
+          }}
+        />
+      </GlassPanel>
+    </EditorPopup>
+  );
 };
