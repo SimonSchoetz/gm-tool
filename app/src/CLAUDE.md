@@ -98,6 +98,7 @@ In the data-access-layer, one concern = one file:
   See [app/CLAUDE.md](../CLAUDE.md) — TypeScript Coding Style.
 
 - **`useLayoutEffect` over `useEffect` only when a DOM measurement or paint-synchronous side effect is required** — the canonical case is reading layout geometry (`getBoundingClientRect`, `scrollWidth`, `offsetHeight`) and applying a state update that must not cause a visible flash. All other effects use `useEffect`. When `useLayoutEffect` is chosen, an inline comment stating the specific paint-synchronous requirement is required — "avoids flicker" alone is not sufficient.
+  - **Exception:** `eslint-plugin-react-hooks`'s `recommended` config (active in `eslint.config.js`) includes `react-hooks/set-state-in-effect` (bans calling a state setter at the top level of an effect body) and `react-hooks/refs` (bans reading `ref.current` during render). A `useLayoutEffect` that reads a ref's layout geometry and then calls `setState` synchronously trips both. When this conflict arises, defer the `setState` call into a subscription callback registered in the effect (e.g. a `ResizeObserver` observing the measured element) instead of calling it at the effect's top level — never suppress either rule to keep the synchronous form. This accepts a brief post-paint correction in exchange for compliance. See `src/components/TextEditor/components/EditorPopup/EditorPopup.tsx`'s viewport-clamping effect.
 
 ### Component Library
 
@@ -247,8 +248,8 @@ When a constant is shared by two or more TypeScript files within the same module
 
 **Static CSS custom properties:** When a component-scoped CSS value is not DB-sourced but also cannot use a global token (e.g., a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component), declare it as a static custom property on the component's root element. Prefix with `--[component-name]-` (kebab-cased component name, no `rt` segment) to distinguish from both global tokens and runtime values.
 
-- ✅ `--toolbar-final-position: 8px` (set in CSS), consumed via `var(--toolbar-final-position)` within the same component
-- ✅ `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value), consumed via `var(--floating-toolbar-offset)`
+- ✅ `--card-flip-duration: 0.4s` (set in CSS), consumed via `var(--card-flip-duration)` within the same component — illustrative; not tied to any specific file
+- ✅ `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value), consumed via `var(--floating-toolbar-offset)` — illustrative; not tied to any specific file
 - ❌ `--rt-toolbar-position: 8px` — the `--rt-` prefix signals DB-sourced; do not use it for static or JS-computed values that are not DB-derived
 
 **No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime. This inline fallback is a narrow exception to the Design token obligation above — it applies only while waiting for user approval on a new token, not as a permanent state.
