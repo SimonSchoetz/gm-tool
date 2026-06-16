@@ -1,30 +1,26 @@
 # Product Backlog
 
-## Post MVP -> Closed Beta Ready
+## Closed Beta Ready
 - Feature: Automatic updates
   - UX update so user can trigger update manually
-- Fix: Data access and db location/localization
+- Feature: Data access and db location/localization
   - encryption?
-- Feature (Content): Revise All existing texts like session step tooltips and templates
-- Fix: Adventure stats (facts)
 - Text editor enhancements
-  - embedded links
-  - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
-  - embedded images
-  - '/' command to open text formatter so one can start typing a header from the beginning
   - name tags should update when the reference changes
+  - '/' command to open text formatter so one can start typing a header from the beginning
   - Auto-Correct off
-  - Tables
-  - Enforce toolbar within window
+  - Max-char-length-per-line
   - drag-and-drop content within editor
-  - drag-and-drop content into editor
-    - images, pdfs -> how to handle these?
+  - Tables
+  - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
+- Fix: Adventure stats (facts)
 
 ### Done
 
+- Enforce toolbar within window
+- embedded links
 - Fix: White BG on app start
 - Feature: Own placeholder logo that replaces the tauri logo
-  - #164257 upper left to #031322 lower right, lines with #F8FBFB
 - Feature: Automatic updates
   - versioning
   - github pipeline for automated builds (windows & macos)
@@ -43,12 +39,17 @@
     - first start: should ask if relocate or create new
       - relocate db functonality
       - chosing db/asset location functionality
-- Epic: Website to download the latest build
 - Epic: Online community
-- Feature (Content): Onboarding
-- Feature (Content): Session Zero
-- Feature(POC): local network to autosync between different devices
+- Feature(POC): peer-to-peer network to autosync between different devices
   - import with merging strategy
+
+## v1.0.0 Ready
+
+- Epic: Infrastructure to provide app downloads
+- Developer ID and notarized app 
+- Feature (Content): Onboarding
+- Feature (Content): Revise All existing texts like session step tooltips and templates
+- Feature (Content): Session Zero / Safety Tools
 - Feature: Custom title bar
 
 ## Ideas Dump (unsorted)
