@@ -178,8 +178,9 @@ When a verified fact about external state appears in an artifact — a spec, bri
 - Scan confirmed present: `grep <pattern> <path> — found`
 - Confirmed absence: `grep <pattern> <path> — not found`
 - Web fetch: `url`
+- Toolchain execution: `ran <command> — observed <result>`
 
-Examples: `[R_1: app/eslint.config.js:12]`, `[A_2: grep "set-state-in-effect" node_modules/eslint-plugin-react-hooks — found]`
+Examples: `[R_1: app/eslint.config.js:12]`, `[A_2: grep "set-state-in-effect" node_modules/eslint-plugin-react-hooks — found]`, `[S_3: ran npx eslint app/src/scratch-repro.tsx — react-hooks/set-state-in-effect reported on line 12]`
 
 This allows downstream agents and future cycles to treat verified facts as established without re-verifying them. Unverified facts must not appear in artifacts — verify first, then cite, or do not state the fact.
 

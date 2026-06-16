@@ -57,6 +57,7 @@ Each sub-feature gets a heading with its name and a short description of its int
 - `Modified:` — existing files changed by this sub-feature
 - `New:` — files created by this sub-feature
 - `Moved:` — files relocated without content changes: `mv <source> <destination>`
+- `Draft:` — files that already exist at spec-writing time, created by the spec-writing process itself (e.g. scratch verification kept rather than reverted). Requires full implementer review and normal commit discipline — never assume correctness or completeness because the file passed checks during spec authoring.
 
 Every file touched must appear here — including barrel files, index files, and type files. No file may appear only in prose.
 
@@ -105,6 +106,7 @@ Required section in every spec. Before marking a spec complete, evaluate:
 - Does this spec introduce a new structural pattern (e.g. a new layer, directory convention, or module shape) that should be documented?
 - Does this spec make a previously documented example invalid?
 - Does this spec add or change anything that would affect a new domain implementation — a new layer, a changed ambient system, a new convention, or a new infrastructure touch point? If yes, update `app/docs/_product/domain-scaffold.md`.
+- Did writing this spec produce a fact established by executing a command or toolchain rather than by reading a file — and does that fact generalize beyond the file where it was discovered? If yes, the fact's authoritative statement belongs in the relevant CLAUDE.md file, cited with the toolchain-execution citation form — do not state the fact in full only in this spec's Key Architectural Decisions section. A KAD entry may still reference it with a short heading and a pointer to the CLAUDE.md file, so any SF that needs to cite the rationale per the SF self-containment rule has a heading to name.
 
 For each impact found, list the affected CLAUDE.md file and the required update. If there is no impact, write "None." This section is addressed to the implementing instance — every entry must be a concrete, self-contained file-level instruction. Do not reference other agents, commands, conversations, or briefs.
 
