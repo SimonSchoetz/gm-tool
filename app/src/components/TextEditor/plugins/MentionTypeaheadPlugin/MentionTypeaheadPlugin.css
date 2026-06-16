@@ -1,6 +1,5 @@
 .mention-typeahead-popup {
   background: var(--color-surface);
-  z-index: 1000;
   width: max-content;
   max-width: 250px; /* one-off */
   border-radius: var(--radius-lg);

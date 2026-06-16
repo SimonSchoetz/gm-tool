@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
@@ -16,6 +15,7 @@ import { formatTableLabel } from '@/util';
 import './MentionTypeaheadPlugin.css';
 import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
+import { EditorPopup } from '../../components/EditorPopup/EditorPopup';
 
 class MentionMenuOption extends MenuOption {
   result: MentionSearchResult;
@@ -101,41 +101,47 @@ export const MentionTypeaheadPlugin = () => {
         return null;
       }
 
-      return createPortal(
-        <GlassPanel className='mention-typeahead-popup'>
-          <CustomScrollArea className='mention-typeahead-content-container'>
-            <ul>
-              {menuOptions.map((option, i) => (
-                <li
-                  key={option.key}
-                  ref={(el) => {
-                    option.setRefElement(el);
-                  }}
-                  className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
-                  onClick={() => {
-                    selectOptionAndCleanUp(option);
-                  }}
-                  onMouseEnter={() => {
-                    setHighlightedIndex(i);
-                  }}
-                  style={
-                    {
-                      '--rt-mention-typeahead-item-color': option.result.color,
-                    } as React.CSSProperties
-                  }
-                >
-                  <span className='mention-typeahead-item-name'>
-                    {option.result.name}
-                  </span>
-                  <span className='mention-typeahead-item-table-label'>
-                    {formatTableLabel(option.result.tableName)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CustomScrollArea>
-        </GlassPanel>,
-        anchorElementRef.current,
+      return (
+        <EditorPopup
+          getAnchorRect={() =>
+            anchorElementRef.current?.getBoundingClientRect() ?? null
+          }
+        >
+          <GlassPanel className='mention-typeahead-popup'>
+            <CustomScrollArea className='mention-typeahead-content-container'>
+              <ul>
+                {menuOptions.map((option, i) => (
+                  <li
+                    key={option.key}
+                    ref={(el) => {
+                      option.setRefElement(el);
+                    }}
+                    className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
+                    onClick={() => {
+                      selectOptionAndCleanUp(option);
+                    }}
+                    onMouseEnter={() => {
+                      setHighlightedIndex(i);
+                    }}
+                    style={
+                      {
+                        '--rt-mention-typeahead-item-color':
+                          option.result.color,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <span className='mention-typeahead-item-name'>
+                      {option.result.name}
+                    </span>
+                    <span className='mention-typeahead-item-table-label'>
+                      {formatTableLabel(option.result.tableName)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CustomScrollArea>
+          </GlassPanel>
+        </EditorPopup>
       );
     },
     [],
