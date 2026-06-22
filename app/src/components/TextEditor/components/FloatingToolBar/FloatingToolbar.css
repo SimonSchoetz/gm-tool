@@ -1,8 +1,19 @@
 .floating-toolbar {
   display: flex;
-  gap: var(--spacing-xs);
+  flex-direction: column;
   background-color: var(--color-surface);
   padding: var(--border-thin);
   border-radius: var(--radius-md);
   width: max-content;
+}
+
+.floating-toolbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.floating-toolbar-link-row {
+  display: flex;
+  align-items: center;
 }
