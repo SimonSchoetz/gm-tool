@@ -13,6 +13,7 @@
   - embedded images
   - '/' command to open text formatter so one can start typing a header from the beginning
   - name tags should update when the reference changes
+  - name tags should be copy/pasteable
   - Auto-Correct off
   - Tables
   - Enforce toolbar within window
@@ -20,6 +21,7 @@
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists
+  - Fix (Session Screen): In Game view shows `'Description...'` of overlapping text-editors with no content -> should be nothing
 
 ### Done
 
