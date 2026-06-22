@@ -15,14 +15,14 @@ Provides layout for the two-row floating toolbar. `.floating-toolbar` is a colum
 
 ### `FloatingToolbar.css` — full replacement
 
-**Violation carried forward:** The current file contains `padding: 1px; /* one-off */` — a raw pixel value that violates the design token obligation [verified: `src/components/TextEditor/components/FloatingToolBar/FloatingToolbar.css:5`]. No `--border-width-1px` or equivalent token exists in `styles/variables/` [verified: `src/styles/variables/border-variables.css` — only radius tokens; `src/styles/variables/spacing-variables.css` — smallest token is `--spacing-xs: 0.25rem`]. Per the no-unilateral-additions rule, this value is carried forward with the `/* one-off */` comment intact until the user authorises a new token or approves a different treatment.
+The previous `padding: 1px; /* one-off */` violation is resolved: `--border-thin: 1px` now exists in `styles/variables/border-variables.css` [verified: `src/styles/variables/border-variables.css:9`].
 
 ```css
 .floating-toolbar {
   display: flex;
   flex-direction: column;
   background-color: var(--color-surface);
-  padding: 1px; /* one-off */
+  padding: var(--border-thin);
   border-radius: var(--radius-md);
   width: max-content;
 }
