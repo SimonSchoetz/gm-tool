@@ -12,7 +12,7 @@ import {
   Divider,
 } from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
-import { EditorPopup } from '../EditorPopup/EditorPopup';
+import { EditorPopup } from '../EditorPopup';
 import { getSelectionLinkUrl } from './helper';
 
 export const FloatingToolbar = () => {

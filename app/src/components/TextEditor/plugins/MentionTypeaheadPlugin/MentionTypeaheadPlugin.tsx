@@ -15,7 +15,7 @@ import { formatTableLabel } from '@/util';
 import './MentionTypeaheadPlugin.css';
 import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
-import { EditorPopup } from '../../components/EditorPopup/EditorPopup';
+import { EditorPopup } from '../../components/EditorPopup';
 
 class MentionMenuOption extends MenuOption {
   result: MentionSearchResult;
