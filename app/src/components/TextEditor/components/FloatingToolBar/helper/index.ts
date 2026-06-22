@@ -1,0 +1,1 @@
+export { getSelectionLinkUrl } from './getSelectionLinkUrl';
