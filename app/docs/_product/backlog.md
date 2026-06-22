@@ -20,10 +20,10 @@
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists
-- HoloImg Title width fix <- needs to be full width
 
 ### Done
 
+- HoloImg Title width fix <- needs to be full width
 - Fix: White BG on app start
 - Feature: Own placeholder logo that replaces the tauri logo
   - #164257 upper left to #031322 lower right, lines with #F8FBFB

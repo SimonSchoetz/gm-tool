@@ -1,5 +1,6 @@
 .holo-img-title {
   height: 100%;
+  width: 100%;
   position: absolute;
   padding: var(--spacing-md);
   z-index: 2;
