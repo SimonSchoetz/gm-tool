@@ -3,15 +3,9 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs);
-  border-radius: var(--radius-md);
+  flex: 1;
 }
 
 .link-input input {
-  background: transparent;
-  border: none;
-  border-bottom: var(--border-thin) solid var(--color-primary); /* one-off */
-  color: var(--color-text);
-  font-size: var(--font-size-base);
-  outline: none;
-  width: 180px; /* one-off */
+  flex: 1;
 }
