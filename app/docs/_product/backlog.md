@@ -21,7 +21,10 @@
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists
-  - Fix (Session Screen): In Game view shows `'Description...'` of overlapping text-editors with no content -> should be nothing
+- Fix (Session Screen): In Game view shows `'Description...'` of overlapping text-editors with no content -> should be nothing
+- Feature (Session Screen): Show section headings in In Game view
+- Feature: Make BG animation optional in settings
+- Feature: Foldable Prep Sections
 
 ### Done
 
@@ -57,7 +60,6 @@
 
 ## Ideas Dump (unsorted)
 
-- Feature: Foldable Prep Sections
 - Feature: On-Page-Search (cmd+f)
 - Feature: full data export for manual backups
 - Feature: data import from manual backups
