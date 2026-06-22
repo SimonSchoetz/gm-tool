@@ -29,7 +29,7 @@ export const SortableStepItem = ({ step }: SortableStepItemProps) => {
   };
 
   const lazyStep = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
-  const stepName = step.name ?? lazyStep?.name ?? 'Untitled Sepp';
+  const stepName = step.name ?? lazyStep?.name ?? 'Untitled Step';
 
   return (
     <ActionContainer

@@ -14,6 +14,10 @@
   - Tables
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
 - Fix: Adventure stats (facts)
+  - drag-and-drop content into editor
+    - images, pdfs -> how to handle these?
+  - Lists: Mixed lists
+- HoloImg Title width fix <- needs to be full width
 
 ### Done
 
@@ -54,6 +58,8 @@
 
 ## Ideas Dump (unsorted)
 
+- Feature: Foldable Prep Sections
+- Feature: On-Page-Search (cmd+f)
 - Feature: full data export for manual backups
 - Feature: data import from manual backups
   - needs to take care of versions of db (e.g. newer version of db schema is tried to be loaded into old version of app)
@@ -76,6 +82,8 @@
   - displays combatants and their order, conditions, turns, and combat events. ect.
 - Feature: Source Material organization
   - Feature: Bulk import material, e. g. items
+- AI USAGES
+  - compact notes (keep meaning and context and shorten text with grammar adjustments ect.), e. g. `"beschützt die Kinder von Grüfing Sansuri"` -> `"schützt Gräfin Sansuri's Kinder"`
 
 ## Done
 
