@@ -1,4 +1,4 @@
 .horizontal-divider {
   border: none;
-  border-top: 1px solid var(--color-secondary);
+  border-top: var(--border-thin) solid var(--color-secondary);
 }

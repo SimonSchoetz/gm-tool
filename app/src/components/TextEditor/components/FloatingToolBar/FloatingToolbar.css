@@ -2,7 +2,7 @@
   display: flex;
   gap: var(--spacing-xs);
   background-color: var(--color-surface);
-  padding: 1px; /* one-off */
+  padding: var(--border-thin);
   border-radius: var(--radius-md);
   width: max-content;
 }

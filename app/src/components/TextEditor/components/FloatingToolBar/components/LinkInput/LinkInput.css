@@ -9,7 +9,7 @@
 .link-input input {
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-primary); /* one-off */
+  border-bottom: var(--border-thin) solid var(--color-primary); /* one-off */
   color: var(--color-text);
   font-size: var(--font-size-base);
   outline: none;

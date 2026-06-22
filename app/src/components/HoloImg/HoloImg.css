@@ -21,7 +21,7 @@
 
 .tilt-fx.active {
   transition: 0s; /* needs to be 0s otherwise the tilt movement will move with delay */
-  outline: 1px solid rgb(var(--color-primary-rgb), 0.4);
+  outline: var(--border-thin) solid rgb(var(--color-primary-rgb), 0.4);
   box-shadow: 0 0 10px 1px rgb(var(--color-primary-rgb), 0.4);
 }
 

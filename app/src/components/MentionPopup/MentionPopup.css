@@ -4,7 +4,7 @@
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
-  gap: 1px; /* one-off: simulates 1px border */
+  gap: var(--border-thin);
   box-shadow: var(--shadow-md);
 }
 
