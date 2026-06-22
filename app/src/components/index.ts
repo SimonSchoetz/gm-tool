@@ -4,7 +4,6 @@ export { GlassPanel } from './GlassPanel/GlassPanel.tsx';
 export { Input } from './Input/Input.tsx';
 export { default as LightSource } from './LightSource/LightSource.tsx';
 export { default as PopUpContainer } from './PopUpContainer/PopUpContainer.tsx';
-export { default as Textarea } from './Textarea/Textarea.tsx';
 export { ImageById } from './ImageById/ImageById.tsx';
 export { SideBarNav } from './SideBarNav/SideBarNav.tsx';
 export { Header } from './Header/Header.tsx';
