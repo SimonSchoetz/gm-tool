@@ -1,4 +1,5 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useRef, useState, useEffect } from 'react';
 import { SELECTION_CHANGE_COMMAND, COMMAND_PRIORITY_LOW } from 'lexical';
 import './FloatingToolbar.css';
@@ -12,6 +13,7 @@ import {
 } from './components';
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
 import { EditorPopup } from '../EditorPopup/EditorPopup';
+import { getSelectionLinkUrl } from './helper';
 
 export const FloatingToolbar = () => {
   const [editor] = useLexicalComposerContext();
@@ -19,17 +21,38 @@ export const FloatingToolbar = () => {
   const selectionRangeRef = useRef<Range | null>(null);
   const isMouseDownRef = useRef(false);
 
-  const [isLinkInputMode, setIsLinkInputMode] = useState(false);
-  const isLinkInputModeRef = useRef(false);
+  const [linkInputEnabled, setLinkInputEnabled] = useState(false);
+  const linkInputEnabledRef = useRef(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkInitialUrl, setLinkInitialUrl] = useState('');
 
-  const enterLinkInputMode = () => {
-    isLinkInputModeRef.current = true;
-    setIsLinkInputMode(true);
+  const handleLinkBtnClick = () => {
+    if (linkInputEnabled) {
+      linkInputEnabledRef.current = false;
+      setLinkInputEnabled(false);
+      setLinkUrl('');
+      setLinkInitialUrl('');
+      if (linkInitialUrl !== '') {
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      }
+    } else {
+      linkInputEnabledRef.current = true;
+      setLinkInputEnabled(true);
+    }
   };
 
-  const exitLinkInputMode = () => {
-    isLinkInputModeRef.current = false;
-    setIsLinkInputMode(false);
+  const handleLinkApply = () => {
+    const trimmed = linkUrl.trim();
+    if (trimmed !== '') {
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, trimmed);
+      setLinkInitialUrl(linkUrl);
+    } else {
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      linkInputEnabledRef.current = false;
+      setLinkInputEnabled(false);
+      setLinkUrl('');
+      setLinkInitialUrl('');
+    }
   };
 
   useEffect(() => {
@@ -37,7 +60,7 @@ export const FloatingToolbar = () => {
     if (!rootElement) return;
 
     const updateToolbarVisibility = () => {
-      if (isLinkInputModeRef.current) return;
+      if (linkInputEnabledRef.current) return;
       const nativeSelection = window.getSelection();
       if (
         nativeSelection &&
@@ -45,6 +68,12 @@ export const FloatingToolbar = () => {
         !nativeSelection.isCollapsed
       ) {
         selectionRangeRef.current = nativeSelection.getRangeAt(0);
+        const existingUrl = editor.getEditorState().read(getSelectionLinkUrl);
+        const hasLink = existingUrl !== null;
+        linkInputEnabledRef.current = hasLink;
+        setLinkInputEnabled(hasLink);
+        setLinkUrl(existingUrl ?? '');
+        setLinkInitialUrl(existingUrl ?? '');
         setIsOpen(true);
       } else {
         selectionRangeRef.current = null;
@@ -59,14 +88,9 @@ export const FloatingToolbar = () => {
       isMouseDownRef.current = false;
       updateToolbarVisibility();
     };
-    const handleBlur = () => {
-      if (isLinkInputModeRef.current) return;
-      setIsOpen(false);
-    };
 
     rootElement.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mouseup', handleMouseUp);
-    rootElement.addEventListener('blur', handleBlur);
 
     const unregisterSelectionChange = editor.registerCommand(
       SELECTION_CHANGE_COMMAND,
@@ -81,7 +105,6 @@ export const FloatingToolbar = () => {
     return () => {
       rootElement.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mouseup', handleMouseUp);
-      rootElement.removeEventListener('blur', handleBlur);
       unregisterSelectionChange();
     };
   }, [editor]);
@@ -90,54 +113,53 @@ export const FloatingToolbar = () => {
 
   return (
     <EditorPopup
-      getAnchorRect={() =>
-        selectionRangeRef.current?.getBoundingClientRect() ?? null
-      }
+      getAnchorRect={() => selectionRangeRef.current?.getBoundingClientRect() ?? null}
+      onClickOutside={() => { setIsOpen(false); }}
     >
-      <div
-        className='floating-toolbar'
-        onMouseDown={
-          isLinkInputMode
-            ? undefined
-            : (e) => {
-                e.preventDefault();
-              }
-        }
-      >
-        {isLinkInputMode ? (
-          <LinkInput onClose={exitLinkInputMode} />
-        ) : (
-          <>
-            {headingBtns.map((btn) => (
-              <HeadingBtn
-                key={btn.headingType}
-                label={btn.label}
-                headingType={btn.headingType}
-                icon={btn.icon}
-              />
-            ))}
-            <Divider />
-            {textFormatBtns.map((btn) => (
-              <TextFormatBtn
-                key={btn.formatType}
-                label={btn.label}
-                formatType={btn.formatType}
-                icon={btn.icon}
-              />
-            ))}
-            <Divider />
-            {listBtns.map((btn) => (
-              <ListBtn
-                key={btn.listType}
-                label={btn.label}
-                listType={btn.listType}
-                icon={btn.icon}
-              />
-            ))}
-            <Divider />
-            <LinkBtn onRequestLinkInput={enterLinkInputMode} />
-          </>
-        )}
+      <div className='floating-toolbar'>
+        <div
+          className='floating-toolbar-buttons'
+          onMouseDown={(e) => { e.preventDefault(); }}
+        >
+          {headingBtns.map((btn) => (
+            <HeadingBtn
+              key={btn.headingType}
+              label={btn.label}
+              headingType={btn.headingType}
+              icon={btn.icon}
+            />
+          ))}
+          <Divider />
+          {textFormatBtns.map((btn) => (
+            <TextFormatBtn
+              key={btn.formatType}
+              label={btn.label}
+              formatType={btn.formatType}
+              icon={btn.icon}
+            />
+          ))}
+          <Divider />
+          {listBtns.map((btn) => (
+            <ListBtn
+              key={btn.listType}
+              label={btn.label}
+              listType={btn.listType}
+              icon={btn.icon}
+            />
+          ))}
+        </div>
+        <div className='floating-toolbar-link-row'>
+          <span onMouseDown={(e) => { e.preventDefault(); }}>
+            <LinkBtn isActive={linkInputEnabled} onClick={handleLinkBtnClick} />
+          </span>
+          <LinkInput
+            value={linkUrl}
+            onChange={setLinkUrl}
+            disabled={!linkInputEnabled}
+            isApplyEnabled={linkUrl !== linkInitialUrl}
+            onApply={handleLinkApply}
+          />
+        </div>
       </div>
     </EditorPopup>
   );

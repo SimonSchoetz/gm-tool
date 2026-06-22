@@ -1,55 +1,51 @@
 import { FCProps } from '@/types';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { TOGGLE_LINK_COMMAND } from '@lexical/link';
-import { CheckIcon, XIcon } from 'lucide-react';
-import { useState } from 'react';
-import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
-import { Input } from '../../../../../Input/Input';
-
-import './LinkInput.css';
+import { CheckIcon } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { ClickableIcon } from '../../../../../ClickableIcon/ClickableIcon';
+import { Input } from '../../../../../Input/Input';
+import './LinkInput.css';
 
 type Props = {
-  onClose: () => void;
+  value: string;
+  onChange: (value: string) => void;
+  disabled: boolean;
+  isApplyEnabled: boolean;
+  onApply: () => void;
 };
 
-export const LinkInput: FCProps<Props> = ({ onClose }) => {
-  const [editor] = useLexicalComposerContext();
-  const [url, setUrl] = useState('');
+export const LinkInput: FCProps<Props> = ({
+  value,
+  onChange,
+  disabled,
+  isApplyEnabled,
+  onApply,
+}) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleApply = () => {
-    if (url.trim()) {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, url.trim());
+  useEffect(() => {
+    if (!disabled) {
+      inputRef.current?.focus();
     }
-    onClose();
-  };
+  }, [disabled]);
 
   return (
-    <GlassPanel intensity='bright' className='link-input'>
+    <div className='link-input'>
       <Input
-        value={url}
-        onChange={(e) => {
-          setUrl(e.target.value);
-        }}
+        ref={inputRef}
+        value={value}
+        onChange={(e) => { onChange(e.target.value); }}
+        disabled={disabled}
         placeholder='https://...'
         onKeyDown={(e) => {
-          if (e.key === 'Enter') handleApply();
-          if (e.key === 'Escape') onClose();
+          if (e.key === 'Enter') onApply();
         }}
-        autoFocus
       />
-
       <ClickableIcon
         icon={<CheckIcon />}
-        onClick={handleApply}
+        onClick={onApply}
+        disabled={!isApplyEnabled}
         label='Apply link'
       />
-      <ClickableIcon
-        icon={<XIcon />}
-        variant='danger'
-        label='Cancel'
-        onClick={onClose}
-      />
-    </GlassPanel>
+    </div>
   );
 };
