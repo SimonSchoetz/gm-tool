@@ -50,7 +50,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 0. Run `npx tsc --noEmit` and `npx eslint .` and resolve any errors. Then run `npx vitest run --related <files changed in this cycle>`. Resolve any failures. The reviewer must see code that is type-correct and test-passing before filing findings.
 1. Spawn `code-reviewer` via the Agent tool.
-   - **Cycle 1:** Pass the branch name (for diffing against main) + the accumulated review context. The reviewer reads all changed files in full.
+   - **Cycle 1:** Do not pass the branch name directly. Instead, construct the feature file list: run `git log --format="%H" main..HEAD` to list all commit SHAs on this branch, then run `git show --name-only --format="" <sha>` for each commit made during the sub-feature implementation phase (sub-feature commits only — exclude chore commits and any commits not authored by the implementer during this session). Deduplicate the resulting file paths. Pass this explicit file list + the accumulated review context to the reviewer. The reviewer reads only those files and any files they directly import or affect.
    - **Cycles 2+:** Pass an explicit file list of files touched in the prior fix commit (do NOT pass the branch name — a branch name triggers a full re-read of all changed files, which is the wrong scope for a targeted verification pass) + the accumulated review context + the list of specific violations fixed in the prior cycle. The reviewer limits reads to those files and any files they directly import or affect.
 2. Pass the full code-reviewer output to the user as informational. Append the full output to the accumulated review context. Do not classify, filter, or interpret it.
 3. If the code-reviewer found zero violations: the loop exits immediately. Do not spawn architect. Proceed to the post-loop step. A clean reviewer verdict is the loop's exit condition — no architect confirmation is required or permitted.
@@ -75,6 +75,8 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 Run `npm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
 Run `npm run build:frontend` from `app/` and surface any warnings and errors.
+
+Run a raw CSS value scan across all files touched on this branch: run `git diff --name-only main...HEAD` to get the file list, then scan each `.css` file for raw property values (colors, spacing, border radii, shadows, font sizes) that carry no `/* one-off */` annotation on the same line or the line immediately preceding. Collect every match and output them to the user as a non-blocking advisory — distinct from the friction brief, deferred violations brief, and spec quality brief. Label the section: "Raw CSS values to review — not violations; you decide: add a design token, add `/* one-off */`, or leave as-is." Do not make any decision yourself. Do not route this list through architect or code-reviewer. Do not commit anything based on this scan.
 
 Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced).
 
@@ -117,6 +119,18 @@ Produce a spec quality summary covering:
 **Format observations** (if any): structural suggestions — sections that could have been shorter, sections that were missing, ordering that caused friction.
 
 Output the summary to the user. This is the handoff artifact for a `/refine-claude` session focused on spec-writer improvement.
+
+### Manual fix mode
+
+After both briefs are produced, enter manual fix mode. This phase has no automatic exit — it runs until the user explicitly ends the session.
+
+In manual fix mode:
+
+- The user tests and reviews the implementation independently.
+- Do not commit anything unless the user explicitly instructs a commit. An explicit commit instruction names what to commit — do not infer scope or create a commit opportunistically.
+- When the user reports a bug: analyze how the bug was introduced or missed during implementation. Identify which phase of the process failed (spec gap, implementer miss, review miss, invariant not applied) and what the process should have done differently. Surface this analysis alongside the fix — it is handoff material for a future /refine-claude session.
+- Apply all implementation invariants to any fix implemented in this mode: tsc and eslint must pass before presenting the fix as done; cleanup is not optional; file compliance applies.
+- When the user says the branch is ready or explicitly ends the session, stop.
 
 ---
 

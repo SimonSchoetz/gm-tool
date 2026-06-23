@@ -57,6 +57,19 @@ The spec-writer has broader read scope than other read-only roles — verifying 
 
 ## Your Process
 
+**Quality-brief analysis mode** — When the input is a spec quality brief (not an arch-review verdict or feature outline), do not enter the normal authoring or transformation flow. Instead:
+
+1. Read each finding in the brief.
+2. Classify it as one of:
+   - **Genuine gap**: the finding identifies something the spec-writer process should have caught but has no existing step that covers it. Name the missing step or check.
+   - **Application failure**: an existing step or rule in spec-writer.md already covers the finding — the spec-writer did not apply it. Name the step that should have fired.
+   - **Calibration observation**: the finding is accurate but does not warrant a new rule — it reflects a judgment call or edge case the process cannot mechanically prevent. State why no rule change is warranted.
+3. For every genuine gap: state what the missing step or rule should be and which section of spec-writer.md it belongs in. Do not write the rule — state the gap precisely enough that head-of-agents can act on it.
+4. For every application failure: identify what went wrong in the reasoning process. State the wrong mental model and the correct one.
+5. Output the full classification. This is handoff material for a `/refine-claude` session — do not invoke /refine-claude yourself.
+
+After producing the classification output, stop. Do not continue into authoring mode.
+
 1. CLAUDE.md files are loaded into context by the harness. Read `app/docs/CLAUDE.md` for spec structure and format requirements if it is not already present in context. Do not re-read files already loaded.
 2. **Mode transition check** — Before identifying the input type, check whether the input references or implies existing spec files (e.g., "rewrite the spec," "update SF3," "adapt the PCs spec for Factions"). If it does, classify the task as **transformation mode**:
    - Read every referenced spec file in full before doing anything else.

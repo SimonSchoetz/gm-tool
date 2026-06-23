@@ -234,11 +234,14 @@ When a constant is shared by two or more TypeScript files within the same module
 **Design token obligation:**
 
 - All CSS property values must reference tokens from `styles/variables/` (e.g., `var(--spacing-sm)`, `var(--radius-xl)`).
-- Raw pixel, color, `rem`, and unitless z-index integer values are banned in component `.css` files. If no z-index token exists in `styles/variables/`, follow the no-unilateral-additions rule: flag the needed token to the user rather than hardcoding.
-- If a needed token does not exist in `styles/variables/`, add it to the appropriate file there first — never hardcode at the component level.
+- Raw pixel, color, `rem`, and unitless z-index integer values are banned in component `.css` files.
   - ✅ `padding: var(--spacing-sm)`
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
+- **`/* one-off */` — intentional CSS singularities:** When a raw CSS value does not warrant a design token — because its use-case is narrow enough that the user has decided it need not be reused — mark it with a `/* one-off */` comment on the same line. This comment is the canonical signal that the raw value is an intentional exception to the token obligation, not an oversight. A reviewer who sees `/* one-off */` must not file a violation. Whether a raw value warrants the annotation is the user's call — never the implementer's or reviewer's.
+  - ✅ `border-radius: 3px; /* one-off */`
+- **Raw values without `/* one-off */` are surfaced to the user after the task completes.** When implementation introduces or encounters any raw CSS value without the annotation, collect them and report them at the end of the task — file path, line, and value. The user then decides: add a token, add the annotation, or leave it. Do not auto-flag them as hard violations mid-task.
+- **Token-addition violations are non-blocking:** When a raw value is found and no token exists for it, flag it. The commit may proceed without the fix; the deferred state is not a violation.
 
 **DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, include both in a single object cast — do not split them across two props or two casts.
 
