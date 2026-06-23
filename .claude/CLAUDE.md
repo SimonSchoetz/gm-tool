@@ -118,3 +118,7 @@ Three automation forms are available. Choose based on access pattern and invocat
 - User-triggered workflow with no supporting files → command
 - User-triggered workflow with supporting files → skill with `disable-model-invocation: true`
 - Auto-triggered capability → skill (no `disable-model-invocation`)
+
+## Agent Infrastructure
+
+**`.claude/knowledge/`** — Shared knowledge base for verified external-system facts. Any agent that verifies a fact about a library version, schema, CLI flag, or other external specification must record it here. Format authority and write protocol live in `.claude/knowledge/CLAUDE.md`. Agents must read the relevant category file before performing any external-system verification — it may already be cached.

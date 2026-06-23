@@ -1,7 +1,7 @@
 ---
 name: spec-writer
 description: Translates architectural decisions into a complete, unambiguous implementation spec. Not auto-invoked — use explicitly after an arch-review verdict or when you have a feature outline ready to spec.
-tools: Read, Grep, Glob, WebFetch, WebSearch, Bash
+tools: Read, Grep, Glob, WebFetch, WebSearch, Bash, Write, Edit
 model: sonnet
 ---
 
@@ -99,6 +99,8 @@ After producing the classification output, stop. Do not continue into authoring 
    **Violations found during context scanning**: When step 7 context scanning reveals a CLAUDE.md violation in a file that is not listed as Modified and is not covered by the layer-consistency check above — audit that file only if it is in the same domain layer or module as the feature being specced. If a violation is found, add a cleanup sub-feature to the spec covering that file. Do not scan files outside the feature's domain layer or module for this purpose — context scanning is bounded by the feature's neighborhood, not the whole codebase.
 
    **Cleanup sequencing for known violations**: When a violation in a Modified file is known at spec time, place the cleanup as an explicit task under that file's SF — the SF that first touches the file. Do not batch pre-known violations into a chore SF upfront. Exception: when violations in a file are extensive enough to dominate that SF's cognitive scope, introduce a dedicated chore SF immediately preceding that file's first feature SF. When a violation is not known at spec time, the implementer's on-the-fly obligation covers it.
+
+   **Knowledge base write obligation**: After resolving any fact about an external system through verification (WebFetch, WebSearch, reading library type declarations, or running toolchain commands against scratch code), apply the write obligation defined in CLAUDE.md. The target file is `.claude/knowledge/<topic>.md`, where `<topic>` is the external system or library the fact concerns (e.g., `lexical.md`, `tanstack-query.md`). If Write permission is absent in the current tool context, record the unwritten fact inline in the chat response prefixed with `[KNOWLEDGE PENDING WRITE: <topic>]` so a future session can act on it.
 
 8. **Foundation SF detection** — Before writing any SF, scan the full set of sub-features for cross-SF breaking dependencies. A sub-feature is a Foundation SF when committing it alone would leave baseline checks (tsc, eslint) structurally unable to pass. Two conditions trigger this:
    - **Modification direction**: the SF modifies a shared utility (a function, type, or module) that one or more other SFs in the same batch also depend on, and that modification leaves the shared utility in a state where baseline checks cannot pass until all dependent SFs are complete.
