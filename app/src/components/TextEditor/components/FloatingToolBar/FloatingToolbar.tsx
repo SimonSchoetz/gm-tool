@@ -114,7 +114,13 @@ export const FloatingToolbar = () => {
   return (
     <EditorPopup
       getAnchorRect={() => selectionRangeRef.current?.getBoundingClientRect() ?? null}
-      onClickOutside={() => { setIsOpen(false); }}
+      onClickOutside={() => {
+        linkInputEnabledRef.current = false;
+        setLinkInputEnabled(false);
+        setLinkUrl('');
+        setLinkInitialUrl('');
+        setIsOpen(false);
+      }}
     >
       <div className='floating-toolbar'>
         <div
