@@ -1,10 +1,6 @@
 # Product Backlog
 
 ## Closed Beta Ready
-- Feature: Automatic updates
-  - UX update so user can trigger update manually
-- Feature: Data access and db location/localization
-  - encryption?
 - Text editor enhancements
   - name tags should update when the reference changes
   - name tags should be copy/pasteable
@@ -22,9 +18,14 @@
 - Feature (Session Screen): Show section headings in In Game view
 - Feature: Make BG animation optional in settings
 - Feature: Foldable Prep Sections
+- Feature: Automatic updates
+  - UX update so user can trigger update manually
+- Feature: Data access and db location/localization
+  - encryption?
 
 ### Done
 
+- Feature (Text Editor): Embedded links
 - HoloImg Title width fix <- needs to be full width
 - Enforce toolbar within window
 - embedded links
