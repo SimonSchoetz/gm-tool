@@ -2,7 +2,7 @@
   width: 100%;
   font-size: var(--font-size-base);
   font-family: inherit;
-  color: var(--color-text);
+  color: var(--color-fb);
   border: none;
   background-color: transparent;
   line-height: 0;
@@ -11,13 +11,14 @@
   transition: var(--transition-fast);
 }
 
-.input:hover {
+.input:hover,
+.input:hover::placeholder {
   color: var(--color-primary);
   transition: var(--transition-fast);
 }
 
-.input:hover::placeholder {
-  color: var(--color-primary);
+.input::placeholder {
+  color: var(--color-fg-hover);
 }
 
 .input:focus {
@@ -25,11 +26,8 @@
   color: var(--color-fg);
 }
 
-.input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.input:disabled {
-  opacity: 0.5;
+.input:disabled:hover,
+.input:disabled::placeholder {
+  color: var(--color-fg-muted);
   cursor: not-allowed;
 }

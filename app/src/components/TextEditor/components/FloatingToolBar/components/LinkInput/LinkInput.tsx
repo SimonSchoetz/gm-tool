@@ -33,18 +33,23 @@ export const LinkInput: FCProps<Props> = ({
       <Input
         ref={inputRef}
         value={value}
-        onChange={(e) => { onChange(e.target.value); }}
+        onChange={(e) => {
+          onChange(e.target.value);
+        }}
         disabled={disabled}
         placeholder='https://...'
         onKeyDown={(e) => {
           if (e.key === 'Enter') onApply();
         }}
+        className='link-input--input'
       />
+
       <ClickableIcon
         icon={<CheckIcon />}
         onClick={onApply}
         disabled={!isApplyEnabled}
         label='Apply link'
+        className='link-input--icon content-center'
       />
     </div>
   );

@@ -14,6 +14,7 @@ import {
 import { textFormatBtns, headingBtns, listBtns } from './toolbarConfig';
 import { EditorPopup } from '../EditorPopup';
 import { getSelectionLinkUrl } from './helper';
+import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 
 export const FloatingToolbar = () => {
   const [editor] = useLexicalComposerContext();
@@ -113,7 +114,9 @@ export const FloatingToolbar = () => {
 
   return (
     <EditorPopup
-      getAnchorRect={() => selectionRangeRef.current?.getBoundingClientRect() ?? null}
+      getAnchorRect={() =>
+        selectionRangeRef.current?.getBoundingClientRect() ?? null
+      }
       onClickOutside={() => {
         linkInputEnabledRef.current = false;
         setLinkInputEnabled(false);
@@ -125,7 +128,9 @@ export const FloatingToolbar = () => {
       <div className='floating-toolbar'>
         <div
           className='floating-toolbar-buttons'
-          onMouseDown={(e) => { e.preventDefault(); }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+          }}
         >
           {headingBtns.map((btn) => (
             <HeadingBtn
@@ -155,16 +160,25 @@ export const FloatingToolbar = () => {
           ))}
         </div>
         <div className='floating-toolbar-link-row'>
-          <span onMouseDown={(e) => { e.preventDefault(); }}>
+          <span
+            onMouseDown={(e) => {
+              e.preventDefault();
+            }}
+          >
             <LinkBtn isActive={linkInputEnabled} onClick={handleLinkBtnClick} />
           </span>
-          <LinkInput
-            value={linkUrl}
-            onChange={setLinkUrl}
-            disabled={!linkInputEnabled}
-            isApplyEnabled={linkUrl !== linkInitialUrl}
-            onApply={handleLinkApply}
-          />
+          <GlassPanel
+            intensity={linkInputEnabled ? 'bright' : 'dim'}
+            className='link-input-container'
+          >
+            <LinkInput
+              value={linkUrl}
+              onChange={setLinkUrl}
+              disabled={!linkInputEnabled}
+              isApplyEnabled={linkUrl !== linkInitialUrl}
+              onApply={handleLinkApply}
+            />
+          </GlassPanel>
         </div>
       </div>
     </EditorPopup>

@@ -5,6 +5,8 @@
   padding: var(--border-thin);
   border-radius: var(--radius-md);
   width: max-content;
+  gap: var(--spacing-xs);
+  box-shadow: var(--shadow-md);
 }
 
 .floating-toolbar-buttons {
@@ -16,4 +18,11 @@
 .floating-toolbar-link-row {
   display: flex;
   align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.link-input-container {
+  border-radius: var(--radius-md);
+  flex: 1;
+  align-self: stretch;
 }

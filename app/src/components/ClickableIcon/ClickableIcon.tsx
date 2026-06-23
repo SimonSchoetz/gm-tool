@@ -21,6 +21,7 @@ export const ClickableIcon = ({
       'clickable-icon',
       isActive && 'clickable-icon--active',
       variant === 'danger' && 'clickable-icon--danger',
+      rest.disabled && 'clickable-icon--disabled',
       className,
     )}
     {...rest}

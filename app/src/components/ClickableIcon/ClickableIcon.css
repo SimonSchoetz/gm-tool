@@ -19,3 +19,10 @@
 .clickable-icon--danger:hover {
   color: var(--color-danger);
 }
+
+.clickable-icon--disabled,
+.clickable-icon--disabled:hover {
+  color: var(--color-fg-muted);
+  cursor: not-allowed;
+  scale: 1;
+}

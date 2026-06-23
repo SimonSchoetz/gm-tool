@@ -82,7 +82,8 @@ export const EmbeddedLinkPlugin = () => {
           const url = linkNode ? linkNode.getURL() : null;
           if (url !== null) {
             const selection = $getSelection();
-            if ($isRangeSelection(selection) && !selection.isCollapsed()) return false;
+            if ($isRangeSelection(selection) && !selection.isCollapsed())
+              return false;
             linkElementRef.current = (event.target as Element).closest('a');
             setLinkUrl(url);
             return true;
@@ -105,9 +106,11 @@ export const EmbeddedLinkPlugin = () => {
         setLinkUrl(null);
       }}
     >
-      <GlassPanel className='link-popup'>
-        <span className='link-popup-url'>{linkUrl}</span>
+      <GlassPanel intensity='bright' className='link-popup'>
+        <span className='link-popup--url'>{linkUrl}</span>
+
         <ClickableIcon
+          className='link-popup--icon'
           icon={<ExternalLinkIcon />}
           label='Open in browser'
           onClick={() => {

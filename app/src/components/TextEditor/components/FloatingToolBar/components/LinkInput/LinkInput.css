@@ -1,11 +1,25 @@
 .link-input {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
   flex: 1;
+  height: 100%;
 }
 
-.link-input input {
-  flex: 1;
+.link-input--input {
+  height: 100%;
+  padding: 0 var(--spacing-sm);
+}
+
+.link-input--icon {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.link-input--icon,
+.link-input--icon:disabled:hover {
+  background-color: var(--color-bg-light);
+}
+
+.link-input--icon:hover {
+  background-color: var(--color-primary-light);
 }
