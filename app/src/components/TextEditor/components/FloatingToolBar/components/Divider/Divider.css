@@ -1,5 +1,6 @@
 .divider {
   width: var(--border-thin);
+  align-self: stretch;
   margin: 0.375rem 0.125rem; /* one-off */
   background-color: var(--color-primary);
 }
