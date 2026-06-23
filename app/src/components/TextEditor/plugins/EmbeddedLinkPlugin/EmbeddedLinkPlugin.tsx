@@ -81,6 +81,8 @@ export const EmbeddedLinkPlugin = () => {
               : null;
           const url = linkNode ? linkNode.getURL() : null;
           if (url !== null) {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection) && !selection.isCollapsed()) return false;
             linkElementRef.current = (event.target as Element).closest('a');
             setLinkUrl(url);
             return true;
