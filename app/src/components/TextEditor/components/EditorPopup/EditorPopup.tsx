@@ -48,8 +48,8 @@ export const EditorPopup: FCProps<Props> = ({
       document.removeEventListener('mousedown', handleMouseDown);
     };
   }, [onClickOutside]);
+
   const rect = getAnchorRect();
-  // console.log(rect);
 
   useEffect(() => {
     if (!rect || !popupRef.current) return;

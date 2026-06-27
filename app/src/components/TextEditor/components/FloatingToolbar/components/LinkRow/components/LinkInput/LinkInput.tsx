@@ -1,6 +1,6 @@
 import { FCProps } from '@/types';
 import { CheckIcon } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { ClickableIcon } from '../../../../../../../ClickableIcon/ClickableIcon';
 import { Input } from '../../../../../../../Input/Input';
 import './LinkInput.css';
@@ -21,12 +21,6 @@ export const LinkInput: FCProps<Props> = ({
   onApply,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (!disabled) {
-      inputRef.current?.focus();
-    }
-  }, [disabled]);
 
   return (
     <div className='link-input'>

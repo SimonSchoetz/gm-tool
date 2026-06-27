@@ -3,6 +3,7 @@
   width: max-content;
   max-width: 250px; /* one-off */
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .mention-typeahead-content-container {
