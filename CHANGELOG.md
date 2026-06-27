@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.3.0] - 2026-06-28
+
+### Added
+
+- Embedded links in the text editor — select text, enter a URL, and it renders as a clickable link
+- Floating toolbar now displays link controls alongside text formatting options
+- Shared `EditorPopup` component unifies popup positioning across all editor overlays
+
+### Fixed
+
+- Toolbar positioning now updates immediately when formatting changes reflow text
+- Toolbar no longer closes when removing a format that collapses the selection
+- Open-link popup no longer appears while dragging to create a text selection
+- Link state resets correctly when clicking outside the toolbar
+- Image title hover area fixed
+- Divider height restored after layout refactor
+
 ## [v0.2.1] - 2026-06-14
 
 ### Changed
