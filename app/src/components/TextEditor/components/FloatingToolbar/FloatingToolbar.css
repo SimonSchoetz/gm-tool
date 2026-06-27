@@ -8,21 +8,3 @@
   gap: var(--spacing-xs);
   box-shadow: var(--shadow-md);
 }
-
-.floating-toolbar-buttons {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.floating-toolbar-link-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.link-input-container {
-  border-radius: var(--radius-md);
-  flex: 1;
-  align-self: stretch;
-}

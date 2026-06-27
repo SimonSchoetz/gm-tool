@@ -13,7 +13,7 @@ import { LucideIcon } from 'lucide-react';
 import './TextFormatBtn.css';
 
 import { useCallback, useEffect, useState } from 'react';
-import { BaseBtn } from '../BaseBtn/BaseBtn';
+import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 
 type TextFormatBtnProps = {
   label: string;

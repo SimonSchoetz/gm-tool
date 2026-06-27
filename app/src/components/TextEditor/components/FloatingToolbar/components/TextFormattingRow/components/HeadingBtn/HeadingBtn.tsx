@@ -21,7 +21,7 @@ import {
   COMMAND_PRIORITY_LOW,
   mergeRegister,
 } from 'lexical';
-import { BaseBtn } from '../BaseBtn/BaseBtn';
+import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 
 /**
  * Might need revision regarding 'paragraph' when implementing node type of list

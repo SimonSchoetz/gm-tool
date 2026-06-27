@@ -1,8 +1,8 @@
 import { FCProps } from '@/types';
 import { CheckIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { ClickableIcon } from '../../../../../ClickableIcon/ClickableIcon';
-import { Input } from '../../../../../Input/Input';
+import { ClickableIcon } from '../../../../../../../ClickableIcon/ClickableIcon';
+import { Input } from '../../../../../../../Input/Input';
 import './LinkInput.css';
 
 type Props = {

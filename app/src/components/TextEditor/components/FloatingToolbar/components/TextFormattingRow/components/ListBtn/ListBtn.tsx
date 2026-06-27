@@ -15,7 +15,7 @@ import {
   COMMAND_PRIORITY_LOW,
   mergeRegister,
 } from 'lexical';
-import { BaseBtn } from '../BaseBtn/BaseBtn';
+import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 import './ListBtn.css';
 
 type ListType = 'bullet' | 'number' | 'check';
