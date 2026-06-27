@@ -8,7 +8,7 @@
    - `app/package.json` → `version` field
    All must match. Use semver: `MAJOR.MINOR.PATCH`.
 
-2. **Update CHANGELOG.md** (ask Claude to do this):
+2. **Update CHANGELOG.md** (at the repo root):
    - Move all entries under `[Unreleased]` to a new versioned section:
      `## [v1.2.3] - YYYY-MM-DD`
    - Add a new empty `## [Unreleased]` section above it
