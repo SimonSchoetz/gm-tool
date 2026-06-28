@@ -14,7 +14,7 @@ In both modes the coordination protocol, proposal quality gate, and approval req
 
 ## Team Structure
 
-Use TeamCreate to spawn the following two long-running teammates at the start of the session as needed:
+Before doing anything else: load TeamCreate and SendMessage via ToolSearch (query: "TeamCreate SendMessage", max_results: 10). These tools are deferred and will not be in the active tool list until loaded. Then spawn both teammates via TeamCreate unconditionally — do not defer, skip, or substitute the Agent tool regardless of input mode:
 
 - `head-of-instructions` — owns CLAUDE.md files
 - `head-of-agents` — owns `.claude/agents/` and `.claude/commands/` files

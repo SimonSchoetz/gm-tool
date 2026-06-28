@@ -72,6 +72,9 @@ Two directory types exist — distinguish them before adding or deleting a barre
   - ✅ GOOD: `export { useNpcs, useNpc } from './npcs'` in a grouping barrel — explicit named exports only, never `export *`
   - ❌ BAD: missing `data-access-layer/index.ts` — grouping barrels are unconditionally required, not optional
   - ❌ BAD: `export * from './npcKeys'` in `npcs/index.ts` — accidentally leaks internal query key factories; if `npcKeys` is public API, name it explicitly
+- **Query key factories (`*Keys.ts` files) are internal to the DAL module and must not appear in the module barrel's public exports.** They are an implementation detail of the hooks that use them, not part of the module's external API. The module barrel (`data-access-layer/domainA/index.ts`) exports only the hooks — never the key factories.
+  - ✅ GOOD: `export { useNpc, useNpcs } from './useNpc'` — hooks are the public API
+  - ❌ BAD: `export { npcKeys } from './npcKeys'` in the module barrel — key factory is internal
 
 ### 1 Concern → 1 File (frontend examples)
 
