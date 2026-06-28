@@ -3,6 +3,7 @@ import { useSessionSteps } from '@/data-access-layer';
 import type { SessionStep } from '@db/session-step';
 import './InGameStepSection.css';
 import { useParams } from '@tanstack/react-router';
+import { InGameStepSectionTitle } from './components';
 
 type InGameStepSectionProps = {
   step: SessionStep;
@@ -16,6 +17,7 @@ export const InGameStepSection = ({ step }: InGameStepSectionProps) => {
 
   return (
     <div id={`step-section-${step.id}`} className='in-game-step-section'>
+      <InGameStepSectionTitle stepId={step.id} />
       <TextEditor
         textEditorId={`in-game-step-${step.id}`}
         value={step.content ?? ''}

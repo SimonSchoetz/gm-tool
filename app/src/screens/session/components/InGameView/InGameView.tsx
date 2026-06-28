@@ -34,7 +34,7 @@ export const InGameView = () => {
         </CustomScrollArea>
       </GlassPanel>
 
-      <CustomScrollArea className='in-game-steps'>
+      <CustomScrollArea childrenContainerClassName='in-game-steps'>
         {steps.map((step) => (
           <InGameStepSection key={step.id} step={step} />
         ))}

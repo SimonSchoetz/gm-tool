@@ -13,7 +13,6 @@
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists text-editors with no content -> should be nothing
-- Feature (Session Screen): Show section headings in In Game view
 - Feature: Foldable Prep Sections
 - Feature: Data access and db location/localization
   - encryption?
@@ -25,6 +24,7 @@
 
 ### Done
 
+- Feature (Session Screen): Show section headings in In Game view
 - Fix (Session Screen): In Game view shows `'Description...'` of overlapping
 - Fix (Text Editor):  Max-char-length-per-line
 - Feature: Automatic updates
