@@ -27,6 +27,7 @@
   - width should be same as in screens
   - should be able to open images in full screen
   - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
+- Feature: Make background animation optional in settings
 
 ### Done
 
