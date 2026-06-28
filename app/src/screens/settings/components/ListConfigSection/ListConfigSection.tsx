@@ -13,7 +13,7 @@ export const ListConfigSection = () => {
 
   return (
     <section>
-      <h2 className='list-config-section-heading'>List Configuration</h2>
+      <h2 className='settings-screen--section-heading'>List Configuration</h2>
       <CustomScrollArea>
         <ul className='list-config-section-list'>
           {tableConfigs.map((config) => (

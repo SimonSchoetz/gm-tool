@@ -1,9 +1,3 @@
-.list-config-section-heading {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary);
-}
-
 .list-config-section-list {
   display: flex;
   flex-direction: column;

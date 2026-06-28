@@ -6,3 +6,9 @@
   padding: var(--spacing-md);
   gap: var(--spacing-lg);
 }
+
+.settings-screen--section-heading {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}

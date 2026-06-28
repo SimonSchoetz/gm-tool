@@ -17,7 +17,7 @@ export const AppVersionSection = () => {
 
   return (
     <section className='app-version-section'>
-      <h2 className='app-version-section-heading'>App Version</h2>
+      <h2 className='settings-screen--section-heading'>App Version</h2>
       <p className='app-version-section-current'>{currentVersion ?? '—'}</p>
       {availableVersion && (
         <p className='app-version-section-available'>
