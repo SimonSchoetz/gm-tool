@@ -1,0 +1,10 @@
+.updater {
+  font-size: var(--font-size-md);
+  color: var(--color-primary);
+  will-change: font-size;
+  transition: font-size var(--transition-fast);
+}
+
+.updater:hover {
+  font-size: var(--font-size-base);
+}
