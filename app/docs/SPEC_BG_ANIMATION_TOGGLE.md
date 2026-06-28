@@ -12,7 +12,7 @@
 
 ### Unified `settings` table with a schema registry
 
-A per-key module pattern (like `db/_system/versioning.ts`) requires a new schema file, accessor module, barrel export, and DAL hook for every new setting. Instead, a single `db/settings/` module owns a Zod schema registry keyed by setting ID. `SettingsKey` is a union of all registered keys; `SettingsValueMap` is a mapped type from key to its value shape. Adding a new setting requires only a new schema entry in the registry and a migration — no new files. The `_system` table and `versioning.ts` are not modified or removed.
+A per-key module pattern (like `db/_system/versioning.ts`) requires a new schema file, accessor module, barrel export, and DAL hook for every new setting. Instead, a single `db/_settings/` module owns a Zod schema registry keyed by setting ID. `SettingsKey` is a union of all registered keys; `SettingsValueMap` is a mapped type from key to its value shape. Adding a new setting requires only a new schema entry in the registry and a migration — no new files. The `_system` table and `versioning.ts` are not modified or removed.
 
 ### `value TEXT NOT NULL` on the `settings` table
 
@@ -20,7 +20,7 @@ Every row in `settings` is inserted by a migration with a complete JSON value; t
 
 ### No service layer
 
-Settings reads and writes have no business logic, no domain error transformation, and no composition with other tables. The DAL (`useSetting`) calls `db/settings/` directly, matching the existing `_system` accessor pattern.
+Settings reads and writes have no business logic, no domain error transformation, and no composition with other tables. The DAL (`useSetting`) calls `db/_settings/` directly, matching the existing `_system` accessor pattern.
 
 ### `null` merges "loading" and "row not found"
 
@@ -48,4 +48,4 @@ Pixi initialises with the `TilingSprite` (grid) regardless of `animationEnabled`
 
 ## CLAUDE.md Impact
 
-`app/docs/_product/domain-scaffold.md` — add a section documenting the `settings` infrastructure as an ambient system: the `db/settings/` module is the source of truth for all persistent app settings; new settings are added by registering a Zod schema in `db/settings/schema.ts` and adding a migration that inserts the default row. Any feature that reads or writes a user-facing app preference must go through `useSetting` in `src/data-access-layer/settings/`.
+`app/docs/_product/domain-scaffold.md` — add a section documenting the `settings` infrastructure as an ambient system: the `db/_settings/` module is the source of truth for all persistent app settings; new settings are added by registering a Zod schema in `db/_settings/schema.ts` and adding a migration that inserts the default row. Any feature that reads or writes a user-facing app preference must go through `useSetting` in `src/data-access-layer/settings/`.

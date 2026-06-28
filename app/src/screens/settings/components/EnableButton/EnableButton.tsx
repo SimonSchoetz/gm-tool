@@ -8,11 +8,12 @@ type Props = { isEnabled: boolean } & Omit<
   'label'
 >;
 
-export const EnableButton: FCProps<Props> = ({ isEnabled }) => {
+export const EnableButton: FCProps<Props> = ({ isEnabled, ...rest }) => {
   return (
     <Button
       label={isEnabled ? 'Enabled' : 'Disabled'}
       className={cn('enable-button', isEnabled && 'enable-button-on')}
+      {...rest}
     />
   );
 };

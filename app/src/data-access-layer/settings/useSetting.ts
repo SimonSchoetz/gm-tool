@@ -5,7 +5,10 @@ import { settingsKeys } from './settingsKeys';
 
 export const useSetting = <K extends SettingsKey>(
   key: K,
-): { value: SettingsValueMap[K] | null; update: (value: SettingsValueMap[K]) => void } => {
+): {
+  value: SettingsValueMap[K] | null;
+  update: (value: SettingsValueMap[K]) => void;
+} => {
   const queryClient = useQueryClient();
 
   const { data } = useQuery({

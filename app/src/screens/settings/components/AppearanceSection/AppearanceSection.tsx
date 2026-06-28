@@ -17,7 +17,9 @@ export const AppearanceSection = () => {
           <EnableButton
             isEnabled={value?.animation_enabled ?? true}
             onClick={() => {
-              update({ animation_enabled: !(value?.animation_enabled ?? true) });
+              update({
+                animation_enabled: !(value?.animation_enabled ?? true),
+              });
             }}
           />
         </label>
