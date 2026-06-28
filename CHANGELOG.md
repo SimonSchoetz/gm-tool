@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.5.0] - 2026-06-29
+
+### Added
+
+- App updater in the header — check for updates, download, and install without leaving the app
+- Section titles displayed in the ingame view
+
+### Fixed
+
+- Placeholder in the ingame view no longer appears when it should not
+
+### Changed
+
+- Text editors now have a maximum width to improve readability
+- App version removed from the Settings screen
+- App window opens at a smaller default size
+
 ## [v0.4.0] - 2026-06-28
 
 ### Added

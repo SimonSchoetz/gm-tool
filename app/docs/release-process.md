@@ -20,7 +20,7 @@
      - `chore` commits with user-visible effect → `### Changed`
      - Internal-only `chore`, `docs`, `test`, `style` commits → omit
 
-3. **Commit the version bump and changelog update after confirmation by user:**
+3. **Make all changes, then ask user to confirm we are ready to commit the version bump and changelog update:**
 
    ```text
    chore(release): bump version to v1.2.3
