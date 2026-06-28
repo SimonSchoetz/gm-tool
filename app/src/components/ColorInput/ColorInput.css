@@ -7,22 +7,19 @@
 .color-input-hidden {
   position: absolute;
   width: 0;
-  height: 0;
+  height: 100%;
   opacity: 0;
+  left: -80px; /* one-off */
   pointer-events: none;
 }
 
-.color-input-dot {
-  /* one-off size — no matching dimension token */
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.color-input-label {
   cursor: pointer;
-  background-color: rgb(var(--rt-color-input-color));
+  color: rgb(var(--rt-color-input-color));
   transition: transform var(--transition-fast);
+  will-change: transform;
 }
 
-.color-input-dot:hover {
-  transform: scale(1.3);
+.color-input-label:hover {
+  transform: scale(1.1);
 }
