@@ -1,3 +1,2 @@
-export { TableConfigRow } from './TableConfigRow/TableConfigRow';
-export { TableConfigSection } from './TableConfigSection/TableConfigSection';
+export { ListConfigSection } from './ListConfigSection/ListConfigSection';
 export { AppVersionSection } from './AppVersionSection/AppVersionSection';

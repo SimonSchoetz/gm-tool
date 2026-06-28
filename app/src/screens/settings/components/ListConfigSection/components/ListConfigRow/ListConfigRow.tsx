@@ -1,14 +1,14 @@
 import type { FCProps } from '@/types';
 import { useTableConfig } from '@/data-access-layer';
 import { ColorInput, GlassPanel } from '@/components';
-import './TableConfigRow.css';
+import './ListConfigRow.css';
 
-type TableConfigRowProps = { tableConfigId: string };
+type ListConfigRowProps = { listConfigId: string };
 
-export const TableConfigRow: FCProps<TableConfigRowProps> = ({
-  tableConfigId,
+export const ListConfigRow: FCProps<ListConfigRowProps> = ({
+  listConfigId,
 }) => {
-  const { config, updateTableConfig } = useTableConfig(tableConfigId);
+  const { config, updateTableConfig } = useTableConfig(listConfigId);
   if (!config) return null;
 
   const isTaggingEnabled = config.tagging_enabled === 1;
@@ -19,8 +19,8 @@ export const TableConfigRow: FCProps<TableConfigRowProps> = ({
 
   return (
     <li>
-      <GlassPanel intensity='bright' className='settings-config-row'>
-        <div className='settings-config-name'>
+      <GlassPanel intensity='bright' className='list-config-row'>
+        <div className='list-config-name'>
           <ColorInput
             value={config.color}
             onChange={(value) => {
@@ -29,17 +29,17 @@ export const TableConfigRow: FCProps<TableConfigRowProps> = ({
           />
           <span>{config.table_name}</span>
 
-          <span className='settings-label'>Scope</span>
-          <span className='settings-scope-value'>{config.scope}</span>
+          <span className='list-label'>Scope</span>
+          <span className='list-scope-value'>{config.scope}</span>
         </div>
 
-        <div className='settings-config-controls'>
-          <label className='settings-control-group'>
-            <span className='settings-label'>Tagging:</span>
+        <div className='list-config-controls'>
+          <label className='list-control-group'>
+            <span className='list-label'>Tagging:</span>
             <button
               type='button'
               onClick={handleTaggingToggle}
-              className={`settings-toggle ${isTaggingEnabled ? 'settings-toggle-on' : 'settings-toggle-off'}`}
+              className={`list-toggle ${isTaggingEnabled ? 'list-toggle-on' : 'list-toggle-off'}`}
             >
               {isTaggingEnabled ? 'Enabled' : 'Disabled'}
             </button>

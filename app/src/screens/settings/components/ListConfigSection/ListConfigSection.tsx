@@ -1,9 +1,10 @@
 import { useTableConfigs } from '@/data-access-layer';
 import { CustomScrollArea } from '@/components';
-import { TableConfigRow } from '../TableConfigRow/TableConfigRow';
-import './TableConfigSection.css';
+import { ListConfigRow } from './components';
 
-export const TableConfigSection = () => {
+import './ListConfigSection.css';
+
+export const ListConfigSection = () => {
   const { tableConfigs, loading } = useTableConfigs();
 
   if (loading) {
@@ -11,12 +12,12 @@ export const TableConfigSection = () => {
   }
 
   return (
-    <section className='table-config-section'>
-      <h2 className='table-config-section-heading'>Table Configuration</h2>
+    <section>
+      <h2 className='list-config-section-heading'>List Configuration</h2>
       <CustomScrollArea>
-        <ul className='table-config-section-list'>
+        <ul className='list-config-section-list'>
           {tableConfigs.map((config) => (
-            <TableConfigRow key={config.id} tableConfigId={config.id} />
+            <ListConfigRow key={config.id} listConfigId={config.id} />
           ))}
         </ul>
       </CustomScrollArea>

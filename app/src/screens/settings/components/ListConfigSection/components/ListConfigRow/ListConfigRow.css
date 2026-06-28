@@ -1,4 +1,4 @@
-.settings-config-row {
+.list-config-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -6,31 +6,31 @@
   gap: var(--spacing-lg);
 }
 
-.settings-config-name {
+.list-config-name {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
-.settings-config-controls {
+.list-config-controls {
   display: flex;
   align-items: center;
   gap: var(--spacing-xl);
 }
 
-.settings-control-group {
+.list-control-group {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   cursor: pointer;
 }
 
-.settings-label {
+.list-label {
   color: var(--color-text-muted);
   font-size: var(--font-size-md);
 }
 
-.settings-toggle {
+.list-toggle {
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-md);
   border: var(--border-thin) solid var(--color-border);
@@ -39,22 +39,22 @@
   transition: all var(--transition-fast);
 }
 
-.settings-toggle-on {
+.list-toggle-on {
   background-color: rgba(var(--color-success-rgb), 0.15);
   color: var(--color-success);
   border-color: var(--color-success);
 }
 
-.settings-toggle-off {
+.list-toggle-off {
   background-color: rgba(var(--color-text-muted-rgb), 0.1);
   color: var(--color-text-muted);
 }
 
-.settings-toggle:hover {
+.list-toggle:hover {
   opacity: 0.8;
 }
 
-.settings-scope-value {
+.list-scope-value {
   font-size: var(--font-size-md);
   color: var(--color-text-secondary);
   text-transform: capitalize;

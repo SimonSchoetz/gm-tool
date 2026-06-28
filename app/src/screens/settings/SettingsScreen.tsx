@@ -1,10 +1,12 @@
-import { GlassPanel } from '@/components';
-import { TableConfigSection, AppVersionSection } from './components';
+import { CustomScrollArea, GlassPanel } from '@/components';
+import { ListConfigSection, AppVersionSection } from './components';
 import './SettingsScreen.css';
 
 export const SettingsScreen = () => (
   <GlassPanel className='settings-screen'>
-    <TableConfigSection />
-    <AppVersionSection />
+    <CustomScrollArea>
+      <ListConfigSection />
+      <AppVersionSection />
+    </CustomScrollArea>
   </GlassPanel>
 );
