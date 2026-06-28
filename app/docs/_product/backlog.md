@@ -1,7 +1,6 @@
 # Product Backlog
 
 ## Closed Beta Ready
-- Feature: Make background animation optional in settings
 - Text editor enhancements
   - name tags should update when the reference changes
   - name tags should be copy/pasteable
@@ -17,7 +16,6 @@
   - Lists: Mixed lists
 - Fix (Session Screen): In Game view shows `'Description...'` of overlapping text-editors with no content -> should be nothing
 - Feature (Session Screen): Show section headings in In Game view
-- Feature: Make BG animation optional in settings
 - Feature: Foldable Prep Sections
 - Feature: Automatic updates
   - UX update so user can trigger update manually
@@ -31,6 +29,7 @@
 
 ### Done
 
+- Feature: Make background animation optional in settings
 - Feature (Text Editor): Embedded links
 - HoloImg Title width fix <- needs to be full width
 - Enforce toolbar within window
