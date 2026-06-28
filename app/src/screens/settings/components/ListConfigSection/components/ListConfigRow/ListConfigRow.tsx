@@ -2,6 +2,7 @@ import type { FCProps } from '@/types';
 import { useTableConfig } from '@/data-access-layer';
 import { ColorInput, GlassPanel } from '@/components';
 import './ListConfigRow.css';
+import { EnableButton } from '../../../EnableButton/EnableButton';
 
 type ListConfigRowProps = { listConfigId: string };
 
@@ -17,34 +18,36 @@ export const ListConfigRow: FCProps<ListConfigRowProps> = ({
     void updateTableConfig({ tagging_enabled: isTaggingEnabled ? 0 : 1 });
   };
 
+  const capitalizedTableName =
+    config.table_name.charAt(0).toUpperCase() + config.table_name.slice(1);
+
   return (
     <li>
       <GlassPanel intensity='bright' className='list-config-row'>
-        <div className='list-config-name'>
+        <label className='list-config-name'>
           <ColorInput
+            label={capitalizedTableName}
             value={config.color}
             onChange={(value) => {
               void updateTableConfig({ color: value });
             }}
           />
-          <span>{config.table_name}</span>
+        </label>
 
-          <span className='list-label'>Scope</span>
-          <span className='list-scope-value'>{config.scope}</span>
-        </div>
-
-        <div className='list-config-controls'>
-          <label className='list-control-group'>
-            <span className='list-label'>Tagging:</span>
-            <button
-              type='button'
-              onClick={handleTaggingToggle}
-              className={`list-toggle ${isTaggingEnabled ? 'list-toggle-on' : 'list-toggle-off'}`}
-            >
-              {isTaggingEnabled ? 'Enabled' : 'Disabled'}
-            </button>
+        <div>
+          <label className='list-config--scope'>
+            Scope:
+            <span className='list-config--scope-value'>{config.scope}</span>
           </label>
         </div>
+
+        <label className='list-config--tagging'>
+          Tagging:
+          <EnableButton
+            isEnabled={isTaggingEnabled}
+            onClick={handleTaggingToggle}
+          />
+        </label>
       </GlassPanel>
     </li>
   );

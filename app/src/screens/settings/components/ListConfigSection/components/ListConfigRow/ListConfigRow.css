@@ -1,8 +1,10 @@
 .list-config-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm);
+  padding-left: var(--spacing-md);
+  border-radius: var(--radius-xl);
   gap: var(--spacing-lg);
 }
 
@@ -12,50 +14,25 @@
   gap: var(--spacing-sm);
 }
 
-.list-config-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xl);
-}
-
-.list-control-group {
+.list-config--scope {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  cursor: pointer;
-}
-
-.list-label {
-  color: var(--color-text-muted);
   font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
 }
 
-.list-toggle {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-md);
-  border: var(--border-thin) solid var(--color-border);
-  cursor: pointer;
-  font-size: var(--font-size-md);
-  transition: all var(--transition-fast);
-}
-
-.list-toggle-on {
-  background-color: rgba(var(--color-success-rgb), 0.15);
-  color: var(--color-success);
-  border-color: var(--color-success);
-}
-
-.list-toggle-off {
-  background-color: rgba(var(--color-text-muted-rgb), 0.1);
-  color: var(--color-text-muted);
-}
-
-.list-toggle:hover {
-  opacity: 0.8;
-}
-
-.list-scope-value {
-  font-size: var(--font-size-md);
+.list-config--scope-value {
+  font-size: var(--font-size-base);
   color: var(--color-text-secondary);
   text-transform: capitalize;
+}
+
+.list-config--tagging {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  font-size: var(--font-size-md);
 }

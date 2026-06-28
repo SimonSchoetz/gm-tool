@@ -1,0 +1,16 @@
+.enable-button > * {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.enable-button,
+.enable-button > * {
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+}
+
+.enable-button-on > * {
+  background-color: rgba(var(--color-success-rgb), 0.03);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
