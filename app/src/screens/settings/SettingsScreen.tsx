@@ -4,7 +4,7 @@ import './SettingsScreen.css';
 
 export const SettingsScreen = () => (
   <GlassPanel className='settings-screen'>
-    <CustomScrollArea>
+    <CustomScrollArea childrenContainerClassName='settings-screen--sections'>
       <ListConfigSection />
       <AppVersionSection />
     </CustomScrollArea>

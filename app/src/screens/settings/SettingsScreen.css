@@ -1,8 +1,12 @@
 .settings-screen {
+  padding: var(--spacing-md);
+  display: flex;
+  justify-content: center;
+  width: fit-content;
+}
+
+.settings-screen--sections {
   display: flex;
   flex-direction: column;
-  position: relative;
-  height: 100%;
-  padding: var(--spacing-md);
   gap: var(--spacing-lg);
 }

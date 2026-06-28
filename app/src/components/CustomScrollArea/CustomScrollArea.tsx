@@ -8,6 +8,7 @@ type CustomScrollAreaProps = {
   thumbMinHeight?: number;
   scrollbarWidth?: number;
   spacing?: number;
+  childrenContainerClassName?: string;
 } & HtmlProps<'div'>;
 
 export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
@@ -15,6 +16,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   className,
   thumbMinHeight = 40,
   spacing = 0,
+  childrenContainerClassName,
   ...props
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -177,7 +179,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
         style={{
           paddingRight: `${isScrollNeeded ? 12 : 0}px`,
         }}
-        className='perspective-container'
+        className={cn('perspective-container', childrenContainerClassName)}
       >
         {children}
       </div>

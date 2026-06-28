@@ -4,6 +4,7 @@ import { ListConfigRow } from './components';
 
 import './ListConfigSection.css';
 import { H2 } from '../H2/H2';
+import { Section } from '../Section/Section';
 
 export const ListConfigSection = () => {
   const { tableConfigs, loading } = useTableConfigs();
@@ -13,7 +14,7 @@ export const ListConfigSection = () => {
   }
 
   return (
-    <section>
+    <Section>
       <H2 heading='List Configuration' />
       <CustomScrollArea>
         <ul className='list-config-section-list'>
@@ -22,6 +23,6 @@ export const ListConfigSection = () => {
           ))}
         </ul>
       </CustomScrollArea>
-    </section>
+    </Section>
   );
 };

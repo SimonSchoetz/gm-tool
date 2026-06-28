@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components';
 import './AppVersionSection.css';
 import { H2 } from '../H2/H2';
+import { Section } from '../Section/Section';
 
 export const AppVersionSection = () => {
   const { currentVersion } = useAppVersion();
@@ -17,7 +18,7 @@ export const AppVersionSection = () => {
   const { installAndRelaunch, isInstalling } = useInstallAndRelaunch();
 
   return (
-    <section className='app-version-section'>
+    <Section>
       <H2 heading='App Version' />
       <p className='app-version-section-current'>{currentVersion ?? '—'}</p>
       {availableVersion && (
@@ -61,6 +62,6 @@ export const AppVersionSection = () => {
           />
         )}
       </div>
-    </section>
+    </Section>
   );
 };
