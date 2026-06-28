@@ -13,7 +13,10 @@ export const Checkbox: FCProps<HtmlProps<'input'>> = ({
   ...props
 }) => {
   return (
-    <GlassPanel className={cn('checkbox-container', className)}>
+    <GlassPanel
+      intensity='bright'
+      className={cn('checkbox-container', className)}
+    >
       <input
         type='checkbox'
         className={cn('checkbox')}

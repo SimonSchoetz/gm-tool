@@ -2,6 +2,7 @@
   width: var(--font-size-xl);
   aspect-ratio: 1/1;
   border-radius: var(--radius-md);
+  border: none;
 }
 
 .checkbox {
