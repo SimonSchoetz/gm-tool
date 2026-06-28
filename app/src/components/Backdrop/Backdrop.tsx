@@ -7,6 +7,7 @@ import {
   TilingSprite,
 } from 'pixi.js';
 import { useEffect, useRef } from 'react';
+import { useSetting } from '@/data-access-layer';
 import {
   buildCompositeColor,
   createGridTileTexture,
@@ -27,8 +28,11 @@ const FPS = 60;
 export const Backdrop = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<Grid>(null);
+  const { value: backgroundSettings } = useSetting('background');
+  const animationEnabled = backgroundSettings?.animation_enabled ?? null;
 
   useEffect(() => {
+    if (animationEnabled === null) return;
     const container = containerRef.current;
     if (!container) return;
 
@@ -91,6 +95,8 @@ export const Backdrop = () => {
       tilingSprite.tilePosition.set(grid.squareSize / 2, grid.squareSize / 2);
       pixiApp.stage.addChild(tilingSprite);
 
+      if (!animationEnabled) return;
+
       beamRenderTexture = RenderTexture.create({
         width: window.innerWidth,
         height: window.innerHeight,
@@ -128,7 +134,7 @@ export const Backdrop = () => {
     };
 
     const handleResize = () => {
-      if (!app || !tilingSprite || !beamSprite) return;
+      if (!app || !tilingSprite) return;
 
       app.renderer.resize(window.innerWidth, window.innerHeight);
       tilingSprite.width = window.innerWidth;
@@ -136,23 +142,26 @@ export const Backdrop = () => {
 
       setGridDimensions(gridRef);
 
-      beamRenderTexture?.destroy(true);
-      beamRenderTexture = RenderTexture.create({
-        width: window.innerWidth,
-        height: window.innerHeight,
-        dynamic: true,
-      });
-
-      beamSprite.texture = beamRenderTexture;
-
-      if (idleTimeoutId !== null) {
-        clearTimeout(idleTimeoutId);
-        idleTimeoutId = null;
+      if (beamRenderTexture && beamSprite) {
+        beamRenderTexture.destroy(true);
+        beamRenderTexture = RenderTexture.create({
+          width: window.innerWidth,
+          height: window.innerHeight,
+          dynamic: true,
+        });
+        beamSprite.texture = beamRenderTexture;
       }
-      beams.forEach((b) => {
-        b.active = false;
-      });
-      spawnAllBeams();
+
+      if (animationEnabled) {
+        if (idleTimeoutId !== null) {
+          clearTimeout(idleTimeoutId);
+          idleTimeoutId = null;
+        }
+        beams.forEach((b) => {
+          b.active = false;
+        });
+        spawnAllBeams();
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -168,7 +177,7 @@ export const Backdrop = () => {
         app = null;
       }
     };
-  }, []);
+  }, [animationEnabled]);
 
   return <div ref={containerRef} className='backdrop-container' />;
 };
