@@ -15,11 +15,12 @@
    - Classify entries by conventional commit type:
      - `feat` commits → `### Added`
      - `fix` commits → `### Fixed`
+      - commits that are fixes for unreleased features should not be listed
      - `refactor`, `perf` commits → `### Changed`
      - `chore` commits with user-visible effect → `### Changed`
      - Internal-only `chore`, `docs`, `test`, `style` commits → omit
 
-3. **Commit the version bump and changelog update:**
+3. **Commit the version bump and changelog update after confirmation by user:**
 
    ```text
    chore(release): bump version to v1.2.3
