@@ -23,6 +23,8 @@ export const Updater: FCProps<Props> = () => {
 
   useEffect(() => {
     checkUpdate();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only check once on mount
   }, []);
 
   const handleClick = () => {

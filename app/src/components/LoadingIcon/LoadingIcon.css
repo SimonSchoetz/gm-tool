@@ -1,0 +1,48 @@
+@property --loading-icon-mask-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 270deg;
+}
+
+.loading-icon {
+  --loading-icon-speed: 1s;
+  --loading-icon-offsetted-speed: 0.5s;
+  overflow: visible;
+  filter: drop-shadow(0 0 3px var(--color-primary)); /* one-off */
+  mask-image: conic-gradient(
+    from var(--loading-icon-mask-angle) at center,
+    black 0%,
+    transparent 75%,
+    transparent 100%
+  );
+  mask-size: 200% 200%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-clip: no-clip;
+  animation: loading-icon-mask var(--loading-icon-speed) linear infinite;
+}
+
+.loading-icon-beam {
+  fill: none;
+  stroke: var(--color-primary);
+  animation: loading-icon-trace var(--loading-icon-offsetted-speed) linear
+    infinite;
+}
+
+@keyframes loading-icon-trace {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: var(--loading-icon-perimeter);
+  }
+}
+
+@keyframes loading-icon-mask {
+  from {
+    --loading-icon-mask-angle: 270deg;
+  }
+  to {
+    --loading-icon-mask-angle: -90deg;
+  }
+}
