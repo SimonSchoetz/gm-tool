@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "GM Tool",
-        "width": 1920,
-        "height": 1080,
+        "width": 1000,
+        "height": 700,
         "backgroundColor": "#031322"
       }
     ],
