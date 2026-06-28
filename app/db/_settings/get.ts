@@ -7,7 +7,7 @@ export const getSetting = async <K extends SettingsKey>(
 ): Promise<SettingsValueMap[K] | null> => {
   const db = await getDatabase();
   const rows = await db.select<{ value: string }[]>(
-    'SELECT value FROM settings WHERE id = $1',
+    'SELECT value FROM _settings WHERE id = $1',
     [key],
   );
   if (rows.length === 0) return null;

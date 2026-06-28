@@ -26,7 +26,7 @@ describe('updateSetting', () => {
     const { updateSetting } = await import('../update');
     await updateSetting('background', { animation_enabled: false });
     expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO settings (id, value) VALUES ($1, $2)',
+      'INSERT OR REPLACE INTO _settings (id, value) VALUES ($1, $2)',
       ['background', '{"animation_enabled":false}'],
     );
   });
@@ -37,7 +37,7 @@ describe('updateSetting', () => {
       updateSetting('background', { animation_enabled: 'yes' } as never),
     ).rejects.toThrow();
     expect(mockExecute).not.toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO settings (id, value) VALUES ($1, $2)',
+      'INSERT OR REPLACE INTO _settings (id, value) VALUES ($1, $2)',
       expect.anything(),
     );
   });

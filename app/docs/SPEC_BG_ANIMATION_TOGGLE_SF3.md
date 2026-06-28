@@ -16,7 +16,7 @@ Modified: src/data-access-layer/index.ts
 ### `src/data-access-layer/settings/settingsKeys.ts`
 
 ```ts
-import type { SettingsKey } from '@db/settings';
+import type { SettingsKey } from '@db/_settings';
 
 export const settingsKeys = {
   setting: (key: SettingsKey) => ['settings', key] as const,
@@ -29,8 +29,8 @@ Each setting key gets its own cache entry. TanStack Query caches `background` an
 
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getSetting, updateSetting } from '@db/settings';
-import type { SettingsKey, SettingsValueMap } from '@db/settings';
+import { getSetting, updateSetting } from '@db/_settings';
+import type { SettingsKey, SettingsValueMap } from '@db/_settings';
 import { settingsKeys } from './settingsKeys';
 
 export const useSetting = <K extends SettingsKey>(

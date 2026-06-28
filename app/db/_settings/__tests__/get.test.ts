@@ -24,7 +24,7 @@ describe('getSetting', () => {
 
   it('returns the parsed value for an existing key', async () => {
     mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM settings')) {
+      if (query.includes('SELECT value FROM _settings')) {
         return Promise.resolve([{ value: '{"animation_enabled":true}' }]);
       }
       return Promise.resolve([]);
@@ -33,7 +33,7 @@ describe('getSetting', () => {
     const result = await getSetting('background');
     expect(result).toEqual({ animation_enabled: true });
     expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT value FROM settings WHERE id = $1',
+      'SELECT value FROM _settings WHERE id = $1',
       ['background'],
     );
   });
@@ -46,7 +46,7 @@ describe('getSetting', () => {
 
   it('throws when stored JSON does not match the schema', async () => {
     mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM settings')) {
+      if (query.includes('SELECT value FROM _settings')) {
         return Promise.resolve([{ value: '{"animation_enabled":"yes"}' }]);
       }
       return Promise.resolve([]);
