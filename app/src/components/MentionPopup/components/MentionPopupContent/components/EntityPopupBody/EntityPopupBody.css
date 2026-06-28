@@ -2,7 +2,7 @@
   display: flex;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm);
-  background-color: var(--color-bg-light);
+  background-color: var(--color-bg-muted);
 }
 
 .entity-popup-image {

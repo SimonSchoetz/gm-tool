@@ -18,10 +18,10 @@
 }
 
 .link-popup--icon {
-  background-color: var(--color-bg-light);
+  background-color: var(--color-bg-muted);
   padding: var(--spacing-xs) var(--spacing-sm);
 }
 
 .link-popup--icon:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-primary-muted);
 }

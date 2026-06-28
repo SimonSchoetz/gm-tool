@@ -1,7 +1,7 @@
 :root {
   --color-primary-rgb: 57, 156, 187;
   --color-primary: rgb(var(--color-primary-rgb));
-  --color-primary-light: rgb(var(--color-primary-rgb), 0.5);
+  --color-primary-muted: rgb(var(--color-primary-rgb), 0.5);
   --color-primary-hover: rgb(var(--color-primary-rgb), 0.5);
 
   --color-secondary-rgb: 43, 77, 87;
@@ -11,11 +11,11 @@
   --color-fg-rgb: 248, 251, 251;
   --color-fg: rgb(var(--color-fg-rgb));
   --color-fg-hover: rgb(var(--color-fg-rgb), 0.7);
-  --color-fg-muted: rgb(var(--color-fg-rgb), 0.5);
+  --color-fg-muted: rgb(var(--color-fg-rgb), 0.7);
 
   --color-bg-rgb: 3, 19, 34;
   --color-bg: rgb(var(--color-bg-rgb));
-  --color-bg-light: rgb(var(--color-bg-rgb), 0.5);
+  --color-bg-muted: rgb(var(--color-bg-rgb), 0.5);
   --color-bg-hover: rgb(var(--color-bg-rgb), 0.5);
 
   --color-danger-rgb: 208, 37, 48;
@@ -44,8 +44,8 @@
   --color-border-rgb: 43, 77, 87;
   --color-border: rgb(var(--color-border-rgb));
 
-  --color-border-light-rgb: 26, 53, 64;
-  --color-border-light: rgb(var(--color-border-light-rgb));
+  --color-border-muted-rgb: 26, 53, 64;
+  --color-border-muted: rgb(var(--color-border-muted-rgb));
 
   /* Shadows */
   --shadow-sm: 0 0.125rem 0.375rem rgb(0, 0, 0, 0.3);
