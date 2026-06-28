@@ -12,10 +12,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Background animation toggle in the Settings screen — disable the animated beams while keeping the grid visible
 
-### Fixed
-
-- Settings screen toggle buttons now correctly respond to clicks
-
 ## [v0.3.0] - 2026-06-28
 
 ### Added
