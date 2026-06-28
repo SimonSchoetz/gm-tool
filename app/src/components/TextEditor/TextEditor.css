@@ -2,6 +2,7 @@
   position: relative;
   height: 100%;
   min-height: 100%;
+  max-width: 680px; /* One-off: Results in 80 characters per line on font-size base */
 }
 
 .editor-content {
