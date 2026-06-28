@@ -6,19 +6,15 @@
   - name tags should be copy/pasteable
   - '/' command to open text formatter so one can start typing a header from the beginning
   - Auto-Correct off
-  - Max-char-length-per-line
   - drag-and-drop content within editor
   - Tables
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
 - Fix: Adventure stats (facts)
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
-  - Lists: Mixed lists
-- Fix (Session Screen): In Game view shows `'Description...'` of overlapping text-editors with no content -> should be nothing
+  - Lists: Mixed lists text-editors with no content -> should be nothing
 - Feature (Session Screen): Show section headings in In Game view
 - Feature: Foldable Prep Sections
-- Feature: Automatic updates
-  - UX update so user can trigger update manually
 - Feature: Data access and db location/localization
   - encryption?
 - Fix (Session Screen): Highlightiing the step title should not open the toolbar
@@ -29,6 +25,10 @@
 
 ### Done
 
+- Fix (Session Screen): In Game view shows `'Description...'` of overlapping
+- Fix (Text Editor):  Max-char-length-per-line
+- Feature: Automatic updates
+  - UX update so user can trigger update manually
 - Feature: Make background animation optional in settings
 - Feature (Text Editor): Embedded links
 - HoloImg Title width fix <- needs to be full width
