@@ -22,6 +22,11 @@
   - UX update so user can trigger update manually
 - Feature: Data access and db location/localization
   - encryption?
+- Fix (Session Screen): Highlightiing the step title should not open the toolbar
+- Fix (Summary Pop Up): 
+  - width should be same as in screens
+  - should be able to open images in full screen
+  - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
 
 ### Done
 
