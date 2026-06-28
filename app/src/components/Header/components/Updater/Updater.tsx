@@ -1,12 +1,9 @@
 import { useUpdater } from '@/data-access-layer';
-import { FCProps } from '@/types';
 import { ActionContainer, LoadingIcon } from '@/components';
 import './Updater.css';
 import { useEffect, useState } from 'react';
 
-type Props = object;
-
-export const Updater: FCProps<Props> = () => {
+export const Updater = () => {
   const {
     currentVersion,
     availableVersion,
@@ -53,60 +50,51 @@ export const Updater: FCProps<Props> = () => {
     }
   }, [checkError]);
 
+  const isProcessing =
+    isChecking || isDownloading || isInstalling || checkedForUpdate || !!error;
+
   const handleClick = () => {
-    const isProcessing = isChecking && isDownloading && isInstalling;
     if (isProcessing) return;
 
-    if (!checkedForUpdate && !isChecking && !availableVersion) {
+    if (!availableVersion) {
       handleCheckUpdate();
     }
-    if (availableVersion && !isDownloading && !isDownloaded) {
+    if (availableVersion && !isDownloaded) {
       void downloadUpdate();
     }
-    if (isDownloaded && !isInstalling) {
+    if (isDownloaded) {
       void installAndRelaunch();
     }
   };
 
   return (
-    <>
-      {error ? (
-        <span className='updater-error'>{error}</span>
-      ) : (
-        <ActionContainer
-          onClick={handleClick}
-          label='Update'
-          className='updater'
-        >
-          {checkedForUpdate && !availableVersion && (
-            <span className='updater--positive-msg'>Up to date!</span>
-          )}
-
-          {isChecking && <LoadingIcon />}
-
-          {isDownloading && (
-            <LoadingIcon beamLengthPercent={downloadProgress ?? 50} />
-          )}
-
-          {isInstalling && <LoadingIcon beamLengthPercent={100} />}
-
-          {isDownloaded && !isInstalling && (
-            <span className='updater--positive-msg'>Restart Now</span>
-          )}
-
-          {!checkedForUpdate &&
-            !isChecking &&
-            !isDownloading &&
-            !isInstalling && (
-              <>
-                {!isDownloaded && <span>v{currentVersion}</span>}
-                {availableVersion && !isDownloaded && (
-                  <span> &rarr; v{availableVersion}</span>
-                )}
-              </>
-            )}
-        </ActionContainer>
+    <ActionContainer onClick={handleClick} label='Update' className='updater'>
+      {checkedForUpdate && (
+        <span className='updater--positive-msg'>
+          {availableVersion ? 'Update available!' : 'Up to date!'}
+        </span>
       )}
-    </>
+
+      {isChecking && <LoadingIcon />}
+
+      {isDownloading && (
+        <LoadingIcon beamLengthPercent={downloadProgress ?? 50} />
+      )}
+
+      {isInstalling && <LoadingIcon beamLengthPercent={100} />}
+
+      {isDownloaded && !isInstalling && (
+        <span className='updater--positive-msg'>Restart Now</span>
+      )}
+
+      {!isProcessing && !isDownloaded && (
+        <>
+          {<span>v{currentVersion}</span>}
+          {availableVersion && <span> &rarr; v{availableVersion}</span>}
+        </>
+      )}
+
+      {error && <span className='updater-error'>{error}</span>}
+    </ActionContainer>
   );
 };
