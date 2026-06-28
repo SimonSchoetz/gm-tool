@@ -1,6 +1,7 @@
 # Product Backlog
 
 ## Closed Beta Ready
+- Feature: Make background animation optional in settings
 - Text editor enhancements
   - name tags should update when the reference changes
   - name tags should be copy/pasteable
@@ -27,7 +28,6 @@
   - width should be same as in screens
   - should be able to open images in full screen
   - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
-- Feature: Make background animation optional in settings
 
 ### Done
 

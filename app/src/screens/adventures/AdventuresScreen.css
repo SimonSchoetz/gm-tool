@@ -2,6 +2,8 @@
   gap: 1.5rem;
   flex-wrap: wrap;
   list-style-type: none;
+  width: 100%;
+  height: 100%;
 }
 
 .new-adventure-btn {

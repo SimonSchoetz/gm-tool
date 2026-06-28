@@ -1,7 +1,7 @@
 import { useAdventures } from '@/data-access-layer';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from './components';
-import { NewItemBtn } from '@/components';
+import { NewItemBtn, CustomScrollArea } from '@/components';
 import { useRouter } from '@tanstack/react-router';
 import {
   ADVENTURE_PREVIEW_HEIGHT,
@@ -27,7 +27,7 @@ export const AdventuresScreen = () => {
   } as React.CSSProperties;
 
   return (
-    <div>
+    <CustomScrollArea>
       <ul className='content-center adventure-list-container'>
         <li key='new-adventure'>
           <NewItemBtn
@@ -46,6 +46,6 @@ export const AdventuresScreen = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </CustomScrollArea>
   );
 };
