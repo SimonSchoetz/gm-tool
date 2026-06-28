@@ -3,6 +3,7 @@
   gap: var(--spacing-xs);
   align-items: center;
   list-style: none;
+  padding: var(--spacing-md);
 }
 
 .breadcrumb-list li {

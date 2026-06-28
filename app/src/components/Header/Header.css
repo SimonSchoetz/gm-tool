@@ -1,5 +1,5 @@
 .header-content {
-  padding: var(--spacing-md);
+  /*padding: var(--spacing-md);*/
   height: 100%;
   display: flex;
   align-items: center;

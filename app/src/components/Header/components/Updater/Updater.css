@@ -1,10 +1,28 @@
 .updater {
   font-size: var(--font-size-md);
   color: var(--color-primary);
-  will-change: font-size;
-  transition: font-size var(--transition-fast);
+  will-change: color;
+  transition: color var(--transition-fast);
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
 }
 
 .updater:hover {
-  font-size: var(--font-size-base);
+  color: var(--color-fg);
+}
+
+.updater-error {
+  font-size: var(--font-size-md);
+  color: var(--color-warning);
+}
+
+.updater--positive-msg {
+  transition: color var(--transition-fast);
+  color: var(--color-success);
+}
+
+.updater--positive-msg:hover {
+  transition: color var(--transition-fast);
+  color: var(--color-success);
 }
