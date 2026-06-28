@@ -1,0 +1,19 @@
+.loading-icon {
+  overflow: visible;
+  filter: drop-shadow(0 0 3px var(--color-primary)); /* one-off */
+}
+
+.loading-icon-beam {
+  fill: none;
+  stroke: var(--color-primary);
+  animation: loading-icon-trace 1.5s linear infinite; /* one-off */
+}
+
+@keyframes loading-icon-trace {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: var(--loading-icon-perimeter);
+  }
+}
