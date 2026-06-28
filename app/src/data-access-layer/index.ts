@@ -14,4 +14,5 @@ export {
   tableConfigKeys,
 } from './table-config';
 export { useSessionSteps, sessionStepKeys } from './session-steps';
+export { useSetting, settingsKeys } from './settings';
 export { useUpdater, updaterKeys } from './updater';
