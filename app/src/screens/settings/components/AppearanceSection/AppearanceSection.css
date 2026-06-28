@@ -1,0 +1,14 @@
+.appearance-item {
+  border-radius: var(--radius-xl);
+}
+.appearance-item--content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-fg);
+  padding: var(--spacing-sm);
+  padding-left: var(--spacing-md);
+}
+.appearance-item--checkbox {
+  width: var(--spacing-xl);
+}
