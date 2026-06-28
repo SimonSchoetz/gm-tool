@@ -6,6 +6,7 @@ import {
 } from '@/data-access-layer';
 import { Button } from '@/components';
 import './AppVersionSection.css';
+import { H2 } from '../H2/H2';
 
 export const AppVersionSection = () => {
   const { currentVersion } = useAppVersion();
@@ -17,7 +18,7 @@ export const AppVersionSection = () => {
 
   return (
     <section className='app-version-section'>
-      <h2 className='settings-screen--section-heading'>App Version</h2>
+      <H2 heading='App Version' />
       <p className='app-version-section-current'>{currentVersion ?? '—'}</p>
       {availableVersion && (
         <p className='app-version-section-available'>

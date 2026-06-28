@@ -3,6 +3,7 @@ import { CustomScrollArea } from '@/components';
 import { ListConfigRow } from './components';
 
 import './ListConfigSection.css';
+import { H2 } from '../H2/H2';
 
 export const ListConfigSection = () => {
   const { tableConfigs, loading } = useTableConfigs();
@@ -13,7 +14,7 @@ export const ListConfigSection = () => {
 
   return (
     <section>
-      <h2 className='settings-screen--section-heading'>List Configuration</h2>
+      <H2 heading='List Configuration' />
       <CustomScrollArea>
         <ul className='list-config-section-list'>
           {tableConfigs.map((config) => (
