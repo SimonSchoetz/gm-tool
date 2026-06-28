@@ -1,21 +1,23 @@
-import {
-  useAppVersion,
-  useCheckUpdate,
-  useDownloadUpdate,
-  useInstallAndRelaunch,
-} from '@/data-access-layer';
+import { useUpdater } from '@/data-access-layer';
 import { Button } from '@/components';
 import './AppVersionSection.css';
 import { H2 } from '../H2/H2';
 import { Section } from '../Section/Section';
 
 export const AppVersionSection = () => {
-  const { currentVersion } = useAppVersion();
-  const { availableVersion, isChecking, checkError, checkUpdate } =
-    useCheckUpdate();
-  const { downloadUpdate, isDownloading, downloadProgress, isDownloaded } =
-    useDownloadUpdate();
-  const { installAndRelaunch, isInstalling } = useInstallAndRelaunch();
+  const {
+    currentVersion,
+    availableVersion,
+    isChecking,
+    checkError,
+    checkUpdate,
+    downloadUpdate,
+    isDownloading,
+    downloadProgress,
+    isDownloaded,
+    installAndRelaunch,
+    isInstalling,
+  } = useUpdater();
 
   return (
     <Section>
