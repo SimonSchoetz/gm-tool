@@ -5,7 +5,7 @@
   - name tags should update when the reference changes
   - name tags should be copy/pasteable
   - '/' command to open text formatter so one can start typing a header from the beginning
-  - Auto-Correct off
+  - Auto-Correct off (?)
   - drag-and-drop content within editor
   - Tables
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
@@ -13,7 +13,7 @@
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists text-editors with no content -> should be nothing
-- Feature: Foldable Prep Sections
+- Feature (Session Screen): Foldable Prep Sections
 - Feature: Data access and db location/localization
   - encryption?
 - Fix (Session Screen): Highlightiing the step title should not open the toolbar
@@ -21,6 +21,8 @@
   - width should be same as in screens
   - should be able to open images in full screen
   - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
+- Feature: Implement prefetching
+- Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 
 ### Done
 
@@ -81,7 +83,6 @@
   - For quick, random generation: mechanic how common e. g. a ancestries in this world is
 - Feature (Text Editor): External links
 - Feature (Text Editor): Embedded images
-- Feature: Implement prefetching
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: References List (Where each screen is tagged)
 - Feature: Session Log Screen
