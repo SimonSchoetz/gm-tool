@@ -69,7 +69,7 @@ export const Updater = () => {
 
   return (
     <ActionContainer onClick={handleClick} label='Update' className='updater'>
-      {checkedForUpdate && (
+      {checkedForUpdate && !isChecking && (
         <span className='updater--positive-msg'>
           {availableVersion ? 'Update available!' : 'Up to date!'}
         </span>
