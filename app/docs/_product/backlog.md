@@ -27,6 +27,7 @@
 
 ### Done
 
+- Fix (Session Screen): Input field for step name should render
 - Fix (Session Screen): Highlightiing the step title should not open the toolbar
   - issue concerned all screens with multiple text editors
 - Feature (Session Screen): Show section headings in In Game view
