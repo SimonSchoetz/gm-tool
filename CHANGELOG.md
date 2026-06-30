@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.5.2] - 2026-06-30
+
+### Fixed
+
+- Custom session steps Input reners again
+- Removes blurron hover on holo images
+
 ## [v0.5.1] - 2026-06-30
 
 ### Fixed
