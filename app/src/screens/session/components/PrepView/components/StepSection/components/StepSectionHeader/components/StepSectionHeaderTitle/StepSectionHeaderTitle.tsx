@@ -21,20 +21,6 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
 
   if (!step) return null;
 
-  if (step.name) {
-    return (
-      <Input
-        className='step-name'
-        value={stepName}
-        onChange={(e) => {
-          setStepName(e.target.value);
-          updateStep(step.id, { name: e.target.value });
-        }}
-        placeholder='Step name'
-      />
-    );
-  }
-
   if (step.default_step_key) {
     const definition = LAZY_DM_STEPS.find(
       (s) => s.key === step.default_step_key,
@@ -46,4 +32,16 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
       </label>
     );
   }
+
+  return (
+    <Input
+      className='step-name'
+      value={stepName}
+      onChange={(e) => {
+        setStepName(e.target.value);
+        updateStep(step.id, { name: e.target.value });
+      }}
+      placeholder='Step name'
+    />
+  );
 };
