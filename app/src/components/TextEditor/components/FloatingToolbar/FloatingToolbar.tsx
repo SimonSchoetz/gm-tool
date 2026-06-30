@@ -30,22 +30,23 @@ export const FloatingToolbar = () => {
     };
   }, [editor]);
 
+  const getAnchorRect = () => {
+    const nativeSelection = window.getSelection();
+    const rootElement = editor.getRootElement();
+    if (
+      nativeSelection &&
+      nativeSelection.rangeCount > 0 &&
+      !nativeSelection.isCollapsed &&
+      !isDragging &&
+      rootElement?.contains(nativeSelection.anchorNode)
+    ) {
+      return nativeSelection.getRangeAt(0).getBoundingClientRect();
+    }
+    return null;
+  };
+
   return (
-    <EditorPopup
-      getAnchorRect={() => {
-        const nativeSelection = window.getSelection();
-        if (
-          nativeSelection &&
-          nativeSelection.rangeCount > 0 &&
-          !nativeSelection.isCollapsed &&
-          !isDragging
-        ) {
-          return nativeSelection.getRangeAt(0).getBoundingClientRect();
-        } else {
-          return null;
-        }
-      }}
-    >
+    <EditorPopup getAnchorRect={getAnchorRect}>
       <div className='floating-toolbar'>
         <TextFormattingRow />
 

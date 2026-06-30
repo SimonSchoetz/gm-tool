@@ -16,16 +16,18 @@
 - Feature (Session Screen): Foldable Prep Sections
 - Feature: Data access and db location/localization
   - encryption?
-- Fix (Session Screen): Highlightiing the step title should not open the toolbar
 - Fix (Summary Pop Up): 
   - width should be same as in screens
   - should be able to open images in full screen
   - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
 - Feature: Implement prefetching
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
+- Fix (Images): when changing the image preview, the adjustment in the background should be smooth again
 
 ### Done
 
+- Fix (Session Screen): Highlightiing the step title should not open the toolbar
+  - issue concerned all screens with multiple text editors
 - Feature (Session Screen): Show section headings in In Game view
 - Fix (Session Screen): In Game view shows `'Description...'` of overlapping
 - Fix (Text Editor):  Max-char-length-per-line

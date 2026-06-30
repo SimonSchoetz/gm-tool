@@ -50,6 +50,7 @@ export const EditorPopup: FCProps<Props> = ({
   }, [onClickOutside]);
 
   const rect = getAnchorRect();
+  console.log('>>>>>>>>>>', rect);
 
   useEffect(() => {
     if (!rect || !popupRef.current) return;
