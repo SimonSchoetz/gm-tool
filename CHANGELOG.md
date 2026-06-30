@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.5.1] - 2026-06-30
+
+### Fixed
+
+- Floating toolbar no longer appears at the wrong editor's position when multiple text editors are active on the same screen
+- Update check no longer briefly shows "up to date" while still loading the update status
+
 ## [v0.5.0] - 2026-06-29
 
 ### Added
