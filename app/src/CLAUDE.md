@@ -175,8 +175,10 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
   - ❌ BAD: `cn('button-wrapper')` — single static string, cn() adds no value
 
 **UI primitive wrappers — prefer the component over the bare HTML element.** Two match types apply, checked in order:
+
 1. **Name-match**: when a component in `src/components/` shares the exact name of a native HTML element (PascalCase vs lowercase — e.g., `Input` / `<input>`), always use the component instead of the bare element.
 2. **Semantic-match**: before using a typed variant of an HTML element (e.g., `<input type="color">`), check `src/components/` for a specialized component that handles that variant. The naming pattern is `[Modifier][ElementName]` (e.g., `ColorInput`, `DateInput`). If one exists, use it — never fall back to the generic wrapper with a `type` attribute.
+
 - When consuming either type of wrapper from inside `src/components/` (the importer is itself a sibling in the `components/` grouping folder), the barrel-circular-import rule applies — never import through `@/components`. Use a direct relative path: `import { Input } from '../Input/Input'`.
 - ✅ `<Input value={val} onChange={handler} />` — name-match: `Input` component exists, use it
 - ✅ `<ColorInput value={val} onChange={handler} />` — semantic-match: typed color variant covered by `ColorInput`, use it

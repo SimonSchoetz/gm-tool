@@ -18,7 +18,11 @@ import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LinkNode } from '@lexical/link';
 import { FloatingToolbar } from './components';
-import { MentionTypeaheadPlugin, CheckboxReadOnlyPlugin, EmbeddedLinkPlugin } from './plugins';
+import {
+  MentionTypeaheadPlugin,
+  CheckboxReadOnlyPlugin,
+  EmbeddedLinkPlugin,
+} from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { parseSafeEditorState } from './helper';
 

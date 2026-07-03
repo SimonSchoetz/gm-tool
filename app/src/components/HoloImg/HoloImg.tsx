@@ -25,10 +25,12 @@ export const HoloImg: FCProps<Props> = ({
   return (
     <div
       ref={containerRef}
-      style={{
-        '--tilt-fx-rotation-x-degrees': `${tiltFX.rotationX}deg`,
-        '--tilt-fx-rotation-y-degrees': `${tiltFX.rotationY}deg`,
-      } as CSSProperties}
+      style={
+        {
+          '--tilt-fx-rotation-x-degrees': `${tiltFX.rotationX}deg`,
+          '--tilt-fx-rotation-y-degrees': `${tiltFX.rotationY}deg`,
+        } as CSSProperties
+      }
       className='tilt-fx-container'
       {...props}
     >
