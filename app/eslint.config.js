@@ -13,7 +13,9 @@ export default defineConfig(
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['lucide-react.d.ts'],
+        },
       },
     },
     rules: {

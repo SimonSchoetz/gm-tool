@@ -7,7 +7,6 @@ export const create = async (): Promise<string> => {
   const { now, ...timestamps } = generateDbTimestamps();
   const name = `New adventure ${getDateTimeString(now)}`;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments -- explicit type argument triggers excess property checking; inference alone does not
   const { sql, values } = buildCreateQuery<{
     name: string;
     created_at: string;

@@ -17,7 +17,7 @@ export const SessionScreen = () => {
 
   const { session, loading } = useSession(sessionId, adventureId);
   const { steps } = useSessionSteps(sessionId);
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments -- new Set() infers Set<unknown> without the explicit type arg
+
   const [visibleTooltips, setVisibleTooltips] = useState<Set<string>>(
     new Set(),
   );

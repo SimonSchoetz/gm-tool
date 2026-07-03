@@ -5,7 +5,7 @@ export const mergeUpdate = <T extends object>(
   const result = { ...base };
   for (const key of Object.keys(patch) as (keyof T)[]) {
     if (patch[key] !== undefined) {
-      result[key] = patch[key] as T[typeof key];
+      result[key] = patch[key];
     }
   }
   return result;

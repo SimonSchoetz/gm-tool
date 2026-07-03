@@ -75,7 +75,7 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDraggingRef.current = true;
       lastPointerRef.current = { x: e.clientX, y: e.clientY };
-      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+      e.currentTarget.setPointerCapture(e.pointerId);
     },
     [],
   );

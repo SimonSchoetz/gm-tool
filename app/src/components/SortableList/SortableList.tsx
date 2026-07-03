@@ -44,14 +44,13 @@ export const SortableList = <
     () =>
       (config?.layout.columns ?? [])
         .filter((col) => col.sortable !== false)
-        .map((col) => ({ key: col.key as keyof T & string })),
+        .map((col) => ({ key: col.key })),
     [config?.layout.columns],
   );
 
   const filterConfig = useMemo(
     () => ({
-      searchableColumns: (config?.layout.searchable_columns ?? []) as (keyof T &
-        string)[],
+      searchableColumns: config?.layout.searchable_columns ?? [],
     }),
     [config?.layout.searchable_columns],
   );

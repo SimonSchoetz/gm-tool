@@ -12,5 +12,5 @@ export const getSetting = async <K extends SettingsKey>(
   );
   if (rows.length === 0) return null;
   const raw = rows[0].value;
-  return settingsSchemas[key].parse(JSON.parse(raw)) as SettingsValueMap[K];
+  return settingsSchemas[key].parse(JSON.parse(raw));
 };
