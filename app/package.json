@@ -35,7 +35,7 @@
     "@tauri-apps/plugin-sql": "^2.4.0",
     "@types/node": "^26.1.0",
     "lexical": "^0.46.0",
-    "lucide-react": "^0.575.0",
+    "lucide-react": "1.23.0",
     "pixi.js": "^8.19.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
