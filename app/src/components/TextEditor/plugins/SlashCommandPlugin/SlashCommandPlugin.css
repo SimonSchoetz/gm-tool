@@ -1,0 +1,28 @@
+.slash-command-popup {
+  background: var(--color-surface);
+  width: max-content;
+  max-width: 200px; /* one-off */
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.slash-command-item {
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.slash-command-item:hover,
+.slash-command-item--selected {
+  background: var(--color-highlight-bg);
+}
+
+.slash-command-item svg {
+  width: var(--font-size-base);
+  height: var(--font-size-base);
+  flex-shrink: 0;
+}

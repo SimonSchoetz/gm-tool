@@ -17,11 +17,14 @@ import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPl
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LinkNode } from '@lexical/link';
+import { TableNode, TableRowNode, TableCellNode } from '@lexical/table';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { FloatingToolbar } from './components';
 import {
   MentionTypeaheadPlugin,
   CheckboxReadOnlyPlugin,
   EmbeddedLinkPlugin,
+  SlashCommandPlugin,
 } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { parseSafeEditorState } from './helper';
@@ -75,7 +78,16 @@ export const TextEditor: FCProps<Props> = ({
     onError: (err: Error) => {
       console.error('Lexical error:', err);
     },
-    nodes: [HeadingNode, ListNode, ListItemNode, MentionNode, LinkNode],
+    nodes: [
+      HeadingNode,
+      ListNode,
+      ListItemNode,
+      MentionNode,
+      LinkNode,
+      TableNode,
+      TableRowNode,
+      TableCellNode,
+    ],
     editorState: value ? parseSafeEditorState(value) : null,
     editable: !readOnly,
   };
@@ -100,6 +112,7 @@ export const TextEditor: FCProps<Props> = ({
         <HistoryPlugin />
         <ListPlugin />
         <CheckListPlugin />
+        <TablePlugin />
         <TabIndentationPlugin />
         <LinkPlugin />
         <EmbeddedLinkPlugin />
@@ -110,6 +123,7 @@ export const TextEditor: FCProps<Props> = ({
         {onChange && <OnChangePlugin onChange={handleChange} />}
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
+        {!readOnly && <SlashCommandPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
     </LexicalComposer>
