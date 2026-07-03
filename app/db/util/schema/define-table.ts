@@ -26,11 +26,13 @@ type ExtractZodShape<T extends Record<string, ColumnDefinition>> = {
 };
 
 type ExtractUpdateShape<T extends Record<string, ColumnDefinition>> = {
-  [K in keyof T as T[K]['primaryKey'] extends true
-    ? never
-    : K extends 'created_at' | 'updated_at'
+  [
+    K in keyof T as T[K]['primaryKey'] extends true
       ? never
-      : K]: T[K] extends { updateZod: z.ZodType }
+      : K extends 'created_at' | 'updated_at'
+        ? never
+        : K
+  ]: T[K] extends { updateZod: z.ZodType }
     ? z.ZodOptional<T[K]['updateZod']>
     : z.ZodOptional<T[K]['zod']>;
 };
