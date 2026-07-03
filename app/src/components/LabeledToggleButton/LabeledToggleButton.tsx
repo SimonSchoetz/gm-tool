@@ -24,15 +24,17 @@ export const LabeledToggleButton = <T extends string>({
 }: Props<T>) => {
   const activeIndex = options[0].value === value ? 0 : 1;
   const [displayIndex, setDisplayIndex] = useState(activeIndex);
+  const [prevActiveIndex, setPrevActiveIndex] = useState(activeIndex);
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([null, null]);
   const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync display index when value is changed externally by the parent.
-  useEffect(() => {
+  if (activeIndex !== prevActiveIndex) {
+    setPrevActiveIndex(activeIndex);
     setDisplayIndex(activeIndex);
-  }, [activeIndex]);
+  }
 
   // Cancel any pending onChange on unmount.
   useEffect(() => {

@@ -43,6 +43,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tanstack/router-plugin": "^1.168.19",
     "@tauri-apps/cli": "^2.11.4",
     "@testing-library/jest-dom": "^6.9.1",
@@ -53,9 +54,9 @@
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.9",
     "baseline-browser-mapping": "^2.10.0",
-    "eslint": "^9.39.4",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.3",
     "typescript": "~5.9.0",

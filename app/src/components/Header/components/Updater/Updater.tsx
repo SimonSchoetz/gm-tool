@@ -19,7 +19,13 @@ export const Updater = () => {
   } = useUpdater();
 
   const [error, setError] = useState<string | null>(null);
+  const [lastCheckError, setLastCheckError] = useState(checkError);
   const [checkedForUpdate, setCheckedForUpdate] = useState(false);
+
+  if (checkError !== lastCheckError) {
+    setLastCheckError(checkError);
+    setError(checkError ? checkError.message : null);
+  }
 
   const handleCheckUpdate = () => {
     checkUpdate();
@@ -39,16 +45,14 @@ export const Updater = () => {
   }, []);
 
   useEffect(() => {
-    if (checkError) {
-      setError(checkError.message);
-      const timer = setTimeout(() => {
-        setError(null);
-      }, 5000);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [checkError]);
+    if (!error) return;
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 5000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [error]);
 
   const isProcessing =
     isChecking || isDownloading || isInstalling || checkedForUpdate || !!error;

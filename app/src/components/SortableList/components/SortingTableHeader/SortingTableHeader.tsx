@@ -72,7 +72,7 @@ export const SortingTableHeader = ({
   // The dragRef guard prevents overwriting live drag state mid-drag.
   useEffect(() => {
     if (!dragRef.current) {
-      setActiveWidths(persistedWidths); // eslint-disable-line react-hooks/set-state-in-effect
+      setActiveWidths(persistedWidths);
     }
   }, [persistedWidths]);
 

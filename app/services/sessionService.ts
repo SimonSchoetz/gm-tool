@@ -21,7 +21,7 @@ export const getAllSessions = async (
 };
 
 export const getSessionById = async (id: string): Promise<Session> => {
-  let session: Session | null = null;
+  let session: Session | null;
   try {
     session = await sessionDb.get(id);
   } catch (err) {

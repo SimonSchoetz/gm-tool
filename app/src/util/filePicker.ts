@@ -16,7 +16,7 @@ export const filePicker = async (fileType: keyof FileTypes) => {
 
     return selected;
   } catch (err) {
-    let errorMsg = '';
+    let errorMsg: string;
 
     if (err instanceof Error) {
       errorMsg = err.message;
@@ -26,6 +26,6 @@ export const filePicker = async (fileType: keyof FileTypes) => {
       errorMsg = `Failed to open file picker: ${String(err)}`;
     }
 
-    throw new Error(errorMsg);
+    throw new Error(errorMsg, { cause: err });
   }
 };
