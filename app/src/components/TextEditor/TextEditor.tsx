@@ -63,6 +63,10 @@ const theme: EditorThemeClasses = {
   },
   mention: 'editor-mention',
   link: 'editor-link',
+  table: 'editor-table',
+  tableCellHeader: 'editor-table-header',
+  tableRow: 'editor-table-row',
+  tableCell: 'editor-table-cell',
 };
 
 export const TextEditor: FCProps<Props> = ({

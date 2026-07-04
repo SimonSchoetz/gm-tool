@@ -1,5 +1,5 @@
 .editor-node--show-hint::before {
-  content: 'Start typing or enter / for commands';
+  content: 'Start typing or use / for commands';
   color: var(--color-text-muted);
   pointer-events: none;
   position: absolute;

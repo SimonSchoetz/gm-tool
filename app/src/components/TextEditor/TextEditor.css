@@ -149,3 +149,26 @@
 .editor-link:hover {
   text-decoration-color: var(--color-fg);
 }
+
+/*
+    Table styles
+*/
+
+.editor-table {
+  width: 100%;
+  table-layout: fixed;
+  text-align: left;
+}
+.editor-table-cell {
+  background-color: rgb(var(--color-primary-rgb), 0.03);
+  transition: background-color var(--transition-hover-on);
+}
+
+.editor-table-cell:hover {
+  background-color: rgb(var(--color-primary-rgb), 0.2);
+  transition: background-color var(--transition-hover-off);
+}
+
+.editor-table-header {
+  background-color: rgb(var(--color-primary-rgb), 0.1);
+}

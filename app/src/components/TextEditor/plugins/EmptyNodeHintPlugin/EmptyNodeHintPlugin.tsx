@@ -8,6 +8,7 @@ import {
   FOCUS_COMMAND,
   mergeRegister,
 } from 'lexical';
+import { $findCellNode } from '@lexical/table';
 import './EmptyNodeHintPlugin.css';
 
 const HINT_CLASS = 'editor-node--show-hint';
@@ -26,6 +27,7 @@ export const EmptyNodeHintPlugin = () => {
           return null;
         }
         const anchorNode = selection.anchor.getNode();
+        if ($findCellNode(anchorNode) !== null) return null;
         const element =
           anchorNode.getKey() === 'root'
             ? anchorNode
