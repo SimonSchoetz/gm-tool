@@ -20,14 +20,14 @@ import {
 } from '@lexical/list';
 import { INSERT_TABLE_COMMAND } from '@lexical/table';
 import {
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListChecks,
-  ListOrdered,
+  Heading1Icon,
+  Heading2Icon,
+  Heading3Icon,
+  ListIcon,
+  ListChecksIcon,
+  ListOrderedIcon,
   LucideIcon,
-  Table,
+  TableIcon,
 } from 'lucide-react';
 import { cn } from '@/util';
 import './SlashCommandPlugin.css';
@@ -52,7 +52,7 @@ class SlashCommandOption extends MenuOption {
 }
 
 const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
-  new SlashCommandOption('Heading 1', Heading1, (editor) => {
+  new SlashCommandOption('Heading 1', Heading1Icon, (editor) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -60,7 +60,7 @@ const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       }
     });
   }),
-  new SlashCommandOption('Heading 2', Heading2, (editor) => {
+  new SlashCommandOption('Heading 2', Heading2Icon, (editor) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -68,7 +68,7 @@ const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       }
     });
   }),
-  new SlashCommandOption('Heading 3', Heading3, (editor) => {
+  new SlashCommandOption('Heading 3', Heading3Icon, (editor) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -76,16 +76,16 @@ const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       }
     });
   }),
-  new SlashCommandOption('Bullet list', List, (editor) => {
+  new SlashCommandOption('Bullet list', ListIcon, (editor) => {
     editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
   }),
-  new SlashCommandOption('Numbered list', ListOrdered, (editor) => {
+  new SlashCommandOption('Numbered list', ListOrderedIcon, (editor) => {
     editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
   }),
-  new SlashCommandOption('Checklist', ListChecks, (editor) => {
+  new SlashCommandOption('Checklist', ListChecksIcon, (editor) => {
     editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
   }),
-  new SlashCommandOption('Table', Table, (editor) => {
+  new SlashCommandOption('Table', TableIcon, (editor) => {
     editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns: '3', rows: '3' });
   }),
 ];
