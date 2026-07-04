@@ -14,12 +14,12 @@ In both modes the coordination protocol, proposal quality gate, and approval req
 
 ## Team Structure
 
-Before doing anything else: load TeamCreate and SendMessage via ToolSearch (query: "TeamCreate SendMessage", max_results: 10). These tools are deferred and will not be in the active tool list until loaded. Then spawn both teammates via TeamCreate unconditionally — do not defer, skip, or substitute the Agent tool regardless of input mode:
+Before doing anything else: check the active tool list for a mechanism that spawns an addressable, resumable teammate — one that persists for the session and can be reached by name in later turns, as opposed to a one-shot worker that exits after a single result. If the mechanism is not active, search for it (e.g. via ToolSearch) before falling back to any other tool; a missing mechanism from the default tool list is a signal to load it, not a signal to substitute a one-shot worker. Then spawn both teammates through that mechanism unconditionally — do not defer, skip, or substitute a one-shot-worker tool regardless of input mode:
 
 - `head-of-instructions` — owns CLAUDE.md files
 - `head-of-agents` — owns `.claude/agents/` and `.claude/commands/` files
 
-Provide both teammates with the full user input in their initial TeamCreate prompt. These teammates persist for the session — use SendMessage to communicate with them in subsequent rounds. Do not spawn fresh instances for follow-up questions or mediation rounds.
+Provide both teammates with the full user input in their initial spawn. These teammates persist for the session — address them by name in subsequent rounds to communicate. Do not spawn fresh instances for follow-up questions or mediation rounds.
 
 ## Input Provenance
 
@@ -89,8 +89,8 @@ The coordinator never determines what to change — that is the teammates' role 
 
 When the user raises a follow-up question or introduces a new design point after an approved batch has been applied, the proposal cycle restarts: route to agents, collect proposals, present to user, wait for approval. The coordinator does not act on new questions directly, regardless of how clear or small the change appears to be.
 
-After changes are applied, explicitly invite the user to review the result and ask follow-up questions. Track teammate state explicitly: a teammate is either active (spawned, not yet dismissed) or dismissed (shutdown confirmation received). If the user raises a follow-up and both teammates are active, route it via SendMessage — do not spawn new instances. If a teammate has been dismissed, skip SendMessage for that teammate and spawn a replacement via TeamCreate before continuing — SendMessage to a dismissed teammate succeeds silently and the message is never received.
+After changes are applied, explicitly invite the user to review the result and ask follow-up questions. Track teammate state explicitly: a teammate is either active (spawned, not yet dismissed) or dismissed (shutdown confirmation received). If the user raises a follow-up and both teammates are active, address them directly by name — do not spawn new instances. If a teammate has been dismissed, skip addressing that teammate and spawn a replacement before continuing.
 
-When routing a follow-up to an active teammate via SendMessage, send the message and wait for a reply in the same turn. If no reply arrives, treat the teammate as timed out — SendMessage to an exited teammate returns success silently and the message is never received. In that case: spawn a replacement via TeamCreate with the full session context so the new instance can continue without loss, then route the follow-up to the replacement. Do not proactively send shutdown requests or spawn replacements based on elapsed time alone — time elapsed is not evidence of teammate exit.
+When routing a follow-up to an active teammate, send the message and treat either of two signals as evidence the teammate is no longer addressable — do not wait for only one: (a) an immediate explicit error reporting the teammate is not addressable or not found, or (b) no reply arriving after the message is sent. Do not assume silent success is the only failure mode — a prior version of this file assumed only signal (b) could occur and asserted that messaging an exited teammate always succeeds silently; treat the message-delivery outcome itself (error, reply, or no reply) as the source of truth over any prior assumption about how it behaves. On either signal: spawn a replacement with the full session context so the new instance can continue without loss, then route the follow-up to the replacement. Do not proactively send shutdown requests or spawn replacements based on elapsed time alone — time elapsed is not evidence of teammate exit.
 
 To end the session: Ask if the user is satisfied and wait for their answer. Once the user confirms they are satisfied, ONLY THEN dismiss any active teammates so no long-running instances remain.

@@ -32,7 +32,7 @@ Constraints: Never validates without challenging first; code in output is permit
 
 Intent: Translate architectural decisions into a complete, unambiguous implementation spec for the implementer. Final gate for fact checks like file paths and sources
 Input: An arch-review verdict (structured) or a feature outline + informal architectural decisions (unstructured — confirms derived decisions with user before proceeding)
-Output: A complete spec file following the canonical format defined in app/docs/CLAUDE.md
+Output: A complete spec file following the canonical format defined in app/docs/CLAUDE.md; when the input is a retrospective finding about spec-writer's own prior output or the inputs it received (a spec quality brief or a post-implementation friction brief), a verdict artifact combining the original finding with spec-writer's classification and recommended action, ready to paste into a future /refine-claude session, instead of a spec
 Constraints: Does not reinterpret or challenge architectural decisions — routes those back to architect; never offers to implement the spec; resolves ambiguities silently from CLAUDE.md and codebase before asking the user; verifies every named library type or export against installed type declarations before writing — code in a spec must be sound
 
 ## commands

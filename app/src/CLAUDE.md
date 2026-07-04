@@ -205,11 +205,18 @@ A function that fails either condition stays local to its consumer in `Component
 
 ### Constants
 
-When a constant is shared by two or more TypeScript files within the same module directory, extract it to `ComponentName.constants.ts` at the level of the **smallest directory that contains all consumers**. A constant used only within a single file stays inlined — no constants file for single consumers. Only TypeScript files count as consumers — a CSS file that hardcodes a numerically identical value is not a consumer and does not trigger extraction.
+Extraction out of the component file is triggered by either of two independent conditions — consumer count, or content kind. Neither requires the other.
+
+**Trigger 1 — shared by 2+ consumers:** When a constant is shared by two or more TypeScript files within the same module directory, extract it to `ComponentName.constants.ts` at the level of the **smallest directory that contains all consumers**. A constant used only within a single file stays inlined under this trigger alone — no constants file for single consumers. Only TypeScript files count as consumers — a CSS file that hardcodes a numerically identical value is not a consumer and does not trigger extraction.
 
 - ✅ `DEFAULT_COLUMN_WIDTH` shared by `SortingTableHeader` and `SortableListItem` (both under `SortableList/`) → `SortableList/SortableList.constants.ts`
 - ❌ A constant used only in `SortingTableHeader` → stays inlined in `SortingTableHeader.tsx`
 - ❌ `FramingOverlay.tsx` uses `200` and `FramingOverlay.css` hardcodes `200px` — the CSS file cannot import from TS; the value stays inlined in the `.tsx` file
+
+**Trigger 2 — self-contained supporting definition:** When a type, class, or static config data is a self-contained concern that is not part of the component's render or state logic, extract it to its own file — regardless of consumer count, including single-consumer cases. This mirrors the same concern-based test already applied to `helper/` (functions) and `components/` (JSX): the definition is neither a function nor JSX, but it is still a distinct concern from the component it supports. Name the file descriptively for its domain content — never `ComponentName.constants.ts` — because the content is not literally a constant.
+
+- ✅ `textFormattingConfig.ts` (sibling of `TextFormattingRow.tsx`, single consumer) — holds `TextFormatBtnConfig`/`HeadingBtnConfig`/`ListBtnConfig` types and their static button-config arrays; extracted because the config is a distinct concern from `TextFormattingRow`'s render/state logic, not because of consumer count
+- ❌ Naming the file `TextFormattingRow.constants.ts` — the file's content is typed config data, not a constant; the descriptive name is the correct convention under Trigger 2
 
 ### List Conventions
 

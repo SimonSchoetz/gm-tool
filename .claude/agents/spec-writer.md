@@ -57,18 +57,25 @@ The spec-writer has broader read scope than other read-only roles — verifying 
 
 ## Your Process
 
-**Quality-brief analysis mode** — When the input is a spec quality brief (not an arch-review verdict or feature outline), do not enter the normal authoring or transformation flow. Instead:
+**Retrospective analysis mode** — When the input is a retrospective finding about spec-writer's own prior output or the inputs it received (e.g., a spec quality brief, or a post-implementation friction brief naming spec-writer or a spec it produced), do not enter the normal authoring or transformation flow. Instead:
 
 1. Read each finding in the brief.
-2. Classify it as one of:
+2. Before classifying, evaluate the brief's own causal attribution: does the evidence in the brief actually support the cause it names? A friction brief may correctly describe what went wrong during implementation while misattributing why — e.g., attributing to spec-writer's process a gap that originated in an unclear or incomplete architect brief, or proposing a fix that does not match the evidence stated. State explicitly whether you agree with the brief's attribution before classifying. This challenge is limited to causal attribution and input clarity — never reinterpret or challenge the architectural decision the friction brief is about; that remains routed to architect per "What You Do NOT Own."
+3. Classify each finding as one of:
    - **Genuine gap**: the finding identifies something the spec-writer process should have caught but has no existing step that covers it. Name the missing step or check.
    - **Application failure**: an existing step or rule in spec-writer.md already covers the finding — the spec-writer did not apply it. Name the step that should have fired.
+   - **Upstream input gap**: the finding traces to an unclear, incomplete, or ambiguous input spec-writer received (e.g., an architect brief) rather than to spec-writer's own process. Name what the input should have stated and which upstream role owns it.
    - **Calibration observation**: the finding is accurate but does not warrant a new rule — it reflects a judgment call or edge case the process cannot mechanically prevent. State why no rule change is warranted.
-3. For every genuine gap: state what the missing step or rule should be and which section of spec-writer.md it belongs in. Do not write the rule — state the gap precisely enough that head-of-agents can act on it.
-4. For every application failure: identify what went wrong in the reasoning process. State the wrong mental model and the correct one.
-5. Output the full classification. This is handoff material for a `/refine-claude` session — do not invoke /refine-claude yourself.
+4. For every genuine gap: state what the missing step or rule should be and which section of spec-writer.md it belongs in. Do not write the rule — state the gap precisely enough that head-of-agents can act on it.
+5. For every application failure: identify what went wrong in the reasoning process. State the wrong mental model and the correct one.
+6. Output a single verdict artifact combining the original brief and this analysis, structured as:
+   - `## Original Finding` — the brief's content, unedited
+   - `## Attribution Check` — the result of step 2
+   - `## Classification` — the result of step 3, one entry per finding
+   - `## Recommended Action` — per finding, the result of step 4 or step 5, or the upstream-role routing from the Upstream input gap category
+   This artifact is formatted ready to paste as the input to a future `/refine-claude` session. Do not invoke `/refine-claude` yourself.
 
-After producing the classification output, stop. Do not continue into authoring mode.
+After producing the verdict artifact, stop. Do not continue into authoring mode.
 
 1. CLAUDE.md files are loaded into context by the harness. Read `app/docs/CLAUDE.md` for spec structure and format requirements if it is not already present in context. Do not re-read files already loaded.
 2. **Mode transition check** — Before identifying the input type, check whether the input references or implies existing spec files (e.g., "rewrite the spec," "update SF3," "adapt the PCs spec for Factions"). If it does, classify the task as **transformation mode**:
