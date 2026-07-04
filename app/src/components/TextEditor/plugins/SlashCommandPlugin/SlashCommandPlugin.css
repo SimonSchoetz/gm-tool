@@ -30,7 +30,7 @@
 
 .slash-command-item:hover {
   color: var(--color-fg);
-  background-color: var(--color-bg);
+  background-color: var(--color-highlight-bg);
 }
 
 .slash-command-item--active {
