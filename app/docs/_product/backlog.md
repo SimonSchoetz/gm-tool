@@ -24,6 +24,7 @@
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Fix (Images): when changing the image preview, the adjustment in the background should be smooth again
 - Chore: Replase all "loading..." ect. placeholder with loading icon
+- Fix (Icons): Prevent icons from shrinking when space is limited
 
 ### Done
 
