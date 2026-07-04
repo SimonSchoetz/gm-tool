@@ -103,9 +103,18 @@ export const MentionTypeaheadPlugin = () => {
 
       return (
         <EditorPopup
-          getAnchorRect={() =>
-            anchorElementRef.current?.getBoundingClientRect() ?? null
-          }
+          getAnchorRect={() => {
+            const nativeSelection = window.getSelection();
+            const rootElement = editor.getRootElement();
+            if (
+              nativeSelection &&
+              nativeSelection.rangeCount > 0 &&
+              rootElement?.contains(nativeSelection.anchorNode)
+            ) {
+              return nativeSelection.getRangeAt(0).getBoundingClientRect();
+            }
+            return null;
+          }}
         >
           <GlassPanel className='mention-typeahead-popup'>
             <CustomScrollArea className='mention-typeahead-content-container'>
@@ -144,7 +153,7 @@ export const MentionTypeaheadPlugin = () => {
         </EditorPopup>
       );
     },
-    [],
+    [editor],
   );
 
   return (

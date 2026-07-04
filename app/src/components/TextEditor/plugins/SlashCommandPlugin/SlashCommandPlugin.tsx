@@ -154,9 +154,18 @@ export const SlashCommandPlugin = () => {
 
       return (
         <EditorPopup
-          getAnchorRect={() =>
-            anchorElementRef.current?.getBoundingClientRect() ?? null
-          }
+          getAnchorRect={() => {
+            const nativeSelection = window.getSelection();
+            const rootElement = editor.getRootElement();
+            if (
+              nativeSelection &&
+              nativeSelection.rangeCount > 0 &&
+              rootElement?.contains(nativeSelection.anchorNode)
+            ) {
+              return nativeSelection.getRangeAt(0).getBoundingClientRect();
+            }
+            return null;
+          }}
         >
           <GlassPanel className='slash-command-popup-container'>
             <CustomScrollArea childrenContainerClassName='slash-command-popup-list'>
@@ -204,7 +213,7 @@ export const SlashCommandPlugin = () => {
         </EditorPopup>
       );
     },
-    [],
+    [editor],
   );
 
   return (

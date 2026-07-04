@@ -21,7 +21,6 @@ export const EditorPopup: FCProps<Props> = ({
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [, forceRerender] = useReducer((tick: number) => tick + 1, 0);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
-  const [isPositionSettled, setIsPositionSettled] = useState(false);
 
   useEffect(() => {
     // body has overflow:hidden — capture-phase document listener catches CustomScrollArea's scroll events without needing a ref to it.
@@ -50,20 +49,6 @@ export const EditorPopup: FCProps<Props> = ({
     };
   }, [onClickOutside]);
 
-  useEffect(() => {
-    // Lexical's internal typeahead anchor element self-triggers a one-line vertical hop via its own ResizeObserver right after it first mounts (see .claude/knowledge/lexical.md — useMenuAnchorRef's positionMenu). Waiting two animation frames before the first reveal lets that settle, so the popup only ever appears at its final position instead of visibly jumping. This runs once per mount; position itself still tracks the anchor immediately below, so scrolling and resizing stay responsive.
-    let settleFrame = 0;
-    const firstFrame = requestAnimationFrame(() => {
-      settleFrame = requestAnimationFrame(() => {
-        setIsPositionSettled(true);
-      });
-    });
-    return () => {
-      cancelAnimationFrame(firstFrame);
-      cancelAnimationFrame(settleFrame);
-    };
-  }, []);
-
   const rect = getAnchorRect();
 
   useEffect(() => {
@@ -87,8 +72,7 @@ export const EditorPopup: FCProps<Props> = ({
     };
   }, [rect]);
 
-  if (!rect || !isPositionSettled) return null;
-  console.log('>>>>>>>>>>', rect);
+  if (!rect) return null;
 
   return createPortal(
     <div

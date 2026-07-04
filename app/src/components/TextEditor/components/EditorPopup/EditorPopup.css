@@ -1,6 +1,6 @@
 .editor-popup {
   position: fixed;
-  transform: translateX(-50%) translateY(-115%);
+  transform: translateX(-50%) translateY(calc(-100% - var(--spacing-xs)));
   z-index: var(--most-front);
   animation: editorPopupFadeIn var(--transition-fast) ease-in-out;
 }
