@@ -9,11 +9,13 @@ import {
   $getSelection,
   $isRangeSelection,
   LexicalEditor,
+  LexicalNode,
   TextNode,
 } from 'lexical';
 import { $setBlocksType } from '@lexical/selection';
-import { $createHeadingNode } from '@lexical/rich-text';
+import { $createHeadingNode, $isHeadingNode } from '@lexical/rich-text';
 import {
+  $isListNode,
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
@@ -41,58 +43,106 @@ class SlashCommandOption extends MenuOption {
   Icon: LucideIcon;
   section: string;
   onSelect: (editor: LexicalEditor) => void;
+  isActive: (element: LexicalNode) => boolean;
 
   constructor(
     label: string,
     Icon: LucideIcon,
     section: string,
     onSelect: (editor: LexicalEditor) => void,
+    isActive: (element: LexicalNode) => boolean,
   ) {
     super(label);
     this.label = label;
     this.Icon = Icon;
     this.section = section;
     this.onSelect = onSelect;
+    this.isActive = isActive;
   }
 }
 
 const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
-  new SlashCommandOption('Heading 1', Heading1Icon, 'Text', (editor) => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        $setBlocksType(selection, () => $createHeadingNode('h1'));
-      }
-    });
-  }),
-  new SlashCommandOption('Heading 2', Heading2Icon, 'Text', (editor) => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        $setBlocksType(selection, () => $createHeadingNode('h2'));
-      }
-    });
-  }),
-  new SlashCommandOption('Heading 3', Heading3Icon, 'Text', (editor) => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        $setBlocksType(selection, () => $createHeadingNode('h3'));
-      }
-    });
-  }),
-  new SlashCommandOption('Bullet list', ListIcon, 'List', (editor) => {
-    editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-  }),
-  new SlashCommandOption('Numbered list', ListOrderedIcon, 'List', (editor) => {
-    editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-  }),
-  new SlashCommandOption('Checklist', ListChecksIcon, 'List', (editor) => {
-    editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
-  }),
-  new SlashCommandOption('Table', TableIcon, 'Table', (editor) => {
-    editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns: '3', rows: '3' });
-  }),
+  new SlashCommandOption(
+    'Heading 1',
+    Heading1Icon,
+    'Text',
+    (editor) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          $setBlocksType(selection, () => $createHeadingNode('h1'));
+        }
+      });
+    },
+    (element) => $isHeadingNode(element) && element.getTag() === 'h1',
+  ),
+  new SlashCommandOption(
+    'Heading 2',
+    Heading2Icon,
+    'Text',
+    (editor) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          $setBlocksType(selection, () => $createHeadingNode('h2'));
+        }
+      });
+    },
+    (element) => $isHeadingNode(element) && element.getTag() === 'h2',
+  ),
+  new SlashCommandOption(
+    'Heading 3',
+    Heading3Icon,
+    'Text',
+    (editor) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          $setBlocksType(selection, () => $createHeadingNode('h3'));
+        }
+      });
+    },
+    (element) => $isHeadingNode(element) && element.getTag() === 'h3',
+  ),
+  new SlashCommandOption(
+    'Bullet list',
+    ListIcon,
+    'List',
+    (editor) => {
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    },
+    (element) => $isListNode(element) && element.getListType() === 'bullet',
+  ),
+  new SlashCommandOption(
+    'Numbered list',
+    ListOrderedIcon,
+    'List',
+    (editor) => {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    },
+    (element) => $isListNode(element) && element.getListType() === 'number',
+  ),
+  new SlashCommandOption(
+    'Checklist',
+    ListChecksIcon,
+    'List',
+    (editor) => {
+      editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
+    },
+    (element) => $isListNode(element) && element.getListType() === 'check',
+  ),
+  new SlashCommandOption(
+    'Table',
+    TableIcon,
+    'Table',
+    (editor) => {
+      editor.dispatchCommand(INSERT_TABLE_COMMAND, {
+        columns: '3',
+        rows: '3',
+      });
+    },
+    () => false,
+  ),
 ];
 
 export const SlashCommandPlugin = () => {
@@ -139,12 +189,10 @@ export const SlashCommandPlugin = () => {
       anchorElementRef: React.RefObject<HTMLElement | null>,
       {
         options: menuOptions,
-        selectedIndex,
         selectOptionAndCleanUp,
         setHighlightedIndex,
       }: {
         options: SlashCommandOption[];
-        selectedIndex: number | null;
         selectOptionAndCleanUp: (option: SlashCommandOption) => void;
         setHighlightedIndex: (index: number) => void;
       },
@@ -152,6 +200,23 @@ export const SlashCommandPlugin = () => {
       if (anchorElementRef.current === null || menuOptions.length === 0) {
         return null;
       }
+
+      let activeOptionKeys = new Set<string>();
+      editor.getEditorState().read(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const anchorNode = selection.anchor.getNode();
+          const element =
+            anchorNode.getKey() === 'root'
+              ? anchorNode
+              : anchorNode.getTopLevelElementOrThrow();
+          activeOptionKeys = new Set(
+            menuOptions
+              .filter((option) => option.isActive(element))
+              .map((option) => option.key),
+          );
+        }
+      });
 
       return (
         <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
@@ -162,6 +227,7 @@ export const SlashCommandPlugin = () => {
                   const Icon = option.Icon;
                   const isNewSection =
                     i === 0 || menuOptions[i - 1].section !== option.section;
+                  const isActive = activeOptionKeys.has(option.key);
                   return (
                     <Fragment key={option.key}>
                       {isNewSection && (
@@ -176,7 +242,7 @@ export const SlashCommandPlugin = () => {
                         }}
                         className={cn(
                           'slash-command-item',
-                          i === selectedIndex && 'slash-command-item--selected',
+                          isActive && 'slash-command-item--active',
                         )}
                         onClick={() => {
                           selectOptionAndCleanUp(option);
@@ -185,7 +251,10 @@ export const SlashCommandPlugin = () => {
                           setHighlightedIndex(i);
                         }}
                       >
-                        <GlassPanel className='slash-command-icon-container'>
+                        <GlassPanel
+                          className='slash-command-icon-container'
+                          intensity={isActive ? 'bright' : 'dim'}
+                        >
                           <Icon />
                         </GlassPanel>
                         <span className='slash-command-item-label'>

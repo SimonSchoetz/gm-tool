@@ -18,8 +18,9 @@
   font-weight: var(--font-weight-medium);
   display: flex;
   align-items: center;
+  border-radius: var(--radius-md);
   gap: var(--spacing-sm);
-  padding: var(--border-thin);
+  padding: var(--spacing-xs);
   padding-right: var(--spacing-md);
   color: var(--color-primary);
   transition:
@@ -27,15 +28,18 @@
     background-color var(--transition-fast);
 }
 
-.slash-command-item:hover,
-.slash-command-item--selected {
+.slash-command-item:hover {
   color: var(--color-fg);
   background-color: var(--color-bg);
 }
 
+.slash-command-item--active {
+  color: var(--color-fg);
+}
+
 .slash-command-icon-container {
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-md);
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
 }
 
 .slash-command-icon-container svg {
