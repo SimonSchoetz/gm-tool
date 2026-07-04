@@ -60,10 +60,12 @@ export const SlashCommandPlugin = () => {
       anchorElementRef: React.RefObject<HTMLElement | null>,
       {
         options: menuOptions,
+        selectedIndex,
         selectOptionAndCleanUp,
         setHighlightedIndex,
       }: {
         options: SlashCommandOption[];
+        selectedIndex: number | null;
         selectOptionAndCleanUp: (option: SlashCommandOption) => void;
         setHighlightedIndex: (index: number) => void;
       },
@@ -114,6 +116,7 @@ export const SlashCommandPlugin = () => {
                         className={cn(
                           'slash-command-item',
                           isActive && 'slash-command-item--active',
+                          i === selectedIndex && 'slash-command-item--selected',
                         )}
                         onClick={() => {
                           selectOptionAndCleanUp(option);

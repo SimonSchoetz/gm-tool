@@ -28,7 +28,7 @@
     background-color var(--transition-fast);
 }
 
-.slash-command-item:hover {
+.slash-command-item--selected {
   color: var(--color-fg);
   background-color: var(--color-highlight-bg);
 }
@@ -47,7 +47,6 @@
   height: var(--font-size-lg);
 }
 
-.slash-command-item:hover .slash-command-icon-container,
 .slash-command-item--selected .slash-command-icon-container {
   box-shadow: var(--box-shadow-active);
   background-color: var(--color-bg);
