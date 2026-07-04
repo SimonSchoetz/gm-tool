@@ -25,7 +25,6 @@ export const InGameStepSection = ({ step }: InGameStepSectionProps) => {
         onChange={(content) => {
           updateStep(step.id, { content });
         }}
-        placeholder=''
       />
     </div>
   );

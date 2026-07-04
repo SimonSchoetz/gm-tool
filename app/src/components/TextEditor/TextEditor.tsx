@@ -105,7 +105,9 @@ export const TextEditor: FCProps<Props> = ({
       <div className='text-editor'>
         <RichTextPlugin
           contentEditable={<ContentEditable className='editor-content' />}
-          placeholder={<div className='placeholder'>{placeholder}</div>}
+          placeholder={
+            <div className='placeholder'>{readOnly ? placeholder : null}</div>
+          }
           ErrorBoundary={LexicalErrorBoundary}
         />
 
