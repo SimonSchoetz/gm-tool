@@ -1,11 +1,10 @@
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $getSelection, $isRangeSelection, TextNode } from 'lexical';
-import { cn } from '@/util';
 import './SlashCommandPlugin.css';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
@@ -15,6 +14,7 @@ import {
   SLASH_COMMAND_OPTIONS,
   SlashCommandOption,
 } from './slashCommandOptions';
+import { SlashCommandOptionList } from './components';
 
 export const SlashCommandPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -95,50 +95,13 @@ export const SlashCommandPlugin = () => {
         <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <GlassPanel className='slash-command-popup-container'>
             <CustomScrollArea childrenContainerClassName='slash-command-popup-list'>
-              <ul>
-                {menuOptions.map((option, i) => {
-                  const Icon = option.Icon;
-                  const isNewSection =
-                    i === 0 || menuOptions[i - 1].section !== option.section;
-                  const isActive = activeOptionKeys.has(option.key);
-                  return (
-                    <Fragment key={option.key}>
-                      {isNewSection && (
-                        <li className='slash-command-section-heading'>
-                          {option.section}
-                        </li>
-                      )}
-
-                      <li
-                        ref={(el) => {
-                          option.setRefElement(el);
-                        }}
-                        className={cn(
-                          'slash-command-item',
-                          isActive && 'slash-command-item--active',
-                          i === selectedIndex && 'slash-command-item--selected',
-                        )}
-                        onClick={() => {
-                          selectOptionAndCleanUp(option);
-                        }}
-                        onMouseEnter={() => {
-                          setHighlightedIndex(i);
-                        }}
-                      >
-                        <GlassPanel
-                          className='slash-command-icon-container'
-                          intensity={isActive ? 'bright' : 'dim'}
-                        >
-                          <Icon />
-                        </GlassPanel>
-                        <span className='slash-command-item-label'>
-                          {option.label}
-                        </span>
-                      </li>
-                    </Fragment>
-                  );
-                })}
-              </ul>
+              <SlashCommandOptionList
+                menuOptions={menuOptions}
+                selectedIndex={selectedIndex}
+                activeOptionKeys={activeOptionKeys}
+                selectOptionAndCleanUp={selectOptionAndCleanUp}
+                setHighlightedIndex={setHighlightedIndex}
+              />
             </CustomScrollArea>
           </GlassPanel>
         </EditorPopup>

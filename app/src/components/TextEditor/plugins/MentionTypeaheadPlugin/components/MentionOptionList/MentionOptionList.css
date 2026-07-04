@@ -1,0 +1,27 @@
+.mention-option-list-item {
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: rgb(var(--rt-mention-option-list-item-color));
+  padding: var(--spacing-xs) var(--spacing-sm);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.mention-option-list-item:hover,
+.mention-option-list-item--selected {
+  background: var(--color-highlight-bg);
+}
+
+.mention-option-list-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mention-option-list-item-table-label {
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+}

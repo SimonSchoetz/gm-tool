@@ -2,30 +2,20 @@ import { useCallback, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
-  MenuOption,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { TextNode } from 'lexical';
 import { useParams } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@services/mentionSearchService';
-import type { MentionSearchResult } from '@services/mentionSearchService';
 import { MentionNode } from '../../nodes';
-import { formatTableLabel } from '@/util';
 import './MentionTypeaheadPlugin.css';
 import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
 import { getSelectionRangeRect } from '../../helper';
-
-class MentionMenuOption extends MenuOption {
-  result: MentionSearchResult;
-
-  constructor(result: MentionSearchResult) {
-    super(result.id);
-    this.result = result;
-  }
-}
+import { MentionMenuOption } from './mentionMenuOption';
+import { MentionOptionList } from './components';
 
 export const MentionTypeaheadPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -106,36 +96,12 @@ export const MentionTypeaheadPlugin = () => {
         <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <GlassPanel className='mention-typeahead-popup'>
             <CustomScrollArea className='mention-typeahead-content-container'>
-              <ul>
-                {menuOptions.map((option, i) => (
-                  <li
-                    key={option.key}
-                    ref={(el) => {
-                      option.setRefElement(el);
-                    }}
-                    className={`mention-typeahead-item${i === selectedIndex ? ' mention-typeahead-item--selected' : ''}`}
-                    onClick={() => {
-                      selectOptionAndCleanUp(option);
-                    }}
-                    onMouseEnter={() => {
-                      setHighlightedIndex(i);
-                    }}
-                    style={
-                      {
-                        '--rt-mention-typeahead-item-color':
-                          option.result.color,
-                      } as React.CSSProperties
-                    }
-                  >
-                    <span className='mention-typeahead-item-name'>
-                      {option.result.name}
-                    </span>
-                    <span className='mention-typeahead-item-table-label'>
-                      {formatTableLabel(option.result.tableName)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <MentionOptionList
+                menuOptions={menuOptions}
+                selectedIndex={selectedIndex}
+                selectOptionAndCleanUp={selectOptionAndCleanUp}
+                setHighlightedIndex={setHighlightedIndex}
+              />
             </CustomScrollArea>
           </GlassPanel>
         </EditorPopup>
