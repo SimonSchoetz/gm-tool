@@ -5,6 +5,7 @@ import './FloatingToolbar.css';
 import { LinkRow, TextFormattingRow } from './components';
 
 import { EditorPopup } from '../EditorPopup';
+import { getSelectionRangeRect } from '../../helper';
 
 export const FloatingToolbar = () => {
   const [editor] = useLexicalComposerContext();
@@ -32,17 +33,10 @@ export const FloatingToolbar = () => {
 
   const getAnchorRect = () => {
     const nativeSelection = window.getSelection();
-    const rootElement = editor.getRootElement();
-    if (
-      nativeSelection &&
-      nativeSelection.rangeCount > 0 &&
-      !nativeSelection.isCollapsed &&
-      !isDragging &&
-      rootElement?.contains(nativeSelection.anchorNode)
-    ) {
-      return nativeSelection.getRangeAt(0).getBoundingClientRect();
+    if (!nativeSelection || nativeSelection.isCollapsed || isDragging) {
+      return null;
     }
-    return null;
+    return getSelectionRangeRect(editor);
   };
 
   return (

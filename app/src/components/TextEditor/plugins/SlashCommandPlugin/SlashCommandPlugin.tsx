@@ -34,6 +34,7 @@ import './SlashCommandPlugin.css';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
 import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
+import { getSelectionRangeRect } from '../../helper';
 
 class SlashCommandOption extends MenuOption {
   label: string;
@@ -153,20 +154,7 @@ export const SlashCommandPlugin = () => {
       }
 
       return (
-        <EditorPopup
-          getAnchorRect={() => {
-            const nativeSelection = window.getSelection();
-            const rootElement = editor.getRootElement();
-            if (
-              nativeSelection &&
-              nativeSelection.rangeCount > 0 &&
-              rootElement?.contains(nativeSelection.anchorNode)
-            ) {
-              return nativeSelection.getRangeAt(0).getBoundingClientRect();
-            }
-            return null;
-          }}
-        >
+        <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <GlassPanel className='slash-command-popup-container'>
             <CustomScrollArea childrenContainerClassName='slash-command-popup-list'>
               <ul>

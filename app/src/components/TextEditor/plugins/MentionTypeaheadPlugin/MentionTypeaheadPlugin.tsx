@@ -16,6 +16,7 @@ import './MentionTypeaheadPlugin.css';
 import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
+import { getSelectionRangeRect } from '../../helper';
 
 class MentionMenuOption extends MenuOption {
   result: MentionSearchResult;
@@ -102,20 +103,7 @@ export const MentionTypeaheadPlugin = () => {
       }
 
       return (
-        <EditorPopup
-          getAnchorRect={() => {
-            const nativeSelection = window.getSelection();
-            const rootElement = editor.getRootElement();
-            if (
-              nativeSelection &&
-              nativeSelection.rangeCount > 0 &&
-              rootElement?.contains(nativeSelection.anchorNode)
-            ) {
-              return nativeSelection.getRangeAt(0).getBoundingClientRect();
-            }
-            return null;
-          }}
-        >
+        <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <GlassPanel className='mention-typeahead-popup'>
             <CustomScrollArea className='mention-typeahead-content-container'>
               <ul>
