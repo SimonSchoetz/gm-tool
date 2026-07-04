@@ -154,8 +154,8 @@ export const SlashCommandPlugin = () => {
             anchorElementRef.current?.getBoundingClientRect() ?? null
           }
         >
-          <GlassPanel className='slash-command-popup'>
-            <ul>
+          <GlassPanel className='slash-command-popup-container'>
+            <ul className='slash-command-popup-list'>
               {menuOptions.map((option, i) => {
                 const Icon = option.Icon;
                 return (
@@ -175,7 +175,9 @@ export const SlashCommandPlugin = () => {
                       setHighlightedIndex(i);
                     }}
                   >
-                    <Icon />
+                    <GlassPanel className='slash-command-icon-container'>
+                      <Icon />
+                    </GlassPanel>
                     <span className='slash-command-item-label'>
                       {option.label}
                     </span>
