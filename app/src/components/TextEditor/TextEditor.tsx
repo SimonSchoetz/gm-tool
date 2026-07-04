@@ -24,6 +24,7 @@ import {
   MentionTypeaheadPlugin,
   CheckboxReadOnlyPlugin,
   EmbeddedLinkPlugin,
+  EmptyNodeHintPlugin,
   SlashCommandPlugin,
 } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
@@ -106,7 +107,7 @@ export const TextEditor: FCProps<Props> = ({
         <RichTextPlugin
           contentEditable={<ContentEditable className='editor-content' />}
           placeholder={
-            <div className='placeholder'>{readOnly ? placeholder : null}</div>
+            <div className='placeholder'>{!readOnly ? placeholder : null}</div>
           }
           ErrorBoundary={LexicalErrorBoundary}
         />
@@ -126,6 +127,7 @@ export const TextEditor: FCProps<Props> = ({
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
         {!readOnly && <SlashCommandPlugin />}
+        {!readOnly && <EmptyNodeHintPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
     </LexicalComposer>

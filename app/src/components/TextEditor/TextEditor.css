@@ -19,6 +19,10 @@
   pointer-events: none;
 }
 
+.text-editor:focus-within .placeholder {
+  display: none;
+}
+
 /*
     Text format styles
 */
