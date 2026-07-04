@@ -2,13 +2,14 @@
   background: var(--color-surface);
   width: max-content;
   max-width: 250px; /* one-off */
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   border: none;
 }
 
 .slash-command-popup-list {
   padding: var(--border-thin);
+  max-height: 156px; /* one-off - simulates exact hight of title + first three items */
 }
 
 .slash-command-item {
@@ -49,4 +50,12 @@
   transition:
     color var(--transition-fast),
     background-color var(--transition-fast);
+}
+
+.slash-command-section-heading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semi-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  padding: var(--spacing-sm) var(--spacing-xs);
 }

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
@@ -33,26 +33,30 @@ import { cn } from '@/util';
 import './SlashCommandPlugin.css';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
+import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
 
 class SlashCommandOption extends MenuOption {
   label: string;
   Icon: LucideIcon;
+  section: string;
   onSelect: (editor: LexicalEditor) => void;
 
   constructor(
     label: string,
     Icon: LucideIcon,
+    section: string,
     onSelect: (editor: LexicalEditor) => void,
   ) {
     super(label);
     this.label = label;
     this.Icon = Icon;
+    this.section = section;
     this.onSelect = onSelect;
   }
 }
 
 const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
-  new SlashCommandOption('Heading 1', Heading1Icon, (editor) => {
+  new SlashCommandOption('Heading 1', Heading1Icon, 'Text', (editor) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -60,7 +64,7 @@ const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       }
     });
   }),
-  new SlashCommandOption('Heading 2', Heading2Icon, (editor) => {
+  new SlashCommandOption('Heading 2', Heading2Icon, 'Text', (editor) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -68,7 +72,7 @@ const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       }
     });
   }),
-  new SlashCommandOption('Heading 3', Heading3Icon, (editor) => {
+  new SlashCommandOption('Heading 3', Heading3Icon, 'Text', (editor) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
@@ -76,16 +80,16 @@ const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       }
     });
   }),
-  new SlashCommandOption('Bullet list', ListIcon, (editor) => {
+  new SlashCommandOption('Bullet list', ListIcon, 'List', (editor) => {
     editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
   }),
-  new SlashCommandOption('Numbered list', ListOrderedIcon, (editor) => {
+  new SlashCommandOption('Numbered list', ListOrderedIcon, 'List', (editor) => {
     editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
   }),
-  new SlashCommandOption('Checklist', ListChecksIcon, (editor) => {
+  new SlashCommandOption('Checklist', ListChecksIcon, 'List', (editor) => {
     editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
   }),
-  new SlashCommandOption('Table', TableIcon, (editor) => {
+  new SlashCommandOption('Table', TableIcon, 'Table', (editor) => {
     editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns: '3', rows: '3' });
   }),
 ];
@@ -155,36 +159,47 @@ export const SlashCommandPlugin = () => {
           }
         >
           <GlassPanel className='slash-command-popup-container'>
-            <ul className='slash-command-popup-list'>
-              {menuOptions.map((option, i) => {
-                const Icon = option.Icon;
-                return (
-                  <li
-                    key={option.key}
-                    ref={(el) => {
-                      option.setRefElement(el);
-                    }}
-                    className={cn(
-                      'slash-command-item',
-                      i === selectedIndex && 'slash-command-item--selected',
-                    )}
-                    onClick={() => {
-                      selectOptionAndCleanUp(option);
-                    }}
-                    onMouseEnter={() => {
-                      setHighlightedIndex(i);
-                    }}
-                  >
-                    <GlassPanel className='slash-command-icon-container'>
-                      <Icon />
-                    </GlassPanel>
-                    <span className='slash-command-item-label'>
-                      {option.label}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <CustomScrollArea childrenContainerClassName='slash-command-popup-list'>
+              <ul>
+                {menuOptions.map((option, i) => {
+                  const Icon = option.Icon;
+                  const isNewSection =
+                    i === 0 || menuOptions[i - 1].section !== option.section;
+                  return (
+                    <Fragment key={option.key}>
+                      {isNewSection && (
+                        <li className='slash-command-section-heading'>
+                          {option.section}
+                        </li>
+                      )}
+
+                      <li
+                        ref={(el) => {
+                          option.setRefElement(el);
+                        }}
+                        className={cn(
+                          'slash-command-item',
+                          i === selectedIndex && 'slash-command-item--selected',
+                        )}
+                        onClick={() => {
+                          selectOptionAndCleanUp(option);
+                        }}
+                        onMouseEnter={() => {
+                          setHighlightedIndex(i);
+                        }}
+                      >
+                        <GlassPanel className='slash-command-icon-container'>
+                          <Icon />
+                        </GlassPanel>
+                        <span className='slash-command-item-label'>
+                          {option.label}
+                        </span>
+                      </li>
+                    </Fragment>
+                  );
+                })}
+              </ul>
+            </CustomScrollArea>
           </GlassPanel>
         </EditorPopup>
       );
