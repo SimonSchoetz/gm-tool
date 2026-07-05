@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.6.0] - 2026-07-05
+
+### Added
+
+- `/` slash command menu in the text editor — insert headings, bullet/numbered lists, a checklist, or a table, grouped by section and navigable with arrow keys
+- A hint ("Start typing or use / for commands") appears when the cursor is on an empty block
+- rudimentary 3x3 Tables in the text editor — insert via the slash command
+
 ## [v0.5.2] - 2026-06-30
 
 ### Fixed
