@@ -92,6 +92,12 @@ Produce a friction summary covering:
 - The source of each friction event: was it a gap in an agent/command definition, a reasoning error, or a missing CLAUDE.md rule?
 - Any decision made under ambiguity — what the question was, what was chosen, why
 
+**Process gaps identified during manual fix mode** (if any):
+
+- Every process gap identified while diagnosing or fixing a bug during manual fix mode
+- For each: the phase it occurred in, whether the gap is scoped to the manual-fix-mode loop specifically or reflects a general reasoning/process principle, and the candidate owner file or domain for the fix
+- At least one contrast entry — a correct diagnosis or a clean fix reached under comparable conditions — when one occurred during the session; do not leave inclusion to author discretion
+
 **Instruction gaps** (if any):
 
 - Every instruction gap the code-reviewer surfaced that was not blocking the current task (blocking gaps were handled by architect in the review loop)
@@ -129,6 +135,7 @@ In manual fix mode:
 - The user tests and reviews the implementation independently.
 - Do not commit anything unless the user explicitly instructs a commit. An explicit commit instruction names what to commit — do not infer scope or create a commit opportunistically.
 - When the user reports a bug: analyze how the bug was introduced or missed during implementation. Identify which phase of the process failed (spec gap, implementer miss, review miss, invariant not applied) and what the process should have done differently. Surface this analysis alongside the fix — it is handoff material for a future /refine-claude session.
+- When a fix attempt is based on static reasoning about a discrepancy that only manifests at runtime (the code reads correctly but observed behavior differs from expected behavior) and that attempt fails to resolve the bug, do not attempt a second reasoning-based fix guess. Escalate to diagnostic instrumentation first — add logging, a breakpoint, or an equivalent runtime probe to observe actual state — before proposing another fix.
 - Apply all implementation invariants to any fix implemented in this mode: tsc and eslint must pass before presenting the fix as done; cleanup is not optional; file compliance applies.
 - When the user says the branch is ready or explicitly ends the session, stop.
 
