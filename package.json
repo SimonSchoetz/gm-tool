@@ -16,9 +16,11 @@
     "dev": "cd app && npm run dev",
     "web": "cd app && npm run web",
     "lint": "cd app && npx eslint .",
-    "build-local": "cd app && npm run tauri build -- --debug"
+    "build-local": "cd app && npm run tauri build -- --debug",
+    "create-release": "node scripts/create-release.ts"
   },
   "devDependencies": {
+    "@types/node": "^26.1.0",
     "simple-git-hooks": "latest"
   },
   "simple-git-hooks": {
