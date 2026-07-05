@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
@@ -18,9 +18,7 @@ import { SlashCommandOptionList } from './components';
 
 export const SlashCommandPlugin = () => {
   const [editor] = useLexicalComposerContext();
-  const [options, setOptions] = useState<SlashCommandOption[]>(
-    SLASH_COMMAND_OPTIONS,
-  );
+  const [query, setQuery] = useState<string | null>(null);
 
   const triggerFn = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,
@@ -28,17 +26,18 @@ export const SlashCommandPlugin = () => {
   });
 
   const onQueryChange = useCallback((matchingString: string | null) => {
-    if (matchingString === null) {
-      setOptions([]);
-      return;
-    }
-    const query = matchingString.toLowerCase();
-    setOptions(
-      SLASH_COMMAND_OPTIONS.filter((option) =>
-        option.label.toLowerCase().includes(query),
-      ),
-    );
+    setQuery(matchingString);
   }, []);
+
+  const options = useMemo(() => {
+    if (query === null) {
+      return [];
+    }
+    const lowerQuery = query.toLowerCase();
+    return SLASH_COMMAND_OPTIONS.filter((option) =>
+      option.label.toLowerCase().includes(lowerQuery),
+    );
+  }, [query]);
 
   const onSelectOption = useCallback(
     (
