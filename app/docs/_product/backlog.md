@@ -2,12 +2,13 @@
 
 ## Closed Beta Ready
 - Text editor enhancements
-  - name tags should update when the reference changes
-  - name tags should be copy/pasteable
-  - '/' command to open text formatter so one can start typing a header from the beginning
+  - name tags
+    - hould update when the reference changes
+    - should be copy/pasteable
   - Auto-Correct off (?)
   - drag-and-drop content within editor
   - Tables
+    - should be editable
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
 - Fix: Adventure stats (facts)
   - drag-and-drop content into editor
@@ -22,18 +23,19 @@
   - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
 - Feature: Implement prefetching
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
-- Fix (Images): when changing the image preview, the adjustment in the background should be smooth again
 - Chore: Replase all "loading..." ect. placeholder with loading icon
 - Fix (Icons): Prevent icons from shrinking when space is limited
 
 ### Done
 
+- Feature (Text Editor): Tables
+- Feature (Text Editor): '/' command to open text formatter 
 - Fix (Session Screen): Input field for step name should render
 - Fix (Session Screen): Highlightiing the step title should not open the toolbar
   - issue concerned all screens with multiple text editors
 - Feature (Session Screen): Show section headings in In Game view
 - Fix (Session Screen): In Game view shows `'Description...'` of overlapping
-- Fix (Text Editor):  Max-char-length-per-line
+- Fix (Text Editor): Max-char-length-per-line
 - Feature: Automatic updates
   - UX update so user can trigger update manually
 - Feature: Make background animation optional in settings
