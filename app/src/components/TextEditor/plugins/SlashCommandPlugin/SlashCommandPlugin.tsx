@@ -8,7 +8,7 @@ import { $getSelection, $isRangeSelection, TextNode } from 'lexical';
 import './SlashCommandPlugin.css';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
-import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
+import { CustomScrollArea } from '../../../../components/CustomScrollArea/CustomScrollArea';
 import { getSelectionRangeRect } from '../../helper';
 import {
   SLASH_COMMAND_OPTIONS,
