@@ -13,7 +13,11 @@ A spec file path. Read the spec in full before doing anything else.
 Before starting any sub-feature:
 
 1. Check the current branch: run `git branch --show-current`. If on `main`, derive a branch name from the spec: use the spec's primary feature type as the branch type and a kebab-case summary of the spec title or primary concern as the branch name (`<type>/<branch-name>` per CLAUDE.md convention). Create it with `git checkout -b <name>` and confirm the switch before continuing. Never begin implementation work on `main`.
-2. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, stop and surface them to the user before proceeding. Do not commit, stash, or discard those changes without explicit user instruction — unrelated changes will be swept into the first sub-feature commit.
+2. Verify the working tree is clean: run `git status --short`. If any staged, unstaged, or untracked changes exist before implementation begins, do the following:
+
+- if they are related to the current spec (e.g. the specs, changes to `.claude/knowledge`), commit them.
+- if they are unrelated, stash them. When the implementation is done (when the friction brief was produced), unstash them and surface it to the user.
+
 3. Run each baseline check independently — never chain them: `npx tsc --noEmit`, then `npx eslint .` (from `app/`), then `npx vitest run`. Running them independently prevents a tsc failure from short-circuiting eslint or vitest — all three results must be known before proceeding.
 4. If everything is clean: proceed to the implementation phase.
 5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
