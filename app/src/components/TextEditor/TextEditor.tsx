@@ -26,6 +26,7 @@ import {
   EmbeddedLinkPlugin,
   EmptyNodeHintPlugin,
   SlashCommandPlugin,
+  TableEdgeHandlePlugin,
 } from './plugins';
 import { EditorThemeClasses, EditorState } from 'lexical';
 import { parseSafeEditorState } from './helper';
@@ -119,7 +120,8 @@ export const TextEditor: FCProps<Props> = ({
         <HistoryPlugin />
         <ListPlugin />
         <CheckListPlugin />
-        <TablePlugin />
+        {/* hasCellMerge disabled — insert/delete/move operations assume a regular cell grid */}
+        <TablePlugin hasCellMerge={false} />
         <TabIndentationPlugin />
         <LinkPlugin />
         <EmbeddedLinkPlugin />
@@ -131,6 +133,7 @@ export const TextEditor: FCProps<Props> = ({
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
         {!readOnly && <SlashCommandPlugin />}
+        {!readOnly && <TableEdgeHandlePlugin />}
         {!readOnly && <EmptyNodeHintPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
