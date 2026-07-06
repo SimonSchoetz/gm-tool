@@ -12,6 +12,12 @@
 **Verified at:** @lexical/table 0.46.0 (matches installed `@lexical/react`/`lexical` version)
 **Citation:** [S_2: app/node_modules/@lexical/table/package.json:2; grep '@lexical' app/package.json — `@lexical/table` absent]
 
+---
+**Reverified at:** @lexical/table 0.46.0 (post-slash-command implementation)
+**Citation:** [S_7: app/package.json:28 — `"@lexical/table": "^0.46.0"` present as a direct dependency]
+
+The slash command implementation added `@lexical/table` as a direct dependency. This entry is stale. Correct state: `@lexical/table` IS declared in `app/package.json`. Import from it directly — do not add it again.
+
 `TableNode`, `TableRowNode`, `TableCellNode`, and `INSERT_TABLE_COMMAND` (payload `{ columns: string; rows: string; includeHeaders?: boolean | { rows: boolean; columns: boolean } }`) are exported from `@lexical/table` [app/node_modules/@lexical/table/dist/index.d.ts:9-19]. `TablePlugin` (no required props; all of `hasCellMerge`/`hasCellBackgroundColor`/`hasTabHandler`/`hasHorizontalScroll`/`hasNestedTables` default `true`/`false` per its own doc comment) is exported from `@lexical/react/LexicalTablePlugin` [app/node_modules/@lexical/react/dist/LexicalTablePlugin.d.ts:12-46]. Any feature that dispatches `INSERT_TABLE_COMMAND` must (1) add `@lexical/table` as a direct `package.json` dependency, (2) register `TableNode`, `TableRowNode`, `TableCellNode` in the editor's `nodes` array, and (3) render `<TablePlugin />` — otherwise the command throws at runtime because the node types are unregistered.
 
 ## Nested/reentrant `editor.update()` and `editor.dispatchCommand()` calls made from inside an active update are queued, not dropped
@@ -34,6 +40,34 @@ Every `LexicalTypeaheadMenuPlugin` instance (`MentionTypeaheadPlugin`, `SlashCom
 **Citation:** [S_5: app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:467-506 (`KEY_ARROW_DOWN_COMMAND` handler, dispatches `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` only `if (option.ref && option.ref.current)`); empirically confirmed via a diagnostic build in this repo: a listener registered for `KEY_ARROW_DOWN_COMMAND` at `COMMAND_PRIORITY_HIGH` fires on every keypress and logs every option's `ref.current` as populated (non-null) for all 7 options; a listener registered for `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` (at both `COMMAND_PRIORITY_LOW` and `COMMAND_PRIORITY_NORMAL`) never fires; a diagnostic that manually calls `editor.dispatchCommand(SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND, {...})` from inside the same `KEY_ARROW_DOWN_COMMAND` handler successfully reaches the `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` listener every time, ruling out a reentrant-dispatch or priority-ordering explanation]
 
 Despite `option.ref.current` being populated for every option (confirmed empirically) and the arrow-key handler visibly executing (the selection highlight updates correctly), Lexical's own dispatch of `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` from within that same handler never reaches any registered listener — including a handler manually registered at higher priority than Lexical's own default. The root cause could not be pinned down further via static source reading (the source condition for dispatch is provably true, and reentrant `dispatchCommand` calls are provably not blocked in this exact call stack), suggesting either a bug specific to the shipped bundle or an interaction not visible in the `.tsx` source. **Do not rely on `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` for scroll-into-view behavior in custom `menuRenderFn` implementations.** This codebase's resolution: extract the option list into a real React component (not the `menuRenderFn` render-prop function itself, which cannot use hooks) that receives `selectedIndex` as a prop and calls `option.ref.current.scrollIntoView({ block: 'nearest' })` via `useEffect` keyed on `selectedIndex` — the same value that already reliably drives the visual selected-item highlight. See `SlashCommandOptionList.tsx` / `MentionOptionList.tsx`.
+
+## `TablePlugin` accepts `hasCellMerge` (default `true`) and other optional props
+
+**Verified at:** @lexical/react 0.46.0
+**Citation:** [S_8: app/node_modules/@lexical/react/dist/LexicalTablePlugin.d.ts:12-46]
+
+`TablePlugin` props: `hasCellMerge?: boolean` (default `true` — merge enabled; set to `false` to force a regular grid), `hasCellBackgroundColor?: boolean` (default `true`), `hasTabHandler?: boolean` (default `true`), `hasHorizontalScroll?: boolean` (default `false`), `hasNestedTables?: boolean` (default `false`, experimental). When `hasCellMerge={false}`, all insert/delete/move table operations are safe with the `$`-prefixed utilities. Calling `<TablePlugin />` without `hasCellMerge={false}` leaves merge enabled.
+
+## `TableObserver.$lookup()` returns `{ tableNode, tableElement }` and is `$`-prefixed
+
+**Verified at:** @lexical/table 0.46.0
+**Citation:** [S_9: app/node_modules/@lexical/table/dist/LexicalTableObserver.d.ts:124-127]
+
+`TableObserver.$lookup(): { tableNode: TableNode; tableElement: HTMLTableElementWithWithTableSelectionState }`. Must be called inside `editor.read()` or `editor.update()` — it is a `$`-prefixed method. Obtain a `TableObserver` via `getTableObserverFromTableElement(tableElement)` (exported from `@lexical/table`), then call `observer.$lookup()`. `getTable()` (non-prefixed) returns the `TableDOMTable` and can be called outside an editor context. `TableDOMTable: { domRows: TableDOMRows; columns: number; rows: number }`. `TableDOMRows` is `((TableDOMCell | undefined)[] | undefined)[]`.
+
+## `getDOMCellFromTarget` and `getTableObserverFromTableElement` are exported from `@lexical/table`
+
+**Verified at:** @lexical/table 0.46.0
+**Citation:** [S_10: app/node_modules/@lexical/table/dist/LexicalTableSelectionHelpers.d.ts:25-26]
+
+`getDOMCellFromTarget(node: null | Node): TableDOMCell | null` — given any DOM node, returns the enclosing `TableDOMCell` or `null`. `TableDOMCell: { elem: HTMLElement; highlighted: boolean; hasBackgroundColor: boolean; x: number; y: number }`. `getTableObserverFromTableElement(tableElement): TableObserver | null` — reads a property stored on the DOM table element by `TablePlugin`; safe to call outside `editor.read()`.
+
+## `TableCellNode.setHeaderStyles(state, mask?)` modifies only the bits specified by `mask`
+
+**Verified at:** @lexical/table 0.46.0
+**Citation:** [S_11: app/node_modules/@lexical/table/dist/LexicalTableCellNode.d.ts:54-62]
+
+`setHeaderStyles(headerState: TableCellHeaderState, mask?: TableCellHeaderState): this`. When `mask` is provided, only the bits set in `mask` are modified; other bits are preserved. Example: `setHeaderStyles(TableCellHeaderStates.NO_STATUS, TableCellHeaderStates.ROW)` removes the ROW flag while preserving COLUMN. `TableCellHeaderStates: { BOTH, COLUMN, NO_STATUS, ROW }`. Also available: `hasHeaderState(state): boolean`, `toggleHeaderStyle(state): this`.
 
 ## `$findCellNode` returns the closest `TableCellNode` ancestor of a given node, or `null`
 
