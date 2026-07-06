@@ -305,7 +305,9 @@ export const TableEdgeHandlePlugin = () => {
           ?.setHeaderStyles(targetState, TableCellHeaderStates.ROW);
       }
     });
-    setPopupState((prev) => (prev ? { ...prev, isHeader: !prev.isHeader } : null));
+    setPopupState((prev) =>
+      prev ? { ...prev, isHeader: !prev.isHeader } : null,
+    );
   }, [editor, popupState]);
 
   const handleToggleHeaderColumn = useCallback(() => {
@@ -326,7 +328,9 @@ export const TableEdgeHandlePlugin = () => {
           ?.setHeaderStyles(targetState, TableCellHeaderStates.COLUMN);
       }
     });
-    setPopupState((prev) => (prev ? { ...prev, isHeader: !prev.isHeader } : null));
+    setPopupState((prev) =>
+      prev ? { ...prev, isHeader: !prev.isHeader } : null,
+    );
   }, [editor, popupState]);
 
   return (
@@ -343,7 +347,8 @@ export const TableEdgeHandlePlugin = () => {
               )}
               style={{
                 display: hintState.showTop ? undefined : 'none',
-                left: hintState.cellRect.left + hintState.cellRect.width / 2 - 5,
+                left:
+                  hintState.cellRect.left + hintState.cellRect.width / 2 - 5,
                 top: hintState.cellRect.top - 1,
               }}
               onMouseDown={(e) => {
@@ -369,7 +374,8 @@ export const TableEdgeHandlePlugin = () => {
               )}
               style={{
                 display: hintState.showBottom ? undefined : 'none',
-                left: hintState.cellRect.left + hintState.cellRect.width / 2 - 5,
+                left:
+                  hintState.cellRect.left + hintState.cellRect.width / 2 - 5,
                 top: hintState.cellRect.bottom - 1,
               }}
               onMouseDown={(e) => {
