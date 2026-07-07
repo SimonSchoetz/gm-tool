@@ -13,6 +13,7 @@
 }
 
 .TEP--li {
+  width: 100%;
   cursor: pointer;
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
@@ -28,7 +29,7 @@
     background-color var(--transition-fast);
 }
 
-.TEP--li--hovered {
+.TEP--li:hover {
   color: var(--color-fg);
   background-color: var(--color-bg);
 }
@@ -42,12 +43,16 @@
   border-radius: var(--radius-sm);
 }
 
+.TEP--li--active .TEP--li-icon-container {
+  background-color: var(--color-bg);
+}
+
 .TEP--li-icon-container svg {
   width: var(--font-size-lg);
   height: var(--font-size-lg);
 }
 
-.TEP--li--hovered .TEP--li-icon-container {
+.TEP--li:hover .TEP--li-icon-container {
   box-shadow: var(--box-shadow-active);
   background-color: var(--color-bg);
   transition:

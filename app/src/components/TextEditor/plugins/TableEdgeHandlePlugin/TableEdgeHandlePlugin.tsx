@@ -5,16 +5,12 @@ import {
   getDOMCellFromTarget,
   getTableObserverFromTableElement,
   TableCellHeaderStates,
-  $insertTableRowAtSelection,
-  $insertTableColumnAtSelection,
-  $deleteTableRowAtSelection,
-  $deleteTableColumnAtSelection,
 } from '@lexical/table';
 import { EditorPopup } from '../../components/EditorPopup';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { TableHandleMenu, TableEdgeHint } from './components';
-import { runTableCellMutation } from './helper';
 import './TableEdgeHandlePlugin.css';
+import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
 
 export type HintDirection = 'top' | 'bottom' | 'left' | 'right';
 
@@ -29,7 +25,7 @@ type HintState = {
   cellRect: DOMRect;
 } | null;
 
-type PopupState = {
+export type PopupState = {
   type: 'row' | 'column';
   cellX: number;
   cellY: number;
@@ -216,128 +212,6 @@ export const TableEdgeHandlePlugin = () => {
     scheduleHide();
   };
 
-  const handleInsertRowAbove = () => {
-    if (!popupState) return;
-    runTableCellMutation(
-      editor,
-      popupState.cellX,
-      popupState.cellY,
-      popupState.tableElement,
-      () => $insertTableRowAtSelection(false),
-    );
-    closePopup();
-  };
-
-  const handleInsertRowBelow = () => {
-    if (!popupState) return;
-    runTableCellMutation(
-      editor,
-      popupState.cellX,
-      popupState.cellY,
-      popupState.tableElement,
-      () => $insertTableRowAtSelection(true),
-    );
-    closePopup();
-  };
-
-  const handleDeleteRow = () => {
-    if (!popupState) return;
-    runTableCellMutation(
-      editor,
-      popupState.cellX,
-      popupState.cellY,
-      popupState.tableElement,
-      () => {
-        $deleteTableRowAtSelection();
-      },
-    );
-    closePopup();
-  };
-
-  const handleInsertColumnLeft = () => {
-    if (!popupState) return;
-    runTableCellMutation(
-      editor,
-      popupState.cellX,
-      popupState.cellY,
-      popupState.tableElement,
-      () => $insertTableColumnAtSelection(false),
-    );
-    closePopup();
-  };
-
-  const handleInsertColumnRight = () => {
-    if (!popupState) return;
-    runTableCellMutation(
-      editor,
-      popupState.cellX,
-      popupState.cellY,
-      popupState.tableElement,
-      () => $insertTableColumnAtSelection(true),
-    );
-    closePopup();
-  };
-
-  const handleDeleteColumn = () => {
-    if (!popupState) return;
-    runTableCellMutation(
-      editor,
-      popupState.cellX,
-      popupState.cellY,
-      popupState.tableElement,
-      () => {
-        $deleteTableColumnAtSelection();
-      },
-    );
-    closePopup();
-  };
-
-  const handleToggleHeaderRow = () => {
-    if (!popupState) return;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(
-        popupState.tableElement,
-      );
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const targetState = popupState.isHeader
-        ? TableCellHeaderStates.NO_STATUS
-        : TableCellHeaderStates.ROW;
-      for (let x = 0; x < table.columns; x++) {
-        tableNode
-          .getCellNodeFromCords(x, popupState.cellY, table)
-          ?.setHeaderStyles(targetState, TableCellHeaderStates.ROW);
-      }
-    });
-    setPopupState((prev) =>
-      prev ? { ...prev, isHeader: !prev.isHeader } : null,
-    );
-  };
-
-  const handleToggleHeaderColumn = () => {
-    if (!popupState) return;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(
-        popupState.tableElement,
-      );
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const targetState = popupState.isHeader
-        ? TableCellHeaderStates.NO_STATUS
-        : TableCellHeaderStates.COLUMN;
-      for (let y = 0; y < table.rows; y++) {
-        tableNode
-          .getCellNodeFromCords(popupState.cellX, y, table)
-          ?.setHeaderStyles(targetState, TableCellHeaderStates.COLUMN);
-      }
-    });
-    setPopupState((prev) =>
-      prev ? { ...prev, isHeader: !prev.isHeader } : null,
-    );
-  };
-
   return (
     <>
       {hintState &&
@@ -392,29 +266,14 @@ export const TableEdgeHandlePlugin = () => {
             closePopup();
           }}
         >
-          <GlassPanel>
-            <TableHandleMenu
-              type={popupState.type}
-              isHeader={popupState.isHeader}
-              onToggleHeader={
-                popupState.type === 'row'
-                  ? handleToggleHeaderRow
-                  : handleToggleHeaderColumn
-              }
-              onInsertBefore={
-                popupState.type === 'row'
-                  ? handleInsertRowAbove
-                  : handleInsertColumnLeft
-              }
-              onInsertAfter={
-                popupState.type === 'row'
-                  ? handleInsertRowBelow
-                  : handleInsertColumnRight
-              }
-              onDelete={
-                popupState.type === 'row' ? handleDeleteRow : handleDeleteColumn
-              }
-            />
+          <GlassPanel className='TEP-container'>
+            <CustomScrollArea className='table-popup-list TEP-scroll-area'>
+              <TableHandleMenu
+                popupState={popupState}
+                setPopupState={setPopupState}
+                closePopup={closePopup}
+              />
+            </CustomScrollArea>
           </GlassPanel>
         </EditorPopup>
       )}

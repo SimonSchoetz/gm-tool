@@ -1,3 +1,8 @@
+@import '../TextEditorPopupStyles.css';
 .editor-table-cell.table-cell--handle-hover {
   background-color: var(--color-secondary);
+}
+
+.table-popup-list {
+  max-height: 171px; /* one-off - simulates exact hight of first 2 sections  (4 items + divider */
 }

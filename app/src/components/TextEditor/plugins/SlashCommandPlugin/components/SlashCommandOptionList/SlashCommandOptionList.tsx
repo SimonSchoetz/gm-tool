@@ -46,11 +46,7 @@ export const SlashCommandOptionList: FCProps<Props> = ({
               ref={(el) => {
                 option.setRefElement(el);
               }}
-              className={cn(
-                'TEP--li',
-                isActive && 'TEP--li--active',
-                i === selectedIndex && 'TEP--li--hovered',
-              )}
+              className={cn('TEP--li', isActive && 'TEP--li--active')}
               onClick={() => {
                 selectOptionAndCleanUp(option);
               }}
