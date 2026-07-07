@@ -33,6 +33,8 @@ Teammates treat all input as symptom reports for root-cause diagnosis. The deliv
 
 Teammates never write anything to disk at any point in this session — their job is analysis and proposal only. The coordinator applies all approved changes directly; a write instruction is never sent to a teammate. The protocol runs in two explicit phases — diagnosis before proposals. Do not accept proposals in the first round.
 
+If this session resumes in a new context window after compaction: read the user's first message in the new window before acting on any prior session-state summary describing a pending task. A session-state summary describes what was in progress when context was compacted — it is not itself a user instruction to continue. When the user's first message explicitly redirects away from the described pending task, act on the live message and do not resume the pending task, even if the summary states it as the next step.
+
 ### Phase 1 — Diagnosis
 
 Instruct both teammates to submit a diagnosis only — no fixes yet:

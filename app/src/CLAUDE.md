@@ -127,6 +127,9 @@ In the data-access-layer, one concern = one file:
   - ❌ `import { TableConfigRow } from '../components'` — circular: `TableConfigSection` is inside `screenName/components/`, which exports it; `../components` resolves to that same barrel
   - ✅ `import { GlassPanel } from '../GlassPanel/GlassPanel'` — direct relative path, no barrel involved
   - ✅ `import { TableConfigRow } from '../TableConfigRow/TableConfigRow'` — direct relative path, no barrel involved
+- **A sub-component must never import a type back from the parent module that owns it.** When a type is used by both a parent component and its `components/`-owned sub-component, the parent-owns-child direction makes a child-to-parent import a cycle in the module graph, even when `import type` erases it at compile time and `tsc` raises no error. Extract the shared type to a neutral file that both can import from — never have the sub-component reach back into the parent's file.
+  - ❌ `TableEdgeHint.tsx` (in `TableEdgeHandlePlugin/components/`) importing `HintDirection` via `import type { HintDirection } from '../../TableEdgeHandlePlugin'` — the parent owns the sub-component, so an import running the other direction is backwards even though it compiles
+  - ✅ Declare `HintDirection` in a neutral file (e.g. `TableEdgeHandlePlugin/types.ts` or the file where it is first needed by both), and have both `TableEdgeHandlePlugin.tsx` and `TableEdgeHint.tsx` import it from there
 
 ### Component Internals
 
@@ -331,6 +334,12 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
   - ✅ GOOD: `createNpc: () => Promise<string>` — caller sees the domain return value
   - ❌ BAD: `deleteNpc: typeof deleteMutation.mutateAsync` — exposes a TanStack internal
   - ❌ BAD: `mutate: UseMutateAsyncFunction<...>` — TanStack primitive on the return type
+
+**`useCallback` and `useMemo` are justified only when the wrapped value is read as a dependency in an effect's dependency array, or passed as a prop to a component wrapped in `React.memo`. Applying either hook by default — to event handlers, derived values, or callbacks with no such consumer — adds indirection with no referential-stability benefit and must not be done.** Before wrapping a function or computation in `useCallback`/`useMemo`, identify the specific consumer that requires referential stability. If none exists, write the function or computation as a plain `const` recomputed on every render.
+
+- ✅ GOOD: `useCallback` wrapping `onSelect` because it is passed to `<MemoizedListItem onSelect={onSelect} />`
+- ✅ GOOD: `useMemo` wrapping a derived array because it is read inside a `useEffect` dependency array
+- ❌ BAD: `useCallback`-wrapping a table-row mutation handler (`handleInsertRowAbove`) that is only ever called from an inline `onClick` in the same component's JSX — no memoized child and no effect dependency reads it
 
 **State is reserved for values with no synchronous source — anything arriving from outside React's render cycle (network/promise results, timers, subscriptions, DOM measurements). A value fully computable at render time from props, other state, or module-level constants must be derived via `useMemo` or a plain computed expression, never stored via `useState` plus a recomputing setter.** Reaching for `useState` out of habit when the value is already synchronously derivable duplicates state that render can compute directly, and desyncs the moment the derivation logic and the setter call drift apart.
 

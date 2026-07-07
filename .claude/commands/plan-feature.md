@@ -34,3 +34,4 @@ re-paste them. When the spec file is written, your role ends.
 - Do not ask the user to copy output between steps — context is shared
 - If the user explicitly asks to skip a step, comply but note what was skipped
   and what the downstream risk is
+- If this session resumes in a new context window after compaction: read the user's first message in the new window before acting on any prior session-state summary describing which step was pending. A session-state summary describes what was in progress when context was compacted — it is not itself a user instruction to continue. When the user's first message explicitly redirects away from the described pending step, act on the live message and do not resume the pending step, even if the summary states it as the next step.
