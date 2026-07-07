@@ -1,28 +1,65 @@
 .table-edge-hint {
   position: fixed;
   z-index: var(--most-front);
-  border-radius: var(--radius-xs);
-  background: var(--color-primary);
+  overflow: hidden;
   cursor: grab;
-  transition:
-    width var(--transition-fast),
-    height var(--transition-fast);
+  top: var(--calculated-top);
+  left: var(--calculated-left);
+}
+
+.growing-hint {
+  position: absolute;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-primary);
+  z-index: 5;
+}
+
+.table-edge-hint--icon {
+  z-index: 1000;
+  position: relative;
+  color: transparent;
+  min-width: var(--table-hint-width);
+}
+
+.table-edge-hint--active .table-edge-hint--icon {
+  color: var(--color-fg);
 }
 
 .table-edge-hint--horizontal {
+  transform: translateY(-50%);
   width: var(--table-hint-width);
-  height: 2px; /* one-off */
+}
+
+.table-edge-hint--horizontal .growing-hint {
+  width: 100%;
+  top: calc(var(--table-hint-width) / 2);
+  height: var(--table-hint-thickness);
+  transition:
+    height var(--transition-fast),
+    top var(--transition-fast);
+}
+
+.table-edge-hint--active.table-edge-hint--horizontal .growing-hint {
+  top: calc(var(--table-hint-width) / 4);
+  height: calc(var(--table-hint-width) / 2);
 }
 
 .table-edge-hint--vertical {
-  width: 2px; /* one-off */
-  height: var(--table-hint-width);
+  transform: translateX(-50%);
+  width: var(--table-hint-width);
 }
 
-.table-edge-hint--active.table-edge-hint--horizontal {
-  height: 8px; /* one-off */
+.table-edge-hint--vertical .growing-hint {
+  top: 0;
+  height: 100%;
+  left: calc(var(--table-hint-width) / 2);
+  width: var(--table-hint-thickness);
+  transition:
+    width var(--transition-fast),
+    left var(--transition-fast);
 }
 
-.table-edge-hint--active.table-edge-hint--vertical {
-  width: 8px; /* one-off */
+.table-edge-hint--active.table-edge-hint--vertical .growing-hint {
+  left: calc(var(--table-hint-width) / 4);
+  width: calc(var(--table-hint-width) / 2);
 }
