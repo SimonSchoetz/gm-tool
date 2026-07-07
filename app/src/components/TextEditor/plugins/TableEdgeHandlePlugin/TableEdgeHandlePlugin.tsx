@@ -40,6 +40,13 @@ type PopupState = {
 
 type ActiveHint = HintDirection | null;
 
+const HINT_TYPE: Record<HintDirection, 'row' | 'column'> = {
+  top: 'column',
+  bottom: 'column',
+  left: 'row',
+  right: 'row',
+};
+
 export const TableEdgeHandlePlugin = () => {
   const [editor] = useLexicalComposerContext();
 
@@ -49,10 +56,17 @@ export const TableEdgeHandlePlugin = () => {
 
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPopupOpenRef = useRef(false);
+  const isHintHoveredRef = useRef(false);
 
   useEffect(() => {
     isPopupOpenRef.current = popupState !== null;
   }, [popupState]);
+
+  const closePopup = () => {
+    setPopupState(null);
+    setActiveHint(null);
+    setHintState(null);
+  };
 
   const scheduleHide = useCallback(() => {
     if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
@@ -75,9 +89,10 @@ export const TableEdgeHandlePlugin = () => {
     if (!rootElement) return;
 
     const handleMouseMove = (event: MouseEvent) => {
+      if (isPopupOpenRef.current) return;
       const cell = getDOMCellFromTarget(event.target as Node);
       if (!cell) {
-        if (!isPopupOpenRef.current) scheduleHide();
+        scheduleHide();
         return;
       }
       const tableEl = cell.elem.closest('table');
@@ -94,7 +109,7 @@ export const TableEdgeHandlePlugin = () => {
       const isRight = cell.x === table.columns - 1;
 
       if (!isTop && !isBottom && !isLeft && !isRight) {
-        if (!isPopupOpenRef.current) scheduleHide();
+        scheduleHide();
         return;
       }
 
@@ -111,7 +126,9 @@ export const TableEdgeHandlePlugin = () => {
     };
 
     const handleMouseLeave = () => {
-      if (!isPopupOpenRef.current) scheduleHide();
+      if (!isPopupOpenRef.current && !isHintHoveredRef.current) {
+        scheduleHide();
+      }
     };
 
     rootElement.addEventListener('mousemove', handleMouseMove);
@@ -132,7 +149,7 @@ export const TableEdgeHandlePlugin = () => {
     const table = observer.getTable();
 
     const cellElements: HTMLElement[] = [];
-    if (activeHint === 'top' || activeHint === 'bottom') {
+    if (HINT_TYPE[activeHint] === 'row') {
       table.domRows[cellY]?.forEach((cell) => {
         if (cell?.elem) cellElements.push(cell.elem);
       });
@@ -187,12 +204,16 @@ export const TableEdgeHandlePlugin = () => {
   };
 
   const handleHintMouseEnter = (direction: HintDirection) => {
+    isHintHoveredRef.current = true;
     cancelHide();
     setActiveHint(direction);
   };
 
   const handleHintMouseLeave = () => {
-    if (!isPopupOpenRef.current) scheduleHide();
+    isHintHoveredRef.current = false;
+    if (isPopupOpenRef.current) return;
+    setActiveHint(null);
+    scheduleHide();
   };
 
   const handleInsertRowAbove = () => {
@@ -204,7 +225,7 @@ export const TableEdgeHandlePlugin = () => {
       popupState.tableElement,
       () => $insertTableRowAtSelection(false),
     );
-    setPopupState(null);
+    closePopup();
   };
 
   const handleInsertRowBelow = () => {
@@ -216,7 +237,7 @@ export const TableEdgeHandlePlugin = () => {
       popupState.tableElement,
       () => $insertTableRowAtSelection(true),
     );
-    setPopupState(null);
+    closePopup();
   };
 
   const handleDeleteRow = () => {
@@ -230,7 +251,7 @@ export const TableEdgeHandlePlugin = () => {
         $deleteTableRowAtSelection();
       },
     );
-    setPopupState(null);
+    closePopup();
   };
 
   const handleInsertColumnLeft = () => {
@@ -242,7 +263,7 @@ export const TableEdgeHandlePlugin = () => {
       popupState.tableElement,
       () => $insertTableColumnAtSelection(false),
     );
-    setPopupState(null);
+    closePopup();
   };
 
   const handleInsertColumnRight = () => {
@@ -254,7 +275,7 @@ export const TableEdgeHandlePlugin = () => {
       popupState.tableElement,
       () => $insertTableColumnAtSelection(true),
     );
-    setPopupState(null);
+    closePopup();
   };
 
   const handleDeleteColumn = () => {
@@ -268,7 +289,7 @@ export const TableEdgeHandlePlugin = () => {
         $deleteTableColumnAtSelection();
       },
     );
-    setPopupState(null);
+    closePopup();
   };
 
   const handleToggleHeaderRow = () => {
@@ -326,25 +347,25 @@ export const TableEdgeHandlePlugin = () => {
               {
                 direction: 'top',
                 axisClass: 'horizontal',
-                type: 'row',
+                type: HINT_TYPE.top,
                 show: hintState.showTop,
               },
               {
                 direction: 'bottom',
                 axisClass: 'horizontal',
-                type: 'row',
+                type: HINT_TYPE.bottom,
                 show: hintState.showBottom,
               },
               {
                 direction: 'left',
                 axisClass: 'vertical',
-                type: 'column',
+                type: HINT_TYPE.left,
                 show: hintState.showLeft,
               },
               {
                 direction: 'right',
                 axisClass: 'vertical',
-                type: 'column',
+                type: HINT_TYPE.right,
                 show: hintState.showRight,
               },
             ] as const
@@ -368,7 +389,7 @@ export const TableEdgeHandlePlugin = () => {
         <EditorPopup
           getAnchorRect={() => popupState.hintElement.getBoundingClientRect()}
           onClickOutside={() => {
-            setPopupState(null);
+            closePopup();
           }}
         >
           <GlassPanel>

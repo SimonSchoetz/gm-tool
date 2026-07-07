@@ -1,7 +1,7 @@
 .table-edge-hint {
   position: fixed;
   z-index: var(--most-front);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   background: var(--color-primary);
   cursor: grab;
   transition:
@@ -10,13 +10,13 @@
 }
 
 .table-edge-hint--horizontal {
-  width: 10px; /* one-off */
+  width: var(--table-hint-width);
   height: 2px; /* one-off */
 }
 
 .table-edge-hint--vertical {
   width: 2px; /* one-off */
-  height: 10px; /* one-off */
+  height: var(--table-hint-width);
 }
 
 .table-edge-hint--active.table-edge-hint--horizontal {

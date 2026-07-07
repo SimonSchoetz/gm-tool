@@ -14,14 +14,14 @@ const makeRect = () =>
 describe('calculateHintPosition', () => {
   it('positions the top hint centered above the cell', () => {
     expect(calculateHintPosition('top', makeRect())).toEqual({
-      left: 120,
+      left: 115,
       top: 199,
     });
   });
 
   it('positions the bottom hint centered below the cell', () => {
     expect(calculateHintPosition('bottom', makeRect())).toEqual({
-      left: 120,
+      left: 115,
       top: 219,
     });
   });
@@ -29,14 +29,14 @@ describe('calculateHintPosition', () => {
   it('positions the left hint centered on the left edge of the cell', () => {
     expect(calculateHintPosition('left', makeRect())).toEqual({
       left: 99,
-      top: 205,
+      top: 200,
     });
   });
 
   it('positions the right hint centered on the right edge of the cell', () => {
     expect(calculateHintPosition('right', makeRect())).toEqual({
       left: 149,
-      top: 205,
+      top: 200,
     });
   });
 });

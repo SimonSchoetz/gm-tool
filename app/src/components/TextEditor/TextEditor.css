@@ -162,6 +162,7 @@
 .editor-table-cell {
   background-color: rgb(var(--color-primary-rgb), 0.03);
   transition: background-color var(--transition-hover-on);
+  padding: var(--spacing-xs) var(--spacing-sm);
 }
 
 .editor-table-cell:hover {

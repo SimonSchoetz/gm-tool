@@ -1,6 +1,7 @@
 import { FCProps } from '@/types';
 import { cn } from '@/util';
 import type { HintDirection } from '../../TableEdgeHandlePlugin';
+import { TABLE_HINT_WIDTH } from '../../tableEdgeHandlePlugin.constants';
 import { calculateHintPosition } from './helper';
 import './TableEdgeHint.css';
 
@@ -33,10 +34,13 @@ export const TableEdgeHint: FCProps<Props> = ({
       `table-edge-hint--${axisClass}`,
       active && 'table-edge-hint--active',
     )}
-    style={{
-      display: show ? undefined : 'none',
-      ...calculateHintPosition(direction, cellRect),
-    }}
+    style={
+      {
+        '--table-hint-width': `${TABLE_HINT_WIDTH}px`,
+        display: show ? undefined : 'none',
+        ...calculateHintPosition(direction, cellRect),
+      } as React.CSSProperties
+    }
     onMouseDown={(e) => {
       e.stopPropagation();
     }}
