@@ -1,0 +1,28 @@
+.table-edge-hint {
+  position: fixed;
+  z-index: var(--most-front);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  cursor: grab;
+  transition:
+    width var(--transition-fast),
+    height var(--transition-fast);
+}
+
+.table-edge-hint--horizontal {
+  width: 10px; /* one-off */
+  height: 2px; /* one-off */
+}
+
+.table-edge-hint--vertical {
+  width: 2px; /* one-off */
+  height: 10px; /* one-off */
+}
+
+.table-edge-hint--active.table-edge-hint--horizontal {
+  height: 8px; /* one-off */
+}
+
+.table-edge-hint--active.table-edge-hint--vertical {
+  width: 8px; /* one-off */
+}

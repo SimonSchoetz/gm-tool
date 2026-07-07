@@ -1,0 +1,1 @@
+export { runTableCellMutation } from './runTableCellMutation';

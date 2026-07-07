@@ -10,11 +10,13 @@ import {
   $deleteTableRowAtSelection,
   $deleteTableColumnAtSelection,
 } from '@lexical/table';
-import { cn } from '@/util';
 import { EditorPopup } from '../../components/EditorPopup';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
-import { TableHandleMenu } from './components';
+import { TableHandleMenu, TableEdgeHint } from './components';
+import { runTableCellMutation } from './helper';
 import './TableEdgeHandlePlugin.css';
+
+export type HintDirection = 'top' | 'bottom' | 'left' | 'right';
 
 type HintState = {
   cellX: number;
@@ -36,7 +38,7 @@ type PopupState = {
   hintElement: HTMLDivElement;
 } | null;
 
-type ActiveHint = 'top' | 'bottom' | 'left' | 'right' | null;
+type ActiveHint = HintDirection | null;
 
 export const TableEdgeHandlePlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -47,10 +49,6 @@ export const TableEdgeHandlePlugin = () => {
 
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPopupOpenRef = useRef(false);
-  const topHintRef = useRef<HTMLDivElement | null>(null);
-  const bottomHintRef = useRef<HTMLDivElement | null>(null);
-  const leftHintRef = useRef<HTMLDivElement | null>(null);
-  const rightHintRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     isPopupOpenRef.current = popupState !== null;
@@ -155,11 +153,8 @@ export const TableEdgeHandlePlugin = () => {
     };
   }, [activeHint, hintState]);
 
-  const openPopup = (
-    type: 'row' | 'column',
-    hintRef: React.RefObject<HTMLDivElement | null>,
-  ) => {
-    if (!hintState || !hintRef.current) return;
+  const openPopup = (type: 'row' | 'column', element: HTMLDivElement) => {
+    if (!hintState) return;
     const { cellX, cellY, tableElement } = hintState;
 
     let isHeader = false;
@@ -187,107 +182,96 @@ export const TableEdgeHandlePlugin = () => {
       cellY,
       tableElement,
       isHeader,
-      hintElement: hintRef.current,
+      hintElement: element,
     });
   };
 
-  const handleInsertRowAbove = useCallback(() => {
-    if (!popupState) return;
-    const { cellX, cellY, tableElement } = popupState;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(tableElement);
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const cellNode = tableNode.getCellNodeFromCords(cellX, cellY, table);
-      if (!cellNode) return;
-      cellNode.selectStart();
-      $insertTableRowAtSelection(false);
-    });
-    setPopupState(null);
-  }, [editor, popupState]);
+  const handleHintMouseEnter = (direction: HintDirection) => {
+    cancelHide();
+    setActiveHint(direction);
+  };
 
-  const handleInsertRowBelow = useCallback(() => {
-    if (!popupState) return;
-    const { cellX, cellY, tableElement } = popupState;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(tableElement);
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const cellNode = tableNode.getCellNodeFromCords(cellX, cellY, table);
-      if (!cellNode) return;
-      cellNode.selectStart();
-      $insertTableRowAtSelection(true);
-    });
-    setPopupState(null);
-  }, [editor, popupState]);
+  const handleHintMouseLeave = () => {
+    if (!isPopupOpenRef.current) scheduleHide();
+  };
 
-  const handleDeleteRow = useCallback(() => {
+  const handleInsertRowAbove = () => {
     if (!popupState) return;
-    const { cellX, cellY, tableElement } = popupState;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(tableElement);
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const cellNode = tableNode.getCellNodeFromCords(cellX, cellY, table);
-      if (!cellNode) return;
-      cellNode.selectStart();
-      $deleteTableRowAtSelection();
-    });
+    runTableCellMutation(
+      editor,
+      popupState.cellX,
+      popupState.cellY,
+      popupState.tableElement,
+      () => $insertTableRowAtSelection(false),
+    );
     setPopupState(null);
-  }, [editor, popupState]);
+  };
 
-  const handleInsertColumnLeft = useCallback(() => {
+  const handleInsertRowBelow = () => {
     if (!popupState) return;
-    const { cellX, cellY, tableElement } = popupState;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(tableElement);
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const cellNode = tableNode.getCellNodeFromCords(cellX, cellY, table);
-      if (!cellNode) return;
-      cellNode.selectStart();
-      $insertTableColumnAtSelection(false);
-    });
+    runTableCellMutation(
+      editor,
+      popupState.cellX,
+      popupState.cellY,
+      popupState.tableElement,
+      () => $insertTableRowAtSelection(true),
+    );
     setPopupState(null);
-  }, [editor, popupState]);
+  };
 
-  const handleInsertColumnRight = useCallback(() => {
+  const handleDeleteRow = () => {
     if (!popupState) return;
-    const { cellX, cellY, tableElement } = popupState;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(tableElement);
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const cellNode = tableNode.getCellNodeFromCords(cellX, cellY, table);
-      if (!cellNode) return;
-      cellNode.selectStart();
-      $insertTableColumnAtSelection(true);
-    });
+    runTableCellMutation(
+      editor,
+      popupState.cellX,
+      popupState.cellY,
+      popupState.tableElement,
+      () => {
+        $deleteTableRowAtSelection();
+      },
+    );
     setPopupState(null);
-  }, [editor, popupState]);
+  };
 
-  const handleDeleteColumn = useCallback(() => {
+  const handleInsertColumnLeft = () => {
     if (!popupState) return;
-    const { cellX, cellY, tableElement } = popupState;
-    editor.update(() => {
-      const observer = getTableObserverFromTableElement(tableElement);
-      if (!observer) return;
-      const { tableNode } = observer.$lookup();
-      const table = observer.getTable();
-      const cellNode = tableNode.getCellNodeFromCords(cellX, cellY, table);
-      if (!cellNode) return;
-      cellNode.selectStart();
-      $deleteTableColumnAtSelection();
-    });
+    runTableCellMutation(
+      editor,
+      popupState.cellX,
+      popupState.cellY,
+      popupState.tableElement,
+      () => $insertTableColumnAtSelection(false),
+    );
     setPopupState(null);
-  }, [editor, popupState]);
+  };
 
-  const handleToggleHeaderRow = useCallback(() => {
+  const handleInsertColumnRight = () => {
+    if (!popupState) return;
+    runTableCellMutation(
+      editor,
+      popupState.cellX,
+      popupState.cellY,
+      popupState.tableElement,
+      () => $insertTableColumnAtSelection(true),
+    );
+    setPopupState(null);
+  };
+
+  const handleDeleteColumn = () => {
+    if (!popupState) return;
+    runTableCellMutation(
+      editor,
+      popupState.cellX,
+      popupState.cellY,
+      popupState.tableElement,
+      () => {
+        $deleteTableColumnAtSelection();
+      },
+    );
+    setPopupState(null);
+  };
+
+  const handleToggleHeaderRow = () => {
     if (!popupState) return;
     editor.update(() => {
       const observer = getTableObserverFromTableElement(
@@ -308,9 +292,9 @@ export const TableEdgeHandlePlugin = () => {
     setPopupState((prev) =>
       prev ? { ...prev, isHeader: !prev.isHeader } : null,
     );
-  }, [editor, popupState]);
+  };
 
-  const handleToggleHeaderColumn = useCallback(() => {
+  const handleToggleHeaderColumn = () => {
     if (!popupState) return;
     editor.update(() => {
       const observer = getTableObserverFromTableElement(
@@ -331,120 +315,53 @@ export const TableEdgeHandlePlugin = () => {
     setPopupState((prev) =>
       prev ? { ...prev, isHeader: !prev.isHeader } : null,
     );
-  }, [editor, popupState]);
+  };
 
   return (
     <>
       {hintState &&
         createPortal(
-          <>
-            <div
-              ref={topHintRef}
-              className={cn(
-                'table-edge-hint',
-                'table-edge-hint--horizontal',
-                activeHint === 'top' && 'table-edge-hint--active',
-              )}
-              style={{
-                display: hintState.showTop ? undefined : 'none',
-                left:
-                  hintState.cellRect.left + hintState.cellRect.width / 2 - 5,
-                top: hintState.cellRect.top - 1,
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-              }}
-              onMouseEnter={() => {
-                cancelHide();
-                setActiveHint('top');
-              }}
-              onMouseLeave={() => {
-                if (!isPopupOpenRef.current) scheduleHide();
-              }}
-              onClick={() => {
-                openPopup('row', topHintRef);
-              }}
+          (
+            [
+              {
+                direction: 'top',
+                axisClass: 'horizontal',
+                type: 'row',
+                show: hintState.showTop,
+              },
+              {
+                direction: 'bottom',
+                axisClass: 'horizontal',
+                type: 'row',
+                show: hintState.showBottom,
+              },
+              {
+                direction: 'left',
+                axisClass: 'vertical',
+                type: 'column',
+                show: hintState.showLeft,
+              },
+              {
+                direction: 'right',
+                axisClass: 'vertical',
+                type: 'column',
+                show: hintState.showRight,
+              },
+            ] as const
+          ).map((cfg) => (
+            <TableEdgeHint
+              key={cfg.direction}
+              direction={cfg.direction}
+              axisClass={cfg.axisClass}
+              type={cfg.type}
+              show={cfg.show}
+              active={activeHint === cfg.direction}
+              cellRect={hintState.cellRect}
+              onMouseEnter={handleHintMouseEnter}
+              onMouseLeave={handleHintMouseLeave}
+              onClick={openPopup}
             />
-            <div
-              ref={bottomHintRef}
-              className={cn(
-                'table-edge-hint',
-                'table-edge-hint--horizontal',
-                activeHint === 'bottom' && 'table-edge-hint--active',
-              )}
-              style={{
-                display: hintState.showBottom ? undefined : 'none',
-                left:
-                  hintState.cellRect.left + hintState.cellRect.width / 2 - 5,
-                top: hintState.cellRect.bottom - 1,
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-              }}
-              onMouseEnter={() => {
-                cancelHide();
-                setActiveHint('bottom');
-              }}
-              onMouseLeave={() => {
-                if (!isPopupOpenRef.current) scheduleHide();
-              }}
-              onClick={() => {
-                openPopup('row', bottomHintRef);
-              }}
-            />
-            <div
-              ref={leftHintRef}
-              className={cn(
-                'table-edge-hint',
-                'table-edge-hint--vertical',
-                activeHint === 'left' && 'table-edge-hint--active',
-              )}
-              style={{
-                display: hintState.showLeft ? undefined : 'none',
-                left: hintState.cellRect.left - 1,
-                top: hintState.cellRect.top + hintState.cellRect.height / 2 - 5,
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-              }}
-              onMouseEnter={() => {
-                cancelHide();
-                setActiveHint('left');
-              }}
-              onMouseLeave={() => {
-                if (!isPopupOpenRef.current) scheduleHide();
-              }}
-              onClick={() => {
-                openPopup('column', leftHintRef);
-              }}
-            />
-            <div
-              ref={rightHintRef}
-              className={cn(
-                'table-edge-hint',
-                'table-edge-hint--vertical',
-                activeHint === 'right' && 'table-edge-hint--active',
-              )}
-              style={{
-                display: hintState.showRight ? undefined : 'none',
-                left: hintState.cellRect.right - 1,
-                top: hintState.cellRect.top + hintState.cellRect.height / 2 - 5,
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-              }}
-              onMouseEnter={() => {
-                cancelHide();
-                setActiveHint('right');
-              }}
-              onMouseLeave={() => {
-                if (!isPopupOpenRef.current) scheduleHide();
-              }}
-              onClick={() => {
-                openPopup('column', rightHintRef);
-              }}
-            />
-          </>,
+          )),
           document.body,
         )}
       {popupState && (
