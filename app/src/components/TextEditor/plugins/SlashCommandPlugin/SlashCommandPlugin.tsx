@@ -92,8 +92,8 @@ export const SlashCommandPlugin = () => {
 
       return (
         <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
-          <GlassPanel className='slash-command-popup-container'>
-            <CustomScrollArea childrenContainerClassName='slash-command-popup-list'>
+          <GlassPanel className='TEP-container'>
+            <CustomScrollArea childrenContainerClassName='TEP-scroll-area slash-command-scroll-area'>
               <SlashCommandOptionList
                 menuOptions={menuOptions}
                 selectedIndex={selectedIndex}

@@ -47,10 +47,9 @@ export const SlashCommandOptionList: FCProps<Props> = ({
                 option.setRefElement(el);
               }}
               className={cn(
-                'slash-command-option-list-item',
-                isActive && 'slash-command-option-list-item--active',
-                i === selectedIndex &&
-                  'slash-command-option-list-item--selected',
+                'TEP--li',
+                isActive && 'TEP--li--active',
+                i === selectedIndex && 'TEP--li--hovered',
               )}
               onClick={() => {
                 selectOptionAndCleanUp(option);
@@ -60,7 +59,7 @@ export const SlashCommandOptionList: FCProps<Props> = ({
               }}
             >
               <GlassPanel
-                className='slash-command-option-list-icon-container'
+                className='TEP--li-icon-container'
                 intensity={isActive ? 'bright' : 'dim'}
               >
                 <Icon />

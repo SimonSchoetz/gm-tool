@@ -1,46 +1,4 @@
-.slash-command-option-list-item {
-  cursor: pointer;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  display: flex;
-  align-items: center;
-  border-radius: var(--radius-md);
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs);
-  padding-right: var(--spacing-md);
-  color: var(--color-primary);
-  transition:
-    color var(--transition-fast),
-    background-color var(--transition-fast);
-}
-
-.slash-command-option-list-item--selected {
-  color: var(--color-fg);
-  background-color: var(--color-highlight-bg);
-}
-
-.slash-command-option-list-item--active {
-  color: var(--color-fg);
-}
-
-.slash-command-option-list-icon-container {
-  padding: var(--spacing-xs);
-  border-radius: var(--radius-sm);
-}
-
-.slash-command-option-list-icon-container svg {
-  width: var(--font-size-lg);
-  height: var(--font-size-lg);
-}
-
-.slash-command-option-list-item--selected
-  .slash-command-option-list-icon-container {
-  box-shadow: var(--box-shadow-active);
-  background-color: var(--color-bg);
-  transition:
-    color var(--transition-fast),
-    background-color var(--transition-fast);
-}
+@import '../../../TextEditorPopupStyles.css';
 
 .slash-command-option-list-section-heading {
   font-size: var(--font-size-md);

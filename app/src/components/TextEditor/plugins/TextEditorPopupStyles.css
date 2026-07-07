@@ -1,0 +1,56 @@
+/*TEP -> text editor popup*/
+.TEP-container {
+  background: var(--color-surface);
+  width: max-content;
+  max-width: 250px; /* one-off */
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: none;
+}
+
+.TEP-scroll-area {
+  padding: var(--border-thin);
+}
+
+.TEP--li {
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs);
+  padding-right: var(--spacing-md);
+  color: var(--color-primary);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.TEP--li--hovered {
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+.TEP--li--active {
+  color: var(--color-fg);
+}
+
+.TEP--li-icon-container {
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+}
+
+.TEP--li-icon-container svg {
+  width: var(--font-size-lg);
+  height: var(--font-size-lg);
+}
+
+.TEP--li--hovered .TEP--li-icon-container {
+  box-shadow: var(--box-shadow-active);
+  background-color: var(--color-bg);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}

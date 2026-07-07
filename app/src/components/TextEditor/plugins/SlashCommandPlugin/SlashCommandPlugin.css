@@ -1,13 +1,5 @@
-.slash-command-popup-container {
-  background: var(--color-surface);
-  width: max-content;
-  max-width: 250px; /* one-off */
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  border: none;
-}
+@import '../TextEditorPopupStyles.css';
 
-.slash-command-popup-list {
-  padding: var(--border-thin);
-  max-height: 156px; /* one-off - simulates exact hight of title + first three items */
+.slash-command-scroll-area {
+  max-height: 150px; /* one-off - simulates exact hight of title + first three items */
 }
