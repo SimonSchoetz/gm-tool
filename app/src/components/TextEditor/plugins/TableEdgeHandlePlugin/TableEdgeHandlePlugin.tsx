@@ -200,6 +200,7 @@ export const TableEdgeHandlePlugin = () => {
   };
 
   const handleHintMouseEnter = (direction: HintDirection) => {
+    if (isPopupOpenRef.current) return;
     isHintHoveredRef.current = true;
     cancelHide();
     setActiveHint(direction);
@@ -222,25 +223,27 @@ export const TableEdgeHandlePlugin = () => {
                 direction: 'top',
                 axisClass: 'horizontal',
                 type: HINT_TYPE.top,
-                show: hintState.showTop,
+                show: popupState ? activeHint === 'top' : hintState.showTop,
               },
               {
                 direction: 'bottom',
                 axisClass: 'horizontal',
                 type: HINT_TYPE.bottom,
-                show: hintState.showBottom,
+                show: popupState
+                  ? activeHint === 'bottom'
+                  : hintState.showBottom,
               },
               {
                 direction: 'left',
                 axisClass: 'vertical',
                 type: HINT_TYPE.left,
-                show: hintState.showLeft,
+                show: popupState ? activeHint === 'left' : hintState.showLeft,
               },
               {
                 direction: 'right',
                 axisClass: 'vertical',
                 type: HINT_TYPE.right,
-                show: hintState.showRight,
+                show: popupState ? activeHint === 'right' : hintState.showRight,
               },
             ] as const
           ).map((cfg) => (
