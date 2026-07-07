@@ -12,16 +12,14 @@ import { TableHandleMenu, TableEdgeHint } from './components';
 import './TableEdgeHandlePlugin.css';
 import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
 
-export type HintDirection = 'top' | 'bottom' | 'left' | 'right';
+export type HintDirection = 'top' | 'left';
 
 type HintState = {
   cellX: number;
   cellY: number;
   tableElement: HTMLTableElement;
   showTop: boolean;
-  showBottom: boolean;
   showLeft: boolean;
-  showRight: boolean;
   cellRect: DOMRect;
 } | null;
 
@@ -38,9 +36,7 @@ type ActiveHint = HintDirection | null;
 
 const HINT_TYPE: Record<HintDirection, 'row' | 'column'> = {
   top: 'column',
-  bottom: 'column',
   left: 'row',
-  right: 'row',
 };
 
 export const TableEdgeHandlePlugin = () => {
@@ -95,16 +91,13 @@ export const TableEdgeHandlePlugin = () => {
       if (!tableEl) return;
       const observer = getTableObserverFromTableElement(tableEl);
       if (!observer) return;
-      const table = observer.getTable();
 
       cancelHide();
 
       const isTop = cell.y === 0;
-      const isBottom = cell.y === table.rows - 1;
       const isLeft = cell.x === 0;
-      const isRight = cell.x === table.columns - 1;
 
-      if (!isTop && !isBottom && !isLeft && !isRight) {
+      if (!isTop && !isLeft) {
         scheduleHide();
         return;
       }
@@ -114,9 +107,7 @@ export const TableEdgeHandlePlugin = () => {
         cellY: cell.y,
         tableElement: tableEl,
         showTop: isTop,
-        showBottom: isBottom,
         showLeft: isLeft,
-        showRight: isRight,
         cellRect: cell.elem.getBoundingClientRect(),
       });
     };
@@ -226,24 +217,10 @@ export const TableEdgeHandlePlugin = () => {
                 show: popupState ? activeHint === 'top' : hintState.showTop,
               },
               {
-                direction: 'bottom',
-                axisClass: 'horizontal',
-                type: HINT_TYPE.bottom,
-                show: popupState
-                  ? activeHint === 'bottom'
-                  : hintState.showBottom,
-              },
-              {
                 direction: 'left',
                 axisClass: 'vertical',
                 type: HINT_TYPE.left,
                 show: popupState ? activeHint === 'left' : hintState.showLeft,
-              },
-              {
-                direction: 'right',
-                axisClass: 'vertical',
-                type: HINT_TYPE.right,
-                show: popupState ? activeHint === 'right' : hintState.showRight,
               },
             ] as const
           ).map((cfg) => (
