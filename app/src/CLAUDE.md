@@ -237,6 +237,10 @@ Extraction out of the component file is triggered by either of two independent c
 
 - **Required**: All helper functions (`ComponentName/helper/`) and all util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name. Exception: a helper whose entire body consists of DOM or canvas mutations with no branching, no derived data, and no multi-step logic is exempt — it has no independently verifiable output to assert against.
 - **Forbidden**: React components — files whose exported function returns JSX — must not have unit tests. Components change shape frequently; testing helpers and the data layer provides sufficient coverage at lower cost.
+- **Geometry and layout calculation helper tests must assert the relationship, computed from the same imported constants the implementation uses — never bake the constants' current numeric values into a separate literal expectation.** This applies specifically to helpers whose output depends on constants under active visual tuning (spacing, offsets, clamping thresholds, and similar layout values still being adjusted for visual correctness). A test that hardcodes today's numeric output breaks — or worse, silently stops verifying the real relationship — every time the constant is tuned, even though the implementation's logic is unchanged.
+  - ❌ BAD: `expect(calculateHintPosition(anchor)).toBe(anchor.top + 8)` — `8` is a copy of `HINT_OFFSET`'s current value hardcoded as a literal; a tuning pass changing `HINT_OFFSET` to `12` breaks this test with no logic change
+  - ✅ GOOD: `expect(calculateHintPosition(anchor)).toBe(anchor.top + HINT_OFFSET)` — imports the same constant the implementation reads, so the assertion tracks tuning changes automatically
+  - This does not apply to helpers whose expected output is not derived from a tunable constant (e.g. a string-formatting helper) — hardcoding a literal expected string there is correct.
 
 ### Styles
 
