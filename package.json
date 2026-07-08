@@ -11,6 +11,7 @@
     "url": "git+https://github.com/SimonSchoetz/gm-tool.git"
   },
   "author": "Simon Schötz",
+  "type": "module",
   "scripts": {
     "test": "cd app && npm run test",
     "dev": "cd app && npm run dev",
