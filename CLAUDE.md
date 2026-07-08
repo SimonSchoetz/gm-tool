@@ -254,10 +254,20 @@ For **Tauri configuration values** (`tauri.conf.json` and related config files),
 
 ## Product
 
-### Vision
+### Domain Glossary
 
-Convinced of the transformative power and positive impact of table top role playing games (TTRPGs), the GM Tool makes crunchier systems like Dungeons and Dragons (D&D) more accessible for new audiences.
+Entity vocabulary grounded in the actual database schema (`app/db/*/schema.ts`). Every entity below is scoped to a single Adventure via `adventure_id` unless noted otherwise.
 
-### Mission
-
-Lowering the entry barrier for new Game Masters (GMs) and help experienced ones to avoid "GM fatigue"/burnout by guiding through the process of session preparation inspired by Michael Shea's "Return of the Lazy Dungeon Master". With an opinionated database structure, the GM Tool helps building an organic collection of non-player characters (NPCs), places, items, etc. and helps to track their influence on the story created with the players during game play.
+| Term | Meaning |
+| --- | --- |
+| Adventure | Top-level campaign container. Owns all other entities. |
+| Session | A single game session within an Adventure. Tracks `active_view` (`prep` or `ingame`) and owns an ordered set of Session Steps. |
+| Session Step | One prep checklist item within a Session, keyed to Michael Shea's Lazy Dungeon Master steps: reviewing characters, a strong start, potential scenes, secrets and clues, fantastic locations, important NPCs, relevant monsters, magic items. |
+| NPC (non-player character) | A character controlled by the GM. |
+| PC (player character) | A character controlled by a player. |
+| Foe | An antagonist or monster. |
+| Faction | An organization or group within the Adventure's world. |
+| Location | A place within the Adventure's world. |
+| Item | An object — e.g. equipment or a magic item — within the Adventure. |
+| Image | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items. |
+| Table Config | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity. |
