@@ -2,6 +2,7 @@
 
 ## Structure
 
+```text
 db/
 ├── \_migrations/ # Migration runner and migration files
 ├── \_system/ # Infrastructure key-value store
@@ -16,6 +17,7 @@ db/
 ├── npc/
 ├── image/
 └── table-config/
+```
 
 **Schema source of truth:** Each domain's `schema.ts` defines the table via `defineTable()`. Don't maintain a separate schema list — read the `schema.ts` files directly.
 

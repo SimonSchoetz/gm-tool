@@ -71,6 +71,7 @@
 
 - Epic: Infrastructure to provide app downloads
 - Developer ID and notarized app 
+- Licencing
 - Feature (Content): Onboarding
 - Feature (Content): Revise All existing texts like session step tooltips and templates
 - Feature (Content): Session Zero / Safety Tools

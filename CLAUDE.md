@@ -26,6 +26,7 @@ Project to build the app I want for my personal use without constraints like acc
 
 ### App Structure (`app/`)
 
+```text
 app/
 ├── CLAUDE.md
 ├── db/          # SQLite database
@@ -41,6 +42,7 @@ app/
 ├── src-tauri/   # Rust backend (Tauri)
 │   └── CLAUDE.md
 └── util/
+```
 
 See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`, and `domain/`.
 
@@ -176,7 +178,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
 ### Epistemological Discipline
 
-**Training data confers reasoning capability, never factual authority about external state.** Any claim about what an external system accepts, exposes, or requires — regardless of surface: a library's API, a CI action's input schema, a CLI flag, a config file format, a REST endpoint's request body, the set of tools currently available to this Claude instance and how each is invoked, or any other specification defined outside this repository — must be verified in the current context window before being stated. The surface type is irrelevant; the obligation is the same. Do not state the fact and verify later. Training knowledge is a starting point for knowing *where* to look and *what questions to ask*; it is never sufficient to state that something exists, works a certain way, or does not exist.
+**Training data confers reasoning capability, never factual authority about external state.** Any claim about what an external system accepts, exposes, or requires — regardless of surface: a library's API, a CI action's input schema, a CLI flag, a config file format, a REST endpoint's request body, the set of tools currently available to this Claude instance and how each is invoked, or any other specification defined outside this repository — must be verified in the current context window before being stated. The surface type is irrelevant; the obligation is the same. Do not state the fact and verify later. Training knowledge is a starting point for knowing _where_ to look and _what questions to ask_; it is never sufficient to state that something exists, works a certain way, or does not exist.
 
 The corollary: **absence is not provable from training knowledge.** Claiming that a rule, symbol, or feature does not exist based on not recognizing it from training is always wrong — only a lookup that returns no result proves absence.
 
@@ -267,16 +269,16 @@ For **Tauri configuration values** (`tauri.conf.json` and related config files),
 
 Entity vocabulary grounded in the actual database schema (`app/db/*/schema.ts`). Every entity below is scoped to a single Adventure via `adventure_id` unless noted otherwise.
 
-| Term | Meaning |
-| --- | --- |
-| Adventure | Top-level campaign container. Owns all other entities. |
-| Session | A single game session within an Adventure. Tracks `active_view` (`prep` or `ingame`) and owns an ordered set of Session Steps. |
-| Session Step | One prep checklist item within a Session, keyed to Michael Shea's Lazy Dungeon Master steps: reviewing characters, a strong start, potential scenes, secrets and clues, fantastic locations, important NPCs, relevant monsters, magic items. |
-| NPC (non-player character) | A character controlled by the GM. |
-| PC (player character) | A character controlled by a player. |
-| Foe | An antagonist or monster. |
-| Faction | An organization or group within the Adventure's world. |
-| Location | A place within the Adventure's world. |
-| Item | An object — e.g. equipment or a magic item — within the Adventure. |
-| Image | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items. |
-| Table Config | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity. |
+| Term                       | Meaning                                                                                                                                                                                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Adventure                  | Top-level campaign container. Owns all other entities.                                                                                                                                                                                       |
+| Session                    | A single game session within an Adventure. Tracks `active_view` (`prep` or `ingame`) and owns an ordered set of Session Steps.                                                                                                               |
+| Session Step               | One prep checklist item within a Session, keyed to Michael Shea's Lazy Dungeon Master steps: reviewing characters, a strong start, potential scenes, secrets and clues, fantastic locations, important NPCs, relevant monsters, magic items. |
+| NPC (non-player character) | A character controlled by the GM.                                                                                                                                                                                                            |
+| PC (player character)      | A character controlled by a player.                                                                                                                                                                                                          |
+| Foe                        | An antagonist or monster.                                                                                                                                                                                                                    |
+| Faction                    | An organization or group within the Adventure's world.                                                                                                                                                                                       |
+| Location                   | A place within the Adventure's world.                                                                                                                                                                                                        |
+| Item                       | An object — e.g. equipment or a magic item — within the Adventure.                                                                                                                                                                           |
+| Image                      | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items.                                                                                                                                  |
+| Table Config               | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity.                                                                                                                        |
