@@ -62,10 +62,7 @@ src/
 
 ### Barrel Files
 
-Two directory types exist — distinguish them before adding or deleting a barrel:
-
-- **Module directory**: owns a single domain entity (`npcs/`, `adventures/`, `table-config/`). Always exposes its public API through an `index.ts`. This barrel is required.
-- **Grouping folder**: organizes module directories but owns no domain itself (`data-access-layer/`, `components/`, `util/`, `hooks/`, `services/`). Every grouping folder under `src/` **requires** a barrel (`index.ts`) with explicit named exports — `export *` is banned in grouping barrels. External consumers always import from exactly one level: `@/components`, `@/data-access-layer`, `@/util`, etc. — never deeper. Within-module imports use the module directory barrel via relative path (`./SortableListItem`, not `@/components/SortableList/SortableListItem`). Exceptions with no barrel: `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only), `assets/`.
+`app/CLAUDE.md` defines module directory vs. grouping folder. In `src/`, grouping folders are `data-access-layer/`, `components/`, `util/`, `hooks/`, `services/`, `providers/`, and **any `components/`-style subdirectory at any nesting level** (a screen's local `components/`, a `ComponentName/components/`, a `ComponentName/helper/`) — the barrel-and-named-exports rule applies identically regardless of depth. External consumers always import from exactly one level: `@/components`, `@/data-access-layer`, `@/util`, etc. — never deeper. Within-module imports use the module directory barrel via relative path (`./SortableListItem`, not `@/components/SortableList/SortableListItem`). Exceptions with no barrel: `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only), `assets/`.
 - `@db` is an explicit exception: no grouping barrel exists at the db root. See `app/db/CLAUDE.md` — Naming for the authoritative import depth rule.
 - In **module directory barrels**, `export *` is permitted when the file has a single, obvious public concern (one component + its types) with no internals to leak. Use explicit named exports when a file exports multiple distinct things or has implementation details that should stay private. The trigger: if you would have to think about whether a new export should be public, use explicit exports.
   - ✅ GOOD: `data-access-layer/npcs/index.ts` — module directory, barrel required
@@ -76,18 +73,11 @@ Two directory types exist — distinguish them before adding or deleting a barre
   - ✅ GOOD: `export { useNpc, useNpcs } from './useNpc'` — hooks are the public API
   - ❌ BAD: `export { npcKeys } from './npcKeys'` in the module barrel — key factory is internal
 
-### 1 Concern → 1 File (frontend examples)
-
-In the data-access-layer, one concern = one file:
-
-- ✅ GOOD: `sessionKeys.ts` owns all query key factories for sessions; `useSession.ts` owns the single-entity query + mutations; `useSessions.ts` owns the collection query + mutations — no provider, TanStack Query's shared cache deduplicates across hooks
-- ❌ BAD: A `DomainProvider` that owns mutations and passes them as props — TanStack Query replaces manual providers; the hooks ARE the data access layer
-
 ### Screens
 
 - screens are what would be different pages on a website
 - When they are displayed is handled in `App.tsx`
-- **Any `components/` subdirectories** follow the same barrel rule as component-library `ComponentName/components/`: they are grouping folders and require an `index.ts` with explicit named exports. Sub-components within a screen are always imported from `./components`, never by direct path.
+- Screen-local `components/` subdirectories follow the Barrel Files rule above (nesting-level-independent). Sub-components within a screen are always imported from `./components`, never by direct path.
   - ✅ `import { StepSection } from './components'`
   - ❌ `import { StepSection } from './components/StepSection/StepSection'`
 
@@ -106,17 +96,16 @@ In the data-access-layer, one concern = one file:
 - **Icon components imported from any third-party icon library are always bound to a name ending in `Icon`, even when the library's own exported name does not end that way.** Rename via the import alias when necessary (`import { Trash2 as Trash2Icon } from 'some-icon-library'`) — never bind the bare library name directly into JSX-consuming code. This is a first-party naming convention applied at the import boundary, independent of which icon library is in use — it applies to every icon import in `src/`, with no exception for single-use or plugin-local imports.
   - ✅ GOOD: `import { CalendarIcon } from 'lucide-react';`
   - ❌ BAD: `import { Calendar } from 'lucide-react';`
-- **Before introducing a new instance of a recurring pattern, grep for the existing convention independently — do not rely solely on the spec's cited references.** A spec's KAD may validate new code only against the conventions it explicitly names. Any recurring codebase pattern not named in the spec (naming suffixes, file placement conventions, prop shapes) must still be discovered and matched. Before writing code that introduces a new instance of something already done repeatedly elsewhere (e.g., a new icon import, a new hook, a new error factory), search the codebase for at least one existing instance of that same kind of thing and match its convention — even when no reference implementation was named for it.
 
 ### Component Library
 
 - each component has its own folder
 - each component has its own `.css` file
 - Functions that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. This covers both pure functions (transformations, formatters, predicates) and non-pure helpers (DOM/canvas mutation drivers). Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
-- Sub-components (functions that return JSX) used exclusively within a parent component belong in `ComponentName/components/`, where `ComponentName` is the immediate JSX parent — the component whose render output directly contains the sub-component. Ownership is not inherited by ancestors. This rule applies at every level of nesting: a sub-component of a sub-component belongs in the sub-component's own `ComponentName/components/`, not at the screen or top-level module's `components/`. When a sub-component is rendered by two or more unrelated parents, it belongs to neither — place it as a peer module directory at the nearest shared ancestor. For top-level components in `components/`, this means a standalone `components/SubComponentName/` directory alongside its consumers, not nested under either of them. **Sub-component ownership does not apply to provider modules.** A component rendered exclusively by a provider belongs in `components/`, not inside the provider's module directory. `providers/` is infrastructure; its `components/` subdirectory (if any) is reserved for provider-internal structural fragments, not domain UI.
-  - ✅ `components/MentionPopup/` — domain UI components belong in `components/` regardless of consumer count; the sub-component ownership rule applies within the component library only, not to provider modules
-  - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — provider modules are infrastructure; they do not adopt domain UI components as sub-components even when they are the sole renderer
-- `helper/` and `components/` each have an `index.ts` as a within-module grouping barrel — explicit named exports, never re-exported from the parent `ComponentName/index.ts`. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory). A flat single-file sub-component is exported directly from the `components/` barrel.
+- **Sub-component ownership**: a sub-component (a function returning JSX, used exclusively within one parent) belongs in `ComponentName/components/`, where `ComponentName` is its immediate JSX parent — not any ancestor. This applies at every nesting depth: a sub-component of a sub-component belongs to that sub-component's own `components/`, never the screen or top-level module's. When two or more unrelated parents render the same sub-component, it belongs to neither — place it as a peer module directory at the nearest shared ancestor (a standalone `components/SubComponentName/`, not nested under either consumer). **Exception — provider modules**: a component rendered exclusively by a provider still belongs in `components/`, not inside the provider's own module directory; `providers/` is infrastructure, and its `components/` (if any) holds only provider-internal structural fragments, not domain UI.
+  - ✅ `components/MentionPopup/` — domain UI belongs in `components/` regardless of consumer count, even when a provider is the sole renderer
+  - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — providers never adopt domain UI as sub-components
+- `helper/` and `components/` are within-module grouping barrels per Barrel Files above, with one addition: never re-export their contents from the parent `ComponentName/index.ts` — they are internal to the module. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory); a flat single-file sub-component is exported directly from the `components/` barrel.
   - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
   - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
   - ✅ Parent imports `import { AvatarCell } from './components'`
@@ -171,11 +160,8 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
 
 **Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
 
-- ❌ `<input type="text" />` — `type="text"` is the default
-- ❌ `<button type="submit" />` — `type="submit"` is the browser default for button
-- ✅ `<input />`, `<button />`
-- ✅ `<input type="checkbox" />` — non-default, keep it
-- ✅ `<button type="button" />` — non-default, keep it
+- ❌ `<input type="text" />` → ✅ `<input />` — `type="text"` is the default
+- ✅ `<input type="checkbox" />`, `<button type="button" />` — non-default values are kept
 
 **Variant system:**
 
@@ -271,8 +257,7 @@ Extraction out of the component file is triggered by either of two independent c
   - ❌ `color: #ffffff`
 - **`/* one-off */` — intentional CSS singularities:** When a raw CSS value does not warrant a design token — because its use-case is narrow enough that the user has decided it need not be reused — mark it with a `/* one-off */` comment on the same line. This comment is the canonical signal that the raw value is an intentional exception to the token obligation, not an oversight. A reviewer who sees `/* one-off */` must not file a violation. Whether a raw value warrants the annotation is the user's call — never the implementer's or reviewer's.
   - ✅ `border-radius: 3px; /* one-off */`
-- **Raw values without `/* one-off */` are surfaced to the user after the task completes.** When implementation introduces or encounters any raw CSS value without the annotation, collect them and report them at the end of the task — file path, line, and value. The user then decides: add a token, add the annotation, or leave it. Do not auto-flag them as hard violations mid-task.
-- **Token-addition violations are non-blocking:** When a raw value is found and no token exists for it, flag it. The commit may proceed without the fix; the deferred state is not a violation.
+- **Raw values without `/* one-off */` are surfaced to the user after the task completes, not mid-task, and never block the commit.** Collect them during implementation and report file path, line, and value at the end of the task; the user then decides: add a token, add the annotation, or leave it. The deferred state is not a violation.
 
 **DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, include both in a single object cast — do not split them across two props or two casts.
 
@@ -319,13 +304,8 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 **Layer responsibilities:**
 
 - `app/services/` — business logic, wraps DB calls and Tauri API calls that require business logic, compose multiple operations, or need domain-typed error handling; throws domain errors from `@domain`. Import via `@services/<file>`.
-  - **Service layer must not supply fallback defaults for nullable or DB-defaulted columns.** A nullable column's correct value when not provided is `NULL` — supplying a fallback in the service layer misrepresents domain state. Service functions pass values through as-is or omit them; they do not apply `?? 'fallback'` or similar substitutions.
-    - ❌ BAD: `name: data.name ?? 'New Session'` in a service `create` function — implies the session has a name when it doesn't
-    - ✅ GOOD: `name: data.name` — pass the value through; the DB handles NULL
-  - **Never replicate a DB default value at a call site.** When a column has a SQL `DEFAULT`, omit the field — the database supplies the value. When a `NOT NULL DEFAULT x` column appears non-optional at a call site, the fix is `generateCreateSchema` — never patch the call site.
-    - ❌ BAD: `active_view: 'prep'` in a service `create` call because the column became non-optional
-    - ✅ GOOD: omit `active_view` entirely — `generateCreateSchema` makes it optional at the schema level; the DB default fires
-- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch. Tauri API calls that are pure reads with no business logic and no domain error transformation go directly here — never through `services/`.
+  - **Service-layer conventions (no fallback defaults for nullable columns, DB `DEFAULT` handling via `generateCreateSchema`) are documented in `app/services/CLAUDE.md`** — do not duplicate them here.
+- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch. Tauri API calls that are pure reads with no business logic and no domain error transformation go directly here — never through `services/`. One concern = one file: query keys, single-entity hooks, and collection hooks each own a separate file (`sessionKeys.ts`, `useSession.ts`, `useSessions.ts`) — TanStack Query's shared cache deduplicates across hooks, so no `DomainProvider` wrapping mutations is needed; the hooks are the data access layer.
 - `screens/` — UI only, no error handling, no try/catch
 - Error Boundary at app level catches all unhandled async errors
 

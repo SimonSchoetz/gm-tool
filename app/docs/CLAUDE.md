@@ -44,8 +44,6 @@ Required section in every spec, placed after the progress tracker and before the
 
 Each entry: a short heading stating the decision, followed by one paragraph of rationale. Cross-reference the CLAUDE.md rule that drove it when one applies. State decisions as facts — never attribute them to a conversation, a person, or a prior agent. The spec is consumed by a fresh implementing instance with no conversational context; provenance is noise.
 
-In split format, this section lives exclusively in the root index file. Sub-feature files do not contain their own decision sections.
-
 **SF self-containment for architectural consequences.** When a KAD produces a structural choice in a specific SF that an implementer reading only that SF file would find surprising — a type from a foreign layer appearing as a parameter, a deliberate deviation from a boundary rule, or any choice whose rationale lives only in the root KAD section — the SF body must include a brief inline rationale note at the decision site. The note must name the KAD heading it corresponds to. An SF that contains a surprising structural choice with no inline rationale is a spec defect: the implementing instance has no basis to distinguish intentional design from error.
 
 ### Per sub-feature section
@@ -106,7 +104,7 @@ Required section in every spec. Before marking a spec complete, evaluate:
 - Does this spec introduce a new structural pattern (e.g. a new layer, directory convention, or module shape) that should be documented?
 - Does this spec make a previously documented example invalid?
 - Does this spec add or change anything that would affect a new domain implementation — a new layer, a changed ambient system, a new convention, or a new infrastructure touch point? If yes, update `app/docs/_product/domain-scaffold.md`.
-- Did writing this spec produce a fact established by executing a command or toolchain rather than by reading a file — and does that fact generalize beyond the file where it was discovered? If yes, the fact's authoritative statement belongs in the relevant CLAUDE.md file, cited with the toolchain-execution citation form — do not state the fact in full only in this spec's Key Architectural Decisions section. A KAD entry may still reference it with a short heading and a pointer to the CLAUDE.md file, so any SF that needs to cite the rationale per the SF self-containment rule has a heading to name.
+- Did writing this spec establish a fact via toolchain execution (not a file read) that generalizes beyond this spec? If yes, its authoritative statement belongs in the relevant CLAUDE.md file, cited with the toolchain-execution citation form — not stated in full only in this spec's KAD. A KAD entry may still reference it by heading, so any SF needing the rationale (per SF self-containment) has a heading to name.
 
 For each impact found, list the affected CLAUDE.md file and the required update. If there is no impact, write "None." This section is addressed to the implementing instance — every entry must be a concrete, self-contained file-level instruction. Do not reference other agents, commands, conversations, or briefs.
 
@@ -115,10 +113,8 @@ For each impact found, list the affected CLAUDE.md file and the required update.
 When a spec is expected to exceed ~400 lines, use the split format instead of a single file:
 
 - **Root index file** (`SPEC_<FEATURE>.md`): contains the progress tracker, Key Architectural Decisions section, the CLAUDE.md impact section, and a file list with relative links to each sub-feature file.
-- **Sub-feature files** (`SPEC_<FEATURE>_SF<N>.md`): each contains exactly one sub-feature's layered breakdown. Never put more than one sub-feature section in a split file.
+- **Sub-feature files** (`SPEC_<FEATURE>_SF<N>.md`): each contains exactly one sub-feature's layered breakdown only. Never duplicate a root-index-exclusive section (progress tracker, Key Architectural Decisions, CLAUDE.md impact) in a sub-feature file, and never put more than one sub-feature section in a split file.
 
 The layered order rule (DB changes → Services → Data Access Layer → Frontend) applies inside each sub-feature file unchanged.
 
-**Progress tracker placement**: the progress tracker lives exclusively in the root index file. Sub-feature files do not contain their own trackers. The root index file is the authoritative status document for the entire spec.
-
-**CLAUDE.md impact section placement**: the CLAUDE.md impact section lives exclusively in the root index file. Sub-feature files do not contain their own CLAUDE.md impact sections. The assessment must cover the spec as a whole — evaluate all sub-features together before writing the impact entry.
+**CLAUDE.md impact assessment scope**: must cover the spec as a whole — evaluate all sub-features together before writing the impact entry, even though the section itself lives only in the root index file.

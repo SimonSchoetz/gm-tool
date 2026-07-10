@@ -45,3 +45,7 @@ Two directory types exist — distinguish them before adding or deleting a barre
 - **Grouping folder**: organizes module directories but owns no domain itself. Requires an `index.ts` barrel with explicit named exports — `export *` is banned in grouping barrels.
 
 This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific applications of this rule (which directories are grouping folders, import depth conventions) are documented in each layer's own CLAUDE.md.
+
+## Convention Discovery
+
+**Before introducing a new instance of a recurring pattern, grep for the existing convention independently — do not rely solely on a spec's cited references.** A spec's Key Architectural Decisions may validate new code only against the conventions it explicitly names. Any recurring codebase pattern not named in the spec (naming suffixes, file placement conventions, prop shapes) must still be discovered and matched. Before writing code that introduces a new instance of something already done repeatedly elsewhere (e.g., a new icon import in `src/`, a new hook, a new error factory in `domain/`, a new service composition pattern in `services/`), search the codebase for at least one existing instance of that same kind of thing and match its convention — even when no reference implementation was named for it.
