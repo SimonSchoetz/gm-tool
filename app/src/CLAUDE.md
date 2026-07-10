@@ -142,6 +142,13 @@ Never leave an IIFE in a render return.
 
 **No inline sub-components.** A named function declared inside a component body that returns JSX is a sub-component, not a helper. It must be extracted to `ComponentName/components/` exactly as if it had been defined outside the parent file. Defining it inline does not make it exempt from the ownership rule — the extraction destination is the same regardless of where the function is currently declared.
 
+**Pass props directly when no transformation, guard, renaming, or toolchain enforcement is needed — never wrap them in a named function.** A wrapper that only forwards its argument unchanged adds no logic and must not exist; inline the prop reference. This governs JSX prop wiring — not hook return types or public API boundaries, where a wrapper hides implementation details and presents a domain-typed interface. A wrapper is permitted only when it adds a transformation (`() => onClose(id)`), a guard (`() => { if (enabled) onSubmit() }`), adapts a signature mismatch (`(e: MouseEvent) => onSelect(e.currentTarget.dataset.id)`), or is required by an active ESLint rule (`() => { void handleAsync(); }` — required by `@typescript-eslint/no-misused-promises` to explicitly discard a Promise return where a synchronous callback is expected).
+
+- ❌ BAD: `const handleMouseEnter = () => onMouseEnterBridge(); <Foo onMouseEnter={handleMouseEnter} />`
+- ✅ GOOD: `<Foo onMouseEnter={onMouseEnterBridge} />`
+
+**Before wiring a prop to any component you did not write in the current task, read its implementation file and verify the prop is forwarded to the element or sub-component where it takes effect.** A prop declared in a component's props type may not be forwarded internally — TypeScript types describe the interface surface, not the internal wiring. Passing a prop that is silently dropped is a runtime no-op with no compiler or linter error. Verify before writing the JSX; do not defer it to code review.
+
 **Props pattern — three cases, pick exactly one:**
 
 Selection is a strict gate — apply in order, stopping at the first match. The question at each step is "what does the root node render?", not "what props does the consumer currently pass?":

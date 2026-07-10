@@ -140,7 +140,7 @@ In manual fix mode:
 - The user tests and reviews the implementation independently.
 - Do not commit anything unless the user explicitly instructs a commit. An explicit commit instruction names what to commit — do not infer scope or create a commit opportunistically.
 - When the user reports a bug: analyze how the bug was introduced or missed during implementation. Identify which phase of the process failed (spec gap, implementer miss, review miss, invariant not applied) and what the process should have done differently. Surface this analysis alongside the fix — it is handoff material for a future /refine-claude session. Additionally, apply the corrected understanding for the remainder of the current session going forward — do not wait for a future /refine-claude session to act on it. A lesson identified mid-session and only recorded for later, while the same class of mistake recurs before the session ends, is a missed application, not a deferred one.
-- When a fix attempt is based on static reasoning about a discrepancy that only manifests at runtime (the code reads correctly but observed behavior differs from expected behavior) and that attempt fails to resolve the bug, do not attempt a second reasoning-based fix guess. Escalate to diagnostic instrumentation first — add logging, a breakpoint, or an equivalent runtime probe to observe actual state — before proposing another fix. Exception: when the bug involves DOM event ordering across a React portal boundary (a component that renders through a portal while also relying on native DOM event listeners, not synthetic React handlers, for ordering-sensitive behavior like `mouseenter`/`mouseleave`), escalate directly to instrumentation without the one-failed-attempt threshold. A portal detaches the element's rendered DOM position from its logical component-tree position, which invalidates the DOM-subtree-containment assumptions that ordering reasoning depends on — a single reasoning attempt is not expected to succeed in this condition, so waiting for it to fail first only delays the correct escalation.
+- When a fix attempt is based on static reasoning about a discrepancy that only manifests at runtime (the code reads correctly but observed behavior differs) and that attempt fails, do not attempt a second reasoning-based guess. Escalate to diagnostic instrumentation first — logging, a breakpoint, or an equivalent runtime probe — before proposing another fix. Exception: when the bug involves DOM event ordering across a React portal boundary (portal-rendered component relying on native DOM listeners for ordering-sensitive behavior), escalate directly to instrumentation without the one-failed-attempt threshold — portals detach rendered DOM position from component-tree position, invalidating the containment assumptions ordering reasoning depends on.
 - Apply all implementation invariants to any fix implemented in this mode: tsc and eslint must pass before presenting the fix as done; cleanup is not optional; file compliance applies.
 - When the user says the branch is ready or explicitly ends the session, stop.
 
@@ -160,57 +160,32 @@ Removing dead code, commented-out blocks, and artifacts from replaced approaches
 
 A step that leaves behind artifacts from what it replaced is not complete.
 
-Type derivation is a cleanup obligation, not a post-implementation task. After any
-change that alters how a file gets its data, removes a dependency, or replaces an
-approach, re-derive the types and exports of every affected file bottom-up from
-actual usage. A type field with no reader is dead code. An export with no consumer
-inside the module is a leak. Remove both in the same step that caused them.
+Type derivation is a cleanup obligation, not a post-implementation task. After any change that alters how a file gets its data, removes a dependency, or replaces an approach, re-derive the types and exports of every affected file bottom-up from actual usage. A type field with no reader is dead code. An export with no consumer inside the module is a leak. Remove both in the same step that caused them.
 
 ## File Compliance
 
-Every file you create, extract, or modify is fully owned by you for the duration of
-the step that touches it. Apply every CLAUDE.md rule to it independently — do not
-wait for a reviewer to flag violations.
+Every file you create, extract, or modify is fully owned by you for the duration of the step that touches it. Apply every CLAUDE.md rule to it independently — do not wait for a reviewer to flag violations.
 
-This applies to modified files equally as to new ones. When a step changes a file,
-run a compliance check on that file's current state before marking the step complete —
-not only on the lines you added.
+This applies to modified files equally as to new ones. When a step changes a file, run a compliance check on that file's current state before marking the step complete — not only on the lines you added.
 
-A code review is a sample. It identifies violations in existing code. It is
-not a substitute for your own compliance check on files you introduce or modify.
+A code review is a sample. It identifies violations in existing code. It is not a substitute for your own compliance check on files you introduce or modify.
 
 ## Ambiguity
 
-When a step has more than one valid path — multiple options offered, competing
-interpretations, or a choice with observable consequences on behavior — stop
-and ask before proceeding. Do not resolve the ambiguity independently.
+When a step has more than one valid path — multiple options offered, competing interpretations, or a choice with observable consequences on behavior — stop and ask before proceeding. Do not resolve the ambiguity independently.
 
-Cleanup and dead code removal are not ambiguous — act on them. Anything with
-a behavioral tradeoff is — surface it to the user.
+Cleanup and dead code removal are not ambiguous — act on them. Anything with a behavioral tradeoff is — surface it to the user.
 
 When the user provides input mid-cycle — decisions, fix direction, an entry point to resume from — treat it as a navigation instruction, not as permission to self-interpret. Resume from the step the user names, passing their input as context to the agent responsible for that step. The implementer does not evaluate, interpret, or collapse the remaining steps on the user's behalf.
-
-If this session resumes in a new context window after compaction: read the user's first message in the new window before acting on any prior session-state summary describing a pending task or resumption point. A session-state summary describes what was in progress when context was compacted — it is not itself a user instruction to continue. When the user's first message explicitly redirects away from the described pending task, act on the live message and do not resume the pending task, even if the summary states it as the next step.
 
 When the user provides content that falls outside implementation scope — proposed rule changes, CLAUDE.md feedback, or meta-level process suggestions — assess its soundness and give feedback. Do not treat it as an instruction to execute.
 
 ## Engineering Validity
 
-Before executing any instruction — whether from the spec or from spec-writer
-output in the review loop — read it as a coder. Ask whether the code it
-requires makes sense — not whether the architecture behind it is correct, but
-whether the implementation itself is coherent. If it is not, stop. State the
-instruction, describe what is wrong with the code it produces, and wait for
-the user to resolve it before proceeding.
+Before executing any instruction — whether from the spec or from spec-writer output in the review loop — read it as a coder. Ask whether the code it requires makes sense — not whether the architecture behind it is correct, but whether the implementation itself is coherent. If it is not, stop. State the instruction, describe what is wrong with the code it produces, and wait for the user to resolve it before proceeding.
 
-This is not a license to challenge architectural decisions. The question is
-whether the code makes sense, not whether you would have designed it
-differently. An instruction that is physically impossible to execute (e.g.,
-a CSS file cannot import from a TypeScript module) is incoherent regardless
-of its architectural rationale — stop and surface it.
+This is not a license to challenge architectural decisions. The question is whether the code makes sense, not whether you would have designed it differently. An instruction that is physically impossible to execute (e.g., a CSS file cannot import from a TypeScript module) is incoherent regardless of its architectural rationale — stop and surface it.
 
 ## Signature Changes
 
-After any type, prop, or function signature change, run tsc --noEmit before
-touching any call sites. The compiler output is the authoritative list of
-what needs updating — do not rely on memory or manual search.
+After any type, prop, or function signature change, run tsc --noEmit before touching any call sites. The compiler output is the authoritative list of what needs updating — do not rely on memory or manual search.

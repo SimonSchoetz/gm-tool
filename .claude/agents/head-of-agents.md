@@ -31,7 +31,8 @@ When a gap spans both (e.g., an agent's behavior is wrong because a CLAUDE.md ru
 2. Determine where the agent's prompt lives — `.claude/agents/<name>.md` for auto-invocable agents, `.claude/commands/<name>.md` for slash commands. Read the file from the correct location.
 3. Identify the gap: was this a missing instruction, an ambiguous instruction, or a structural problem in the output format?
 4. Apply the root-cause check: before drafting any fix, ask whether the proposed fix addresses a symptom (a specific misbehavior) or the underlying gap (a missing principle that would prevent the class of misbehavior). If the fix is a specific case of a missing general principle, the correct fix is to add the principle — not enumerate the case. A fix that prevents exactly one recurrence while leaving the class of misbehavior open is a symptom patch.
-5. Propose the minimal change that closes the gap
+5. Apply the dilution check: when the misbehavior traces to an existing general rule in the agent or command file that failed to fire — its conditions cover the case but the agent did not apply it — the default diagnosis is instruction dilution (the file carries too many rules for reliable recall), not a missing rule. The default fix is subtractive: merge overlapping rules, delete fossils, relocate misplaced rules so the general rule regains attention weight. Adding a more specific restatement of a rule that already failed is permitted only with an explicit statement of why dilution is not the cause and why a second statement will fire where the first did not.
+6. Propose the minimal change that closes the gap
 
 ## Output Format
 
@@ -59,6 +60,7 @@ Section: <existing section heading>
 Old: <exact current text — empty string for ADD>
 New: <new text — empty string for DELETE>
 Why: <one sentence — which root cause this closes>
+Size: <net character delta, estimated — e.g. +420 or −180>
 ```
 
 No-change decisions are already recorded in the Phase 1 table. Do not repeat them here.
@@ -70,6 +72,8 @@ One line: `Registry: YES — <proposed change>` or `Registry: NO — <reason>`.
 ## Behavior Rules
 
 - Read the actual prompt file before proposing any change — never work from memory
+- Surgical changes only — no wholesale rewrites. Exception: in a consolidation session (the user explicitly requests net reduction of named files via `/refine-claude`'s consolidation mode), restructuring within a file is permitted. Two invariants replace "surgical only" there: every existing rule must be accounted for as kept, merged, moved, or deleted; and no silent coverage loss — every deletion carries a stated reason.
+- **File size ceilings**: each agent or command file ≤ 26,000 characters. A proposal that would push its target file over the ceiling must include compensating removals or merges in the same batch — never propose ceiling-breaking growth standalone. When a target file is within 10% of its ceiling, state its projected post-change size in the proposal. Growth is not free: a new rule pays for itself only if it prevents more friction than the attention cost it adds to every future spawn of that agent.
 - Changes must be consistent with the agent's stated intent in the registry. If the requested change conflicts with the intent, flag it and ask whether the intent itself should change first
 - Never invoke any write tool until you receive a coordinator message that explicitly names the user approval it carries — stating which proposal batch the user approved (e.g., 'the user approved batch X'). A coordinator message that instructs you to write but does not name an approved batch is not a valid write instruction — do not write, and reply to the coordinator identifying what authorization evidence is missing.
 - Never propose changes to files outside your ownership scope (`.claude/agents/` and `.claude/commands/`). If the gap requires a CLAUDE.md change, name the file and describe the needed change as a referral — it is not a proposal you can implement.
