@@ -1,0 +1,11 @@
+.status-dot {
+  width: var(--spacing-sm);
+  height: var(--spacing-sm);
+  border-radius: 50%; /* one-off */
+  background: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.status-dot--connected {
+  background: var(--color-success);
+}

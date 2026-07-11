@@ -1,0 +1,14 @@
+.devices-section-own {
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-sm);
+}
+
+.devices-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.devices-section-empty {
+  color: var(--color-text-muted);
+}

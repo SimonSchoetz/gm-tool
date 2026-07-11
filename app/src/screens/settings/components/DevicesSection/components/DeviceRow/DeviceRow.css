@@ -1,0 +1,13 @@
+.device-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-fg);
+}
+
+.device-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}

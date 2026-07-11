@@ -1,0 +1,12 @@
+.own-device-card {
+  border-radius: var(--radius-xl);
+}
+
+.own-device-card--content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-fg);
+  padding: var(--spacing-sm);
+  padding-left: var(--spacing-md);
+}
