@@ -42,6 +42,41 @@ Relevant Builder methods: `secret_key(SecretKey)` (generates a new key if unset)
 
 The conventional string form of a device/endpoint identity is the 64-character lowercase hex encoding produced by `Display`; `FromStr` accepts hex or z-base-32.
 
+## iroh 1.0.2 Endpoint::builder requires a preset argument; presets::Minimal is the LAN-only base
+
+**Verified at:** iroh 1.0.2
+**Citation:** [I_1: ~/.cargo/registry/src/.../iroh-1.0.2/src/endpoint.rs:950 — `pub fn builder(preset: impl Preset) -> Builder`; endpoint/presets.rs — `Empty`, `Minimal`, `N0`, `N0DisableRelay`]
+
+`Endpoint::builder(preset)` takes a mandatory `impl Preset`. `presets::Minimal` sets only the mandatory rustls crypto provider (ring) and adds no address lookup or relay services; `presets::N0` additionally adds a Pkarr publisher, DNS address lookup, and the default relay mode. For LAN-only operation, `Minimal` + `relay_mode(RelayMode::Disabled)` + mDNS lookup is the correct base — nothing needs clearing.
+
+## iroh 1.0.2 accept flow: Accept → Option<Incoming> → Accepting → Connection
+
+**Verified at:** iroh 1.0.2
+**Citation:** [I_2: iroh-1.0.2/src/endpoint.rs:1162, endpoint/connection.rs:106,147,660 — read in source]
+
+`endpoint.accept().await` yields `Option<Incoming>` (`None` when the endpoint is closed); `Incoming::accept()` returns `Result<Accepting, ConnectionError>`; awaiting `Accepting` yields `Result<Connection, ConnectingError>`. `Connection<HandshakeCompleted>::alpn()` returns `&[u8]` and `remote_id()` returns `EndpointId` (connection.rs:1115,1127). `Connection::close(VarInt, &[u8])` closes; `closed().await` yields `ConnectionError` when the connection ends.
+
+## iroh 1.0.2 bi-streams resolve to (SendStream, RecvStream) with inherent async read/write
+
+**Verified at:** iroh 1.0.2 (noq 1.0.1)
+**Citation:** [I_3: noq-1.0.1/src/connection.rs:982,1049 — `type Output = Result<(SendStream, RecvStream), ConnectionError>`; send_stream.rs:74 `write_all`; recv_stream.rs:76 `read(&mut buf) -> Result<Option<usize>, ReadError>`]
+
+`open_bi()`/`accept_bi()` futures resolve to `(SendStream, RecvStream)`. Streams have inherent `async fn write_all(&mut self, &[u8])` and `async fn read(&mut self, &mut [u8]) -> Result<Option<usize>, ReadError>` (`None` = stream finished); they also implement tokio `AsyncRead`/`AsyncWrite` (recv_stream.rs:588, send_stream.rs:329).
+
+## MdnsAddressLookup is Clone, buildable pre-bind, attachable post-bind, and exposes subscribe()
+
+**Verified at:** iroh-mdns-address-lookup 0.4.0
+**Citation:** [I_4: iroh-mdns-address-lookup-0.4.0/src/lib.rs:102,211,255,462,570 — read in source]
+
+`MdnsAddressLookup` derives `Clone` and implements `AddressLookup`. `MdnsAddressLookup::builder().build(endpoint_id)` constructs it directly (requires a running tokio runtime; panics outside one). `endpoint.address_lookup()?.add(service)` attaches it after bind — required when a handle must be kept, because `AddressLookupServices` stores services as `Box<dyn AddressLookup>` with no typed getter. `subscribe().await` returns `impl Stream<Item = DiscoveryEvent> + Unpin`; `DiscoveryEvent` is `Discovered { endpoint_info: EndpointInfo, last_updated: Option<u64> }` or `Expired { endpoint_id: EndpointId }` (non_exhaustive).
+
+## EndpointInfo carries endpoint_id and converts into a dialable EndpointAddr
+
+**Verified at:** iroh 1.0.2 (iroh-dns 1.0.2)
+**Citation:** [I_5: iroh-dns-1.0.2/src/endpoint_info.rs:357-417 — `pub endpoint_id: EndpointId`, `impl From<EndpointInfo> for EndpointAddr`, `into_endpoint_addr()`]
+
+`EndpointInfo` has a public `endpoint_id` field and converts to `EndpointAddr` via `From`/`into_endpoint_addr()`; `Endpoint::connect(impl Into<EndpointAddr>, alpn: &[u8])` accepts it directly.
+
 ## iroh requires at least one ALPN protocol identifier when accepting connections
 
 **Verified at:** iroh 1.0.2

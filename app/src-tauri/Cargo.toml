@@ -25,3 +25,8 @@ tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 tauri-plugin-updater = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+iroh = "1"
+iroh-mdns-address-lookup = "0.4"
+rand = "0.10.2"
+tokio = { version = "1.52.3", features = ["sync", "time", "macros"] }
+futures-core = "0.3.32"
