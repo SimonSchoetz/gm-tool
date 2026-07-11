@@ -17,4 +17,5 @@ export {
   usePairedDevices,
   useConnectedPeers,
   useConnectivityLifecycle,
+  usePairing,
 } from './devices';

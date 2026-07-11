@@ -1,0 +1,58 @@
+.pair-device-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  color: var(--color-fg);
+}
+
+.pair-device-dialog-title {
+  font-size: var(--font-size-lg);
+}
+
+.pair-device-dialog-code-hint {
+  color: var(--color-text-muted);
+}
+
+.pair-device-dialog-code {
+  font-size: var(--font-size-xl);
+  letter-spacing: var(--spacing-xs);
+  text-align: center;
+}
+
+.pair-device-dialog-searching {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.pair-device-dialog-searching-hint {
+  color: var(--color-text-muted);
+}
+
+.pair-device-dialog-candidates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.pair-device-dialog-candidate {
+  width: 100%;
+  text-align: left;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+}
+
+.pair-device-dialog-candidate--selected {
+  background: var(--color-bg-hover);
+}
+
+.pair-device-dialog-confirm {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.pair-device-dialog-error {
+  color: var(--color-danger);
+}
