@@ -3,6 +3,7 @@ import { initialSchemaMigration } from './1779321600000_initial_schema';
 import { seedTableConfigMigration } from './1780099200000_seed_table_config';
 import { initSystemMigration } from './1780575810242_init_system';
 import { addSettingsTableMigration } from './1782657640641_add_settings_table';
+import { addPairedDevicesTableMigration } from './1783763409778_add_paired_devices_table';
 
 export type Migration = {
   id: string;
@@ -14,6 +15,7 @@ export const migrations: Migration[] = [
   seedTableConfigMigration,
   initSystemMigration,
   addSettingsTableMigration,
+  addPairedDevicesTableMigration,
 ];
 
 export const runMigrations = async (db: Database): Promise<void> => {
