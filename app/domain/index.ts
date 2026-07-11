@@ -163,3 +163,38 @@ export {
   updateInstallAndRelaunchError,
 } from './updater';
 export type { DownloadProgressEvent } from './updater';
+
+export type {
+  ConnectivityInitError,
+  DeviceCreateError,
+  DeviceDeleteError,
+  DeviceMessageError,
+  DeviceMessageEnvelope,
+  DevicesLoadError,
+  DeviceUpdateError,
+  MessageReceivedPayload,
+  PairingCandidateLostPayload,
+  PairingCandidatePayload,
+  PairingConfirmError,
+  PairingFailedPayload,
+  PairingModeError,
+  PairingSucceededPayload,
+  PeerConnectedPayload,
+  PeerDisconnectedPayload,
+} from './devices';
+export {
+  buildHelloEnvelope,
+  buildNameUpdateEnvelope,
+  buildUnpairEnvelope,
+  connectivityInitError,
+  CONNECTIVITY_EVENTS,
+  deviceCreateError,
+  deviceDeleteError,
+  deviceMessageEnvelopeSchema,
+  deviceMessageError,
+  devicesLoadError,
+  deviceUpdateError,
+  ENVELOPE_VERSION,
+  pairingConfirmError,
+  pairingModeError,
+} from './devices';
