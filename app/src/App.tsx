@@ -9,11 +9,15 @@ import {
   GlassPanel,
 } from './components';
 import { TanstackQueryClientProvider } from './data-access-layer/TanstackQueryClientProvider';
+import { useConnectivityLifecycle } from '@/data-access-layer';
 import { AppProviders } from '@/providers';
 import './App.css';
 
 // App wraps the provider, so the hook cannot be called in App directly.
 const AppContent = () => {
+  // Only call site, ever — a second mount would double-subscribe the event listeners.
+  useConnectivityLifecycle();
+
   return (
     <AppProviders>
       <Backdrop />

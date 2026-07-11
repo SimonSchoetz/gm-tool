@@ -1,18 +1,20 @@
-export { useAdventures, useAdventure, adventureKeys } from './adventures';
-export { useImage, imageKeys, useUpdateImageFrame } from './images';
+export { useAdventures, useAdventure } from './adventures';
+export { useImage, useUpdateImageFrame } from './images';
 export type { ImageFrame } from './images';
-export { useNpcs, useNpc, npcKeys } from './npcs';
-export { useFoes, useFoe, foeKeys } from './foes';
-export { useItems, useItem, itemKeys } from './items';
-export { useLocations, useLocation, locationKeys } from './locations';
-export { useFactions, useFaction, factionKeys } from './factions';
-export { usePcs, usePc, pcKeys } from './pcs';
-export { useSessions, useSession, sessionKeys } from './sessions';
+export { useNpcs, useNpc } from './npcs';
+export { useFoes, useFoe } from './foes';
+export { useItems, useItem } from './items';
+export { useLocations, useLocation } from './locations';
+export { useFactions, useFaction } from './factions';
+export { usePcs, usePc } from './pcs';
+export { useSessions, useSession } from './sessions';
+export { useTableConfig, useTableConfigs } from './table-config';
+export { useSessionSteps } from './session-steps';
+export { useSetting } from './settings';
+export { useUpdater } from './updater';
 export {
-  useTableConfig,
-  useTableConfigs,
-  tableConfigKeys,
-} from './table-config';
-export { useSessionSteps, sessionStepKeys } from './session-steps';
-export { useSetting, settingsKeys } from './settings';
-export { useUpdater, updaterKeys } from './updater';
+  useOwnDevice,
+  usePairedDevices,
+  useConnectedPeers,
+  useConnectivityLifecycle,
+} from './devices';
