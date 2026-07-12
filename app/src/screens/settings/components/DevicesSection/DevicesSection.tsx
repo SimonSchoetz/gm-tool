@@ -7,11 +7,7 @@ import {
   LoadingIcon,
   PopUpContainer,
 } from '@/components';
-import {
-  useConnectedPeers,
-  useOwnDevice,
-  usePairedDevices,
-} from '@/data-access-layer';
+import { useOwnDevice, usePairedDevices } from '@/data-access-layer';
 import { H2 } from '../H2/H2';
 import { Section } from '../Section/Section';
 import { DeviceRow, OwnDeviceCard, PairDeviceDialog } from './components';
@@ -20,7 +16,6 @@ import './DevicesSection.css';
 export const DevicesSection = () => {
   const { ownDevice } = useOwnDevice();
   const { pairedDevices, loading } = usePairedDevices();
-  const { connectedIds } = useConnectedPeers();
   const [pairDialogState, setPairDialogState] = useState<'open' | 'closed'>(
     'closed',
   );
@@ -62,11 +57,7 @@ export const DevicesSection = () => {
       ) : (
         <ul className='devices-section-list'>
           {pairedDevices.map((device) => (
-            <DeviceRow
-              key={device.id}
-              device={device}
-              connected={connectedIds.includes(device.id)}
-            />
+            <DeviceRow key={device.id} device={device} />
           ))}
         </ul>
       )}

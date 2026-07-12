@@ -1,7 +1,7 @@
 import { Trash2 as Trash2Icon } from 'lucide-react';
 import type { PairedDevice } from '@db/paired-device';
 import { ClickableIcon } from '@/components';
-import { usePairedDevices } from '@/data-access-layer';
+import { useConnectedPeers, usePairedDevices } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import type { FCProps } from '@/types';
 import { StatusDot } from './components';
@@ -9,11 +9,12 @@ import './DeviceRow.css';
 
 type Props = {
   device: PairedDevice;
-  connected: boolean;
 };
 
-export const DeviceRow: FCProps<Props> = ({ device, connected }) => {
+export const DeviceRow: FCProps<Props> = ({ device }) => {
   const { forgetDevice } = usePairedDevices();
+  const { connectedIds } = useConnectedPeers();
+  const connected = connectedIds.includes(device.id);
   const { openDeleteDialog } = useDeleteDialog();
 
   // `||` (not `??`): a cleared name is an empty string and also falls back to the id prefix.
