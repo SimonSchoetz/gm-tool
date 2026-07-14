@@ -194,6 +194,7 @@ export {
   deviceMessageError,
   devicesLoadError,
   deviceUpdateError,
+  ENDPOINT_ID_HEX_REGEX,
   ENVELOPE_VERSION,
   pairingConfirmError,
   pairingModeError,

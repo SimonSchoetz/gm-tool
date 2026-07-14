@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ENDPOINT_ID_HEX_REGEX } from '@domain';
 import { defineTable } from '../util';
 
 export const pairedDeviceTable = defineTable({
@@ -7,7 +8,7 @@ export const pairedDeviceTable = defineTable({
     id: {
       type: 'TEXT',
       primaryKey: true,
-      zod: z.string().regex(/^[0-9a-f]{64}$/),
+      zod: z.string().regex(ENDPOINT_ID_HEX_REGEX),
     },
     name: {
       type: 'TEXT',

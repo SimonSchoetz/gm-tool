@@ -26,6 +26,7 @@ export {
   deviceMessageEnvelopeSchema,
   ENVELOPE_VERSION,
 } from './messages';
+export { ENDPOINT_ID_HEX_REGEX } from './identity';
 export type {
   MessageReceivedPayload,
   PairingCandidateLostPayload,
