@@ -4,6 +4,7 @@ import {
   Graphics,
   RenderTexture,
   Sprite,
+  Ticker,
   TilingSprite,
 } from 'pixi.js';
 import { useEffect, useRef } from 'react';
@@ -22,8 +23,10 @@ import './Backdrop.css';
 const AMOUNT_BEAMS = 5;
 const BEAM_TAIL_ALPHA = 0.08;
 const IDLE_RESPAWN_DELAY_MS = 1000;
-const BASE_DELEAY_BETWEEN_BEAMS = 10000;
+const BASE_DELAY_BETWEEN_BEAMS = 10000;
 const FPS = 60;
+// Render cost scales with resolution squared; a dim background grid does not need full Retina pixel density
+const MAX_RESOLUTION = 1.5;
 
 export const Backdrop = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -54,7 +57,7 @@ export const Backdrop = () => {
 
     const spawnAllBeams = () => {
       beams.forEach((beam) => {
-        spawnBeam(beam, gridRef, Math.random() * BASE_DELEAY_BETWEEN_BEAMS);
+        spawnBeam(beam, gridRef, Math.random() * BASE_DELAY_BETWEEN_BEAMS);
       });
       app?.ticker.start();
     };
@@ -68,9 +71,11 @@ export const Backdrop = () => {
         width: window.innerWidth,
         height: window.innerHeight,
         backgroundColor: new Color(bgCompositeColor),
-        resolution: window.devicePixelRatio,
+        resolution: Math.min(window.devicePixelRatio, MAX_RESOLUTION),
         autoDensity: true,
         preference: 'webgl',
+        // Keeps dual-GPU laptops on the integrated GPU instead of waking the discrete one for a background canvas
+        powerPreference: 'low-power',
       });
 
       if (cancelled) {
@@ -95,7 +100,14 @@ export const Backdrop = () => {
       tilingSprite.tilePosition.set(grid.squareSize / 2, grid.squareSize / 2);
       pixiApp.stage.addChild(tilingSprite);
 
-      if (!animationEnabled) return;
+      if (!animationEnabled) {
+        // Pixi's ticker re-renders the full stage every frame even when nothing changes — a static grid needs exactly one render
+        pixiApp.ticker.stop();
+        // Pixi's global system ticker (SchedulerSystem, EventTicker) otherwise keeps a 60Hz rAF alive, which costs constant CPU/IPC in WKWebView even with nothing drawn
+        Ticker.system.stop();
+        pixiApp.render();
+        return;
+      }
 
       beamRenderTexture = RenderTexture.create({
         width: window.innerWidth,
@@ -161,6 +173,9 @@ export const Backdrop = () => {
           b.active = false;
         });
         spawnAllBeams();
+      } else {
+        // Ticker is stopped in static mode; repaint once after the resize cleared the drawing buffer
+        app.render();
       }
     };
 

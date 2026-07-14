@@ -63,6 +63,7 @@ src/
 ### Barrel Files
 
 `app/CLAUDE.md` defines module directory vs. grouping folder. In `src/`, grouping folders are `data-access-layer/`, `components/`, `util/`, `hooks/`, `services/`, `providers/`, and **any `components/`-style subdirectory at any nesting level** (a screen's local `components/`, a `ComponentName/components/`, a `ComponentName/helper/`) — the barrel-and-named-exports rule applies identically regardless of depth. External consumers always import from exactly one level: `@/components`, `@/data-access-layer`, `@/util`, etc. — never deeper. Within-module imports use the module directory barrel via relative path (`./SortableListItem`, not `@/components/SortableList/SortableListItem`). Exceptions with no barrel: `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only), `assets/`.
+
 - `@db` is an explicit exception: no grouping barrel exists at the db root. See `app/db/CLAUDE.md` — Naming for the authoritative import depth rule.
 - In **module directory barrels**, `export *` is permitted when the file has a single, obvious public concern (one component + its types) with no internals to leak. Use explicit named exports when a file exports multiple distinct things or has implementation details that should stay private. The trigger: if you would have to think about whether a new export should be public, use explicit exports.
   - ✅ GOOD: `data-access-layer/npcs/index.ts` — module directory, barrel required
