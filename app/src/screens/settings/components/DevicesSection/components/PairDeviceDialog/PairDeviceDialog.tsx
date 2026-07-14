@@ -70,7 +70,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
           setFailureReason(event.payload.reason);
         },
       ),
-      // SF5's lifecycle persists the row and invalidates the list; this handler only closes.
+      // useConnectivityLifecycle owns this event's persistence (completePairing + list invalidation) — this handler only closes the dialog.
       listen(CONNECTIVITY_EVENTS.pairingSucceeded, () => {
         onClose();
       }),
