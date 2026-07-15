@@ -57,9 +57,14 @@ pub async fn enter_pairing_mode(
         }
         if let Some(session) = &mut data.pairing {
             session.ref_count += 1;
+            eprintln!(
+                "[connectivity] enter_pairing_mode: existing session, ref_count now {}",
+                session.ref_count
+            );
             return Ok(session.code.clone());
         }
         let code = format!("{:06}", rand::random_range(0..=999_999u32));
+        eprintln!("[connectivity] enter_pairing_mode: new session, ref_count now 1");
         data.pairing = Some(PairingSession {
             code: code.clone(),
             candidates: HashMap::new(),
@@ -91,11 +96,18 @@ pub async fn exit_pairing_mode(state: &ConnectivityState) -> Result<(), String> 
     let mut data = state.lock().await;
     if let Some(session) = &mut data.pairing {
         session.ref_count = session.ref_count.saturating_sub(1);
-        if session.ref_count == 0 {
+        let remaining = session.ref_count;
+        if remaining == 0 {
             // Dropping the session drops every candidate's frame sender, which terminates
             // the candidate tasks and closes their connections.
             data.pairing = None;
         }
+        eprintln!(
+            "[connectivity] exit_pairing_mode: ref_count now {remaining} (session cleared: {})",
+            remaining == 0
+        );
+    } else {
+        eprintln!("[connectivity] exit_pairing_mode: no active session");
     }
     Ok(())
 }

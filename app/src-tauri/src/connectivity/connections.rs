@@ -145,8 +145,16 @@ async fn handle_incoming_connection(
         }
         run_main_connection(app, state, connection, ConnectionRole::Acceptor).await;
     } else if connection.alpn() == ALPN_PAIRING {
-        let pairing_active = state.lock().await.pairing.is_some();
-        if !pairing_active {
+        let pairing_ref_count = state
+            .lock()
+            .await
+            .pairing
+            .as_ref()
+            .map(|session| session.ref_count);
+        eprintln!(
+            "[connectivity] incoming pairing connection from {remote}, own pairing ref_count = {pairing_ref_count:?}"
+        );
+        if pairing_ref_count.is_none() {
             connection.close(0u32.into(), b"pairing not active");
             return;
         }

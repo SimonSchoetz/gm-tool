@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import type { PairingConfirmError } from '@domain';
 import * as devicesService from '@services/devicesService';
-import { deviceKeys } from './deviceKeys';
 
 type UsePairingReturn = {
   pairingCode: string | null;
@@ -12,21 +11,35 @@ type UsePairingReturn = {
   clearSubmitError: () => void;
 };
 
-// Pairing mode is bound to the hook's lifetime: mounting enters it, unmounting exits it.
 export const usePairing = (): UsePairingReturn => {
-  const { data: pairingCode } = useQuery({
-    queryKey: deviceKeys.pairing(),
-    queryFn: devicesService.enterPairingMode,
-    throwOnError: true,
-    staleTime: Infinity,
-    // A reopened dialog must get a fresh pairing session, not a cached code.
-    gcTime: 0,
-  });
+  const [pairingCode, setPairingCode] = useState<string | null>(null);
+  const [enterError, setEnterError] = useState<Error | null>(null);
 
+  // Enter and exit are bound together in one effect on purpose. React StrictMode
+  // double-mounts the dialog in dev (setup → cleanup → setup), which issues
+  // enter/exit/enter as three direct, non-deduplicated calls; the Rust session is
+  // ref-counted, so it ends up active. Driving enter through useQuery instead would
+  // let React Query deduplicate the remount's re-enter, leaving one enter against the
+  // cleanup's one exit — a torn-down session that rejects all incoming pairing
+  // connections. A reopened dialog remounts, so it still gets a fresh session.
   useEffect(() => {
+    let active = true;
+    void devicesService.enterPairingMode().then(
+      (code) => {
+        if (active) setPairingCode(code);
+      },
+      (error: unknown) => {
+        if (active) {
+          setEnterError(
+            error instanceof Error ? error : new Error(String(error)),
+          );
+        }
+      },
+    );
     return () => {
+      active = false;
       void devicesService.exitPairingMode().catch(() => {
-        // Swallowed: failing to exit cleanly is recovered by Rust's idempotent
+        // Swallowed: failing to exit cleanly is recovered by Rust's ref-counted
         // session handling on the next enter.
       });
     };
@@ -42,12 +55,18 @@ export const usePairing = (): UsePairingReturn => {
     throwOnError: false,
   });
 
+  // Route enter failures to the Error Boundary, matching the enter query's former
+  // throwOnError: true. Thrown after every hook call so the rules of hooks hold.
+  if (enterError !== null) {
+    throw enterError;
+  }
+
   const submitCode = (endpointId: string, code: string) => {
     submitMutation.mutate({ endpointId, code });
   };
 
   return {
-    pairingCode: pairingCode ?? null,
+    pairingCode,
     submitCode,
     isSubmitting: submitMutation.isPending,
     submitError:
