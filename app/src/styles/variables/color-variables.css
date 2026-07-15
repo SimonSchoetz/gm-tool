@@ -35,8 +35,7 @@
   --color-text: var(--color-fg);
   --color-text-secondary: var(--color-primary);
 
-  --color-text-muted-rgb: 122, 143, 148;
-  --color-text-muted: rgb(var(--color-text-muted-rgb));
+  --color-text-muted: rgb(var(--color-fg-rgb), 0.3);
 
   --color-surface-rgb: 10, 31, 49;
   --color-surface: rgb(var(--color-surface-rgb));

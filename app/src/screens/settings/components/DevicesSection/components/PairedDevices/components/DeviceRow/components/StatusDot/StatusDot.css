@@ -6,6 +6,10 @@
   flex-shrink: 0;
 }
 
-.status-dot--connected {
-  background: var(--color-success);
+.status--connected {
+  color: var(--color-success);
+}
+
+.status--disconnected {
+  color: var(--color-text-muted);
 }

@@ -4,6 +4,7 @@
   font-family: inherit;
   color: var(--color-fb);
   border: none;
+  border-bottom: 1px solid transparent;
   background-color: transparent;
   line-height: 0;
   padding: 0;
@@ -18,7 +19,7 @@
 }
 
 .input::placeholder {
-  color: var(--color-fg-hover);
+  color: var(--color-text-muted);
 }
 
 .input:focus {

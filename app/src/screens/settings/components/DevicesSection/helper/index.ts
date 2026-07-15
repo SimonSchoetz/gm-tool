@@ -1,0 +1,1 @@
+export { getShortenedDeviceId } from './getShortenedDeviceId';

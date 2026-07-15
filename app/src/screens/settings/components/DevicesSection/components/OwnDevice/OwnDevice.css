@@ -1,0 +1,9 @@
+.own-device {
+  color: var(--color-fg);
+  gap: var(--spacing-md);
+}
+
+.own-device--input {
+  padding: var(--spacing-md) 0;
+  font-size: var(--font-size-xl);
+}

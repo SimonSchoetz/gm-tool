@@ -1,0 +1,4 @@
+.settings-screen--h3 {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}

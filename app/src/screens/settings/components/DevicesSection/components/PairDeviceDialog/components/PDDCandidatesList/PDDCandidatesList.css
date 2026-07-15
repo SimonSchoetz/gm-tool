@@ -1,0 +1,21 @@
+.PDD-candidates-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  list-style-type: none;
+}
+
+.PDD-candidate {
+  width: 100%;
+  text-align: left;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  transition: var(--transition-hover-off);
+  font-size: var(--font-size-xl);
+}
+.PDD-candidate--selected,
+.PDD-candidate:hover {
+  color: var(--color-primary);
+  transition: var(--transition-hover-on);
+}

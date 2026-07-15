@@ -14,9 +14,9 @@ import {
   LoadingIcon,
 } from '@/components';
 import { usePairing } from '@/data-access-layer';
-import { cn } from '@/util';
 import type { FCProps } from '@/types';
 import './PairDeviceDialog.css';
+import { PDDCandidatesList } from './components';
 
 type Props = {
   onClose: () => void;
@@ -85,13 +85,25 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
     };
   }, [onClose]);
 
+  if (submitError || failureReason) {
+    return (
+      <GlassPanel className='pair-device-dialog'>
+        <h1 className='pair-device-dialog-title'>Pair a new device</h1>
+        {submitError !== null && (
+          <p className='pair-device-dialog-error'>{submitError.message}</p>
+        )}
+        {failureReason !== null && (
+          <p className='pair-device-dialog-error'>{failureReason}</p>
+        )}
+      </GlassPanel>
+    );
+  }
+
   return (
     <GlassPanel className='pair-device-dialog'>
       <h1 className='pair-device-dialog-title'>Pair a new device</h1>
 
-      <p className='pair-device-dialog-code-hint'>
-        Enter this code on the other device:
-      </p>
+      <p>Enter this code on the other device:</p>
       {pairingCode !== null ? (
         <span className='pair-device-dialog-code'>{pairingCode}</span>
       ) : (
@@ -101,38 +113,26 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
       <HorizontalDivider />
 
       <p>Nearby devices in pairing mode:</p>
+
       {candidates.length === 0 ? (
         <div className='pair-device-dialog-searching'>
           <LoadingIcon />
           <span className='pair-device-dialog-searching-hint'>Searching…</span>
         </div>
       ) : (
-        <ul className='pair-device-dialog-candidates'>
-          {candidates.map((candidate) => (
-            <li key={candidate.endpointId}>
-              <button
-                type='button'
-                className={cn(
-                  'pair-device-dialog-candidate',
-                  candidate.endpointId === selectedId &&
-                    'pair-device-dialog-candidate--selected',
-                )}
-                onClick={() => {
-                  setSelectedId(candidate.endpointId);
-                  setCodeInput('');
-                  clearSubmitError();
-                }}
-              >
-                {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a cleared name is an empty string and also falls back to the id prefix */}
-                {candidate.name || candidate.endpointId.slice(0, 8)}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <PDDCandidatesList
+          candidates={candidates}
+          selectedId={selectedId}
+          onClick={(id) => {
+            setSelectedId(id);
+            clearSubmitError();
+          }}
+        />
       )}
 
       {selectedId !== null && (
         <div className='pair-device-dialog-confirm'>
+          <p>Enter the code on the other device:</p>
           <Input
             value={codeInput}
             onChange={(e) => {
@@ -148,12 +148,6 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
             }}
           />
         </div>
-      )}
-      {submitError !== null && (
-        <p className='pair-device-dialog-error'>{submitError.message}</p>
-      )}
-      {failureReason !== null && (
-        <p className='pair-device-dialog-error'>{failureReason}</p>
       )}
     </GlassPanel>
   );

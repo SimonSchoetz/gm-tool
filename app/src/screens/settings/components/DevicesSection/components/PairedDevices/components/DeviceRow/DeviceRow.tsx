@@ -6,6 +6,7 @@ import { useDeleteDialog } from '@/providers';
 import type { FCProps } from '@/types';
 import { StatusDot } from './components';
 import './DeviceRow.css';
+import { getShortenedDeviceId } from '../../../../helper';
 
 type Props = {
   device: PairedDevice;
@@ -17,9 +18,8 @@ export const DeviceRow: FCProps<Props> = ({ device }) => {
   const connected = connectedIds.includes(device.id);
   const { openDeleteDialog } = useDeleteDialog();
 
-  // `||` (not `??`): a cleared name is an empty string and also falls back to the id prefix.
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  const displayName = device.name || device.id.slice(0, 8);
+  const displayName =
+    (!!device.name && device.name) || getShortenedDeviceId(device.id);
 
   return (
     <li className='device-row'>

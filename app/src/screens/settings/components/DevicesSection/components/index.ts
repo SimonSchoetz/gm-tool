@@ -1,3 +1,3 @@
-export { OwnDeviceCard } from './OwnDeviceCard/OwnDeviceCard';
-export { DeviceRow } from './DeviceRow/DeviceRow';
+export { OwnDevice } from './OwnDevice/OwnDevice';
 export { PairDeviceDialog } from './PairDeviceDialog/PairDeviceDialog';
+export { PairedDevices } from './PairedDevices/PairedDevices';

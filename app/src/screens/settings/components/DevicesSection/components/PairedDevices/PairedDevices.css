@@ -1,0 +1,10 @@
+.paired-devices-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) 0;
+}
+
+.paired-devices-empty {
+  color: var(--color-text-muted);
+}
