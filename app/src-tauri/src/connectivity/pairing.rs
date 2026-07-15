@@ -22,6 +22,8 @@ pub(crate) struct PairingSession {
     pub(crate) code: String,
     pub(crate) candidates: HashMap<EndpointId, PairingCandidate>,
     pub(crate) probing: HashSet<EndpointId>,
+    // Number of live enter_pairing_mode calls not yet matched by an exit. React StrictMode double-mounts the dialog in dev (enter, exit, enter in arbitrary async order), so the session is torn down only when the last holder exits — a stale exit cannot wipe a session another mount still holds.
+    pub(crate) ref_count: u32,
 }
 
 pub(crate) struct PairingCandidate {
@@ -44,27 +46,57 @@ pub(crate) enum PairingFrame {
     CodeVerdict { accepted: bool },
 }
 
-pub async fn enter_pairing_mode(state: &ConnectivityState) -> Result<String, String> {
-    let mut data = state.lock().await;
-    if data.endpoint.is_none() {
-        return Err("Connectivity is not initialized".to_string());
+pub async fn enter_pairing_mode(
+    app: &AppHandle,
+    state: &ConnectivityState,
+) -> Result<String, String> {
+    let (code, known_unpaired) = {
+        let mut data = state.lock().await;
+        if data.endpoint.is_none() {
+            return Err("Connectivity is not initialized".to_string());
+        }
+        if let Some(session) = &mut data.pairing {
+            session.ref_count += 1;
+            return Ok(session.code.clone());
+        }
+        let code = format!("{:06}", rand::random_range(0..=999_999u32));
+        data.pairing = Some(PairingSession {
+            code: code.clone(),
+            candidates: HashMap::new(),
+            probing: HashSet::new(),
+            ref_count: 1,
+        });
+        let known_unpaired: Vec<EndpointAddr> = data
+            .discovered
+            .iter()
+            .filter(|(id, _)| !data.trusted.contains(*id))
+            .map(|(_, addr)| addr.clone())
+            .collect();
+        (code, known_unpaired)
+    };
+
+    // mDNS emits Discovered only once per peer, so endpoints found before this session started produce no further events — probe every already-known unpaired endpoint now.
+    eprintln!(
+        "[connectivity] pairing mode entered, probing {} known unpaired endpoint(s)",
+        known_unpaired.len()
+    );
+    for addr in known_unpaired {
+        maybe_probe_candidate(app, state, addr).await;
     }
-    if let Some(session) = &data.pairing {
-        return Ok(session.code.clone());
-    }
-    let code = format!("{:06}", rand::random_range(0..=999_999u32));
-    data.pairing = Some(PairingSession {
-        code: code.clone(),
-        candidates: HashMap::new(),
-        probing: HashSet::new(),
-    });
+
     Ok(code)
 }
 
 pub async fn exit_pairing_mode(state: &ConnectivityState) -> Result<(), String> {
-    // Dropping the session drops every candidate's frame sender, which terminates the
-    // candidate tasks and closes their connections.
-    state.lock().await.pairing = None;
+    let mut data = state.lock().await;
+    if let Some(session) = &mut data.pairing {
+        session.ref_count = session.ref_count.saturating_sub(1);
+        if session.ref_count == 0 {
+            // Dropping the session drops every candidate's frame sender, which terminates
+            // the candidate tasks and closes their connections.
+            data.pairing = None;
+        }
+    }
     Ok(())
 }
 
@@ -125,11 +157,14 @@ pub(crate) async fn maybe_probe_candidate(
     let app = app.clone();
     let state = state.clone();
     tauri::async_runtime::spawn(async move {
+        eprintln!("[connectivity] probing pairing candidate {remote}");
         match endpoint.connect(addr, ALPN_PAIRING).await {
             Ok(connection) => {
+                eprintln!("[connectivity] pairing connection to {remote} established");
                 run_pairing_connection(app, state, connection, ConnectionRole::Dialer).await;
             }
-            Err(_) => {
+            Err(error) => {
+                eprintln!("[connectivity] pairing connect to {remote} FAILED: {error}");
                 let mut data = state.lock().await;
                 if let Some(session) = data.pairing.as_mut() {
                     session.probing.remove(&remote);
@@ -151,9 +186,13 @@ pub(crate) async fn run_pairing_connection(
         ConnectionRole::Dialer => connection.open_bi().await,
         ConnectionRole::Acceptor => connection.accept_bi().await,
     };
-    let Ok((mut send_stream, mut recv_stream)) = streams else {
-        remove_probe(&state, &remote).await;
-        return;
+    let (mut send_stream, mut recv_stream) = match streams {
+        Ok(streams) => streams,
+        Err(error) => {
+            eprintln!("[connectivity] pairing stream setup with {remote} FAILED: {error}");
+            remove_probe(&state, &remote).await;
+            return;
+        }
     };
 
     let own_hello = {
@@ -172,9 +211,11 @@ pub(crate) async fn run_pairing_connection(
         return;
     };
     if write_frame(&mut send_stream, &hello_json).await.is_err() {
+        eprintln!("[connectivity] failed to send pairing hello to {remote}");
         remove_probe(&state, &remote).await;
         return;
     }
+    eprintln!("[connectivity] sent pairing hello to {remote}, awaiting peer hello");
 
     let (frame_sender, mut frame_receiver) = channel::<PairingFrame>(8);
     // Moved into the candidate entry on the peer's hello; the map is then the only owner,
@@ -225,6 +266,7 @@ pub(crate) async fn run_pairing_connection(
                                 failures: 0,
                             });
                             drop(data);
+                            eprintln!("[connectivity] received peer hello from {remote}, emitting candidate");
                             let _ = app.emit(EVENT_PAIRING_CANDIDATE, PairingCandidatePayload {
                                 endpoint_id: remote.to_string(),
                                 name,
@@ -304,6 +346,10 @@ pub(crate) async fn run_pairing_connection(
         }
     }
 
+    eprintln!(
+        "[connectivity] pairing connection with {remote} closed (succeeded={succeeded}, close_reason={:?})",
+        connection.close_reason()
+    );
     connection.close(0u32.into(), b"pairing closed");
 
     let mut data = state.lock().await;

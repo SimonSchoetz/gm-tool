@@ -133,6 +133,10 @@ async fn handle_incoming_connection(
     connection: Connection,
 ) {
     let remote = connection.remote_id();
+    eprintln!(
+        "[connectivity] incoming connection from {remote} on alpn {:?}",
+        String::from_utf8_lossy(connection.alpn())
+    );
     if connection.alpn() == ALPN_MAIN {
         let is_trusted = state.lock().await.trusted.contains(&remote);
         if !is_trusted {
@@ -292,10 +296,18 @@ pub(crate) async fn maybe_dial_trusted_peer(
 async fn run_discovery(app: AppHandle, state: ConnectivityState, mdns: MdnsAddressLookup) {
     let mut events = mdns.subscribe().await;
     while let Some(event) = next_discovery_event(&mut events).await {
-        if let DiscoveryEvent::Discovered { endpoint_info, .. } = event {
-            handle_discovered(&app, &state, endpoint_info).await;
+        eprintln!("[connectivity] discovery event: {event:?}");
+        match event {
+            DiscoveryEvent::Discovered { endpoint_info, .. } => {
+                handle_discovered(&app, &state, endpoint_info).await;
+            }
+            DiscoveryEvent::Expired { endpoint_id } => {
+                state.lock().await.discovered.remove(&endpoint_id);
+            }
+            _ => {}
         }
     }
+    eprintln!("[connectivity] discovery stream ended");
 }
 
 async fn next_discovery_event<S: Stream<Item = DiscoveryEvent> + Unpin>(
@@ -310,20 +322,22 @@ async fn handle_discovered(
     endpoint_info: EndpointInfo,
 ) {
     let remote = endpoint_info.endpoint_id;
+    let addr = endpoint_info.into_endpoint_addr();
     let is_trusted = {
-        let data = state.lock().await;
+        let mut data = state.lock().await;
         let Some(endpoint) = &data.endpoint else {
             return;
         };
         if endpoint.id() == remote {
             return;
         }
+        data.discovered.insert(remote, addr.clone());
         data.trusted.contains(&remote)
     };
 
     if is_trusted {
-        maybe_dial_trusted_peer(app, state, endpoint_info.into_endpoint_addr()).await;
+        maybe_dial_trusted_peer(app, state, addr).await;
     } else {
-        pairing::maybe_probe_candidate(app, state, endpoint_info.into_endpoint_addr()).await;
+        pairing::maybe_probe_candidate(app, state, addr).await;
     }
 }

@@ -5,7 +5,7 @@ mod pairing;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use iroh::{Endpoint, EndpointId};
+use iroh::{Endpoint, EndpointAddr, EndpointId};
 use serde::{Deserialize, Serialize};
 use tauri::async_runtime::{Mutex, Sender};
 
@@ -92,6 +92,8 @@ pub(crate) struct ConnectivityData {
     pub(crate) connections: HashMap<EndpointId, Sender<String>>,
     pub(crate) dialing: HashSet<EndpointId>,
     pub(crate) pairing: Option<pairing::PairingSession>,
+    // mDNS emits Discovered once per peer (republished announcements are dropped), so every known peer address is kept here for enter_pairing_mode to probe retroactively.
+    pub(crate) discovered: HashMap<EndpointId, EndpointAddr>,
 }
 
 pub type ConnectivityState = Arc<Mutex<ConnectivityData>>;

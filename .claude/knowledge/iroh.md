@@ -77,6 +77,13 @@ The conventional string form of a device/endpoint identity is the 64-character l
 
 `EndpointInfo` has a public `endpoint_id` field and converts to `EndpointAddr` via `From`/`into_endpoint_addr()`; `Endpoint::connect(impl Into<EndpointAddr>, alpn: &[u8])` accepts it directly.
 
+## iroh-mdns-address-lookup 0.4.0 joins multicast only on the default-route interface
+
+**Verified at:** iroh-mdns-address-lookup 0.4.0 (swarm-discovery 0.6.3)
+**Citation:** [I_7: swarm-discovery-0.6.3/src/socket.rs:100-160 — `socket_v4(None)` joins 224.0.0.251 on `Ipv4Addr::UNSPECIFIED` (kernel default route interface); iroh-mdns-address-lookup-0.4.0/src/lib.rs:472-509 — `spawn_discoverer` never calls `with_multicast_interfaces_v4` or `add_interface_v4`, so no per-interface sockets or group joins exist]
+
+On multi-homed hosts the mDNS discoverer sends and receives multicast solely on the interface the OS picks for 224.0.0.0/4 — decided on Windows by lowest interface metric. VPN adapters (e.g. NordLynx, metric 5 vs. Wi-Fi 35) capture it even when the VPN session is "disconnected" but the adapter stays up, making discovery silently dead in both directions while init succeeds. swarm-discovery's `Discoverer::with_multicast_interfaces_v4`/`DropGuard::add_interface_v4` could fix this, but the 0.4.0 wrapper does not expose them.
+
 ## iroh requires at least one ALPN protocol identifier when accepting connections
 
 **Verified at:** iroh 1.0.2
