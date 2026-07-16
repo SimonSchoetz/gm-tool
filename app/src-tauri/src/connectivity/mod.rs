@@ -9,7 +9,7 @@ use iroh::{Endpoint, EndpointAddr, EndpointId};
 use serde::{Deserialize, Serialize};
 use tauri::async_runtime::{Mutex, Sender};
 
-pub use connections::{connected_peers, init, remove_peer, send_envelope, set_own_name};
+pub use connections::{connected_peers, init, remove_peer, send_envelope, set_own_name, shutdown};
 pub use pairing::{enter_pairing_mode, exit_pairing_mode, submit_pairing_code};
 
 pub(crate) const ALPN_MAIN: &[u8] = b"gm-tool";

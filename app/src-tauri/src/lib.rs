@@ -7,6 +7,7 @@ use commands::{
     remove_trusted_peer, save_image, send_message, submit_pairing_code, update_own_name,
 };
 use connectivity::ConnectivityState;
+use tauri::{Manager, RunEvent};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -33,6 +34,12 @@ pub fn run() {
             submit_pairing_code,
             update_own_name,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app_handle, event| {
+            if matches!(event, RunEvent::Exit) {
+                let state = app_handle.state::<ConnectivityState>();
+                tauri::async_runtime::block_on(connectivity::shutdown(&state));
+            }
+        });
 }

@@ -84,6 +84,13 @@ The conventional string form of a device/endpoint identity is the 64-character l
 
 On multi-homed hosts the mDNS discoverer sends and receives multicast solely on the interface the OS picks for 224.0.0.0/4 — decided on Windows by lowest interface metric. VPN adapters (e.g. NordLynx, metric 5 vs. Wi-Fi 35) capture it even when the VPN session is "disconnected" but the adapter stays up, making discovery silently dead in both directions while init succeeds. swarm-discovery's `Discoverer::with_multicast_interfaces_v4`/`DropGuard::add_interface_v4` could fix this, but the 0.4.0 wrapper does not expose them.
 
+## iroh connections idle out after 30s by default; a dead peer is not detected sooner without a graceful close
+
+**Verified at:** iroh 1.0.2
+**Citation:** [I_8: iroh-1.0.2/src/endpoint/quic.rs:187-190 — `max_idle_timeout` doc: "The true idle timeout is the minimum of this and the peer's own max idle timeout. `None` represents an infinite timeout. Defaults to 30 seconds."; quic.rs:151-163 — `QuicTransportConfigBuilder::new` sets only `keep_alive_interval`/`default_path_keep_alive_interval` (HEARTBEAT_INTERVAL) and `default_path_max_idle_timeout` (PATH_MAX_IDLE_TIMEOUT), never `max_idle_timeout`; socket.rs:109,117 — HEARTBEAT_INTERVAL = 5s, PATH_MAX_IDLE_TIMEOUT = 15s]
+
+A peer whose process exits without sending CONNECTION_CLOSE stays in the local live-connection set until the ~30s connection idle timeout expires, so any UI derived from that set shows the peer as connected for up to 30s. Override with `Endpoint::builder(..).transport_config(QuicTransportConfig::builder().max_idle_timeout(..).build())` [I_9: endpoint.rs:669 `pub fn transport_config(mut self, transport_config: QuicTransportConfig) -> Self`], and/or call `Endpoint::close()` on app shutdown [I_10: endpoint.rs:1697 `pub async fn close(&self)`] so peers are notified immediately.
+
 ## iroh requires at least one ALPN protocol identifier when accepting connections
 
 **Verified at:** iroh 1.0.2

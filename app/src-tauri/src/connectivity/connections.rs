@@ -1,9 +1,12 @@
 use std::collections::HashSet;
 use std::future::poll_fn;
 use std::pin::Pin;
+use std::time::Duration;
 
 use futures_core::Stream;
-use iroh::endpoint::{Connection, SendStream, WriteError, presets};
+use iroh::endpoint::{
+    Connection, IdleTimeout, QuicTransportConfig, SendStream, WriteError, presets,
+};
 use iroh::endpoint_info::EndpointInfo;
 use iroh::{Endpoint, EndpointAddr, EndpointId, RelayMode};
 use iroh_mdns_address_lookup::{DiscoveryEvent, MdnsAddressLookup};
@@ -16,6 +19,8 @@ use super::{
     EVENT_PEER_CONNECTED, EVENT_PEER_DISCONNECTED, MessageReceivedPayload, PeerConnectedPayload,
     PeerDisconnectedPayload, TrustedPeer, pairing, parse_endpoint_id,
 };
+
+const CONNECTION_IDLE_TIMEOUT: Duration = Duration::from_secs(10);
 
 pub async fn init(
     app: AppHandle,
@@ -43,11 +48,22 @@ pub async fn init(
         .build(own_id)
         .map_err(|e| format!("Failed to start mDNS address lookup: {e}"))?;
 
+    // iroh's default connection idle timeout is 30s, so a peer that dies without sending
+    // CONNECTION_CLOSE (a crash, a kill, or the dev watcher rebuilding) would show as
+    // connected for that long. The builder keeps iroh's 5s heartbeat, so a peer that has
+    // really gone silent is detected within this window instead.
+    let idle_timeout = IdleTimeout::try_from(CONNECTION_IDLE_TIMEOUT)
+        .map_err(|e| format!("Invalid connection idle timeout: {e}"))?;
+    let transport_config = QuicTransportConfig::builder()
+        .max_idle_timeout(Some(idle_timeout))
+        .build();
+
     // LAN-only invariant: relays disabled, no DNS/pkarr publishing, mDNS as the only lookup.
     let endpoint = Endpoint::builder(presets::Minimal)
         .secret_key(secret_key)
         .relay_mode(RelayMode::Disabled)
         .clear_address_lookup()
+        .transport_config(transport_config)
         .alpns(vec![ALPN_MAIN.to_vec(), ALPN_PAIRING.to_vec()])
         .bind()
         .await
@@ -100,6 +116,16 @@ pub async fn remove_peer(state: &ConnectivityState, endpoint_id: &str) -> Result
 pub async fn connected_peers(state: &ConnectivityState) -> Result<Vec<String>, String> {
     let data = state.lock().await;
     Ok(data.connections.keys().map(EndpointId::to_string).collect())
+}
+
+/// Closes the endpoint so peers are told immediately that this device is gone. Without this,
+/// a peer keeps the connection in its live set until iroh's ~30s connection idle timeout
+/// expires, leaving a stale "connected" indicator on the other device.
+pub async fn shutdown(state: &ConnectivityState) {
+    let endpoint = state.lock().await.endpoint.clone();
+    if let Some(endpoint) = endpoint {
+        endpoint.close().await;
+    }
 }
 
 pub async fn set_own_name(state: &ConnectivityState, name: Option<String>) -> Result<(), String> {
