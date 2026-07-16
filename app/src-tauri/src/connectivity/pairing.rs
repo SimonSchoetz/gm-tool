@@ -235,6 +235,7 @@ pub(crate) async fn run_pairing_connection(
     let mut sender_to_register = Some(frame_sender.clone());
     let mut candidate_name: Option<String> = None;
     let mut succeeded = false;
+    let mut sent_accept_verdict = false;
     let mut frame_buffer: Vec<u8> = Vec::new();
     let mut chunk = [0u8; 4096];
 
@@ -295,6 +296,7 @@ pub(crate) async fn run_pairing_connection(
                                 data.trusted.insert(remote);
                                 drop(data);
                                 send_verdict(&mut send_stream, true).await;
+                                sent_accept_verdict = true;
                                 let _ = app.emit(EVENT_PAIRING_SUCCEEDED, PairingSucceededPayload {
                                     endpoint_id: remote.to_string(),
                                     name: candidate_name.clone(),
@@ -356,6 +358,11 @@ pub(crate) async fn run_pairing_connection(
                 }
             }
         }
+    }
+
+    // The verifier sends the accept verdict on this connection, then the submitter reads it and closes first. Hold the connection open until the submitter closes (bounded by a timeout) so a local close does not truncate the verdict frame in flight — otherwise the submitter reports a spurious "connection closed before a verdict arrived" and never persists the peer.
+    if succeeded && sent_accept_verdict {
+        let _ = tokio::time::timeout(Duration::from_secs(5), connection.closed()).await;
     }
 
     eprintln!(

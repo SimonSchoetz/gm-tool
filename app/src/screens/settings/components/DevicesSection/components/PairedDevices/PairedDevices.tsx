@@ -12,7 +12,7 @@ export const PairedDevices: FCProps<Props> = () => {
 
   return (
     <div>
-      <H3 heading='Paired Divices' />
+      <H3 heading='Paired Devices' />
       {loading ? (
         <div className='content-center'>
           <LoadingIcon />
