@@ -14,7 +14,6 @@
   transition: var(--transition-hover-off);
   font-size: var(--font-size-xl);
 }
-.PDD-candidate--selected,
 .PDD-candidate:hover {
   color: var(--color-primary);
   transition: var(--transition-hover-on);

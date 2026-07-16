@@ -1,18 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listen } from '@tauri-apps/api/event';
-import {
-  CONNECTIVITY_EVENTS,
-  type PairingCandidateLostPayload,
-  type PairingCandidatePayload,
-  type PairingFailedPayload,
-} from '@domain';
-import {
-  Button,
-  GlassPanel,
-  HorizontalDivider,
-  Input,
-  LoadingIcon,
-} from '@/components';
+import { Button, GlassPanel, Input, LoadingIcon } from '@/components';
 import { usePairing } from '@/data-access-layer';
 import type { FCProps } from '@/types';
 import './PairDeviceDialog.css';
@@ -25,67 +12,36 @@ type Props = {
 export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
   const {
     pairingCode,
+    candidates,
+    failureReason,
+    requestedCandidateId,
+    codeRequest,
+    requestCode,
+    requestError,
     submitCode,
     isSubmitting,
     submitError,
     clearSubmitError,
+    succeeded,
   } = usePairing();
-  // Candidates are transient UI state — never cached, never persisted.
-  const [candidates, setCandidates] = useState<PairingCandidatePayload[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState('');
-  const [failureReason, setFailureReason] = useState<string | null>(null);
 
+  // Closing is the dialog's own concern; usePairing only supplies the outcome that
+  // drives the decision.
   useEffect(() => {
-    const removeCandidate = (endpointId: string) => {
-      setCandidates((current) =>
-        current.filter((candidate) => candidate.endpointId !== endpointId),
-      );
-      setSelectedId((current) => (current === endpointId ? null : current));
-    };
+    if (succeeded) {
+      onClose();
+    }
+  }, [succeeded, onClose]);
 
-    const unlistenPromises = [
-      listen<PairingCandidatePayload>(
-        CONNECTIVITY_EVENTS.pairingCandidate,
-        (event) => {
-          setCandidates((current) =>
-            current.some(
-              (candidate) => candidate.endpointId === event.payload.endpointId,
-            )
-              ? current
-              : [...current, event.payload],
-          );
-        },
-      ),
-      listen<PairingCandidateLostPayload>(
-        CONNECTIVITY_EVENTS.pairingCandidateLost,
-        (event) => {
-          removeCandidate(event.payload.endpointId);
-        },
-      ),
-      listen<PairingFailedPayload>(
-        CONNECTIVITY_EVENTS.pairingFailed,
-        (event) => {
-          removeCandidate(event.payload.endpointId);
-          setFailureReason(event.payload.reason);
-        },
-      ),
-      // useConnectivityLifecycle owns this event's persistence (completePairing + list invalidation) — this handler only closes the dialog.
-      listen(CONNECTIVITY_EVENTS.pairingSucceeded, () => {
-        onClose();
-      }),
-    ];
+  const mode: 'list' | 'entering-code' | 'showing-code' =
+    codeRequest !== null
+      ? 'showing-code'
+      : requestedCandidateId !== null
+        ? 'entering-code'
+        : 'list';
 
-    return () => {
-      unlistenPromises.forEach((promise) => {
-        void promise.then((unlisten) => {
-          unlisten();
-        });
-      });
-    };
-  }, [onClose]);
-
-  if (submitError || failureReason) {
+  if (submitError || failureReason || requestError) {
     return (
       <GlassPanel className='pair-device-dialog'>
         <h1 className='pair-device-dialog-title'>Pair a new device</h1>
@@ -95,6 +51,9 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
         {failureReason !== null && (
           <p className='pair-device-dialog-error'>{failureReason}</p>
         )}
+        {requestError !== null && (
+          <p className='pair-device-dialog-error'>{requestError.message}</p>
+        )}
       </GlassPanel>
     );
   }
@@ -103,34 +62,43 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
     <GlassPanel className='pair-device-dialog'>
       <h1 className='pair-device-dialog-title'>Pair a new device</h1>
 
-      <p>Enter this code on the other device:</p>
-      {pairingCode !== null ? (
-        <span className='pair-device-dialog-code'>{pairingCode}</span>
-      ) : (
-        <LoadingIcon />
+      {mode === 'showing-code' && (
+        <>
+          <p>Enter this code on the other device:</p>
+          {pairingCode !== null ? (
+            <span className='pair-device-dialog-code'>{pairingCode}</span>
+          ) : (
+            <LoadingIcon />
+          )}
+        </>
       )}
 
-      <HorizontalDivider />
-
-      <p>Nearby devices in pairing mode:</p>
-
-      {candidates.length === 0 ? (
-        <div className='pair-device-dialog-searching'>
-          <LoadingIcon />
-          <span className='pair-device-dialog-searching-hint'>Searching…</span>
-        </div>
-      ) : (
-        <PDDCandidatesList
-          candidates={candidates}
-          selectedId={selectedId}
-          onClick={(id) => {
-            setSelectedId(id);
-            clearSubmitError();
-          }}
-        />
+      {mode === 'list' && (
+        <>
+          <p>Nearby devices in pairing mode:</p>
+          {candidates.length === 0 ? (
+            <div className='pair-device-dialog-searching'>
+              <LoadingIcon />
+              <span className='pair-device-dialog-searching-hint'>
+                Searching…
+              </span>
+            </div>
+          ) : (
+            <PDDCandidatesList
+              candidates={candidates}
+              onClick={(id) => {
+                clearSubmitError();
+                requestCode(id);
+              }}
+            />
+          )}
+        </>
       )}
 
-      {selectedId !== null && (
+      {/* requestedCandidateId is re-checked even though mode === 'entering-code' already
+          implies it is non-null at runtime — mode is an independent variable, so tsc
+          cannot narrow requestedCandidateId from the mode comparison alone. */}
+      {mode === 'entering-code' && requestedCandidateId !== null && (
         <div className='pair-device-dialog-confirm'>
           <p>Enter the code on the other device:</p>
           <Input
@@ -144,7 +112,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
             label='Confirm'
             disabled={isSubmitting}
             onClick={() => {
-              submitCode(selectedId, codeInput);
+              submitCode(requestedCandidateId, codeInput);
             }}
           />
         </div>
