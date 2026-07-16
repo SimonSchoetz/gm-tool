@@ -11,16 +11,16 @@ export const PairedDevices: FCProps<Props> = () => {
   const { pairedDevices, loading } = usePairedDevices();
 
   return (
-    <div>
+    <div className='paired-devices'>
       <H3 heading='Paired Devices' />
       {loading ? (
         <div className='content-center'>
           <LoadingIcon />
         </div>
       ) : pairedDevices.length === 0 ? (
-        <p className='paired-devices-empty'>No paired devices yet.</p>
+        <p className='paired-devices--empty'>No paired devices yet.</p>
       ) : (
-        <ul className='paired-devices-list'>
+        <ul className='paired-devices--list'>
           {pairedDevices.map((device) => (
             <DeviceRow key={device.id} device={device} />
           ))}

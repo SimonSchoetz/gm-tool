@@ -1,6 +1,6 @@
 .own-device {
   color: var(--color-fg);
-  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
 }
 
 .own-device--input {

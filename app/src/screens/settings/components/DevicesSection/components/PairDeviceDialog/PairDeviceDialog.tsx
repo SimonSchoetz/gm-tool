@@ -4,6 +4,7 @@ import { usePairing } from '@/data-access-layer';
 import type { FCProps } from '@/types';
 import './PairDeviceDialog.css';
 import { PDDCandidatesList } from './components';
+import { H2 } from '../../../H2/H2';
 
 type Props = {
   onClose: () => void;
@@ -40,10 +41,14 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
         ? 'entering-code'
         : 'list';
 
+  const DialogHeader = (
+    <h1 className='pair-device-dialog-title'>Pair a new device</h1>
+  );
+
   if (submitError || failureReason || requestError) {
     return (
       <GlassPanel className='pair-device-dialog'>
-        <h1 className='pair-device-dialog-title'>Pair a new device</h1>
+        {DialogHeader}
         {submitError !== null && (
           <p className='pair-device-dialog-error'>{submitError.message}</p>
         )}
@@ -59,7 +64,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
 
   return (
     <GlassPanel className='pair-device-dialog'>
-      <h1 className='pair-device-dialog-title'>Pair a new device</h1>
+      {DialogHeader}
 
       {mode === 'showing-code' && (
         <>
@@ -74,7 +79,15 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
 
       {mode === 'list' && (
         <>
-          <p>Nearby devices in pairing mode:</p>
+          <GlassPanel intensity='dim' className='pair-device-dialog--info-box'>
+            <p>
+              Open this dialog on your other device to start the pairing
+              process. If it doesn't appear, check your network settings and
+              make sure the GM Tool is allowed through your VPN.
+            </p>
+          </GlassPanel>
+          <H2 heading='Nearby devices in pairing mode' />
+
           {candidates.length === 0 ? (
             <div className='pair-device-dialog-searching'>
               <LoadingIcon />
@@ -97,14 +110,18 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
       {/* requestedCandidateId is re-checked even though mode === 'entering-code' already implies it is non-null at runtime — mode is an independent variable, so tsc cannot narrow requestedCandidateId from the mode comparison alone. */}
       {mode === 'entering-code' && requestedCandidateId !== null && (
         <div className='pair-device-dialog-confirm'>
-          <p>Enter the code on the other device:</p>
+          <GlassPanel intensity='dim' className='pair-device-dialog--info-box'>
+            <p>Look on your other device and enter the code shown there.</p>
+          </GlassPanel>
+
           <Input
+            className='pair-device-dialog--code-input'
             value={codeInput}
             onChange={(e) => {
               setCodeInput(e.target.value);
             }}
-            placeholder='6-digit code'
           />
+
           <Button
             label='Confirm'
             disabled={isSubmitting}

@@ -1,7 +1,18 @@
 .devices-section-body {
   border-radius: var(--radius-xl);
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  /*gap: var(--spacing-sm);*/
+}
+
+.devices-section--open-dialog-btn {
+  border: none;
+  /*width: 100%;
+  align-self: center;*/
+  border-radius: var(--radius-md);
+}
+
+.devices-section--open-dialog-btn > * {
+  border-radius: var(--radius-md);
 }

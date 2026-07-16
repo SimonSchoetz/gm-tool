@@ -1,10 +1,12 @@
 .pair-device-dialog {
+  max-width: var(--dialog-max-width);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-2xl);
   color: var(--color-fg);
+  text-align: center;
 }
 
 .pair-device-dialog-title {
@@ -28,10 +30,30 @@
 }
 
 .pair-device-dialog-confirm {
-  /*display: flex;*/
-  gap: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
 .pair-device-dialog-error {
   color: var(--color-danger);
+}
+
+.pair-device-dialog--info-box {
+  border-color: var(--color-primary-muted);
+  background-color: var(--color-bg-muted);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-xl);
+}
+
+.pair-device-dialog--code-input {
+  width: calc(var(--font-size-xl) * 6);
+  align-self: center;
+  padding: var(--spacing-sm);
+  border: solid 1px var(--color-primary);
+  border-radius: var(--radius-md);
+  font-family: monospace;
+  font-size: var(--font-size-xl);
+  letter-spacing: 7px; /* one-off*/
+  text-align: center;
 }

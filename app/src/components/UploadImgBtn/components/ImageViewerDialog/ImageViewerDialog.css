@@ -1,8 +1,8 @@
 .image-viewer-dialog {
   display: flex;
   flex-direction: column;
-  max-width: var(--dialog-max-width);
-  max-height: var(--dialog-max-height);
+  max-width: calc(100vw - var(--spacing-xl));
+  max-height: calc(100vh - var(--spacing-xl));
 }
 
 .image-viewer-dialog-content {

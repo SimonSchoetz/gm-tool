@@ -1,1 +1,1 @@
-export { StatusDot } from './StatusDot/StatusDot';
+export { StatusIndicator } from './StatusIndicator/StatusIndicator';

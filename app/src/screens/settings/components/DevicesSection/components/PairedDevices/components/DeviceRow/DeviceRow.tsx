@@ -1,10 +1,10 @@
-import { Trash2 as Trash2Icon } from 'lucide-react';
+import { UnlinkIcon } from 'lucide-react';
 import type { PairedDevice } from '@db/paired-device';
 import { ClickableIcon } from '@/components';
 import { useConnectedPeers, usePairedDevices } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import type { FCProps } from '@/types';
-import { StatusDot } from './components';
+import { StatusIndicator } from './components';
 import './DeviceRow.css';
 import { getShortenedDeviceId } from '../../../../helper';
 
@@ -23,10 +23,10 @@ export const DeviceRow: FCProps<Props> = ({ device }) => {
 
   return (
     <li className='device-row'>
-      <StatusDot connected={connected} />
+      <StatusIndicator connected={connected} />
       <span className='device-row-name'>{displayName}</span>
       <ClickableIcon
-        icon={<Trash2Icon />}
+        icon={<UnlinkIcon />}
         variant='danger'
         label='Forget device'
         title='Forget device'

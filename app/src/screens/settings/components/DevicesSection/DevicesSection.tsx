@@ -40,8 +40,7 @@ export const DevicesSection = () => {
         {ownDevice !== null ? (
           <OwnDevice />
         ) : (
-          // The controlled-input auto-save pattern initializes its state from the query
-          // value once, at mount — the input must not mount before data exists.
+          // The controlled-input auto-save pattern initializes its state from the query value once, at mount — the input must not mount before data exists.
           <LoadingIcon />
         )}
 
@@ -50,7 +49,8 @@ export const DevicesSection = () => {
         <PairedDevices />
 
         <Button
-          label='Pair new device'
+          className='devices-section--open-dialog-btn'
+          label='Pair devices'
           onClick={() => {
             setPairDialogState('open');
             setDialogMounted(true);

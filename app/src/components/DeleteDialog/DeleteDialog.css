@@ -1,6 +1,6 @@
 .delete-dialog {
   padding: var(--spacing-2xl);
-  max-width: 640px;
+  max-width: var(--dialog-max-width);
   display: flex;
   flex-direction: column;
   align-items: center;
