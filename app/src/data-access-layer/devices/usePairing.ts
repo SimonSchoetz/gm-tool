@@ -71,6 +71,10 @@ export const usePairing = (): UsePairingReturn => {
       setRequestedCandidateId((current) =>
         current === endpointId ? null : current,
       );
+      // The mirror case: the peer that asked us to show our code has gone, so drop back to the list instead of displaying a code nobody can still type.
+      setCodeRequest((current) =>
+        current?.endpointId === endpointId ? null : current,
+      );
     };
 
     const unlistenPromises = [
