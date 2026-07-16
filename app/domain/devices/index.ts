@@ -7,6 +7,7 @@ export type {
   DeviceUpdateError,
   PairingConfirmError,
   PairingModeError,
+  PairingRequestError,
 } from './errors';
 export {
   connectivityInitError,
@@ -17,6 +18,7 @@ export {
   deviceUpdateError,
   pairingConfirmError,
   pairingModeError,
+  pairingRequestError,
 } from './errors';
 export type { DeviceMessageEnvelope } from './messages';
 export {
@@ -31,6 +33,7 @@ export type {
   MessageReceivedPayload,
   PairingCandidateLostPayload,
   PairingCandidatePayload,
+  PairingCodeRequestedPayload,
   PairingFailedPayload,
   PairingSucceededPayload,
   PeerConnectedPayload,

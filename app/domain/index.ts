@@ -175,9 +175,11 @@ export type {
   MessageReceivedPayload,
   PairingCandidateLostPayload,
   PairingCandidatePayload,
+  PairingCodeRequestedPayload,
   PairingConfirmError,
   PairingFailedPayload,
   PairingModeError,
+  PairingRequestError,
   PairingSucceededPayload,
   PeerConnectedPayload,
   PeerDisconnectedPayload,
@@ -198,4 +200,5 @@ export {
   ENVELOPE_VERSION,
   pairingConfirmError,
   pairingModeError,
+  pairingRequestError,
 } from './devices';

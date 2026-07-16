@@ -63,6 +63,15 @@ export const pairingConfirmError = (cause?: unknown): PairingConfirmError => {
   return error;
 };
 
+export type PairingRequestError = Error & { name: 'PairingRequestError' };
+export const pairingRequestError = (cause?: unknown): PairingRequestError => {
+  const error = new Error(
+    `Failed to request pairing code: ${String(cause)}`,
+  ) as PairingRequestError;
+  error.name = 'PairingRequestError';
+  return error;
+};
+
 export type DeviceMessageError = Error & { name: 'DeviceMessageError' };
 export const deviceMessageError = (cause?: unknown): DeviceMessageError => {
   const error = new Error(
