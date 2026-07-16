@@ -10,9 +10,9 @@ use tauri::{AppHandle, Emitter};
 use super::connections::{drain_frames, maybe_dial_trusted_peer, write_frame};
 use super::{
     ALPN_PAIRING, ConnectionRole, ConnectivityState, EVENT_PAIRING_CANDIDATE,
-    EVENT_PAIRING_CANDIDATE_LOST, EVENT_PAIRING_FAILED, EVENT_PAIRING_SUCCEEDED,
-    PairingCandidateLostPayload, PairingCandidatePayload, PairingFailedPayload,
-    PairingSucceededPayload, parse_endpoint_id,
+    EVENT_PAIRING_CANDIDATE_LOST, EVENT_PAIRING_CODE_REQUESTED, EVENT_PAIRING_FAILED,
+    EVENT_PAIRING_SUCCEEDED, PairingCandidateLostPayload, PairingCandidatePayload,
+    PairingCodeRequestedPayload, PairingFailedPayload, PairingSucceededPayload, parse_endpoint_id,
 };
 
 const MAX_CODE_FAILURES: u8 = 3;
@@ -40,10 +40,15 @@ pub(crate) enum PairingFrame {
         endpoint_id: String,
         name: Option<String>,
     },
+    CodeRequest,
     #[serde(rename_all = "camelCase")]
-    CodeSubmit { code: String },
+    CodeSubmit {
+        code: String,
+    },
     #[serde(rename_all = "camelCase")]
-    CodeVerdict { accepted: bool },
+    CodeVerdict {
+        accepted: bool,
+    },
 }
 
 pub async fn enter_pairing_mode(
@@ -144,6 +149,32 @@ pub async fn submit_pairing_code(
         Ok(None) => Err("The pairing connection closed before a verdict arrived".to_string()),
         Err(_) => Err("Timed out waiting for the other device's verdict".to_string()),
     }
+}
+
+/// Asks a candidate to display its pairing code. Fire-and-forget: no verdict is awaited and
+/// no candidate state is touched — TypeScript owns every role decision.
+pub async fn request_pairing_code(
+    state: &ConnectivityState,
+    endpoint_id: &str,
+) -> Result<(), String> {
+    let remote = parse_endpoint_id(endpoint_id)?;
+    let frame_sender = {
+        let data = state.lock().await;
+        let session = data
+            .pairing
+            .as_ref()
+            .ok_or_else(|| "No active pairing session".to_string())?;
+        let candidate = session
+            .candidates
+            .get(&remote)
+            .ok_or_else(|| format!("Unknown pairing candidate {endpoint_id}"))?;
+        candidate.frame_sender.clone()
+    };
+
+    frame_sender
+        .send(PairingFrame::CodeRequest)
+        .await
+        .map_err(|_| "The pairing connection to this device closed".to_string())
 }
 
 /// Dials a discovered, untrusted endpoint over the pairing ALPN while a session is active.
@@ -284,6 +315,15 @@ pub(crate) async fn run_pairing_connection(
                                 endpoint_id: remote.to_string(),
                                 name,
                             });
+                        }
+                        PairingFrame::CodeRequest => {
+                            // Relayed unfiltered: the "already committed as initiator" guard lives in usePairing, not here.
+                            let _ = app.emit(
+                                EVENT_PAIRING_CODE_REQUESTED,
+                                PairingCodeRequestedPayload {
+                                    endpoint_id: remote.to_string(),
+                                },
+                            );
                         }
                         PairingFrame::CodeSubmit { code } => {
                             let mut data = state.lock().await;

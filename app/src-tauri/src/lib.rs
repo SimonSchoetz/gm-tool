@@ -4,7 +4,8 @@ mod connectivity;
 use commands::{
     PendingInstallState, check_update, delete_image, download_update, enter_pairing_mode,
     exit_pairing_mode, get_connected_peers, get_image_url, init_connectivity, install_and_relaunch,
-    remove_trusted_peer, save_image, send_message, submit_pairing_code, update_own_name,
+    remove_trusted_peer, request_pairing_code, save_image, send_message, submit_pairing_code,
+    update_own_name,
 };
 use connectivity::ConnectivityState;
 use tauri::{Manager, RunEvent};
@@ -29,6 +30,7 @@ pub fn run() {
             init_connectivity,
             install_and_relaunch,
             remove_trusted_peer,
+            request_pairing_code,
             save_image,
             send_message,
             submit_pairing_code,

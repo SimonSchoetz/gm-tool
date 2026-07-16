@@ -10,7 +10,9 @@ use serde::{Deserialize, Serialize};
 use tauri::async_runtime::{Mutex, Sender};
 
 pub use connections::{connected_peers, init, remove_peer, send_envelope, set_own_name, shutdown};
-pub use pairing::{enter_pairing_mode, exit_pairing_mode, submit_pairing_code};
+pub use pairing::{
+    enter_pairing_mode, exit_pairing_mode, request_pairing_code, submit_pairing_code,
+};
 
 pub(crate) const ALPN_MAIN: &[u8] = b"gm-tool";
 pub(crate) const ALPN_PAIRING: &[u8] = b"gm-tool-pairing";
@@ -20,6 +22,7 @@ pub(crate) const EVENT_PEER_DISCONNECTED: &str = "connectivity-peer-disconnected
 pub(crate) const EVENT_MESSAGE_RECEIVED: &str = "connectivity-message-received";
 pub(crate) const EVENT_PAIRING_CANDIDATE: &str = "connectivity-pairing-candidate";
 pub(crate) const EVENT_PAIRING_CANDIDATE_LOST: &str = "connectivity-pairing-candidate-lost";
+pub(crate) const EVENT_PAIRING_CODE_REQUESTED: &str = "connectivity-pairing-code-requested";
 pub(crate) const EVENT_PAIRING_SUCCEEDED: &str = "connectivity-pairing-succeeded";
 pub(crate) const EVENT_PAIRING_FAILED: &str = "connectivity-pairing-failed";
 
@@ -52,6 +55,12 @@ pub(crate) struct PairingCandidatePayload {
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct PairingCandidateLostPayload {
+    pub(crate) endpoint_id: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct PairingCodeRequestedPayload {
     pub(crate) endpoint_id: String,
 }
 
