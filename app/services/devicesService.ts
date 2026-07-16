@@ -14,6 +14,7 @@ import {
   connectivityInitError,
   pairingModeError,
   pairingConfirmError,
+  pairingRequestError,
   deviceMessageError,
 } from '@domain';
 
@@ -122,6 +123,14 @@ export const submitPairingCode = async (
     await invoke('submit_pairing_code', { endpointId, code });
   } catch (cause) {
     throw pairingConfirmError(cause);
+  }
+};
+
+export const requestPairingCode = async (endpointId: string): Promise<void> => {
+  try {
+    await invoke('request_pairing_code', { endpointId });
+  } catch (cause) {
+    throw pairingRequestError(cause);
   }
 };
 
