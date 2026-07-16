@@ -151,8 +151,7 @@ pub async fn submit_pairing_code(
     }
 }
 
-/// Asks a candidate to display its pairing code. Fire-and-forget: no verdict is awaited and
-/// no candidate state is touched — TypeScript owns every role decision.
+/// Asks a candidate to display its pairing code. Fire-and-forget: no verdict is awaited and no candidate state is touched — TypeScript owns every role decision.
 pub async fn request_pairing_code(
     state: &ConnectivityState,
     endpoint_id: &str,

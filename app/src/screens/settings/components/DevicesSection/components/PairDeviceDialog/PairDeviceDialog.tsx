@@ -26,8 +26,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
   } = usePairing();
   const [codeInput, setCodeInput] = useState('');
 
-  // Closing is the dialog's own concern; usePairing only supplies the outcome that
-  // drives the decision.
+  // Closing is the dialog's own concern; usePairing only supplies the outcome that drives the decision.
   useEffect(() => {
     if (succeeded) {
       onClose();
@@ -95,9 +94,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
         </>
       )}
 
-      {/* requestedCandidateId is re-checked even though mode === 'entering-code' already
-          implies it is non-null at runtime — mode is an independent variable, so tsc
-          cannot narrow requestedCandidateId from the mode comparison alone. */}
+      {/* requestedCandidateId is re-checked even though mode === 'entering-code' already implies it is non-null at runtime — mode is an independent variable, so tsc cannot narrow requestedCandidateId from the mode comparison alone. */}
       {mode === 'entering-code' && requestedCandidateId !== null && (
         <div className='pair-device-dialog-confirm'>
           <p>Enter the code on the other device:</p>

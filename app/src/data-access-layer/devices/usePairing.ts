@@ -39,13 +39,7 @@ export const usePairing = (): UsePairingReturn => {
     useState<PairingCodeRequestedPayload | null>(null);
   const [succeeded, setSucceeded] = useState(false);
 
-  // Enter and exit are bound together in one effect on purpose. React StrictMode
-  // double-mounts the dialog in dev (setup → cleanup → setup), which issues
-  // enter/exit/enter as three direct, non-deduplicated calls; the Rust session is
-  // ref-counted, so it ends up active. Driving enter through useQuery instead would
-  // let React Query deduplicate the remount's re-enter, leaving one enter against the
-  // cleanup's one exit — a torn-down session that rejects all incoming pairing
-  // connections. A reopened dialog remounts, so it still gets a fresh session.
+  // Enter and exit are bound together in one effect on purpose. React StrictMode double-mounts the dialog in dev (setup → cleanup → setup), which issues enter/exit/enter as three direct, non-deduplicated calls; the Rust session is ref-counted, so it ends up active. Driving enter through useQuery instead would let React Query deduplicate the remount's re-enter, leaving one enter against the cleanup's one exit — a torn-down session that rejects all incoming pairing connections. A reopened dialog remounts, so it still gets a fresh session.
   useEffect(() => {
     let active = true;
     void devicesService.enterPairingMode().then(
@@ -63,8 +57,7 @@ export const usePairing = (): UsePairingReturn => {
     return () => {
       active = false;
       void devicesService.exitPairingMode().catch(() => {
-        // Swallowed: failing to exit cleanly is recovered by Rust's ref-counted
-        // session handling on the next enter.
+        // Swallowed: failing to exit cleanly is recovered by Rust's ref-counted session handling on the next enter.
       });
     };
   }, []);
@@ -74,8 +67,7 @@ export const usePairing = (): UsePairingReturn => {
       setCandidates((current) =>
         current.filter((candidate) => candidate.endpointId !== endpointId),
       );
-      // A candidate that disappears while it is the one we requested a code from would
-      // otherwise strand the dialog on a code-entry screen for a dead connection.
+      // A candidate that disappears while it is the one we requested a code from would otherwise strand the dialog on a code-entry screen for a dead connection.
       setRequestedCandidateId((current) =>
         current === endpointId ? null : current,
       );
@@ -107,8 +99,7 @@ export const usePairing = (): UsePairingReturn => {
           setFailureReason(event.payload.reason);
         },
       ),
-      // useConnectivityLifecycle owns this event's persistence; this listener only
-      // exposes the outcome so the dialog can close itself.
+      // useConnectivityLifecycle owns this event's persistence; this listener only exposes the outcome so the dialog can close itself.
       listen(CONNECTIVITY_EVENTS.pairingSucceeded, () => {
         setSucceeded(true);
       }),
@@ -123,10 +114,7 @@ export const usePairing = (): UsePairingReturn => {
     };
   }, []);
 
-  // Re-subscribed whenever requestedCandidateId changes so the guard below reads the
-  // current value rather than a stale closure. Rust relays every CodeRequest without
-  // filtering, so this guard is the whole reason a device that already committed to
-  // being the initiator does not flip into showing its own code instead.
+  // Re-subscribed whenever requestedCandidateId changes so the guard below reads the current value rather than a stale closure. Rust relays every CodeRequest without filtering, so this guard is the whole reason a device that already committed to being the initiator does not flip into showing its own code instead.
   useEffect(() => {
     const unlistenPromise = listen<PairingCodeRequestedPayload>(
       CONNECTIVITY_EVENTS.pairingCodeRequested,
@@ -146,28 +134,22 @@ export const usePairing = (): UsePairingReturn => {
   const submitMutation = useMutation({
     mutationFn: ({ endpointId, code }: { endpointId: string; code: string }) =>
       devicesService.submitPairingCode(endpointId, code),
-    /* throwOnError: false — deliberate exception to the global mutation default.
-       A wrong code is expected user input error state, rendered inline in this
-       dialog rather than routed to the Error Boundary. */
+    /* throwOnError: false — deliberate exception to the global mutation default. A wrong code is expected user input error state, rendered inline in this dialog rather than routed to the Error Boundary. */
     throwOnError: false,
   });
 
   const requestMutation = useMutation({
     mutationFn: (endpointId: string) =>
       devicesService.requestPairingCode(endpointId),
-    // Runs before the invoke resolves: this is the record of "I have committed to
-    // being the initiator for this candidate", which the listener above guards on.
+    // Runs before the invoke resolves: this is the record of "I have committed to being the initiator for this candidate", which the listener above guards on.
     onMutate: (endpointId: string) => {
       setRequestedCandidateId(endpointId);
     },
-    /* throwOnError: false — same rationale as submitMutation: a failed request (e.g.
-       the candidate disconnected between click and invoke) is expected user-facing
-       state, not an Error Boundary case. */
+    /* throwOnError: false — same rationale as submitMutation: a failed request (e.g. the candidate disconnected between click and invoke) is expected user-facing state, not an Error Boundary case. */
     throwOnError: false,
   });
 
-  // Route enter failures to the Error Boundary. Thrown after every hook call so the
-  // rules of hooks hold.
+  // Route enter failures to the Error Boundary. Thrown after every hook call so the rules of hooks hold.
   if (enterError !== null) {
     throw enterError;
   }
