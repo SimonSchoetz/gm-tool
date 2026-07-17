@@ -62,14 +62,9 @@ pub async fn enter_pairing_mode(
         }
         if let Some(session) = &mut data.pairing {
             session.ref_count += 1;
-            eprintln!(
-                "[connectivity] enter_pairing_mode: existing session, ref_count now {}",
-                session.ref_count
-            );
             return Ok(session.code.clone());
         }
         let code = format!("{:06}", rand::random_range(0..=999_999u32));
-        eprintln!("[connectivity] enter_pairing_mode: new session, ref_count now 1");
         data.pairing = Some(PairingSession {
             code: code.clone(),
             candidates: HashMap::new(),
@@ -86,10 +81,6 @@ pub async fn enter_pairing_mode(
     };
 
     // mDNS emits Discovered only once per peer, so endpoints found before this session started produce no further events — probe every already-known unpaired endpoint now.
-    eprintln!(
-        "[connectivity] pairing mode entered, probing {} known unpaired endpoint(s)",
-        known_unpaired.len()
-    );
     for addr in known_unpaired {
         maybe_probe_candidate(app, state, addr).await;
     }
@@ -101,18 +92,10 @@ pub async fn exit_pairing_mode(state: &ConnectivityState) -> Result<(), String> 
     let mut data = state.lock().await;
     if let Some(session) = &mut data.pairing {
         session.ref_count = session.ref_count.saturating_sub(1);
-        let remaining = session.ref_count;
-        if remaining == 0 {
-            // Dropping the session drops every candidate's frame sender, which terminates
-            // the candidate tasks and closes their connections.
+        if session.ref_count == 0 {
+            // Dropping the session drops every candidate's frame sender, which terminates the candidate tasks and closes their connections.
             data.pairing = None;
         }
-        eprintln!(
-            "[connectivity] exit_pairing_mode: ref_count now {remaining} (session cleared: {})",
-            remaining == 0
-        );
-    } else {
-        eprintln!("[connectivity] exit_pairing_mode: no active session");
     }
     Ok(())
 }
@@ -199,14 +182,11 @@ pub(crate) async fn maybe_probe_candidate(
     let app = app.clone();
     let state = state.clone();
     tauri::async_runtime::spawn(async move {
-        eprintln!("[connectivity] probing pairing candidate {remote}");
         match endpoint.connect(addr, ALPN_PAIRING).await {
             Ok(connection) => {
-                eprintln!("[connectivity] pairing connection to {remote} established");
                 run_pairing_connection(app, state, connection, ConnectionRole::Dialer).await;
             }
-            Err(error) => {
-                eprintln!("[connectivity] pairing connect to {remote} FAILED: {error}");
+            Err(_) => {
                 let mut data = state.lock().await;
                 if let Some(session) = data.pairing.as_mut() {
                     session.probing.remove(&remote);
@@ -228,13 +208,9 @@ pub(crate) async fn run_pairing_connection(
         ConnectionRole::Dialer => connection.open_bi().await,
         ConnectionRole::Acceptor => connection.accept_bi().await,
     };
-    let (mut send_stream, mut recv_stream) = match streams {
-        Ok(streams) => streams,
-        Err(error) => {
-            eprintln!("[connectivity] pairing stream setup with {remote} FAILED: {error}");
-            remove_probe(&state, &remote).await;
-            return;
-        }
+    let Ok((mut send_stream, mut recv_stream)) = streams else {
+        remove_probe(&state, &remote).await;
+        return;
     };
 
     let own_hello = {
@@ -253,15 +229,12 @@ pub(crate) async fn run_pairing_connection(
         return;
     };
     if write_frame(&mut send_stream, &hello_json).await.is_err() {
-        eprintln!("[connectivity] failed to send pairing hello to {remote}");
         remove_probe(&state, &remote).await;
         return;
     }
-    eprintln!("[connectivity] sent pairing hello to {remote}, awaiting peer hello");
 
     let (frame_sender, mut frame_receiver) = channel::<PairingFrame>(8);
-    // Moved into the candidate entry on the peer's hello; the map is then the only owner,
-    // so dropping the session (or replacing the entry) terminates this task.
+    // Moved into the candidate entry on the peer's hello; the map is then the only owner, so dropping the session (or replacing the entry) terminates this task.
     let mut sender_to_register = Some(frame_sender.clone());
     let mut candidate_name: Option<String> = None;
     let mut succeeded = false;
@@ -309,7 +282,6 @@ pub(crate) async fn run_pairing_connection(
                                 failures: 0,
                             });
                             drop(data);
-                            eprintln!("[connectivity] received peer hello from {remote}, emitting candidate");
                             let _ = app.emit(EVENT_PAIRING_CANDIDATE, PairingCandidatePayload {
                                 endpoint_id: remote.to_string(),
                                 name,
@@ -404,10 +376,6 @@ pub(crate) async fn run_pairing_connection(
         let _ = tokio::time::timeout(Duration::from_secs(5), connection.closed()).await;
     }
 
-    eprintln!(
-        "[connectivity] pairing connection with {remote} closed (succeeded={succeeded}, close_reason={:?})",
-        connection.close_reason()
-    );
     connection.close(0u32.into(), b"pairing closed");
 
     let mut data = state.lock().await;

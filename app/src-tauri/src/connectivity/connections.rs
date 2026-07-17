@@ -159,10 +159,6 @@ async fn handle_incoming_connection(
     connection: Connection,
 ) {
     let remote = connection.remote_id();
-    eprintln!(
-        "[connectivity] incoming connection from {remote} on alpn {:?}",
-        String::from_utf8_lossy(connection.alpn())
-    );
     if connection.alpn() == ALPN_MAIN {
         let is_trusted = state.lock().await.trusted.contains(&remote);
         if !is_trusted {
@@ -171,16 +167,8 @@ async fn handle_incoming_connection(
         }
         run_main_connection(app, state, connection, ConnectionRole::Acceptor).await;
     } else if connection.alpn() == ALPN_PAIRING {
-        let pairing_ref_count = state
-            .lock()
-            .await
-            .pairing
-            .as_ref()
-            .map(|session| session.ref_count);
-        eprintln!(
-            "[connectivity] incoming pairing connection from {remote}, own pairing ref_count = {pairing_ref_count:?}"
-        );
-        if pairing_ref_count.is_none() {
+        let pairing_active = state.lock().await.pairing.is_some();
+        if !pairing_active {
             connection.close(0u32.into(), b"pairing not active");
             return;
         }
@@ -330,7 +318,6 @@ pub(crate) async fn maybe_dial_trusted_peer(
 async fn run_discovery(app: AppHandle, state: ConnectivityState, mdns: MdnsAddressLookup) {
     let mut events = mdns.subscribe().await;
     while let Some(event) = next_discovery_event(&mut events).await {
-        eprintln!("[connectivity] discovery event: {event:?}");
         match event {
             DiscoveryEvent::Discovered { endpoint_info, .. } => {
                 handle_discovered(&app, &state, endpoint_info).await;
@@ -341,7 +328,6 @@ async fn run_discovery(app: AppHandle, state: ConnectivityState, mdns: MdnsAddre
             _ => {}
         }
     }
-    eprintln!("[connectivity] discovery stream ended");
 }
 
 async fn next_discovery_event<S: Stream<Item = DiscoveryEvent> + Unpin>(
