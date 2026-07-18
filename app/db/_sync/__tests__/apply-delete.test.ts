@@ -44,6 +44,18 @@ describe('applyDelete', () => {
     vi.resetModules();
   });
 
+  it('should skip an unknown table without querying', async () => {
+    const result = await applyDelete(
+      'not_a_table',
+      'row-1',
+      '2024-01-01T00:00:00.000Z',
+    );
+
+    expect(result).toBe('skipped');
+    expect(mockSelect).not.toHaveBeenCalled();
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
+
   it('should skip when the local row is newer than the deletion', async () => {
     mockSelect.mockResolvedValue([{ updated_at: '2099-01-01T00:00:00.000Z' }]);
 

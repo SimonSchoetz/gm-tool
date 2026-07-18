@@ -1,8 +1,7 @@
 import type Database from '@tauri-apps/plugin-sql';
 import { getDatabase } from '../database';
 import { SYNCED_TABLES } from './registry';
-
-type ApplyResult = 'applied' | 'skipped';
+import type { ApplyResult } from './types';
 
 const filterToWhitelist = (
   row: Record<string, unknown>,

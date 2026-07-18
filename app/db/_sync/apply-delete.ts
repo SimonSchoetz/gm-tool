@@ -1,7 +1,7 @@
 import type Database from '@tauri-apps/plugin-sql';
 import { getDatabase } from '../database';
-
-type ApplyResult = 'applied' | 'skipped';
+import { SYNCED_TABLE_NAMES } from './registry';
+import type { ApplyResult } from './types';
 
 const upsertTombstone = async (
   db: Database,
@@ -29,6 +29,8 @@ export const applyDelete = async (
   rowId: string,
   deletedAt: string,
 ): Promise<ApplyResult> => {
+  if (!SYNCED_TABLE_NAMES.includes(tableName)) return 'skipped';
+
   const db = await getDatabase();
 
   // tableName is interpolated directly because SQL does not support parameterized

@@ -3,6 +3,8 @@ use base64::prelude::BASE64_STANDARD;
 use std::fs;
 use tauri::Manager;
 
+use super::VALID_EXTENSIONS;
+
 /// Reads a stored image file and returns its contents as a base64-encoded string.
 ///
 /// # Arguments
@@ -19,8 +21,7 @@ pub async fn read_image_bytes(
     id: String,
     extension: String,
 ) -> Result<String, String> {
-    let valid_extensions = ["jpg", "jpeg", "png", "webp", "gif"];
-    if !valid_extensions.contains(&extension.as_str()) {
+    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
         return Err(format!("Invalid file extension: {}", extension));
     }
 

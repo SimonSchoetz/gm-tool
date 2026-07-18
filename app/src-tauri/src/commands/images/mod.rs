@@ -13,3 +13,5 @@ pub use image_file_exists::image_file_exists;
 pub use read_image_bytes::read_image_bytes;
 pub use save_image::save_image;
 pub use save_image_bytes::save_image_bytes;
+
+pub(crate) const VALID_EXTENSIONS: [&str; 5] = ["jpg", "jpeg", "png", "webp", "gif"];

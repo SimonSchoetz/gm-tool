@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listen } from '@tauri-apps/api/event';
 import {
   CONNECTIVITY_EVENTS,
+  type ConnectivityInitError,
   type MessageReceivedPayload,
   type PairingSucceededPayload,
   type PeerConnectedPayload,
@@ -16,7 +17,11 @@ import type { PeerCompatMap } from './usePeerSyncCompat';
 const SYNC_HELLO_TIMEOUT_MS = 5000;
 const SYNC_POLL_INTERVAL_MS = 3000;
 
-export const useConnectivityLifecycle = (): void => {
+type UseConnectivityLifecycleReturn = {
+  connectivityInitError: ConnectivityInitError | null;
+};
+
+export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
   const queryClient = useQueryClient();
   const helloTimersRef = useRef(
     new Map<string, ReturnType<typeof setTimeout>>(),
@@ -26,7 +31,7 @@ export const useConnectivityLifecycle = (): void => {
   // A firewall-blocked or otherwise failed init must not crash the app into the Error
   // Boundary; the app degrades gracefully instead (grey status dots everywhere, pairing
   // attempts fail with the pairing dialog's inline error).
-  useQuery({
+  const { error } = useQuery({
     queryKey: deviceKeys.init(),
     queryFn: async () => {
       await devicesService.initializeConnectivity();
@@ -182,4 +187,11 @@ export const useConnectivityLifecycle = (): void => {
       clearInterval(interval);
     };
   }, [queryClient]);
+
+  return {
+    connectivityInitError:
+      error?.name === 'ConnectivityInitError'
+        ? (error as ConnectivityInitError)
+        : null,
+  };
 };
