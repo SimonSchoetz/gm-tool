@@ -22,11 +22,6 @@ TypeScript types, and validation rules.
 
 ## Structure
 
-Two tiers of modules live under `domain/`, both receiving identical layer treatment:
-
-- **Entity**: a product concept with a dedicated list screen, detail screen, and navigation entry (e.g., `npcs`, `sessions`, `factions`)
-- **Shared module**: cross-cutting infrastructure that serves entities or the app but has no dedicated screen (e.g., `images`, `app-setting`, `table-config`)
-
 `domain/` is a technical vocabulary layer, not a product-entity registry. The right question is never "is this a domain entity?" — it is "does this table need typed errors, domain types, or validators?" The answer is always yes.
 
 Each module has its own directory (`index.ts` barrel required). `domain/index.ts` is the grouping barrel. See [app/CLAUDE.md](../CLAUDE.md) for the general barrel rule.

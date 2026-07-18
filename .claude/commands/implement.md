@@ -83,7 +83,9 @@ Run `npm run build:frontend` from `app/` and surface any warnings and errors.
 
 Run a raw CSS value scan across all files touched on this branch: run `git diff --name-only main...HEAD` to get the file list, then scan each `.css` file for raw property values (colors, spacing, border radii, shadows, font sizes) that carry no `/* one-off */` annotation on the same line or the line immediately preceding. Collect every match and output them to the user as a non-blocking advisory — distinct from the friction brief, deferred violations brief, and spec quality brief. Label the section: "Raw CSS values to review — not violations; you decide: add a design token, add `/* one-off */`, or leave as-is." Do not make any decision yourself. Do not route this list through architect or code-reviewer. Do not commit anything based on this scan.
 
-Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced).
+Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced). Each entry requires an explicit user disposition — fix now, accept as tracked debt, or route to `/refine-claude` — before the session ends; an entry with no disposition is not closed by having been listed.
+
+Extract the spec's "CLAUDE.md impact" section as written and output it to the user as a distinct handoff artifact — the same shape as the deferred violations brief and spec quality brief — labeled "CLAUDE.md impact — route to /refine-claude" and listing each affected file and required update exactly as the spec stated them. Produce this before any spec file deletion, and regardless of whether the spec file is later deleted. Do not apply any entry directly to a CLAUDE.md file yourself, and do not invoke `/refine-claude` yourself. If the section states "None," skip this step.
 
 ### Friction brief
 
@@ -140,9 +142,9 @@ In manual fix mode:
 - The user tests and reviews the implementation independently.
 - Do not commit anything unless the user explicitly instructs a commit. An explicit commit instruction names what to commit — do not infer scope or create a commit opportunistically.
 - When the user reports a bug: analyze how the bug was introduced or missed during implementation. Identify which phase of the process failed (spec gap, implementer miss, review miss, invariant not applied) and what the process should have done differently. Surface this analysis alongside the fix — it is handoff material for a future /refine-claude session. Additionally, apply the corrected understanding for the remainder of the current session going forward — do not wait for a future /refine-claude session to act on it. A lesson identified mid-session and only recorded for later, while the same class of mistake recurs before the session ends, is a missed application, not a deferred one.
-- When a fix attempt is based on static reasoning about a discrepancy that only manifests at runtime (the code reads correctly but observed behavior differs) and that attempt fails, do not attempt a second reasoning-based guess. Escalate to diagnostic instrumentation first — logging, a breakpoint, or an equivalent runtime probe — before proposing another fix. Exception: when the bug involves DOM event ordering across a React portal boundary (portal-rendered component relying on native DOM listeners for ordering-sensitive behavior), escalate directly to instrumentation without the one-failed-attempt threshold — portals detach rendered DOM position from component-tree position, invalidating the containment assumptions ordering reasoning depends on.
+- When a fix attempt is based on static reasoning about a discrepancy that only manifests at runtime (the code reads correctly but observed behavior differs) and that attempt fails, do not attempt a second reasoning-based guess. Escalate to diagnostic instrumentation first — logging, a breakpoint, or an equivalent runtime probe — before proposing another fix. Exception: when the discrepancy's cause is invisible to static code reading and only observable through runtime interleaving, ordering, or cross-process state — no amount of re-reading the source can resolve it — escalate directly to instrumentation without the one-failed-attempt threshold (e.g. DOM event ordering across a React portal boundary, where portals detach rendered DOM position from component-tree position and invalidate the containment assumptions ordering reasoning depends on; or an external system's event-refire behavior for already-reported state, which depends on runtime state no source read can observe).
 - Apply all implementation invariants to any fix implemented in this mode: tsc and eslint must pass before presenting the fix as done; cleanup is not optional; file compliance applies.
-- When the user says the branch is ready or explicitly ends the session, stop.
+- When the user says the branch is ready or explicitly ends the session, stop — but first confirm every entry in the deferred violations brief has a recorded disposition (fixed, accepted, or routed to `/refine-claude`); an undispositioned entry is surfaced to the user as a blocking question before the session closes.
 
 ---
 
@@ -167,8 +169,6 @@ Type derivation is a cleanup obligation, not a post-implementation task. After a
 Every file you create, extract, or modify is fully owned by you for the duration of the step that touches it. Apply every CLAUDE.md rule to it independently — do not wait for a reviewer to flag violations.
 
 This applies to modified files equally as to new ones. When a step changes a file, run a compliance check on that file's current state before marking the step complete — not only on the lines you added.
-
-A code review is a sample. It identifies violations in existing code. It is not a substitute for your own compliance check on files you introduce or modify.
 
 ## Ambiguity
 

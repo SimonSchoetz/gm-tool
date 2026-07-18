@@ -104,7 +104,7 @@ A constraint that only governs the executor's own internal process (step orderin
 
 ## Automation Forms
 
-Three automation forms are available. Choose based on access pattern and invocation model.
+Three invocable automation forms are available. Choose based on access pattern and invocation model. A fourth category — plain reference files read on demand by a specific agent or command, never spawned, invoked, or auto-triggered — is not an automation form; canonical directory and trigger condition are defined under Agent Infrastructure below.
 
 **agents/** — Specialist personas spawned programmatically by commands or other agents. Own their system prompt, model, and tool access. Not user-invocable via slash command; accessed by name when spawning via the Agent tool.
 
@@ -122,3 +122,5 @@ Three automation forms are available. Choose based on access pattern and invocat
 ## Agent Infrastructure
 
 **`.claude/knowledge/`** — Shared knowledge base for verified external-system facts. Any agent that verifies a fact about a library version, schema, CLI flag, or other external specification must record it here. Format authority and write protocol live in `.claude/knowledge/CLAUDE.md`. Agents must read the relevant category file before performing any external-system verification — it may already be cached.
+
+**`.claude/reference/`** — Plain reference content owned by one agent or command, read on demand via an explicit pointer instruction in that agent or command's own file — never spawned, invoked, or auto-triggered, and never itself carrying agent frontmatter or a registry entry. Distinct from `.claude/knowledge/`, whose scope is limited to verified external-system facts (see `.claude/knowledge/CLAUDE.md` — Purpose and Scope): this directory holds internal process or compliance content extracted from an agent or command file to keep that file under its own size ceiling. A file here is never a candidate when scanning `.claude/agents/` or `.claude/commands/` for agent or command definitions.

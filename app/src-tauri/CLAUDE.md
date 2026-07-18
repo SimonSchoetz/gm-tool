@@ -6,21 +6,18 @@ This file provides guidance for working with the Rust backend code in the GM-Too
 
 ```text
 src-tauri/src/
-├── main.rs           # Entry point
-├── lib.rs            # Main library with app setup
-└── commands/         # Tauri commands organized by feature
-    ├── mod.rs        # Command module exports
-    ├── images/       # Image-related commands
-    │   ├── mod.rs
-    │   ├── save_image.rs
-    │   ├── get_image_url.rs
-    │   └── delete_image.rs
-    └── updater/      # Auto-update commands
-        ├── mod.rs
-        ├── check_update.rs
-        ├── download_update.rs
-        ├── install_and_relaunch.rs
-        └── pending_install.rs
+├── main.rs             # Entry point
+├── lib.rs              # Main library with app setup
+├── connectivity/        # Networking core — one file per concern
+│   ├── mod.rs           # Shared state (ConnectivityState/ConnectivityData), event/payload types
+│   ├── identity.rs       # Device secret-key persistence
+│   ├── pairing.rs        # Pairing-mode session lifecycle
+│   └── connections.rs    # Main-connection lifecycle
+└── commands/           # Tauri commands, grouped by feature — one file per command; see per-feature sections below for the full current command list
+    ├── mod.rs          # Re-exports every command for registration
+    ├── images/
+    ├── updater/
+    └── connectivity/     # Thin wrappers delegating to `connectivity/` — see Connectivity Commands below
 ```
 
 ## Code Organization
@@ -31,6 +28,7 @@ src-tauri/src/
 - **Grouped by feature** - Related commands are grouped in subdirectories (e.g., `images/`)
 - **Module files** - Each directory has a `mod.rs` that re-exports its commands
 - **Flat exports** - The top-level `commands/mod.rs` re-exports all commands for easy registration
+- **Connectivity is layered** — `commands/connectivity/` files are thin wrappers with no logic of their own; each delegates directly to the corresponding function in `connectivity/` (e.g. `commands::connectivity::send_message` calls `connectivity::send_envelope`). `connectivity/` owns all networking state and logic; `commands/connectivity/` only adapts it to the `#[tauri::command]` boundary.
 
 ### State Management
 
@@ -213,6 +211,108 @@ Installs the previously downloaded update and restarts the application.
 
 **Behavior:** Takes the pending install out of state (leaving `None`), calls `update.install(bytes)`, then calls `app.restart()`. Calling this without a prior successful `download_update` is an error.
 
+## Connectivity Commands
+
+Connectivity commands adapt `connectivity/` (the networking core — see Structure above) to the `#[tauri::command]` boundary; each command is a thin delegation with no logic of its own. All connectivity commands take `state: State<'_, ConnectivityState>`, where `ConnectivityState = Arc<Mutex<ConnectivityData>>` is registered in `lib.rs` via `.manage(ConnectivityState::default())`.
+
+### init_connectivity
+
+Initializes the connectivity endpoint and restores trusted peers.
+
+**Arguments:**
+- `app_handle: AppHandle`
+- `state: State<'_, ConnectivityState>`
+- `own_name: Option<String>`
+- `trusted_peers: Vec<TrustedPeer>` — each `{ endpointId: String, name: Option<String> }`; Rust only consumes `endpointId` (`name` persists TS-side only)
+
+**Returns:** `Result<String, String>` — own endpoint id on success
+
+**Behavior:** delegates to `connectivity::init`.
+
+### enter_pairing_mode
+
+Starts advertising this device for pairing and probes already-known peers retroactively (mDNS emits `Discovered` once per peer; republished announcements are dropped).
+
+**Arguments:**
+- `app_handle: AppHandle`
+- `state: State<'_, ConnectivityState>`
+
+**Returns:** `Result<String, String>`
+
+**Behavior:** delegates to `connectivity::enter_pairing_mode`.
+
+### exit_pairing_mode
+
+**Arguments:** `state: State<'_, ConnectivityState>`
+
+**Returns:** `Result<(), String>`
+
+**Behavior:** delegates to `connectivity::exit_pairing_mode`.
+
+### submit_pairing_code
+
+Submits a pairing code as the requesting side.
+
+**Arguments:**
+- `state: State<'_, ConnectivityState>`
+- `endpoint_id: String`
+- `code: String`
+
+**Returns:** `Result<(), String>`
+
+**Behavior:** delegates to `connectivity::submit_pairing_code`.
+
+### request_pairing_code
+
+Requests the other side generate and display a pairing code (a random 6-digit code via `rand::random_range`).
+
+**Arguments:**
+- `state: State<'_, ConnectivityState>`
+- `endpoint_id: String`
+
+**Returns:** `Result<(), String>`
+
+**Behavior:** delegates to `connectivity::request_pairing_code`.
+
+### send_message
+
+**Arguments:**
+- `state: State<'_, ConnectivityState>`
+- `endpoint_id: String`
+- `envelope: String` — opaque serialized payload; Rust does not interpret its contents
+
+**Returns:** `Result<(), String>`
+
+**Behavior:** delegates to `connectivity::send_envelope`.
+
+### remove_trusted_peer
+
+**Arguments:**
+- `state: State<'_, ConnectivityState>`
+- `endpoint_id: String`
+
+**Returns:** `Result<(), String>`
+
+**Behavior:** delegates to `connectivity::remove_peer`.
+
+### get_connected_peers
+
+**Arguments:** `state: State<'_, ConnectivityState>`
+
+**Returns:** `Result<Vec<String>, String>` — connected peers' endpoint ids
+
+**Behavior:** delegates to `connectivity::connected_peers`.
+
+### update_own_name
+
+**Arguments:**
+- `state: State<'_, ConnectivityState>`
+- `name: Option<String>`
+
+**Returns:** `Result<(), String>`
+
+**Behavior:** delegates to `connectivity::set_own_name`.
+
 ## Testing
 
 TODO: Add testing patterns when implemented
@@ -225,4 +325,9 @@ Current dependencies in `Cargo.toml`:
 - `tauri-plugin-opener` - Opening files/URLs
 - `tauri-plugin-sql` - SQLite support
 - `tauri-plugin-updater` - Update checking, download, and installation
+- `iroh` - P2P networking; provides the `Endpoint`/`EndpointId`/`EndpointAddr` connectivity core
+- `iroh-mdns-address-lookup` - Local network peer discovery via mDNS
+- `rand` - Random pairing code generation (`rand::random_range`)
+- `tokio` (`sync`, `time`, `macros` features) - Async runtime primitives `tauri::async_runtime` doesn't re-export, needed for connectivity's stream/timeout handling
+- `futures-core` - `Stream` trait support for connection multiplexing
 

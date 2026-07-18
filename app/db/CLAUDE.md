@@ -7,16 +7,12 @@ db/
 ├── \_migrations/ # Migration runner and migration files
 ├── \_system/ # Infrastructure key-value store
 │ ├── schema.ts # Zod schemas and derived types for each key's value shape
-│ ├── versioning.ts # Typed accessors for the versioning key (public API)
+│ ├── {key}.ts # Typed accessor for a key (public API) — one file per key, e.g. versioning.ts, device.ts
 │ ├── get.ts # Raw SQL utility — internal, not exported from barrel
 │ └── update.ts # Raw SQL utility — internal, not exported from barrel
 ├── database.ts # Init, migration runner call
 ├── util/ # Schema builder (defineTable)
-├── adventure/ # schema, types, CRUD, index
-├── session/
-├── npc/
-├── image/
-└── table-config/
+└── domainName/ # schema, types, CRUD, index — one directory per table
 ```
 
 **Schema source of truth:** Each domain's `schema.ts` defines the table via `defineTable()`. Don't maintain a separate schema list — read the `schema.ts` files directly.
@@ -54,9 +50,12 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
 - **Trust the validated output**: After a successful `schema.parse(data)` call, all non-optional fields are guaranteed to be defined. Never add conditional spreads, nullish coalescing, or optional chaining on fields the schema marks as required. Defensive handling belongs _before_ the parse, not after.
   - ❌ BAD: `...(validated.scope !== undefined && { scope: validated.scope })` — `scope` is required in the schema
   - ✅ GOOD: `scope: validated.scope` — the parse already guarantees it
-- **`NOT NULL DEFAULT x` columns must not carry `.optional()` on their base zod schema.** The base schema represents a read row — every `NOT NULL` column is guaranteed present. `.optional()` belongs only in the auto-generated `createSchema` (produced by `generateCreateSchema`), which wraps defaulted columns automatically. Never add `.optional()` manually to a `NOT NULL` column's base field — fix `generateCreateSchema` instead.
-  - ❌ BAD: `active_view: z.enum(['prep', 'run']).optional()` on the base schema — allows `undefined` in read types, misrepresenting `NOT NULL`
-  - ✅ GOOD: `active_view: z.enum(['prep', 'run'])` on the base schema; `generateCreateSchema` wraps it automatically
+- **No `zodSchema` field carries `.optional()`, regardless of nullability.** `defineTable()` (`db/util/schema/define-table.ts`) returns exactly two schemas: `zodSchema` (one `zod` field per column) and `updateSchema` (built by `generateUpdateSchema`, wrapping every non-primary-key, non-timestamp field `.optional()` via `.partial()`). `zodSchema` is used only as a TypeScript type-inference source (`z.infer<typeof table.zodSchema>` derives the domain type, e.g. `Adventure`) — it is never runtime-parsed against a read row anywhere in this codebase. There is no create-time schema: every domain's `create.ts` builds its own ad hoc typed object literal passed directly to `buildCreateQuery`, independent of `zodSchema` or `updateSchema`. `.optional()` on a `zodSchema` field misrepresents the derived domain type: a `SELECT *` row always has every column key present — a nullable column's absent value is SQL `NULL`, mapped to JS `null`, never `undefined` — so `.optional()` makes TypeScript treat a field as possibly-missing when it never is. Never add `.optional()` to a `zodSchema` field: use `.nullable()` alone for nullable columns, no modifier for `NOT NULL` columns (including `NOT NULL DEFAULT x` — the default is a SQL-layer concern with no `zodSchema` involvement, since `create.ts` never reads `zodSchema`).
+  - ❌ BAD: `active_view: z.enum(['prep', 'run']).optional()` on `zodSchema` — allows `undefined` in the derived `Session` type, misrepresenting `NOT NULL`
+  - ❌ BAD: `bio: z.string().nullable().optional()` on `zodSchema` — a nullable column's read value is `null`, never `undefined`; `.optional()` adds a type-level possibility that never occurs
+  - ✅ GOOD: `active_view: z.enum(['prep', 'run'])` on `zodSchema`
+  - ✅ GOOD: `bio: z.string().nullable()` on `zodSchema`
+  - **Exception — pre-existing debt:** the 10 schema files that already use `.optional()` on a `zodSchema` field as of this rule landing are grandfathered. Converting an existing field (optional key → required-but-nullable key) is not mechanical — it changes the derived domain type and ripples into every consumer. `app/CLAUDE.md`'s "fix violations in files you touch" does not apply to this specific pattern: do not proactively convert an existing `.optional()` field as a side effect of touching its schema file for an unrelated reason. This rule applies unconditionally to new columns and to any field intentionally rewritten as part of a deliberate, reviewed migration of that domain's schema.
 
 ### Default Placement Hierarchy
 
@@ -97,13 +96,6 @@ await db.execute(
   ],
 );
 ```
-
-**Benefits:**
-
-- Less maintenance when adding/removing optional fields
-- Schema defines what's nullable (single source of truth)
-- SQLite automatically sets NULL for unspecified nullable columns
-- Cleaner, self-documenting code
 
 ## Naming
 

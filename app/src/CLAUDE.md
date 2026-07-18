@@ -86,6 +86,10 @@ src/
 
 **providers/** is for app-level UI infrastructure — React Context providers that wrap the app root and expose hooks. Data infrastructure (e.g., `TanstackQueryClientProvider`) stays in `data-access-layer/`. `providers/` is a grouping folder: its `index.ts` uses explicit named exports. Each provider lives in its own module directory with a required `index.ts` barrel.
 
+**Context value types must contain only what external consumers call through the hook.** A function called exclusively inside the provider's own module belongs in local scope, not on the `ContextValue` type — placing provider-internal functions there widens the public interface beyond what consumers need and obscures which operations are genuinely external.
+
+**Before placing a hook call in any component — in artifact code or implementation — verify the component renders below every provider the hook depends on.** Reading the component file is not sufficient — trace its position in the provider tree, and re-trace after any extraction or move.
+
 ### Coding Style
 
 - TypeScript only. No JavaScript files in `src/`.
@@ -305,7 +309,7 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 **Layer responsibilities:**
 
 - `app/services/` — business logic, wraps DB calls and Tauri API calls that require business logic, compose multiple operations, or need domain-typed error handling; throws domain errors from `@domain`. Import via `@services/<file>`.
-  - **Service-layer conventions (no fallback defaults for nullable columns, DB `DEFAULT` handling via `generateCreateSchema`) are documented in `app/services/CLAUDE.md`** — do not duplicate them here.
+  - **Service-layer conventions (no fallback defaults for nullable columns, no replicating a DB `DEFAULT` value at a call site) are documented in `app/services/CLAUDE.md`** — do not duplicate them here.
 - `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch. Tauri API calls that are pure reads with no business logic and no domain error transformation go directly here — never through `services/`. One concern = one file: query keys, single-entity hooks, and collection hooks each own a separate file (`sessionKeys.ts`, `useSession.ts`, `useSessions.ts`) — TanStack Query's shared cache deduplicates across hooks, so no `DomainProvider` wrapping mutations is needed; the hooks are the data access layer.
 - `screens/` — UI only, no error handling, no try/catch
 - Error Boundary at app level catches all unhandled async errors
