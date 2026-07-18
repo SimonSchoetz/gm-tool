@@ -18,7 +18,8 @@
     "web": "cd app && npm run web",
     "lint": "cd app && npx eslint .",
     "build-local": "cd app && npm run tauri build -- --debug",
-    "create-release": "node scripts/create-release.ts"
+    "create-release": "node scripts/create-release.ts",
+    "prettier-fix": "cd app && npx prettier --write ."
   },
   "devDependencies": {
     "@types/node": "^26.1.0",

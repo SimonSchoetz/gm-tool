@@ -61,16 +61,16 @@ This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific a
 
 Entity vocabulary grounded in the actual database schema (`db/*/schema.ts`). Every entity below is scoped to a single Adventure via `adventure_id` unless noted otherwise.
 
-| Term | Meaning |
-| --- | --- |
-| Adventure | Top-level campaign container. Owns all other entities. |
-| Session | A single game session within an Adventure. Tracks `active_view` (`prep` or `ingame`) and owns an ordered set of Session Steps. |
-| Session Step | One prep checklist item within a Session, keyed to Michael Shea's Lazy Dungeon Master steps: reviewing characters, a strong start, potential scenes, secrets and clues, fantastic locations, important NPCs, relevant monsters, magic items. |
-| NPC (non-player character) | A character controlled by the GM. |
-| PC (player character) | A character controlled by a player. |
-| Foe | An antagonist or monster. |
-| Faction | An organization or group within the Adventure's world. |
-| Location | A place within the Adventure's world. |
-| Item | An object — e.g. equipment or a magic item — within the Adventure. |
-| Image | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items. |
-| Table Config | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity. |
+| Term                       | Meaning                                                                                                                                                                                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Adventure                  | Top-level campaign container. Owns all other entities.                                                                                                                                                                                       |
+| Session                    | A single game session within an Adventure. Tracks `active_view` (`prep` or `ingame`) and owns an ordered set of Session Steps.                                                                                                               |
+| Session Step               | One prep checklist item within a Session, keyed to Michael Shea's Lazy Dungeon Master steps: reviewing characters, a strong start, potential scenes, secrets and clues, fantastic locations, important NPCs, relevant monsters, magic items. |
+| NPC (non-player character) | A character controlled by the GM.                                                                                                                                                                                                            |
+| PC (player character)      | A character controlled by a player.                                                                                                                                                                                                          |
+| Foe                        | An antagonist or monster.                                                                                                                                                                                                                    |
+| Faction                    | An organization or group within the Adventure's world.                                                                                                                                                                                       |
+| Location                   | A place within the Adventure's world.                                                                                                                                                                                                        |
+| Item                       | An object — e.g. equipment or a magic item — within the Adventure.                                                                                                                                                                           |
+| Image                      | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items.                                                                                                                                  |
+| Table Config               | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity.                                                                                                                        |
