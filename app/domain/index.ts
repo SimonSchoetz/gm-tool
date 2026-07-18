@@ -202,3 +202,27 @@ export {
   pairingModeError,
   pairingRequestError,
 } from './devices';
+
+export type {
+  SyncHandshakeError,
+  SyncBatchBuildError,
+  SyncApplyError,
+  SyncPushError,
+  ImageTransferError,
+  SyncChange,
+  SyncMessage,
+} from './sync';
+export {
+  syncHandshakeError,
+  syncBatchBuildError,
+  syncApplyError,
+  syncPushError,
+  imageTransferError,
+  SYNC_PROTOCOL_VERSION,
+  syncMessageSchema,
+  buildSyncHelloMessage,
+  buildSyncRequestMessage,
+  buildSyncBatchMessage,
+  buildFileRequestMessage,
+  buildFileChunkMessage,
+} from './sync';
