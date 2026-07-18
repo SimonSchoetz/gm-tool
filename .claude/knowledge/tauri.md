@@ -1,5 +1,12 @@
 # Tauri
 
+## The Tauri CLI --config flag deep-merges an extra JSON config over tauri.conf.json, and can override the app identifier
+
+**Verified at:** tauri 2 (v2 docs, fetched 2026-07-18)
+**Citation:** [S_13: https://v2.tauri.app/develop/configuration-files/]
+
+`tauri dev` (and `build`/`bundle`) accepts `--config` with a JSON file or raw JSON string, merged over the resolved configuration per JSON Merge Patch (RFC 7396) — a deep merge. The docs' beta-distribution example overrides `identifier` this way (`"identifier": "com.myorg.myappbeta"`), giving the merged build fully separate OS app-data/config directories.
+
 ## Tauri does not support server-based SSR frameworks in production
 
 **Verified at:** @tauri-apps/cli ^2.11.4 (v2 docs)

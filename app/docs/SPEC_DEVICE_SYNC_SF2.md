@@ -79,11 +79,10 @@ The single source of truth for what syncs and in what order:
 import { imageTable } from '../image/schema';
 import { adventureTable } from '../adventure/schema';
 // ... one relative schema import per synced table
-import type { z } from 'zod';
 
 export type SyncedTable = {
   name: string;
-  zodSchema: z.ZodType<Record<string, unknown>>;
+  columns: string[];
 };
 
 // FK dependency order: parents before children. Apply upserts in this order,
@@ -91,25 +90,18 @@ export type SyncedTable = {
 // adventure-scoped tables, session_steps after sessions, table_config last
 // (no FK relations).
 export const SYNCED_TABLES: SyncedTable[] = [
-  { name: 'images', zodSchema: imageTable.zodSchema },
-  { name: 'adventures', zodSchema: adventureTable.zodSchema },
-  { name: 'sessions', zodSchema: sessionTable.zodSchema },
-  { name: 'npcs', zodSchema: npcTable.zodSchema },
-  { name: 'pcs', zodSchema: pcTable.zodSchema },
-  { name: 'foes', zodSchema: foeTable.zodSchema },
-  { name: 'factions', zodSchema: factionTable.zodSchema },
-  { name: 'locations', zodSchema: locationTable.zodSchema },
-  { name: 'items', zodSchema: itemTable.zodSchema },
-  { name: 'session_steps', zodSchema: sessionStepTable.zodSchema },
-  { name: 'table_config', zodSchema: tableConfigTable.zodSchema },
+  { name: 'images', columns: Object.keys(imageTable.zodSchema.shape) },
+  { name: 'adventures', columns: Object.keys(adventureTable.zodSchema.shape) },
+  // ... one entry per synced table in the order above: sessions, npcs, pcs,
+  // foes, factions, locations, items, session_steps, table_config
 ];
 
 export const SYNCED_TABLE_NAMES = SYNCED_TABLES.map((t) => t.name);
 ```
 
-Relative schema imports (`../npc/schema`) are deliberate: exporting each `xTable` from its public barrel would widen 11 public APIs for one internal cross-table consumer — `_sync` is db-internal infrastructure, and within-layer relative imports are the established db pattern. The exact `zodSchema` member type must be verified against `db/util/schema/define-table.ts` before writing the `SyncedTable` type — adjust the type to what `defineTable` actually produces rather than forcing the sketch's `z.ZodType`.
+`zodSchema` here is a structural source only — its `.shape` keys are the column whitelist; it is never runtime-parsed (root KAD "Verbatim apply writers, never domain CRUD"; `zodSchema.shape` is available because `defineTable` returns `z.ZodObject` [S_6 in the root spec]). Relative schema imports (`../npc/schema`) are deliberate: exporting each `xTable` from its public barrel would widen 11 public APIs for one internal cross-table consumer — `_sync` is db-internal infrastructure, and within-layer relative imports are the established db pattern.
 
-Before finalizing the order, read each schema file not yet verified in this session (`pc`, `foe`, `faction`, `location`, `item`) and confirm their FK edges match the scaffold base schema (`adventure_id` CASCADE + `image_id` SET NULL); any deviation changes the order comment, not the mechanism.
+Before finalizing the order, read each schema file not yet verified (`pc`, `foe`, `faction`, `location`, `item`) and confirm their FK edges match the scaffold base schema (`adventure_id` CASCADE + `image_id` SET NULL); any deviation changes the order comment, not the mechanism.
 
 ## Accessors
 
@@ -118,13 +110,13 @@ All follow db-layer patterns (`getDatabase()` import, defensive validation, desc
 - `get-changes-since.ts` — `getChangesSince(sinceSeq: number, limit: number): Promise<SyncChangeRecord[]>` — `SELECT ... FROM _sync_changes WHERE seq > $1 ORDER BY seq ASC LIMIT $2`.
 - `get-max-seq.ts` — `getMaxSeq(): Promise<number>` — `SELECT value FROM _sync_meta WHERE id = 'seq'`; returns `0` when the row is missing (pre-migration defensive path).
 - `get-row-by-id.ts` — `getRowById(tableName: string, rowId: string): Promise<Record<string, unknown> | null>` — rejects table names not in `SYNCED_TABLE_NAMES` with a descriptive error, then `SELECT * FROM <table> WHERE id = $1` (interpolation with the mention-search-style safety comment); `null` when absent. Used by SF4's batch builder to read outgoing rows generically.
-- `peer-state.ts` — one concern (per-peer sync state): `getPeerWatermark(peerId: string): Promise<number>` (0 when absent), `setPeerWatermark(peerId: string, seq: number): Promise<void>` (`INSERT ... ON CONFLICT(id) DO UPDATE`), `removePeerState(peerId: string): Promise<void>` (DELETE).
+- `peer-state.ts` — one concern (per-peer sync state): `getPeerWatermark(peerId: string): Promise<number>` (0 when absent), `setPeerWatermark(peerId: string, seq: number): Promise<void>` (`INSERT ... ON CONFLICT(id) DO UPDATE`), `removePeerState(peerId: string): Promise<void>` (DELETE). Peer ids are validated against `ENDPOINT_ID_HEX_REGEX` imported from `@domain` — the canonical regex constant; re-declaring the literal would violate the duplicate-raw-literal rule (precedent for the db→domain import direction: `db/_system/schema.ts` imports the same constant [S_10: app/db/_system/schema.ts:2]).
 - `apply-upsert.ts` — `applyUpsert(tableName: string, row: Record<string, unknown>, force: boolean): Promise<'applied' | 'skipped'>`. `force` is the pre-resolved timestamp tie-break: the caller (SF4) sets it to true when timestamps are equal and the sender's device id is lexicographically greater than the own device id — the db layer never sees device ids.
-  1. Look up the registry entry (unknown table → `'skipped'`); `zodSchema.safeParse(row)` — failure → `'skipped'` (forward-compat posture, root KAD "Verbatim apply writers").
+  1. Look up the registry entry (unknown table → `'skipped'`). Structural gate (root KAD "Verbatim apply writers, never domain CRUD" — no Zod parse): `row.id` and `row.updated_at` must both be non-empty strings, else `'skipped'`. Filter the row to the entry's `columns` whitelist — unknown keys are dropped, not errors (forward compatibility); the filtered object is what gets written.
   2. LWW gate: `SELECT updated_at FROM <table> WHERE id = $1`. With `force` false: a local row whose `updated_at` is not strictly older than the incoming one → `'skipped'`. With `force` true: only a strictly newer local row skips.
   3. `table_config` exception (inline rationale note referencing root KAD "`table_config` merges by `table_name`"): match by `table_name` instead of id; on incoming win over a differently-id'd local row, DELETE the local row first, then insert.
   4. Build `INSERT INTO <table> (cols) VALUES (...) ON CONFLICT(id) DO UPDATE SET col = excluded.col, ...` from the validated object's keys, all values verbatim. Table name interpolation carries the mention-search-style safety comment (registry-constant values only).
-  5. FK failure on execute → catch, return `'skipped'` (parent locally deleted — the deletion won; root KAD "Only directly-deleted rows get tombstones").
+  5. Any constraint failure on execute (FK parent absent, NOT NULL column missing from the incoming row) → catch, return `'skipped'` (for FK: the deletion won — root KAD "Only directly-deleted rows get tombstones"; for NOT NULL: the row is malformed for this schema version and the version gate should have prevented it — skip, never throw).
 - `apply-delete.ts` — `applyDelete(tableName: string, rowId: string, deletedAt: string): Promise<'applied' | 'skipped'>`:
   1. LWW gate: local row present with `updated_at >= deletedAt` → `'skipped'`; local row absent → still record the tombstone (step 3) and return `'applied'` (blocks late inserts, relays onward).
   2. Row present and older: `DELETE FROM <table> WHERE id = $1` (fires the delete trigger — fresh seq, fresh local `deleted_at`).
@@ -142,9 +134,9 @@ Standard db mock scaffolding (`db/adventure/__tests__/create.test.ts` reference;
 - `get-max-seq.test.ts`: (1) returns the counter value; (2) returns `0` when no row.
 - `get-row-by-id.test.ts`: (1) unknown table name → rejects with an error message naming the table, no execute; (2) known table → `SELECT * FROM <table> WHERE id = $1` with the id; (3) empty result → `null`.
 - `peer-state.test.ts`: (1) `getPeerWatermark` returns 0 when absent; (2) returns stored value; (3) `setPeerWatermark` executes an upsert containing `ON CONFLICT(id) DO UPDATE` with `[peerId, seq]`; (4) `removePeerState` executes `DELETE FROM _sync_peers` with the id.
-- `apply-upsert.test.ts`: (1) unknown table name → `'skipped'`, no execute; (2) schema-invalid row → `'skipped'`; (3) local row newer → `'skipped'`; (4) local row older → executes upsert SQL containing `ON CONFLICT(id) DO UPDATE` with verbatim values (assert `updated_at` in values equals the incoming row's, not a fresh timestamp — the LWW-critical assertion); (5) no local row → insert applied; (6) `force: true` applies on equal timestamps; (7) FK failure (mockExecute rejects with a foreign-key message) → `'skipped'`, no throw; (8) `table_config` row matches by `table_name` and deletes the differently-id'd loser before inserting.
+- `apply-upsert.test.ts`: (1) unknown table name → `'skipped'`, no execute; (2) row without a string `id` → `'skipped'`, no execute; (3) row without a string `updated_at` → `'skipped'`, no execute; (4) a key outside the column whitelist is dropped — assert the executed INSERT SQL does not contain the unknown column name while whitelisted columns are present; (5) local row newer → `'skipped'`; (6) local row older → executes upsert SQL containing `ON CONFLICT(id) DO UPDATE` with verbatim values (assert `updated_at` in values equals the incoming row's, not a fresh timestamp — the LWW-critical assertion); (7) no local row → insert applied; (8) `force: true` applies on equal timestamps; (9) constraint failure (mockExecute rejects with a foreign-key message) → `'skipped'`, no throw; (10) `table_config` row matches by `table_name` and deletes the differently-id'd loser before inserting.
 - `apply-delete.test.ts`: (1) local row newer than `deletedAt` → `'skipped'`; (2) older local row → DELETE executed, then `_sync_changes` upsert with the origin `deletedAt` value; (3) no local row → no DELETE on the domain table, counter bumped, tombstone upsert with origin `deletedAt`, returns `'applied'`.
-- `registry.test.ts`: no DB mock — pure ordering invariants: (1) `images` precedes `adventures`; (2) `adventures` precedes every adventure-scoped table; (3) `sessions` precedes `session_steps`; (4) all 11 names present and unique.
+- `registry.test.ts`: no DB mock — pure invariants: (1) `images` precedes `adventures`; (2) `adventures` precedes every adventure-scoped table; (3) `sessions` precedes `session_steps`; (4) all 11 names present and unique; (5) every entry's `columns` includes `id` and `updated_at` (the structural-gate columns the apply writers depend on).
 
 ## Cross-SF Wiring
 

@@ -1,17 +1,18 @@
 # Spec: Adventure Data Sync Between Paired Devices
 
-Paired devices on the same schema/protocol version converge to identical Adventure data automatically: a full merge on connect, live propagation while connected, last-write-wins conflicts, reciprocal deletes, and image files included. Version-mismatched peers show a yellow status dot and exchange no sync data.
+Paired devices on the same schema/protocol version converge to identical Adventure data automatically: a full merge on connect, live propagation while connected, last-write-wins conflicts, reciprocal deletes, and image files included. Version-mismatched peers show a warning-colored "connected but cannot sync" status indicator and exchange no sync data.
 
 ## Progress Tracker
 
+- Sub-feature 0: Isolated dev data profile — dev builds run under a separate app identifier ([SPEC_DEVICE_SYNC_SF0.md](SPEC_DEVICE_SYNC_SF0.md))
 - Sub-feature 1: Rust image byte commands — read/write/exists for image file transfer ([SPEC_DEVICE_SYNC_SF1.md](SPEC_DEVICE_SYNC_SF1.md))
 - Sub-feature 2: DB sync infrastructure — sync tables, triggers, registry, verbatim apply, watermarks ([SPEC_DEVICE_SYNC_SF2.md](SPEC_DEVICE_SYNC_SF2.md))
 - Sub-feature 3: Domain sync vocabulary — protocol message schemas, errors, constants ([SPEC_DEVICE_SYNC_SF3.md](SPEC_DEVICE_SYNC_SF3.md))
 - Sub-feature 4: syncService — handshake, batch build/apply, image transfer, live push ([SPEC_DEVICE_SYNC_SF4.md](SPEC_DEVICE_SYNC_SF4.md))
 - Sub-feature 5: DAL — lifecycle extension, compat cache, poller, forget cleanup ([SPEC_DEVICE_SYNC_SF5.md](SPEC_DEVICE_SYNC_SF5.md))
-- Sub-feature 6: UI — StatusDot variant union, DeviceRow status derivation ([SPEC_DEVICE_SYNC_SF6.md](SPEC_DEVICE_SYNC_SF6.md))
+- Sub-feature 6: UI — StatusIndicator variant union, DeviceRow status derivation ([SPEC_DEVICE_SYNC_SF6.md](SPEC_DEVICE_SYNC_SF6.md))
 
-Implementation order is SF1 → SF6. Each SF passes baseline checks when committed alone; there are no Foundation SFs. SF1 is Rust-only; SF2 and SF3 are mutually independent; SF4 depends on SF1–SF3; SF5 on SF4; SF6 on SF5.
+Implementation order is SF0 → SF6. Each SF passes baseline checks when committed alone; there are no Foundation SFs. SF0 is configuration-only and precedes everything so all manual sync testing runs against the isolated dev profile; SF1 is Rust-only; SF2 and SF3 are mutually independent; SF4 depends on SF1–SF3; SF5 on SF4; SF6 on SF5.
 
 ## Key Architectural Decisions
 
@@ -37,7 +38,7 @@ LWW between a deletion and an edit compares the tombstone's `deleted_at` against
 
 ### Verbatim apply writers, never domain CRUD
 
-`buildUpdateQuery` unconditionally overwrites `updated_at` with now [S_5: app/db/util/build-update-query.ts:23-25], which would destroy LWW convergence and echo termination. Sync apply therefore uses dedicated writers in `db/_sync/` that upsert all columns verbatim (`INSERT ... ON CONFLICT(id) DO UPDATE`, so the UPDATE trigger — not DELETE — fires on existing rows). Incoming rows are validated against the owning table's `zodSchema` before writing; rows that fail validation are skipped silently (forward-compatibility posture). Table names interpolate from the fixed registry constant only — mirroring the `mention-search.ts` precedent and its safety comment.
+`buildUpdateQuery` unconditionally overwrites `updated_at` with now [S_5: app/db/util/build-update-query.ts:23-25], which would destroy LWW convergence and echo termination. Sync apply therefore uses dedicated writers in `db/_sync/` that upsert all columns verbatim (`INSERT ... ON CONFLICT(id) DO UPDATE`, so the UPDATE trigger — not DELETE — fires on existing rows). Incoming rows are gated structurally, not Zod-parsed: `zodSchema` is a type-inference source that is never runtime-parsed in this codebase, and its grandfathered `.optional()` fields would reject legitimate `null` values in read rows (`app/db/CLAUDE.md` — the `zodSchema`/`.optional()` rule). The gate is: `id` and `updated_at` must be present as strings, and the written column set is filtered to the table's column whitelist (`Object.keys(table.zodSchema.shape)` — `zodSchema` used purely as the structural source [S_6: app/db/util/schema/define-table.ts:43 — `zodSchema: z.ZodObject<...>`; node_modules/zod/v4/classic/schemas.d.cts:456 — `shape: Shape`]). Unknown keys are dropped (forward compatibility); rows missing required columns fail SQL constraints and are skipped. Table names interpolate from the fixed registry constant only — mirroring the `mention-search.ts` precedent and its safety comment.
 
 ### `table_config` merges by `table_name`, not id
 
@@ -45,7 +46,7 @@ Seeded per device, the same logical config row has different ids on each machine
 
 ### Compatibility key: sync protocol version + migration head
 
-`sync-hello` carries `SYNC_PROTOCOL_VERSION` (TS const) and the migration head (last id in the static `migrations` array — deliberately not a DB read: it equals the applied head after init and avoids an import cycle through `database.ts`). Both fields equal → compatible → sync proceeds. Unequal, or no `sync-hello` within the timeout (an older client ignores unknown envelope types by the established forward-compatibility contract) → the peer is marked incompatible: yellow dot, zero sync messages. Any migration difference blocks sync by design — cross-version merging is explicitly out of scope.
+`sync-hello` carries `SYNC_PROTOCOL_VERSION` (TS const) and the migration head (last id in the static `migrations` array — deliberately not a DB read: it equals the applied head after init and avoids an import cycle through `database.ts`). Both fields equal → compatible → sync proceeds. Unequal, or no `sync-hello` within the timeout (an older client ignores unknown envelope types by the established forward-compatibility contract) → the peer is marked incompatible: the warning-colored status indicator, zero sync messages. Any migration difference blocks sync by design — cross-version merging is explicitly out of scope.
 
 ### Sync messages are a separate domain module routed after device messages
 
@@ -63,15 +64,18 @@ The device envelope schema (`domain/devices/messages.ts`) stays untouched; sync 
 
 All applies run through a module-level promise queue in `syncService` — two peers' batches never interleave their table writes. After any applied batch, the DAL invalidates all non-device queries via a predicate (`!queryKey[0].startsWith('device')`): per-table key factories are internal to their DAL modules by convention and must not be imported across modules, and coarse invalidation after a merge is behaviorally correct.
 
+### Dev builds run as a separate device
+
+`npm run dev` passes `--config src-tauri/tauri.dev.conf.json`, deep-merged per JSON Merge Patch to override the app identifier (`com.gm-tool.dev`) [S_13 in .claude/knowledge/tauri.md]. Every OS-resolved storage path derives from the identifier, so the dev instance gets its own database, images directory, connectivity key — and therefore its own device identity, making it a distinct, pairable peer for end-to-end sync testing. Code-level dev branches (a dev DB name in `database.ts`, `cfg!(debug_assertions)` paths in Rust) were rejected: scattered per-location switches that every future storage site must remember, where the identifier isolates everything in one declaration.
+
 ### LWW trusts wall clocks; ties break on device id
 
 `updated_at` is author wall-clock time. For one owner on home machines, skew is seconds and only misorders edits racing across devices inside that window — accepted explicitly over hybrid logical clocks. Equal timestamps resolve deterministically per connection: the incoming row wins when the **sender's** device id is lexicographically greater than the receiver's. Rows carry no origin id (state-based design), so the sender is the only identity available; a tie relayed along different paths could theoretically resolve differently on different devices, but an equal-timestamp conflict with differing content is already a millisecond-precision coincidence — accepted.
 
 ## CLAUDE.md Impact
 
-Includes two entries carried forward from the device-pairing feature whose impact section was not applied during its implementation (verified absent):
-
-- `app/src-tauri/CLAUDE.md` — (carried forward) add `connectivity/` to the Structure tree and the eight connectivity commands to the command documentation; (this feature) add the three new image commands (`save_image_bytes`, `read_image_bytes`, `image_file_exists`) to the Image Commands section and `iroh`/`iroh-mdns-address-lookup`/`rand` to Dependencies.
-- `app/db/CLAUDE.md` — (carried forward) add `device.ts` to the `_system/` tree entry; (this feature) add `_sync/` to the Structure tree (sync infrastructure: change tracking, watermarks, verbatim apply) and a Sync section stating: every new synced table requires trigger installation in a migration, a registry entry in `db/_sync/registry.ts` (FK-ordered), and that any migration change intentionally blocks sync against devices on a different migration head.
-- `app/docs/_product/domain-scaffold.md` — add a "join the synced set" step for new domain tables: (1) add the three sync triggers in the table's creation migration, (2) add the table to `db/_sync/registry.ts` in FK dependency order, (3) note that the migration itself shifts the migration head and blocks sync with non-updated devices until both sides run the new version.
-- Root `CLAUDE.md` — no update.
+- `app/src-tauri/CLAUDE.md`'s Image Commands section documents `save_image`, `get_image_url`, and `delete_image` only [S_7: app/src-tauri/CLAUDE.md — Image Commands section]; this spec adds three more image commands (`save_image_bytes`, `read_image_bytes`, `image_file_exists`), which that section will not cover once implemented.
+- `app/db/CLAUDE.md`'s Structure tree lists `_migrations/`, `_system/`, `database.ts`, `util/`, and `domainName/` with no `_sync/` entry [S_8: app/db/CLAUDE.md — Structure], and no rule anywhere states the sync obligations this spec creates for future tables: a new synced table requires three triggers in its creation migration, a registry entry in `db/_sync/registry.ts` in FK dependency order, and any migration intentionally blocks sync against devices on a different migration head. Without a documented rule, the next domain table will silently not sync.
+- `app/docs/_product/domain-scaffold.md` describes the full new-entity infrastructure path but contains no data-sync step [S_9: grep -i sync app/docs/_product/domain-scaffold.md — 6 matches, all incidental substrings of `async`/`mutateAsync`; no sync-infrastructure content]; the same silent-non-sync consequence applies to every entity generated from the scaffold after this spec is implemented.
+- Root `CLAUDE.md`'s Development Commands section describes `npm run dev` as "Local Tauri environment" with no mention of a data profile [S_15: CLAUDE.md — Development Commands]; after SF0, dev runs under the `com.gm-tool.dev` identifier with fully separate storage — an agent debugging dev-data issues without that fact would inspect the installed app's appdata directories.
+- `app/CLAUDE.md`, `app/src/CLAUDE.md`, `app/services/CLAUDE.md`, `app/domain/CLAUDE.md` — no references invalidated by this spec.
