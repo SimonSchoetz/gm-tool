@@ -18,4 +18,5 @@ export {
   useConnectedPeers,
   useConnectivityLifecycle,
   usePairing,
+  usePeerSyncCompat,
 } from './devices';

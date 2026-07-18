@@ -1,13 +1,10 @@
-import { FCProps } from '@/types';
 import './PairedDevices.css';
 import { usePairedDevices } from '@/data-access-layer';
 import { LoadingIcon } from '@/components';
 import { DeviceRow } from './components';
 import { H3 } from '../../../H3/H3';
 
-type Props = object;
-
-export const PairedDevices: FCProps<Props> = () => {
+export const PairedDevices = () => {
   const { pairedDevices, loading } = usePairedDevices();
 
   return (
