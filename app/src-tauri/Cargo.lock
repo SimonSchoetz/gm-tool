@@ -2116,7 +2116,7 @@ dependencies = [
 
 [[package]]
 name = "gm-tool"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "futures-core",
  "iroh",

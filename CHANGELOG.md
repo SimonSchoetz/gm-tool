@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.7.1] - 2026-07-22
+
+### Fixed
+
+- Elements and icons in prep view and text editor are prevented from shrinking when space gets tight
+- Idle backdrop is no longer draining recources due to unnecessary rerenders
+
 ## [v0.7.0] - 2026-07-08
 
 ### Added
