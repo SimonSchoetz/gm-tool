@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listen } from '@tauri-apps/api/event';
 import {
@@ -23,6 +24,7 @@ type UseConnectivityLifecycleReturn = {
 
 export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
   const queryClient = useQueryClient();
+  const { showBoundary } = useErrorBoundary();
   const helloTimersRef = useRef(
     new Map<string, ReturnType<typeof setTimeout>>(),
   );
@@ -162,15 +164,13 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
                   }
                 })
                 .catch((error: unknown) => {
-                  // handleSyncMessage failure indicates a genuine processing error
-                  // (malformed envelope, corrupt sync state), not an expected race — surface it.
-                  console.error('handleSyncMessage failed', error);
+                  // handleSyncMessage failure indicates a genuine processing error (malformed envelope, corrupt sync state), not an expected race — surface it.
+                  showBoundary(error);
                 });
             })
             .catch((error: unknown) => {
-              // handlePeerMessage failure indicates a genuine processing error
-              // (malformed envelope), not an expected race — surface it.
-              console.error('handlePeerMessage failed', error);
+              // handlePeerMessage failure indicates a genuine processing error (malformed envelope), not an expected race — surface it.
+              showBoundary(error);
             });
         },
       ),
@@ -183,6 +183,10 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
               void queryClient.invalidateQueries({
                 queryKey: deviceKeys.paired(),
               });
+            })
+            .catch((error: unknown) => {
+              // completePairing failure indicates a genuine persistence error, not an expected race — the duplicate pairing-succeeded event both sides emit is already absorbed by its own existing-row check.
+              showBoundary(error);
             });
         },
       ),
@@ -199,7 +203,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
       });
       timers.clear();
     };
-  }, [queryClient, startSyncHandshake]);
+  }, [queryClient, startSyncHandshake, showBoundary]);
 
   useEffect(() => {
     // Reading the query cache imperatively on each tick (not subscribing) is
