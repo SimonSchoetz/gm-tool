@@ -143,7 +143,8 @@ pub async fn set_own_name(state: &ConnectivityState, name: Option<String>) -> Re
 }
 
 async fn run_accept_loop(app: AppHandle, state: ConnectivityState, endpoint: Endpoint) {
-    eprintln!("[disc-diag] accept loop started");
+    let own_addrs: Vec<String> = endpoint.addr().ip_addrs().map(|a| a.to_string()).collect();
+    eprintln!("[disc-diag] accept loop started own_addrs={own_addrs:?}");
     while let Some(incoming) = endpoint.accept().await {
         eprintln!("[disc-diag] incoming connection attempt received");
         let app = app.clone();
@@ -343,21 +344,26 @@ async fn run_reconnect_sweep(app: AppHandle, state: ConnectivityState) {
     loop {
         tokio::time::sleep(RECONNECT_SWEEP_INTERVAL).await;
 
-        let disconnected: Vec<EndpointId> = {
+        let disconnected: Vec<EndpointAddr> = {
             let data = state.lock().await;
+            if let Some(endpoint) = &data.endpoint {
+                let own_addrs: Vec<String> =
+                    endpoint.addr().ip_addrs().map(|a| a.to_string()).collect();
+                eprintln!("[disc-diag] sweep own_addrs={own_addrs:?}");
+            }
             data.trusted
                 .iter()
-                .copied()
                 .filter(|remote| {
-                    !data.connections.contains_key(remote) && !data.dialing.contains(remote)
+                    !data.connections.contains_key(*remote) && !data.dialing.contains(*remote)
                 })
+                // An addressless dial fails outright ("All address lookup services failed or
+                // produced no results"), so the sweep reuses the last address mDNS reported.
+                .filter_map(|remote| data.discovered.get(remote).cloned())
                 .collect()
         };
 
-        for remote in disconnected {
-            // Dial by id rather than a cached address: `discovered` entries are dropped on mDNS
-            // expiry, and an addressless dial resolves through the endpoint's address lookup.
-            maybe_dial_trusted_peer(&app, &state, remote.into()).await;
+        for addr in disconnected {
+            maybe_dial_trusted_peer(&app, &state, addr).await;
         }
     }
 }
