@@ -302,7 +302,9 @@ export const handleSyncMessage = async (
       void runExclusive(() => pushBatchesTo(endpointId)).catch(() => {
         // Best-effort — the peer's next poll or reconnect retries.
       });
-      return { kind: 'none' };
+      // A peer only sends sync-request after judging us compatible, and that check is equality on both SYNC_PROTOCOL_VERSION and migrationHead — so it holds symmetrically and confirms compatibility without waiting for their sync-hello.
+      // This is what restores compat after a reload: the peer's connection never dropped, so it never re-sends sync-hello, and only its reply to our bootstrap hello can settle our own compat state.
+      return { kind: 'compat', compat: 'compatible' };
     case 'sync-batch':
       await runExclusive(() => applyBatch(endpointId, message.payload));
       return { kind: 'applied' };

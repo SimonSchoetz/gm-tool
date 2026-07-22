@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listen } from '@tauri-apps/api/event';
 import {
@@ -41,6 +41,41 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
     retry: false,
   });
 
+  const startSyncHandshake = useCallback(
+    (endpointId: string) => {
+      const timers = helloTimersRef.current;
+      void syncService.sendSyncHello(endpointId).catch(() => {
+        // best-effort, mirrors sendHello
+      });
+
+      const existingTimer = timers.get(endpointId);
+      if (existingTimer !== undefined) {
+        clearTimeout(existingTimer);
+      }
+      const timer = setTimeout(() => {
+        timers.delete(endpointId);
+        queryClient.setQueryData<PeerCompatMap>(
+          deviceKeys.syncCompat(),
+          (old) => ({ ...(old ?? {}), [endpointId]: 'incompatible' }),
+        );
+      }, SYNC_HELLO_TIMEOUT_MS);
+      timers.set(endpointId, timer);
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    // A webview reload leaves the Rust-side connection alive, so peerConnected never fires again for peers that were already connected — without this bootstrap their handshake never runs, the compat cache stays empty, and they render as disconnected while the push poller skips them.
+    void devicesService
+      .getConnectedPeers()
+      .then((peerIds) => {
+        peerIds.forEach(startSyncHandshake);
+      })
+      .catch(() => {
+        // Best-effort: a peer missed here still handshakes on its next connect event.
+      });
+  }, [startSyncHandshake]);
+
   useEffect(() => {
     const timers = helloTimersRef.current;
 
@@ -58,18 +93,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
             // best-effort: the peer may drop between connect and hello; it will
             // re-announce on its own next connect
           });
-          void syncService.sendSyncHello(endpointId).catch(() => {
-            // best-effort, mirrors sendHello
-          });
-
-          const timer = setTimeout(() => {
-            timers.delete(endpointId);
-            queryClient.setQueryData<PeerCompatMap>(
-              deviceKeys.syncCompat(),
-              (old) => ({ ...(old ?? {}), [endpointId]: 'incompatible' }),
-            );
-          }, SYNC_HELLO_TIMEOUT_MS);
-          timers.set(endpointId, timer);
+          startSyncHandshake(endpointId);
         },
       ),
       listen<PeerDisconnectedPayload>(
@@ -136,7 +160,17 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
                         !query.queryKey[0].startsWith('device'),
                     });
                   }
+                })
+                .catch((error: unknown) => {
+                  // handleSyncMessage failure indicates a genuine processing error
+                  // (malformed envelope, corrupt sync state), not an expected race — surface it.
+                  console.error('handleSyncMessage failed', error);
                 });
+            })
+            .catch((error: unknown) => {
+              // handlePeerMessage failure indicates a genuine processing error
+              // (malformed envelope), not an expected race — surface it.
+              console.error('handlePeerMessage failed', error);
             });
         },
       ),
@@ -165,7 +199,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
       });
       timers.clear();
     };
-  }, [queryClient]);
+  }, [queryClient, startSyncHandshake]);
 
   useEffect(() => {
     // Reading the query cache imperatively on each tick (not subscribing) is
