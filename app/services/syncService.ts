@@ -1,5 +1,4 @@
 import { invoke } from '@tauri-apps/api/core';
-import { getDatabase } from '@db/database';
 import { getDevice } from '@db/_system';
 import * as syncDb from '@db/_sync';
 import { migrationHead } from '@db/_migrations';
@@ -164,11 +163,10 @@ const applyBatch = async (
   }
 
   const appliedImageChanges: SyncChange[] = [];
-  const db = await getDatabase();
 
+  // No wrapping BEGIN/COMMIT: tauri-plugin-sql runs each statement on an arbitrary pooled connection and never tracks a raw transaction, so an orphaned BEGIN holds a write lock that starves every other writer with SQLITE_BUSY ("database is locked").
+  // The module-level applyQueue serializes whole batches and every applyUpsert/applyDelete is idempotent under LWW, so a mid-batch crash is recovered when the peer re-sends from the unadvanced watermark on reconnect.
   try {
-    await db.execute('BEGIN');
-
     for (const table of syncDb.SYNCED_TABLES) {
       const tableChanges = (upsertsByTable.get(table.name) ?? []).sort(
         (a, b) => a.seq - b.seq,
@@ -193,9 +191,7 @@ const applyBatch = async (
     }
 
     await syncDb.setPeerWatermark(endpointId, payload.maxSeq);
-    await db.execute('COMMIT');
   } catch (cause) {
-    await db.execute('ROLLBACK');
     throw syncApplyError(cause);
   }
 
