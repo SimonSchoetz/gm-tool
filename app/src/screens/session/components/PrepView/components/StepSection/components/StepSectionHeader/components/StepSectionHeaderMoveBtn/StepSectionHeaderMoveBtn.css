@@ -3,6 +3,8 @@
   border-radius: var(--radius-sm);
   display: flex;
   overflow-y: hidden;
+  min-width: calc(var(--icon-min-width) * 2);
+  flex-shrink: 0;
 }
 
 .step-move-btn-container:hover {

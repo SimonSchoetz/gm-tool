@@ -1,6 +1,7 @@
 .clickable-icon {
   color: var(--color-primary);
   transition: color var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .clickable-icon:hover {

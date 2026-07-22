@@ -10,7 +10,7 @@
 }
 
 .entity-popup-summary {
-  max-width: 400px; /* one-off */
-  min-width: 200px; /* one-off */
+  max-width: var(--summary-max-width);
+  min-width: var(--summary-content-height);
   max-height: var(--summary-content-height);
 }

@@ -7,8 +7,6 @@
     - should be copy/pasteable
   - Auto-Correct off (?)
   - drag-and-drop content within editor
-  - Tables
-    - should be editable
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
 - Fix: Adventure stats (facts)
   - drag-and-drop content into editor
@@ -18,16 +16,17 @@
 - Feature: Data access and db location/localization
   - encryption?
 - Fix (Summary Pop Up): 
-  - width should be same as in screens
-  - should be able to open images in full screen
-  - click on embedded link opens within app instead of external browser -> Bug or feature? -> Would need tabs ect.
+  - click on embedded link opens within app instead of external browser
 - Feature: Implement prefetching
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Chore: Replase all "loading..." ect. placeholder with loading icon
-- Fix (Icons): Prevent icons from shrinking when space is limited
 
 ### Done
-
+  - Tables
+    - should be editable
+- Fix (Summary Pop Up): 
+  - width should be same as in screens
+- Fix (Icons): Prevent icons from shrinking when space is limited
 - Feature (Text Editor): Tables
 - Feature (Text Editor): '/' command to open text formatter 
 - Fix (Session Screen): Input field for step name should render

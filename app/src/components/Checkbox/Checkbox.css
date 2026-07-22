@@ -3,6 +3,7 @@
   aspect-ratio: 1/1;
   border-radius: var(--radius-md);
   border: none;
+  flex-shrink: 0;
 }
 
 .checkbox {
