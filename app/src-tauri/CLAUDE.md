@@ -319,15 +319,5 @@ TODO: Add testing patterns when implemented
 
 ## Dependencies
 
-Current dependencies in `Cargo.toml`:
-- `tauri` - Core framework
-- `tauri-plugin-dialog` - File dialogs
-- `tauri-plugin-opener` - Opening files/URLs
-- `tauri-plugin-sql` - SQLite support
-- `tauri-plugin-updater` - Update checking, download, and installation
-- `iroh` - P2P networking; provides the `Endpoint`/`EndpointId`/`EndpointAddr` connectivity core
-- `iroh-mdns-address-lookup` - Local network peer discovery via mDNS
-- `rand` - Random pairing code generation (`rand::random_range`)
-- `tokio` (`sync`, `time`, `macros` features) - Async runtime primitives `tauri::async_runtime` doesn't re-export, needed for connectivity's stream/timeout handling
-- `futures-core` - `Stream` trait support for connection multiplexing
+Every dependency's purpose is documented inline in `Cargo.toml` as a trailing `# <purpose>` comment on its own line — not duplicated here, since a hand-maintained copy of the list drifts the moment a dependency is added or removed without a matching CLAUDE.md edit (as happened twice: the original connectivity crates, and now `base64`). When adding a new dependency, add its purpose comment in the same commit. Read `Cargo.toml` directly for the current list.
 

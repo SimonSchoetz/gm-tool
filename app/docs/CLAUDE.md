@@ -105,7 +105,7 @@ In both cases the spec must still fully specify: (1) any content that differs fr
 
 Required section in every spec. Before marking a spec complete, evaluate:
 
-- Do any CLAUDE.md files reference files, paths, or modules that this spec adds, renames, or removes?
+- Do any CLAUDE.md files reference files, paths, or modules that this spec adds, renames, or removes — or enumerate a class of thing (a dependency, a command, a table, a structure-tree entry) that this spec adds a new instance of? A CLAUDE.md file that lists members of a repeating class needs a new entry exactly when the spec adds a new member, independent of whether the spec also adds or renames any specific named file.
 - Does this spec introduce a new structural pattern (e.g. a new layer, directory convention, or module shape) that should be documented?
 - Does this spec make a previously documented example invalid?
 - Does this spec add or change anything that would affect a new domain implementation — a new layer, a changed ambient system, a new convention, or a new infrastructure touch point? If yes, update `app/docs/_product/domain-scaffold.md`.

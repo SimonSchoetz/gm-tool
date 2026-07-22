@@ -378,3 +378,7 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 - ✅ GOOD: `StepSectionHeader` calls `useSession(sessionId)` directly; TanStack Query serves the cached value
 - ❌ BAD: `SessionScreen` passes `sessionId` and `adventureId` as props to `SessionHeader`, which then passes them to `useSession`
 - ✅ GOOD: `SessionHeader` calls `useParams()` directly and passes the result to `useSession`
+
+### Event listener callback errors
+
+**Every promise chain kicked off inside a Tauri event-listener callback (registered via `listen()`) must end in an explicit `.catch()` — wrapping the outer call in `void` to satisfy `no-floating-promises` is not sufficient on its own.** This callback runs outside the render tree, so the Error Boundary is unreachable; a `.then()` chain with no `.catch()` becomes an unhandled promise rejection, not a caught error. Default handling is swallow-with-comment: state why the rejection is an expected, safe-to-ignore race (see `sendHello`/`pushNewChanges` in `useConnectivityLifecycle.ts`). When the rejection would instead indicate a genuine unexpected failure rather than a known race, `console.error` inside the `.catch()` is the surfacing mechanism — never leave the chain uncaught.
