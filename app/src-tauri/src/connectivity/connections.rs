@@ -21,6 +21,7 @@ use super::{
 };
 
 const CONNECTION_IDLE_TIMEOUT: Duration = Duration::from_secs(10);
+const RECONNECT_SWEEP_INTERVAL: Duration = Duration::from_secs(5);
 
 pub async fn init(
     app: AppHandle,
@@ -79,7 +80,11 @@ pub async fn init(
     data.trusted = trusted;
     drop(data);
 
+    // TEMPORARY discovery diagnostics — remove once peer rediscovery is diagnosed.
+    eprintln!("[disc-diag] init own_id={own_id}");
+
     tauri::async_runtime::spawn(run_accept_loop(app.clone(), state.clone(), endpoint));
+    tauri::async_runtime::spawn(run_reconnect_sweep(app.clone(), state.clone()));
     tauri::async_runtime::spawn(run_discovery(app, state, mdns));
 
     Ok(own_id.to_string())
@@ -138,7 +143,9 @@ pub async fn set_own_name(state: &ConnectivityState, name: Option<String>) -> Re
 }
 
 async fn run_accept_loop(app: AppHandle, state: ConnectivityState, endpoint: Endpoint) {
+    eprintln!("[disc-diag] accept loop started");
     while let Some(incoming) = endpoint.accept().await {
+        eprintln!("[disc-diag] incoming connection attempt received");
         let app = app.clone();
         let state = state.clone();
         tauri::async_runtime::spawn(async move {
@@ -161,6 +168,7 @@ async fn handle_incoming_connection(
     let remote = connection.remote_id();
     if connection.alpn() == ALPN_MAIN {
         let is_trusted = state.lock().await.trusted.contains(&remote);
+        eprintln!("[disc-diag] incoming main connection remote={remote} trusted={is_trusted}");
         if !is_trusted {
             connection.close(0u32.into(), b"untrusted");
             return;
@@ -168,6 +176,9 @@ async fn handle_incoming_connection(
         run_main_connection(app, state, connection, ConnectionRole::Acceptor).await;
     } else if connection.alpn() == ALPN_PAIRING {
         let pairing_active = state.lock().await.pairing.is_some();
+        eprintln!(
+            "[pair-diag] incoming pairing connection remote={remote} pairing_active={pairing_active}"
+        );
         if !pairing_active {
             connection.close(0u32.into(), b"pairing not active");
             return;
@@ -291,43 +302,85 @@ pub(crate) async fn maybe_dial_trusted_peer(
     let Some(endpoint) = data.endpoint.clone() else {
         return;
     };
-    let should_dial = endpoint.id().to_string() < remote.to_string()
-        && data.trusted.contains(&remote)
-        && !data.connections.contains_key(&remote)
-        && !data.dialing.contains(&remote);
+    let is_dialer = endpoint.id().to_string() < remote.to_string();
+    let is_trusted = data.trusted.contains(&remote);
+    let already_connected = data.connections.contains_key(&remote);
+    let already_dialing = data.dialing.contains(&remote);
+    let should_dial = is_dialer && is_trusted && !already_connected && !already_dialing;
+    eprintln!(
+        "[disc-diag] dial-check remote={remote} is_dialer={is_dialer} trusted={is_trusted} connected={already_connected} dialing={already_dialing} -> {should_dial}"
+    );
     if !should_dial {
         return;
     }
     data.dialing.insert(remote);
     drop(data);
 
+    let dial_addrs: Vec<String> = addr.ip_addrs().map(|a| a.to_string()).collect();
+    eprintln!("[disc-diag] dialing remote={remote} addrs={dial_addrs:?}");
+
     let app = app.clone();
     let state = state.clone();
     tauri::async_runtime::spawn(async move {
         match endpoint.connect(addr, ALPN_MAIN).await {
             Ok(connection) => {
+                eprintln!("[disc-diag] dial succeeded remote={remote}");
                 run_main_connection(app, state, connection, ConnectionRole::Dialer).await;
             }
-            Err(_) => {
+            Err(connect_error) => {
+                eprintln!("[disc-diag] dial FAILED remote={remote} error={connect_error:?}");
                 state.lock().await.dialing.remove(&remote);
             }
         }
     });
 }
 
+/// Re-dials trusted peers that are not currently connected, so reconnection never depends on a
+/// discovery event arriving at the right moment. `maybe_dial_trusted_peer` still owns every
+/// decision about whether this device is the one that dials; this sweep only supplies a trigger
+/// on a fixed cadence.
+async fn run_reconnect_sweep(app: AppHandle, state: ConnectivityState) {
+    loop {
+        tokio::time::sleep(RECONNECT_SWEEP_INTERVAL).await;
+
+        let disconnected: Vec<EndpointId> = {
+            let data = state.lock().await;
+            data.trusted
+                .iter()
+                .copied()
+                .filter(|remote| {
+                    !data.connections.contains_key(remote) && !data.dialing.contains(remote)
+                })
+                .collect()
+        };
+
+        for remote in disconnected {
+            // Dial by id rather than a cached address: `discovered` entries are dropped on mDNS
+            // expiry, and an addressless dial resolves through the endpoint's address lookup.
+            maybe_dial_trusted_peer(&app, &state, remote.into()).await;
+        }
+    }
+}
+
 async fn run_discovery(app: AppHandle, state: ConnectivityState, mdns: MdnsAddressLookup) {
     let mut events = mdns.subscribe().await;
+    eprintln!("[disc-diag] discovery loop started");
     while let Some(event) = next_discovery_event(&mut events).await {
         match event {
             DiscoveryEvent::Discovered { endpoint_info, .. } => {
+                eprintln!("[disc-diag] discovered id={}", endpoint_info.endpoint_id);
                 handle_discovered(&app, &state, endpoint_info).await;
             }
             DiscoveryEvent::Expired { endpoint_id } => {
+                eprintln!("[disc-diag] expired id={endpoint_id}");
                 state.lock().await.discovered.remove(&endpoint_id);
             }
-            _ => {}
+            _ => {
+                eprintln!("[disc-diag] other discovery event");
+            }
         }
     }
+    eprintln!("[disc-diag] discovery loop ENDED — no further peer discovery is possible");
 }
 
 async fn next_discovery_event<S: Stream<Item = DiscoveryEvent> + Unpin>(

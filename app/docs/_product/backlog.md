@@ -9,8 +9,6 @@
     - should be copy/pasteable
   - Auto-Correct off (?)
   - drag-and-drop content within editor
-  - Tables
-    - should be editable
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
 - Fix: Adventure stats (facts)
   - drag-and-drop content into editor
@@ -31,6 +29,8 @@
 
 ### Done
 
+- Tables
+  - should be editable
 - Feature (Text Editor): Tables
 - Feature (Text Editor): '/' command to open text formatter 
 - Fix (Session Screen): Input field for step name should render
