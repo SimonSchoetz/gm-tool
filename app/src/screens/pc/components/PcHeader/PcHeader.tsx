@@ -1,7 +1,11 @@
-import { GlassPanel, Input, CustomScrollArea, TextEditor } from '@/components';
+import {
+  GlassPanel,
+  SyncedInput,
+  CustomScrollArea,
+  TextEditor,
+} from '@/components';
 import { usePc } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import './PcHeader.css';
 
 export const PcHeader = () => {
@@ -11,18 +15,15 @@ export const PcHeader = () => {
 
   const { pc, updatePc } = usePc(pcId, adventureId);
 
-  const [pcName, setPcName] = useState(pc?.name ?? '');
-
   if (!pc) return null;
 
   return (
     <GlassPanel className='pc-summary' intensity='bright'>
-      <Input
+      <SyncedInput
         placeholder='Name'
-        value={pcName}
-        onChange={(e) => {
-          setPcName(e.target.value);
-          updatePc({ name: e.target.value });
+        initValue={pc.name ?? ''}
+        onCommit={(name) => {
+          updatePc({ name });
         }}
         className='pc-name-input'
         required

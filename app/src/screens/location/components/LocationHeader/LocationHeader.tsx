@@ -1,7 +1,11 @@
-import { GlassPanel, Input, CustomScrollArea, TextEditor } from '@/components';
+import {
+  GlassPanel,
+  SyncedInput,
+  CustomScrollArea,
+  TextEditor,
+} from '@/components';
 import { useLocation } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import './LocationHeader.css';
 
 export const LocationHeader = () => {
@@ -11,18 +15,15 @@ export const LocationHeader = () => {
 
   const { location, updateLocation } = useLocation(locationId, adventureId);
 
-  const [locationName, setLocationName] = useState(location?.name ?? '');
-
   if (!location) return null;
 
   return (
     <GlassPanel className='location-summary' intensity='bright'>
-      <Input
+      <SyncedInput
         placeholder='Name'
-        value={locationName}
-        onChange={(e) => {
-          setLocationName(e.target.value);
-          updateLocation({ name: e.target.value });
+        initValue={location.name ?? ''}
+        onCommit={(name) => {
+          updateLocation({ name });
         }}
         className='location-name-input'
         required

@@ -1,9 +1,8 @@
-import { Input } from '@/components';
+import { SyncedInput } from '@/components';
 import { useSessionSteps } from '@/data-access-layer';
 import { LAZY_DM_STEPS } from '@domain';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import './StepSectionHeaderTitle.css';
 
 type Props = {
@@ -16,8 +15,6 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
   });
   const { steps, updateStep } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
-
-  const [stepName, setStepName] = useState(step?.name ?? '');
 
   if (!step) return null;
 
@@ -34,12 +31,11 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
   }
 
   return (
-    <Input
+    <SyncedInput
       className='step-name'
-      value={stepName}
-      onChange={(e) => {
-        setStepName(e.target.value);
-        updateStep(step.id, { name: e.target.value });
+      initValue={step.name ?? ''}
+      onCommit={(name) => {
+        updateStep(step.id, { name });
       }}
       placeholder='Step name'
     />
