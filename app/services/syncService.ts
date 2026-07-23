@@ -48,7 +48,7 @@ export const sendSyncHello = async (endpointId: string): Promise<void> => {
   try {
     await invoke('send_message', {
       endpointId,
-      envelope: JSON.stringify(buildSyncHelloMessage(migrationHead)),
+      envelope: JSON.stringify(buildSyncHelloMessage(migrationHead, false)),
     });
   } catch (cause) {
     throw syncHandshakeError(cause);
@@ -65,7 +65,11 @@ const chunkBase64 = (base64: string): string[] => {
 
 const handleSyncHello = async (
   endpointId: string,
-  payload: { syncProtocolVersion: number; migrationHead: string },
+  payload: {
+    syncProtocolVersion: number;
+    migrationHead: string;
+    isReply?: boolean | undefined;
+  },
 ): Promise<SyncMessageOutcome> => {
   const compat: 'compatible' | 'incompatible' =
     payload.syncProtocolVersion === SYNC_PROTOCOL_VERSION &&
@@ -80,6 +84,13 @@ const handleSyncHello = async (
         endpointId,
         envelope: JSON.stringify(buildSyncRequestMessage(sinceSeq)),
       });
+      // Reciprocate an initial hello with our own so the peer sends us a sync-request too. Without this, a hello lost to the connection-dedup race (our peerConnected can fire on the connection that dedup then closes) leaves that direction with no seeded push cursor — one-directional sync. isReply is the one-shot guard that stops the reply from bouncing forever.
+      if (!payload.isReply) {
+        await invoke('send_message', {
+          endpointId,
+          envelope: JSON.stringify(buildSyncHelloMessage(migrationHead, true)),
+        });
+      }
     } catch {
       // Best-effort, mirrors sendHello — a dropped request is recovered by
       // the peer's own hello-triggered request on the next connect.

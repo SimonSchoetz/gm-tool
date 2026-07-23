@@ -21,6 +21,8 @@ export const syncMessageSchema = z.discriminatedUnion('type', [
     payload: z.object({
       syncProtocolVersion: z.number(),
       migrationHead: z.string(),
+      // A reply hello, sent once in response to an initial hello, so the handshake completes in both directions without looping. Optional for forward compatibility with peers that predate the field.
+      isReply: z.boolean().optional(),
     }),
   }),
   z.object({
@@ -56,10 +58,17 @@ export const syncMessageSchema = z.discriminatedUnion('type', [
 
 export type SyncMessage = z.infer<typeof syncMessageSchema>;
 
-export const buildSyncHelloMessage = (migrationHead: string): SyncMessage => ({
+export const buildSyncHelloMessage = (
+  migrationHead: string,
+  isReply: boolean,
+): SyncMessage => ({
   v: ENVELOPE_VERSION,
   type: 'sync-hello',
-  payload: { syncProtocolVersion: SYNC_PROTOCOL_VERSION, migrationHead },
+  payload: {
+    syncProtocolVersion: SYNC_PROTOCOL_VERSION,
+    migrationHead,
+    isReply,
+  },
 });
 
 export const buildSyncRequestMessage = (sinceSeq: number): SyncMessage => ({

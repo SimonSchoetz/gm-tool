@@ -9,10 +9,26 @@ import {
 } from '../messages';
 
 describe('syncMessageSchema', () => {
-  it('accepts a built sync-hello message', () => {
+  it('accepts a built initial sync-hello message', () => {
     const result = syncMessageSchema.safeParse(
-      buildSyncHelloMessage('1784365870026'),
+      buildSyncHelloMessage('1784365870026', false),
     );
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts a built reply sync-hello message', () => {
+    const result = syncMessageSchema.safeParse(
+      buildSyncHelloMessage('1784365870026', true),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts a sync-hello without isReply (forward compatibility)', () => {
+    const result = syncMessageSchema.safeParse({
+      v: 1,
+      type: 'sync-hello',
+      payload: { syncProtocolVersion: 1, migrationHead: '1784365870026' },
+    });
     expect(result.success).toBe(true);
   });
 
