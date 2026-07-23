@@ -1,6 +1,6 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useFoes, useTableConfigs } from '@/data-access-layer';
-import { SortableList } from '@/components';
+import { LoadingIcon, SortableList } from '@/components';
 import type { Foe } from '@db/foe';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './FoesScreen.css';
@@ -22,7 +22,11 @@ export const FoesScreen = () => {
   };
 
   if (foesLoading || configsLoading) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   if (!foesTableConfig) {

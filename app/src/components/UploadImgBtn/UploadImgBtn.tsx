@@ -7,6 +7,7 @@ import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFram
 import PopUpContainer from '../PopUpContainer/PopUpContainer';
 import { ImageViewerDialog } from './components';
 import './UploadImgBtn.css';
+import { LoadingIcon } from '../LoadingIcon';
 
 type Props = {
   image_id?: string | null;
@@ -86,7 +87,7 @@ export const UploadImgBtn = ({
             textAlign: 'center',
           }}
         >
-          {isLoading ? 'Loading...' : 'Click to upload cover image'}
+          {isLoading ? <LoadingIcon /> : 'Click to upload cover image'}
           {error && <p className='img-upload-error-msg'>{error}</p>}
         </p>
       </ImagePlaceholderFrame>

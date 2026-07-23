@@ -1,6 +1,7 @@
 # Product Backlog
 
 ## Closed Beta Ready
+
 - Text editor enhancements
   - name tags
     - hould update when the reference changes
@@ -19,12 +20,13 @@
   - click on embedded link opens within app instead of external browser
 - Feature: Implement prefetching
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
-- Chore: Replase all "loading..." ect. placeholder with loading icon
 - Feature: cmd+f search for screens
 - Feature: List items ins screens should be duplicatable
 - Feature: List items ins screens should be pinnable
 
 ### Done
+
+- Chore: Replase all "loading..." ect. placeholder with loading icon
 - Feature(POC): peer-to-peer network to autosync between different devices
   - import with merging strategy
 - Tables

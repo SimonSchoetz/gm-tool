@@ -7,6 +7,7 @@ import {
   Header,
   ErrorBoundary,
   GlassPanel,
+  LoadingIcon,
 } from './components';
 import { TanstackQueryClientProvider } from './data-access-layer/TanstackQueryClientProvider';
 import { useConnectivityLifecycle } from '@/data-access-layer';
@@ -30,7 +31,13 @@ const AppContent = () => {
           <Header />
 
           <ErrorBoundary>
-            <Suspense fallback={<GlassPanel>Loading...</GlassPanel>}>
+            <Suspense
+              fallback={
+                <GlassPanel className='content-center'>
+                  <LoadingIcon />
+                </GlassPanel>
+              }
+            >
               <Outlet />
             </Suspense>
           </ErrorBoundary>

@@ -1,4 +1,9 @@
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 import { useFoe } from '@/data-access-layer';
 import './FoeScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -12,7 +17,11 @@ export const FoeScreen = () => {
   const { foe, updateFoe, loading } = useFoe(foeId, adventureId);
 
   if (loading || !foe) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

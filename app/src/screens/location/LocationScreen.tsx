@@ -1,4 +1,9 @@
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 import { useLocation } from '@/data-access-layer';
 import './LocationScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -15,7 +20,11 @@ export const LocationScreen = () => {
   );
 
   if (loading || !location) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

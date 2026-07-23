@@ -275,7 +275,7 @@ export { use[Plural], use[Singular], [singular]Keys } from './[plural]';
 **Behavior**: `useParams({ from: '/adventure/$adventureId/[plural]' })`. Fetches via
 `use[Plural](adventureId)` and `useTableConfigs()`. Finds config: `tableConfigs.find(c => c.table_name === '[plural]')`. On create: calls `create[Singular]()`, navigates to
 `/adventure/${adventureId}/[singular]/${new[Singular]Id}`.
-Loading guard: `if ([plural]Loading || configsLoading) return <div className='content-center'>Loading...</div>`.
+Loading guard: `if ([plural]Loading || configsLoading) return <div className='content-center'><LoadingIcon /></div>`.
 Missing config guard (separate, after loading): `if (![plural]TableConfig) throw tableConfigNotFoundError('[plural]')`.
 Import `tableConfigNotFoundError` from `@domain/table-config`. Never fold the missing-config
 case into the loading guard — a missing config is an error, not a loading state.
@@ -297,7 +297,7 @@ Three component files + barrel + two CSS files.
 
 **Behavior**: `useParams({ from: '/adventure/$adventureId/[singular]/$[singular]Id' })`.
 Calls `use[Singular]([singular]Id, adventureId)`. Loading/null guard returns
-`<div>Loading...</div>`. Description `TextEditor` calls `update[Singular]({ description })`.
+`<div><LoadingIcon /></div>`. Description `TextEditor` calls `update[Singular]({ description })`.
 `textEditorId`: `'[SINGULAR_UPPER]_${[singular].id}_description'`.
 
 **UI**: `GlassPanel className='[singular]-screen'` (CSS grid `grid-template-columns: auto 1fr`,

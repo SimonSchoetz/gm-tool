@@ -1,6 +1,6 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useItems, useTableConfigs } from '@/data-access-layer';
-import { SortableList } from '@/components';
+import { LoadingIcon, SortableList } from '@/components';
 import type { Item } from '@db/item';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './ItemsScreen.css';
@@ -22,7 +22,11 @@ export const ItemsScreen = () => {
   };
 
   if (itemsLoading || configsLoading) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   if (!itemsTableConfig) {

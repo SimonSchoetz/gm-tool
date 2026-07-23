@@ -1,4 +1,9 @@
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 import { useItem } from '@/data-access-layer';
 import './ItemScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -12,7 +17,11 @@ export const ItemScreen = () => {
   const { item, updateItem, loading } = useItem(itemId, adventureId);
 
   if (loading || !item) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

@@ -1,7 +1,7 @@
 import { useAdventures } from '@/data-access-layer';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from './components';
-import { NewItemBtn, CustomScrollArea } from '@/components';
+import { NewItemBtn, CustomScrollArea, LoadingIcon } from '@/components';
 import { useRouter } from '@tanstack/react-router';
 import {
   ADVENTURE_PREVIEW_HEIGHT,
@@ -18,7 +18,11 @@ export const AdventuresScreen = () => {
   };
 
   if (loading) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   const adventurePreviewDimensions = {

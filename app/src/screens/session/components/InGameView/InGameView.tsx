@@ -1,5 +1,10 @@
 import { useSession, useSessionSteps } from '@/data-access-layer';
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 import { useParams } from '@tanstack/react-router';
 import { InGameStepSection } from './components';
 import './InGameView.css';
@@ -16,7 +21,11 @@ export const InGameView = () => {
   const { steps, loading: stepsLoading } = useSessionSteps(sessionId);
 
   if (sessionLoading || stepsLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

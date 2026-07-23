@@ -1,6 +1,6 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { usePcs, useTableConfigs } from '@/data-access-layer';
-import { SortableList } from '@/components';
+import { LoadingIcon, SortableList } from '@/components';
 import type { Pc } from '@db/pc';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './PcsScreen.css';
@@ -22,7 +22,11 @@ export const PcsScreen = () => {
   };
 
   if (pcsLoading || configsLoading) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   if (!pcsTableConfig) {

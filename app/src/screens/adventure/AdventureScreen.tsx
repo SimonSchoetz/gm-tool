@@ -1,5 +1,10 @@
 import './AdventureScreen.css';
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 
 import { useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
@@ -20,7 +25,11 @@ export const AdventureScreen = () => {
   }
 
   if (loading || !adventure) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

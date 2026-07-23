@@ -1,6 +1,6 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useSessions, useTableConfigs } from '@/data-access-layer';
-import { SortableList } from '@/components';
+import { LoadingIcon, SortableList } from '@/components';
 import type { Session } from '@db/session';
 
 export const SessionsScreen = () => {
@@ -24,7 +24,11 @@ export const SessionsScreen = () => {
   };
 
   if (loading || configsLoading || !sessionsTableConfig) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

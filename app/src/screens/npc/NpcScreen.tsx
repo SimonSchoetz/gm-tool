@@ -1,4 +1,9 @@
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 import { useNpc } from '@/data-access-layer';
 import './NpcScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -12,7 +17,11 @@ export const NpcScreen = () => {
   const { npc, updateNpc, loading } = useNpc(npcId, adventureId);
 
   if (loading || !npc) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

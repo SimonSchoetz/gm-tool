@@ -1,4 +1,9 @@
-import { CustomScrollArea, GlassPanel, TextEditor } from '@/components';
+import {
+  CustomScrollArea,
+  GlassPanel,
+  LoadingIcon,
+  TextEditor,
+} from '@/components';
 import { usePc } from '@/data-access-layer';
 import './PcScreen.css';
 import { useParams } from '@tanstack/react-router';
@@ -12,7 +17,11 @@ export const PcScreen = () => {
   const { pc, updatePc, loading } = usePc(pcId, adventureId);
 
   if (loading || !pc) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

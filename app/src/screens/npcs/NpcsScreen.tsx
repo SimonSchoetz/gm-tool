@@ -1,6 +1,6 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs, useTableConfigs } from '@/data-access-layer';
-import { SortableList } from '@/components';
+import { LoadingIcon, SortableList } from '@/components';
 import type { Npc } from '@db/npc';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './NpcsScreen.css';
@@ -22,7 +22,11 @@ export const NpcsScreen = () => {
   };
 
   if (npcsLoading || configsLoading) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   if (!npcsTableConfig) {

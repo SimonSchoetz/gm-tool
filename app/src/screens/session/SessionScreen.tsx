@@ -8,7 +8,7 @@ import {
   StepsNavSidebar,
 } from './components';
 import './SessionScreen.css';
-import { GlassPanel } from '@/components';
+import { GlassPanel, LoadingIcon } from '@/components';
 
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({
@@ -45,7 +45,11 @@ export const SessionScreen = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (

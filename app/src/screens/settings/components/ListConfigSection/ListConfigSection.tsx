@@ -1,5 +1,5 @@
 import { useTableConfigs } from '@/data-access-layer';
-import { CustomScrollArea } from '@/components';
+import { CustomScrollArea, LoadingIcon } from '@/components';
 import { ListConfigRow } from './components';
 
 import './ListConfigSection.css';
@@ -10,7 +10,11 @@ export const ListConfigSection = () => {
   const { tableConfigs, loading } = useTableConfigs();
 
   if (loading) {
-    return <div className='content-center'>Loading...</div>;
+    return (
+      <div className='content-center'>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (
