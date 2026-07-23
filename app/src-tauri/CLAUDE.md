@@ -231,7 +231,7 @@ Initializes the connectivity endpoint and restores trusted peers.
 
 ### enter_pairing_mode
 
-Starts advertising this device for pairing and probes already-known peers retroactively (mDNS emits `Discovered` once per peer; republished announcements are dropped).
+Starts advertising this device for pairing and probes already-known peers retroactively (peers discovered before the session started are probed immediately rather than waiting for the next mDNS announcement).
 
 **Arguments:**
 - `app_handle: AppHandle`
