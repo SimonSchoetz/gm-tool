@@ -21,6 +21,8 @@
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Chore: Replase all "loading..." ect. placeholder with loading icon
 - Feature: cmd+f search for screens
+- Feature: List items ins screens should be duplicatable
+- Feature: List items ins screens should be pinnable
 
 ### Done
 - Feature(POC): peer-to-peer network to autosync between different devices
@@ -66,8 +68,6 @@
       - relocate db functonality
       - chosing db/asset location functionality
 - Epic: Online community
-- Feature(POC): peer-to-peer network to autosync between different devices
-  - import with merging strategy
 
 ## v1.0.0 Ready
 

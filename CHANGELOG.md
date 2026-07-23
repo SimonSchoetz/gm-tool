@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.8.0] - 2026-07-24
+
+### Added
+
+- Device sync — pair devices on the same network and keep adventures, sessions, NPCs, and other data automatically synced across them
+- Sync status indicator shown for each paired device in the Settings screen
+
 ## [v0.7.1] - 2026-07-22
 
 ### Fixed
