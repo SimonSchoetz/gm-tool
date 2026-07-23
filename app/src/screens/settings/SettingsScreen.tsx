@@ -2,7 +2,7 @@ import { CustomScrollArea, GlassPanel } from '@/components';
 import {
   ListConfigSection,
   AppearanceSection,
-  // DevicesSection,
+  DevicesSection,
 } from './components';
 import './SettingsScreen.css';
 
@@ -13,7 +13,7 @@ export const SettingsScreen = () => (
 
       <ListConfigSection />
 
-      {/*<DevicesSection />*/}
+      <DevicesSection />
     </CustomScrollArea>
   </GlassPanel>
 );
