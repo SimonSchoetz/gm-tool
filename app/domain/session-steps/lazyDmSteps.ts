@@ -28,7 +28,7 @@ export const LAZY_DM_STEPS: LazyDmStepDefinition[] = [
     name: 'Potential Scenes',
     tooltip:
       "With a strong start in hand, we can then outline a short list of potential scenes that might unfold. This step exists mostly to make you feel as though you have a handle on the game before you start. However, as GMs, all of us must always be ready to throw our potential scenes away when the game goes in a different direction—as it often does. Usually, it's enough to come up with only a few words per scene, and to expect one or two scenes per hour of play.",
-    placeholder: 'How could the sessuon potentially fan out?',
+    placeholder: 'How could the session potentially fan out?',
   },
   {
     key: 'secrets_clues',
