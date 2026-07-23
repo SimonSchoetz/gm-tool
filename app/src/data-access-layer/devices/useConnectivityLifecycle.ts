@@ -206,25 +206,17 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
   }, [queryClient, startSyncHandshake, showBoundary]);
 
   useEffect(() => {
-    // Reading the query cache imperatively on each tick (not subscribing) is
-    // deliberate: the poller needs the current value at fire time, not re-renders.
+    // pushNewChanges derives its own targets from syncService's lastPushedSeq map — the poller must not filter on the device query cache, whose connected/compat entries are undefined whenever no device screen is mounted (which silently suppressed every live push during entity editing).
     const interval = setInterval(() => {
-      const connected =
-        queryClient.getQueryData<string[]>(deviceKeys.connected()) ?? [];
-      const compat =
-        queryClient.getQueryData<PeerCompatMap>(deviceKeys.syncCompat()) ?? {};
-      const targets = connected.filter((id) => compat[id] === 'compatible');
-      if (targets.length > 0) {
-        void syncService.pushNewChanges(targets).catch(() => {
-          // A push racing a disconnect must not surface; the reconnect pull covers the gap.
-        });
-      }
+      void syncService.pushNewChanges().catch(() => {
+        // A push racing a disconnect must not surface; the reconnect pull covers the gap.
+      });
     }, SYNC_POLL_INTERVAL_MS);
 
     return () => {
       clearInterval(interval);
     };
-  }, [queryClient]);
+  }, []);
 
   return {
     connectivityInitError:

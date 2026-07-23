@@ -328,12 +328,12 @@ export const handleSyncMessage = async (
   }
 };
 
-export const pushNewChanges = async (peerIds: string[]): Promise<void> => {
+export const pushNewChanges = async (): Promise<void> => {
   try {
     const maxSeq = await syncDb.getMaxSeq();
-    for (const peerId of peerIds) {
-      const pushed = lastPushedSeq.get(peerId);
-      if (pushed === undefined || pushed >= maxSeq) continue;
+    // Iterate lastPushedSeq rather than a caller-supplied peer list: an entry is seeded only by an incoming sync-request, which a peer sends only after judging us compatible — so its keys are exactly the connected-and-compatible push targets, and its values are the caught-up cursors. This keeps the poller off the device query cache, whose connected/compat entries are undefined whenever no device screen is mounted (the reason live pushes silently no-op'd during entity editing).
+    for (const [peerId, pushed] of lastPushedSeq) {
+      if (pushed >= maxSeq) continue;
       void runExclusive(() => pushBatchesTo(peerId)).catch(() => {
         // Best-effort — the next poll tick retries.
       });
