@@ -80,7 +80,7 @@ pub async fn enter_pairing_mode(
         (code, known_unpaired)
     };
 
-    // mDNS emits Discovered only once per peer, so endpoints found before this session started produce no further events — probe every already-known unpaired endpoint now.
+    // Probe every already-known unpaired endpoint immediately rather than waiting for mDNS to re-announce it, so a session started after discovery still surfaces candidates without delay.
     for addr in known_unpaired {
         maybe_probe_candidate(app, state, addr).await;
     }
@@ -168,35 +168,25 @@ pub(crate) async fn maybe_probe_candidate(
     let remote = addr.id;
     let mut data = state.lock().await;
     let Some(endpoint) = data.endpoint.clone() else {
-        eprintln!("[pair-diag] probe skipped remote={remote} reason=no_endpoint");
         return;
     };
     let Some(session) = data.pairing.as_mut() else {
-        eprintln!("[pair-diag] probe skipped remote={remote} reason=no_active_pairing_session");
         return;
     };
     if session.probing.contains(&remote) || session.candidates.contains_key(&remote) {
-        eprintln!(
-            "[pair-diag] probe skipped remote={remote} reason=already probing={} candidate={}",
-            session.probing.contains(&remote),
-            session.candidates.contains_key(&remote)
-        );
         return;
     }
     session.probing.insert(remote);
     drop(data);
-    eprintln!("[pair-diag] probing remote={remote}");
 
     let app = app.clone();
     let state = state.clone();
     tauri::async_runtime::spawn(async move {
         match endpoint.connect(addr, ALPN_PAIRING).await {
             Ok(connection) => {
-                eprintln!("[pair-diag] probe connected remote={remote}");
                 run_pairing_connection(app, state, connection, ConnectionRole::Dialer).await;
             }
-            Err(connect_error) => {
-                eprintln!("[pair-diag] probe FAILED remote={remote} error={connect_error:?}");
+            Err(_) => {
                 let mut data = state.lock().await;
                 if let Some(session) = data.pairing.as_mut() {
                     session.probing.remove(&remote);
@@ -219,7 +209,6 @@ pub(crate) async fn run_pairing_connection(
         ConnectionRole::Acceptor => connection.accept_bi().await,
     };
     let Ok((mut send_stream, mut recv_stream)) = streams else {
-        eprintln!("[pair-diag] pairing stream open FAILED remote={remote}");
         remove_probe(&state, &remote).await;
         return;
     };
@@ -293,7 +282,6 @@ pub(crate) async fn run_pairing_connection(
                                 failures: 0,
                             });
                             drop(data);
-                            eprintln!("[pair-diag] candidate emitted remote={remote}");
                             let _ = app.emit(EVENT_PAIRING_CANDIDATE, PairingCandidatePayload {
                                 endpoint_id: remote.to_string(),
                                 name,
