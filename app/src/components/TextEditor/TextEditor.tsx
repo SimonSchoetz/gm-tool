@@ -25,11 +25,13 @@ import {
   CheckboxReadOnlyPlugin,
   EmbeddedLinkPlugin,
   EmptyNodeHintPlugin,
+  ExternalValueSyncPlugin,
   SlashCommandPlugin,
   TableEdgeHandlePlugin,
 } from './plugins';
-import { EditorThemeClasses, EditorState } from 'lexical';
+import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper';
+import { EXTERNAL_SYNC_TAG } from './TextEditor.constants';
 
 type Props = {
   value: string;
@@ -98,7 +100,13 @@ export const TextEditor: FCProps<Props> = ({
     editable: !readOnly,
   };
 
-  const handleChange = (editorState: EditorState) => {
+  const handleChange = (
+    editorState: EditorState,
+    _editor: LexicalEditor,
+    tags: Set<string>,
+  ) => {
+    // Skip changes the sync plugin applied — re-emitting them would save a peer's value back out and echo it to that device.
+    if (tags.has(EXTERNAL_SYNC_TAG)) return;
     if (onChange) {
       onChange(
         editorState.isEmpty() ? '' : JSON.stringify(editorState.toJSON()),
@@ -130,6 +138,7 @@ export const TextEditor: FCProps<Props> = ({
         />
 
         {onChange && <OnChangePlugin onChange={handleChange} />}
+        <ExternalValueSyncPlugin value={value} />
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
         {!readOnly && <SlashCommandPlugin />}

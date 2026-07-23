@@ -1,7 +1,11 @@
-import { GlassPanel, Input, CustomScrollArea, TextEditor } from '@/components';
+import {
+  GlassPanel,
+  SyncedInput,
+  CustomScrollArea,
+  TextEditor,
+} from '@/components';
 import { useFaction } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import './FactionHeader.css';
 
 export const FactionHeader = () => {
@@ -11,18 +15,15 @@ export const FactionHeader = () => {
 
   const { faction, updateFaction } = useFaction(factionId, adventureId);
 
-  const [factionName, setFactionName] = useState(faction?.name ?? '');
-
   if (!faction) return null;
 
   return (
     <GlassPanel className='faction-summary' intensity='bright'>
-      <Input
+      <SyncedInput
         placeholder='Name'
-        value={factionName}
-        onChange={(e) => {
-          setFactionName(e.target.value);
-          updateFaction({ name: e.target.value });
+        initValue={faction.name ?? ''}
+        onCommit={(name) => {
+          updateFaction({ name });
         }}
         className='faction-name-input'
         required

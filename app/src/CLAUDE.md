@@ -378,3 +378,13 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 - ✅ GOOD: `StepSectionHeader` calls `useSession(sessionId)` directly; TanStack Query serves the cached value
 - ❌ BAD: `SessionScreen` passes `sessionId` and `adventureId` as props to `SessionHeader`, which then passes them to `useSession`
 - ✅ GOOD: `SessionHeader` calls `useParams()` directly and passes the result to `useSession`
+
+### Event listener callback errors
+
+**Every promise chain kicked off inside a Tauri event-listener callback (registered via `listen()`) must end in an explicit `.catch()` — wrapping the outer call in `void` to satisfy `no-floating-promises` is not sufficient on its own.** This callback runs outside React's render cycle; a `.then()` chain with no `.catch()` becomes an unhandled promise rejection, not a caught error — no automatic mechanism surfaces it. Default handling is swallow-with-comment: state why the rejection is an expected, safe-to-ignore race (see `sendHello`/`pushNewChanges` in `useConnectivityLifecycle.ts`).
+
+When the rejection would instead indicate a genuine unexpected failure rather than a known race, the surfacing mechanism depends on whether the listener-registering code is reachable from a live `ErrorBoundary`. When the `listen()` call is made from within a component, or a hook called (directly or transitively) by a component rendered under an `ErrorBoundary`, call `useErrorBoundary()` (from `react-error-boundary`) at the top level of that component or hook to obtain `showBoundary`, then invoke `showBoundary(error)` inside the `.catch()` handler — this is the library's documented bridge for errors surfacing after async code has run, routing the failure into the same fallback UI a render-time error would hit. Reserve `console.error` inside the `.catch()` for the narrower case where no such hosting component or hook exists in the call chain (e.g. module-level listener setup with nothing to host the hook). Never leave the chain uncaught either way.
+
+- ✅ GOOD: `const { showBoundary } = useErrorBoundary();` at the top of the hook, then `.catch((error: unknown) => showBoundary(error))` inside the effect
+- ❌ BAD: calling `useErrorBoundary()` inside the `.catch()` callback itself — hooks cannot be called outside a component or hook's synchronous render/call path
+- ❌ BAD: defaulting to `console.error` for a genuine failure when the calling hook is reachable from a live `ErrorBoundary` — the boundary path is available and must be used

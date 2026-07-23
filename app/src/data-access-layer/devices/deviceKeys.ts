@@ -3,4 +3,5 @@ export const deviceKeys = {
   paired: () => ['devices-paired'] as const,
   connected: () => ['devices-connected'] as const,
   init: () => ['devices-connectivity-init'] as const,
+  syncCompat: () => ['devices-sync-compat'] as const,
 };

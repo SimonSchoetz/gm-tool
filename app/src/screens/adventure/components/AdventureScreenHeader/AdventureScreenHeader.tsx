@@ -1,8 +1,7 @@
-import { Input } from '@/components';
+import { SyncedInput } from '@/components';
 import { useAdventure } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { getDateTimeString } from '@util';
-import { useState } from 'react';
 import './AdventureScreenHeader.css';
 
 export const AdventureScreenHeader = () => {
@@ -12,20 +11,17 @@ export const AdventureScreenHeader = () => {
 
   const { adventure, updateAdventure } = useAdventure(adventureId);
 
-  const [adventureName, setAdventureName] = useState(adventure?.name ?? '');
-
   if (!adventure) return null;
 
   const startDate = getDateTimeString(adventure.created_at);
 
   return (
     <div>
-      <Input
+      <SyncedInput
         placeholder='Adventure Title'
-        value={adventureName}
-        onChange={(e) => {
-          setAdventureName(e.target.value);
-          updateAdventure({ name: e.target.value });
+        initValue={adventure.name ?? ''}
+        onCommit={(name) => {
+          updateAdventure({ name });
         }}
         className='adventure-title-input'
       />

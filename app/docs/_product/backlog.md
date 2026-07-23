@@ -20,10 +20,13 @@
 - Feature: Implement prefetching
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Chore: Replase all "loading..." ect. placeholder with loading icon
+- Feature: cmd+f search for screens
 
 ### Done
-  - Tables
-    - should be editable
+- Feature(POC): peer-to-peer network to autosync between different devices
+  - import with merging strategy
+- Tables
+  - should be editable
 - Fix (Summary Pop Up): 
   - width should be same as in screens
 - Fix (Icons): Prevent icons from shrinking when space is limited

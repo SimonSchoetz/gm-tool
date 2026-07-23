@@ -84,6 +84,22 @@ The conventional string form of a device/endpoint identity is the 64-character l
 
 On multi-homed hosts the mDNS discoverer sends and receives multicast solely on the interface the OS picks for 224.0.0.0/4 — decided on Windows by lowest interface metric. VPN adapters (e.g. NordLynx, metric 5 vs. Wi-Fi 35) capture it even when the VPN session is "disconnected" but the adapter stays up, making discovery silently dead in both directions while init succeeds. swarm-discovery's `Discoverer::with_multicast_interfaces_v4`/`DropGuard::add_interface_v4` could fix this, but the 0.4.0 wrapper does not expose them.
 
+## iroh-mdns-address-lookup emits `Discovered` repeatedly for the same peer, not once
+
+**Verified at:** iroh 1.0.2 / iroh-mdns-address-lookup 0.4.0, observed 2026-07-22
+**Citation:** [I_11: ran `npm run dev` with an eprintln on every `DiscoveryEvent` in `connectivity/connections.rs::run_discovery` — observed 10+ consecutive `Discovered` events for the same peer id within one session, no intervening `Expired`]
+
+`app/src-tauri/CLAUDE.md`'s `enter_pairing_mode` description and the `enter_pairing_mode` comment in `connectivity/pairing.rs` both state that mDNS emits `Discovered` once per peer and that republished announcements are dropped. Direct observation contradicts this: the same peer id is re-delivered repeatedly while the discovery loop runs.
+
+Consequences: any handler reached from `handle_discovered` must be idempotent, since it is invoked many times per peer (`maybe_dial_trusted_peer` and `maybe_probe_candidate` both already guard on `connections`/`dialing` and `probing`/`candidates`, so both are safe). Conversely, never diagnose a peer's failure to (re)connect as "the second discovery event never arrives" — that premise is false, and a repeated `Discovered` means the failure lies downstream in the dial or accept path.
+
+## iroh Connection is a cheap Clone handle and close() is synchronous
+
+**Verified at:** iroh 1.0.2
+**Citation:** [I_12: iroh-1.0.2/src/endpoint/connection.rs:736 `#[derive(Debug, Clone)] pub struct Connection` with doc "May be cloned to obtain another handle to the same connection"; :959 `pub fn close(&self, error_code: VarInt, reason: &[u8])` — takes `&self`, not async]
+
+A `Connection` can be cloned to store one handle (e.g. in a state map) while another drives the read/write loop; both refer to the same underlying connection. `close()` is a synchronous `&self` method that signals QUIC to send CONNECTION_CLOSE and returns immediately, so it is safe to call while holding a `Mutex` guard. This enables deterministic connection dedup: on a simultaneous-open conflict, the losing connection's stored clone can be closed in-place under the lock.
+
 ## iroh connections idle out after 30s by default; a dead peer is not detected sooner without a graceful close
 
 **Verified at:** iroh 1.0.2

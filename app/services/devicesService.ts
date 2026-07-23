@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import * as pairedDeviceDb from '@db/paired-device';
 import type { PairedDevice } from '@db/paired-device';
 import { getDevice, updateDevice, type DeviceData } from '@db/_system';
+import * as syncDb from '@db/_sync';
 import {
   buildHelloEnvelope,
   buildNameUpdateEnvelope,
@@ -161,6 +162,9 @@ export const forgetDevice = async (endpointId: string): Promise<void> => {
     }
     await invoke('remove_trusted_peer', { endpointId });
     await pairedDeviceDb.remove(endpointId);
+    // Sync-state cleanup belongs to the forget flow that owns the peer's
+    // lifecycle — root spec KAD "Watermarks are local sequence numbers".
+    await syncDb.removePeerState(endpointId);
   } catch (cause) {
     throw deviceDeleteError(cause);
   }
@@ -185,6 +189,9 @@ export const handlePeerMessage = async (
     if (envelope.type === 'unpair') {
       await invoke('remove_trusted_peer', { endpointId });
       await pairedDeviceDb.remove(endpointId);
+      // Sync-state cleanup belongs to the forget flow that owns the peer's
+      // lifecycle — root spec KAD "Watermarks are local sequence numbers".
+      await syncDb.removePeerState(endpointId);
       return 'devices-changed';
     }
 

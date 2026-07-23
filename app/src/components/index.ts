@@ -2,6 +2,7 @@ export { ActionContainer } from './ActionContainer/ActionContainer.tsx';
 export { Backdrop } from './Backdrop';
 export { GlassPanel } from './GlassPanel/GlassPanel.tsx';
 export { Input } from './Input/Input.tsx';
+export { SyncedInput } from './SyncedInput/SyncedInput';
 export { default as LightSource } from './LightSource/LightSource.tsx';
 export { default as PopUpContainer } from './PopUpContainer/PopUpContainer.tsx';
 export { ImageById } from './ImageById/ImageById.tsx';

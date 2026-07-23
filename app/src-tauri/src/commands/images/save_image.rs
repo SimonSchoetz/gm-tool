@@ -2,6 +2,8 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::Manager;
 
+use super::VALID_EXTENSIONS;
+
 /// Saves an image file from the source path to the app's data directory.
 ///
 /// # Arguments
@@ -21,8 +23,7 @@ pub async fn save_image(
     extension: String,
 ) -> Result<u64, String> {
     // Validate extension
-    let valid_extensions = ["jpg", "jpeg", "png", "webp", "gif"];
-    if !valid_extensions.contains(&extension.as_str()) {
+    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
         return Err(format!("Invalid file extension: {}", extension));
     }
 

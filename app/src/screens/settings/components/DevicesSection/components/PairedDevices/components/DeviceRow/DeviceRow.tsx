@@ -1,12 +1,17 @@
 import { UnlinkIcon } from 'lucide-react';
 import type { PairedDevice } from '@db/paired-device';
 import { ClickableIcon } from '@/components';
-import { useConnectedPeers, usePairedDevices } from '@/data-access-layer';
+import {
+  useConnectedPeers,
+  usePairedDevices,
+  usePeerSyncCompat,
+} from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import type { FCProps } from '@/types';
 import { StatusIndicator } from './components';
 import './DeviceRow.css';
 import { getShortenedDeviceId } from '../../../../helper';
+import { derivePeerStatus } from './helper';
 
 type Props = {
   device: PairedDevice;
@@ -15,7 +20,11 @@ type Props = {
 export const DeviceRow: FCProps<Props> = ({ device }) => {
   const { forgetDevice } = usePairedDevices();
   const { connectedIds } = useConnectedPeers();
-  const connected = connectedIds.includes(device.id);
+  const { compatById } = usePeerSyncCompat();
+  const status = derivePeerStatus(
+    connectedIds.includes(device.id),
+    compatById[device.id] ?? null,
+  );
   const { openDeleteDialog } = useDeleteDialog();
 
   const displayName =
@@ -23,7 +32,7 @@ export const DeviceRow: FCProps<Props> = ({ device }) => {
 
   return (
     <li className='device-row'>
-      <StatusIndicator connected={connected} />
+      <StatusIndicator status={status} />
       <span className='device-row-name'>{displayName}</span>
       <ClickableIcon
         icon={<UnlinkIcon />}

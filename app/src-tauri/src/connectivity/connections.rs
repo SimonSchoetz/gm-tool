@@ -15,9 +15,9 @@ use tauri::{AppHandle, Emitter};
 
 use super::identity::load_or_create_secret_key;
 use super::{
-    ALPN_MAIN, ALPN_PAIRING, ConnectionRole, ConnectivityState, EVENT_MESSAGE_RECEIVED,
-    EVENT_PEER_CONNECTED, EVENT_PEER_DISCONNECTED, MessageReceivedPayload, PeerConnectedPayload,
-    PeerDisconnectedPayload, TrustedPeer, pairing, parse_endpoint_id,
+    ALPN_MAIN, ALPN_PAIRING, ActiveConnection, ConnectionRole, ConnectivityState,
+    EVENT_MESSAGE_RECEIVED, EVENT_PEER_CONNECTED, EVENT_PEER_DISCONNECTED, MessageReceivedPayload,
+    PeerConnectedPayload, PeerDisconnectedPayload, TrustedPeer, pairing, parse_endpoint_id,
 };
 
 const CONNECTION_IDLE_TIMEOUT: Duration = Duration::from_secs(10);
@@ -96,7 +96,7 @@ pub async fn send_envelope(
         .await
         .connections
         .get(&remote)
-        .cloned()
+        .map(|active| active.sender.clone())
         .ok_or_else(|| format!("No live connection to peer {endpoint_id}"))?;
     sender
         .send(envelope)
@@ -186,17 +186,68 @@ pub(crate) async fn run_main_connection(
 ) {
     let remote = connection.remote_id();
     let (sender, mut receiver) = channel::<String>(32);
-    {
+
+    // Both peers may dial, so both directions can establish at once. Deduplicate deterministically:
+    // the "preferred" direction is the one dialed by the lexicographically smaller EndpointId, which
+    // both peers compute identically. On a genuine conflict the preferred connection supersedes the
+    // other; when only one direction establishes (e.g. the other is firewall-blocked) there is no
+    // conflict and it is kept regardless of direction — that is what makes a one-directional block
+    // survivable, mirroring how the pairing probe already dials both ways.
+    let emit_connected = {
         let mut data = state.lock().await;
-        data.connections.insert(remote, sender.clone());
         data.dialing.remove(&remote);
+
+        let own_id = data.endpoint.as_ref().map(|endpoint| endpoint.id());
+        let this_is_preferred = match (role, own_id) {
+            (ConnectionRole::Dialer, Some(own)) => own < remote,
+            (ConnectionRole::Acceptor, Some(own)) => remote < own,
+            // No endpoint means connectivity is shutting down — abandon this connection.
+            (_, None) => false,
+        };
+
+        match data
+            .connections
+            .get(&remote)
+            .map(|active| active.connection.clone())
+        {
+            Some(_) if !this_is_preferred => {
+                drop(data);
+                connection.close(0u32.into(), b"duplicate connection");
+                return;
+            }
+            Some(existing) => {
+                existing.close(0u32.into(), b"superseded by preferred direction");
+                data.connections.insert(
+                    remote,
+                    ActiveConnection {
+                        sender: sender.clone(),
+                        connection: connection.clone(),
+                    },
+                );
+                // The peer is already reported connected; replacing the underlying direction is invisible to the frontend.
+                false
+            }
+            None => {
+                data.connections.insert(
+                    remote,
+                    ActiveConnection {
+                        sender: sender.clone(),
+                        connection: connection.clone(),
+                    },
+                );
+                true
+            }
+        }
+    };
+
+    if emit_connected {
+        let _ = app.emit(
+            EVENT_PEER_CONNECTED,
+            PeerConnectedPayload {
+                endpoint_id: remote.to_string(),
+            },
+        );
     }
-    let _ = app.emit(
-        EVENT_PEER_CONNECTED,
-        PeerConnectedPayload {
-            endpoint_id: remote.to_string(),
-        },
-    );
 
     let streams = match role {
         ConnectionRole::Dialer => connection.open_bi().await,
@@ -244,7 +295,7 @@ pub(crate) async fn run_main_connection(
     let is_current_connection = data
         .connections
         .get(&remote)
-        .is_some_and(|current| current.same_channel(&sender));
+        .is_some_and(|current| current.sender.same_channel(&sender));
     if is_current_connection {
         data.connections.remove(&remote);
         drop(data);
@@ -279,8 +330,10 @@ pub(crate) fn drain_frames(frame_buffer: &mut Vec<u8>) -> Vec<String> {
     frames
 }
 
-/// Dials the peer over `gm-tool` if this device is the designated dialer (lexicographically
-/// smaller EndpointId hex) and no connection or dial attempt exists yet.
+/// Dials the peer over `gm-tool` when it is trusted and neither connected nor already being dialed.
+/// Both peers may dial the same pair; `run_main_connection` deduplicates if both directions succeed.
+/// mDNS re-delivers `Discovered` for a live peer repeatedly, so this is retried until a connection
+/// exists — no separate reconnect timer is needed.
 pub(crate) async fn maybe_dial_trusted_peer(
     app: &AppHandle,
     state: &ConnectivityState,
@@ -291,8 +344,7 @@ pub(crate) async fn maybe_dial_trusted_peer(
     let Some(endpoint) = data.endpoint.clone() else {
         return;
     };
-    let should_dial = endpoint.id().to_string() < remote.to_string()
-        && data.trusted.contains(&remote)
+    let should_dial = data.trusted.contains(&remote)
         && !data.connections.contains_key(&remote)
         && !data.dialing.contains(&remote);
     if !should_dial {

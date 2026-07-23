@@ -5,6 +5,7 @@ mod pairing;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
+use iroh::endpoint::Connection;
 use iroh::{Endpoint, EndpointAddr, EndpointId};
 use serde::{Deserialize, Serialize};
 use tauri::async_runtime::{Mutex, Sender};
@@ -93,15 +94,21 @@ pub(crate) enum ConnectionRole {
     Acceptor,
 }
 
+// A live main connection plus the outbound-frame sender feeding its send loop. The Connection handle is retained so a simultaneous-open conflict can close the losing direction in place (run_main_connection's dedup).
+pub(crate) struct ActiveConnection {
+    pub(crate) sender: Sender<String>,
+    pub(crate) connection: Connection,
+}
+
 #[derive(Default)]
 pub(crate) struct ConnectivityData {
     pub(crate) endpoint: Option<Endpoint>,
     pub(crate) own_name: Option<String>,
     pub(crate) trusted: HashSet<EndpointId>,
-    pub(crate) connections: HashMap<EndpointId, Sender<String>>,
+    pub(crate) connections: HashMap<EndpointId, ActiveConnection>,
     pub(crate) dialing: HashSet<EndpointId>,
     pub(crate) pairing: Option<pairing::PairingSession>,
-    // mDNS emits Discovered once per peer (republished announcements are dropped), so every known peer address is kept here for enter_pairing_mode to probe retroactively.
+    // Every discovered peer address is kept here so enter_pairing_mode can probe an already-known unpaired endpoint immediately instead of waiting for the next mDNS announcement.
     pub(crate) discovered: HashMap<EndpointId, EndpointAddr>,
 }
 

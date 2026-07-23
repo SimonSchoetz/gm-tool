@@ -21,6 +21,13 @@ FK actions run as step 4 of the parent-modification sequence, separate from trig
 
 `%f` substitutes the entire seconds component with milliseconds (`SS.SSS`), so the format string above yields `YYYY-MM-DDTHH:MM:SS.SSSZ` — byte-identical in shape to JavaScript's `Date.prototype.toISOString()`, making the two lexicographically comparable.
 
+## A CREATE TRIGGER statement's BEGIN...END body is one statement to SQLite's parser, safe to pass as a single db.execute() call
+
+**Verified at:** sqlite.org current docs; tauri-plugin-sql 2.4.0 + sqlx-sqlite 0.8.6 source, fetched/read 2026-07-18
+**Citation:** [I_2: https://www.sqlite.org/lang_createtrigger.html — semicolons inside BEGIN...END terminate the inner statements, not the outer CREATE TRIGGER statement, which is terminated by the final semicolon after END; I_3: C:\Users\simon\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-sql-2.4.0\src\wrapper.rs:146-171 — `execute()` passes the query string verbatim into a single `sqlx::query(&_query)`, no manual semicolon-splitting; I_4: C:\Users\simon\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-sqlite-0.8.6\src\connection\execute.rs:21-40 — statement boundaries are determined by SQLite's own `prepare_next` (backed by `sqlite3_prepare_v2`), not string splitting]
+
+A `CREATE TRIGGER trg AFTER INSERT ON t BEGIN stmt1; stmt2; END;` string passed whole to `db.execute()` (tauri-plugin-sql) is parsed by SQLite as exactly one statement — the inner semicolons never cause premature termination. Passing one such string per `db.execute()` call is safe; no special multi-statement handling is required as long as each call's SQL is a single complete top-level statement (which a full CREATE TRIGGER definition is, however many semicolons its body contains).
+
 ## SQLite disables foreign key enforcement per connection by default, but sqlx enables it by default
 
 **Verified at:** sqlite.org current docs + sqlx latest docs, fetched 2026-07-12

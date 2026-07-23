@@ -1,7 +1,11 @@
-import { GlassPanel, Input, CustomScrollArea, TextEditor } from '@/components';
+import {
+  GlassPanel,
+  SyncedInput,
+  CustomScrollArea,
+  TextEditor,
+} from '@/components';
 import { useFoe } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import './FoeHeader.css';
 
 export const FoeHeader = () => {
@@ -11,18 +15,15 @@ export const FoeHeader = () => {
 
   const { foe, updateFoe } = useFoe(foeId, adventureId);
 
-  const [foeName, setFoeName] = useState(foe?.name ?? '');
-
   if (!foe) return null;
 
   return (
     <GlassPanel className='foe-summary' intensity='bright'>
-      <Input
+      <SyncedInput
         placeholder='Name'
-        value={foeName}
-        onChange={(e) => {
-          setFoeName(e.target.value);
-          updateFoe({ name: e.target.value });
+        initValue={foe.name ?? ''}
+        onCommit={(name) => {
+          updateFoe({ name });
         }}
         className='foe-name-input'
         required

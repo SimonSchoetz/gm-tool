@@ -80,7 +80,7 @@ pub async fn enter_pairing_mode(
         (code, known_unpaired)
     };
 
-    // mDNS emits Discovered only once per peer, so endpoints found before this session started produce no further events — probe every already-known unpaired endpoint now.
+    // Probe every already-known unpaired endpoint immediately rather than waiting for mDNS to re-announce it, so a session started after discovery still surfaces candidates without delay.
     for addr in known_unpaired {
         maybe_probe_candidate(app, state, addr).await;
     }

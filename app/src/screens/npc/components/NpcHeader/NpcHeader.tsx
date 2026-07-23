@@ -1,7 +1,11 @@
-import { GlassPanel, Input, CustomScrollArea, TextEditor } from '@/components';
+import {
+  GlassPanel,
+  SyncedInput,
+  CustomScrollArea,
+  TextEditor,
+} from '@/components';
 import { useNpc } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import './NpcHeader.css';
 
 export const NpcHeader = () => {
@@ -11,18 +15,15 @@ export const NpcHeader = () => {
 
   const { npc, updateNpc } = useNpc(npcId, adventureId);
 
-  const [npcName, setNpcName] = useState(npc?.name ?? '');
-
   if (!npc) return null;
 
   return (
     <GlassPanel className='npc-summary' intensity='bright'>
-      <Input
+      <SyncedInput
         placeholder='Name'
-        value={npcName}
-        onChange={(e) => {
-          setNpcName(e.target.value);
-          updateNpc({ name: e.target.value });
+        initValue={npc.name ?? ''}
+        onCommit={(name) => {
+          updateNpc({ name });
         }}
         className='npc-name-input'
         required
