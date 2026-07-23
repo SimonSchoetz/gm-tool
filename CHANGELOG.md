@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.8.1] - 2026-07-24
+
+### Fixed
+
+- Device sync section was missing from the Settings screen — now shown again
+- Typo in the "Potential Scenes" session step placeholder
+
 ## [v0.8.0] - 2026-07-24
 
 ### Added

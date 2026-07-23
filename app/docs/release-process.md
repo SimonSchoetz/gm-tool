@@ -6,6 +6,7 @@
    - `app/src-tauri/tauri.conf.json` → `"version"` field
    - `app/src-tauri/Cargo.toml` → `[package] version` field
    - `app/package.json` → `version` field
+   - `app/package-lock.json` → `version` field and `packages -> "" -> version` field
    All must match. Use semver: `MAJOR.MINOR.PATCH`.
 
 2. **Update CHANGELOG.md** (at the repo root):
