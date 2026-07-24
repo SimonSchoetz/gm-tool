@@ -134,6 +134,18 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     return self;
   }
 
+  setDisplayName(displayName: string): this {
+    const self = this.getWritable();
+    self.__displayName = displayName;
+    return self;
+  }
+
+  setColor(color: string): this {
+    const self = this.getWritable();
+    self.__color = color;
+    return self;
+  }
+
   decorate(): JSX.Element {
     return (
       <MentionBadge
@@ -143,6 +155,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
         color={this.__color}
         adventureId={this.__adventureId}
         format={this.__mentionFormats}
+        nodeKey={this.getKey()}
       />
     );
   }

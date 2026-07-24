@@ -1,12 +1,16 @@
 import { useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import type { TextFormatType } from 'lexical';
+import type { TextFormatType, NodeKey } from 'lexical';
+import { $getNodeByKey } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { usePinnedPopups } from '@/providers';
 import { FCProps } from '@/types';
 import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
+import { useMentionEntityData, useTableConfigs } from '@/data-access-layer';
 import type { PopupPlacement } from '../../../MentionPopup';
 import { buildMentionTextDecoration } from './helper';
+import type { MentionNode } from '../../nodes';
 import './MentionBadge.css';
 
 type Props = {
@@ -16,6 +20,7 @@ type Props = {
   color: string;
   adventureId?: string | null;
   format: TextFormatType[];
+  nodeKey: NodeKey;
 };
 
 export const MentionBadge: FCProps<Props> = ({
@@ -25,9 +30,21 @@ export const MentionBadge: FCProps<Props> = ({
   color,
   adventureId,
   format,
+  nodeKey,
 }) => {
   const navigate = useNavigate();
   const { showPopup, hidePopup, hasPopup } = usePinnedPopups();
+  const [editor] = useLexicalComposerContext();
+  const {
+    name: liveName,
+    deleted,
+    loading,
+  } = useMentionEntityData(entityId, entityType);
+  const { tableConfigs } = useTableConfigs();
+
+  const tableConfig = tableConfigs.find((c) => c.table_name === entityType);
+  const resolvedColor = tableConfig?.color ?? color;
+  const resolvedName = !loading && liveName !== null ? liveName : displayName;
 
   const badgeRef = useRef<HTMLSpanElement>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -45,7 +62,7 @@ export const MentionBadge: FCProps<Props> = ({
       entityId,
       entityType,
       adventureId: adventureId ?? null,
-      name: displayName,
+      name: resolvedName,
       position: { x: rect.left, y },
       placement,
       onMouseEnterBridge: () => {
@@ -97,6 +114,35 @@ export const MentionBadge: FCProps<Props> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (loading || deleted || liveName === null) return;
+    if (liveName === displayName && resolvedColor === color) return;
+
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey) as MentionNode | null;
+      if (node === null) return;
+      node.setDisplayName(liveName);
+      node.setColor(resolvedColor);
+    });
+  }, [
+    editor,
+    nodeKey,
+    loading,
+    deleted,
+    liveName,
+    resolvedColor,
+    displayName,
+    color,
+  ]);
+
+  if (deleted) {
+    return (
+      <span className='mention-badge mention-badge--deleted'>
+        {displayName}
+      </span>
+    );
+  }
+
   return (
     <span
       ref={badgeRef}
@@ -107,7 +153,7 @@ export const MentionBadge: FCProps<Props> = ({
       )}
       style={
         {
-          '--rt-mention-pop-up-color': color,
+          '--rt-mention-pop-up-color': resolvedColor,
           '--mention-badge-text-decoration': buildMentionTextDecoration(format),
         } as React.CSSProperties
       }
@@ -115,7 +161,7 @@ export const MentionBadge: FCProps<Props> = ({
       onMouseEnter={handleBadgeMouseEnter}
       onMouseLeave={handleBadgeMouseLeave}
     >
-      {displayName}
+      {resolvedName}
     </span>
   );
 };

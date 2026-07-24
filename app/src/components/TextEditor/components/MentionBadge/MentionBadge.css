@@ -12,3 +12,9 @@
 .mention-badge--italic {
   font-style: italic;
 }
+
+.mention-badge--deleted {
+  cursor: text;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+}
