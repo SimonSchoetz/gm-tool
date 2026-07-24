@@ -60,7 +60,6 @@ export const MentionTypeaheadPlugin = () => {
           option.result.id,
           option.result.tableName,
           option.result.name,
-          option.result.color,
           option.result.adventureId,
         );
         if (textNodeContainingQuery !== null) {

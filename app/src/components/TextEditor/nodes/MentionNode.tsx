@@ -15,7 +15,6 @@ export type SerializedMentionNode = SerializedLexicalNode & {
   entityId: string;
   entityType: string;
   displayName: string;
-  color: string;
   adventureId?: string;
   mentionFormats?: TextFormatType[];
 };
@@ -31,7 +30,7 @@ const convertMentionElement = (
   const displayName = domNode.textContent.replace(/^@/, '');
 
   return {
-    node: new MentionNode(entityId, entityType, displayName, '', adventureId),
+    node: new MentionNode(entityId, entityType, displayName, adventureId),
   };
 };
 
@@ -39,7 +38,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
   __entityId: string;
   __entityType: string;
   __displayName: string;
-  __color: string;
   __adventureId: string | null;
   __mentionFormats: TextFormatType[];
 
@@ -47,7 +45,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     entityId: string,
     entityType: string,
     displayName: string,
-    color: string,
     adventureId?: string | null,
     mentionFormats: TextFormatType[] = [],
     key?: NodeKey,
@@ -56,7 +53,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     this.__entityId = entityId;
     this.__entityType = entityType;
     this.__displayName = displayName;
-    this.__color = color;
     this.__adventureId = adventureId ?? null;
     this.__mentionFormats = mentionFormats;
   }
@@ -70,7 +66,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       node.__entityId,
       node.__entityType,
       node.__displayName,
-      node.__color,
       node.__adventureId,
       node.__mentionFormats,
       node.__key,
@@ -82,7 +77,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       json.entityId,
       json.entityType,
       json.displayName,
-      json.color,
       json.adventureId ?? null,
       json.mentionFormats ?? [],
     );
@@ -111,7 +105,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       entityId: this.__entityId,
       entityType: this.__entityType,
       displayName: this.__displayName,
-      color: this.__color,
     };
     if (this.__adventureId !== null) {
       json.adventureId = this.__adventureId;
@@ -146,10 +139,8 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
         entityId={this.__entityId}
         entityType={this.__entityType}
         displayName={this.__displayName}
-        color={this.__color}
         adventureId={this.__adventureId}
         format={this.__mentionFormats}
-        nodeKey={this.getKey()}
       />
     );
   }
