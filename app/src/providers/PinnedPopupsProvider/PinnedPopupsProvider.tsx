@@ -22,6 +22,7 @@ type PopupEntry = {
   placement: PopupPlacement;
   zIndex: number;
   pinned: boolean;
+  deleted: boolean;
   onMouseEnterBridge: (() => void) | null;
   onMouseLeaveBridge: (() => void) | null;
 };
@@ -40,7 +41,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
   }, [routerState.location.pathname]);
 
   const showPopup = (args: ShowPopupArgs) => {
-    const { onMouseEnterBridge, onMouseLeaveBridge, ...entry } = args;
+    const { onMouseEnterBridge, onMouseLeaveBridge, deleted, ...entry } = args;
     topZRef.current += 1;
     setPopups((prev) => [
       ...prev.filter((p) => p.entityId !== args.entityId),
@@ -48,6 +49,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
         ...entry,
         zIndex: topZRef.current,
         pinned: false,
+        deleted: deleted ?? false,
         onMouseEnterBridge: onMouseEnterBridge ?? null,
         onMouseLeaveBridge: onMouseLeaveBridge ?? null,
       },

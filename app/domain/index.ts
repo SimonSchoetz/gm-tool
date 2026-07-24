@@ -27,6 +27,7 @@ export {
   buildEntityPath,
   MENTIONABLE_ENTITY_TYPES,
   isMentionableEntityType,
+  entityTypeLabel,
 } from './mentions';
 
 export type {

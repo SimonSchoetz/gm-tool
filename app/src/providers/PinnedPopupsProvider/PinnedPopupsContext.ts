@@ -11,6 +11,7 @@ export type ShowPopupArgs = {
   name: string;
   position: PopupPosition;
   placement: PopupPlacement;
+  deleted?: boolean;
   onMouseEnterBridge?: () => void;
   onMouseLeaveBridge?: () => void;
 };

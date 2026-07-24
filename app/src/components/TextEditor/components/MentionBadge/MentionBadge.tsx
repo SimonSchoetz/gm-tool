@@ -55,6 +55,7 @@ export const MentionBadge: FCProps<Props> = ({
       entityType,
       adventureId,
       name: resolvedName,
+      deleted,
       position: { x: rect.left, y },
       placement,
       onMouseEnterBridge: () => {
@@ -108,7 +109,12 @@ export const MentionBadge: FCProps<Props> = ({
 
   if (deleted) {
     return (
-      <span className='mention-badge mention-badge--deleted'>
+      <span
+        ref={badgeRef}
+        className='mention-badge mention-badge--deleted'
+        onMouseEnter={handleBadgeMouseEnter}
+        onMouseLeave={handleBadgeMouseLeave}
+      >
         {displayName}
       </span>
     );

@@ -4,7 +4,11 @@ import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
 import { useDraggable } from '@/hooks';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { MentionPopupHeader, MentionPopupContent } from './components';
+import {
+  MentionPopupHeader,
+  MentionPopupContent,
+  DeletedMentionContent,
+} from './components';
 import { FCProps } from '@/types';
 import './MentionPopup.css';
 
@@ -20,6 +24,7 @@ type Props = {
   placement: PopupPlacement;
   zIndex?: number;
   initialIsPinned: boolean;
+  deleted: boolean;
   onRemove: () => void;
   onPin?: () => void;
   onPositionChange?: (pos: PopupPosition) => void;
@@ -37,6 +42,7 @@ export const MentionPopup: FCProps<Props> = ({
   placement,
   zIndex,
   initialIsPinned,
+  deleted,
   onRemove,
   onPin,
   onPositionChange,
@@ -104,20 +110,25 @@ export const MentionPopup: FCProps<Props> = ({
       onMouseLeave={handleMouseLeave}
       onMouseDown={onBringToFront}
     >
-      <MentionPopupHeader
-        name={name}
-        isPinned={isPinned}
-        draggableProps={draggableProps}
-        onPin={handlePin}
-        onRemove={onRemove}
-        onNavigate={handleNavigate}
-      />
-
-      <MentionPopupContent
-        entityId={entityId}
-        entityType={entityType}
-        adventureId={adventureId}
-      />
+      {deleted ? (
+        <DeletedMentionContent entityType={entityType} />
+      ) : (
+        <>
+          <MentionPopupHeader
+            name={name}
+            isPinned={isPinned}
+            draggableProps={draggableProps}
+            onPin={handlePin}
+            onRemove={onRemove}
+            onNavigate={handleNavigate}
+          />
+          <MentionPopupContent
+            entityId={entityId}
+            entityType={entityType}
+            adventureId={adventureId}
+          />
+        </>
+      )}
     </GlassPanel>
   );
 };

@@ -8,3 +8,4 @@ export {
   isMentionableEntityType,
   type MentionableEntityType,
 } from './entityTypes';
+export { entityTypeLabel } from './entityTypeLabels';

@@ -1,0 +1,4 @@
+.deleted-mention-content {
+  padding: var(--spacing-sm);
+  color: var(--color-text-muted);
+}
