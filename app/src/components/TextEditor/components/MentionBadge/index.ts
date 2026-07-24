@@ -1,0 +1,1 @@
+export { MentionBadge } from './MentionBadge';

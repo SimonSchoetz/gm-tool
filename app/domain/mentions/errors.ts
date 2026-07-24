@@ -6,3 +6,14 @@ export const mentionSearchError = (cause?: unknown): MentionSearchError => {
   error.name = 'MentionSearchError';
   return error;
 };
+
+export type MentionEntityTypeError = Error & { name: 'MentionEntityTypeError' };
+export const mentionEntityTypeError = (
+  entityType: string,
+): MentionEntityTypeError => {
+  const error = new Error(
+    `Unknown mention entity type: "${entityType}"`,
+  ) as MentionEntityTypeError;
+  error.name = 'MentionEntityTypeError';
+  return error;
+};

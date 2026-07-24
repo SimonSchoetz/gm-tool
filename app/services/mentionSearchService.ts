@@ -7,7 +7,7 @@ export type MentionSearchResult = {
   name: string;
   tableName: string;
   color: string;
-  adventureId?: string;
+  adventureId: string | null;
   updatedAt: string;
 };
 
@@ -33,11 +33,9 @@ export const searchMentions = async (
           name: row.name,
           tableName: config.table_name,
           color: config.color,
+          adventureId: config.scope === 'adventure' ? adventureId : null,
           updatedAt: row.updated_at,
         };
-        if (config.scope === 'adventure') {
-          result.adventureId = adventureId;
-        }
         return result;
       });
 

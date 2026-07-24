@@ -14,7 +14,7 @@ describe('buildEntityPath', () => {
 
   it('throws for the sessions entity type', () => {
     expect(() => buildEntityPath('sessions', 'sess-1', null)).toThrow(
-      'buildEntityPath: unknown entityType "sessions"',
+      'Unknown mention entity type: "sessions"',
     );
   });
 
@@ -50,7 +50,7 @@ describe('buildEntityPath', () => {
 
   it('throws for unknown entity types', () => {
     expect(() => buildEntityPath('stories', 'id-1', null)).toThrow(
-      'buildEntityPath: unknown entityType "stories"',
+      'Unknown mention entity type: "stories"',
     );
   });
 });

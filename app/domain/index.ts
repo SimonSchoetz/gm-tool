@@ -16,8 +16,12 @@ export {
   adventureDeleteError,
 } from './adventures';
 
-export type { MentionSearchError } from './mentions';
-export { mentionSearchError, buildEntityPath } from './mentions';
+export type { MentionSearchError, MentionEntityTypeError } from './mentions';
+export {
+  mentionSearchError,
+  mentionEntityTypeError,
+  buildEntityPath,
+} from './mentions';
 
 export type {
   NpcNotFoundError,
