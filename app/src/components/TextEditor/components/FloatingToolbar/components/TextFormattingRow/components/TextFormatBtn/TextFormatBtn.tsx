@@ -14,6 +14,7 @@ import './TextFormatBtn.css';
 
 import { useCallback, useEffect, useState } from 'react';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
+import { $isMentionNode } from '../../../../../../nodes';
 
 type TextFormatBtnProps = {
   label: string;
@@ -32,10 +33,27 @@ export const TextFormatBtn: FCProps<TextFormatBtnProps> = ({
 
   const handleStateUpdate = useCallback(() => {
     const selection = $getSelection();
+    if (selection === null) {
+      setIsActive(false);
+      return;
+    }
+
+    const mentionNodes = selection.getNodes().filter($isMentionNode);
 
     if ($isRangeSelection(selection)) {
-      setIsActive(selection.hasFormat(formatType));
+      const hasFormattedMention = mentionNodes.some((node) =>
+        node.getMentionFormats().includes(formatType),
+      );
+      setIsActive(selection.hasFormat(formatType) || hasFormattedMention);
+      return;
     }
+
+    setIsActive(
+      mentionNodes.length > 0 &&
+        mentionNodes.every((node) =>
+          node.getMentionFormats().includes(formatType),
+        ),
+    );
   }, [formatType]);
 
   useEffect(() => {
