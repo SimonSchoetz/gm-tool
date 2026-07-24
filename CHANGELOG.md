@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.8.3] - 2026-07-24
+
+### Fixed
+
+- Adventures and their content created before device sync was introduced were never synced to paired devices — a migration now backfills them so they sync like any other data
+
 ## [v0.8.2] - 2026-07-24
 
 ### Fixed
