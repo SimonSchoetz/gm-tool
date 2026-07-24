@@ -1,0 +1,1 @@
+export { useMentionEntityData } from './useMentionEntityData';

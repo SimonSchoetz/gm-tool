@@ -9,6 +9,7 @@ export { useFactions, useFaction } from './factions';
 export { usePcs, usePc } from './pcs';
 export { useSessions, useSession } from './sessions';
 export { useTableConfig, useTableConfigs } from './table-config';
+export { useMentionEntityData } from './mentions';
 export { useSessionSteps } from './session-steps';
 export { useSetting } from './settings';
 export { useUpdater } from './updater';
