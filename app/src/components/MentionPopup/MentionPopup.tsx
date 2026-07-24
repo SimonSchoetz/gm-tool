@@ -1,5 +1,6 @@
 import { useState, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { ErrorBoundary } from 'react-error-boundary';
 import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
 import { useDraggable } from '@/hooks';
@@ -122,11 +123,15 @@ export const MentionPopup: FCProps<Props> = ({
             onRemove={onRemove}
             onNavigate={handleNavigate}
           />
-          <MentionPopupContent
-            entityId={entityId}
-            entityType={entityType}
-            adventureId={adventureId}
-          />
+          <ErrorBoundary
+            fallback={<DeletedMentionContent entityType={entityType} />}
+          >
+            <MentionPopupContent
+              entityId={entityId}
+              entityType={entityType}
+              adventureId={adventureId}
+            />
+          </ErrorBoundary>
         </>
       )}
     </GlassPanel>
