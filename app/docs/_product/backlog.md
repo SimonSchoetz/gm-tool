@@ -2,6 +2,7 @@
 
 ## Closed Beta Ready
 
+- Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Text editor enhancements
   - name tags
     - hould update when the reference changes
