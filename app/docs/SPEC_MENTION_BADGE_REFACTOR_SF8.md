@@ -1,12 +1,12 @@
 # SF8: Live badge rendering + deletion fallback
 
-Wires SF3's live-resolution hook into `MentionBadge`, renders the deleted-entity fallback, and opportunistically re-snapshots the node's stored `displayName`/`color` whenever a fresh resolution differs from them — the mechanism behind the root spec's KAD "The node's stored displayName/color become a fallback snapshot, not the source of truth."
+Wires SF3's live-resolution hook into `MentionBadge`, renders the deleted-entity fallback, and opportunistically re-snapshots the node's stored `displayName` whenever a fresh resolution differs from it — the mechanism behind the root spec's KAD "The node's stored displayName/color become a fallback snapshot, not the source of truth." Only `displayName` is re-snapshotted; `color` is never written back to the node — see the root spec's KAD "Re-snapshotting persists a rename, never a table-color change" for why.
 
 ## Files affected
 
 **Modified:**
 
-- `TextEditor/nodes/MentionNode.tsx` — add `setDisplayName`/`setColor`, pass `nodeKey` from `decorate()`
+- `TextEditor/nodes/MentionNode.tsx` — add `setDisplayName`, pass `nodeKey` from `decorate()`
 - `TextEditor/components/MentionBadge/MentionBadge.tsx`
 - `TextEditor/components/MentionBadge/MentionBadge.css`
 
@@ -14,18 +14,12 @@ Wires SF3's live-resolution hook into `MentionBadge`, renders the deleted-entity
 
 ### Frontend — `TextEditor/nodes/MentionNode.tsx`
 
-Add two setters to the `MentionNode` class, following the exact `getWritable()` pattern SF5's `toggleMentionFormat` already established:
+Add one setter to the `MentionNode` class, following the exact `getWritable()` pattern SF5's `toggleMentionFormat` already established. No `setColor` setter is added — per the root KAD "Re-snapshotting persists a rename, never a table-color change," `__color` is written once at mention-creation time and never rewritten:
 
 ```ts
 setDisplayName(displayName: string): this {
   const self = this.getWritable();
   self.__displayName = displayName;
-  return self;
-}
-
-setColor(color: string): this {
-  const self = this.getWritable();
-  self.__color = color;
   return self;
 }
 ```
@@ -81,20 +75,19 @@ showPopup({
 });
 ```
 
-Add the re-snapshot effect (placed after the existing cleanup `useEffect`):
+Add the re-snapshot effect (placed after the existing cleanup `useEffect`). The guard and write only ever consider `displayName`/`liveName` — `resolvedColor`/`color` are deliberately excluded from both, per the root KAD "Re-snapshotting persists a rename, never a table-color change":
 
 ```tsx
 useEffect(() => {
   if (loading || deleted || liveName === null) return;
-  if (liveName === displayName && resolvedColor === color) return;
+  if (liveName === displayName) return;
 
   editor.update(() => {
-    const node = $getNodeByKey<MentionNode>(nodeKey);
+    const node = $getNodeByKey(nodeKey) as MentionNode | null;
     if (node === null) return;
     node.setDisplayName(liveName);
-    node.setColor(resolvedColor);
   });
-}, [editor, nodeKey, loading, deleted, liveName, resolvedColor, displayName, color]);
+}, [editor, nodeKey, loading, deleted, liveName, displayName]);
 ```
 
 Replace the final return with a deleted-state branch before the existing badge markup:

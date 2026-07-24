@@ -140,12 +140,6 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     return self;
   }
 
-  setColor(color: string): this {
-    const self = this.getWritable();
-    self.__color = color;
-    return self;
-  }
-
   decorate(): JSX.Element {
     return (
       <MentionBadge

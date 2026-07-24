@@ -116,24 +116,14 @@ export const MentionBadge: FCProps<Props> = ({
 
   useEffect(() => {
     if (loading || deleted || liveName === null) return;
-    if (liveName === displayName && resolvedColor === color) return;
+    if (liveName === displayName) return;
 
     editor.update(() => {
       const node = $getNodeByKey(nodeKey) as MentionNode | null;
       if (node === null) return;
       node.setDisplayName(liveName);
-      node.setColor(resolvedColor);
     });
-  }, [
-    editor,
-    nodeKey,
-    loading,
-    deleted,
-    liveName,
-    resolvedColor,
-    displayName,
-    color,
-  ]);
+  }, [editor, nodeKey, loading, deleted, liveName, displayName]);
 
   if (deleted) {
     return (
