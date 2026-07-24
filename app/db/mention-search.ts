@@ -28,3 +28,21 @@ export const searchByName = async (
     [`%${query}%`],
   );
 };
+
+export const getById = async (
+  tableName: string,
+  id: string,
+): Promise<MentionSearchRow | null> => {
+  const db = await getDatabase();
+
+  // tableName is interpolated directly because SQL does not support parameterized
+  // table names. The service layer validates tableName against the canonical
+  // mentionable entity type list before calling this function — see
+  // services/mentionSearchService.ts's getMentionEntityData.
+  const rows = await db.select<MentionSearchRow[]>(
+    `SELECT id, name, updated_at FROM ${tableName} WHERE id = $1`,
+    [id],
+  );
+
+  return rows[0] ?? null;
+};

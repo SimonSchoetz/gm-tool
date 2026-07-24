@@ -11,7 +11,7 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
   },
 }));
 
-import { searchByName } from '../mention-search';
+import { searchByName, getById } from '../mention-search';
 
 describe('searchByName', () => {
   beforeEach(() => {
@@ -62,5 +62,43 @@ describe('searchByName', () => {
     const result = await searchByName('npcs', 'zzz', 'adv-1');
 
     expect(result).toEqual([]);
+  });
+});
+
+describe('getById', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSelect.mockResolvedValue([]);
+    mockExecute.mockResolvedValue({});
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it('returns the row when a matching id exists', async () => {
+    mockSelect.mockResolvedValue([
+      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
+    ]);
+
+    const result = await getById('npcs', '1');
+
+    expect(mockSelect).toHaveBeenCalledWith(
+      `SELECT id, name, updated_at FROM npcs WHERE id = $1`,
+      ['1'],
+    );
+    expect(result).toEqual({
+      id: '1',
+      name: 'Goblin',
+      updated_at: '2025-01-01',
+    });
+  });
+
+  it('returns null when no row matches', async () => {
+    mockSelect.mockResolvedValue([]);
+
+    const result = await getById('npcs', 'missing-id');
+
+    expect(result).toBeNull();
   });
 });
