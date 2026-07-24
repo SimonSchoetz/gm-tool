@@ -55,7 +55,6 @@ export const MentionBadge: FCProps<Props> = ({
       entityType,
       adventureId,
       name: resolvedName,
-      deleted,
       position: { x: rect.left, y },
       placement,
       onMouseEnterBridge: () => {

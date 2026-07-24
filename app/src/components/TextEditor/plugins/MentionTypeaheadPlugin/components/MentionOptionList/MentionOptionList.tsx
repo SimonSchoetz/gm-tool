@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { FCProps } from '@/types';
-import { cn, formatTableLabel } from '@/util';
+import { cn } from '@/util';
+import { entityTypeLabel } from '@domain';
 import { MentionMenuOption } from '../../mentionMenuOption';
 import './MentionOptionList.css';
 
@@ -52,7 +53,7 @@ export const MentionOptionList: FCProps<Props> = ({
             {option.result.name}
           </span>
           <span className='mention-option-list-item-table-label'>
-            {formatTableLabel(option.result.tableName)}
+            {entityTypeLabel(option.result.tableName)}
           </span>
         </li>
       ))}

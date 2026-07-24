@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
 import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
+import { useMentionEntityData } from '@/data-access-layer';
 import { useDraggable } from '@/hooks';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import {
@@ -25,7 +26,6 @@ type Props = {
   placement: PopupPlacement;
   zIndex?: number;
   initialIsPinned: boolean;
-  deleted: boolean;
   onRemove: () => void;
   onPin?: () => void;
   onPositionChange?: (pos: PopupPosition) => void;
@@ -43,7 +43,6 @@ export const MentionPopup: FCProps<Props> = ({
   placement,
   zIndex,
   initialIsPinned,
-  deleted,
   onRemove,
   onPin,
   onPositionChange,
@@ -52,6 +51,7 @@ export const MentionPopup: FCProps<Props> = ({
   onMouseLeaveBridge,
 }) => {
   const [isPinned, setIsPinned] = useState(initialIsPinned);
+  const { deleted } = useMentionEntityData(entityId, entityType);
 
   const { position: dragPosition, draggableProps } = useDraggable(
     position,

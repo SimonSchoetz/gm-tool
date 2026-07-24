@@ -11,7 +11,6 @@ export type ShowPopupArgs = {
   name: string;
   position: PopupPosition;
   placement: PopupPlacement;
-  deleted?: boolean;
   onMouseEnterBridge?: () => void;
   onMouseLeaveBridge?: () => void;
 };
@@ -19,8 +18,6 @@ export type ShowPopupArgs = {
 export type PinnedPopupsContextValue = {
   showPopup: (args: ShowPopupArgs) => void;
   hidePopup: (entityId: string) => void;
-  pinPopup: (entityId: string) => void;
-  removePopup: (entityId: string) => void;
   hasPopup: (entityId: string) => boolean;
 };
 
