@@ -484,8 +484,27 @@ Add `[plural]Config` to the `defaultConfigs` array.
 
 ### MentionPopup Registration
 
-Every domain entity that supports tagging must be registered in two places so that hovering
-a mention tag displays the entity's popup body and the Navigate button routes correctly.
+Every domain entity with `tagging_enabled: 1` must be registered in the following places so
+that `@`-mentioning it validates, resolves live data, routes correctly, and displays the
+correct popup body and deleted-mention label.
+
+**`domain/mentions/entityTypes.ts`** (Modified) — add the plural table name to
+`MENTIONABLE_ENTITY_TYPES`:
+
+```ts
+export const MENTIONABLE_ENTITY_TYPES = [
+  'npcs',
+  // ...existing entries...
+  '[plural]',
+] as const;
+```
+
+This is the canonical mentionable-entity-type list. It gates `buildEntityPath`,
+`getMentionEntityData` (the live name/deletion-status lookup used by the mention badge and
+popup), and `entityTypeLabel` (the deleted-mention display label) — the two steps below both
+require the type to appear here first: `ENTITY_SEGMENT` and `ENTITY_TYPE_LABELS` are each
+typed `Record<MentionableEntityType, string>`, so `tsc` rejects either file's object literal
+until this list includes the new type.
 
 **`domain/mentions/buildEntityPath.ts`** (Modified) — add one entry to `ENTITY_SEGMENT`:
 
@@ -495,6 +514,16 @@ a mention tag displays the entity's popup body and the Navigate button routes co
 
 Segment string is the route's singular path segment, matching the detail route file name
 `adventure.$adventureId.[singular].$[singular]Id.tsx`.
+
+**`domain/mentions/entityTypeLabels.ts`** (Modified) — add one entry to `ENTITY_TYPE_LABELS`,
+the label a deleted mention's hover popup shows (`"Deleted [Label]"`):
+
+```ts
+[plural]: '[Label]',
+```
+
+Use the singular PascalCase form (`'Foe'`) unless the entity's own name is an acronym
+(`npcs`/`pcs` → `'NPC'`/`'PC'`).
 
 **`src/components/MentionPopup/components/MentionPopupContent/components/`** (New directory) —
 create `[Singular]PopupContent/[Singular]PopupContent.tsx` and
