@@ -1,6 +1,10 @@
-const ENTITY_SEGMENT: Record<string, string> = {
+import {
+  isMentionableEntityType,
+  type MentionableEntityType,
+} from './entityTypes';
+
+const ENTITY_SEGMENT: Record<MentionableEntityType, string> = {
   npcs: 'npc',
-  sessions: 'session',
   foes: 'foe',
   pcs: 'pc',
   factions: 'faction',
@@ -13,10 +17,10 @@ export const buildEntityPath = (
   entityId: string,
   adventureId: string | null,
 ): string => {
-  const segment = ENTITY_SEGMENT[entityType];
-  if (!segment) {
+  if (!isMentionableEntityType(entityType)) {
     throw new Error(`buildEntityPath: unknown entityType "${entityType}"`);
   }
+  const segment = ENTITY_SEGMENT[entityType];
   return adventureId
     ? `/adventure/${adventureId}/${segment}/${entityId}`
     : `/${segment}/${entityId}`;
