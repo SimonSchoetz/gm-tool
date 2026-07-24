@@ -1,4 +1,11 @@
-import { DecoratorNode, NodeKey, SerializedLexicalNode } from 'lexical';
+import {
+  DecoratorNode,
+  DOMConversionMap,
+  DOMConversionOutput,
+  DOMExportOutput,
+  NodeKey,
+  SerializedLexicalNode,
+} from 'lexical';
 import { JSX } from 'react';
 import { MentionBadge } from '../components';
 
@@ -8,6 +15,21 @@ export type SerializedMentionNode = SerializedLexicalNode & {
   displayName: string;
   color: string;
   adventureId?: string;
+};
+
+const convertMentionElement = (
+  domNode: HTMLElement,
+): DOMConversionOutput | null => {
+  const entityId = domNode.getAttribute('data-lexical-mention-entity-id');
+  const entityType = domNode.getAttribute('data-lexical-mention-entity-type');
+  if (!entityId || !entityType) return null;
+
+  const adventureId = domNode.getAttribute('data-lexical-mention-adventure-id');
+  const displayName = domNode.textContent.replace(/^@/, '');
+
+  return {
+    node: new MentionNode(entityId, entityType, displayName, '', adventureId),
+  };
 };
 
 export class MentionNode extends DecoratorNode<JSX.Element> {
@@ -99,5 +121,33 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
         adventureId={this.__adventureId}
       />
     );
+  }
+
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement('span');
+    element.setAttribute('data-lexical-mention-entity-id', this.__entityId);
+    element.setAttribute('data-lexical-mention-entity-type', this.__entityType);
+    if (this.__adventureId !== null) {
+      element.setAttribute(
+        'data-lexical-mention-adventure-id',
+        this.__adventureId,
+      );
+    }
+    element.textContent = this.getTextContent();
+    return { element };
+  }
+
+  static importDOM(): DOMConversionMap | null {
+    return {
+      span: (domNode: HTMLElement) => {
+        if (!domNode.hasAttribute('data-lexical-mention-entity-id')) {
+          return null;
+        }
+        return {
+          conversion: convertMentionElement,
+          priority: 1,
+        };
+      },
+    };
   }
 }
