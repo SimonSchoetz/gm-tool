@@ -1,9 +1,12 @@
 import { useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import type { TextFormatType } from 'lexical';
 import { usePinnedPopups } from '@/providers';
 import { FCProps } from '@/types';
+import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
 import type { PopupPlacement } from '../../../MentionPopup';
+import { buildMentionTextDecoration } from './helper';
 import './MentionBadge.css';
 
 type Props = {
@@ -12,6 +15,7 @@ type Props = {
   displayName: string;
   color: string;
   adventureId?: string | null;
+  format: TextFormatType[];
 };
 
 export const MentionBadge: FCProps<Props> = ({
@@ -20,6 +24,7 @@ export const MentionBadge: FCProps<Props> = ({
   displayName,
   color,
   adventureId,
+  format,
 }) => {
   const navigate = useNavigate();
   const { showPopup, hidePopup, hasPopup } = usePinnedPopups();
@@ -95,8 +100,17 @@ export const MentionBadge: FCProps<Props> = ({
   return (
     <span
       ref={badgeRef}
-      className='mention-badge'
-      style={{ '--rt-mention-pop-up-color': color } as React.CSSProperties}
+      className={cn(
+        'mention-badge',
+        format.includes('bold') && 'mention-badge--bold',
+        format.includes('italic') && 'mention-badge--italic',
+      )}
+      style={
+        {
+          '--rt-mention-pop-up-color': color,
+          '--mention-badge-text-decoration': buildMentionTextDecoration(format),
+        } as React.CSSProperties
+      }
       onClick={handleClick}
       onMouseEnter={handleBadgeMouseEnter}
       onMouseLeave={handleBadgeMouseLeave}

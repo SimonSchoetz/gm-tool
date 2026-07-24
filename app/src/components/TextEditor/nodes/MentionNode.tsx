@@ -3,8 +3,10 @@ import {
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
+  LexicalNode,
   NodeKey,
   SerializedLexicalNode,
+  TextFormatType,
 } from 'lexical';
 import { JSX } from 'react';
 import { MentionBadge } from '../components';
@@ -15,6 +17,7 @@ export type SerializedMentionNode = SerializedLexicalNode & {
   displayName: string;
   color: string;
   adventureId?: string;
+  mentionFormats?: TextFormatType[];
 };
 
 const convertMentionElement = (
@@ -38,6 +41,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
   __displayName: string;
   __color: string;
   __adventureId: string | null;
+  __mentionFormats: TextFormatType[];
 
   constructor(
     entityId: string,
@@ -45,6 +49,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     displayName: string,
     color: string,
     adventureId?: string | null,
+    mentionFormats: TextFormatType[] = [],
     key?: NodeKey,
   ) {
     super(key);
@@ -53,6 +58,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     this.__displayName = displayName;
     this.__color = color;
     this.__adventureId = adventureId ?? null;
+    this.__mentionFormats = mentionFormats;
   }
 
   static getType(): string {
@@ -66,6 +72,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       node.__displayName,
       node.__color,
       node.__adventureId,
+      node.__mentionFormats,
       node.__key,
     );
   }
@@ -77,6 +84,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       json.displayName,
       json.color,
       json.adventureId ?? null,
+      json.mentionFormats ?? [],
     );
   }
 
@@ -108,7 +116,22 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     if (this.__adventureId !== null) {
       json.adventureId = this.__adventureId;
     }
+    if (this.__mentionFormats.length > 0) {
+      json.mentionFormats = this.__mentionFormats;
+    }
     return json;
+  }
+
+  getMentionFormats(): readonly TextFormatType[] {
+    return this.__mentionFormats;
+  }
+
+  toggleMentionFormat(format: TextFormatType): this {
+    const self = this.getWritable();
+    self.__mentionFormats = self.__mentionFormats.includes(format)
+      ? self.__mentionFormats.filter((f) => f !== format)
+      : [...self.__mentionFormats, format];
+    return self;
   }
 
   decorate(): JSX.Element {
@@ -119,6 +142,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
         displayName={this.__displayName}
         color={this.__color}
         adventureId={this.__adventureId}
+        format={this.__mentionFormats}
       />
     );
   }
@@ -151,3 +175,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
     };
   }
 }
+
+export const $isMentionNode = (
+  node: LexicalNode | null | undefined,
+): node is MentionNode => node instanceof MentionNode;

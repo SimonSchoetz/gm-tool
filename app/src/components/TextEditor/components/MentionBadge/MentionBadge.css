@@ -2,4 +2,13 @@
   cursor: pointer;
   font-weight: var(--font-weight-medium);
   color: rgb(var(--rt-mention-pop-up-color));
+  text-decoration: var(--mention-badge-text-decoration, none);
+}
+
+.mention-badge--bold {
+  font-weight: var(--font-weight-bold);
+}
+
+.mention-badge--italic {
+  font-style: italic;
 }
