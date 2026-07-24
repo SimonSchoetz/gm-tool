@@ -16,11 +16,17 @@ export {
   adventureDeleteError,
 } from './adventures';
 
-export type { MentionSearchError, MentionEntityTypeError } from './mentions';
+export type {
+  MentionSearchError,
+  MentionEntityTypeError,
+  MentionableEntityType,
+} from './mentions';
 export {
   mentionSearchError,
   mentionEntityTypeError,
   buildEntityPath,
+  MENTIONABLE_ENTITY_TYPES,
+  isMentionableEntityType,
 } from './mentions';
 
 export type {
