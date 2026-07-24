@@ -26,6 +26,7 @@ import {
   EmbeddedLinkPlugin,
   EmptyNodeHintPlugin,
   ExternalValueSyncPlugin,
+  MentionFormatPlugin,
   SlashCommandPlugin,
   TableEdgeHandlePlugin,
 } from './plugins';
@@ -143,6 +144,7 @@ export const TextEditor: FCProps<Props> = ({
         {!readOnly && <MentionTypeaheadPlugin />}
         {!readOnly && <SlashCommandPlugin />}
         {!readOnly && <TableEdgeHandlePlugin />}
+        {!readOnly && <MentionFormatPlugin />}
         {!readOnly && <EmptyNodeHintPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
