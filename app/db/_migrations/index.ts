@@ -5,6 +5,7 @@ import { initSystemMigration } from './1780575810242_init_system';
 import { addSettingsTableMigration } from './1782657640641_add_settings_table';
 import { addPairedDevicesTableMigration } from './1783763409778_add_paired_devices_table';
 import { addSyncInfrastructureMigration } from './1784365870026_add_sync_infrastructure';
+import { backfillSyncChangesMigration } from './1784896762609_backfill_sync_changes';
 
 export type Migration = {
   id: string;
@@ -18,6 +19,7 @@ export const migrations: Migration[] = [
   addSettingsTableMigration,
   addPairedDevicesTableMigration,
   addSyncInfrastructureMigration,
+  backfillSyncChangesMigration,
 ];
 
 // Equals the applied migration head after init; read here (not from the DB) to
