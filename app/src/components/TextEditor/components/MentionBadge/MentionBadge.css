@@ -1,7 +1,7 @@
 .mention-badge {
   cursor: pointer;
   font-weight: var(--font-weight-medium);
-  color: rgb(var(--rt-mention-pop-up-color));
+  color: rgb(var(--rt-mention-badge-color));
   text-decoration: var(--mention-badge-text-decoration, none);
 }
 

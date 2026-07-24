@@ -18,7 +18,7 @@ type Props = {
   entityType: string;
   displayName: string;
   color: string;
-  adventureId?: string | null;
+  adventureId: string | null;
   format: TextFormatType[];
   nodeKey: NodeKey;
 };
@@ -53,7 +53,7 @@ export const MentionBadge: FCProps<Props> = ({
   const isMouseOnPopupRef = useRef(false);
 
   const showPopupFromBadge = () => {
-    if (!badgeRef.current) return null;
+    if (!badgeRef.current) return;
     const rect = badgeRef.current.getBoundingClientRect();
     const placement: PopupPlacement =
       rect.top > window.innerHeight / 2 ? 'above' : 'below';
@@ -61,7 +61,7 @@ export const MentionBadge: FCProps<Props> = ({
     showPopup({
       entityId,
       entityType,
-      adventureId: adventureId ?? null,
+      adventureId,
       name: resolvedName,
       position: { x: rect.left, y },
       placement,
@@ -82,7 +82,7 @@ export const MentionBadge: FCProps<Props> = ({
   };
 
   const handleBadgeMouseEnter = () => {
-    if (hasPopup(entityId)) return null;
+    if (hasPopup(entityId)) return;
     isMouseOnBadgeRef.current = true;
     hoverTimerRef.current = setTimeout(showPopupFromBadge, 500);
   };
@@ -103,7 +103,7 @@ export const MentionBadge: FCProps<Props> = ({
 
   const handleClick = () => {
     hidePopup(entityId);
-    const path = buildEntityPath(entityType, entityId, adventureId ?? null);
+    const path = buildEntityPath(entityType, entityId, adventureId);
     void navigate({ to: path });
   };
 
@@ -153,7 +153,7 @@ export const MentionBadge: FCProps<Props> = ({
       )}
       style={
         {
-          '--rt-mention-pop-up-color': resolvedColor,
+          '--rt-mention-badge-color': resolvedColor,
           '--mention-badge-text-decoration': buildMentionTextDecoration(format),
         } as React.CSSProperties
       }
