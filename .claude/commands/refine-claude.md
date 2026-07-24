@@ -65,7 +65,7 @@ Once both teammates have submitted proposals, review them together:
 
 ## Proposal Quality Gate
 
-Before any proposal is presented to the user, validate every element it contains against two criteria.
+Before any proposal is presented to the user, validate every element it contains against four criteria.
 
 **Criterion 1 — Causal depth:** Each proposed change must address the root cause identified in Phase 1, not the surface symptom. Ask: "If this change had been in place, would the class of problem have been prevented — or only this specific instance?" If only this instance, route back to the proposing agent with the root-cause diagnosis and ask for a revised proposal before presenting.
 
@@ -74,6 +74,8 @@ Before any proposal is presented to the user, validate every element it contains
 An element included because it was present in context (a system prompt, a template, a prior example) without an independent reason for its value in this specific proposal must be dropped or flagged before output.
 
 **Criterion 3 — Restatement completeness:** When any teammate submits a "no change — existing rule covers this" verdict, the coordinator must require that teammate to state explicitly which step or clause of the cited rule fires and why it applies to this specific case. A named rule with no stated firing mechanism is not a complete verdict — block it and ask for the mechanism before accepting the verdict or moving to Phase 2.
+
+**Criterion 4 — Application-code scope check:** Scan every diagnosis and proposal submitted by either teammate for a conclusion that an application-code change (anything outside CLAUDE.md, agent, or command files) is needed. For each one found, create a tracked follow-up via the coordinator's tracked-item mechanism before presenting the summary — never let it reach the user as prose only inside a diagnosis or proposal. A conclusion with no tracked follow-up is incomplete and must not be presented.
 
 ## Output to User
 
@@ -84,6 +86,7 @@ Present a unified summary:
 - Each agent's no-change findings: what was deliberately left unchanged and why — these confirm scope was respected
 - Any contradictions found and how the agents resolved them through mediation
 - Any scope overlaps, with each agent's final agreed position
+- Any application-code follow-up identified during diagnosis or proposals — each already converted to a tracked item per Proposal Quality Gate Criterion 4, listed with its tracked-item reference
 
 Then ask: "Should I apply all of these, apply selectively, or do you want to adjust first?"
 

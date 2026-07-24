@@ -178,6 +178,11 @@ This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and
 
 To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
 
+For **ambient/global runtime types specifically** (DOM API, ES built-ins, and other globals available without an import statement) — these are not tied to any single npm package's `dist/index.d.ts`; they ship inside the TypeScript compiler's own `lib` files (`node_modules/typescript/lib/lib.*.d.ts`, e.g. `lib.dom.d.ts` for the DOM API), selected by the `lib` array in `tsconfig.json`. Read the specific `lib.*.d.ts` file directly to confirm a type's actual shape before asserting it — training-data familiarity with a well-known global API is not verification, and a supertype's signature does not apply to a subtype that narrows it via its own override.
+
+- ✅ GOOD: confirming `HTMLElement.textContent` returns `string` (not `string | null`) by reading `lib.dom.d.ts`'s `Element` getter override, rather than assuming `Node.textContent`'s nullable signature applies down the inheritance chain
+- ❌ BAD: asserting `domNode.textContent ?? ''` in a spec because `Node.textContent` is commonly known to be nullable, without checking whether the concrete type in use (`HTMLElement`) overrides that signature
+
 For **Rust crates specifically** (dependencies in `app/src-tauri/Cargo.toml`), the lookup procedure is:
 
 1. Check the installed version in `Cargo.toml` (or `Cargo.lock` for the resolved version when a range is specified)

@@ -41,6 +41,13 @@ Every `LexicalTypeaheadMenuPlugin` instance (`MentionTypeaheadPlugin`, `SlashCom
 
 Despite `option.ref.current` being populated for every option (confirmed empirically) and the arrow-key handler visibly executing (the selection highlight updates correctly), Lexical's own dispatch of `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` from within that same handler never reaches any registered listener — including a handler manually registered at higher priority than Lexical's own default. The root cause could not be pinned down further via static source reading (the source condition for dispatch is provably true, and reentrant `dispatchCommand` calls are provably not blocked in this exact call stack), suggesting either a bug specific to the shipped bundle or an interaction not visible in the `.tsx` source. **Do not rely on `SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND` for scroll-into-view behavior in custom `menuRenderFn` implementations.** This codebase's resolution: extract the option list into a real React component (not the `menuRenderFn` render-prop function itself, which cannot use hooks) that receives `selectedIndex` as a prop and calls `option.ref.current.scrollIntoView({ block: 'nearest' })` via `useEffect` keyed on `selectedIndex` — the same value that already reliably drives the visual selected-item highlight. See `SlashCommandOptionList.tsx` / `MentionOptionList.tsx`.
 
+## `DecoratorNode` has no access to Lexical's native text-format system
+
+**Verified at:** lexical 0.46.0
+**Citation:** [S_12: app/node_modules/lexical/dist/Lexical.dev.mjs:9197-9211; app/node_modules/lexical/dist/nodes/LexicalDecoratorNode.d.ts]
+
+`RangeSelection.formatText()` — what `FORMAT_TEXT_COMMAND` dispatches to — only collects `TextNode` instances for a ranged selection and only `ElementNode` instances for its collapsed-selection fallback. A custom `DecoratorNode` subclass is neither, so it cannot receive formatting through Lexical's built-in text-format pipeline; a `DecoratorNode` needing bold/italic/underline-style state must store and toggle that state itself rather than relying on `FORMAT_TEXT_COMMAND`/`formatText()`.
+
 ## `TablePlugin` accepts `hasCellMerge` (default `true`) and other optional props
 
 **Verified at:** @lexical/react 0.46.0
