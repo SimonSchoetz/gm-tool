@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.8.2] - 2026-07-24
+
+### Fixed
+
+- Device sync could fail to discover paired devices in the installed macOS build — the app was missing the local-network/Bonjour permission declaration required outside of `tauri dev`
+
+### Changed
+
+- Loading placeholders now show a loading icon instead of "Loading..." text throughout the app
+
 ## [v0.8.1] - 2026-07-24
 
 ### Fixed

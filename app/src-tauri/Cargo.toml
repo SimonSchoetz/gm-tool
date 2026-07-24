@@ -1,6 +1,6 @@
 [package]
 name = "gm-tool"
-version = "0.8.1"
+version = "0.8.2"
 description = "A TTRGP session management tool"
 authors = ["Simon Schötz"]
 edition = "2024"
