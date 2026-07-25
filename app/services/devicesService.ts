@@ -30,9 +30,7 @@ export const initializeConnectivity = async (): Promise<void> => {
         name: peer.name ?? null,
       })),
     });
-    // The _system write runs on every init: the Rust key file is the identity source
-    // of truth, so a divergent stored id (e.g. after the key file was deleted)
-    // self-heals here.
+    // The _system write runs on every init: the Rust key file is the identity source of truth, so a divergent stored id (e.g. after the key file was deleted) self-heals here.
     await updateDevice({ id, name: stored?.name ?? null });
   } catch (cause) {
     throw connectivityInitError(cause);
@@ -79,8 +77,7 @@ export const renameOwnDevice = async (name: string | null): Promise<void> => {
           envelope: JSON.stringify(buildNameUpdateEnvelope(name)),
         });
       } catch {
-        // A peer disconnecting mid-broadcast must not fail the rename — the peer
-        // receives a hello with the current name on its next connect.
+        // A peer disconnecting mid-broadcast must not fail the rename — the peer receives a hello with the current name on its next connect.
       }
     }
   } catch (cause) {
@@ -140,8 +137,7 @@ export const completePairing = async (
   name: string | null,
 ): Promise<void> => {
   try {
-    // Both sides emit pairing-succeeded, and StrictMode double-subscription in dev
-    // can deliver the event twice — an existing row means the work is already done.
+    // Both sides emit pairing-succeeded, and StrictMode double-subscription in dev can deliver the event twice — an existing row means the work is already done.
     const existing = await pairedDeviceDb.get(endpointId);
     if (existing !== null) return;
     await pairedDeviceDb.create({ id: endpointId, name });
@@ -162,8 +158,7 @@ export const forgetDevice = async (endpointId: string): Promise<void> => {
     }
     await invoke('remove_trusted_peer', { endpointId });
     await pairedDeviceDb.remove(endpointId);
-    // Sync-state cleanup belongs to the forget flow that owns the peer's
-    // lifecycle — root spec KAD "Watermarks are local sequence numbers".
+    // Sync-state cleanup belongs here because forgetDevice owns the peer's full lifecycle.
     await syncDb.removePeerState(endpointId);
   } catch (cause) {
     throw deviceDeleteError(cause);
@@ -189,15 +184,13 @@ export const handlePeerMessage = async (
     if (envelope.type === 'unpair') {
       await invoke('remove_trusted_peer', { endpointId });
       await pairedDeviceDb.remove(endpointId);
-      // Sync-state cleanup belongs to the forget flow that owns the peer's
-      // lifecycle — root spec KAD "Watermarks are local sequence numbers".
+      // Sync-state cleanup belongs here because handlePeerMessage's unpair branch owns the peer's full lifecycle.
       await syncDb.removePeerState(endpointId);
       return 'devices-changed';
     }
 
     const existing = await pairedDeviceDb.get(endpointId);
-    // A message from an untrusted id cannot reach here through the ALPN gate, but a
-    // row deleted mid-session can race — do not resurrect it.
+    // A message from an untrusted id cannot reach here through the ALPN gate, but a row deleted mid-session can race — do not resurrect it.
     if (existing === null) return 'ignored';
     if (existing.name === envelope.payload.name) return 'ignored';
     await pairedDeviceDb.update(endpointId, { name: envelope.payload.name });

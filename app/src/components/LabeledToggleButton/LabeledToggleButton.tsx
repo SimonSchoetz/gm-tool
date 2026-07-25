@@ -43,8 +43,7 @@ export const LabeledToggleButton = <T extends string>({
     };
   }, []);
 
-  // Reads offsetLeft/offsetWidth to match slider position and width to the active
-  // label — must run before paint to avoid the slider appearing at a stale position.
+  // Reads offsetLeft/offsetWidth to match slider position and width to the active label — must run before paint to avoid the slider appearing at a stale position.
   useLayoutEffect(() => {
     const activeLabel = labelRefs.current[displayIndex];
     const slider = sliderRef.current;

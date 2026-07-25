@@ -10,9 +10,7 @@ export const getRowById = async (
   }
 
   const db = await getDatabase();
-  // tableName is interpolated directly because SQL does not support parameterized
-  // table names. It must only ever receive values from SYNCED_TABLE_NAMES, which
-  // is a fixed registry constant — never from user input (mirrors mention-search.ts).
+  // tableName is interpolated directly because SQL does not support parameterized table names. It must only ever receive values from SYNCED_TABLE_NAMES, which is a fixed registry constant — never from user input (mirrors mention-search.ts).
   const rows = await db.select<Record<string, unknown>[]>(
     `SELECT * FROM ${tableName} WHERE id = $1`,
     [rowId],

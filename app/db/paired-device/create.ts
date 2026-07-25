@@ -7,8 +7,7 @@ type CreatePairedDeviceInput = {
   name: string | null;
 };
 
-// id is the peer's iroh EndpointId (64-char hex), supplied by the pairing flow —
-// not a generated nanoid like every other table.
+// id is the peer's iroh EndpointId (64-char hex), supplied by the pairing flow — not a generated nanoid like every other table.
 export const create = async (
   input: CreatePairedDeviceInput,
 ): Promise<string> => {

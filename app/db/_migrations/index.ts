@@ -22,8 +22,7 @@ export const migrations: Migration[] = [
   backfillSyncChangesMigration,
 ];
 
-// Equals the applied migration head after init; read here (not from the DB) to
-// avoid an import cycle through database.ts — see root spec KAD "Compatibility key".
+// Equals the applied migration head after init; read here (not from the DB) to avoid an import cycle through database.ts.
 export const migrationHead: string = migrations[migrations.length - 1].id;
 
 export const runMigrations = async (db: Database): Promise<void> => {

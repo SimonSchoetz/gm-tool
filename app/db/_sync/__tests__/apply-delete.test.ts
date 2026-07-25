@@ -27,8 +27,7 @@ import { applyDelete } from '../apply-delete';
 
 describe('applyDelete', () => {
   beforeAll(async () => {
-    // Warm the getDatabase() singleton once so the migration run's execute()
-    // calls never leak into a test's own call-count assertions below.
+    // Warm the getDatabase() singleton once so the migration run's execute() calls never leak into a test's own call-count assertions below.
     mockSelect.mockResolvedValue([]);
     mockExecute.mockResolvedValue({});
     await getDatabase();

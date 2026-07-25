@@ -33,9 +33,7 @@ export const applyDelete = async (
 
   const db = await getDatabase();
 
-  // tableName is interpolated directly because SQL does not support parameterized
-  // table names. It must only ever receive values from SYNCED_TABLE_NAMES, which
-  // is a fixed registry constant — never from user input (mirrors mention-search.ts).
+  // tableName is interpolated directly because SQL does not support parameterized table names. It must only ever receive values from SYNCED_TABLE_NAMES, which is a fixed registry constant — never from user input (mirrors mention-search.ts).
   const localRows = await db.select<{ updated_at: string }[]>(
     `SELECT updated_at FROM ${tableName} WHERE id = $1`,
     [rowId],
@@ -45,16 +43,13 @@ export const applyDelete = async (
     const local = localRows[0];
     if (local.updated_at >= deletedAt) return 'skipped';
 
-    // Fires the delete trigger, which bumps the counter and stamps a fresh
-    // local deleted_at — overwrite it below with the origin value so LWW
-    // truth is preserved while the fresh seq still propagates onward.
+    // Fires the delete trigger, which bumps the counter and stamps a fresh local deleted_at — overwrite it below with the origin value so LWW truth is preserved while the fresh seq still propagates onward.
     await db.execute(`DELETE FROM ${tableName} WHERE id = $1`, [rowId]);
     await upsertTombstone(db, tableName, rowId, deletedAt, false);
     return 'applied';
   }
 
-  // No local row and no trigger fires — record the tombstone directly so a
-  // late insert of this row is blocked and the deletion relays onward.
+  // No local row and no trigger fires — record the tombstone directly so a late insert of this row is blocked and the deletion relays onward.
   await upsertTombstone(db, tableName, rowId, deletedAt, true);
   return 'applied';
 };

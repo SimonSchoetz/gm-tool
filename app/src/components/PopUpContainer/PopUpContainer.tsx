@@ -20,8 +20,7 @@ const PopUpContainer = ({
   const [isOpen, setIsOpen] = useState(state === 'open');
   const [isClosing, setIsClosing] = useState(false);
 
-  // Animation state machine: isOpen/isClosing are timed states that cannot be derived from the
-  // prop alone — the closing animation must stay open for 500ms after state goes 'closed'.
+  // Animation state machine: isOpen/isClosing are timed states that cannot be derived from the prop alone — the closing animation must stay open for 500ms after state goes 'closed'.
   useEffect(() => {
     if (state === 'open') {
       setIsOpen(true); // eslint-disable-line react-hooks/set-state-in-effect

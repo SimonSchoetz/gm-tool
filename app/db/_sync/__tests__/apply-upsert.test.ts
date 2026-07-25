@@ -34,8 +34,7 @@ const NPC_ROW = {
 
 describe('applyUpsert', () => {
   beforeAll(async () => {
-    // Warm the getDatabase() singleton once so the migration run's execute()
-    // calls never leak into a test's own positional mock.calls assertions.
+    // Warm the getDatabase() singleton once so the migration run's execute() calls never leak into a test's own positional mock.calls assertions.
     mockSelect.mockResolvedValue([]);
     mockExecute.mockResolvedValue({});
     await getDatabase();

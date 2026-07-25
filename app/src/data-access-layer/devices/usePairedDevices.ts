@@ -26,8 +26,7 @@ export const usePairedDevices = (): UsePairedDevicesReturn => {
     },
   });
 
-  // The id is genuinely call-time data — the hook serves the whole list, so no
-  // construction-time id exists to close over.
+  // The id is genuinely call-time data — the hook serves the whole list, so no construction-time id exists to close over.
   const forgetDevice = async (endpointId: string): Promise<void> => {
     await forgetMutation.mutateAsync(endpointId);
   };

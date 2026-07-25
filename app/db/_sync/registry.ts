@@ -15,10 +15,7 @@ type SyncedTable = {
   columns: string[];
 };
 
-// FK dependency order: parents before children. Apply upserts in this order,
-// deletes in reverse. images first (SET NULL targets), adventures before all
-// adventure-scoped tables, session_steps after sessions, table_config last
-// (no FK relations).
+// FK dependency order: parents before children. Apply upserts in this order, deletes in reverse. images first (SET NULL targets), adventures before all adventure-scoped tables, session_steps after sessions, table_config last (no FK relations).
 export const SYNCED_TABLES: SyncedTable[] = [
   { name: 'images', columns: Object.keys(imageTable.zodSchema.shape) },
   { name: 'adventures', columns: Object.keys(adventureTable.zodSchema.shape) },

@@ -29,10 +29,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
     new Map<string, ReturnType<typeof setTimeout>>(),
   );
 
-  // throwOnError is intentionally omitted — connectivity init is non-blocking infrastructure.
-  // A firewall-blocked or otherwise failed init must not crash the app into the Error
-  // Boundary; the app degrades gracefully instead (grey status dots everywhere, pairing
-  // attempts fail with the pairing dialog's inline error).
+  // throwOnError is intentionally omitted — connectivity init is non-blocking infrastructure. A firewall-blocked or otherwise failed init must not crash the app into the Error Boundary; the app degrades gracefully instead (grey status dots everywhere, pairing attempts fail with the pairing dialog's inline error).
   const { error } = useQuery({
     queryKey: deviceKeys.init(),
     queryFn: async () => {
@@ -92,8 +89,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
               : [...old, endpointId],
           );
           void devicesService.sendHello(endpointId).catch(() => {
-            // best-effort: the peer may drop between connect and hello; it will
-            // re-announce on its own next connect
+            // best-effort: the peer may drop between connect and hello; it will re-announce on its own next connect
           });
           startSyncHandshake(endpointId);
         },

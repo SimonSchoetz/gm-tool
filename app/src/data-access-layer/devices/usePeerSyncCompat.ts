@@ -14,8 +14,7 @@ export const usePeerSyncCompat = (): UsePeerSyncCompatReturn => {
     queryKey: deviceKeys.syncCompat(),
     queryFn: () => Promise.resolve({}),
     throwOnError: true,
-    // The cache is event-maintained by useConnectivityLifecycle; refetching on the
-    // default stale timer would race the event stream.
+    // The cache is event-maintained by useConnectivityLifecycle; refetching on the default stale timer would race the event stream.
     staleTime: Infinity,
   });
 

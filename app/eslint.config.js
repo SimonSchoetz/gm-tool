@@ -4,6 +4,7 @@ import { defineConfig } from 'eslint/config';
 import reactHooks from 'eslint-plugin-react-hooks';
 import { reactRefresh } from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
+import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
 
 export default defineConfig(
   { ignores: ['dist/**', 'src-tauri/**', 'coverage/**'] },
@@ -17,6 +18,9 @@ export default defineConfig(
           allowDefaultProject: ['lucide-react.d.ts'],
         },
       },
+    },
+    plugins: {
+      local: { rules: { 'no-wrapped-line-comments': noWrappedLineComments } },
     },
     rules: {
       '@typescript-eslint/no-unused-vars': [
@@ -35,12 +39,13 @@ export default defineConfig(
           message: 'Use "as const" objects instead of enums.',
         },
       ],
+      'local/no-wrapped-line-comments': 'warn',
     },
   },
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite(),
   {
-    files: ['*.js', '*.mjs', '*.cjs'],
+    files: ['*.js', '*.mjs', '*.cjs', 'eslint-rules/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
   },
   {

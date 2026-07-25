@@ -24,9 +24,7 @@ export const ImageViewerDialogHeader: FCProps<Props> = ({
   useLayoutEffect(() => {
     const header = headerRef.current;
     if (!header) return;
-    // Measures header height so the image can derive its own max-height via
-    // calc() without needing a definite parent height — which max-height alone
-    // cannot establish for CSS percentage resolution.
+    // Measures header height so the image can derive its own max-height via calc() without needing a definite parent height — which max-height alone cannot establish for CSS percentage resolution.
     header.parentElement?.style.setProperty(
       '--rt-image-viewer-dialog-header-h',
       `${header.offsetHeight}px`,

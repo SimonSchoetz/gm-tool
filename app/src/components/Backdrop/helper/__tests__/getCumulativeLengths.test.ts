@@ -17,9 +17,7 @@ describe('getCumulativeLengths', () => {
       { x: 3, y: 4 },
       { x: 6, y: 8 },
     ];
-    // segment 0: length 5 (3-4-5 triangle)
-    // segment 1: length 0 (duplicate point)
-    // segment 2: length 5
+    // segment 0: length 5 (3-4-5 triangle); segment 1: length 0 (duplicate point); segment 2: length 5
     expect(getCumulativeLengths(path)).toEqual([0, 5, 5, 10]);
   });
 

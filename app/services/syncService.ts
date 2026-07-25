@@ -24,8 +24,7 @@ export type SyncMessageOutcome =
 
 const BATCH_LIMIT = 200;
 const FILE_CHUNK_SOURCE_BYTES = 256 * 1024;
-// 4-char-aligned so every chunk (except possibly the last) is an independently
-// decodable base64 substring representing exactly N source bytes.
+// 4-char-aligned so every chunk (except possibly the last) is an independently decodable base64 substring representing exactly N source bytes.
 const CHARS_PER_FILE_CHUNK = Math.floor(FILE_CHUNK_SOURCE_BYTES / 3) * 4;
 
 let applyQueue: Promise<void> = Promise.resolve();
@@ -92,8 +91,7 @@ const handleSyncHello = async (
         });
       }
     } catch {
-      // Best-effort, mirrors sendHello — a dropped request is recovered by
-      // the peer's own hello-triggered request on the next connect.
+      // Best-effort, mirrors sendHello — a dropped request is recovered by the peer's own hello-triggered request on the next connect.
     }
   }
 
@@ -122,8 +120,7 @@ const pushBatchesTo = async (endpointId: string): Promise<void> => {
         continue;
       }
 
-      // A null row means the row is gone — cascade-deleted; its disappearance
-      // travels with the parent tombstone, so it is skipped entirely here.
+      // A null row means the row is gone — cascade-deleted; its disappearance travels with the parent tombstone, so it is skipped entirely here.
       const row = await syncDb.getRowById(change.table_name, change.row_id);
       if (row === null) continue;
       syncChanges.push({
@@ -159,9 +156,7 @@ const applyBatch = async (
   payload: { changes: SyncChange[]; maxSeq: number },
 ): Promise<void> => {
   const ownDevice = await getDevice();
-  // Timestamp ties only occur when local and incoming updated_at are equal;
-  // for any non-equal pair force is a no-op, so it is safe to compute once
-  // per batch from device ids alone rather than pre-reading every local row.
+  // Timestamp ties only occur when local and incoming updated_at are equal; for any non-equal pair force is a no-op, so it is safe to compute once per batch from device ids alone rather than pre-reading every local row.
   const force = endpointId > (ownDevice?.id ?? '');
 
   const upsertsByTable = new Map<string, SyncChange[]>();
@@ -345,8 +340,6 @@ export const pushNewChanges = async (): Promise<void> => {
 
 export const resetPeerSession = (endpointId: string): void => {
   lastPushedSeq.delete(endpointId);
-  // incomingFiles is keyed by imageId, not by peer, so a disconnect cannot
-  // attribute buffers to a specific sender — clear all of them rather than
-  // risk stale chunks from this peer corrupting a future reassembly.
+  // incomingFiles is keyed by imageId, not by peer, so a disconnect cannot attribute buffers to a specific sender — clear all of them rather than risk stale chunks from this peer corrupting a future reassembly.
   incomingFiles.clear();
 };

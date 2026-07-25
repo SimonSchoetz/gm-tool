@@ -1,8 +1,6 @@
 import type Database from '@tauri-apps/plugin-sql';
 
-// FK dependency order: parents before children. Mirrors db/_sync/registry.ts,
-// but this array is a frozen migration-local copy — a migration must never
-// import the live registry, which future migrations will extend.
+// FK dependency order: parents before children. Mirrors db/_sync/registry.ts, but this array is a frozen migration-local copy — a migration must never import the live registry, which future migrations will extend.
 const SYNCED_TABLE_NAMES = [
   'images',
   'adventures',

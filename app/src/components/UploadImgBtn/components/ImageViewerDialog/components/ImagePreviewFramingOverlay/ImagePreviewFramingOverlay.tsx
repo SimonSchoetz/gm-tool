@@ -28,8 +28,7 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
 
   const { frame } = useImage(imageId);
   const { updateFrame } = useUpdateImageFrame(imageId);
-  // Ref keeps updateFrame current without making it a reactive dep — avoids a
-  // mutation-invalidation → re-render → new updateFrame ref → re-effect loop.
+  // Ref keeps updateFrame current without making it a reactive dep — avoids a mutation-invalidation → re-render → new updateFrame ref → re-effect loop.
   const updateFrameRef = useRef(updateFrame);
   useEffect(() => {
     updateFrameRef.current = updateFrame;

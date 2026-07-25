@@ -20,8 +20,7 @@ export const DevicesSection = () => {
   );
   const [dialogMounted, setDialogMounted] = useState(false);
 
-  // Unmount only after the close animation has played (mirrors DeleteDialogProvider);
-  // unmounting PairDeviceDialog is what exits pairing mode via its hook cleanup.
+  // Unmount only after the close animation has played (mirrors DeleteDialogProvider); unmounting PairDeviceDialog is what exits pairing mode via its hook cleanup.
   useEffect(() => {
     if (pairDialogState === 'closed') {
       const timeout = setTimeout(() => {

@@ -38,17 +38,14 @@ const executeUpsert = async (
     .join(', ');
   const values = columns.map((column) => filtered[column]);
 
-  // tableName is interpolated directly because SQL does not support parameterized
-  // table names. It must only ever receive values from SYNCED_TABLES, which is a
-  // fixed registry constant — never from user input (mirrors mention-search.ts).
+  // tableName is interpolated directly because SQL does not support parameterized table names. It must only ever receive values from SYNCED_TABLES, which is a fixed registry constant — never from user input (mirrors mention-search.ts).
   const sql = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders.join(', ')}) ON CONFLICT(id) DO UPDATE SET ${updateSet}`;
 
   try {
     await db.execute(sql, values);
     return 'applied';
   } catch {
-    // FK parent absent or a NOT NULL column missing from the incoming row —
-    // the deletion won, or the row is malformed for this schema version.
+    // FK parent absent or a NOT NULL column missing from the incoming row — the deletion won, or the row is malformed for this schema version.
     return 'skipped';
   }
 };
@@ -63,9 +60,7 @@ const applyTableConfigUpsert = async (
   const tableName = filtered.table_name;
   if (typeof tableName !== 'string' || tableName === '') return 'skipped';
 
-  // table_config merges by table_name, not id: the same logical config row has
-  // different ids on each device (seeded per device), so id-based union would
-  // duplicate every list config on first sync.
+  // table_config merges by table_name, not id: the same logical config row has different ids on each device (seeded per device), so id-based union would duplicate every list config on first sync.
   const localRows = await db.select<{ id: string; updated_at: string }[]>(
     'SELECT id, updated_at FROM table_config WHERE table_name = $1',
     [tableName],
