@@ -21,6 +21,7 @@
 - Feature: cmd+f search for screens
 - Feature: List items ins screens should be duplicatable
 - Feature: List items ins screens should be pinnable
+- Feature: Syncing in progress indicator in Header
 
 ### Done
 

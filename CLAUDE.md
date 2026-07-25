@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Repo
 
 This is a mono repo containing all projects regarding the GM-Tool project. So far it contains:
@@ -99,7 +97,8 @@ Always use Conventional Commits with scope required:
   - ✅ GOOD: `// unregister the pairing-mode listener before re-entry check — a still-registered listener double-fires enterPairingMode on rapid re-click`
 
 - **Markdown files must comply with markdownlint rules as defined in `.markdownlint.json` at the repo root.** Key configured rules: no line-length limit (MD013 off), blank-lines-around-lists not enforced (MD032 off), bold uses asterisk style `**bold**` (MD050). All other markdownlint defaults apply — code blocks must declare a language (MD040), first line must be H1 (MD041), blank lines around fences (MD031).
-- **Never introduce manual line breaks in prose paragraphs or bullet list items in instruction files** (`.claude/agents/*.md`, `.claude/commands/*.md`, and all CLAUDE.md files) **or in code comments anywhere in the codebase.** Each paragraph, each bullet item, and each comment is one continuous line — visual wrapping is the IDE/renderer's responsibility. This does not apply to code blocks, tables, or fenced examples. For code comments this is an accepted tradeoff: some consumers (raw diffs, terminals) render them unwrapped.
+- **Never introduce manual line breaks in code comments anywhere in the codebase.** Each comment is one continuous line — visual wrapping is the IDE/renderer's responsibility. This does not apply to code blocks, tables, or fenced examples. This is an accepted tradeoff: some consumers (raw diffs, terminals) render long comment lines unwrapped. Content copied or adapted from any upstream artifact — a spec's code block, another migration, another agent's output — is not exempt: re-check it against this rule independently before it lands in a file, the same as freshly drafted code.
+- **Never introduce manual line breaks in prose paragraphs or bullet list items in instruction files** (`.claude/agents/*.md`, `.claude/commands/*.md`, and all CLAUDE.md files). Each paragraph and each bullet item is one continuous line — visual wrapping is the IDE/renderer's responsibility. This does not apply to code blocks, tables, or fenced examples.
 
 ### Accountability on Missed Requirements
 
@@ -154,6 +153,8 @@ Never open a response with a positive affirmation directed at the user or a team
 
 **An unverified hypothesis that shapes an implementation decision must be verified or surfaced — silently acting on it is never valid, even when framed as "accepted risk."** Forming a belief about how an external system or an untested code path behaves and proceeding as if true without ever stating it as a claim carries the same verification obligation as stating it aloud — never voicing a belief does not exempt it. "Accepted risk" is valid only when the user has explicitly accepted the identified risk; labeling an unverified internal hypothesis "accepted risk" without surfacing it is silent risk acceptance and is prohibited. When a recognized failure-mode hypothesis forms (e.g. "this callback probably won't re-fire for a known peer"), verify it in the current context window before building on it; if infeasible, surface it to the user and let them decide.
 
+**Verified evidence must cover the full scope of the claim it supports — evidence for a narrower fact does not verify a broader claim built on it.** After verifying, check explicitly that what was confirmed matches the breadth of what is being asserted, not merely a related or overlapping fact. A claim of permanent or invariant behavior ("can never," "always," "by default") requires evidence of that same permanence — a one-time seed value or a snapshot of current state verifies only the snapshot, never the invariant. When evidence is narrower than the claim, either narrow the claim to what was verified, or verify the broader claim directly (e.g. confirm no mechanism exists that could change it) before stating it as fact.
+
 **Instruction files exist to instruct agents, not to be read by humans — human readability is never a design goal, not even a secondary one or a tiebreaker; at most it is an unplanned side effect.** Before adding, keeping, or defending any content in a CLAUDE.md, agent, or command file, apply one test: does this content change what an agent does — a decision, a check, a default, a boundary — or is it present for some other reason (orientation, completeness-for-completeness's-sake, human comprehension, narrative flow)? If the latter, it does not belong, regardless of size budget or how established it looks. This also settles how to fix a file that is degrading compliance: a Claude instance loads the entire file into context every invocation and processes every token uniformly, so degraded compliance comes from attention dilution across competing or redundant rules, not from visual density or length as a human reader would experience them — the fix is to merge, relocate, or delete non-instructive content, never to split or shorten for skimmability.
 
 **Verify a mechanism against the live tool registry before asserting how it works — the same discipline applies to this instance's own tooling, not just external systems.** A tool absent from the active list may need loading rather than being gone — check which before falling back to a different approach. This applies with particular force to the teammate-spawning mechanism used by `/refine-claude` (the only command that spawns persistent teammates; full lifecycle in `.claude/commands/refine-claude.md`): one-shot workers exit after a single result and cannot be resumed, long-running teammates persist and are addressable by name, and a fresh instance is never silently substituted for an existing teammate — surface the continuity loss explicitly.
@@ -168,30 +169,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
 ### Third-Party Libraries
 
-The general verification obligation above applies to all external systems. For **npm packages specifically**, the lookup procedure is:
-
-1. Check the installed version in `package.json`
-2. Fetch the official documentation for that exact version from the internet
-3. If documentation is ambiguous or unavailable, ask before proceeding
-
-This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and Drizzle.
-
-To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
-
-For **ambient/global runtime types specifically** (DOM API, ES built-ins, and other globals available without an import statement) — these are not tied to any single npm package's `dist/index.d.ts`; they ship inside the TypeScript compiler's own `lib` files (`node_modules/typescript/lib/lib.*.d.ts`, e.g. `lib.dom.d.ts` for the DOM API), selected by the `lib` array in `tsconfig.json`. Read the specific `lib.*.d.ts` file directly to confirm a type's actual shape before asserting it — training-data familiarity with a well-known global API is not verification, and a supertype's signature does not apply to a subtype that narrows it via its own override.
-
-- ✅ GOOD: confirming `HTMLElement.textContent` returns `string` (not `string | null`) by reading `lib.dom.d.ts`'s `Element` getter override, rather than assuming `Node.textContent`'s nullable signature applies down the inheritance chain
-- ❌ BAD: asserting `domNode.textContent ?? ''` in a spec because `Node.textContent` is commonly known to be nullable, without checking whether the concrete type in use (`HTMLElement`) overrides that signature
-
-For **Rust crates specifically** (dependencies in `app/src-tauri/Cargo.toml`), the lookup procedure is:
-
-1. Check the installed version in `Cargo.toml` (or `Cargo.lock` for the resolved version when a range is specified)
-2. Fetch docs.rs for that exact version — confirm the version segment in the URL matches before treating anything on the page as authoritative
-3. If documentation is ambiguous or unavailable, ask before proceeding
-
-To inspect what a crate actually exports or how a specific API is shaped, read its source directly from the local Cargo registry (`~/.cargo/registry/src/<crate>-<version>/`, resolved from `Cargo.lock`) — this mirrors using `index.d.ts` for npm packages above, and is version-exact by construction with no manual version-matching step, unlike docs.rs. Prefer local source over docs.rs for any concrete signature question (a function's parameters, a type's fields, a trait's methods); reserve docs.rs for narrative usage guidance the source itself doesn't cover.
-
-For **Tauri configuration values** (`tauri.conf.json` and related config files): locate the `$schema` field (e.g. `"$schema": "https://schema.tauri.app/config/2"`), fetch the JSON schema at that URL, and read the accepted enum strings directly from the schema — never infer them from prose documentation, which may use colloquial language that does not match the schema's declared values.
+The general verification obligation above (Epistemological Discipline) applies to all external systems. Concrete lookup procedures for npm packages, ambient/global runtime types, Rust crates, and Tauri configuration values now live in `app/CLAUDE.md` — Third-Party Libraries: this content is app/-specific (`package.json`, `Cargo.toml`, and `tauri.conf.json` all live under `app/`).
 
 ### Tool Use Discipline
 

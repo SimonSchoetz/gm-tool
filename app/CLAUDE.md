@@ -1,6 +1,6 @@
 # App
 
-TypeScript conventions that apply to all TypeScript layers under `app/` (`src/`, `services/`, `domain/`).
+Conventions that apply across `app/` — TypeScript conventions for all TypeScript layers (`src/`, `services/`, `domain/`), and external-dependency verification procedures (npm, Rust crates, Tauri config) spanning the whole `app/` tree including `src-tauri/`.
 
 ## TypeScript Coding Style
 
@@ -74,3 +74,30 @@ Entity vocabulary grounded in the actual database schema (`db/*/schema.ts`). Eve
 | Item                       | An object — e.g. equipment or a magic item — within the Adventure.                                                                                                                                                                           |
 | Image                      | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items.                                                                                                                                  |
 | Table Config               | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity.                                                                                                                        |
+
+## Third-Party Libraries
+
+The general verification obligation in root `CLAUDE.md`'s Epistemological Discipline section applies to all external systems. For **npm packages specifically**, the lookup procedure is:
+
+1. Check the installed version in `package.json`
+2. Fetch the official documentation for that exact version from the internet
+3. If documentation is ambiguous or unavailable, ask before proceeding
+
+This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and Drizzle.
+
+To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
+
+For **ambient/global runtime types specifically** (DOM API, ES built-ins, and other globals available without an import statement) — these are not tied to any single npm package's `dist/index.d.ts`; they ship inside the TypeScript compiler's own `lib` files (`node_modules/typescript/lib/lib.*.d.ts`, e.g. `lib.dom.d.ts` for the DOM API), selected by the `lib` array in `tsconfig.json`. Read the specific `lib.*.d.ts` file directly to confirm a type's actual shape before asserting it — training-data familiarity with a well-known global API is not verification, and a supertype's signature does not apply to a subtype that narrows it via its own override.
+
+- ✅ GOOD: confirming `HTMLElement.textContent` returns `string` (not `string | null`) by reading `lib.dom.d.ts`'s `Element` getter override, rather than assuming `Node.textContent`'s nullable signature applies down the inheritance chain
+- ❌ BAD: asserting `domNode.textContent ?? ''` in a spec because `Node.textContent` is commonly known to be nullable, without checking whether the concrete type in use (`HTMLElement`) overrides that signature
+
+For **Rust crates specifically** (dependencies in `app/src-tauri/Cargo.toml`), the lookup procedure is:
+
+1. Check the installed version in `Cargo.toml` (or `Cargo.lock` for the resolved version when a range is specified)
+2. Fetch docs.rs for that exact version — confirm the version segment in the URL matches before treating anything on the page as authoritative
+3. If documentation is ambiguous or unavailable, ask before proceeding
+
+To inspect what a crate actually exports or how a specific API is shaped, read its source directly from the local Cargo registry (`~/.cargo/registry/src/<crate>-<version>/`, resolved from `Cargo.lock`) — this mirrors using `index.d.ts` for npm packages above, and is version-exact by construction with no manual version-matching step, unlike docs.rs. Prefer local source over docs.rs for any concrete signature question (a function's parameters, a type's fields, a trait's methods); reserve docs.rs for narrative usage guidance the source itself doesn't cover.
+
+For **Tauri configuration values** (`tauri.conf.json` and related config files): locate the `$schema` field (e.g. `"$schema": "https://schema.tauri.app/config/2"`), fetch the JSON schema at that URL, and read the accepted enum strings directly from the schema — never infer them from prose documentation, which may use colloquial language that does not match the schema's declared values.
