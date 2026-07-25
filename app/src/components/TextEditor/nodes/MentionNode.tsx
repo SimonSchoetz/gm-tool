@@ -28,9 +28,19 @@ const convertMentionElement = (
 
   const adventureId = domNode.getAttribute('data-lexical-mention-adventure-id');
   const displayName = domNode.textContent.replace(/^@/, '');
+  const formatsAttr = domNode.getAttribute('data-lexical-mention-formats');
+  const mentionFormats = (
+    formatsAttr ? formatsAttr.split(',') : []
+  ) as TextFormatType[];
 
   return {
-    node: new MentionNode(entityId, entityType, displayName, adventureId),
+    node: new MentionNode(
+      entityId,
+      entityType,
+      displayName,
+      adventureId,
+      mentionFormats,
+    ),
   };
 };
 
@@ -153,6 +163,12 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
       element.setAttribute(
         'data-lexical-mention-adventure-id',
         this.__adventureId,
+      );
+    }
+    if (this.__mentionFormats.length > 0) {
+      element.setAttribute(
+        'data-lexical-mention-formats',
+        this.__mentionFormats.join(','),
       );
     }
     element.textContent = this.getTextContent();
