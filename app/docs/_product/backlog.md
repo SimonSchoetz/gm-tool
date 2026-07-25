@@ -7,11 +7,11 @@
   - Auto-Correct off (?)
   - drag-and-drop content within editor
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
-- Fix: Adventure stats (facts)
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists text-editors with no content -> should be nothing
 - Feature (Session Screen): Foldable Prep Sections
+- Fix: Adventure stats (facts)
 - Feature: Data access and db location/localization
   - encryption?
 - Fix (Summary Pop Up): 

@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.9.0] - 2026-07-26
+
+### Added
+
+- @-mentions in the text editor can now be bold, italic, or underlined like any other text
+
+### Changed
+
+- Mention badges now show the entity's current name and color live, instead of a stale snapshot from when the mention was created
+- Hovering a mention whose entity was deleted now shows a popup instead of a bare broken state
+- Copying and pasting a formatted mention now preserves its formatting
+
 ## [v0.8.3] - 2026-07-24
 
 ### Fixed
