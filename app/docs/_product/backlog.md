@@ -4,9 +4,6 @@
 
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Text editor enhancements
-  - name tags
-    - hould update when the reference changes
-    - should be copy/pasteable
   - Auto-Correct off (?)
   - drag-and-drop content within editor
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
@@ -27,6 +24,9 @@
 
 ### Done
 
+- Refactor (Mention Badge):
+    - should update when the reference changes
+    - should be copy/pasteable into different text editors
 - Chore: Replase all "loading..." ect. placeholder with loading icon
 - Feature(POC): peer-to-peer network to autosync between different devices
   - import with merging strategy
