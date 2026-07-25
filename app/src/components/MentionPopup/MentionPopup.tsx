@@ -62,9 +62,7 @@ export const MentionPopup: FCProps<Props> = ({
   const [clampedPosition, setClampedPosition] = useState(dragPosition);
 
   useLayoutEffect(() => {
-    // Reads popup dimensions via getBoundingClientRect to clamp position within
-    // viewport; must apply before first paint to prevent the popup appearing
-    // off-screen when spawned near a window boundary
+    // Reads popup dimensions via getBoundingClientRect to clamp position within viewport; must apply before first paint to prevent the popup appearing off-screen when spawned near a window boundary
     if (!popupRef.current) return;
     const { width, height } = popupRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(dragPosition.x, window.innerWidth - width));
