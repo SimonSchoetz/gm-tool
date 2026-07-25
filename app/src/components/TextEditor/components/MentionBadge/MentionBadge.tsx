@@ -110,7 +110,18 @@ export const MentionBadge: FCProps<Props> = ({
     return (
       <span
         ref={badgeRef}
-        className='mention-badge mention-badge--deleted'
+        className={cn(
+          'mention-badge',
+          'mention-badge--deleted',
+          format.includes('bold') && 'mention-badge--bold',
+          format.includes('italic') && 'mention-badge--italic',
+        )}
+        style={
+          {
+            '--mention-badge-text-decoration':
+              buildMentionTextDecoration(format),
+          } as React.CSSProperties
+        }
         onMouseEnter={handleBadgeMouseEnter}
         onMouseLeave={handleBadgeMouseLeave}
       >
