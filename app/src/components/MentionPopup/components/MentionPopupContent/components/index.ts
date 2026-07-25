@@ -5,3 +5,4 @@ export { PcPopupContent } from './PcPopupContent/PcPopupContent';
 export { FactionPopupContent } from './FactionPopupContent/FactionPopupContent';
 export { LocationPopupContent } from './LocationPopupContent/LocationPopupContent';
 export { ItemPopupContent } from './ItemPopupContent/ItemPopupContent';
+export { SessionPopupContent } from './SessionPopupContent/SessionPopupContent';

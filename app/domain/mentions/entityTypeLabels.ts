@@ -10,6 +10,7 @@ const ENTITY_TYPE_LABELS: Record<MentionableEntityType, string> = {
   factions: 'Faction',
   locations: 'Location',
   items: 'Item',
+  sessions: 'Session',
 };
 
 export const entityTypeLabel = (entityType: string): string =>

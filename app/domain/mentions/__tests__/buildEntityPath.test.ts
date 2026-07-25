@@ -12,9 +12,9 @@ describe('buildEntityPath', () => {
     expect(buildEntityPath('npcs', 'npc-1', null)).toBe('/npc/npc-1');
   });
 
-  it('throws for the sessions entity type', () => {
-    expect(() => buildEntityPath('sessions', 'sess-1', null)).toThrow(
-      'Unknown mention entity type: "sessions"',
+  it('returns adventure-scoped session path', () => {
+    expect(buildEntityPath('sessions', 'sess-1', 'adv-1')).toBe(
+      '/adventure/adv-1/session/sess-1',
     );
   });
 

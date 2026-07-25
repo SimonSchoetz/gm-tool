@@ -11,6 +11,7 @@ const ENTITY_SEGMENT: Record<MentionableEntityType, string> = {
   factions: 'faction',
   locations: 'location',
   items: 'item',
+  sessions: 'session',
 };
 
 export const buildEntityPath = (

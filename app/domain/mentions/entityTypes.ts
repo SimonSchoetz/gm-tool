@@ -5,6 +5,7 @@ export const MENTIONABLE_ENTITY_TYPES = [
   'factions',
   'locations',
   'items',
+  'sessions',
 ] as const;
 
 export type MentionableEntityType = (typeof MENTIONABLE_ENTITY_TYPES)[number];

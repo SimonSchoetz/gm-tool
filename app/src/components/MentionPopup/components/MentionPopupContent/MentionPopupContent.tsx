@@ -6,6 +6,7 @@ import {
   FactionPopupContent,
   LocationPopupContent,
   ItemPopupContent,
+  SessionPopupContent,
 } from './components';
 import './MentionPopupContent.css';
 
@@ -37,6 +38,10 @@ export const MentionPopupContent: FCProps<Props> = ({
       );
     case 'items':
       return <ItemPopupContent entityId={entityId} adventureId={adventureId} />;
+    case 'sessions':
+      return (
+        <SessionPopupContent entityId={entityId} adventureId={adventureId} />
+      );
     default:
       return null;
   }
