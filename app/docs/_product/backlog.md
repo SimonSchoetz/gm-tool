@@ -2,26 +2,27 @@
 
 ## Closed Beta Ready
 
+- Fix (Summary Pop Up): 
+  - click on embedded link opens within app instead of external browser
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
-- Text editor enhancements
+- Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
   - drag-and-drop content into editor
     - images, pdfs -> how to handle these?
   - Lists: Mixed lists text-editors with no content -> should be nothing
-- Feature (Session Screen): Foldable Prep Sections
+- Feature (Text Editor): "Toggle section" (foldable sections)
 - Fix: Adventure stats (facts)
 - Feature: Data access and db location/localization
   - encryption?
-- Fix (Summary Pop Up): 
-  - click on embedded link opens within app instead of external browser
 - Feature: Implement prefetching
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Feature: cmd+f search for screens
 - Feature: List items ins screens should be duplicatable
 - Feature: List items ins screens should be pinnable
 - Feature: Syncing in progress indicator in Header
+- Feature: right click context menu with inspect mode
 
 ### Done
 
@@ -65,7 +66,7 @@
 
 ## Open Beta Ready
 
-- Epic: Stable and secure build for mac and windows (maybe linux)
+- Epic: Stable and secure build for mac and windows
   - hard drive access (as wide as need be, as narrow as possible)
   - managing data directory
     - first start: should ask if relocate or create new
@@ -95,7 +96,6 @@
 - Epic: NPC Generator
   - config like lists of traits & quirks, backgrounds, ancestries, etc.
   - For quick, random generation: mechanic how common e. g. a ancestries in this world is
-- Feature (Text Editor): External links
 - Feature (Text Editor): Embedded images
 - Feature: Pin favorites in list screens and make them orderable via drag&drop
 - Feature: References List (Where each screen is tagged)
@@ -109,7 +109,7 @@
 - Feature: Source Material organization
   - Feature: Bulk import material, e. g. items
 - AI USAGES
-  - compact notes (keep meaning and context and shorten text with grammar adjustments ect.), e. g. `"beschützt die Kinder von Grüfing Sansuri"` -> `"schützt Gräfin Sansuri's Kinder"`
+  - compact notes (keep meaning and context and shorten text with grammar adjustments ect.), e. g. `"beschützt die Kinder von Gräfin Sansuri"` -> `"schützt Gräfin Sansuri's Kinder"`
 
 ## Done
 
