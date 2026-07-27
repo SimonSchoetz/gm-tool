@@ -7,3 +7,5 @@ export { EmptyNodeHintPlugin } from './EmptyNodeHintPlugin/EmptyNodeHintPlugin';
 export { TableEdgeHandlePlugin } from './TableEdgeHandlePlugin/TableEdgeHandlePlugin';
 export { MentionFormatPlugin } from './MentionFormatPlugin/MentionFormatPlugin';
 export { ToggleGutterPlugin } from './ToggleGutterPlugin/ToggleGutterPlugin';
+export { ToggleKeyboardPlugin } from './ToggleKeyboardPlugin/ToggleKeyboardPlugin';
+export { ToggleHeaderGuardPlugin } from './ToggleHeaderGuardPlugin/ToggleHeaderGuardPlugin';

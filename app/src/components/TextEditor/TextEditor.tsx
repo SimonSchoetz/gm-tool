@@ -30,6 +30,8 @@ import {
   SlashCommandPlugin,
   TableEdgeHandlePlugin,
   ToggleGutterPlugin,
+  ToggleHeaderGuardPlugin,
+  ToggleKeyboardPlugin,
 } from './plugins';
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper';
@@ -150,6 +152,8 @@ export const TextEditor: FCProps<Props> = ({
         {!readOnly && <TableEdgeHandlePlugin />}
         {!readOnly && <MentionFormatPlugin />}
         {!readOnly && <EmptyNodeHintPlugin />}
+        {!readOnly && <ToggleKeyboardPlugin />}
+        {!readOnly && <ToggleHeaderGuardPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
     </LexicalComposer>

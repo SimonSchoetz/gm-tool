@@ -102,6 +102,19 @@ export class ToggleNode extends ElementNode {
     }
     return false;
   }
+
+  // Makes getTopLevelElement() resolve to the header block rather than this node, so existing editor-wide logic (heading conversion, EmptyNodeHintPlugin, list buttons) targets the right block inside a toggle.
+  isShadowRoot(): true {
+    return true;
+  }
+
+  canBeEmpty(): false {
+    return false;
+  }
+
+  canIndent(): false {
+    return false;
+  }
 }
 
 export const $createToggleNode = (collapsed = false): ToggleNode =>

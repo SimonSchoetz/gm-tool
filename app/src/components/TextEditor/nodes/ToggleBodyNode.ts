@@ -42,6 +42,19 @@ export class ToggleBodyNode extends ElementNode {
   updateDOM(): boolean {
     return false;
   }
+
+  // See ToggleNode.isShadowRoot — the same reasoning applies to the body's own blocks.
+  isShadowRoot(): true {
+    return true;
+  }
+
+  canBeEmpty(): false {
+    return false;
+  }
+
+  canIndent(): false {
+    return false;
+  }
 }
 
 export const $createToggleBodyNode = (): ToggleBodyNode => new ToggleBodyNode();
