@@ -7,7 +7,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
-import { MentionNode } from './nodes';
+import { MentionNode, ToggleNode, ToggleBodyNode } from './nodes';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -96,6 +96,8 @@ export const TextEditor: FCProps<Props> = ({
       TableNode,
       TableRowNode,
       TableCellNode,
+      ToggleNode,
+      ToggleBodyNode,
     ],
     editorState: value ? parseSafeEditorState(value) : null,
     editable: !readOnly,
