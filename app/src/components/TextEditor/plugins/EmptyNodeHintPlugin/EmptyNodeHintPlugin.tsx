@@ -9,7 +9,6 @@ import {
   mergeRegister,
 } from 'lexical';
 import { $findCellNode } from '@lexical/table';
-import { resolveTopLevelBlock } from '../../helper';
 import './EmptyNodeHintPlugin.css';
 
 const HINT_CLASS = 'editor-node--show-hint';
@@ -29,7 +28,8 @@ export const EmptyNodeHintPlugin = () => {
         }
         const anchorNode = selection.anchor.getNode();
         if ($findCellNode(anchorNode) !== null) return null;
-        const element = resolveTopLevelBlock(anchorNode);
+        // A collapsed selection anchors directly on the empty element itself (paragraph, heading, or list item) — never resolve to its top-level block. resolveTopLevelBlock would climb a nested list item past every ancestor list up to the outermost ListNode, attaching the hint to the wrong element and stranding it at indent level 0 regardless of actual nesting depth.
+        const element = anchorNode;
         if (element.getTextContent().length > 0) return null;
         return editor.getElementByKey(element.getKey());
       });
