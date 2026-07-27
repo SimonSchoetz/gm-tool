@@ -10,9 +10,7 @@
   - drag-and-drop content within editor
   - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
   - drag-and-drop content into editor
-    - images, pdfs -> how to handle these?
   - Lists: Mixed lists text-editors with no content -> should be nothing
-- Feature (Text Editor): "Toggle section" (foldable sections)
 - Fix: Adventure stats (facts)
 - Feature: Data access and db location/localization
   - encryption?
@@ -23,9 +21,11 @@
 - Feature: List items ins screens should be pinnable
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
+- Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Images. Second step: Documents, like pdfs.
 
 ### Done
 
+- Feature (Text Editor): "Toggle section" (foldable sections)
 - Refactor (Mention Badge):
     - should update when the reference changes
     - should be copy/pasteable into different text editors
