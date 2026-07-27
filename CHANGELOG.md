@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.10.0] - 2026-07-27
+
+### Added
+
+- Toggle blocks — collapsible sections with a header and body, insertable via the /toggle slash command, that also copy-paste as native `<details>`/`<summary>` elements into other applications
+
+### Fixed
+
+- Nested checklist items no longer draw a checkbox at every indentation level — only the deepest item shows one, and clicking where a phantom checkbox used to be no longer toggles anything in read-only mode
+- The slash-command hint on an empty line inside a nested list no longer stays pinned to the left edge — it now follows the line's actual indentation
+
 ## [v0.9.0] - 2026-07-26
 
 ### Added
