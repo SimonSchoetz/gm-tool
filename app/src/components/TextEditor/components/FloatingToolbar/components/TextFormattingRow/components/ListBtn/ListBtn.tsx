@@ -15,18 +15,20 @@ import {
   COMMAND_PRIORITY_LOW,
   mergeRegister,
 } from 'lexical';
+import { $isToggleNode } from '../../../../../../nodes';
+import { resolveTopLevelBlock } from '../../../../../../helper';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 import './ListBtn.css';
 
 type ListType = 'bullet' | 'number' | 'check';
 
-type ListBtnProps = {
+type Props = {
   label: string;
   listType: ListType;
   icon: LucideIcon;
 };
 
-export const ListBtn: FCProps<ListBtnProps> = ({
+export const ListBtn: FCProps<Props> = ({
   label,
   listType,
   icon,
@@ -38,10 +40,7 @@ export const ListBtn: FCProps<ListBtnProps> = ({
   const isCurrentListType = useCallback(
     (selection: RangeSelection): boolean => {
       const anchorNode = selection.anchor.getNode();
-      const element =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
+      const element = resolveTopLevelBlock(anchorNode);
 
       if ($isListNode(element)) {
         return element.getListType() === listType;
@@ -81,6 +80,10 @@ export const ListBtn: FCProps<ListBtnProps> = ({
       const selection = $getSelection();
 
       if ($isRangeSelection(selection)) {
+        const anchorNode = selection.anchor.getNode();
+        const element = resolveTopLevelBlock(anchorNode);
+        if ($isToggleNode(element.getParent())) return;
+
         const isCurrentlyTargetType = isCurrentListType(selection);
 
         if (isCurrentlyTargetType) {

@@ -7,7 +7,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
-import { MentionNode } from './nodes';
+import { MentionNode, ToggleNode, ToggleBodyNode } from './nodes';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -29,6 +29,9 @@ import {
   MentionFormatPlugin,
   SlashCommandPlugin,
   TableEdgeHandlePlugin,
+  ToggleGutterPlugin,
+  ToggleHeaderGuardPlugin,
+  ToggleKeyboardPlugin,
 } from './plugins';
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper';
@@ -96,6 +99,8 @@ export const TextEditor: FCProps<Props> = ({
       TableNode,
       TableRowNode,
       TableCellNode,
+      ToggleNode,
+      ToggleBodyNode,
     ],
     editorState: value ? parseSafeEditorState(value) : null,
     editable: !readOnly,
@@ -140,12 +145,15 @@ export const TextEditor: FCProps<Props> = ({
 
         {onChange && <OnChangePlugin onChange={handleChange} />}
         <ExternalValueSyncPlugin value={value} />
+        <ToggleGutterPlugin />
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
         {!readOnly && <SlashCommandPlugin />}
         {!readOnly && <TableEdgeHandlePlugin />}
         {!readOnly && <MentionFormatPlugin />}
         {!readOnly && <EmptyNodeHintPlugin />}
+        {!readOnly && <ToggleKeyboardPlugin />}
+        {!readOnly && <ToggleHeaderGuardPlugin />}
         {readOnly && <CheckboxReadOnlyPlugin />}
       </div>
     </LexicalComposer>

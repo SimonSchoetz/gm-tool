@@ -20,6 +20,8 @@ Conventions that apply across `app/` — TypeScript conventions for all TypeScri
   export class SessionLoadError extends Error { ... }
   ```
 
+- **This rule governs domain errors — errors a caller or the Error Boundary is expected to catch, narrow by `name`, or handle differently based on type.** A bare `throw new Error(...)` for an internal, should-never-happen invariant — a defensive assertion with no caller expected to catch or narrow it by type, such as a DOM-shape invariant inside a low-level framework node override — does not define an error type and is not required to use the factory pattern. When it is unclear whether a thrown error might need caller-side narrowing later, surface the ambiguity rather than deciding unilaterally — do not silently default to either form.
+
 - Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
   - ❌ BAD: `let session: Session | undefined;`
   - ✅ GOOD: `let session: Session | null = null;`

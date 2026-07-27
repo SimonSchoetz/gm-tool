@@ -15,7 +15,7 @@ If the user already named a specific version (e.g. "release v1.2.0"), use it dir
 
 ## 2. Bump the version
 
-Run `node .claude/skills/cut-release/scripts/bump-version.ts <newVersion>` (no `v` prefix, e.g. `0.9.0`) from anywhere in the repo — it resolves its own paths and updates all four locations that must stay in sync: `app/package.json`, `app/package-lock.json` (both the top-level `version` field and `packages[""].version`), `app/src-tauri/tauri.conf.json`, and `app/src-tauri/Cargo.toml`. It prints every file and field it touched — verify the output shows exactly 4 locations across the 3 files before continuing (the lockfile counts as one file with two fields).
+Run `node .claude/skills/cut-release/scripts/bump-version.ts <newVersion>` (no `v` prefix, e.g. `0.9.0`) from anywhere in the repo — it resolves its own paths and updates all four locations that must stay in sync: `app/package.json`, `app/package-lock.json` (both the top-level `version` field and `packages[""].version`), `app/src-tauri/tauri.conf.json`, and `app/src-tauri/Cargo.toml`. It prints every file and field it touched — verify the output shows exactly 4 locations across the 3 files before continuing (the lockfile counts as one file with two fields). `bump-version.ts` does not touch `app/src-tauri/Cargo.lock`. Immediately after, run `cargo check` from `app/src-tauri/` to force Cargo's dependency resolution to resync the `gm-tool` package entry in `Cargo.lock` to the new version, then grep `Cargo.lock` for the new version string to confirm the entry updated before continuing.
 
 ## 3. Generate the CHANGELOG entries
 

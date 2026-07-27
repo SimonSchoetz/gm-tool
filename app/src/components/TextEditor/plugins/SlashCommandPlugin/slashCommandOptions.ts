@@ -1,5 +1,6 @@
 import { MenuOption } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import {
+  $createParagraphNode,
   $getSelection,
   $isRangeSelection,
   LexicalEditor,
@@ -24,7 +25,14 @@ import {
   ListOrderedIcon,
   LucideIcon,
   TableIcon,
+  ChevronRightIcon,
 } from 'lucide-react';
+import {
+  $createToggleNode,
+  $createToggleBodyNode,
+  $isToggleNode,
+} from '../../nodes';
+import { resolveTopLevelBlock } from '../../helper';
 
 export class SlashCommandOption extends MenuOption {
   label: string;
@@ -130,5 +138,29 @@ export const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
       });
     },
     () => false,
+  ),
+  new SlashCommandOption(
+    'Toggle',
+    ChevronRightIcon,
+    'Other',
+    (editor) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) return;
+
+        const anchorNode = selection.anchor.getNode();
+        const block = resolveTopLevelBlock(anchorNode);
+
+        if ($isToggleNode(block.getParent())) return;
+
+        const toggleNode = $createToggleNode();
+        const body = $createToggleBodyNode().append($createParagraphNode());
+
+        block.replace(toggleNode);
+        toggleNode.append(block, body);
+        block.selectEnd();
+      });
+    },
+    (element) => $isToggleNode(element.getParent()),
   ),
 ];

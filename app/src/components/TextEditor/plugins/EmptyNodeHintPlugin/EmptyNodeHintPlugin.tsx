@@ -9,6 +9,7 @@ import {
   mergeRegister,
 } from 'lexical';
 import { $findCellNode } from '@lexical/table';
+import { resolveTopLevelBlock } from '../../helper';
 import './EmptyNodeHintPlugin.css';
 
 const HINT_CLASS = 'editor-node--show-hint';
@@ -28,10 +29,7 @@ export const EmptyNodeHintPlugin = () => {
         }
         const anchorNode = selection.anchor.getNode();
         if ($findCellNode(anchorNode) !== null) return null;
-        const element =
-          anchorNode.getKey() === 'root'
-            ? anchorNode
-            : anchorNode.getTopLevelElementOrThrow();
+        const element = resolveTopLevelBlock(anchorNode);
         if (element.getTextContent().length > 0) return null;
         return editor.getElementByKey(element.getKey());
       });
