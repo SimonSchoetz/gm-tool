@@ -2,6 +2,7 @@
 
 ## Closed Beta Ready
 
+- Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Summary Pop Up): 
   - click on embedded link opens within app instead of external browser
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
@@ -17,7 +18,6 @@
 - Feature: Data access and db location/localization
   - encryption?
 - Feature: Implement prefetching
-- Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Feature: cmd+f search for screens
 - Feature: List items ins screens should be duplicatable
 - Feature: List items ins screens should be pinnable
@@ -26,6 +26,7 @@
 
 ### Done
 
+- Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Refactor (Mention Badge):
     - should update when the reference changes
     - should be copy/pasteable into different text editors

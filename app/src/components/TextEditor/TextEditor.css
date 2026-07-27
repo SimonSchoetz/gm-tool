@@ -136,6 +136,17 @@
   text-decoration: line-through;
 }
 
+/* A nesting wrapper <li> (Lexical's structural container for a nested <ul>/<ol>) has no checked state of its own, but still receives the checked/unchecked theme class from its check-list parent — suppress the checkbox and its indent reservation so only the deepest item draws one. */
+.editor-nested-list-item.editor-listitem-checked::before,
+.editor-nested-list-item.editor-listitem-unchecked::before {
+  content: none;
+}
+
+.editor-nested-list-item.editor-listitem-checked,
+.editor-nested-list-item.editor-listitem-unchecked {
+  padding-left: 0;
+}
+
 /*
     Link styles
 */

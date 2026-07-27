@@ -11,8 +11,10 @@ import { $isListItemNode } from '@lexical/list';
  * bypasses that guard and calls ListItemNode.toggleChecked() directly via editor.update().
  *
  * Detection strategy: Lexical sets `__lexicalListType = 'check'` on the parent UL/OL DOM node
- * of any checklist. If the clicked LI's parent has that internal field, and the click is within
- * the ::before area (the visual checkbox), we intercept and toggle the node.
+ * of any checklist. If the clicked LI's parent has that internal field, the LI has no direct
+ * UL/OL child of its own (a nesting wrapper has no checked state and draws no checkbox to
+ * click), and the click is within the ::before area (the visual checkbox), we intercept and
+ * toggle the node.
  */
 export const CheckboxReadOnlyPlugin = (): null => {
   const [editor] = useLexicalComposerContext();
@@ -31,7 +33,12 @@ export const CheckboxReadOnlyPlugin = (): null => {
         (parentNode as unknown as { __lexicalListType?: string })
           .__lexicalListType !== 'check'
       )
-        return null;
+        return;
+
+      const isNestingWrapper = Array.from(target.children).some(
+        (child) => child.tagName === 'UL' || child.tagName === 'OL',
+      );
+      if (isNestingWrapper) return;
 
       const rect = target.getBoundingClientRect();
       const beforeStyles = window.getComputedStyle(target, '::before');
