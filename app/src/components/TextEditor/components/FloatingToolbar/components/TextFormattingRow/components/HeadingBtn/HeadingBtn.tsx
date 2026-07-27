@@ -22,19 +22,20 @@ import {
   mergeRegister,
 } from 'lexical';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
+import { resolveTopLevelBlock } from '../../../../../../helper';
 
 /**
  * Might need revision regarding 'paragraph' when implementing node type of list
  */
 type HeadingType = 'paragraph' | 'h1' | 'h2' | 'h3';
 
-type HeadingBtnProps = {
+type Props = {
   label: string;
   headingType: HeadingType;
   icon: LucideIcon;
 };
 
-export const HeadingBtn: FCProps<HeadingBtnProps> = ({
+export const HeadingBtn: FCProps<Props> = ({
   label,
   headingType,
   icon,
@@ -46,10 +47,7 @@ export const HeadingBtn: FCProps<HeadingBtnProps> = ({
   const isCurrentHeadingType = useCallback(
     (selection: RangeSelection): boolean => {
       const anchorNode = selection.anchor.getNode();
-      const element =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
+      const element = resolveTopLevelBlock(anchorNode);
 
       return $isHeadingNode(element) && element.getTag() === headingType;
     },

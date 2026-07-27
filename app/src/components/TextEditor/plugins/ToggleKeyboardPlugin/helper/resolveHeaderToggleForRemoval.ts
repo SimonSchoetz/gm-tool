@@ -1,5 +1,6 @@
 import { RangeSelection } from 'lexical';
 import { $isToggleNode, ToggleNode } from '../../../nodes';
+import { resolveTopLevelBlock } from '../../../helper';
 
 export const resolveHeaderToggleForRemoval = (
   selection: RangeSelection,
@@ -13,8 +14,7 @@ export const resolveHeaderToggleForRemoval = (
 
   let headerToggle: ToggleNode | null = null;
   for (const node of selection.getNodes()) {
-    const block =
-      node.getKey() === 'root' ? node : node.getTopLevelElementOrThrow();
+    const block = resolveTopLevelBlock(node);
     const parent = block.getParent();
     if ($isToggleNode(parent)) {
       headerToggle = parent;

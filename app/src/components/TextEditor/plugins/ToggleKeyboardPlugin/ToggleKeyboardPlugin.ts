@@ -11,7 +11,8 @@ import {
   mergeRegister,
 } from 'lexical';
 import { $isToggleBodyNode, $isToggleNode } from '../../nodes';
-import { resolveHeaderToggleForRemoval } from './helper/resolveHeaderToggleForRemoval';
+import { resolveTopLevelBlock } from '../../helper';
+import { resolveHeaderToggleForRemoval } from './helper';
 
 export const ToggleKeyboardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();
@@ -24,10 +25,7 @@ export const ToggleKeyboardPlugin = (): null => {
       }
 
       const anchorNode = selection.anchor.getNode();
-      const block =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
+      const block = resolveTopLevelBlock(anchorNode);
       const parent = block.getParent();
 
       if (
@@ -75,10 +73,7 @@ export const ToggleKeyboardPlugin = (): null => {
 
       if (selection.isCollapsed()) {
         const anchorNode = selection.anchor.getNode();
-        const block =
-          anchorNode.getKey() === 'root'
-            ? anchorNode
-            : anchorNode.getTopLevelElementOrThrow();
+        const block = resolveTopLevelBlock(anchorNode);
         const parent = block.getParent();
         if ($isToggleNode(parent) && selection.anchor.offset === 0) {
           parent.remove();

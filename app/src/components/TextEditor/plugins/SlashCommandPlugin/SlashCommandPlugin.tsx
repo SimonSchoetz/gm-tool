@@ -9,7 +9,7 @@ import './SlashCommandPlugin.css';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { EditorPopup } from '../../components/EditorPopup';
 import { CustomScrollArea } from '../../../../components/CustomScrollArea/CustomScrollArea';
-import { getSelectionRangeRect } from '../../helper';
+import { getSelectionRangeRect, resolveTopLevelBlock } from '../../helper';
 import {
   SLASH_COMMAND_OPTIONS,
   SlashCommandOption,
@@ -78,10 +78,7 @@ export const SlashCommandPlugin = () => {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
           const anchorNode = selection.anchor.getNode();
-          const element =
-            anchorNode.getKey() === 'root'
-              ? anchorNode
-              : anchorNode.getTopLevelElementOrThrow();
+          const element = resolveTopLevelBlock(anchorNode);
           activeOptionKeys = new Set(
             menuOptions
               .filter((option) => option.isActive(element))

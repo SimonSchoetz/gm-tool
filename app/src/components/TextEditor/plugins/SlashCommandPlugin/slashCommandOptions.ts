@@ -32,6 +32,7 @@ import {
   $createToggleBodyNode,
   $isToggleNode,
 } from '../../nodes';
+import { resolveTopLevelBlock } from '../../helper';
 
 export class SlashCommandOption extends MenuOption {
   label: string;
@@ -148,10 +149,7 @@ export const SLASH_COMMAND_OPTIONS: SlashCommandOption[] = [
         if (!$isRangeSelection(selection)) return;
 
         const anchorNode = selection.anchor.getNode();
-        const block =
-          anchorNode.getKey() === 'root'
-            ? anchorNode
-            : anchorNode.getTopLevelElementOrThrow();
+        const block = resolveTopLevelBlock(anchorNode);
 
         if ($isToggleNode(block.getParent())) return;
 

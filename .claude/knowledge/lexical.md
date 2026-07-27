@@ -125,6 +125,13 @@ All Lexical-managed children of an `ElementNode` are inserted into the single `e
 
 `exportDOM` cannot restructure its own children in its body, because they do not exist yet when `element` is constructed — the `after` callback is the only place a generated element's children can be rewrapped or reordered. Symmetrically, `importDOM`'s conversion `after` callback receives the already-converted child Lexical nodes and returns the final array, which is where a flat pasted structure is reshaped into a node's required child arrangement.
 
+## `getTopLevelElementOrThrow()` returns `ElementNode | DecoratorNode<unknown>` — never the root-case node's own type
+
+**Verified at:** lexical 0.46.0
+**Citation:** [S_1: app/node_modules/lexical/dist/LexicalNode.d.ts:637 — `getTopLevelElementOrThrow(): ElementNode | DecoratorNode<unknown>;`; :22 and :34 — `ElementNode` and `DecoratorNode` both exported from the `lexical` package root]
+
+`LexicalNode.getTopLevelElementOrThrow()` is declared to return exactly `ElementNode | DecoratorNode<unknown>` — it never returns the receiver's own static type. The common codebase idiom `node.getKey() === 'root' ? node : node.getTopLevelElementOrThrow()` (used to special-case the root node, which has no top-level element of its own) therefore types as `LexicalNode | ElementNode | DecoratorNode<unknown>` when `node: LexicalNode`, not merely `ElementNode | DecoratorNode<unknown>` — TypeScript does not collapse the union even though `ElementNode` and `DecoratorNode<unknown>` are structural subtypes of `LexicalNode`, because a ternary's inferred type is the literal union of both branch types with no subtype-based reduction. Any extracted helper wrapping this idiom (e.g. a shared `resolveTopLevelBlock`) must declare its return type as `LexicalNode | ElementNode | DecoratorNode<unknown>`, both imported from `lexical`.
+
 ## `$setListItemThemeClassNames` applies checkbox classes to structural nesting wrappers, not only to real checklist items
 
 **Verified at:** @lexical/list 0.46.0

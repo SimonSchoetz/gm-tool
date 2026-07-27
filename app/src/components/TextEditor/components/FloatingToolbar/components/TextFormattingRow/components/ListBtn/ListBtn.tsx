@@ -16,6 +16,7 @@ import {
   mergeRegister,
 } from 'lexical';
 import { $isToggleNode } from '../../../../../../nodes';
+import { resolveTopLevelBlock } from '../../../../../../helper';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 import './ListBtn.css';
 
@@ -39,10 +40,7 @@ export const ListBtn: FCProps<Props> = ({
   const isCurrentListType = useCallback(
     (selection: RangeSelection): boolean => {
       const anchorNode = selection.anchor.getNode();
-      const element =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
+      const element = resolveTopLevelBlock(anchorNode);
 
       if ($isListNode(element)) {
         return element.getListType() === listType;
@@ -83,10 +81,7 @@ export const ListBtn: FCProps<Props> = ({
 
       if ($isRangeSelection(selection)) {
         const anchorNode = selection.anchor.getNode();
-        const element =
-          anchorNode.getKey() === 'root'
-            ? anchorNode
-            : anchorNode.getTopLevelElementOrThrow();
+        const element = resolveTopLevelBlock(anchorNode);
         if ($isToggleNode(element.getParent())) return;
 
         const isCurrentlyTargetType = isCurrentListType(selection);

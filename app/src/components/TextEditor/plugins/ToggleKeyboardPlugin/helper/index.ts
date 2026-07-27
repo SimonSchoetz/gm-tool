@@ -1,0 +1,1 @@
+export { resolveHeaderToggleForRemoval } from './resolveHeaderToggleForRemoval';
