@@ -29,6 +29,7 @@ import {
   MentionFormatPlugin,
   SlashCommandPlugin,
   TableEdgeHandlePlugin,
+  ToggleGutterPlugin,
 } from './plugins';
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper';
@@ -142,6 +143,7 @@ export const TextEditor: FCProps<Props> = ({
 
         {onChange && <OnChangePlugin onChange={handleChange} />}
         <ExternalValueSyncPlugin value={value} />
+        <ToggleGutterPlugin />
         {!readOnly && <FloatingToolbar />}
         {!readOnly && <MentionTypeaheadPlugin />}
         {!readOnly && <SlashCommandPlugin />}

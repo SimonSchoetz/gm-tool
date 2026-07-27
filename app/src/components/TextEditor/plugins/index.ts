@@ -6,3 +6,4 @@ export { EmbeddedLinkPlugin } from './EmbeddedLinkPlugin/EmbeddedLinkPlugin';
 export { EmptyNodeHintPlugin } from './EmptyNodeHintPlugin/EmptyNodeHintPlugin';
 export { TableEdgeHandlePlugin } from './TableEdgeHandlePlugin/TableEdgeHandlePlugin';
 export { MentionFormatPlugin } from './MentionFormatPlugin/MentionFormatPlugin';
+export { ToggleGutterPlugin } from './ToggleGutterPlugin/ToggleGutterPlugin';
