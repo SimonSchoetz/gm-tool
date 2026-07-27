@@ -1,0 +1,1 @@
+export { collectContentNodes } from './collectContentNodes';

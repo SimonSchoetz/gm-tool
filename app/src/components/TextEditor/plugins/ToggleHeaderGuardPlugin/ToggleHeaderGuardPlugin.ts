@@ -5,18 +5,10 @@ import {
   $getSelection,
   $isParagraphNode,
   $isRangeSelection,
-  LexicalNode,
 } from 'lexical';
 import { $isHeadingNode } from '@lexical/rich-text';
-import { $isListItemNode, $isListNode } from '@lexical/list';
 import { ToggleNode } from '../../nodes';
-
-const collectContentNodes = (node: LexicalNode): LexicalNode[] => {
-  if ($isListNode(node) || $isListItemNode(node)) {
-    return node.getChildren().flatMap(collectContentNodes);
-  }
-  return [node];
-};
+import { collectContentNodes } from './helper';
 
 export const ToggleHeaderGuardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();
