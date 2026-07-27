@@ -18,7 +18,7 @@ export const ToggleKeyboardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    const handleEnter = (): boolean => {
+    const handleEnter = (event: KeyboardEvent | null): boolean => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
         return false;
@@ -35,6 +35,7 @@ export const ToggleKeyboardPlugin = (): null => {
       ) {
         const toggleNode = parent.getParent();
         if (!$isToggleNode(toggleNode)) return false;
+        event?.preventDefault();
         block.remove();
         toggleNode.insertAfter(block);
         block.selectStart();
@@ -46,6 +47,7 @@ export const ToggleKeyboardPlugin = (): null => {
         if (!isAtEnd) return false;
 
         if (parent.isCollapsed()) {
+          event?.preventDefault();
           const paragraph = $createParagraphNode();
           parent.insertAfter(paragraph);
           paragraph.selectStart();
@@ -55,6 +57,7 @@ export const ToggleKeyboardPlugin = (): null => {
         const body = parent.getLastChild();
         if (!$isToggleBodyNode(body)) return false;
 
+        event?.preventDefault();
         let firstBlock = body.getFirstChild();
         if (!firstBlock) {
           firstBlock = $createParagraphNode();
@@ -67,7 +70,7 @@ export const ToggleKeyboardPlugin = (): null => {
       return false;
     };
 
-    const handleBackspace = (): boolean => {
+    const handleBackspace = (event: KeyboardEvent): boolean => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return false;
 
@@ -76,6 +79,7 @@ export const ToggleKeyboardPlugin = (): null => {
         const block = resolveTopLevelBlock(anchorNode);
         const parent = block.getParent();
         if ($isToggleNode(parent) && selection.anchor.offset === 0) {
+          event.preventDefault();
           parent.remove();
           return true;
         }
@@ -84,16 +88,18 @@ export const ToggleKeyboardPlugin = (): null => {
 
       const headerToggle = resolveHeaderToggleForRemoval(selection);
       if (!headerToggle) return false;
+      event.preventDefault();
       headerToggle.remove();
       return true;
     };
 
-    const handleDelete = (): boolean => {
+    const handleDelete = (event: KeyboardEvent): boolean => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return false;
 
       const headerToggle = resolveHeaderToggleForRemoval(selection);
       if (!headerToggle) return false;
+      event.preventDefault();
       headerToggle.remove();
       return true;
     };
