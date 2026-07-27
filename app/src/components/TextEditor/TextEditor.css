@@ -195,11 +195,14 @@
 }
 
 .toggle-gutter {
-  width: var(--spacing-lg);
+  width: var(--spacing-xl);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 0.2rem; /* visual-tuning value, no token — flagged for user review */
+  /*padding-top: var(
+    --spacing-xs
+  );*/
   cursor: pointer;
   user-select: none;
   background-color: transparent;
@@ -207,7 +210,11 @@
 }
 
 .toggle-gutter:hover {
-  background-color: var(--color-hover-bg);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-primary-rgb), 0.2) 0%,
+    transparent 100%
+  );
 }
 
 .toggle-content {
@@ -216,21 +223,20 @@
 }
 
 .toggle-chevron {
-  width: var(--spacing-md);
-  height: var(--spacing-md);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='black'%3E%3Cpath d='M6 3.28a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06L9.44 8 6 4.56a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
+  width: var(--spacing-lg);
+  height: var(--spacing-lg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23399CBB'%3E%3Cpath d='M6 3.28a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06L9.44 8 6 4.56a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
   transform: rotate(90deg);
-  opacity: 0.5; /* no opacity token — flagged for user review */
   transition:
     transform var(--transition-fast),
     opacity var(--transition-fast);
 }
 
 .toggle-gutter:hover .toggle-chevron {
-  opacity: 1; /* no opacity token — flagged for user review */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f8ffff'%3E%3Cpath d='M6 3.28a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06L9.44 8 6 4.56a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
 }
 
 .toggle-node--collapsed .toggle-chevron {
