@@ -1,6 +1,8 @@
 import {
+  DOMExportOutput,
   ElementDOMSlot,
   ElementNode,
+  LexicalEditor,
   LexicalNode,
   SerializedElementNode,
 } from 'lexical';
@@ -54,6 +56,10 @@ export class ToggleBodyNode extends ElementNode {
 
   canIndent(): false {
     return false;
+  }
+
+  exportDOM(_editor: LexicalEditor): DOMExportOutput {
+    return { element: document.createElement('div') };
   }
 }
 

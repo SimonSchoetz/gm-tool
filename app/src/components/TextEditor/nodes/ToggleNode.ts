@@ -1,19 +1,62 @@
 import {
+  $createParagraphNode,
+  $isElementNode,
+  $isParagraphNode,
+  DOMConversionMap,
+  DOMConversionOutput,
+  DOMExportOutput,
   EditorConfig,
   ElementDOMSlot,
   ElementNode,
+  LexicalEditor,
   LexicalNode,
   LexicalUpdateJSON,
   NodeKey,
   SerializedElementNode,
   Spread,
 } from 'lexical';
+import { $isHeadingNode } from '@lexical/rich-text';
 import { TOGGLE_GUTTER_CLASS } from '../TextEditor.constants';
+import { $createToggleBodyNode } from './ToggleBodyNode';
 
 export type SerializedToggleNode = Spread<
   { collapsed: boolean },
   SerializedElementNode
 >;
+
+const convertDetailsElement = (domNode: HTMLElement): DOMConversionOutput => {
+  const collapsed = !domNode.hasAttribute('open');
+
+  return {
+    node: $createToggleNode(collapsed),
+    after: (children) => {
+      let header: LexicalNode;
+      let rest: LexicalNode[];
+
+      if (children.length === 0) {
+        header = $createParagraphNode();
+        rest = [];
+      } else {
+        [header, ...rest] = children;
+      }
+
+      if (!$isParagraphNode(header) && !$isHeadingNode(header)) {
+        const paragraph = $createParagraphNode();
+        if ($isElementNode(header)) {
+          paragraph.append(...header.getChildren());
+        } else {
+          paragraph.append(header);
+        }
+        header = paragraph;
+      }
+
+      const body = $createToggleBodyNode();
+      body.append(...(rest.length > 0 ? rest : [$createParagraphNode()]));
+
+      return [header, body];
+    },
+  };
+};
 
 export class ToggleNode extends ElementNode {
   __collapsed: boolean;
@@ -114,6 +157,36 @@ export class ToggleNode extends ElementNode {
 
   canIndent(): false {
     return false;
+  }
+
+  exportDOM(_editor: LexicalEditor): DOMExportOutput {
+    const element = document.createElement('details');
+    if (!this.__collapsed) {
+      element.setAttribute('open', '');
+    }
+
+    return {
+      element,
+      after: (generatedElement) => {
+        if (!(generatedElement instanceof HTMLElement)) return generatedElement;
+        const header = generatedElement.firstElementChild;
+        if (!header) return generatedElement;
+
+        const summary = document.createElement('summary');
+        header.replaceWith(summary);
+        summary.append(header);
+        return generatedElement;
+      },
+    };
+  }
+
+  static importDOM(): DOMConversionMap | null {
+    return {
+      details: () => ({
+        conversion: convertDetailsElement,
+        priority: 1,
+      }),
+    };
   }
 }
 
