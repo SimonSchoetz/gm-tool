@@ -86,6 +86,15 @@ Input: Files, a branch name, or a git diff; defaults to recently changed files i
 Output: Violations, concerns, what's solid
 Constraints: Treats CLAUDE.md as non-negotiable; never proposes fixes — flagging the violation is the complete output; flags INSTRUCTION GAP when CLAUDE.md is silent on something rather than inventing a rule; never modifies files — read-only role
 
+## skills
+
+### cut-release
+
+Intent: Walk through this project's release process end to end — version bump across all sync locations, CHANGELOG generation from commit history, and a local release commit
+Input: Release intent (e.g. "cut a release"), optionally a specific version
+Output: A local `chore(release):` commit with version bumps and CHANGELOG entries; instructions to run `npm run create-release` to push and trigger CI
+Constraints: Never runs `npm run create-release` itself; always confirms the target version and shows the full diff before committing; a commit message that doesn't parse into a recognized conventional-commit type is never silently classified — the user is asked
+
 ## Registry Entry Conventions
 
 The registry is a caller's reference, not an executor's handbook. Each field has a defined audience and scope:
