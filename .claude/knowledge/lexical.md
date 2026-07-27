@@ -82,3 +82,52 @@ Despite `option.ref.current` being populated for every option (confirmed empiric
 **Citation:** [S_6: app/node_modules/@lexical/table/dist/LexicalTableSelectionHelpers.d.ts:40 — `export declare function $findCellNode(node: LexicalNode): null | TableCellNode;`]
 
 Exported from `@lexical/table`. Used to detect whether a selection anchor is inside a table cell, regardless of nesting depth within the cell (e.g., inside a paragraph within the cell). Must be called within an active editor read/update context, like all `$`-prefixed Lexical functions.
+
+## `ListType` is a closed three-member union — a custom list type cannot be added without forking `@lexical/list`
+
+**Verified at:** @lexical/list 0.46.0
+**Citation:** [S_1: app/node_modules/@lexical/list/dist/LexicalListNode.d.ts:15 — `export type ListType = 'number' | 'bullet' | 'check';`; :40 — `setListType(type: ListType): this`; :16 — `export type ListNodeTagType = 'ul' | 'ol';`; :49-50 — `canBeEmpty(): false` and `canIndent(): false` declared as literal return types]
+
+`ListType` admits only `'number' | 'bullet' | 'check'`, and `setListType`, `$createListNode`, and `SerializedListNode.listType` are all typed against it. `ListNode` additionally hardcodes `canBeEmpty()` and `canIndent()` to literal `false` return types (not overridable defaults) and can only render `ul`/`ol`. Any feature wanting a new list-like block must be a separate `ElementNode` subclass rather than a fourth list type.
+
+## List keyboard behavior comes from `ElementNode` lifecycle hooks, not from list membership
+
+**Verified at:** lexical 0.46.0, @lexical/list 0.46.0
+**Citation:** [S_5: app/node_modules/lexical/dist/nodes/LexicalElementNode.d.ts:209-242 — `insertNewAfter`, `canIndent`, `collapseAtStart`, `excludeFromCopy`, `canBeEmpty`, `canInsertTextBefore`, `canInsertTextAfter`, `isInline`, `isShadowRoot`, `extractWithChild`, `canMergeWhenEmpty` all declared on `ElementNode`; S_6: app/node_modules/@lexical/list/dist/LexicalListItemNode.d.ts:46,47,61,62,63 — `ListItemNode` overrides `insertNewAfter`, `collapseAtStart`, `isParentRequired`, `createParentElementNode`, `canMergeWhenEmpty`]
+
+`ListItemNode` obtains Enter-splitting, Backspace-collapsing, and empty-merge behavior by overriding hooks that `ElementNode` declares for every subclass. Any custom `ElementNode` can reproduce list-like keyboard semantics by overriding the same hooks — being a list type is not a prerequisite. Note that `canInsertAfter`, `canReplaceWith`, and `canMergeWith` on both classes carry `@deprecated @internal` tags and must not be used.
+
+## `getTopLevelElement()` stops at any node whose `isShadowRoot()` returns true
+
+**Verified at:** lexical 0.46.0
+**Citation:** [S_23: app/node_modules/lexical/dist/Lexical.dev.mjs:5901-5909 — `getTopLevelElement()` walks parents until `$isRootOrShadowRoot(parent)`; :16053-16055 — `function $isRootOrShadowRoot(node) { return $isRootNode(node) || $isElementNode(node) && node.isShadowRoot(); }`; S_24: same file:13094-13096 — `TableCellNode.isShadowRoot()` returns true, with an inline comment naming `getTopLevelElement` as the reason]
+
+`getTopLevelElement()` and `getTopLevelElementOrThrow()` resolve to the highest ancestor whose parent is the root node **or** any `ElementNode` returning `true` from `isShadowRoot()`. A custom container node that returns `true` therefore makes every editor-wide consumer of `getTopLevelElementOrThrow()` — placeholder/hint plugins, FloatingToolbar active-state predicates, slash-command `isActive` predicates — resolve to the block inside the container rather than to the container itself, usually without any change to those consumers. `TableCellNode` already relies on this.
+
+## `ElementNode.getDOMSlot()` is the supported mechanism for accessory DOM outside the managed-children range
+
+**Verified at:** lexical 0.46.0
+**Citation:** [S_8: app/node_modules/lexical/dist/nodes/LexicalElementNode.d.ts:197-205 — doc comment "An ElementNode subclass can override this to control where its children are inserted into the DOM, e.g. to add a wrapping node or accessory nodes before or after the children. The root of the node returned by createDOM must still be exactly one HTMLElement."; S_9: app/node_modules/lexical/dist/LexicalDOMSlot.d.ts — `ElementDOMSlot.withElement<ElementType extends HTMLElement>(element: ElementType): ElementDOMSlot<ElementType>`; S_10: same file — `resolveLeafPosition` doc comment names the "wrap pattern that exposed the inner content element via `withElement`"; S_11: same file — `DOMSlot` class doc carries `@experimental`]
+
+Overriding `getDOMSlot(element)` to return `super.getDOMSlot(element).withElement(innerElement)` lets `createDOM` build a wrapper containing both non-Lexical accessory elements and an inner element that receives the managed children. Selection mapping through this wrap pattern is explicitly handled by `resolveLeafPosition` and `resolveChildIndex`. `DOMSlot` is marked `@experimental`, so any Lexical upgrade must re-verify `getDOMSlot`, `ElementDOMSlot`, and `withElement` before being accepted.
+
+## `DOMSlot` exposes exactly one content-bearing `element` — a node's children cannot be split across two DOM parents
+
+**Verified at:** lexical 0.46.0
+**Citation:** [S_17: app/node_modules/lexical/dist/LexicalDOMSlot.d.ts — `readonly element: T` with `before`/`after` declared only as boundary `Node | null` markers, not alternate insertion targets]
+
+All Lexical-managed children of an `ElementNode` are inserted into the single `element` a `DOMSlot` points at; `before` and `after` mark boundaries within that one element rather than providing a second parent. A node whose children must render into two structurally separate DOM parents — for example one child inside `<summary>` and another as a following sibling inside `<details>` — cannot be expressed as live editor DOM and must be produced at the `exportDOM` boundary instead.
+
+## `DOMExportOutput.after` runs after children are appended; `DOMConversionOutput.after` restructures converted children
+
+**Verified at:** lexical 0.46.0
+**Citation:** [S_25: app/node_modules/lexical/dist/LexicalNode.d.ts:387-400 — `DOMExportOutput.after?: (generatedElement: HTMLElement | DocumentFragment | Text | null | undefined) => HTMLElement | DocumentFragment | Text | null | undefined`, documented as "Called after the node and all of its children are constructed", parameter documented as "`element` after children are appended"; :381-385 — `DOMConversionOutput = { after?: (childLexicalNodes: LexicalNode[]) => LexicalNode[]; forChild?: DOMChildConversion; node: null | LexicalNode | LexicalNode[] }`]
+
+`exportDOM` cannot restructure its own children in its body, because they do not exist yet when `element` is constructed — the `after` callback is the only place a generated element's children can be rewrapped or reordered. Symmetrically, `importDOM`'s conversion `after` callback receives the already-converted child Lexical nodes and returns the final array, which is where a flat pasted structure is reshaped into a node's required child arrangement.
+
+## `$setListItemThemeClassNames` applies checkbox classes to structural nesting wrappers, not only to real checklist items
+
+**Verified at:** @lexical/list 0.46.0
+**Citation:** [S_21: app/node_modules/@lexical/list/dist/LexicalList.dev.mjs:942-987 — `isCheckList` computed from the parent `ListNode`'s type at :950, `isNested` from whether the node has a `ListNode` child at :952; :975-980 adds `listitemChecked`/`listitemUnchecked` whenever `isCheckList` with no nesting exclusion; :981-983 separately adds `nested.listitem`]
+
+The `<li>` that exists only to wrap a nested `<ul>` inside a check list receives both the `listitemChecked`/`listitemUnchecked` theme class and the `nested.listitem` theme class. Any stylesheet drawing the checkbox via a `::before` pseudo-element on the checked/unchecked classes must explicitly suppress that pseudo-element on the nested-wrapper class, or a non-interactive checkbox renders at every indentation level.
