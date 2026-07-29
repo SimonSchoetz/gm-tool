@@ -1,13 +1,8 @@
-import {
-  CustomScrollArea,
-  GlassPanel,
-  LoadingIcon,
-  TextEditor,
-} from '@/components';
+import { LoadingIcon, TextEditor } from '@/components';
 import { useFoe } from '@/data-access-layer';
-import './FoeScreen.css';
 import { useParams } from '@tanstack/react-router';
 import { FoeHeader, FoeSidebar } from './components';
+import { ScreensTextEditorLayout } from '../components';
 
 export const FoeScreen = () => {
   const { adventureId, foeId } = useParams({
@@ -25,22 +20,18 @@ export const FoeScreen = () => {
   }
 
   return (
-    <GlassPanel className='foe-screen'>
-      <FoeSidebar />
-
-      <CustomScrollArea>
-        <div className='foe-text-edit-area'>
-          <FoeHeader />
-
-          <TextEditor
-            value={foe.description ?? ''}
-            textEditorId={`FOE_${foe.id}_description`}
-            onChange={(description) => {
-              updateFoe({ description });
-            }}
-          />
-        </div>
-      </CustomScrollArea>
-    </GlassPanel>
+    <ScreensTextEditorLayout
+      header={<FoeHeader />}
+      sideBar={<FoeSidebar />}
+      textEditor={
+        <TextEditor
+          value={foe.description ?? ''}
+          textEditorId={`FOE_${foe.id}_description`}
+          onChange={(description) => {
+            updateFoe({ description });
+          }}
+        />
+      }
+    />
   );
 };

@@ -1,13 +1,8 @@
-import {
-  CustomScrollArea,
-  GlassPanel,
-  LoadingIcon,
-  TextEditor,
-} from '@/components';
+import { LoadingIcon, TextEditor } from '@/components';
 import { useLocation } from '@/data-access-layer';
-import './LocationScreen.css';
 import { useParams } from '@tanstack/react-router';
 import { LocationHeader, LocationSidebar } from './components';
+import { ScreensTextEditorLayout } from '../components';
 
 export const LocationScreen = () => {
   const { adventureId, locationId } = useParams({
@@ -28,22 +23,18 @@ export const LocationScreen = () => {
   }
 
   return (
-    <GlassPanel className='location-screen'>
-      <LocationSidebar />
-
-      <CustomScrollArea>
-        <div className='location-text-edit-area'>
-          <LocationHeader />
-
-          <TextEditor
-            value={location.description ?? ''}
-            textEditorId={`LOCATION_${location.id}_description`}
-            onChange={(description) => {
-              updateLocation({ description });
-            }}
-          />
-        </div>
-      </CustomScrollArea>
-    </GlassPanel>
+    <ScreensTextEditorLayout
+      header={<LocationHeader />}
+      sideBar={<LocationSidebar />}
+      textEditor={
+        <TextEditor
+          value={location.description ?? ''}
+          textEditorId={`LOCATION_${location.id}_description`}
+          onChange={(description) => {
+            updateLocation({ description });
+          }}
+        />
+      }
+    />
   );
 };

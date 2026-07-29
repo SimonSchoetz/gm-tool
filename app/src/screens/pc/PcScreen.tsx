@@ -1,13 +1,8 @@
-import {
-  CustomScrollArea,
-  GlassPanel,
-  LoadingIcon,
-  TextEditor,
-} from '@/components';
+import { LoadingIcon, TextEditor } from '@/components';
 import { usePc } from '@/data-access-layer';
-import './PcScreen.css';
 import { useParams } from '@tanstack/react-router';
 import { PcHeader, PcSidebar } from './components';
+import { ScreensTextEditorLayout } from '../components';
 
 export const PcScreen = () => {
   const { adventureId, pcId } = useParams({
@@ -25,22 +20,18 @@ export const PcScreen = () => {
   }
 
   return (
-    <GlassPanel className='pc-screen'>
-      <PcSidebar />
-
-      <CustomScrollArea>
-        <div className='pc-text-edit-area'>
-          <PcHeader />
-
-          <TextEditor
-            value={pc.description ?? ''}
-            textEditorId={`PC_${pc.id}_description`}
-            onChange={(description) => {
-              updatePc({ description });
-            }}
-          />
-        </div>
-      </CustomScrollArea>
-    </GlassPanel>
+    <ScreensTextEditorLayout
+      header={<PcHeader />}
+      sideBar={<PcSidebar />}
+      textEditor={
+        <TextEditor
+          value={pc.description ?? ''}
+          textEditorId={`PC_${pc.id}_description`}
+          onChange={(description) => {
+            updatePc({ description });
+          }}
+        />
+      }
+    />
   );
 };

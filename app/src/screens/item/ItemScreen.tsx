@@ -1,13 +1,8 @@
-import {
-  CustomScrollArea,
-  GlassPanel,
-  LoadingIcon,
-  TextEditor,
-} from '@/components';
+import { LoadingIcon, TextEditor } from '@/components';
 import { useItem } from '@/data-access-layer';
-import './ItemScreen.css';
 import { useParams } from '@tanstack/react-router';
 import { ItemHeader, ItemSidebar } from './components';
+import { ScreensTextEditorLayout } from '../components';
 
 export const ItemScreen = () => {
   const { adventureId, itemId } = useParams({
@@ -25,22 +20,18 @@ export const ItemScreen = () => {
   }
 
   return (
-    <GlassPanel className='item-screen'>
-      <ItemSidebar />
-
-      <CustomScrollArea>
-        <div className='item-text-edit-area'>
-          <ItemHeader />
-
-          <TextEditor
-            value={item.description ?? ''}
-            textEditorId={`ITEM_${item.id}_description`}
-            onChange={(description) => {
-              updateItem({ description });
-            }}
-          />
-        </div>
-      </CustomScrollArea>
-    </GlassPanel>
+    <ScreensTextEditorLayout
+      header={<ItemHeader />}
+      sideBar={<ItemSidebar />}
+      textEditor={
+        <TextEditor
+          value={item.description ?? ''}
+          textEditorId={`ITEM_${item.id}_description`}
+          onChange={(description) => {
+            updateItem({ description });
+          }}
+        />
+      }
+    />
   );
 };
