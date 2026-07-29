@@ -23,7 +23,7 @@ export const FoeScreen = () => {
     <ScreensTextEditorLayout
       header={<FoeHeader />}
       sideBar={<FoeSidebar />}
-      textEditor={
+      body={
         <TextEditor
           value={foe.description ?? ''}
           textEditorId={`FOE_${foe.id}_description`}

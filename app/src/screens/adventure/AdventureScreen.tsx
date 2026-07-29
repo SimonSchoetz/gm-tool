@@ -23,7 +23,7 @@ export const AdventureScreen = () => {
     <ScreensTextEditorLayout
       header={<AdventureScreenHeader />}
       sideBar={<AdventureScreenSidebar />}
-      textEditor={
+      body={
         <TextEditor
           value={adventure.description ?? ''}
           textEditorId={`ADVENTURE_${adventure.id}`}

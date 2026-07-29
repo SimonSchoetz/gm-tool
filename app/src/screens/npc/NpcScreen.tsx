@@ -23,7 +23,7 @@ export const NpcScreen = () => {
     <ScreensTextEditorLayout
       header={<NpcHeader />}
       sideBar={<NpcSidebar />}
-      textEditor={
+      body={
         <TextEditor
           value={npc.description ?? ''}
           textEditorId={`NPC_${npc.id}_description`}

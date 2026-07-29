@@ -23,7 +23,7 @@ export const ItemScreen = () => {
     <ScreensTextEditorLayout
       header={<ItemHeader />}
       sideBar={<ItemSidebar />}
-      textEditor={
+      body={
         <TextEditor
           value={item.description ?? ''}
           textEditorId={`ITEM_${item.id}_description`}

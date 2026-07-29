@@ -9,10 +9,18 @@
     var(--sidebar-inner-width) + var(--text-editor-max-width) +
       var(--spacing-lg) + 2 * var(--spacing-md) + var(--custom-scrollbar-width)
   );
+  flex: 1;
+  min-height: 0;
 }
 
-.screens-text-editor-layout--text-area {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  height: 100%;
+.screens-text-editor-layout--edit-area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.screens-text-editor-layout--body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }

@@ -23,7 +23,7 @@ export const PcScreen = () => {
     <ScreensTextEditorLayout
       header={<PcHeader />}
       sideBar={<PcSidebar />}
-      textEditor={
+      body={
         <TextEditor
           value={pc.description ?? ''}
           textEditorId={`PC_${pc.id}_description`}

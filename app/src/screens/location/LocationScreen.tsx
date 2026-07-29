@@ -26,7 +26,7 @@ export const LocationScreen = () => {
     <ScreensTextEditorLayout
       header={<LocationHeader />}
       sideBar={<LocationSidebar />}
-      textEditor={
+      body={
         <TextEditor
           value={location.description ?? ''}
           textEditorId={`LOCATION_${location.id}_description`}

@@ -6,18 +6,15 @@
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
   - adjust all usages of fonts throughtout the app
-- Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Summary Pop Up): 
   - click on embedded link opens within app instead of external browser
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix: Adventure stats (facts)
-- Fix (Text Editor): Remove H1 from text editor options, change H2 to "Heading", change H3 to "Subheading"
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor
   - arrow conversion '->' to '→' <- is this maybe a font thing or is this something the editor must do?
-  - drag-and-drop content into editor
-  - Lists: Mixed lists text-editors with no content -> should be nothing
+  - Lists: Mixed lists should be possible
 - Feature: Data access and db location/localization
   - encryption?
 - Feature: Implement prefetching
@@ -30,6 +27,7 @@
 
 ### Done
 
+- Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Feature (Text Editor): "Toggle section" (foldable sections)
 - Refactor (Mention Badge):
