@@ -7,9 +7,10 @@
 .adventure-facts {
   display: flex;
   list-style-type: none;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-xs) var(--spacing-xl);
   color: rgb(var(--color-fg-rgb), 0.6);
   margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .adventure-facts span {

@@ -34,13 +34,22 @@ export const AdventureScreenHeader = () => {
           Sessions: <span>0</span>
         </li>
         <li>
-          NPCs: <span>0</span>
-        </li>
-        <li>
           PCs: <span>0</span>
         </li>
         <li>
-          Party Level: <span>0</span>
+          NPCs: <span>0</span>
+        </li>
+        <li>
+          Factions: <span>0</span>
+        </li>
+        <li>
+          Locations: <span>0</span>
+        </li>
+        <li>
+          Foes: <span>0</span>
+        </li>
+        <li>
+          Items: <span>0</span>
         </li>
       </ul>
     </div>
