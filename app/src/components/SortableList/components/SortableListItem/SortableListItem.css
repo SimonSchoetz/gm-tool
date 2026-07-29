@@ -32,9 +32,3 @@
 .sortable-list-item--content-section-with-image {
   padding: var(--spacing-sm);
 }
-
-.clip-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-wrap: nowrap;
-}

@@ -73,3 +73,9 @@ a:hover {
   width: var(--summary-content-height);
   aspect-ratio: 1 / 1;
 }
+
+.clip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+}

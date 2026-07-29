@@ -32,6 +32,7 @@ export const MentionPopupHeader: FCProps<Props> = ({
     <div
       {...(isPinned ? draggableProps : {})}
       className={cn(
+        'clip-text',
         'mention-popup-name',
         isPinned && 'mention-popup-name--pinned',
       )}

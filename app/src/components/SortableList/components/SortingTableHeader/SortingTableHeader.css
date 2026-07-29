@@ -1,43 +1,34 @@
 .sorting-table-header {
-  /* padding: 0 var(--spacing-md); */
   display: grid;
+  overflow: hidden;
 }
 
-.sorting-table-header__cell {
-  overflow: hidden;
+.sorting-table-header--cell {
   display: flex;
   justify-content: space-between;
-  white-space: nowrap;
 }
 
-.sorting-table-header__cell:hover {
+.sorting-table-header--cell:hover {
   background-color: var(--color-hover-bg);
 }
 
-.sorting-table-header__sort-btn {
+.sorting-table-header--sort-btn {
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-md);
   display: flex;
-  white-space: nowrap;
-  overflow: hidden;
   min-width: 0;
 }
 
-.sorting-table-header__sort-btn:hover {
+.sorting-table-header--sort-btn:hover {
   background-color: transparent;
 }
 
-.sorting-table-header__cell > span,
-.sorting-table-header__sort-btn > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .sort-indicator {
   flex-shrink: 0;
   transition: var(--transition-very-fast);
 }
 
-.sort-indicator__inactive {
+.sort-indicator--inactive {
   color: transparent;
 }
 

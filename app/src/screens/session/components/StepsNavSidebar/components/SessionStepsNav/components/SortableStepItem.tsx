@@ -47,7 +47,7 @@ export const SortableStepItem = ({ step }: SortableStepItemProps) => {
         ⠿
       </span>
 
-      <div className='steps-nav-item-label'>{stepName}</div>
+      <div className='steps-nav-item-label clip-text'>{stepName}</div>
     </ActionContainer>
   );
 };

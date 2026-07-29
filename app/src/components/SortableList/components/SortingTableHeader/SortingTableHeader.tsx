@@ -147,20 +147,20 @@ export const SortingTableHeader = ({
         const isResizable = column.resizable !== false;
 
         return (
-          <div key={column.key} className='sorting-table-header__cell'>
+          <div key={column.key} className='sorting-table-header--cell'>
             <ActionContainer
               disabled={notSortable}
               onClick={() => {
                 handleSort(column.key);
               }}
               label={`Sort by ${column.label.toLowerCase()}`}
-              className='sorting-table-header__sort-btn'
+              className='sorting-table-header--sort-btn'
             >
-              <span>{column.label}</span>
+              <span> {column.label}</span>
               <ChevronUpIcon
                 className={cn(
                   'sort-indicator',
-                  !isActive && 'sort-indicator__inactive',
+                  !isActive && 'sort-indicator--inactive',
                   sortState.direction === 'asc' && isActive && 'indicate-asc',
                 )}
               />

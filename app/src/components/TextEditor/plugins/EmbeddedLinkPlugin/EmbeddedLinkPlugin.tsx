@@ -107,7 +107,7 @@ export const EmbeddedLinkPlugin = () => {
       }}
     >
       <GlassPanel intensity='bright' className='link-popup'>
-        <span className='link-popup--url'>{linkUrl}</span>
+        <span className='link-popup--url clip-text'>{linkUrl}</span>
 
         <ClickableIcon
           className='link-popup--icon'

@@ -8,9 +8,6 @@
 
 .breadcrumb-list li {
   font-size: var(--font-size-lg);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-wrap: nowrap;
 }
 
 .breadcrumb-list svg {

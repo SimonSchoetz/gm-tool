@@ -2,6 +2,7 @@
 
 ## Closed Beta Ready
 
+- Fix (FTB): URL input breaks FTB when longer than input allows
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
   - adjust all usages of fonts throughtout the app

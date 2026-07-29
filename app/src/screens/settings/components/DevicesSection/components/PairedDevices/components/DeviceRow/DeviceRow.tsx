@@ -33,7 +33,7 @@ export const DeviceRow: FCProps<Props> = ({ device }) => {
   return (
     <li className='device-row'>
       <StatusIndicator status={status} />
-      <span className='device-row-name'>{displayName}</span>
+      <span className='device-row-name clip-text'>{displayName}</span>
       <ClickableIcon
         icon={<UnlinkIcon />}
         variant='danger'

@@ -49,9 +49,7 @@ export const MentionOptionList: FCProps<Props> = ({
             } as React.CSSProperties
           }
         >
-          <span className='mention-option-list-item-name'>
-            {option.result.name}
-          </span>
+          <span className='clip-text'>{option.result.name}</span>
           <span className='mention-option-list-item-table-label'>
             {entityTypeLabel(option.result.tableName)}
           </span>
