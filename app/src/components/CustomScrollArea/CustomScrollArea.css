@@ -11,12 +11,12 @@
 }
 
 .custom-scrollbar-thumb {
-  width: 8px;
+  width: calc(var(--custom-scrollbar-width) / 3 * 2);
   position: absolute;
   pointer-events: auto;
   z-index: 100;
   background: rgba(var(--color-primary-rgb), 0.5);
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   cursor: grab;
   transition:
     opacity 0.3s ease,

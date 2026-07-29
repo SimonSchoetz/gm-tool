@@ -9,6 +9,7 @@ import {
 } from './components';
 import './SessionScreen.css';
 import { GlassPanel, LoadingIcon } from '@/components';
+import { PREVIEW_WIDTH } from '../screens.constants';
 
 export const SessionScreen = () => {
   const { sessionId, adventureId } = useParams({
@@ -53,7 +54,14 @@ export const SessionScreen = () => {
   }
 
   return (
-    <GlassPanel className='session-screen'>
+    <GlassPanel
+      style={
+        {
+          '--sidebar-inner-width': `${PREVIEW_WIDTH}px`,
+        } as React.CSSProperties
+      }
+      className='session-screen'
+    >
       <SessionHeader />
 
       <div className='session-body'>

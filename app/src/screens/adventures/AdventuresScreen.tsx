@@ -3,10 +3,7 @@ import './AdventuresScreen.css';
 import { ToAdventureBtn } from './components';
 import { NewItemBtn, CustomScrollArea, LoadingIcon } from '@/components';
 import { useRouter } from '@tanstack/react-router';
-import {
-  ADVENTURE_PREVIEW_HEIGHT,
-  ADVENTURE_PREVIEW_WIDTH,
-} from '../screens.constants';
+import { ADVENTURE_PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../screens.constants';
 
 export const AdventuresScreen = () => {
   const router = useRouter();
@@ -26,7 +23,7 @@ export const AdventuresScreen = () => {
   }
 
   const adventurePreviewDimensions = {
-    '--adventure-preview-width': `${ADVENTURE_PREVIEW_WIDTH}px`,
+    '--adventure-preview-width': `${PREVIEW_WIDTH}px`,
     '--adventure-preview-height': `${ADVENTURE_PREVIEW_HEIGHT}px`,
   } as React.CSSProperties;
 

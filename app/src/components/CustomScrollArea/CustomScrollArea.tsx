@@ -5,17 +5,12 @@ import { FCProps } from '../../types/fcProps.type';
 import './CustomScrollArea.css';
 
 type CustomScrollAreaProps = {
-  thumbMinHeight?: number;
-  scrollbarWidth?: number;
-  spacing?: number;
   childrenContainerClassName?: string;
 } & HtmlProps<'div'>;
 
 export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   children,
   className,
-  thumbMinHeight = 40,
-  spacing = 0,
   childrenContainerClassName,
   ...props
 }) => {
@@ -26,6 +21,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isScrollNeeded, setIsScrollNeeded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const THUMB_MIN_HEIGHT = 40;
 
   // Check if scroll is needed
   useEffect(() => {
@@ -63,7 +59,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
     if (!container || !thumb || !isScrollNeeded) return;
 
     const updateThumbPosition = () => {
-      thumb.style.top = `${container.scrollTop * (1 + scalingRef.current) + spacing}px`;
+      thumb.style.top = `${container.scrollTop * (1 + scalingRef.current)}px`;
     };
 
     const updateThumbLayout = () => {
@@ -73,16 +69,17 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
 
       if (maxScrollTop <= 0) return null;
 
-      const thumbHeight =
-        Math.max(Math.pow(viewport.height, 2) / scrollHeight, thumbMinHeight) -
-        spacing * 2;
+      const thumbHeight = Math.max(
+        Math.pow(viewport.height, 2) / scrollHeight,
+        THUMB_MIN_HEIGHT,
+      );
 
       const maxTopOffset = viewport.height - thumbHeight;
       scalingRef.current = maxTopOffset / maxScrollTop;
 
       const ROUNDING_OFFSET = 2;
       thumb.style.height = `${thumbHeight - ROUNDING_OFFSET}px`;
-      thumb.style.right = `-${spacing * 0.5}px`;
+      thumb.style.right = '0px';
 
       updateThumbPosition();
     };
@@ -108,7 +105,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
-  }, [isScrollNeeded, thumbMinHeight, spacing]);
+  }, [isScrollNeeded, THUMB_MIN_HEIGHT]);
 
   // Drag handlers
   const lastYRef = useRef(0);
@@ -177,7 +174,9 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       <div
         ref={perspectiveRef}
         style={{
-          paddingRight: `${isScrollNeeded ? 12 : 0}px`,
+          paddingRight: isScrollNeeded
+            ? 'var(--custom-scrollbar-width)'
+            : '0px',
         }}
         className={cn('perspective-container', childrenContainerClassName)}
       >

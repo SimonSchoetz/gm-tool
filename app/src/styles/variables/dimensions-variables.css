@@ -3,4 +3,6 @@
   --summary-max-width: 600px;
   --dialog-max-width: 640px;
   --mention-popup-max-height: 14rem; /* <=7 visible rows */
+  --text-editor-max-width: 680px; /*  Results in 80 characters per line on font-size base */
+  --custom-scrollbar-width: 12px;
 }

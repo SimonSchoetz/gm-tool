@@ -1,15 +1,18 @@
-.text-editor-layout {
+.screens-text-editor-layout {
   padding: var(--spacing-md);
   display: grid;
   gap: var(--spacing-lg);
   grid-template-columns: auto 1fr;
-  width: fit-content;
   justify-self: center;
+  width: 100%;
+  max-width: calc(
+    var(--sidebar-inner-width) + var(--text-editor-max-width) +
+      var(--spacing-lg) + 2 * var(--spacing-md) + var(--custom-scrollbar-width)
+  );
 }
 
-.text-editor-layout--text-area {
+.screens-text-editor-layout--text-area {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
-  width: fit-content;
 }

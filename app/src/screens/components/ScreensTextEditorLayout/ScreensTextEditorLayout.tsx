@@ -2,6 +2,7 @@ import { FCProps } from '@/types';
 import './ScreensTextEditorLayout.css';
 import { CustomScrollArea, GlassPanel } from '@/components';
 import { ComponentProps, JSX } from 'react';
+import { PREVIEW_WIDTH } from '../../screens.constants';
 
 type Props = ComponentProps<typeof GlassPanel> & {
   sideBar: JSX.Element | null;
@@ -15,11 +16,18 @@ export const ScreensTextEditorLayout: FCProps<Props> = ({
   textEditor,
 }) => {
   return (
-    <GlassPanel className='text-editor-layout'>
+    <GlassPanel
+      style={
+        {
+          '--sidebar-inner-width': `${PREVIEW_WIDTH}px`,
+        } as React.CSSProperties
+      }
+      className='screens-text-editor-layout'
+    >
       {sideBar}
 
       <CustomScrollArea>
-        <div className='text-editor-layout--text-area'>
+        <div className='screens-text-editor-layout--text-area'>
           {header}
 
           {textEditor}

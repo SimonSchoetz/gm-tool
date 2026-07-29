@@ -11,7 +11,6 @@
   - click on embedded link opens within app instead of external browser
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix: Adventure stats (facts)
-- Fix (Text Editor): Toggle can break scrollbar
 - Fix (Text Editor): Remove H1 from text editor options, change H2 to "Heading", change H3 to "Subheading"
 - Text editor:
   - Auto-Correct off (?)

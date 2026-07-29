@@ -1,4 +1,3 @@
-export const ADVENTURE_PREVIEW_WIDTH = 200;
 export const ADVENTURE_PREVIEW_HEIGHT = 350;
 
 export const PREVIEW_WIDTH = 200;

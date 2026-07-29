@@ -5,7 +5,7 @@ import { useRouter, useParams } from '@tanstack/react-router';
 import './AdventureScreenSidebar.css';
 import {
   ADVENTURE_PREVIEW_HEIGHT,
-  ADVENTURE_PREVIEW_WIDTH,
+  PREVIEW_WIDTH,
 } from '../../../screens.constants';
 
 export const AdventureScreenSidebar = () => {
@@ -29,7 +29,7 @@ export const AdventureScreenSidebar = () => {
     <aside className='adventure-sidebar'>
       <UploadImgBtn
         dimensions={{
-          width: ADVENTURE_PREVIEW_WIDTH,
+          width: PREVIEW_WIDTH,
           height: ADVENTURE_PREVIEW_HEIGHT,
         }}
         image_id={adventure.image_id ?? null}
