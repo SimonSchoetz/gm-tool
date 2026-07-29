@@ -2,6 +2,9 @@
 
 ## Closed Beta Ready
 
+- Feature (Fonts): 
+  - Implement fonts (see `./epics/fonts.md`)
+  - adjust all usages of fonts throughtout the app
 - Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Summary Pop Up): 
   - click on embedded link opens within app instead of external browser
@@ -9,7 +12,7 @@
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor
-  - arrow conversion '-> ' to '→' <- is this maybe a font thing or is this something the editor must do?
+  - arrow conversion '->' to '→' <- is this maybe a font thing or is this something the editor must do?
   - drag-and-drop content into editor
   - Lists: Mixed lists text-editors with no content -> should be nothing
 - Fix: Adventure stats (facts)
