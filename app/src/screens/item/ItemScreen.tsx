@@ -1,8 +1,12 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useItem } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { ItemHeader, ItemSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { ItemSidebar } from './components';
+import {
+  ScreensNameInput,
+  ScreensTextEditorLayout,
+  ScreensSummary,
+} from '../components';
 
 export const ItemScreen = () => {
   const { adventureId, itemId } = useParams({
@@ -21,16 +25,36 @@ export const ItemScreen = () => {
 
   return (
     <ScreensTextEditorLayout
-      header={<ItemHeader />}
       sideBar={<ItemSidebar />}
+      header={
+        <ScreensSummary>
+          <TextEditor
+            placeholder='Item Summary'
+            value={item.summary ?? ''}
+            textEditorId={`ITEM_${item.id}_summary`}
+            onChange={(summary) => {
+              updateItem({ summary });
+            }}
+          />
+        </ScreensSummary>
+      }
       body={
-        <TextEditor
-          value={item.description ?? ''}
-          textEditorId={`ITEM_${item.id}_description`}
-          onChange={(description) => {
-            updateItem({ description });
-          }}
-        />
+        <>
+          <ScreensNameInput
+            placeholder='Item Name'
+            initValue={item.name ?? ''}
+            onCommit={(name) => {
+              updateItem({ name });
+            }}
+          />
+          <TextEditor
+            value={item.description ?? ''}
+            textEditorId={`ITEM_${item.id}_description`}
+            onChange={(description) => {
+              updateItem({ description });
+            }}
+          />
+        </>
       }
     />
   );

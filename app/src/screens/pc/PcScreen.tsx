@@ -1,8 +1,12 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { usePc } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { PcHeader, PcSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { PcSidebar } from './components';
+import {
+  ScreensNameInput,
+  ScreensTextEditorLayout,
+  ScreensSummary,
+} from '../components';
 
 export const PcScreen = () => {
   const { adventureId, pcId } = useParams({
@@ -21,16 +25,36 @@ export const PcScreen = () => {
 
   return (
     <ScreensTextEditorLayout
-      header={<PcHeader />}
       sideBar={<PcSidebar />}
+      header={
+        <ScreensSummary>
+          <TextEditor
+            placeholder='PC Summary'
+            value={pc.summary ?? ''}
+            textEditorId={`PC_${pc.id}_summary`}
+            onChange={(summary) => {
+              updatePc({ summary });
+            }}
+          />
+        </ScreensSummary>
+      }
       body={
-        <TextEditor
-          value={pc.description ?? ''}
-          textEditorId={`PC_${pc.id}_description`}
-          onChange={(description) => {
-            updatePc({ description });
-          }}
-        />
+        <>
+          <ScreensNameInput
+            placeholder='PC Name'
+            initValue={pc.name ?? ''}
+            onCommit={(name) => {
+              updatePc({ name });
+            }}
+          />
+          <TextEditor
+            value={pc.description ?? ''}
+            textEditorId={`PC_${pc.id}_description`}
+            onChange={(description) => {
+              updatePc({ description });
+            }}
+          />
+        </>
       }
     />
   );

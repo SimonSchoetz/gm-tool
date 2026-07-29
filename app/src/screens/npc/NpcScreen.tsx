@@ -1,8 +1,12 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useNpc } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { NpcHeader, NpcSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { NpcSidebar } from './components';
+import {
+  ScreensNameInput,
+  ScreensTextEditorLayout,
+  ScreensSummary,
+} from '../components';
 
 export const NpcScreen = () => {
   const { adventureId, npcId } = useParams({
@@ -21,16 +25,36 @@ export const NpcScreen = () => {
 
   return (
     <ScreensTextEditorLayout
-      header={<NpcHeader />}
       sideBar={<NpcSidebar />}
+      header={
+        <ScreensSummary>
+          <TextEditor
+            placeholder='NPC Summary'
+            value={npc.summary ?? ''}
+            textEditorId={`NPC_${npc.id}_summary`}
+            onChange={(summary) => {
+              updateNpc({ summary });
+            }}
+          />
+        </ScreensSummary>
+      }
       body={
-        <TextEditor
-          value={npc.description ?? ''}
-          textEditorId={`NPC_${npc.id}_description`}
-          onChange={(description) => {
-            updateNpc({ description });
-          }}
-        />
+        <>
+          <ScreensNameInput
+            placeholder='NPC Name'
+            initValue={npc.name ?? ''}
+            onCommit={(name) => {
+              updateNpc({ name });
+            }}
+          />
+          <TextEditor
+            value={npc.description ?? ''}
+            textEditorId={`NPC_${npc.id}_description`}
+            onChange={(description) => {
+              updateNpc({ description });
+            }}
+          />
+        </>
       }
     />
   );

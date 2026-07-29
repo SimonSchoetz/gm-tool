@@ -49,7 +49,6 @@ export const FactionScreen = () => {
             onCommit={(name) => {
               updateFaction({ name });
             }}
-            className='faction-name-input'
           />
           <TextEditor
             value={faction.description ?? ''}

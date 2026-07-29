@@ -1,8 +1,12 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useFoe } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { FoeHeader, FoeSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { FoeSidebar } from './components';
+import {
+  ScreensNameInput,
+  ScreensTextEditorLayout,
+  ScreensSummary,
+} from '../components';
 
 export const FoeScreen = () => {
   const { adventureId, foeId } = useParams({
@@ -21,16 +25,36 @@ export const FoeScreen = () => {
 
   return (
     <ScreensTextEditorLayout
-      header={<FoeHeader />}
       sideBar={<FoeSidebar />}
+      header={
+        <ScreensSummary>
+          <TextEditor
+            placeholder='Foe Summary'
+            value={foe.summary ?? ''}
+            textEditorId={`FOE_${foe.id}_summary`}
+            onChange={(summary) => {
+              updateFoe({ summary });
+            }}
+          />
+        </ScreensSummary>
+      }
       body={
-        <TextEditor
-          value={foe.description ?? ''}
-          textEditorId={`FOE_${foe.id}_description`}
-          onChange={(description) => {
-            updateFoe({ description });
-          }}
-        />
+        <>
+          <ScreensNameInput
+            placeholder='Foe Name'
+            initValue={foe.name ?? ''}
+            onCommit={(name) => {
+              updateFoe({ name });
+            }}
+          />
+          <TextEditor
+            value={foe.description ?? ''}
+            textEditorId={`FOE_${foe.id}_description`}
+            onChange={(description) => {
+              updateFoe({ description });
+            }}
+          />
+        </>
       }
     />
   );

@@ -1,8 +1,12 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useLocation } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { LocationHeader, LocationSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { LocationSidebar } from './components';
+import {
+  ScreensNameInput,
+  ScreensTextEditorLayout,
+  ScreensSummary,
+} from '../components';
 
 export const LocationScreen = () => {
   const { adventureId, locationId } = useParams({
@@ -24,16 +28,36 @@ export const LocationScreen = () => {
 
   return (
     <ScreensTextEditorLayout
-      header={<LocationHeader />}
       sideBar={<LocationSidebar />}
+      header={
+        <ScreensSummary>
+          <TextEditor
+            placeholder='Location Summary'
+            value={location.summary ?? ''}
+            textEditorId={`LOCATION_${location.id}_summary`}
+            onChange={(summary) => {
+              updateLocation({ summary });
+            }}
+          />
+        </ScreensSummary>
+      }
       body={
-        <TextEditor
-          value={location.description ?? ''}
-          textEditorId={`LOCATION_${location.id}_description`}
-          onChange={(description) => {
-            updateLocation({ description });
-          }}
-        />
+        <>
+          <ScreensNameInput
+            placeholder='Location Name'
+            initValue={location.name ?? ''}
+            onCommit={(name) => {
+              updateLocation({ name });
+            }}
+          />
+          <TextEditor
+            value={location.description ?? ''}
+            textEditorId={`LOCATION_${location.id}_description`}
+            onChange={(description) => {
+              updateLocation({ description });
+            }}
+          />
+        </>
       }
     />
   );
