@@ -13,4 +13,8 @@
   --font-weight-medium: 500;
   --font-weight-semi-bold: 600;
   --font-weight-bold: 700;
+
+  --font-size-title: var(--font-size-2xl);
+  --font-size-heading: var(--font-size-xl);
+  --font-size-subheading: var(--font-size-lg);
 }
