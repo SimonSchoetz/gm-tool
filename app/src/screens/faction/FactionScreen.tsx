@@ -1,8 +1,12 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useFaction } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { FactionHeader, FactionSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { FactionSidebar } from './components';
+import {
+  ScreensNameInput,
+  ScreensTextEditorLayout,
+  ScreensSummary,
+} from '../components';
 
 export const FactionScreen = () => {
   const { adventureId, factionId } = useParams({
@@ -24,16 +28,37 @@ export const FactionScreen = () => {
 
   return (
     <ScreensTextEditorLayout
-      header={<FactionHeader />}
       sideBar={<FactionSidebar />}
-      textEditor={
-        <TextEditor
-          value={faction.description ?? ''}
-          textEditorId={`FACTION_${faction.id}_description`}
-          onChange={(description) => {
-            updateFaction({ description });
-          }}
-        />
+      header={
+        <ScreensSummary>
+          <TextEditor
+            placeholder='Faction Summary'
+            value={faction.summary ?? ''}
+            textEditorId={`FACTION_${faction.id}_summary`}
+            onChange={(summary) => {
+              updateFaction({ summary });
+            }}
+          />
+        </ScreensSummary>
+      }
+      body={
+        <>
+          <ScreensNameInput
+            placeholder='Faction Name'
+            initValue={faction.name ?? ''}
+            onCommit={(name) => {
+              updateFaction({ name });
+            }}
+            className='faction-name-input'
+          />
+          <TextEditor
+            value={faction.description ?? ''}
+            textEditorId={`FACTION_${faction.id}_description`}
+            onChange={(description) => {
+              updateFaction({ description });
+            }}
+          />
+        </>
       }
     />
   );

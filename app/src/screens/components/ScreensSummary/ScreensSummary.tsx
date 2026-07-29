@@ -1,14 +1,14 @@
 import { FCProps } from '@/types';
 import './ScreensSummary.css';
-import { ComponentProps, JSX } from 'react';
+import { ComponentProps } from 'react';
 import { GlassPanel, CustomScrollArea } from '@/components';
 
-type Props = ComponentProps<typeof GlassPanel> & { body: JSX.Element };
+type Props = ComponentProps<typeof GlassPanel>;
 
-export const ScreensSummary: FCProps<Props> = ({ body }) => {
+export const ScreensSummary: FCProps<Props> = ({ children }) => {
   return (
     <GlassPanel className='screens-summary' intensity='bright'>
-      <CustomScrollArea>{body}</CustomScrollArea>
+      <CustomScrollArea>{children}</CustomScrollArea>
     </GlassPanel>
   );
 };
