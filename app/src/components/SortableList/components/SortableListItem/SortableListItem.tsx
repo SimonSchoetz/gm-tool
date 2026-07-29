@@ -5,6 +5,7 @@ import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
 import { buildGridTemplate } from '../../helper';
 import { renderCell } from './helper';
+import { cn } from '@/util';
 
 type Props = {
   tableConfigId: string;
@@ -32,20 +33,31 @@ export const SortableListItem = ({
 
   const name = typeof item.name === 'string' ? item.name : '';
 
+  const isItemWithImage = 'image_id' in item;
+
   return (
     <li className='sortable-list-item'>
-      <GlassPanel intensity='bright'>
+      <GlassPanel className='sortable-list-item--glass-panel'>
         <ActionContainer
           label={`Go to ${name}`}
-          className='sortable-list-item--content-container'
+          className={cn('sortable-list-item--content')}
           style={{ gridTemplateColumns }}
           onClick={() => {
             onClick(item);
           }}
         >
           {columns.map((col) => (
-            <div key={col.key}>
-              <span>{renderCell(col.key, item)}</span>
+            <div
+              className={cn(
+                'sortable-list-item--content-section',
+                isItemWithImage &&
+                  col.key === 'image_id' &&
+                  'sortable-list-item--content-section-with-image',
+              )}
+              key={col.key}
+            >
+              {/* span warpper is needed for clipping text */}
+              <span className='clip-text'>{renderCell(col.key, item)}</span>
             </div>
           ))}
         </ActionContainer>
