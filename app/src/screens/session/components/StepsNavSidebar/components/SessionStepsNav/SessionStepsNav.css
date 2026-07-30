@@ -1,6 +1,5 @@
 .steps-sidebar-nav {
   border-radius: var(--radius-xl);
-  border-width: 0;
 }
 
 .steps-sidebar-nav:hover {

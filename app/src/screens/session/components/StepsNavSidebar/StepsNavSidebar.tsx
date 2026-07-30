@@ -28,18 +28,21 @@ export const StepsNavSidebar: FCProps<Props> = ({
   return (
     <aside className='steps-sidebar' {...props}>
       <ToggleSessionViewBtn />
+
       <SessionStepsNav />
+
       {session?.active_view === 'prep' && (
-        <Button
-          className='toggle-all-tooltips-btn'
-          onClick={onToggleAllTooltips}
-          label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
-        />
+        <>
+          <Button
+            className='toggle-all-tooltips-btn'
+            onClick={onToggleAllTooltips}
+            label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
+          />
+          <ScreensDuplicateBtn entityType='sessions' />
+
+          <DeleteSessionBtn />
+        </>
       )}
-
-      <ScreensDuplicateBtn entityType='sessions' />
-
-      <DeleteSessionBtn />
     </aside>
   );
 };
