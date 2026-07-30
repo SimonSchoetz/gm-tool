@@ -4,6 +4,7 @@ import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './LocationSidebar.css';
+import { ScreensDuplicateBtn } from '../../../components';
 
 export const LocationSidebar = () => {
   const router = useRouter();
@@ -37,6 +38,8 @@ export const LocationSidebar = () => {
           if (location.image_id) void removeLocationImage();
         }}
       />
+
+      <ScreensDuplicateBtn entityType='locations' />
 
       <Button
         label='Delete Location'

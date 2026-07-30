@@ -4,6 +4,7 @@ import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './NpcSidebar.css';
+import { ScreensDuplicateBtn } from '../../../components';
 
 export const NpcSidebar = () => {
   const router = useRouter();
@@ -36,6 +37,8 @@ export const NpcSidebar = () => {
           if (npc.image_id) void removeNpcImage();
         }}
       />
+
+      <ScreensDuplicateBtn entityType='npcs' />
 
       <Button
         label='Delete NPC'

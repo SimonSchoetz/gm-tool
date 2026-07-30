@@ -4,6 +4,7 @@ import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './PcSidebar.css';
+import { ScreensDuplicateBtn } from '../../../components';
 
 export const PcSidebar = () => {
   const router = useRouter();
@@ -33,6 +34,8 @@ export const PcSidebar = () => {
           if (pc.image_id) void removePcImage();
         }}
       />
+
+      <ScreensDuplicateBtn entityType='pcs' />
 
       <Button
         label='Delete PC'

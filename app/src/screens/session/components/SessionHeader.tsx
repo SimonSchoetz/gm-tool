@@ -3,13 +3,17 @@ import './SessionHeader.css';
 import { SyncedInput, DateInput } from '@/components';
 import { FCProps, HtmlProps } from '@/types';
 import { useSyncedInputValue } from '@/hooks';
-import { useParams } from '@tanstack/react-router';
+import { useParams, useRouterState } from '@tanstack/react-router';
 
 export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   const { sessionId, adventureId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { session, updateSession } = useSession(sessionId, adventureId);
+
+  const focusNameInput = useRouterState({
+    select: (state) => state.location.state.focusNameInput ?? false,
+  });
 
   // DateInput wraps a native <input type='date'>, not the text Input, so the date field can't use SyncedInput and reconciles its external value through the shared hook directly.
   const {
@@ -23,6 +27,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   return (
     <header className='session-header'>
       <SyncedInput
+        autoFocus={focusNameInput}
         className='session-name-input'
         placeholder='Session name, i. e. ingame date'
         initValue={session.name ?? ''}
@@ -32,10 +37,10 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
       />
 
       <label className='session-date'>
-        <span className='session-date__label'>Session Date:</span>
+        <span className='session-date-label'>Session Date:</span>
 
         <DateInput
-          className='session-date__input'
+          className='session-date-input'
           value={sessionDate}
           onChange={(e) => {
             setSessionDate(e.target.value);

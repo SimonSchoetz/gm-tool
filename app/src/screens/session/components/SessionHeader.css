@@ -16,6 +16,6 @@
   gap: var(--spacing-xs);
 }
 
-.session-date__label {
+.session-date-label {
   color: rgb(var(--color-fg-rgb), 0.6);
 }

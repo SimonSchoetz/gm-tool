@@ -1,6 +1,6 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useItem } from '@/data-access-layer';
-import { useParams } from '@tanstack/react-router';
+import { useParams, useRouterState } from '@tanstack/react-router';
 import { ItemSidebar } from './components';
 import {
   ScreensNameInput,
@@ -11,6 +11,10 @@ import {
 export const ItemScreen = () => {
   const { adventureId, itemId } = useParams({
     from: '/adventure/$adventureId/item/$itemId',
+  });
+
+  const focusNameInput = useRouterState({
+    select: (state) => state.location.state.focusNameInput ?? false,
   });
 
   const { item, updateItem, loading } = useItem(itemId, adventureId);
@@ -41,6 +45,7 @@ export const ItemScreen = () => {
       body={
         <>
           <ScreensNameInput
+            autoFocus={focusNameInput}
             placeholder='Item Name'
             initValue={item.name ?? ''}
             onCommit={(name) => {

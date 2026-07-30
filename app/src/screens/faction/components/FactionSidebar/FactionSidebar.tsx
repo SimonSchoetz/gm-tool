@@ -4,6 +4,7 @@ import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './FactionSidebar.css';
+import { ScreensDuplicateBtn } from '../../../components';
 
 export const FactionSidebar = () => {
   const router = useRouter();
@@ -34,6 +35,8 @@ export const FactionSidebar = () => {
           if (faction.image_id) void removeFactionImage();
         }}
       />
+
+      <ScreensDuplicateBtn entityType='factions' />
 
       <Button
         label='Delete Faction'

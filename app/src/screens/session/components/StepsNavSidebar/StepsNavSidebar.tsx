@@ -8,6 +8,7 @@ import {
 import { FCProps, HtmlProps } from '@/types';
 import { useSession } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
+import { ScreensDuplicateBtn } from '../../../components';
 
 type Props = {
   areTooltipsVisible: boolean;
@@ -35,6 +36,8 @@ export const StepsNavSidebar: FCProps<Props> = ({
           label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
         />
       )}
+
+      <ScreensDuplicateBtn entityType='sessions' />
 
       <DeleteSessionBtn />
     </aside>

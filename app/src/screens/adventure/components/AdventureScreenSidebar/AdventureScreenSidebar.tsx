@@ -7,6 +7,7 @@ import {
   ADVENTURE_PREVIEW_HEIGHT,
   PREVIEW_WIDTH,
 } from '../../../screens.constants';
+import { ScreensDuplicateBtn } from '../../../components';
 
 export const AdventureScreenSidebar = () => {
   const router = useRouter();
@@ -43,6 +44,8 @@ export const AdventureScreenSidebar = () => {
           if (adventure.image_id) void removeAdventureImage();
         }}
       />
+      <ScreensDuplicateBtn entityType='adventures' />
+
       <Button
         label='Delete Adventure'
         onClick={() => {

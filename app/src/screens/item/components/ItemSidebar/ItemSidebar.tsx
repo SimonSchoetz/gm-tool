@@ -4,6 +4,7 @@ import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './ItemSidebar.css';
+import { ScreensDuplicateBtn } from '../../../components';
 
 export const ItemSidebar = () => {
   const router = useRouter();
@@ -36,6 +37,8 @@ export const ItemSidebar = () => {
           if (item.image_id) void removeItemImage();
         }}
       />
+
+      <ScreensDuplicateBtn entityType='items' />
 
       <Button
         label='Delete Item'
