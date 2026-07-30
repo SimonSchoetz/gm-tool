@@ -152,6 +152,7 @@ export type {
   SessionCreateError,
   SessionUpdateError,
   SessionDeleteError,
+  SessionDuplicateError,
 } from './sessions';
 export {
   sessionNotFoundError,
@@ -159,6 +160,7 @@ export {
   sessionCreateError,
   sessionUpdateError,
   sessionDeleteError,
+  sessionDuplicateError,
 } from './sessions';
 
 export type {

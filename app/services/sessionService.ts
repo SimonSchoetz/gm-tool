@@ -8,6 +8,7 @@ import {
   sessionCreateError,
   sessionUpdateError,
   sessionDeleteError,
+  sessionDuplicateError,
 } from '@domain';
 
 export const getAllSessions = async (
@@ -44,6 +45,17 @@ export const createSession = async (adventureId: string): Promise<string> => {
     return newSessionId;
   } catch (err) {
     throw sessionCreateError(err);
+  }
+};
+
+// Deliberately calls sessionDb.duplicate rather than createSession: createSession seeds the LAZY_DM_STEPS defaults, which a duplicate must not receive on top of its copied steps.
+export const duplicateSession = async (id: string): Promise<string> => {
+  try {
+    const newSessionId = await sessionDb.duplicate(id);
+    await sessionStepDb.duplicateBySession(id, newSessionId);
+    return newSessionId;
+  } catch (err) {
+    throw sessionDuplicateError(id, err);
   }
 };
 

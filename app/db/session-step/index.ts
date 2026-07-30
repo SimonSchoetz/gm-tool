@@ -1,4 +1,5 @@
 export { create } from './create';
+export { duplicateBySession } from './duplicate-by-session';
 export { get } from './get';
 export { getAllBySession } from './get-all-by-session';
 export { update } from './update';

@@ -8,3 +8,5 @@ export type { SessionUpdateError } from './errors';
 export { sessionUpdateError } from './errors';
 export type { SessionDeleteError } from './errors';
 export { sessionDeleteError } from './errors';
+export type { SessionDuplicateError } from './errors';
+export { sessionDuplicateError } from './errors';

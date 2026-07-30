@@ -37,6 +37,18 @@ export const sessionUpdateError = (
   return error;
 };
 
+export type SessionDuplicateError = Error & { name: 'SessionDuplicateError' };
+export const sessionDuplicateError = (
+  id: string,
+  cause?: unknown,
+): SessionDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate session ${id}: ${String(cause)}`,
+  ) as SessionDuplicateError;
+  error.name = 'SessionDuplicateError';
+  return error;
+};
+
 export type SessionDeleteError = Error & { name: 'SessionDeleteError' };
 export const sessionDeleteError = (
   id: string,
