@@ -55,6 +55,16 @@ This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific a
 
 - **Verify import paths resolve from the importer's location and use the correct form.** Resolve the path from the file that will contain the import — not from a feature root — and confirm it reaches a specific file, not a directory. A path whose last two segments repeat the same name (`ComponentName/ComponentName`) is the double-name anti-pattern: use the barrel when one exists; when no barrel exists and a grouping barrel would be circular, the explicit file path is the only valid form and is correct.
 
+## File Organization
+
+**1 concern → 1 file**: A concern is defined by domain ownership, not operation type or access shape. Everything that belongs to the same domain entity belongs in the same file or module — splitting by singular/plural query, or by read/write, fragments cohesion without benefit.
+
+- ✅ GOOD: `create.ts`, `get.ts`, `remove.ts` at the DB layer — each is an independent public operation on a different concern (creation vs. retrieval vs. deletion)
+- ✅ GOOD: `allTermsMatchItem.ts` containing private `getSearchableText` and `termMatchesItem` — they exist only to support `allTermsMatchItem`
+- ❌ BAD: `utils.ts` with unrelated helpers dumped together
+
+Error handling: see `app/src/CLAUDE.md` — State Management & Error Handling.
+
 ## Convention Discovery
 
 **Before introducing a new instance of a recurring pattern, grep for the existing convention independently — do not rely solely on a spec's cited references.** A spec's Key Architectural Decisions may validate new code only against the conventions it explicitly names. Any recurring codebase pattern not named in the spec (naming suffixes, file placement conventions, prop shapes) must still be discovered and matched. Before writing code that introduces a new instance of something already done repeatedly elsewhere (e.g., a new icon import in `src/`, a new hook, a new error factory in `domain/`, a new service composition pattern in `services/`), search the codebase for at least one existing instance of that same kind of thing and match its convention — even when no reference implementation was named for it.

@@ -18,7 +18,7 @@ Before starting any sub-feature:
 - if they are related to the current spec (e.g. the specs, changes to `.claude/knowledge`), commit them.
 - if they are unrelated, stash them. When the implementation is done (when the friction brief was produced), unstash them and surface it to the user.
 
-3. Run each baseline check independently — never chain them: `npx tsc --noEmit`, then `npx eslint .` (from `app/`), then `npx vitest run`. Running them independently prevents a tsc failure from short-circuiting eslint or vitest — all three results must be known before proceeding.
+3. Run each baseline check independently — never chain them, so a tsc failure can't short-circuit eslint or vitest: `npx tsc --noEmit`, then `npx eslint .` (from `app/`), then `npx vitest run`.
 4. If everything is clean: proceed to the implementation phase.
 5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
@@ -43,7 +43,7 @@ For each sub-feature defined in the spec, in order:
 
 Do not invoke code-reviewer between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
 
-**Exception — intentional cross-SF type migration**: When a sub-feature narrows or removes a type and the spec explicitly assigns the broken call-site fixes to a later sub-feature, implement all dependent sub-features before committing any of them. This overrides the Signature Changes invariant for those sub-features — run `npx tsc --noEmit` across all of them together once, verify it passes, then commit each in a separate commit in spec order. Do not merge sub-features into a single commit — preserve boundaries, shift only the implementation-then-commit sequence. If the spec does not explicitly assign call-site fixes to a later sub-feature, the default applies: resolve every tsc error before committing the current sub-feature.
+**Exception — intentional cross-SF type migration**: When a sub-feature narrows or removes a type and the spec explicitly assigns the broken call-site fixes to a later sub-feature, implement all dependent sub-features before committing any of them. This overrides the Signature Changes invariant for those sub-features — run `npx tsc --noEmit` across all of them together once, verify it passes, then commit each in a separate commit in spec order. Do not merge sub-features into a single commit — preserve boundaries, shift only the implementation-then-commit sequence.
 
 #### Review and fix loop
 
@@ -80,11 +80,11 @@ Run `npm test` once more. Resolve any remaining errors. Implementation is comple
 
 Run `npm run build:frontend` from `app/` and surface any warnings and errors.
 
-Run a raw CSS value scan across all files touched on this branch: run `git diff --name-only main...HEAD` to get the file list, then scan each `.css` file for raw property values (colors, spacing, border radii, shadows, font sizes) that carry no `/* one-off */` annotation on the same line or the line immediately preceding. Collect every match and output them to the user as a non-blocking advisory — distinct from the friction brief, deferred violations brief, and spec quality brief. Label the section: "Raw CSS values to review — not violations; you decide: add a design token, add `/* one-off */`, or leave as-is." Do not make any decision yourself. Do not route this list through architect or code-reviewer. Do not commit anything based on this scan.
+Run the following three post-loop advisory scans. Each produces a non-blocking advisory, distinct from the friction brief, deferred violations brief, and spec quality brief — the user decides what to do with each finding, never you. Never route any of their output through architect or code-reviewer, and never commit anything based on any of them.
 
-Run a long-living-reference currency check: for each doc `app/docs/CLAUDE.md` designates as a long-living infrastructure reference that must not be deleted after implementation (currently: `app/docs/_product/domain-scaffold.md`), reuse the touched-file list from the raw CSS value scan; strip the leading `app/` from each touched path (the reference doc's own text names paths relative to `app/`, not repo root) and grep the reference doc for each resulting path as a literal string. If any match exists and the reference doc itself is not in the touched-file list, output it to the user as a non-blocking advisory — distinct from the friction brief, deferred violations brief, and spec quality brief. Label the section: "Long-living reference doc paths touched — not a violation; verify the referenced section still reflects this branch's change." Do not make any decision yourself about whether an update is needed. Do not route this list through architect or code-reviewer. Do not commit anything based on this scan.
-
-Run a manual-verification risk scan: grep the spec file(s) for this branch for the literal marker `[MANUAL-VERIFY]` (added by spec-writer's Untested residual risk gate). Collect every match and output them to the user as a non-blocking advisory — distinct from the friction brief, deferred violations brief, and spec quality brief. Label the section: "Manual verification required — not violations; these interactions are exempt from automated tests by Testing Policy and were not otherwise exercised. Verify by hand before considering the branch ready." Do not make any decision yourself. Do not route this list through architect or code-reviewer. Do not commit anything based on this scan.
+- **Raw CSS values**: run `git diff --name-only main...HEAD` for the touched-file list, then scan each `.css` file for raw property values (colors, spacing, border radii, shadows, font sizes) with no `/* one-off */` annotation on the same line or the line immediately preceding. Label: "Raw CSS values to review — not violations; you decide: add a design token, add `/* one-off */`, or leave as-is."
+- **Long-living reference currency**: for each doc `app/docs/CLAUDE.md` designates as a long-living infrastructure reference that must not be deleted after implementation (currently: `app/docs/_product/domain-scaffold.md`), reuse the touched-file list above; strip the leading `app/` from each touched path (the reference doc's own text names paths relative to `app/`, not repo root) and grep the reference doc for each resulting path as a literal string. If any match exists and the reference doc itself is not in the touched-file list, flag it. Label: "Long-living reference doc paths touched — not a violation; verify the referenced section still reflects this branch's change."
+- **Manual-verification risk**: grep the spec file(s) for this branch for the literal marker `[MANUAL-VERIFY]` (added by spec-writer's Untested residual risk gate). Label: "Manual verification required — not violations; these interactions are exempt from automated tests by Testing Policy and were not otherwise exercised. Verify by hand before considering the branch ready."
 
 Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle. Output it to the user alongside or immediately after the friction brief (if one is produced). Each entry requires an explicit user disposition — fix now, accept as tracked debt, or route to `/refine-claude` — before the session ends; an entry with no disposition is not closed by having been listed.
 
@@ -164,8 +164,6 @@ These invariants apply to all steps above. They are not a process — they are c
 ## Pacing
 
 Complete each step fully before advancing. A step is complete when the code change is made, the cleanup is done, and nothing related to that step remains in an unresolved state. Do not move to the next step because the user moves on — finish what is in front of you first, then summarize what was done, then ask for explicit confirmation before proceeding.
-
-Never mention something and defer it. If you identify dead code, a leftover artifact, or a cleanup item during a step, handle it in that step. A deferred cleanup noted in passing is a missed cleanup.
 
 ## Cleanup Is Not Optional
 
