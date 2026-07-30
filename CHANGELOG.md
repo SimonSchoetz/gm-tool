@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.10.1] - 2026-07-30
+
+### Fixed
+
+- The slash command popup now highlights the focused option when navigating with arrow keys, matching what hovering already did
+- Clicking an embedded link in a mention popup now opens it in the external browser instead of navigating within the app, and the link preview no longer renders behind the mention popup
+- The floating text-formatting toolbar no longer closes while typing a link URL longer than the input field
+
+### Changed
+
+- Faction, Foe, Item, Location, NPC, and PC detail screens now share a unified layout. Name was moved out of the summary field and is now positioned above the text field
+- List screens got UI overhall to be a little more compact
+
 ## [v0.10.0] - 2026-07-27
 
 ### Added
