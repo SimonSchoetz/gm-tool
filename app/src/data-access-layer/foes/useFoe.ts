@@ -11,6 +11,7 @@ type UseFoeReturn = {
   loading: boolean;
   updateFoe: (data: UpdateFoeData) => void;
   deleteFoe: () => Promise<void>;
+  duplicateFoe: () => Promise<string>;
   removeFoeImage: () => Promise<void>;
 };
 
@@ -48,6 +49,16 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteFoe(foeId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: foeKeys.list(adventureId),
+      });
+    },
+  });
+
+  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
+  const duplicateMutation = useMutation({
+    mutationFn: () => service.duplicateFoe(foeId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: foeKeys.list(adventureId),
@@ -95,6 +106,9 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     await deleteMutation.mutateAsync();
   };
 
+  const duplicateFoe = async (): Promise<string> =>
+    duplicateMutation.mutateAsync();
+
   const removeFoeImage = async (): Promise<void> => {
     await removeFoeImageMutation.mutateAsync();
   };
@@ -104,6 +118,7 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     loading: isLoadingFoe,
     updateFoe,
     deleteFoe,
+    duplicateFoe,
     removeFoeImage,
   };
 };

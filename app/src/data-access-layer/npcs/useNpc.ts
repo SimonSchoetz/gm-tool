@@ -11,6 +11,7 @@ type UseNpcReturn = {
   loading: boolean;
   updateNpc: (data: UpdateNpcData) => void;
   deleteNpc: () => Promise<void>;
+  duplicateNpc: () => Promise<string>;
   removeNpcImage: () => Promise<void>;
 };
 
@@ -48,6 +49,16 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteNpc(npcId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: npcKeys.list(adventureId),
+      });
+    },
+  });
+
+  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
+  const duplicateMutation = useMutation({
+    mutationFn: () => service.duplicateNpc(npcId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: npcKeys.list(adventureId),
@@ -96,6 +107,9 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     await deleteMutation.mutateAsync();
   };
 
+  const duplicateNpc = async (): Promise<string> =>
+    duplicateMutation.mutateAsync();
+
   const removeNpcImage = async (): Promise<void> => {
     await removeNpcImageMutation.mutateAsync();
   };
@@ -105,6 +119,7 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     loading: isLoadingNpc,
     updateNpc,
     deleteNpc,
+    duplicateNpc,
     removeNpcImage,
   };
 };

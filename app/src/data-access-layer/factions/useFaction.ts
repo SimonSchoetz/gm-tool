@@ -11,6 +11,7 @@ type UseFactionReturn = {
   loading: boolean;
   updateFaction: (data: UpdateFactionData) => void;
   deleteFaction: () => Promise<void>;
+  duplicateFaction: () => Promise<string>;
   removeFactionImage: () => Promise<void>;
 };
 
@@ -61,6 +62,16 @@ export const useFaction = (
     },
   });
 
+  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
+  const duplicateMutation = useMutation({
+    mutationFn: () => service.duplicateFaction(factionId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: factionKeys.list(adventureId),
+      });
+    },
+  });
+
   const removeFactionImageMutation = useMutation({
     mutationFn: () => service.removeFactionImage(factionId),
     onSuccess: () => {
@@ -104,6 +115,9 @@ export const useFaction = (
     await deleteMutation.mutateAsync();
   };
 
+  const duplicateFaction = async (): Promise<string> =>
+    duplicateMutation.mutateAsync();
+
   const removeFactionImage = async (): Promise<void> => {
     await removeFactionImageMutation.mutateAsync();
   };
@@ -113,6 +127,7 @@ export const useFaction = (
     loading: isLoadingFaction,
     updateFaction,
     deleteFaction,
+    duplicateFaction,
     removeFactionImage,
   };
 };

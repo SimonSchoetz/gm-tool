@@ -11,6 +11,7 @@ type UseLocationReturn = {
   loading: boolean;
   updateLocation: (data: UpdateLocationData) => void;
   deleteLocation: () => Promise<void>;
+  duplicateLocation: () => Promise<string>;
   removeLocationImage: () => Promise<void>;
 };
 
@@ -54,6 +55,16 @@ export const useLocation = (
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteLocation(locationId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: locationKeys.list(adventureId),
+      });
+    },
+  });
+
+  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
+  const duplicateMutation = useMutation({
+    mutationFn: () => service.duplicateLocation(locationId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: locationKeys.list(adventureId),
@@ -107,6 +118,9 @@ export const useLocation = (
     await deleteMutation.mutateAsync();
   };
 
+  const duplicateLocation = async (): Promise<string> =>
+    duplicateMutation.mutateAsync();
+
   const removeLocationImage = async (): Promise<void> => {
     await removeLocationImageMutation.mutateAsync();
   };
@@ -116,6 +130,7 @@ export const useLocation = (
     loading: isLoadingLocation,
     updateLocation,
     deleteLocation,
+    duplicateLocation,
     removeLocationImage,
   };
 };

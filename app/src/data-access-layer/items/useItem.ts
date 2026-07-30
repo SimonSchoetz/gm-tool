@@ -11,6 +11,7 @@ type UseItemReturn = {
   loading: boolean;
   updateItem: (data: UpdateItemData) => void;
   deleteItem: () => Promise<void>;
+  duplicateItem: () => Promise<string>;
   removeItemImage: () => Promise<void>;
 };
 
@@ -48,6 +49,16 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteItem(itemId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: itemKeys.list(adventureId),
+      });
+    },
+  });
+
+  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
+  const duplicateMutation = useMutation({
+    mutationFn: () => service.duplicateItem(itemId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: itemKeys.list(adventureId),
@@ -96,6 +107,9 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
     await deleteMutation.mutateAsync();
   };
 
+  const duplicateItem = async (): Promise<string> =>
+    duplicateMutation.mutateAsync();
+
   const removeItemImage = async (): Promise<void> => {
     await removeItemImageMutation.mutateAsync();
   };
@@ -105,6 +119,7 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
     loading: isLoadingItem,
     updateItem,
     deleteItem,
+    duplicateItem,
     removeItemImage,
   };
 };

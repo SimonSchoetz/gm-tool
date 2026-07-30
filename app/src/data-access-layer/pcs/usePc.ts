@@ -11,6 +11,7 @@ type UsePcReturn = {
   loading: boolean;
   updatePc: (data: UpdatePcData) => void;
   deletePc: () => Promise<void>;
+  duplicatePc: () => Promise<string>;
   removePcImage: () => Promise<void>;
 };
 
@@ -48,6 +49,16 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deletePc(pcId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: pcKeys.list(adventureId),
+      });
+    },
+  });
+
+  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
+  const duplicateMutation = useMutation({
+    mutationFn: () => service.duplicatePc(pcId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: pcKeys.list(adventureId),
@@ -96,6 +107,9 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
     await deleteMutation.mutateAsync();
   };
 
+  const duplicatePc = async (): Promise<string> =>
+    duplicateMutation.mutateAsync();
+
   const removePcImage = async (): Promise<void> => {
     await removePcImageMutation.mutateAsync();
   };
@@ -105,6 +119,7 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
     loading: isLoadingPc,
     updatePc,
     deletePc,
+    duplicatePc,
     removePcImage,
   };
 };
