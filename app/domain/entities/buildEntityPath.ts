@@ -1,10 +1,7 @@
-import {
-  isMentionableEntityType,
-  type MentionableEntityType,
-} from './entityTypes';
-import { mentionEntityTypeError } from './errors';
+import { isEntityType, type EntityType } from './entityTypes';
+import { entityTypeError } from './errors';
 
-const ENTITY_SEGMENT: Record<MentionableEntityType, string> = {
+const ENTITY_SEGMENT: Record<EntityType, string> = {
   npcs: 'npc',
   foes: 'foe',
   pcs: 'pc',
@@ -12,6 +9,7 @@ const ENTITY_SEGMENT: Record<MentionableEntityType, string> = {
   locations: 'location',
   items: 'item',
   sessions: 'session',
+  adventures: 'adventure',
 };
 
 export const buildEntityPath = (
@@ -19,8 +17,8 @@ export const buildEntityPath = (
   entityId: string,
   adventureId: string | null,
 ): string => {
-  if (!isMentionableEntityType(entityType)) {
-    throw mentionEntityTypeError(entityType);
+  if (!isEntityType(entityType)) {
+    throw entityTypeError(entityType);
   }
   const segment = ENTITY_SEGMENT[entityType];
   return adventureId

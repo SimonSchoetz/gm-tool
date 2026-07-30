@@ -48,9 +48,15 @@ describe('buildEntityPath', () => {
     );
   });
 
+  it('adventure path uses the global-scope branch', () => {
+    expect(buildEntityPath('adventures', 'adv-1', null)).toBe(
+      '/adventure/adv-1',
+    );
+  });
+
   it('throws for unknown entity types', () => {
     expect(() => buildEntityPath('stories', 'id-1', null)).toThrow(
-      'Unknown mention entity type: "stories"',
+      'Unknown entity type: "stories"',
     );
   });
 });

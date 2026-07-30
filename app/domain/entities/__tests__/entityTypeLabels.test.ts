@@ -10,9 +10,10 @@ describe('entityTypeLabel', () => {
     expect(entityTypeLabel('locations')).toBe('Location');
     expect(entityTypeLabel('items')).toBe('Item');
     expect(entityTypeLabel('sessions')).toBe('Session');
+    expect(entityTypeLabel('adventures')).toBe('Adventure');
   });
 
   it("returns 'Entity' for an unrecognized entity type", () => {
-    expect(entityTypeLabel('adventures')).toBe('Entity');
+    expect(entityTypeLabel('stories')).toBe('Entity');
   });
 });

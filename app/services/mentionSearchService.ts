@@ -1,6 +1,7 @@
 import * as mentionSearch from '@db/mention-search';
 import type { TableConfig } from '@db/table-config';
-import { isMentionableEntityType, mentionSearchError } from '@domain/mentions';
+import { isEntityType } from '@domain/entities';
+import { mentionSearchError } from '@domain/mentions';
 
 export type MentionSearchResult = {
   id: string;
@@ -60,7 +61,7 @@ export const getMentionEntityData = async (
   entityType: string,
   entityId: string,
 ): Promise<MentionEntityData> => {
-  if (!isMentionableEntityType(entityType)) {
+  if (!isEntityType(entityType)) {
     return { name: null, deleted: true };
   }
 

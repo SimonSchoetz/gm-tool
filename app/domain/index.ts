@@ -16,19 +16,17 @@ export {
   adventureDeleteError,
 } from './adventures';
 
-export type {
-  MentionSearchError,
-  MentionEntityTypeError,
-  MentionableEntityType,
-} from './mentions';
+export type { MentionSearchError } from './mentions';
+export { mentionSearchError } from './mentions';
+
+export type { EntityType, EntityTypeError } from './entities';
 export {
-  mentionSearchError,
-  mentionEntityTypeError,
-  buildEntityPath,
-  MENTIONABLE_ENTITY_TYPES,
-  isMentionableEntityType,
+  ENTITY_TYPES,
+  isEntityType,
   entityTypeLabel,
-} from './mentions';
+  buildEntityPath,
+  entityTypeError,
+} from './entities';
 
 export type {
   NpcNotFoundError,
