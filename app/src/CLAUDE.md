@@ -140,8 +140,9 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
      - ❌ `export const AdventureCrumb: FCProps<Props> = () => { ... }` with an empty or placeholder Props body
 
 **A wrapper hardcoding a value for a prop inherited via `React.ComponentProps<typeof Parent>` (case 2 above) must `Omit` that prop from its own `Props` type.** Otherwise a caller can pass a value that is silently shadowed in JSX — a runtime no-op with no compiler or linter error. Every hardcoded prop must be excluded, not just the first one added.
-  - ✅ `Omit<React.ComponentProps<typeof SyncedInput>, 'autoFocus' | 'className'>` when both are hardcoded
-  - ❌ `Omit<...,'autoFocus'>` only, while `className` is also hardcoded in JSX
+
+- ✅ `Omit<React.ComponentProps<typeof SyncedInput>, 'autoFocus' | 'className'>` when both are hardcoded
+- ❌ `Omit<...,'autoFocus'>` only, while `className` is also hardcoded in JSX
 
 **Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
 
