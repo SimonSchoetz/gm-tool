@@ -65,7 +65,7 @@ const sourceSteps = [
 ];
 
 const INSERT_SQL =
-  'INSERT INTO session_steps (id, session_id, name, content, default_step_key, checked, sort_order, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)';
+  'INSERT INTO session_steps (id, name, content, default_step_key, checked, sort_order, session_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)';
 
 const stepInsertCalls = (): [string, unknown[]][] =>
   (mockExecute.mock.calls as [string, unknown[]][]).filter(
@@ -98,7 +98,7 @@ describe('sessionStep.duplicateBySession', () => {
     await duplicateBySession('source-session-id', 'target-session-id');
 
     for (const [, values] of stepInsertCalls()) {
-      expect(values[1]).toBe('target-session-id');
+      expect(values[6]).toBe('target-session-id');
       expect(values).not.toContain('source-session-id');
     }
   });
@@ -107,24 +107,24 @@ describe('sessionStep.duplicateBySession', () => {
     await duplicateBySession('source-session-id', 'target-session-id');
 
     const [firstCall] = stepInsertCalls();
-    expect(firstCall[1][3]).toBe('The wagon is ambushed');
-    expect(firstCall[1][5]).toBe(1);
+    expect(firstCall[1][2]).toBe('The wagon is ambushed');
+    expect(firstCall[1][4]).toBe(1);
 
     const secondCall = stepInsertCalls()[1];
-    expect(secondCall[1][3]).toBe('A player-authored note');
-    expect(secondCall[1][5]).toBe(0);
+    expect(secondCall[1][2]).toBe('A player-authored note');
+    expect(secondCall[1][4]).toBe(0);
   });
 
   it("preserves each step's sort_order", async () => {
     await duplicateBySession('source-session-id', 'target-session-id');
 
-    expect(stepInsertCalls().map(([, values]) => values[6])).toEqual([0, 1, 5]);
+    expect(stepInsertCalls().map(([, values]) => values[5])).toEqual([0, 1, 5]);
   });
 
   it('copies default_step_key', async () => {
     await duplicateBySession('source-session-id', 'target-session-id');
 
-    expect(stepInsertCalls().map(([, values]) => values[4])).toEqual([
+    expect(stepInsertCalls().map(([, values]) => values[3])).toEqual([
       'strong_start',
       null,
       'magic_items',

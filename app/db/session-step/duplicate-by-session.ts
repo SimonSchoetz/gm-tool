@@ -1,10 +1,5 @@
 import { getDatabase } from '../database';
-import {
-  generateId,
-  buildCreateQuery,
-  generateDbTimestamps,
-  assertValidId,
-} from '../util';
+import { generateId, buildDuplicateQuery, assertValidId } from '../util';
 import { getAllBySession } from './get-all-by-session';
 
 export const duplicateBySession = async (
@@ -17,30 +12,24 @@ export const duplicateBySession = async (
   const sourceSteps = await getAllBySession(sourceSessionId);
   if (sourceSteps.length === 0) return;
 
-  const { created_at, updated_at } = generateDbTimestamps();
   const db = await getDatabase();
 
   for (const step of sourceSteps) {
-    // sort_order is copied rather than re-derived from array position so the duplicate preserves the source's exact ordering values.
-    const { sql, values } = buildCreateQuery<{
-      session_id: string;
-      name: string | null;
-      content: string | null;
-      default_step_key: string | null;
-      checked: number;
-      sort_order: number;
-      created_at: string;
-      updated_at: string;
-    }>('session_steps', generateId(), {
-      session_id: targetSessionId,
-      name: step.name ?? null,
-      content: step.content ?? null,
-      default_step_key: step.default_step_key ?? null,
-      checked: step.checked,
-      sort_order: step.sort_order,
-      created_at,
-      updated_at,
-    });
+    // name and sort_order are copied rather than reset or re-derived from array position, so each duplicate keeps its own label and the source's exact ordering values.
+    const {
+      id: _sourceRowId,
+      session_id: _sourceSessionId,
+      created_at: _sourceCreatedAt,
+      updated_at: _sourceUpdatedAt,
+      ...copiedColumns
+    } = step;
+
+    const { sql, values } = buildDuplicateQuery(
+      'session_steps',
+      generateId(),
+      copiedColumns,
+      { session_id: targetSessionId },
+    );
 
     await db.execute(sql, values);
   }

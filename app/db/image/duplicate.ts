@@ -1,10 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import {
-  generateId,
-  buildCreateQuery,
-  generateDbTimestamps,
-  assertValidId,
-} from '../util';
+import { generateId, buildDuplicateQuery, assertValidId } from '../util';
 import { getDatabase } from '../database';
 import { get } from './get';
 
@@ -28,29 +23,16 @@ export const duplicate = async (sourceId: string): Promise<string> => {
     dataBase64,
   });
 
-  const { created_at, updated_at } = generateDbTimestamps();
+  const {
+    id: _sourceRowId,
+    created_at: _sourceCreatedAt,
+    updated_at: _sourceUpdatedAt,
+    ...copiedColumns
+  } = source;
+
+  const { sql, values } = buildDuplicateQuery('images', id, copiedColumns, {});
 
   const db = await getDatabase();
-
-  const { sql, values } = buildCreateQuery<{
-    file_extension: string;
-    original_filename: string | null;
-    file_size: number | null;
-    frame_x: number | null;
-    frame_y: number | null;
-    frame_zoom: number | null;
-    created_at: string;
-    updated_at: string;
-  }>('images', id, {
-    file_extension: source.file_extension,
-    original_filename: source.original_filename ?? null,
-    file_size: source.file_size ?? null,
-    frame_x: source.frame_x ?? null,
-    frame_y: source.frame_y ?? null,
-    frame_zoom: source.frame_zoom ?? null,
-    created_at,
-    updated_at,
-  });
   await db.execute(sql, values);
 
   return id;
