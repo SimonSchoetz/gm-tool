@@ -8,3 +8,5 @@ export type { LocationUpdateError } from './errors';
 export { locationUpdateError } from './errors';
 export type { LocationDeleteError } from './errors';
 export { locationDeleteError } from './errors';
+export type { LocationDuplicateError } from './errors';
+export { locationDuplicateError } from './errors';

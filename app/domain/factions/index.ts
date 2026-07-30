@@ -8,3 +8,5 @@ export type { FactionUpdateError } from './errors';
 export { factionUpdateError } from './errors';
 export type { FactionDeleteError } from './errors';
 export { factionDeleteError } from './errors';
+export type { FactionDuplicateError } from './errors';
+export { factionDuplicateError } from './errors';

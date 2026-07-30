@@ -48,3 +48,15 @@ export const locationDeleteError = (
   error.name = 'LocationDeleteError';
   return error;
 };
+
+export type LocationDuplicateError = Error & { name: 'LocationDuplicateError' };
+export const locationDuplicateError = (
+  id: string,
+  cause?: unknown,
+): LocationDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate Location ${id}: ${String(cause)}`,
+  ) as LocationDuplicateError;
+  error.name = 'LocationDuplicateError';
+  return error;
+};

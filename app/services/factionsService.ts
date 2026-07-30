@@ -7,6 +7,7 @@ import {
   factionCreateError,
   factionUpdateError,
   factionDeleteError,
+  factionDuplicateError,
 } from '@domain/factions';
 
 export type UpdateFactionData = UpdateFactionInput & {
@@ -100,5 +101,17 @@ export const deleteFaction = async (
     await factionDb.remove(id);
   } catch (err) {
     throw factionDeleteError(id, err);
+  }
+};
+
+export const duplicateFaction = async (id: string): Promise<string> => {
+  try {
+    const source = await getFactionById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await factionDb.duplicate(id, imageId);
+  } catch (err) {
+    throw factionDuplicateError(id, err);
   }
 };

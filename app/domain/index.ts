@@ -34,6 +34,7 @@ export type {
   NpcCreateError,
   NpcUpdateError,
   NpcDeleteError,
+  NpcDuplicateError,
 } from './npcs';
 export {
   npcNotFoundError,
@@ -41,6 +42,7 @@ export {
   npcCreateError,
   npcUpdateError,
   npcDeleteError,
+  npcDuplicateError,
 } from './npcs';
 
 export type {
@@ -49,6 +51,7 @@ export type {
   FoeCreateError,
   FoeUpdateError,
   FoeDeleteError,
+  FoeDuplicateError,
 } from './foes';
 export {
   foeNotFoundError,
@@ -56,6 +59,7 @@ export {
   foeCreateError,
   foeUpdateError,
   foeDeleteError,
+  foeDuplicateError,
 } from './foes';
 
 export type {
@@ -64,6 +68,7 @@ export type {
   ItemCreateError,
   ItemUpdateError,
   ItemDeleteError,
+  ItemDuplicateError,
 } from './items';
 export {
   itemNotFoundError,
@@ -71,6 +76,7 @@ export {
   itemCreateError,
   itemUpdateError,
   itemDeleteError,
+  itemDuplicateError,
 } from './items';
 
 export type {
@@ -79,6 +85,7 @@ export type {
   LocationCreateError,
   LocationUpdateError,
   LocationDeleteError,
+  LocationDuplicateError,
 } from './locations';
 export {
   locationNotFoundError,
@@ -86,6 +93,7 @@ export {
   locationCreateError,
   locationUpdateError,
   locationDeleteError,
+  locationDuplicateError,
 } from './locations';
 
 export type {
@@ -94,6 +102,7 @@ export type {
   FactionCreateError,
   FactionUpdateError,
   FactionDeleteError,
+  FactionDuplicateError,
 } from './factions';
 export {
   factionNotFoundError,
@@ -101,6 +110,7 @@ export {
   factionCreateError,
   factionUpdateError,
   factionDeleteError,
+  factionDuplicateError,
 } from './factions';
 
 export type {
@@ -109,6 +119,7 @@ export type {
   PcCreateError,
   PcUpdateError,
   PcDeleteError,
+  PcDuplicateError,
 } from './pcs';
 export {
   pcNotFoundError,
@@ -116,6 +127,7 @@ export {
   pcCreateError,
   pcUpdateError,
   pcDeleteError,
+  pcDuplicateError,
 } from './pcs';
 
 export type {

@@ -8,3 +8,5 @@ export type { ItemUpdateError } from './errors';
 export { itemUpdateError } from './errors';
 export type { ItemDeleteError } from './errors';
 export { itemDeleteError } from './errors';
+export type { ItemDuplicateError } from './errors';
+export { itemDuplicateError } from './errors';

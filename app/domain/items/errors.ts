@@ -46,3 +46,15 @@ export const itemDeleteError = (
   error.name = 'ItemDeleteError';
   return error;
 };
+
+export type ItemDuplicateError = Error & { name: 'ItemDuplicateError' };
+export const itemDuplicateError = (
+  id: string,
+  cause?: unknown,
+): ItemDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate Item ${id}: ${String(cause)}`,
+  ) as ItemDuplicateError;
+  error.name = 'ItemDuplicateError';
+  return error;
+};

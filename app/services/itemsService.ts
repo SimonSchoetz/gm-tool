@@ -7,6 +7,7 @@ import {
   itemCreateError,
   itemUpdateError,
   itemDeleteError,
+  itemDuplicateError,
 } from '@domain/items';
 
 export type UpdateItemData = UpdateItemInput & {
@@ -98,5 +99,17 @@ export const deleteItem = async (
     await itemDb.remove(id);
   } catch (err) {
     throw itemDeleteError(id, err);
+  }
+};
+
+export const duplicateItem = async (id: string): Promise<string> => {
+  try {
+    const source = await getItemById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await itemDb.duplicate(id, imageId);
+  } catch (err) {
+    throw itemDuplicateError(id, err);
   }
 };

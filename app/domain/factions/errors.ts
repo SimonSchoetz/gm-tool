@@ -48,3 +48,15 @@ export const factionDeleteError = (
   error.name = 'FactionDeleteError';
   return error;
 };
+
+export type FactionDuplicateError = Error & { name: 'FactionDuplicateError' };
+export const factionDuplicateError = (
+  id: string,
+  cause?: unknown,
+): FactionDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate Faction ${id}: ${String(cause)}`,
+  ) as FactionDuplicateError;
+  error.name = 'FactionDuplicateError';
+  return error;
+};

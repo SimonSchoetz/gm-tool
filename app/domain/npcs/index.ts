@@ -8,3 +8,5 @@ export type { NpcUpdateError } from './errors';
 export { npcUpdateError } from './errors';
 export type { NpcDeleteError } from './errors';
 export { npcDeleteError } from './errors';
+export type { NpcDuplicateError } from './errors';
+export { npcDuplicateError } from './errors';

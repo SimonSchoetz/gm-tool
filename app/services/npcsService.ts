@@ -7,6 +7,7 @@ import {
   npcCreateError,
   npcUpdateError,
   npcDeleteError,
+  npcDuplicateError,
 } from '@domain/npcs';
 
 export type UpdateNpcData = UpdateNpcInput & {
@@ -98,5 +99,17 @@ export const deleteNpc = async (
     await npcDb.remove(id);
   } catch (err) {
     throw npcDeleteError(id, err);
+  }
+};
+
+export const duplicateNpc = async (id: string): Promise<string> => {
+  try {
+    const source = await getNpcById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await npcDb.duplicate(id, imageId);
+  } catch (err) {
+    throw npcDuplicateError(id, err);
   }
 };

@@ -40,3 +40,15 @@ export const npcDeleteError = (id: string, cause?: unknown): NpcDeleteError => {
   error.name = 'NpcDeleteError';
   return error;
 };
+
+export type NpcDuplicateError = Error & { name: 'NpcDuplicateError' };
+export const npcDuplicateError = (
+  id: string,
+  cause?: unknown,
+): NpcDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate NPC ${id}: ${String(cause)}`,
+  ) as NpcDuplicateError;
+  error.name = 'NpcDuplicateError';
+  return error;
+};

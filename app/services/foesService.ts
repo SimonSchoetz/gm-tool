@@ -7,6 +7,7 @@ import {
   foeCreateError,
   foeUpdateError,
   foeDeleteError,
+  foeDuplicateError,
 } from '@domain/foes';
 
 export type UpdateFoeData = UpdateFoeInput & {
@@ -98,5 +99,17 @@ export const deleteFoe = async (
     await foeDb.remove(id);
   } catch (err) {
     throw foeDeleteError(id, err);
+  }
+};
+
+export const duplicateFoe = async (id: string): Promise<string> => {
+  try {
+    const source = await getFoeById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await foeDb.duplicate(id, imageId);
+  } catch (err) {
+    throw foeDuplicateError(id, err);
   }
 };

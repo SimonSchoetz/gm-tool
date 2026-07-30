@@ -7,6 +7,7 @@ import {
   pcCreateError,
   pcUpdateError,
   pcDeleteError,
+  pcDuplicateError,
 } from '@domain/pcs';
 
 export type UpdatePcData = UpdatePcInput & {
@@ -98,5 +99,17 @@ export const deletePc = async (
     await pcDb.remove(id);
   } catch (err) {
     throw pcDeleteError(id, err);
+  }
+};
+
+export const duplicatePc = async (id: string): Promise<string> => {
+  try {
+    const source = await getPcById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await pcDb.duplicate(id, imageId);
+  } catch (err) {
+    throw pcDuplicateError(id, err);
   }
 };

@@ -40,3 +40,15 @@ export const foeDeleteError = (id: string, cause?: unknown): FoeDeleteError => {
   error.name = 'FoeDeleteError';
   return error;
 };
+
+export type FoeDuplicateError = Error & { name: 'FoeDuplicateError' };
+export const foeDuplicateError = (
+  id: string,
+  cause?: unknown,
+): FoeDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate Foe ${id}: ${String(cause)}`,
+  ) as FoeDuplicateError;
+  error.name = 'FoeDuplicateError';
+  return error;
+};

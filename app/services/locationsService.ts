@@ -7,6 +7,7 @@ import {
   locationCreateError,
   locationUpdateError,
   locationDeleteError,
+  locationDuplicateError,
 } from '@domain/locations';
 
 export type UpdateLocationData = UpdateLocationInput & {
@@ -102,5 +103,17 @@ export const deleteLocation = async (
     await locationDb.remove(id);
   } catch (err) {
     throw locationDeleteError(id, err);
+  }
+};
+
+export const duplicateLocation = async (id: string): Promise<string> => {
+  try {
+    const source = await getLocationById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await locationDb.duplicate(id, imageId);
+  } catch (err) {
+    throw locationDuplicateError(id, err);
   }
 };

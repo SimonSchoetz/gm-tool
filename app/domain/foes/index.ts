@@ -8,3 +8,5 @@ export type { FoeUpdateError } from './errors';
 export { foeUpdateError } from './errors';
 export type { FoeDeleteError } from './errors';
 export { foeDeleteError } from './errors';
+export type { FoeDuplicateError } from './errors';
+export { foeDuplicateError } from './errors';

@@ -40,3 +40,15 @@ export const pcDeleteError = (id: string, cause?: unknown): PcDeleteError => {
   error.name = 'PcDeleteError';
   return error;
 };
+
+export type PcDuplicateError = Error & { name: 'PcDuplicateError' };
+export const pcDuplicateError = (
+  id: string,
+  cause?: unknown,
+): PcDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate PC ${id}: ${String(cause)}`,
+  ) as PcDuplicateError;
+  error.name = 'PcDuplicateError';
+  return error;
+};

@@ -8,3 +8,5 @@ export type { PcUpdateError } from './errors';
 export { pcUpdateError } from './errors';
 export type { PcDeleteError } from './errors';
 export { pcDeleteError } from './errors';
+export type { PcDuplicateError } from './errors';
+export { pcDuplicateError } from './errors';
