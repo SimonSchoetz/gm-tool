@@ -2,14 +2,13 @@
 
 ## Closed Beta Ready
 
-- Fix (FTB): URL input breaks FTB when longer than input allows
-- Feature (Fonts): 
-  - Implement fonts (see `./epics/fonts.md`)
-  - adjust all usages of fonts throughtout the app
 - Fix (Summary Pop Up): 
   - click on embedded link opens within app instead of external browser
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix: Adventure stats (facts)
+- Feature (Fonts): 
+  - Implement fonts (see `./epics/fonts.md`)
+  - adjust all usages of fonts throughtout the app
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor
@@ -27,6 +26,7 @@
 
 ### Done
 
+- Fix (FTB): URL input breaks FTB when longer than input allows
 - Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Feature (Text Editor): "Toggle section" (foldable sections)
