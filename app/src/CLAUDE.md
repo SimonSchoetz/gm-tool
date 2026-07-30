@@ -13,12 +13,7 @@ src/
 ├── hooks/ # reusable React hooks
 │   ├── index.ts
 │   ├── simpleHook.ts # flat file when no helpers needed
-│   └── complexHook/ # directory when helpers are needed
-│     ├── complexHook.ts
-│     └── helper/
-│       ├── helperA.ts
-│       └── __tests__/
-│         └── helperA.test.ts
+│   └── complexHook/helper/ # directory + helper/ pattern when helpers are needed — mirrors Component Library's ComponentName/helper/ + __tests__/ layout
 ├── providers/ # app-level UI infrastructure providers
 │   ├── ProviderA/
 │   │   ├── ProviderA.tsx
@@ -26,11 +21,7 @@ src/
 │   └── index.ts
 ├── data-access-layer/ # domain data hooks (TanStack Query)
 │   ├── TanstackQueryClientProvider.tsx # QueryClient config — enables the entire layer
-│   ├── domainA/
-│   │   ├── index.ts
-│   │   ├── domainAKeys.ts
-│   │   ├── useDomainA.ts
-│   │   └── useDomainAs.ts
+│   ├── domainA/ # index.ts, domainAKeys.ts, useDomainA.ts, useDomainAs.ts
 ├── routes/ # Tanstack router
 ├── screens/
 │   ├── screenA/
@@ -41,13 +32,7 @@ src/
 ├── styles/
 │   ├── global.css
 │   ├── reset.css
-│   └── variables/
-│       ├── border-variables.css
-│       ├── color-variables.css
-│       ├── dimensions-variables.css
-│       ├── spacing-variables.css
-│       ├── transition-variables.css
-│       └── typography-variables.css
+│   └── variables/ # border, color, dimensions, spacing, transition, typography-variables.css
 ├── types/
 │   ├── index.ts
 │   └── domain.types.ts
@@ -70,9 +55,7 @@ src/
   - ✅ GOOD: `export { useNpcs, useNpc } from './npcs'` in a grouping barrel — explicit named exports only, never `export *`
   - ❌ BAD: missing `data-access-layer/index.ts` — grouping barrels are unconditionally required, not optional
   - ❌ BAD: `export * from './npcKeys'` in `npcs/index.ts` — accidentally leaks internal query key factories; if `npcKeys` is public API, name it explicitly
-- **Query key factories (`*Keys.ts` files) are internal to the DAL module and must not appear in the module barrel's public exports.** They are an implementation detail of the hooks that use them, not part of the module's external API. The module barrel (`data-access-layer/domainA/index.ts`) exports only the hooks — never the key factories.
-  - ✅ GOOD: `export { useNpc, useNpcs } from './useNpc'` — hooks are the public API
-  - ❌ BAD: `export { npcKeys } from './npcKeys'` in the module barrel — key factory is internal
+- **Query key factories (`*Keys.ts`) are internal to the DAL module — never in the module barrel's public exports; only hooks are exported (`data-access-layer/domainA/index.ts` exports `useNpc`/`useNpcs`, never `npcKeys`).**
 
 ### Screens
 
@@ -81,6 +64,8 @@ src/
 - Screen-local `components/` subdirectories follow the Barrel Files rule above (nesting-level-independent). Sub-components within a screen are always imported from `./components`, never by direct path.
   - ✅ `import { StepSection } from './components'`
   - ❌ `import { StepSection } from './components/StepSection/StepSection'`
+- A component shared by two or more unrelated screens is promoted to `screens/components/` (peer of screen directories — same nearest-shared-ancestor rule as Sub-component ownership below) — never nested inside the screen that introduced it. Uses a `Screens` prefix (`ScreensNameInput`, `ScreensDuplicateBtn`) to distinguish from screen-local sub-components and `src/components/` primitives.
+  - ✅ `screens/components/ScreensDuplicateBtn/` ❌ `screens/npc/components/ScreensDuplicateBtn/` — nested under one screen despite being shared
 
 ### providers/
 
@@ -98,18 +83,17 @@ src/
 - **`useLayoutEffect` over `useEffect` only when a DOM measurement or paint-synchronous side effect is required** — the canonical case is reading layout geometry (`getBoundingClientRect`, `scrollWidth`, `offsetHeight`) and applying a state update that must not cause a visible flash. All other effects use `useEffect`. When `useLayoutEffect` is chosen, an inline comment stating the specific paint-synchronous requirement is required — "avoids flicker" alone is not sufficient.
   - **Exception:** `eslint-plugin-react-hooks`'s `recommended` config (active in `eslint.config.js`) includes `react-hooks/set-state-in-effect` (bans calling a state setter at the top level of an effect body) and `react-hooks/refs` (bans reading `ref.current` during render). A `useLayoutEffect` that reads a ref's layout geometry and then calls `setState` synchronously trips both. When this conflict arises, defer the `setState` call into a subscription callback registered in the effect (e.g. a `ResizeObserver` observing the measured element) instead of calling it at the effect's top level — never suppress either rule to keep the synchronous form. This accepts a brief post-paint correction in exchange for compliance. See `src/components/TextEditor/components/EditorPopup/EditorPopup.tsx`'s viewport-clamping effect.
 
-- **Icon components imported from any third-party icon library are always bound to a name ending in `Icon`, even when the library's own exported name does not end that way.** Rename via the import alias when necessary (`import { Trash2 as Trash2Icon } from 'some-icon-library'`) — never bind the bare library name directly into JSX-consuming code. This is a first-party naming convention applied at the import boundary, independent of which icon library is in use — it applies to every icon import in `src/`, with no exception for single-use or plugin-local imports.
+- **Icon components imported from any third-party icon library are always bound to a name ending in `Icon`, even when the library's own exported name does not end that way.** Rename via the import alias when necessary (`import { Trash2 as Trash2Icon } from 'some-icon-library'`) — never bind the bare library name directly into JSX-consuming code. This applies to every icon import in `src/`, with no exception for single-use or plugin-local imports.
   - ✅ GOOD: `import { CalendarIcon } from 'lucide-react';`
   - ❌ BAD: `import { Calendar } from 'lucide-react';`
 
 ### Component Library
 
 - each component has its own folder
-- each component has its own `.css` file
+- Each component has its own `.css` file only when it owns styles of its own — static classes, tokens, or layout rules on elements it renders directly. A component that only composes existing styled primitives with no classes of its own (a thin wrapper, a pure composition component) has no `.css` file — do not create an empty placeholder speculatively.
 - Functions that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. This covers both pure functions (transformations, formatters, predicates) and non-pure helpers (DOM/canvas mutation drivers). Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
 - **Sub-component ownership**: a sub-component (a function returning JSX, used exclusively within one parent) belongs in `ComponentName/components/`, where `ComponentName` is its immediate JSX parent — not any ancestor. This applies at every nesting depth: a sub-component of a sub-component belongs to that sub-component's own `components/`, never the screen or top-level module's. When two or more unrelated parents render the same sub-component, it belongs to neither — place it as a peer module directory at the nearest shared ancestor (a standalone `components/SubComponentName/`, not nested under either consumer). **Exception — provider modules**: a component rendered exclusively by a provider still belongs in `components/`, not inside the provider's own module directory; `providers/` is infrastructure, and its `components/` (if any) holds only provider-internal structural fragments, not domain UI.
-  - ✅ `components/MentionPopup/` — domain UI belongs in `components/` regardless of consumer count, even when a provider is the sole renderer
-  - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — providers never adopt domain UI as sub-components
+  - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — providers never adopt domain UI as sub-components; it belongs in `components/MentionPopup/` regardless of consumer count, even when a provider is the sole renderer
 - `helper/` and `components/` are within-module grouping barrels per Barrel Files above, with one addition: never re-export their contents from the parent `ComponentName/index.ts` — they are internal to the module. A sub-component directory within `components/` only needs its own `index.ts` when it has internal sub-structure (its own `helper/` or `components/` subdirectory); a flat single-file sub-component is exported directly from the `components/` barrel.
   - ✅ `export { AvatarCell } from './AvatarCell/AvatarCell'` in `components/index.ts` — flat sub-component, no sub-directory barrel needed
   - ✅ `SortableListItem/components/AvatarCell/index.ts` exists only if `AvatarCell/` grows its own `helper/` or `components/`
@@ -118,23 +102,15 @@ src/
   - ❌ `export * from './components'` in `ComponentName/index.ts` — components/ barrel is internal, never re-exported upward
 - **A file inside any grouping folder must never import siblings through that folder's own barrel.** Barrels exist for external consumers; a file importing through a barrel it is part of creates a circular dependency. Always use a direct relative path to the sibling instead.
   - ❌ `import { GlassPanel } from '@/components'` — circular: `MentionPopup` is inside `src/components/`, which exports it; importing through `@/components` from within that folder closes the cycle
-  - ❌ `import { TableConfigRow } from '../components'` — circular: `TableConfigSection` is inside `screenName/components/`, which exports it; `../components` resolves to that same barrel
   - ✅ `import { GlassPanel } from '../GlassPanel/GlassPanel'` — direct relative path, no barrel involved
-  - ✅ `import { TableConfigRow } from '../TableConfigRow/TableConfigRow'` — direct relative path, no barrel involved
+  - Applies at every nesting depth, not just the `src/components/` root — e.g. a screen-local `screenName/components/` grouping folder importing a sibling through `../components` is the same cycle.
 - **A sub-component must never import a type back from the parent module that owns it.** When a type is used by both a parent component and its `components/`-owned sub-component, the parent-owns-child direction makes a child-to-parent import a cycle in the module graph, even when `import type` erases it at compile time and `tsc` raises no error. Extract the shared type to a neutral file that both can import from — never have the sub-component reach back into the parent's file.
   - ❌ `TableEdgeHint.tsx` (in `TableEdgeHandlePlugin/components/`) importing `HintDirection` via `import type { HintDirection } from '../../TableEdgeHandlePlugin'` — the parent owns the sub-component, so an import running the other direction is backwards even though it compiles
   - ✅ Declare `HintDirection` in a neutral file (e.g. `TableEdgeHandlePlugin/types.ts` or the file where it is first needed by both), and have both `TableEdgeHandlePlugin.tsx` and `TableEdgeHint.tsx` import it from there
 
 ### Component Internals
 
-**No IIFE in JSX.** An immediately-invoked function expression inside a render return (`{(() => { ... })()}`) is always a sign that logic has not been extracted. Apply the correct extraction:
-
-- Logic that returns a primitive value → extract to a `helper/` function.
-- Logic that returns JSX → extract to a sub-component in `components/`.
-
-Never leave an IIFE in a render return.
-
-**No inline sub-components.** A named function declared inside a component body that returns JSX is a sub-component, not a helper. It must be extracted to `ComponentName/components/` exactly as if it had been defined outside the parent file. Defining it inline does not make it exempt from the ownership rule — the extraction destination is the same regardless of where the function is currently declared.
+**No IIFE or inline sub-components in JSX.** An IIFE inside a render return (`{(() => { ... })()}`) or a named function declared inside the component body that returns JSX are both signs extraction didn't happen. Logic returning a primitive → `helper/`; logic returning JSX → a sub-component in `components/`, exactly as if defined outside the parent file — declaring it inline does not exempt it from the ownership rule.
 
 **Pass props directly when no transformation, guard, renaming, or toolchain enforcement is needed — never wrap them in a named function.** A wrapper that only forwards its argument unchanged adds no logic and must not exist; inline the prop reference. This governs JSX prop wiring — not hook return types or public API boundaries, where a wrapper hides implementation details and presents a domain-typed interface. A wrapper is permitted only when it adds a transformation (`() => onClose(id)`), a guard (`() => { if (enabled) onSubmit() }`), adapts a signature mismatch (`(e: MouseEvent) => onSelect(e.currentTarget.dataset.id)`), or is required by an active ESLint rule (`() => { void handleAsync(); }` — required by `@typescript-eslint/no-misused-promises` to explicitly discard a Promise return where a synchronous callback is expected).
 
@@ -163,6 +139,10 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
      - ✅ `export const AdventureCrumb = () => { ... }`
      - ❌ `export const AdventureCrumb: FCProps<Props> = () => { ... }` with an empty or placeholder Props body
 
+**A wrapper hardcoding a value for a prop inherited via `React.ComponentProps<typeof Parent>` (case 2 above) must `Omit` that prop from its own `Props` type.** Otherwise a caller can pass a value that is silently shadowed in JSX — a runtime no-op with no compiler or linter error. Every hardcoded prop must be excluded, not just the first one added.
+  - ✅ `Omit<React.ComponentProps<typeof SyncedInput>, 'autoFocus' | 'className'>` when both are hardcoded
+  - ❌ `Omit<...,'autoFocus'>` only, while `className` is also hardcoded in JSX
+
 **Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
 
 - ❌ `<input type="text" />` → ✅ `<input />` — `type="text"` is the default
@@ -177,19 +157,16 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
 
 - **`cn()` usage — conditional and computed classes only:** Use `cn()` when class names are conditional or computed at runtime. A single static string must use `className="..."` directly — never `cn('static-string')`.
   - ✅ GOOD: `cn('button-wrapper', buttonStyle && \`button-wrapper--${buttonStyle}\`)` — conditional, cn() is correct
-  - ✅ GOOD: `className="button-wrapper"` — static, plain className is correct
-  - ❌ BAD: `cn('button-wrapper')` — single static string, cn() adds no value
+  - ❌ BAD: `cn('button-wrapper')` — single static string, cn() adds no value; use `className="button-wrapper"` directly
 
 **UI primitive wrappers — prefer the component over the bare HTML element.** Two match types apply, checked in order:
 
-1. **Name-match**: when a component in `src/components/` shares the exact name of a native HTML element (PascalCase vs lowercase — e.g., `Input` / `<input>`), always use the component instead of the bare element.
-2. **Semantic-match**: before using a typed variant of an HTML element (e.g., `<input type="color">`), check `src/components/` for a specialized component that handles that variant. The naming pattern is `[Modifier][ElementName]` (e.g., `ColorInput`, `DateInput`). If one exists, use it — never fall back to the generic wrapper with a `type` attribute.
+1. **Name-match**: a component in `src/components/` sharing the exact name of a native HTML element (PascalCase vs lowercase — e.g., `Input` / `<input>`) is always used instead of the bare element.
+2. **Semantic-match**: before a typed variant of an HTML element (e.g., `<input type="color">`), check `src/components/` for a specialized component (naming pattern `[Modifier][ElementName]`, e.g. `ColorInput`, `DateInput`) — use it, never the generic wrapper with a `type` attribute.
 
-- When consuming either type of wrapper from inside `src/components/` (the importer is itself a sibling in the `components/` grouping folder), the barrel-circular-import rule applies — never import through `@/components`. Use a direct relative path: `import { Input } from '../Input/Input'`.
-- ✅ `<Input value={val} onChange={handler} />` — name-match: `Input` component exists, use it
-- ✅ `<ColorInput value={val} onChange={handler} />` — semantic-match: typed color variant covered by `ColorInput`, use it
-- ❌ `<input value={val} onChange={handler} />` — bare element when a name-match wrapper exists
-- ❌ `<Input type="color" value={val} onChange={handler} />` — typed variant when a semantic-match wrapper exists
+- The barrel-circular-import rule above applies here too when consuming a wrapper from inside `src/components/` itself.
+- Name-match: ✅ `<Input value={val} onChange={handler} />` ❌ `<input value={val} onChange={handler} />`
+- Semantic-match: ✅ `<ColorInput value={val} onChange={handler} />` ❌ `<Input type="color" value={val} onChange={handler} />`
 
 ### Util vs. Helper Placement
 
@@ -266,17 +243,15 @@ Extraction out of the component file is triggered by either of two independent c
 
 **DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, include both in a single object cast — do not split them across two props or two casts.
 
-- ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
-- ✅ `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
+- ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` (combined cast) or `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` (property alone) + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
 
 **Static CSS custom properties:** When a component-scoped CSS value is not DB-sourced but also cannot use a global token (e.g., a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component), declare it as a static custom property on the component's root element. Prefix with `--[component-name]-` (kebab-cased component name, no `rt` segment) to distinguish from both global tokens and runtime values.
 
-- ✅ `--card-flip-duration: 0.4s` (set in CSS), consumed via `var(--card-flip-duration)` within the same component — illustrative; not tied to any specific file
-- ✅ `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value), consumed via `var(--floating-toolbar-offset)` — illustrative; not tied to any specific file
+- ✅ `--card-flip-duration: 0.4s` (set in CSS) or `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value) — both consumed via `var(...)` within the same component; illustrative, not tied to any specific file
 - ❌ `--rt-toolbar-position: 8px` — the `--rt-` prefix signals DB-sourced; do not use it for static or JS-computed values that are not DB-derived
 
-**No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime. This inline fallback is a narrow exception to the Design token obligation above — it applies only while waiting for user approval on a new token, not as a permanent state.
+**No unilateral additions to `styles/variables/`:** Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime. This inline fallback is temporary, pending token approval — not a permanent state.
 
 ### Types Directory
 
@@ -295,10 +270,11 @@ Extraction out of the component file is triggered by either of two independent c
 - Types derived from db schemas — import directly from `@db/domainName`
 - Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file.
   - ❌ `SessionScreen.types.ts` alongside `SessionScreen.tsx` — same directory does not satisfy this rule; the type must be in `SessionScreen.tsx` itself
-  - ❌ `types/appRoute.type.ts` if `AppRoute` is imported only in `ScreenNavBtn` — move the declaration into `ScreenNavBtn.tsx`
   - ✅ `HtmlProps` in `types/` — imported across dozens of unrelated components
 
 **Barrel requirement:** `types/` is a grouping folder. It requires a barrel (`types/index.ts`) with explicit named exports. External consumers import from `@/types`.
+
+**Ambient module augmentation files (`*.d.ts` with no runtime `import`/`export`, e.g. `types/historyState.d.ts`) are exempt from the barrel requirement above.** `tsc` loads them automatically via the compiled file set, not via import — routing through `types/index.ts` would import a file with no runtime exports. They live directly in `types/` and are never re-exported.
 
 ## State Management & Error Handling
 
@@ -329,7 +305,6 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
   - ✅ GOOD: `updateNpc: (data: UpdateNpcData) => void` — caller sees the domain payload shape
   - ✅ GOOD: `createNpc: () => Promise<string>` — caller sees the domain return value
   - ❌ BAD: `deleteNpc: typeof deleteMutation.mutateAsync` — exposes a TanStack internal
-  - ❌ BAD: `mutate: UseMutateAsyncFunction<...>` — TanStack primitive on the return type
 
 **`useCallback` and `useMemo` are justified only when the wrapped value is read as a dependency in an effect's dependency array, or passed as a prop to a component wrapped in `React.memo`. Applying either hook by default — to event handlers, derived values, or callbacks with no such consumer — adds indirection with no referential-stability benefit and must not be done.** Before wrapping a function or computation in `useCallback`/`useMemo`, identify the specific consumer that requires referential stability. If none exists, write the function or computation as a plain `const` recomputed on every render.
 
@@ -383,7 +358,7 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 
 **Every promise chain kicked off inside a Tauri event-listener callback (registered via `listen()`) must end in an explicit `.catch()` — wrapping the outer call in `void` to satisfy `no-floating-promises` is not sufficient on its own.** This callback runs outside React's render cycle; a `.then()` chain with no `.catch()` becomes an unhandled promise rejection, not a caught error — no automatic mechanism surfaces it. Default handling is swallow-with-comment: state why the rejection is an expected, safe-to-ignore race (see `sendHello`/`pushNewChanges` in `useConnectivityLifecycle.ts`).
 
-When the rejection would instead indicate a genuine unexpected failure rather than a known race, the surfacing mechanism depends on whether the listener-registering code is reachable from a live `ErrorBoundary`. When the `listen()` call is made from within a component, or a hook called (directly or transitively) by a component rendered under an `ErrorBoundary`, call `useErrorBoundary()` (from `react-error-boundary`) at the top level of that component or hook to obtain `showBoundary`, then invoke `showBoundary(error)` inside the `.catch()` handler — this is the library's documented bridge for errors surfacing after async code has run, routing the failure into the same fallback UI a render-time error would hit. Reserve `console.error` inside the `.catch()` for the narrower case where no such hosting component or hook exists in the call chain (e.g. module-level listener setup with nothing to host the hook). Never leave the chain uncaught either way.
+When the rejection would instead indicate a genuine unexpected failure rather than a known race, the surfacing mechanism depends on whether the listener-registering code is reachable from a live `ErrorBoundary`. When the `listen()` call is made from within a component, or a hook called (directly or transitively) by a component rendered under an `ErrorBoundary`, call `useErrorBoundary()` (from `react-error-boundary`) at the top level of that component or hook to obtain `showBoundary`, then invoke `showBoundary(error)` inside the `.catch()` handler — the library's documented bridge for post-async errors into the same fallback UI a render-time error would hit. Reserve `console.error` inside the `.catch()` for the narrower case where no such hosting component or hook exists in the call chain (e.g. module-level listener setup with nothing to host the hook). Never leave the chain uncaught either way.
 
 - ✅ GOOD: `const { showBoundary } = useErrorBoundary();` at the top of the hook, then `.catch((error: unknown) => showBoundary(error))` inside the effect
 - ❌ BAD: calling `useErrorBoundary()` inside the `.catch()` callback itself — hooks cannot be called outside a component or hook's synchronous render/call path

@@ -105,6 +105,15 @@ await db.execute(
 - Usage example: `session.create()`, `session.getAll()`, `session.update()`
 - File names match function names: `create.ts`, `get.ts`, `get-all.ts`, `update.ts`, `remove.ts`. This list applies only to files that implement a single CRUD operation. Non-CRUD files — schema definitions, derived types, shared utilities — are named by their concern (e.g., `schema.ts`, `types.ts`). The root CLAUDE.md `1 concern → 1 file` rule governs these.
 
+## Duplication
+
+Domains that support duplication (see `db/<domain>/duplicate.ts`) share one column-copying mechanism: `buildDuplicateQuery` (`db/util/build-duplicate-query.ts`). Never compose `buildCreateQuery` + `generateDbTimestamps` directly for a duplicate operation — that bypasses the shared contract and has already produced divergent implementations once.
+
+`duplicate.ts` always follows this shape: `assertValidId` the source id, fetch the source row, generate a new id, then destructure the source row to build `copiedColumns` — excluding `id`, `created_at`, and `updated_at` unconditionally (`buildDuplicateQuery` supplies the id and generates fresh timestamps itself), plus any column that must differ in the duplicate (e.g. `image_id` when the image itself is duplicated separately). Columns excluded from `copiedColumns` are re-supplied via the `overrides` argument — an excluded column with no override is omitted from the INSERT and takes its SQL default. Reference: `db/npc/duplicate.ts` + `db/util/build-duplicate-query.ts`.
+
+- ✅ GOOD: `const { id: _id, image_id: _imageId, created_at: _createdAt, updated_at: _updatedAt, ...copiedColumns } = source; buildDuplicateQuery('npcs', newId, copiedColumns, { image_id: newImageId })`
+- ❌ BAD: hand-rolling `buildCreateQuery(tableName, newId, { ...source, id: newId, ...generateDbTimestamps() })` — reimplements the exclude-then-spread contract per domain instead of delegating to `buildDuplicateQuery`
+
 ## Cross-table utilities
 
 Functions that operate across multiple tables (e.g., `mention-search.ts`) live as flat files at the db root, not in a domain subdirectory. This is a deliberate exception to the "group by table" convention — cross-table concerns have no single domain owner.

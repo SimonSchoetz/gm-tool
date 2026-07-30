@@ -49,7 +49,7 @@ Conventions that apply across `app/` — TypeScript conventions for all TypeScri
 Two directory types exist — distinguish them before adding or deleting a barrel:
 
 - **Module directory**: owns a single table or concern. Always exposes its public API through an `index.ts`. This barrel is required.
-- **Grouping folder**: organizes module directories but owns no domain itself. Requires an `index.ts` barrel with explicit named exports — `export *` is banned in grouping barrels.
+- **Grouping folder**: organizes module directories but owns no domain itself. Requires an `index.ts` barrel with explicit named exports — `export *` is banned in grouping barrels. **Exception**: when the owning layer's own CLAUDE.md documents both the grouping barrel and direct `<layer>/<subdomain>` imports as equally sanctioned external import paths (a documented dual-path convention — see `domain/CLAUDE.md` — Imports), the subdomain's own barrel is already the full, curated public-API statement, and the grouping barrel's block for that subdomain may use `export * from './<subdomain>'` instead of hand-copying its name list — re-listing identical names adds a second hand-maintained copy with no curation value. This exception does not apply to a grouping folder that is the sole sanctioned external import path for its layer (e.g. `src/`'s `components/`, `providers/`, `data-access-layer/`, `util/`, `hooks/`, `screens/`, `types/`, per `src/CLAUDE.md`).
 
 This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific applications of this rule (which directories are grouping folders, import depth conventions) are documented in each layer's own CLAUDE.md.
 

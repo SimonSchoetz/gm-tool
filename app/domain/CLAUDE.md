@@ -12,6 +12,7 @@ TypeScript types, and validation rules.
 - Error factory functions and their types (see factory function pattern in [app/CLAUDE.md](../CLAUDE.md))
 - Domain-specific TypeScript types not derived from the db schema
 - Validation rules that express business constraints
+- Constant lookup tables keyed by a domain type defined in this layer (e.g. a `Record<EntityType, string>` mapping entity types to route segments or display labels), and the accessor functions built on them — a lookup table is typically kept module-private with only a typed accessor exported (e.g. `buildEntityPath`, `entityTypeLabel`), and the accessor belongs here on the same basis as the table it wraps, even when it adds validation or a fallback default around the raw lookup. Current consumer count does not determine placement here; a table or accessor keyed by a domain/ type belongs in domain/ even when only the frontend currently reads it, because a future service-layer consumer would otherwise force a relocation.
 
 ## What Does NOT Belong Here
 

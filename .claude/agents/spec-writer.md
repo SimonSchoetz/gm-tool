@@ -108,7 +108,7 @@ After producing the verdict artifact, stop. Do not continue into authoring mode.
 
 ## Pre-Emission Compliance Pass
 
-Before emitting any spec, read `.claude/reference/spec-writer-gates.md` in full and run every gate listed there against the complete spec. Do not rely on memory of a prior read — the gate list grows across retrospectives, and a stale recollection will miss newly added rows. A hit on any gate is a spec defect to fix before emitting.
+Before emitting any spec, read `.claude/reference/spec-writer-gates.md` in full and run every gate listed there against the complete spec. Do not rely on memory of a prior read — the gate list grows across retrospectives, and a stale recollection will miss newly added rows. For any gate whose trigger condition spans multiple sub-features (its Trigger or Check text says "across all its sub-features," "elsewhere in the spec," or equivalent), build an explicit inventory of every occurrence, disposition, or call site the gate concerns — across every sub-feature — before applying the trigger threshold; do not evaluate it via a single linear read of the assembled spec, since that carries forward whatever per-sub-feature conclusion was already reached while drafting, which is exactly what lets a pattern split thinly across sub-features stay under each sub-feature's individual radar. A hit on any gate is a spec defect to fix before emitting.
 
 ## Output
 

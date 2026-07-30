@@ -92,6 +92,8 @@ Always use Conventional Commits with scope required:
 
   A comment that would need to be duplicated in more than one file is not a comment — it is a missing CLAUDE.md rule.
 
+- **A comment's factual claims must hold for every case it generalizes over, not just the case that motivated writing it.** A comment describing a function's contract, a component's behavior, or an invariant is a claim under Epistemological Discipline's verification obligation the same as any other stated fact — before writing a generalizing claim in a comment (a contract, an "always"/"never" statement, a description of every caller's expectation), verify it against every case it claims to cover, not only the one case currently in view. A comment wrong for an untested case is not caught by tsc, eslint, or a reviewer skimming for the case they expect.
+
 - **A code comment must never cite a spec as its rationale source — no spec file names, no SF/sub-feature numbers.** Specs are temporary and are deleted after implementation (see `app/docs/CLAUDE.md`); a comment that reads `// see SF5's lifecycle notes` becomes unresolvable the moment that artifact is gone, while the code it annotates persists. When a design rationale needs to survive in a comment, rewrite it in terms of the code symbols it explains — name the function, type, or component the rationale is actually about, not the document that originated it.
   - ❌ BAD: `// SF5's lifecycle: pairing-mode listener must unregister before the responder's own re-entry check fires`
   - ✅ GOOD: `// unregister the pairing-mode listener before re-entry check — a still-registered listener double-fires enterPairingMode on rapid re-click`

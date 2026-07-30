@@ -2,7 +2,6 @@
 
 ## Closed Beta Ready
 
-- Feature: Item screens should be duplicatable
 - Fix: Adventure stats (facts)
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
@@ -23,6 +22,7 @@
 
 ### Done
 
+- Feature: Item screens should be duplicatable
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix (Mention Pop Up): 
   - click on embedded link opens within app instead of external browser

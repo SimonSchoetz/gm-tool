@@ -51,7 +51,7 @@ After all sub-features are committed, run the following loop. The loop exits whe
 
 During this loop only, the implementer acts as a pure mediator — it passes outputs and verdicts between agents and does not propose fixes, interpret agent output, or resolve ambiguity itself. If any agent asks a clarifying question, pass it to the user verbatim and wait for the user's response before continuing. All agents are spawned as one-shot workers via the Agent tool — each invocation is independent with no memory of prior cycles. The implementer accumulates state between cycles and passes the right context to each new invocation.
 
-**Cycle structure (repeat up to 3 times):**
+**Cycle structure (repeat up to 3 times — this limit is the hard cap):** The fix commit for cycle 3 (step 9) is the last permitted action in this loop — do not spawn a code-reviewer or architect instance afterward to verify cycle 3's fixes; whatever violations remain are surfaced to the user, not re-checked.
 
 0. Run `npx tsc --noEmit` and `npx eslint .` and `prettier --check .` and resolve any errors. Then run `npx vitest run` to confirm the full test suite passes. Resolve any failures. The reviewer must see code that is type-correct, formatted, and test-passing before filing findings. Before citing any CLI flag or subcommand for vitest, tsc, eslint, prettier, or any other toolchain binary in this file, verify it against the installed version — never state a flag from memory.
 1. Spawn `code-reviewer` via the Agent tool.
@@ -73,7 +73,6 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 - **Regression**: full branch diff passed each cycle, not incremental diff.
 - **Contradicting briefs**: prior briefs passed as read-only context; reversals surfaced as informational before implementing.
 - **Infinite convergence**: concerns never block; loop exits on a clean reviewer verdict (zero violations) or on the architect's no-violations verdict.
-- **Hard cap**: after 3 cycles, surface remaining violations to user and halt.
 
 **Post-loop:**
 
