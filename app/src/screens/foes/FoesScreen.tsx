@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useFoes, useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon, SortableList } from '@/components';
 import type { Foe } from '@db/foe';
+import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './FoesScreen.css';
 
@@ -18,7 +19,9 @@ export const FoesScreen = () => {
 
   const handleFoeCreation = async () => {
     const newFoeId = await createFoe();
-    void router.navigate({ to: `/adventure/${adventureId}/foe/${newFoeId}` });
+    void router.navigate({
+      to: buildEntityPath('foes', newFoeId, adventureId),
+    });
   };
 
   if (foesLoading || configsLoading) {
@@ -38,7 +41,9 @@ export const FoesScreen = () => {
       tableConfigId={foesTableConfig.id}
       items={foes}
       onRowClick={(foe) => {
-        void router.navigate({ to: `/adventure/${adventureId}/foe/${foe.id}` });
+        void router.navigate({
+          to: buildEntityPath('foes', foe.id, adventureId),
+        });
       }}
       onCreateNew={() => {
         void handleFoeCreation();

@@ -1,5 +1,21 @@
-export type { ImageDuplicateError, ImageUpdateFrameError } from './images';
-export { imageDuplicateError, imageUpdateFrameError } from './images';
+export type {
+  ImageNotFoundError,
+  ImageLoadError,
+  ImageCreateError,
+  ImageDeleteError,
+  ImageReplaceError,
+  ImageDuplicateError,
+  ImageUpdateFrameError,
+} from './images';
+export {
+  imageNotFoundError,
+  imageLoadError,
+  imageCreateError,
+  imageDeleteError,
+  imageReplaceError,
+  imageDuplicateError,
+  imageUpdateFrameError,
+} from './images';
 
 export type {
   AdventureNotFoundError,

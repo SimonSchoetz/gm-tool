@@ -3,6 +3,7 @@ import './AdventuresScreen.css';
 import { ToAdventureBtn } from './components';
 import { NewItemBtn, CustomScrollArea, LoadingIcon } from '@/components';
 import { useRouter } from '@tanstack/react-router';
+import { buildEntityPath } from '@domain';
 import { ADVENTURE_PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../screens.constants';
 
 export const AdventuresScreen = () => {
@@ -11,7 +12,9 @@ export const AdventuresScreen = () => {
 
   const handleAdventureCreation = async () => {
     const newAdventureId = await createAdventure();
-    void router.navigate({ to: `/adventure/${newAdventureId}` });
+    void router.navigate({
+      to: buildEntityPath('adventures', newAdventureId, null),
+    });
   };
 
   if (loading) {

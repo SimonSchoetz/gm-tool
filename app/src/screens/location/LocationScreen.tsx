@@ -1,6 +1,7 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useLocation } from '@/data-access-layer';
-import { useParams, useRouterState } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
+import { useFocusNameInputOnArrival } from '@/hooks';
 import { LocationSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,9 +14,7 @@ export const LocationScreen = () => {
     from: '/adventure/$adventureId/location/$locationId',
   });
 
-  const focusNameInput = useRouterState({
-    select: (state) => state.location.state.focusNameInput ?? false,
-  });
+  const focusNameInput = useFocusNameInputOnArrival();
 
   const { location, updateLocation, loading } = useLocation(
     locationId,

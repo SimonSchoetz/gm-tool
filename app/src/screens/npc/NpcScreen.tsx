@@ -1,6 +1,7 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useNpc } from '@/data-access-layer';
-import { useParams, useRouterState } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
+import { useFocusNameInputOnArrival } from '@/hooks';
 import { NpcSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,9 +14,7 @@ export const NpcScreen = () => {
     from: '/adventure/$adventureId/npc/$npcId',
   });
 
-  const focusNameInput = useRouterState({
-    select: (state) => state.location.state.focusNameInput ?? false,
-  });
+  const focusNameInput = useFocusNameInputOnArrival();
 
   const { npc, updateNpc, loading } = useNpc(npcId, adventureId);
 

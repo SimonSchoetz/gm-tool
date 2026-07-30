@@ -1,10 +1,5 @@
 import { getDatabase } from '../database';
-import {
-  generateId,
-  buildCreateQuery,
-  generateDbTimestamps,
-  assertValidId,
-} from '../util';
+import { generateId, buildDuplicateQuery, assertValidId } from '../util';
 import { get } from './get';
 
 export const duplicate = async (
@@ -19,7 +14,6 @@ export const duplicate = async (
   }
 
   const id = generateId();
-  const timestamps = generateDbTimestamps();
 
   // The copied column set is derived by exclusion rather than listed, so a column added to npcs later is duplicated without touching this file. image_id is excluded because the caller supplies a freshly duplicated image; name is excluded so the column takes SQL NULL.
   const {
@@ -31,24 +25,8 @@ export const duplicate = async (
     ...copiedColumns
   } = source;
 
-  // `?? null` is a type-level normalization, not a runtime fallback: SELECT * yields null for an unset column, but the schema's optional zod fields type these values as possibly undefined.
-  const copiedValues: Record<string, string | number | null> =
-    Object.fromEntries(
-      Object.entries(copiedColumns).map(
-        ([column, value]): [string, string | number | null] => [
-          column,
-          value ?? null,
-        ],
-      ),
-    );
-
-  const { sql, values } = buildCreateQuery<
-    Record<string, string | number | null>
-  >('npcs', id, {
-    ...copiedValues,
+  const { sql, values } = buildDuplicateQuery('npcs', id, copiedColumns, {
     image_id: imageId,
-    created_at: timestamps.created_at,
-    updated_at: timestamps.updated_at,
   });
 
   const db = await getDatabase();

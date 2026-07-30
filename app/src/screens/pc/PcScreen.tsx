@@ -1,6 +1,7 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { usePc } from '@/data-access-layer';
-import { useParams, useRouterState } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
+import { useFocusNameInputOnArrival } from '@/hooks';
 import { PcSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,9 +14,7 @@ export const PcScreen = () => {
     from: '/adventure/$adventureId/pc/$pcId',
   });
 
-  const focusNameInput = useRouterState({
-    select: (state) => state.location.state.focusNameInput ?? false,
-  });
+  const focusNameInput = useFocusNameInputOnArrival();
 
   const { pc, updatePc, loading } = usePc(pcId, adventureId);
 

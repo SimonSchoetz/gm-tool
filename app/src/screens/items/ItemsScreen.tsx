@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useItems, useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon, SortableList } from '@/components';
 import type { Item } from '@db/item';
+import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './ItemsScreen.css';
 
@@ -18,7 +19,9 @@ export const ItemsScreen = () => {
 
   const handleItemCreation = async () => {
     const newItemId = await createItem();
-    void router.navigate({ to: `/adventure/${adventureId}/item/${newItemId}` });
+    void router.navigate({
+      to: buildEntityPath('items', newItemId, adventureId),
+    });
   };
 
   if (itemsLoading || configsLoading) {
@@ -39,7 +42,7 @@ export const ItemsScreen = () => {
       items={items}
       onRowClick={(item) => {
         void router.navigate({
-          to: `/adventure/${adventureId}/item/${item.id}`,
+          to: buildEntityPath('items', item.id, adventureId),
         });
       }}
       onCreateNew={() => {

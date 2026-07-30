@@ -1,6 +1,7 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useItem } from '@/data-access-layer';
-import { useParams, useRouterState } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
+import { useFocusNameInputOnArrival } from '@/hooks';
 import { ItemSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,9 +14,7 @@ export const ItemScreen = () => {
     from: '/adventure/$adventureId/item/$itemId',
   });
 
-  const focusNameInput = useRouterState({
-    select: (state) => state.location.state.focusNameInput ?? false,
-  });
+  const focusNameInput = useFocusNameInputOnArrival();
 
   const { item, updateItem, loading } = useItem(itemId, adventureId);
 

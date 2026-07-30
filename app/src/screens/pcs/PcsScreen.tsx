@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { usePcs, useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon, SortableList } from '@/components';
 import type { Pc } from '@db/pc';
+import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './PcsScreen.css';
 
@@ -18,7 +19,7 @@ export const PcsScreen = () => {
 
   const handlePcCreation = async () => {
     const newPcId = await createPc();
-    void router.navigate({ to: `/adventure/${adventureId}/pc/${newPcId}` });
+    void router.navigate({ to: buildEntityPath('pcs', newPcId, adventureId) });
   };
 
   if (pcsLoading || configsLoading) {
@@ -38,7 +39,9 @@ export const PcsScreen = () => {
       tableConfigId={pcsTableConfig.id}
       items={pcs}
       onRowClick={(pc) => {
-        void router.navigate({ to: `/adventure/${adventureId}/pc/${pc.id}` });
+        void router.navigate({
+          to: buildEntityPath('pcs', pc.id, adventureId),
+        });
       }}
       onCreateNew={() => {
         void handlePcCreation();

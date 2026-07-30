@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useNpcs, useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon, SortableList } from '@/components';
 import type { Npc } from '@db/npc';
+import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './NpcsScreen.css';
 
@@ -18,7 +19,9 @@ export const NpcsScreen = () => {
 
   const handleNpcCreation = async () => {
     const newNpcId = await createNpc();
-    void router.navigate({ to: `/adventure/${adventureId}/npc/${newNpcId}` });
+    void router.navigate({
+      to: buildEntityPath('npcs', newNpcId, adventureId),
+    });
   };
 
   if (npcsLoading || configsLoading) {
@@ -38,7 +41,9 @@ export const NpcsScreen = () => {
       tableConfigId={npcsTableConfig.id}
       items={npcs}
       onRowClick={(npc) => {
-        void router.navigate({ to: `/adventure/${adventureId}/npc/${npc.id}` });
+        void router.navigate({
+          to: buildEntityPath('npcs', npc.id, adventureId),
+        });
       }}
       onCreateNew={() => {
         void handleNpcCreation();

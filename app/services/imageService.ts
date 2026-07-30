@@ -1,10 +1,23 @@
 import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import * as imageDb from '@db/image';
 import type { Image } from '@db/image';
-import { imageDuplicateError, imageUpdateFrameError } from '@domain';
+import {
+  imageNotFoundError,
+  imageLoadError,
+  imageCreateError,
+  imageDeleteError,
+  imageReplaceError,
+  imageDuplicateError,
+  imageUpdateFrameError,
+} from '@domain';
 
-export const createImage = async (filePath: string): Promise<string> =>
-  imageDb.create({ filePath });
+export const createImage = async (filePath: string): Promise<string> => {
+  try {
+    return await imageDb.create({ filePath });
+  } catch (cause) {
+    throw imageCreateError(cause);
+  }
+};
 
 export const duplicateImage = async (sourceId: string): Promise<string> => {
   try {
@@ -15,17 +28,36 @@ export const duplicateImage = async (sourceId: string): Promise<string> => {
 };
 
 export const deleteImage = async (id: string): Promise<void> => {
-  await imageDb.remove(id);
+  try {
+    await imageDb.remove(id);
+  } catch (cause) {
+    throw imageDeleteError(id, cause);
+  }
 };
 
 export const replaceImage = async (
   oldId: string,
   filePath: string,
-): Promise<string> => imageDb.replace(oldId, { filePath });
+): Promise<string> => {
+  try {
+    return await imageDb.replace(oldId, { filePath });
+  } catch (cause) {
+    throw imageReplaceError(oldId, cause);
+  }
+};
 
 export const getImageById = async (id: string): Promise<Image> => {
-  const img = await imageDb.get(id);
-  if (!img) throw new Error(`Image not found: ${id}`);
+  let img: Image | null;
+  try {
+    img = await imageDb.get(id);
+  } catch (cause) {
+    throw imageLoadError(cause);
+  }
+
+  if (!img) {
+    throw imageNotFoundError(id);
+  }
+
   return img;
 };
 

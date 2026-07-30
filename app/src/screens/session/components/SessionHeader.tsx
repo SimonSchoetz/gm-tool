@@ -2,8 +2,8 @@ import { useSession } from '@/data-access-layer';
 import './SessionHeader.css';
 import { SyncedInput, DateInput } from '@/components';
 import { FCProps, HtmlProps } from '@/types';
-import { useSyncedInputValue } from '@/hooks';
-import { useParams, useRouterState } from '@tanstack/react-router';
+import { useSyncedInputValue, useFocusNameInputOnArrival } from '@/hooks';
+import { useParams } from '@tanstack/react-router';
 
 export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   const { sessionId, adventureId } = useParams({
@@ -11,9 +11,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   });
   const { session, updateSession } = useSession(sessionId, adventureId);
 
-  const focusNameInput = useRouterState({
-    select: (state) => state.location.state.focusNameInput ?? false,
-  });
+  const focusNameInput = useFocusNameInputOnArrival();
 
   // DateInput wraps a native <input type='date'>, not the text Input, so the date field can't use SyncedInput and reconciles its external value through the shared hook directly.
   const {

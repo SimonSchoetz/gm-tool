@@ -5,6 +5,7 @@ import { FCProps, HtmlProps } from '@/types';
 
 import { HoloImg } from '@/components';
 import { Adventure } from '@db/adventure';
+import { buildEntityPath } from '@domain';
 import {
   PREVIEW_WIDTH,
   ADVENTURE_PREVIEW_HEIGHT,
@@ -14,7 +15,7 @@ type Props = {
   adventure: Adventure;
 } & HtmlProps<'div'>;
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
-  const route = `/adventure/${adventure.id}`;
+  const route = buildEntityPath('adventures', adventure.id, null);
 
   return (
     <Link

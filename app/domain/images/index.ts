@@ -1,3 +1,13 @@
+export type { ImageNotFoundError } from './errors';
+export { imageNotFoundError } from './errors';
+export type { ImageLoadError } from './errors';
+export { imageLoadError } from './errors';
+export type { ImageCreateError } from './errors';
+export { imageCreateError } from './errors';
+export type { ImageDeleteError } from './errors';
+export { imageDeleteError } from './errors';
+export type { ImageReplaceError } from './errors';
+export { imageReplaceError } from './errors';
 export type { ImageDuplicateError } from './errors';
 export { imageDuplicateError } from './errors';
 export type { ImageUpdateFrameError } from './errors';

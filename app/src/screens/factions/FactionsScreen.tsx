@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useFactions, useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon, SortableList } from '@/components';
 import type { Faction } from '@db/faction';
+import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import './FactionsScreen.css';
 
@@ -25,7 +26,7 @@ export const FactionsScreen = () => {
   const handleFactionCreation = async () => {
     const newFactionId = await createFaction();
     void router.navigate({
-      to: `/adventure/${adventureId}/faction/${newFactionId}`,
+      to: buildEntityPath('factions', newFactionId, adventureId),
     });
   };
 
@@ -47,7 +48,7 @@ export const FactionsScreen = () => {
       items={factions}
       onRowClick={(faction) => {
         void router.navigate({
-          to: `/adventure/${adventureId}/faction/${faction.id}`,
+          to: buildEntityPath('factions', faction.id, adventureId),
         });
       }}
       onCreateNew={() => {

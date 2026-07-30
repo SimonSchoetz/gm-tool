@@ -2,6 +2,7 @@ import { useParams, useRouter } from '@tanstack/react-router';
 import { useSessions, useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon, SortableList } from '@/components';
 import type { Session } from '@db/session';
+import { buildEntityPath } from '@domain';
 
 export const SessionsScreen = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ export const SessionsScreen = () => {
   const handleSessionCreation = async () => {
     const newSessionId = await createSession();
     void router.navigate({
-      to: `/adventure/${adventureId}/session/${newSessionId}`,
+      to: buildEntityPath('sessions', newSessionId, adventureId),
     });
   };
 
@@ -37,7 +38,7 @@ export const SessionsScreen = () => {
       items={sessions}
       onRowClick={(session) => {
         void router.navigate({
-          to: `/adventure/${adventureId}/session/${session.id}`,
+          to: buildEntityPath('sessions', session.id, adventureId),
         });
       }}
       onCreateNew={() => {

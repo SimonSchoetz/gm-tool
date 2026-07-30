@@ -1,6 +1,7 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useFoe } from '@/data-access-layer';
-import { useParams, useRouterState } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
+import { useFocusNameInputOnArrival } from '@/hooks';
 import { FoeSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,9 +14,7 @@ export const FoeScreen = () => {
     from: '/adventure/$adventureId/foe/$foeId',
   });
 
-  const focusNameInput = useRouterState({
-    select: (state) => state.location.state.focusNameInput ?? false,
-  });
+  const focusNameInput = useFocusNameInputOnArrival();
 
   const { foe, updateFoe, loading } = useFoe(foeId, adventureId);
 
