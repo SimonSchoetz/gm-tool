@@ -12,6 +12,7 @@ import {
   ShowPopupArgs,
   PinnedPopupsContextValue,
 } from './PinnedPopupsContext';
+import './PinnedPopupsProvider.css';
 
 type PopupEntry = {
   entityId: string;
@@ -104,7 +105,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
     <PinnedPopupsContext.Provider value={contextValue}>
       {children}
       {createPortal(
-        <>
+        <div className='pinned-popups-stack'>
           {popups.map((entry) => {
             const {
               pinned,
@@ -135,7 +136,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
               />
             );
           })}
-        </>,
+        </div>,
         document.body,
       )}
     </PinnedPopupsContext.Provider>

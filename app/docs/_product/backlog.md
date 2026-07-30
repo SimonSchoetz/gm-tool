@@ -2,8 +2,6 @@
 
 ## Closed Beta Ready
 
-- Fix (Summary Pop Up): 
-  - click on embedded link opens within app instead of external browser
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix: Adventure stats (facts)
 - Feature (Fonts): 
@@ -26,6 +24,8 @@
 
 ### Done
 
+- Fix (Mention Pop Up): 
+  - click on embedded link opens within app instead of external browser
 - Fix (FTB): URL input breaks FTB when longer than input allows
 - Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes

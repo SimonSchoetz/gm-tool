@@ -1,0 +1,4 @@
+.pinned-popups-stack {
+  position: relative;
+  z-index: calc(var(--most-front) - 1);
+}
