@@ -1,7 +1,7 @@
 import { UploadImgBtn, Button } from '@/components';
 import { useNpc } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
-import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
+import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './NpcSidebar.css';
 import { ScreensDuplicateBtn } from '../../../components';

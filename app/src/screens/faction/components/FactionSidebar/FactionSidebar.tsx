@@ -1,7 +1,7 @@
 import { UploadImgBtn, Button } from '@/components';
 import { useFaction } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
-import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
+import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import './FactionSidebar.css';
 import { ScreensDuplicateBtn } from '../../../components';
