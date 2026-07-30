@@ -1,7 +1,6 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useFaction } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useFocusNameInputOnArrival } from '@/hooks';
 import { FactionSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,8 +12,6 @@ export const FactionScreen = () => {
   const { adventureId, factionId } = useParams({
     from: '/adventure/$adventureId/faction/$factionId',
   });
-
-  const focusNameInput = useFocusNameInputOnArrival();
 
   const { faction, updateFaction, loading } = useFaction(
     factionId,
@@ -47,7 +44,6 @@ export const FactionScreen = () => {
       body={
         <>
           <ScreensNameInput
-            autoFocus={focusNameInput}
             placeholder='Faction Name'
             initValue={faction.name ?? ''}
             onCommit={(name) => {

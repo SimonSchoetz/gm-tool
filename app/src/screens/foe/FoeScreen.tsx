@@ -1,7 +1,6 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useFoe } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useFocusNameInputOnArrival } from '@/hooks';
 import { FoeSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,8 +12,6 @@ export const FoeScreen = () => {
   const { adventureId, foeId } = useParams({
     from: '/adventure/$adventureId/foe/$foeId',
   });
-
-  const focusNameInput = useFocusNameInputOnArrival();
 
   const { foe, updateFoe, loading } = useFoe(foeId, adventureId);
 
@@ -44,7 +41,6 @@ export const FoeScreen = () => {
       body={
         <>
           <ScreensNameInput
-            autoFocus={focusNameInput}
             placeholder='Foe Name'
             initValue={foe.name ?? ''}
             onCommit={(name) => {

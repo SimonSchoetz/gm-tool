@@ -10,5 +10,7 @@ export type { ImageReplaceError } from './errors';
 export { imageReplaceError } from './errors';
 export type { ImageDuplicateError } from './errors';
 export { imageDuplicateError } from './errors';
+export type { ImageUrlLoadError } from './errors';
+export { imageUrlLoadError } from './errors';
 export type { ImageUpdateFrameError } from './errors';
 export { imageUpdateFrameError } from './errors';

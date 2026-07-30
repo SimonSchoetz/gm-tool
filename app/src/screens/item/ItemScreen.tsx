@@ -1,7 +1,6 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useItem } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { useFocusNameInputOnArrival } from '@/hooks';
 import { ItemSidebar } from './components';
 import {
   ScreensNameInput,
@@ -13,8 +12,6 @@ export const ItemScreen = () => {
   const { adventureId, itemId } = useParams({
     from: '/adventure/$adventureId/item/$itemId',
   });
-
-  const focusNameInput = useFocusNameInputOnArrival();
 
   const { item, updateItem, loading } = useItem(itemId, adventureId);
 
@@ -44,7 +41,6 @@ export const ItemScreen = () => {
       body={
         <>
           <ScreensNameInput
-            autoFocus={focusNameInput}
             placeholder='Item Name'
             initValue={item.name ?? ''}
             onCommit={(name) => {

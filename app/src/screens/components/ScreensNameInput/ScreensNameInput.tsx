@@ -1,10 +1,19 @@
 import { FCProps } from '@/types';
 import { SyncedInput } from '@/components';
+import { useFocusNameInputOnArrival } from '@/hooks';
 import { ComponentProps } from 'react';
 import './ScreensNameInput.css';
 
-type Props = ComponentProps<typeof SyncedInput>;
+type Props = Omit<ComponentProps<typeof SyncedInput>, 'autoFocus'>;
 
 export const ScreensNameInput: FCProps<Props> = ({ ...props }) => {
-  return <SyncedInput {...props} className='screens-name-input' />;
+  const focusNameInput = useFocusNameInputOnArrival();
+
+  return (
+    <SyncedInput
+      {...props}
+      autoFocus={focusNameInput}
+      className='screens-name-input'
+    />
+  );
 };

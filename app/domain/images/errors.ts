@@ -50,11 +50,26 @@ export const imageReplaceError = (
 };
 
 export type ImageDuplicateError = Error & { name: 'ImageDuplicateError' };
-export const imageDuplicateError = (cause?: unknown): ImageDuplicateError => {
+export const imageDuplicateError = (
+  id: string,
+  cause?: unknown,
+): ImageDuplicateError => {
   const error = new Error(
-    `Failed to duplicate image: ${String(cause)}`,
+    `Failed to duplicate Image ${id}: ${String(cause)}`,
   ) as ImageDuplicateError;
   error.name = 'ImageDuplicateError';
+  return error;
+};
+
+export type ImageUrlLoadError = Error & { name: 'ImageUrlLoadError' };
+export const imageUrlLoadError = (
+  id: string,
+  cause?: unknown,
+): ImageUrlLoadError => {
+  const error = new Error(
+    `Failed to load Image URL ${id}: ${String(cause)}`,
+  ) as ImageUrlLoadError;
+  error.name = 'ImageUrlLoadError';
   return error;
 };
 

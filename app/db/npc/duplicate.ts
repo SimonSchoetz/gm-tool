@@ -15,7 +15,6 @@ export const duplicate = async (
 
   const id = generateId();
 
-  // The copied column set is derived by exclusion rather than listed, so a column added to npcs later is duplicated without touching this file. image_id is excluded because the caller supplies a freshly duplicated image; name is excluded so the column takes SQL NULL.
   const {
     id: _sourceRowId,
     name: _sourceName,

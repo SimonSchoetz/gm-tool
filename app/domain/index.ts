@@ -5,6 +5,7 @@ export type {
   ImageDeleteError,
   ImageReplaceError,
   ImageDuplicateError,
+  ImageUrlLoadError,
   ImageUpdateFrameError,
 } from './images';
 export {
@@ -14,6 +15,7 @@ export {
   imageDeleteError,
   imageReplaceError,
   imageDuplicateError,
+  imageUrlLoadError,
   imageUpdateFrameError,
 } from './images';
 

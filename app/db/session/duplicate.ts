@@ -12,7 +12,7 @@ export const duplicate = async (sourceId: string): Promise<string> => {
 
   const id = generateId();
 
-  // The copied column set is derived by exclusion rather than listed, so a column added to sessions later is duplicated without touching this file. name is excluded so the column takes SQL NULL. active_view is copied, not omitted, so the duplicate opens in the view the source was left in.
+  // active_view is copied, not omitted, so the duplicate opens in the view the source was left in.
   const {
     id: _sourceRowId,
     name: _sourceName,

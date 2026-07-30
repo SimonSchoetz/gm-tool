@@ -8,6 +8,7 @@ import {
   imageDeleteError,
   imageReplaceError,
   imageDuplicateError,
+  imageUrlLoadError,
   imageUpdateFrameError,
 } from '@domain';
 
@@ -23,7 +24,7 @@ export const duplicateImage = async (sourceId: string): Promise<string> => {
   try {
     return await imageDb.duplicate(sourceId);
   } catch (cause) {
-    throw imageDuplicateError(cause);
+    throw imageDuplicateError(sourceId, cause);
   }
 };
 
@@ -65,8 +66,12 @@ export const getImageUrl = async (
   id: string,
   extension: string,
 ): Promise<string> => {
-  const path = await invoke<string>('get_image_url', { id, extension });
-  return convertFileSrc(path);
+  try {
+    const path = await invoke<string>('get_image_url', { id, extension });
+    return convertFileSrc(path);
+  } catch (cause) {
+    throw imageUrlLoadError(id, cause);
+  }
 };
 
 export const updateImageFrame = async (
