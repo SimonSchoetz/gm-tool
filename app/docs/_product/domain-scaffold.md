@@ -50,7 +50,7 @@ Given a singular/plural pair (example: `Foe` / `Foes`):
 | List route file | `adventure.$adventureId.[plural lowercase].tsx` | `adventure.$adventureId.foes.tsx` |
 | Detail route file | `adventure.$adventureId.[singular].$[singular]Id.tsx` | `adventure.$adventureId.foe.$foeId.tsx` |
 | URL id param | `[singular]Id` | `foeId` |
-| Breadcrumb kind | `'[singular lowercase]'` (string literal) | `'foe'` |
+| Breadcrumb kind | plural lowercase — same value as DB table name, a member of `EntityType` | `'foes'` |
 | Breadcrumb crumb component | `[Singular]Crumb` | `FoeCrumb` |
 | Table config `table_name` | plural lowercase | `'foes'` |
 | `assertValidId` label in CRUD files | PascalCase singular | `'Foe'` |
@@ -331,7 +331,8 @@ then navigate to `/adventure/${adventureId}/[plural]`. Returns `undefined` guard
 `PREVIEW_WIDTH` and `PREVIEW_HEIGHT` from `'@/screens/screens.constants'`.
 
 **UI**: `<aside className='[singular]-sidebar'>` (flex column, `gap: var(--spacing-md)`).
-`UploadImgBtn` + danger `Button label='Delete [Singular]'` via `openDeleteDialog`
+`UploadImgBtn`, then `<ScreensDuplicateBtn entityType='[plural]' />` (see Duplication
+below), then danger `Button label='Delete [Singular]'` via `openDeleteDialog`
 (`oneClickConfirm: false`).
 
 **components/index.ts** — explicit named exports: `[Singular]Sidebar`, `[Singular]Header`.
@@ -392,15 +393,13 @@ after the existing domain entries:
 
 ### Breadcrumbs
 
-NPC reference: `src/components/Header/`.
+NPC reference: `src/components/Header/`. `BreadcrumbConfig`'s entity variant is
+`{ kind: EntityType }` — fixed, not extended per domain. A new entity's kind becomes
+type-permitted the moment its plural is added to `ENTITY_TYPES` (see Entity Type
+Registration below); `helper/buildBreadcrumbs.ts`'s type is not touched for that reason.
 
-**`helper/buildBreadcrumbs.ts`** (Modified) — extend `BreadcrumbConfig` union:
-
-```ts
-| { kind: '[singular]' }
-```
-
-Add two cases to the `buildBreadcrumbs` switch:
+**`helper/buildBreadcrumbs.ts`** (Modified) — add two cases to the `buildBreadcrumbs`
+switch, returning the plural kind:
 
 ```ts
 case '/adventure/$adventureId/[plural]':
@@ -410,7 +409,7 @@ case '/adventure/$adventureId/[singular]/$[singular]Id':
   return [
     { kind: 'static', label: '[Plural]', to: '/adventure/$adventureId/[plural]',
       params: { adventureId: p.adventureId } },
-    { kind: '[singular]' },
+    { kind: '[plural]' },
   ];
 ```
 
@@ -441,18 +440,18 @@ export const [Singular]Crumb = () => {
 export { [Singular]Crumb } from './[Singular]Crumb';
 ```
 
-**`components/BreadcrumbList/BreadcrumbList.tsx`** (Modified) — add import of `[Singular]Crumb`
-and add case to `renderCrumb` switch:
+**`components/BreadcrumbList/components/BreadcrumbListEntry.tsx`** (Modified) — the
+crumb-dispatch switch lives here, not in `BreadcrumbList.tsx`. Add an import of
+`[Singular]Crumb` and one case to its switch, matching the plural kind:
 
 ```ts
-case '[singular]':
-  listItem = (
-    <li key={`${index}-${item.kind}`}>
-      <[Singular]Crumb />
-    </li>
-  );
+case '[plural]':
+  crumb = <[Singular]Crumb />;
   break;
 ```
+
+`BreadcrumbList.tsx` itself needs no change — it renders one `BreadcrumbListEntry` per
+crumb regardless of kind.
 
 ### Seed Config
 
@@ -482,31 +481,34 @@ const [plural]Config: TypedCreateTableConfigInput<[Singular]> = {
 
 Add `[plural]Config` to the `defaultConfigs` array.
 
-### MentionPopup Registration
+### Entity Type Registration (MentionPopup, Breadcrumbs, Duplication)
 
-Every domain entity with `tagging_enabled: 1` must be registered in the following places so
-that `@`-mentioning it validates, resolves live data, routes correctly, and displays the
-correct popup body and deleted-mention label.
+Every domain entity must be registered in the following places so that `@`-mentioning it
+validates, resolves live data, routes correctly, and displays the correct popup body and
+deleted-mention label. This same registration also gates the Breadcrumbs section above and
+the Duplication section below — it is one canonical list, not a mentioning-specific one.
 
-**`domain/mentions/entityTypes.ts`** (Modified) — add the plural table name to
-`MENTIONABLE_ENTITY_TYPES`:
+**`domain/entities/entityTypes.ts`** (Modified) — add the plural table name to
+`ENTITY_TYPES`:
 
 ```ts
-export const MENTIONABLE_ENTITY_TYPES = [
+export const ENTITY_TYPES = [
   'npcs',
   // ...existing entries...
   '[plural]',
 ] as const;
 ```
 
-This is the canonical mentionable-entity-type list. It gates `buildEntityPath`,
+This is the canonical entity-type list — membership is not gated by `tagging_enabled`;
+every domain entity belongs here regardless of that column's value (`sessions` is
+registered at `tagging_enabled: 0`, for example). It gates `buildEntityPath`,
 `getMentionEntityData` (the live name/deletion-status lookup used by the mention badge and
-popup), and `entityTypeLabel` (the deleted-mention display label) — the two steps below both
-require the type to appear here first: `ENTITY_SEGMENT` and `ENTITY_TYPE_LABELS` are each
-typed `Record<MentionableEntityType, string>`, so `tsc` rejects either file's object literal
-until this list includes the new type.
+popup), `entityTypeLabel` (the deleted-mention display label and the Duplicate button's
+label), and `BreadcrumbConfig`'s entity variant — `ENTITY_SEGMENT` and
+`ENTITY_TYPE_LABELS` (below) are each typed `Record<EntityType, string>`, so `tsc` rejects
+either file's object literal until this list includes the new type.
 
-**`domain/mentions/buildEntityPath.ts`** (Modified) — add one entry to `ENTITY_SEGMENT`:
+**`domain/entities/buildEntityPath.ts`** (Modified) — add one entry to `ENTITY_SEGMENT`:
 
 ```ts
 [plural]: '[singular]',
@@ -515,8 +517,9 @@ until this list includes the new type.
 Segment string is the route's singular path segment, matching the detail route file name
 `adventure.$adventureId.[singular].$[singular]Id.tsx`.
 
-**`domain/mentions/entityTypeLabels.ts`** (Modified) — add one entry to `ENTITY_TYPE_LABELS`,
-the label a deleted mention's hover popup shows (`"Deleted [Label]"`):
+**`domain/entities/entityTypeLabels.ts`** (Modified) — add one entry to
+`ENTITY_TYPE_LABELS`, the label a deleted mention's hover popup shows
+(`"Deleted [Label]"`) and the Duplicate button's label (`"Duplicate [Label]"`):
 
 ```ts
 [plural]: '[Label]',
@@ -545,6 +548,104 @@ the `switch (entityType)` block:
 case '[plural]':
   return <[Singular]PopupContent entityId={entityId} adventureId={adventureId} />;
 ```
+
+### Duplication
+
+A standard domain entity gets a "Duplicate [Singular]" sidebar control for free once these
+five points are wired. NPC reference: `db/npc/duplicate.ts`, `services/npcsService.ts`,
+`domain/npcs/errors.ts`, `data-access-layer/npcs/useNpc.ts`,
+`screens/components/ScreensDuplicateBtn/`.
+
+**`db/[singular]/duplicate.ts`** (New) — `duplicate(sourceId: string, imageId: string | null): Promise<string>`.
+`assertValidId(sourceId, '[Singular]')`, fetch the source row via `get(sourceId)`, throw
+`new Error(\`[Singular] not found: ${sourceId}\`)` when null (an internal invariant,
+exempt from the error-factory requirement), `generateId()` for the new id, then
+destructure the source row to exclude `id`, `name`, `image_id`, `created_at`, and
+`updated_at` into `copiedColumns`. Call
+`buildDuplicateQuery('[plural]', id, copiedColumns, { image_id: imageId })` — never
+hand-roll `buildCreateQuery` + `generateDbTimestamps` here, see `app/db/CLAUDE.md` —
+Duplication. `name` is excluded with no override, so the duplicate's name column takes
+SQL `NULL` — this is what signals to the user that duplication occurred.
+
+**`db/[singular]/index.ts`** (Modified) — add `export { duplicate } from './duplicate';`.
+
+**`domain/[plural]/errors.ts`** (Modified) — add `[singular]DuplicateError(id, cause?)`,
+following the shape of `[singular]UpdateError` already in the file. Message:
+`` `Failed to duplicate [singular]: ${String(cause)}` `` with the id included, as the
+existing update-error message does.
+
+**`domain/[plural]/index.ts`** and **`domain/index.ts`** (Modified) — add the new
+type/factory exports, matching how the other four error pairs are already listed.
+
+**`services/[plural]Service.ts`** (Modified) — add:
+
+```ts
+export const duplicate[Singular] = async (id: string): Promise<string> => {
+  try {
+    const source = await get[Singular]ById(id);
+    const imageId = source.image_id
+      ? await imageService.duplicateImage(source.image_id)
+      : null;
+    return await [singular]Db.duplicate(id, imageId);
+  } catch (err) {
+    throw [singular]DuplicateError(id, err);
+  }
+};
+```
+
+Image first, then the entity row — parents before children, matching
+`db/_sync/registry.ts`'s declared apply order.
+
+**`data-access-layer/[plural]/use[Singular].ts`** (Modified) — add a mutation mirroring
+`deleteMutation` (no arguments, closes over `[singular]Id`) and a named wrapper returning
+the new id:
+
+```ts
+const duplicateMutation = useMutation({
+  mutationFn: () => service.duplicate[Singular]([singular]Id),
+  onSuccess: () => {
+    void queryClient.invalidateQueries({ queryKey: [singular]Keys.list(adventureId) });
+  },
+});
+const duplicate[Singular] = async (): Promise<string> =>
+  duplicateMutation.mutateAsync();
+```
+
+Only the list key is invalidated — the duplicate's own detail key holds no cached entry
+yet. Add `duplicate[Singular]: () => Promise<string>` to `Use[Singular]Return` and the
+returned object.
+
+**`screens/components/ScreensDuplicateBtn/components/[Singular]DuplicateBtn.tsx`** (New) —
+flat leaf component, reference: `NpcDuplicateBtn.tsx`. Reads
+`useParams({ from: '/adventure/$adventureId/[singular]/$[singular]Id' })`, calls
+`use[Singular]` for `duplicate[Singular]`, and on click:
+`const newId = await duplicate[Singular](); await navigate({ to: buildEntityPath('[plural]', newId, adventureId), state: { focusNameInput: true } });`.
+
+**`screens/components/ScreensDuplicateBtn/components/index.ts`** (Modified) — add the
+export.
+
+**`screens/components/ScreensDuplicateBtn/ScreensDuplicateBtn.tsx`** (Modified) — add one
+case to its switch: `case '[plural]': return <[Singular]DuplicateBtn label={label} />;`.
+
+**`[Singular]Sidebar.tsx`** (Modified) — see the Sidebar UI bullet under Frontend — Detail
+Screen above; render `<ScreensDuplicateBtn entityType='[plural]' />` immediately before
+the delete `Button`.
+
+**`db/[singular]/__tests__/duplicate.test.ts`** (New) — same setup as the other
+`__tests__/` files in that domain. Required assertions: omits `name`; copies every other
+source column; writes the passed `imageId`, not the source's; writes `null` when passed
+`null`; generates a fresh id and fresh timestamps; throws when the source row does not
+exist. NPC reference: `db/npc/__tests__/duplicate.test.ts`.
+
+No test file for the service, DAL hook, or `[Singular]DuplicateBtn.tsx` —
+`app/services/` and `app/src/data-access-layer/` have no `__tests__/` convention, and
+React components are exempt from unit tests.
+
+**Entities with child rows** (a session-shaped domain owning ordered child records) need
+one more file — see `db/session-step/duplicate-by-session.ts` for the pattern of
+duplicating a child table via its own `duplicateBySession`-style function, called from the
+parent's service-layer `duplicate[Singular]` after the parent row is duplicated. This does
+not apply to standard (leaf) domains scaffolded from this document.
 
 ## Customization Points
 
