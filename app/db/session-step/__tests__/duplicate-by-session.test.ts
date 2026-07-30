@@ -131,6 +131,28 @@ describe('sessionStep.duplicateBySession', () => {
     ]);
   });
 
+  it('copies name rather than resetting it', async () => {
+    await duplicateBySession('source-session-id', 'target-session-id');
+
+    expect(stepInsertCalls().map(([, values]) => values[1])).toEqual([
+      'Strong Start',
+      'Custom Step',
+      'Magic Items',
+    ]);
+  });
+
+  it('generates fresh ids and fresh timestamps for each row', async () => {
+    await duplicateBySession('source-session-id', 'target-session-id');
+
+    const ids = stepInsertCalls().map(([, values]) => values[0]);
+    expect(ids).toEqual(['new-step-id-1', 'new-step-id-2', 'new-step-id-3']);
+
+    for (const [, values] of stepInsertCalls()) {
+      expect(values[7]).toBe('2024-01-15T10:30:00.000Z');
+      expect(values[8]).toBe('2024-01-15T10:30:00.000Z');
+    }
+  });
+
   it('inserts nothing when the source session has no steps', async () => {
     mockGetAllBySession.mockResolvedValue([]);
 
