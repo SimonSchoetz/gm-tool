@@ -23,7 +23,7 @@ export const StepSection: FCProps<Props> = ({
   const { steps, updateStep } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
-  if (!step) return null;
+  if (!step) return;
 
   return (
     <GlassPanel

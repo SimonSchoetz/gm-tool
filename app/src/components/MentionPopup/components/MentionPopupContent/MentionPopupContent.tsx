@@ -43,6 +43,6 @@ export const MentionPopupContent: FCProps<Props> = ({
         <SessionPopupContent entityId={entityId} adventureId={adventureId} />
       );
     default:
-      return null;
+      return;
   }
 };

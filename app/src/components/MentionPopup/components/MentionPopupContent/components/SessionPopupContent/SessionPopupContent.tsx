@@ -14,7 +14,7 @@ export const SessionPopupContent: FCProps<Props> = ({
 }) => {
   const { session, loading } = useSession(entityId, adventureId ?? '');
 
-  if (loading || !session) return null;
+  if (loading || !session) return;
 
   return (
     <EntityPopupBody

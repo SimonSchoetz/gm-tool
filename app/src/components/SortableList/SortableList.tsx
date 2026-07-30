@@ -77,7 +77,7 @@ export const SortableList = <
   }, [config]);
 
   // All hooks called — safe to return early
-  if (!config) return null;
+  if (!config) return;
 
   const isSearching = searchTerm.trim().length > 0;
   const hasFieldMatches = sortedFieldMatches.length > 0;

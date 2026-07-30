@@ -14,7 +14,7 @@ export const LocationSidebar = () => {
     useLocation(locationId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!location) return null;
+  if (!location) return;
 
   const handleLocationDelete = async () => {
     await deleteLocation();

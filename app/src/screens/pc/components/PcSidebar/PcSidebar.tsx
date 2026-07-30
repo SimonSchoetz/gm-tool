@@ -13,7 +13,7 @@ export const PcSidebar = () => {
   const { pc, updatePc, deletePc, removePcImage } = usePc(pcId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!pc) return null;
+  if (!pc) return;
 
   const handlePcDelete = async () => {
     await deletePc();

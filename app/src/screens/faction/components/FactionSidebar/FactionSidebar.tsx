@@ -14,7 +14,7 @@ export const FactionSidebar = () => {
     useFaction(factionId, adventureId);
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!faction) return null;
+  if (!faction) return;
 
   const handleFactionDelete = async () => {
     await deleteFaction();

@@ -14,7 +14,7 @@ export const FactionPopupContent: FCProps<Props> = ({
 }) => {
   const { faction, loading } = useFaction(entityId, adventureId ?? '');
 
-  if (loading || !faction) return null;
+  if (loading || !faction) return;
 
   return (
     <EntityPopupBody

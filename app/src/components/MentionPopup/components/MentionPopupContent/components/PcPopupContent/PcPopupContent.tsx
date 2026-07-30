@@ -11,7 +11,7 @@ type Props = {
 export const PcPopupContent: FCProps<Props> = ({ entityId, adventureId }) => {
   const { pc, loading } = usePc(entityId, adventureId ?? '');
 
-  if (loading || !pc) return null;
+  if (loading || !pc) return;
 
   return (
     <EntityPopupBody

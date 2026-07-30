@@ -16,7 +16,7 @@ export const ItemSidebar = () => {
   );
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!item) return null;
+  if (!item) return;
 
   const handleItemDelete = async () => {
     await deleteItem();

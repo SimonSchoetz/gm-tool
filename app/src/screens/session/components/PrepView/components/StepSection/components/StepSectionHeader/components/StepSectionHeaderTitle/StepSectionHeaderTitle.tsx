@@ -16,13 +16,13 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
   const { steps, updateStep } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
-  if (!step) return null;
+  if (!step) return;
 
   if (step.default_step_key) {
     const definition = LAZY_DM_STEPS.find(
       (s) => s.key === step.default_step_key,
     );
-    if (!definition) return null;
+    if (!definition) return;
     return (
       <label className='step-name' htmlFor={`step-checkbox-${step.id}`}>
         {definition.name}

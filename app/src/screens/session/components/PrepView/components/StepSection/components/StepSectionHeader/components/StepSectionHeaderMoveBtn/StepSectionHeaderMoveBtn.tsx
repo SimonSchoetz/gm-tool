@@ -17,7 +17,7 @@ export const StepSectionHeaderMoveBtn: FCProps<Props> = ({ stepId }) => {
   const { steps, reorderSteps } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
-  if (!step) return null;
+  if (!step) return;
 
   const stepIndex = steps.findIndex((s) => s.id === stepId);
   const isFirst = stepIndex === 0;

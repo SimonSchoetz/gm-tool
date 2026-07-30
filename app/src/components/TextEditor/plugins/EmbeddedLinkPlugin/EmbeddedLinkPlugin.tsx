@@ -96,7 +96,7 @@ export const EmbeddedLinkPlugin = () => {
     );
   }, [editor]);
 
-  if (linkUrl === null) return null;
+  if (linkUrl === null) return;
 
   return (
     <EditorPopup

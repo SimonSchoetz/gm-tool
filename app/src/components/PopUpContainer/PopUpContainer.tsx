@@ -59,7 +59,7 @@ const PopUpContainer = ({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) return;
 
   return (
     <div

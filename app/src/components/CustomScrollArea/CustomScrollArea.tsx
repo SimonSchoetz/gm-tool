@@ -67,7 +67,7 @@ export const CustomScrollArea: FCProps<CustomScrollAreaProps> = ({
       const scrollHeight = container.scrollHeight;
       const maxScrollTop = scrollHeight - viewport.height;
 
-      if (maxScrollTop <= 0) return null;
+      if (maxScrollTop <= 0) return;
 
       const thumbHeight = Math.max(
         Math.pow(viewport.height, 2) / scrollHeight,

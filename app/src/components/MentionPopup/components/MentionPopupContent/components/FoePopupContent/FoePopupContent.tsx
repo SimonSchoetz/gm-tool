@@ -11,7 +11,7 @@ type Props = {
 export const FoePopupContent: FCProps<Props> = ({ entityId, adventureId }) => {
   const { foe, loading } = useFoe(entityId, adventureId ?? '');
 
-  if (loading || !foe) return null;
+  if (loading || !foe) return;
 
   return (
     <EntityPopupBody

@@ -8,7 +8,7 @@ export const ToggleSessionViewBtn = () => {
   });
   const { session, updateSession } = useSession(sessionId, adventureId);
 
-  if (!session) return null;
+  if (!session) return;
 
   return (
     <LabeledToggleButton

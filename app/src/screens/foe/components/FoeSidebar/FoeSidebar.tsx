@@ -16,7 +16,7 @@ export const FoeSidebar = () => {
   );
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!foe) return null;
+  if (!foe) return;
 
   const handleFoeDelete = async () => {
     await deleteFoe();

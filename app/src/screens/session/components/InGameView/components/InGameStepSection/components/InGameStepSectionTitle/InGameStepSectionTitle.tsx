@@ -15,7 +15,7 @@ export const InGameStepSectionTitle: FCProps<Props> = ({ stepId }) => {
   const { steps } = useSessionSteps(sessionId);
   const step = steps.find((s) => s.id === stepId);
 
-  if (!step) return null;
+  if (!step) return;
 
   if (step.name) {
     return <h2 className='in-game-step-section-title'>{step.name}</h2>;

@@ -14,7 +14,7 @@ export const LocationPopupContent: FCProps<Props> = ({
 }) => {
   const { location, loading } = useLocation(entityId, adventureId ?? '');
 
-  if (loading || !location) return null;
+  if (loading || !location) return;
 
   return (
     <EntityPopupBody

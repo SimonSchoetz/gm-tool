@@ -86,7 +86,7 @@ export const SortingTableHeader = ({
 
   const handleResizeStart = (columnKey: string, startX: number) => {
     const col = columns.find((c) => c.key === columnKey);
-    if (col?.resizable === false) return null;
+    if (col?.resizable === false) return;
 
     const startWidth = activeWidths[columnKey] ?? MIN_COLUMN_WIDTH;
     dragRef.current = { columnKey, startX, startWidth };
@@ -106,7 +106,7 @@ export const SortingTableHeader = ({
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!dragRef.current) return null;
+      if (!dragRef.current) return;
       const delta = e.clientX - dragRef.current.startX;
       const newWidth = Math.max(
         MIN_COLUMN_WIDTH,

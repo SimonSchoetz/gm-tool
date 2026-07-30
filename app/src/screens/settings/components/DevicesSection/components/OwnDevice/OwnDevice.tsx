@@ -8,7 +8,7 @@ import { getShortenedDeviceId } from '../../helper';
 export const OwnDevice = () => {
   const { ownDevice, renameOwnDevice } = useOwnDevice();
 
-  if (!ownDevice) return null;
+  if (!ownDevice) return;
 
   return (
     <div className='own-device'>

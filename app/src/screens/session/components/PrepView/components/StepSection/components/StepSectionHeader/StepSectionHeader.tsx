@@ -26,7 +26,7 @@ export const StepSectionHeader: FCProps<Props> = ({
   const step = steps.find((s) => s.id === stepId);
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!step) return null;
+  if (!step) return;
 
   const lazyStep = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
   const stepName = step.name ?? lazyStep?.name ?? 'Untitled Step';

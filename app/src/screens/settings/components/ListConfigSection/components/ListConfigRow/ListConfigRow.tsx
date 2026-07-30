@@ -10,7 +10,7 @@ export const ListConfigRow: FCProps<ListConfigRowProps> = ({
   listConfigId,
 }) => {
   const { config, updateTableConfig } = useTableConfig(listConfigId);
-  if (!config) return null;
+  if (!config) return;
 
   const isTaggingEnabled = config.tagging_enabled === 1;
 

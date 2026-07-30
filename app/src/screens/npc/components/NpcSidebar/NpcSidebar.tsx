@@ -16,7 +16,7 @@ export const NpcSidebar = () => {
   );
   const { openDeleteDialog } = useDeleteDialog();
 
-  if (!npc) return null;
+  if (!npc) return;
 
   const handleNpcDelete = async () => {
     await deleteNpc();

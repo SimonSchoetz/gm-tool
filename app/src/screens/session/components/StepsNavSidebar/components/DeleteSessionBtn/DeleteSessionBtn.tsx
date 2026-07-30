@@ -17,7 +17,7 @@ export const DeleteSessionBtn = () => {
     void router.navigate({ to: `/adventure/${adventureId}/sessions` });
   };
 
-  if (session?.active_view !== 'prep') return null;
+  if (session?.active_view !== 'prep') return;
 
   return (
     <Button

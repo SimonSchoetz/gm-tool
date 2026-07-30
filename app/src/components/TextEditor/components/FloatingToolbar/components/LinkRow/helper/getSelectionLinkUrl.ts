@@ -3,7 +3,7 @@ import { $isLinkNode } from '@lexical/link';
 
 export const getSelectionLinkUrl = (): string | null => {
   const selection = $getSelection();
-  if (!$isRangeSelection(selection)) return null;
+  if (!$isRangeSelection(selection)) return;
   const nodes = selection.getNodes();
   for (const node of nodes) {
     if ($isLinkNode(node)) return node.getURL();

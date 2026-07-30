@@ -2,6 +2,7 @@
 
 ## Closed Beta Ready
 
+- Feature: Item screens should be duplicatable
 - Fix: Adventure stats (facts)
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
@@ -15,7 +16,6 @@
   - encryption?
 - Feature: Implement prefetching
 - Feature: cmd+f search for screens
-- Feature: List items ins screens should be duplicatable
 - Feature: List items ins screens should be pinnable
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode

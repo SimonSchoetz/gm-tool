@@ -18,7 +18,7 @@ export const ImageById: FCProps<Props> = ({
   const { imageUrl, loading, frame } = useImage(imageId);
 
   if (loading) return <div>Loading image...</div>;
-  if (!imageUrl) return null;
+  if (!imageUrl) return;
 
   const frameStyles =
     !fullImage && frame !== null

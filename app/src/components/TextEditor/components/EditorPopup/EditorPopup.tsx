@@ -72,7 +72,7 @@ export const EditorPopup: FCProps<Props> = ({
     };
   }, [rect]);
 
-  if (!rect) return null;
+  if (!rect) return;
 
   return createPortal(
     <div

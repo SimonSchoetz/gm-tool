@@ -18,7 +18,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
     focusProps: dateFocusProps,
   } = useSyncedInputValue(session?.session_date ?? '');
 
-  if (!session) return null;
+  if (!session) return;
 
   return (
     <header className='session-header'>

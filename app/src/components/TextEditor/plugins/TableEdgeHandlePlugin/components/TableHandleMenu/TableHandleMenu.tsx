@@ -34,7 +34,7 @@ export const TableHandleMenu: FCProps<Props> = ({
 }) => {
   const [editor] = useLexicalComposerContext();
 
-  if (!popupState) return null;
+  if (!popupState) return;
 
   const { type, isHeader } = popupState;
 
