@@ -28,28 +28,29 @@ export const AdventureScreenHeader = () => {
 
       <ul className='adventure-facts'>
         <li>
-          Started: <span>{startDate}</span>
+          <span className='label'>Started:</span>
+          {startDate}
         </li>
         <li>
-          Sessions: <span>0</span>
+          <span className='label'>Sessions:</span>0
         </li>
         <li>
-          PCs: <span>0</span>
+          <span className='label'>PCs:</span>0
         </li>
         <li>
-          NPCs: <span>0</span>
+          <span className='label'>NPCs:</span>0
         </li>
         <li>
-          Factions: <span>0</span>
+          <span className='label'>Factions:</span>0
         </li>
         <li>
-          Locations: <span>0</span>
+          <span className='label'>Locations:</span>0
         </li>
         <li>
-          Foes: <span>0</span>
+          <span className='label'>Foes:</span>0
         </li>
         <li>
-          Items: <span>0</span>
+          <span className='label'>Items:</span>0
         </li>
       </ul>
     </div>

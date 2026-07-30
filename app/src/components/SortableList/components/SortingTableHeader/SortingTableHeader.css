@@ -19,6 +19,10 @@
   min-width: 0;
 }
 
+.sorting-table-header--sort-btn .label {
+  font-size: var(--font-size-base);
+}
+
 .sorting-table-header--sort-btn:hover {
   background-color: transparent;
 }

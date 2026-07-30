@@ -36,13 +36,13 @@ export const ListConfigRow: FCProps<ListConfigRowProps> = ({
 
         <div>
           <label className='list-config--scope'>
-            Scope:
+            <span className='label'>Scope:</span>
             <span className='list-config--scope-value'>{config.scope}</span>
           </label>
         </div>
 
         <label className='list-config--tagging'>
-          Tagging:
+          <span className='label'>Tagging:</span>
           <EnableButton
             isEnabled={isTaggingEnabled}
             onClick={handleTaggingToggle}

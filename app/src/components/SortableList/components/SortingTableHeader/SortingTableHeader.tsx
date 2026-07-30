@@ -156,7 +156,7 @@ export const SortingTableHeader = ({
               label={`Sort by ${column.label.toLowerCase()}`}
               className='sorting-table-header--sort-btn'
             >
-              <span> {column.label}</span>
+              <span className='label'> {column.label}</span>
               <ChevronUpIcon
                 className={cn(
                   'sort-indicator',

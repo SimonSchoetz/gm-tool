@@ -79,3 +79,9 @@ a:hover {
   text-overflow: ellipsis;
   text-wrap: nowrap;
 }
+
+.label {
+  font-family: var(--font-family-mono);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-md);
+}

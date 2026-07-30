@@ -8,11 +8,11 @@
   display: flex;
   list-style-type: none;
   gap: var(--spacing-xs) var(--spacing-xl);
-  color: rgb(var(--color-fg-rgb), 0.6);
   margin-bottom: var(--spacing-md);
   flex-wrap: wrap;
 }
-
-.adventure-facts span {
-  color: var(--color-fg);
+.adventure-facts li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
