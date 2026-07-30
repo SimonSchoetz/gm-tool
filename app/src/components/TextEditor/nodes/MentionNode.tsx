@@ -24,7 +24,7 @@ const convertMentionElement = (
 ): DOMConversionOutput | null => {
   const entityId = domNode.getAttribute('data-lexical-mention-entity-id');
   const entityType = domNode.getAttribute('data-lexical-mention-entity-type');
-  if (!entityId || !entityType) return;
+  if (!entityId || !entityType) return null;
 
   const adventureId = domNode.getAttribute('data-lexical-mention-adventure-id');
   const displayName = domNode.textContent.replace(/^@/, '');
