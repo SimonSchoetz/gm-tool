@@ -1,5 +1,5 @@
-export type { ImageUpdateFrameError } from './images';
-export { imageUpdateFrameError } from './images';
+export type { ImageDuplicateError, ImageUpdateFrameError } from './images';
+export { imageDuplicateError, imageUpdateFrameError } from './images';
 
 export type {
   AdventureNotFoundError,

@@ -1,10 +1,18 @@
 import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import * as imageDb from '@db/image';
 import type { Image } from '@db/image';
-import { imageUpdateFrameError } from '@domain';
+import { imageDuplicateError, imageUpdateFrameError } from '@domain';
 
 export const createImage = async (filePath: string): Promise<string> =>
   imageDb.create({ filePath });
+
+export const duplicateImage = async (sourceId: string): Promise<string> => {
+  try {
+    return await imageDb.duplicate(sourceId);
+  } catch (cause) {
+    throw imageDuplicateError(cause);
+  }
+};
 
 export const deleteImage = async (id: string): Promise<void> => {
   await imageDb.remove(id);

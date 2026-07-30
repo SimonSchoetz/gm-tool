@@ -1,4 +1,5 @@
 export { create } from './create';
+export { duplicate } from './duplicate';
 export { get } from './get';
 export { remove } from './remove';
 export { replace } from './replace';
