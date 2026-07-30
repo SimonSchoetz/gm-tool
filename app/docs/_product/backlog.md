@@ -2,7 +2,6 @@
 
 ## Closed Beta Ready
 
-- Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix: Adventure stats (facts)
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
@@ -24,6 +23,7 @@
 
 ### Done
 
+- Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix (Mention Pop Up): 
   - click on embedded link opens within app instead of external browser
 - Fix (FTB): URL input breaks FTB when longer than input allows

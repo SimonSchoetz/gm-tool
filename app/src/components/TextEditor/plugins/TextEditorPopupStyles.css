@@ -29,7 +29,8 @@
     background-color var(--transition-fast);
 }
 
-.TEP--li:hover {
+.TEP--li:hover,
+.TEP--li--selected {
   color: var(--color-fg);
   background-color: var(--color-bg);
 }
@@ -52,7 +53,8 @@
   height: var(--font-size-lg);
 }
 
-.TEP--li:hover .TEP--li-icon-container {
+.TEP--li:hover .TEP--li-icon-container,
+.TEP--li--selected .TEP--li-icon-container {
   box-shadow: var(--box-shadow-active);
   background-color: var(--color-bg);
   transition:
