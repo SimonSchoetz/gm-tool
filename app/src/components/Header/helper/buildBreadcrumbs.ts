@@ -1,4 +1,5 @@
 import { AnyRouteMatch } from '@tanstack/react-router';
+import type { EntityType } from '@domain';
 
 export type BreadcrumbConfig =
   | {
@@ -7,14 +8,7 @@ export type BreadcrumbConfig =
       to: string;
       params: Record<string, string>;
     }
-  | { kind: 'adventure' }
-  | { kind: 'session' }
-  | { kind: 'npc' }
-  | { kind: 'foe' }
-  | { kind: 'item' }
-  | { kind: 'faction' }
-  | { kind: 'pc' }
-  | { kind: 'location' };
+  | { kind: EntityType };
 
 export const buildBreadcrumbs = (
   matches: AnyRouteMatch[],
@@ -46,7 +40,7 @@ export const buildBreadcrumbs = (
             to: '/adventures',
             params: {},
           },
-          { kind: 'adventure' },
+          { kind: 'adventures' },
         ];
       case '/adventure/$adventureId/npcs':
         return [
@@ -65,7 +59,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/npcs',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'npc' },
+          { kind: 'npcs' },
         ];
       case '/adventure/$adventureId/foes':
         return [
@@ -84,7 +78,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/foes',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'foe' },
+          { kind: 'foes' },
         ];
       case '/adventure/$adventureId/items':
         return [
@@ -103,7 +97,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/items',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'item' },
+          { kind: 'items' },
         ];
       case '/adventure/$adventureId/factions':
         return [
@@ -122,7 +116,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/factions',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'faction' },
+          { kind: 'factions' },
         ];
       case '/adventure/$adventureId/pcs':
         return [
@@ -141,7 +135,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/pcs',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'pc' },
+          { kind: 'pcs' },
         ];
       case '/adventure/$adventureId/sessions':
         return [
@@ -160,7 +154,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/sessions',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'session' },
+          { kind: 'sessions' },
         ];
       case '/adventure/$adventureId/locations':
         return [
@@ -179,7 +173,7 @@ export const buildBreadcrumbs = (
             to: '/adventure/$adventureId/locations',
             params: { adventureId: p.adventureId },
           },
-          { kind: 'location' },
+          { kind: 'locations' },
         ];
       default:
         return [];

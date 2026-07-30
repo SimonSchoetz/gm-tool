@@ -47,7 +47,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventures',
       params: {},
     });
-    expect(result[1]).toEqual({ kind: 'adventure' });
+    expect(result[1]).toEqual({ kind: 'adventures' });
   });
 
   it('maps /adventure/$adventureId/npcs to Adventures + adventure + NPCs static', () => {
@@ -81,7 +81,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/npcs',
       params: { adventureId: 'adv1' },
     });
-    expect(result[3]).toEqual({ kind: 'npc' });
+    expect(result[3]).toEqual({ kind: 'npcs' });
   });
 
   it('maps /adventure/$adventureId/sessions to Adventures + adventure + Sessions static', () => {
@@ -115,7 +115,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/sessions',
       params: { adventureId: 'adv1' },
     });
-    expect(result[3]).toEqual({ kind: 'session' });
+    expect(result[3]).toEqual({ kind: 'sessions' });
   });
 
   it('maps /adventure/$adventureId/foes to Foes static', () => {
@@ -149,7 +149,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/foes',
       params: { adventureId: 'adv-1' },
     });
-    expect(result[3]).toEqual({ kind: 'foe' });
+    expect(result[3]).toEqual({ kind: 'foes' });
   });
 
   it('maps /adventure/$adventureId/pcs to PCs static', () => {
@@ -183,7 +183,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/pcs',
       params: { adventureId: 'adv-1' },
     });
-    expect(result[3]).toEqual({ kind: 'pc' });
+    expect(result[3]).toEqual({ kind: 'pcs' });
   });
 
   it('maps /adventure/$adventureId/factions to Factions static', () => {
@@ -217,7 +217,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/factions',
       params: { adventureId: 'adv-1' },
     });
-    expect(result[3]).toEqual({ kind: 'faction' });
+    expect(result[3]).toEqual({ kind: 'factions' });
   });
 
   it('maps /adventure/$adventureId/locations to Locations static', () => {
@@ -251,7 +251,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/locations',
       params: { adventureId: 'adv-1' },
     });
-    expect(result[3]).toEqual({ kind: 'location' });
+    expect(result[3]).toEqual({ kind: 'locations' });
   });
 
   it('maps /adventure/$adventureId/items to Items static', () => {
@@ -285,7 +285,7 @@ describe('buildBreadcrumbs', () => {
       to: '/adventure/$adventureId/items',
       params: { adventureId: 'adv-1' },
     });
-    expect(result[3]).toEqual({ kind: 'item' });
+    expect(result[3]).toEqual({ kind: 'items' });
   });
 
   it('silently ignores unknown routeIds', () => {

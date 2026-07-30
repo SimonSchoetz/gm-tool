@@ -45,28 +45,28 @@ const renderCrumb = (item: BreadcrumbConfig, index: number) => {
     let crumb: JSX.Element;
 
     switch (item.kind) {
-      case 'adventure':
+      case 'adventures':
         crumb = <AdventureCrumb />;
         break;
-      case 'session':
+      case 'sessions':
         crumb = <SessionCrumb />;
         break;
-      case 'npc':
+      case 'npcs':
         crumb = <NpcCrumb />;
         break;
-      case 'foe':
+      case 'foes':
         crumb = <FoeCrumb />;
         break;
-      case 'item':
+      case 'items':
         crumb = <ItemCrumb />;
         break;
-      case 'faction':
+      case 'factions':
         crumb = <FactionCrumb />;
         break;
-      case 'pc':
+      case 'pcs':
         crumb = <PcCrumb />;
         break;
-      case 'location':
+      case 'locations':
         crumb = <LocationCrumb />;
         break;
     }
