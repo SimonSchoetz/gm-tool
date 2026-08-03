@@ -137,6 +137,8 @@ All Lexical-managed children of an `ElementNode` are inserted into the single `e
 **Verified at:** @lexical/list 0.46.0
 **Citation:** [S_21: app/node_modules/@lexical/list/dist/LexicalList.dev.mjs:942-987 — `isCheckList` computed from the parent `ListNode`'s type at :950, `isNested` from whether the node has a `ListNode` child at :952; :975-980 adds `listitemChecked`/`listitemUnchecked` whenever `isCheckList` with no nesting exclusion; :981-983 separately adds `nested.listitem`]
 
+The `<li>` that exists only to wrap a nested `<ul>` inside a check list receives both the `listitemChecked`/`listitemUnchecked` theme class and the `nested.listitem` theme class. Any stylesheet drawing the checkbox via a `::before` pseudo-element on the checked/unchecked classes must explicitly suppress that pseudo-element on the nested-wrapper class, or a non-interactive checkbox renders at every indentation level.
+
 ## Registering a command listener that returns `true` never calls `event.preventDefault()` on the caller's behalf — the handler must call it itself
 
 **Verified at:** lexical 0.46.0
@@ -144,4 +146,18 @@ All Lexical-managed children of an `ElementNode` are inserted into the single `e
 
 `KEY_ENTER_COMMAND`, `KEY_BACKSPACE_COMMAND`, and `KEY_DELETE_COMMAND` are dispatched with the originating `KeyboardEvent` (nullable only for `KEY_ENTER_COMMAND`) as payload, and Lexical's core event handler never calls `preventDefault()` before dispatching — that responsibility belongs entirely to whichever registered listener decides to handle the command. A listener registered at a higher priority (e.g. `COMMAND_PRIORITY_LOW`) that returns `true` without calling `event.preventDefault()` successfully stops Lexical's own default handler (registered at `COMMAND_PRIORITY_EDITOR`) from running, but does nothing to prevent the browser's native contenteditable default action for that keystroke, which fires independently and produces an extra, unintended DOM mutation (e.g. a native line split) alongside whatever the Lexical-level handler did. Any custom command handler for a native-keyboard-backed command must accept the event parameter and call `event.preventDefault()` (guarding for `null` where the payload allows it) on every code path that returns `true`.
 
-The `<li>` that exists only to wrap a nested `<ul>` inside a check list receives both the `listitemChecked`/`listitemUnchecked` theme class and the `nested.listitem` theme class. Any stylesheet drawing the checkbox via a `::before` pseudo-element on the checked/unchecked classes must explicitly suppress that pseudo-element on the nested-wrapper class, or a non-interactive checkbox renders at every indentation level.
+## `TextMatchTransformer` shortcuts are keyed by the last typed character, and first-match-wins within a trigger bucket
+
+**Verified at:** @lexical/markdown 0.46.0
+
+**Citation:** [S_26: app/node_modules/@lexical/markdown/src/utils.ts:406-426 — `indexBy` returns `Readonly<Record<string, T[]>>` and pushes onto an existing bucket rather than overwriting; app/node_modules/@lexical/markdown/src/MarkdownShortcuts.ts:447-450 — `indexBy(byType.textMatch, ({trigger}) => trigger)`; :163-208 — `runTextMatchTransformers` reads `lastChar = textContent[anchorOffset - 1]`, slices `textContent` to `anchorOffset`, iterates the bucket and `return true`s on the first regex match; :196-203 — the matched range is split off via `anchorNode.splitText` and passed to `transformer.replace`; app/node_modules/@lexical/markdown/dist/MarkdownTransformers.d.ts — `TextMatchTransformer` requires `dependencies: Klass<LexicalNode>[]`, `regExp: RegExp`, `type: 'text-match'`, with optional `trigger?: string` documented as "Single character that allows the transformer to trigger when typed in the editor" and `replace?: (node: TextNode, match: RegExpMatchArray) => void | TextNode`]
+
+`registerMarkdownShortcuts` indexes text-match transformers into `Record<string, TextMatchTransformer[]>` keyed by the single-character `trigger`, so several transformers may share one trigger character. At runtime the bucket is selected by the character just typed, each transformer's `regExp` is matched against the text from the block start up to the caret, and the first match wins — so array order within a trigger bucket is significant. The transformer fires immediately on the triggering keystroke with no trailing-space requirement, only while typing at the caret; it never runs against pre-existing text and never on paste (paste routes through markdown import, not shortcuts). `replace` receives a `TextNode` already split to exactly the matched range, so `node.setTextContent(replacement)` substitutes in place and preserves the node's format bits, whereas replacing it with a freshly created `TextNode` drops them. `dependencies: []` is valid — `registerMarkdownShortcuts` only iterates the array to `invariant` that each listed node class is registered on the editor.
+
+## `TextNode.setTextContent(text)` returns `this` and mutates the node in place
+
+**Verified at:** lexical 0.46.0
+
+**Citation:** [S_27: app/node_modules/lexical/dist/nodes/LexicalTextNode.d.ts:222 — `setTextContent(text: string): this;`; :245 — `spliceText(offset: number, delCount: number, newText: string, moveSelection?: boolean): TextNode;`]
+
+`setTextContent` replaces a `TextNode`'s entire text content while preserving the same node identity, and therefore its format bits (bold, italic, underline, strikethrough) and its position in the tree. `spliceText` is the partial-range equivalent and additionally accepts `moveSelection`. Both must be called inside an active `editor.update()` context.
