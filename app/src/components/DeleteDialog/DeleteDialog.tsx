@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { Input } from '../Input/Input';
+import { FCProps } from '@/types';
 import './DeleteDialog.css';
 import { Button } from '../Button/Button';
 
-type DeleteDialogProps = {
+type Props = {
   name: string;
   onDeletionConfirm: () => void;
   oneClickConfirm: boolean;
 };
 
-export const DeleteDialog = ({
+export const DeleteDialog: FCProps<Props> = ({
   name,
   onDeletionConfirm,
   oneClickConfirm,
-}: DeleteDialogProps) => {
+}) => {
   const [intensity, setIntensity] = useState(0);
   const confirmText = `DELETE ${name}`.trim();
 
@@ -34,10 +35,7 @@ export const DeleteDialog = ({
   return (
     <GlassPanel
       className='delete-dialog'
-      style={{
-        boxShadow: `inset 0 -${intensity * 5}px ${intensity * 10}px rgb(var(--color-danger-hover-rgb), ${intensity / 2})`,
-        background: `radial-gradient(ellipse 50% 80% at 50% 100%, rgb(var(--color-danger-hover-rgb), ${intensity}), transparent)`,
-      }}
+      style={{ '--delete-dialog-intensity': intensity } as React.CSSProperties}
     >
       <h1 className='delete-dialog-title'>Delete {name}</h1>
       {oneClickConfirm ? (

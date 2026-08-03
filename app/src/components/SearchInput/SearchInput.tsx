@@ -1,30 +1,30 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
+import { Input } from '../Input/Input';
+import { ClickableIcon } from '../ClickableIcon/ClickableIcon';
+import { FCProps } from '@/types';
 import './SearchInput.css';
 
-type SearchInputProps = {
+type Props = {
   onSearch: (term: string) => void;
   placeholder?: string;
   debounceMs?: number;
 };
 
-export const SearchInput = ({
+export const SearchInput: FCProps<Props> = ({
   onSearch,
   placeholder = 'Search...',
   debounceMs = 300,
-}: SearchInputProps) => {
+}) => {
   const [value, setValue] = useState('');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const debouncedSearch = useCallback(
-    (term: string) => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        onSearch(term);
-      }, debounceMs);
-    },
-    [onSearch, debounceMs],
-  );
+  const debouncedSearch = (term: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onSearch(term);
+    }, debounceMs);
+  };
 
   useEffect(() => {
     return () => {
@@ -47,22 +47,20 @@ export const SearchInput = ({
   return (
     <div className='search-input'>
       <SearchIcon className='search-input-icon' />
-      <input
+      <Input
         className='search-input-field'
-        type='text'
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
       />
       {value && (
-        <button
+        <ClickableIcon
+          icon={<XIcon />}
+          label='Clear search'
           className='search-input-clear'
-          onClick={handleClear}
           type='button'
-          aria-label='Clear search'
-        >
-          <XIcon />
-        </button>
+          onClick={handleClear}
+        />
       )}
     </div>
   );

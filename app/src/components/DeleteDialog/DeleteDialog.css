@@ -5,6 +5,14 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
+  box-shadow: inset 0 calc(var(--delete-dialog-intensity) * -5px)
+    calc(var(--delete-dialog-intensity) * 10px)
+    rgb(var(--color-danger-hover-rgb), calc(var(--delete-dialog-intensity) / 2));
+  background: radial-gradient(
+    ellipse 50% 80% at 50% 100%,
+    rgb(var(--color-danger-hover-rgb), var(--delete-dialog-intensity)),
+    transparent
+  );
 }
 
 .delete-dialog h1 {
