@@ -36,6 +36,7 @@ import {
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper';
 import { EXTERNAL_SYNC_TAG } from './TextEditor.constants';
+import { TYPOGRAPHIC_TRANSFORMERS } from './typographicTransformers';
 
 type Props = {
   value: string;
@@ -140,7 +141,12 @@ export const TextEditor: FCProps<Props> = ({
         <LinkPlugin />
         <EmbeddedLinkPlugin />
         <MarkdownShortcutPlugin
-          transformers={[UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]}
+          transformers={[
+            UNORDERED_LIST,
+            ORDERED_LIST,
+            CHECK_LIST,
+            ...TYPOGRAPHIC_TRANSFORMERS,
+          ]}
         />
 
         {onChange && <OnChangePlugin onChange={handleChange} />}
