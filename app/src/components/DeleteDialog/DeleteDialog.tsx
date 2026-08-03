@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { Input } from '../Input/Input';
+import { useTypographicInput } from '@/hooks';
 import { FCProps } from '@/types';
 import './DeleteDialog.css';
 import { Button } from '../Button/Button';
@@ -17,6 +18,7 @@ export const DeleteDialog: FCProps<Props> = ({
   oneClickConfirm,
 }) => {
   const [intensity, setIntensity] = useState(0);
+  const [confirmInput, setConfirmInput] = useState('');
   const confirmText = `DELETE ${name}`.trim();
 
   const handleInputChange = (input: string) => {
@@ -31,6 +33,11 @@ export const DeleteDialog: FCProps<Props> = ({
       onDeletionConfirm();
     }
   };
+
+  const { inputRef, handleChange } = useTypographicInput((newValue) => {
+    setConfirmInput(newValue);
+    handleInputChange(newValue);
+  });
 
   return (
     <GlassPanel
@@ -56,11 +63,11 @@ export const DeleteDialog: FCProps<Props> = ({
             below to confirm this action:
           </p>
           <Input
+            ref={inputRef}
             className='delete-dialog-input'
             placeholder={confirmText}
-            onChange={(e) => {
-              handleInputChange(e.target.value);
-            }}
+            value={confirmInput}
+            onChange={handleChange}
           />
         </>
       )}

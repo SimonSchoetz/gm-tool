@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { Input } from '../Input/Input';
 import { ClickableIcon } from '../ClickableIcon/ClickableIcon';
+import { useTypographicInput } from '@/hooks';
 import { FCProps } from '@/types';
 import './SearchInput.css';
 
@@ -32,11 +33,10 @@ export const SearchInput: FCProps<Props> = ({
     };
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+  const { inputRef, handleChange } = useTypographicInput((newValue) => {
     setValue(newValue);
     debouncedSearch(newValue);
-  };
+  });
 
   const handleClear = () => {
     setValue('');
@@ -48,6 +48,7 @@ export const SearchInput: FCProps<Props> = ({
     <div className='search-input'>
       <SearchIcon className='search-input-icon' />
       <Input
+        ref={inputRef}
         className='search-input-field'
         value={value}
         onChange={handleChange}

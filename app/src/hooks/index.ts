@@ -4,3 +4,4 @@ export { useListFilter } from './useListFilter';
 export { useDraggable } from './useDraggable';
 export { useSyncedInputValue } from './useSyncedInputValue';
 export { useFocusNameInputOnArrival } from './useFocusNameInputOnArrival';
+export { useTypographicInput } from './useTypographicInput';

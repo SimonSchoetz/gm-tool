@@ -1,0 +1,1 @@
+export { useTypographicInput } from './useTypographicInput';
