@@ -3,13 +3,9 @@
 ## Closed Beta Ready
 
 - Fix: Adventure stats (facts)
-- Feature (Fonts): 
-  - Implement fonts (see `./epics/fonts.md`)
-  - adjust all usages of fonts throughtout the app
 - Text editor:
   - Auto-Correct off (?)
-  - drag-and-drop content within editor
-  - arrow conversion '->' to '→' <- is this maybe a font thing or is this something the editor must do?
+  - drag-and-drop content within editor something the editor must do?
   - Lists: Mixed lists should be possible
 - Feature: Data access and db location/localization
   - encryption?
@@ -22,6 +18,7 @@
 
 ### Done
 
+- Text Editor: arrow conversion '->' to '→' 
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
   - adjust all usages of fonts throughtout the app
