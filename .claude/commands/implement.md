@@ -18,7 +18,7 @@ Before starting any sub-feature:
 - if they are related to the current spec (e.g. the specs, changes to `.claude/knowledge`), commit them.
 - if they are unrelated, stash them. When the implementation is done (when the friction brief was produced), unstash them and surface it to the user.
 
-3. Run each baseline check independently — never chain them, so a tsc failure can't short-circuit eslint or vitest: `npx tsc --noEmit`, then `npx eslint .` (from `app/`), then `npx vitest run`.
+3. Run each baseline check independently — never chain them, so a tsc failure can't short-circuit eslint, prettier, or vitest: `npx tsc --noEmit`, then `npx eslint .` (from `app/`), then `prettier --check .` (from `app/`), then `npx vitest run`. If the spec's "Files affected" sections name any `src-tauri/` path, also run `cargo clippy -- -D warnings` and `cargo fmt --check` (both from `app/src-tauri/`), independently of the JS checks and each other.
 4. If everything is clean: proceed to the implementation phase.
 5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
@@ -37,7 +37,7 @@ For each sub-feature defined in the spec, in order:
 2. Run `npx tsc --noEmit`. Resolve every error before continuing.
 3. Run `npx eslint .` from `app/`. Resolve every error before continuing.
 4. Run `prettier --check .` from `app/`. Resolve every formatting error before continuing — independently of tsc and eslint, per step 3 above.
-5. Do not run vitest between sub-features — intermediate states produce failures that are not yet meaningful.
+5. Do not run vitest, or the Rust suite even when `src-tauri/` is touched, between sub-features — intermediate states produce failures that are not yet meaningful; both run only at the baseline and pre-review checkpoints.
 6. Stage and commit with a conventional commit message. To stage: cross-reference the spec's "Files affected" list for this sub-feature and build an explicit `git add <file1> <file2> ...` argument from it — never stage by directory path, glob, or shorthand. Verify the staged file list matches the "Files affected" list before committing. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
 7. Move to the next sub-feature.
 
@@ -53,7 +53,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 **Cycle structure (repeat up to 3 times — this limit is the hard cap):** The fix commit for cycle 3 (step 9) is the last permitted action in this loop — do not spawn a code-reviewer or architect instance afterward to verify cycle 3's fixes; whatever violations remain are surfaced to the user, not re-checked.
 
-0. Run `npx tsc --noEmit` and `npx eslint .` and `prettier --check .` and resolve any errors. Then run `npx vitest run` to confirm the full test suite passes. Resolve any failures. The reviewer must see code that is type-correct, formatted, and test-passing before filing findings. Before citing any CLI flag or subcommand for vitest, tsc, eslint, prettier, or any other toolchain binary in this file, verify it against the installed version — never state a flag from memory.
+0. Run `npx tsc --noEmit` and `npx eslint .` and `prettier --check .` and resolve any errors. Then run `npx vitest run` to confirm the full test suite passes. Resolve any failures. If `git diff --name-only main...HEAD` includes any `src-tauri/` path, also run `cargo clippy -- -D warnings` and `cargo fmt --check` (both from `app/src-tauri/`) and resolve any errors. The reviewer must see code that is type-correct, formatted, and test-passing — and, when `src-tauri/` was touched, clippy-clean and fmt-checked — before filing findings. Before citing any CLI flag or subcommand for vitest, tsc, eslint, prettier, cargo clippy, cargo fmt, or any other toolchain binary in this file, verify it against the installed version — never state a flag from memory.
 1. Spawn `code-reviewer` via the Agent tool.
    - **Cycle 1:** Do not pass the branch name directly. Instead, construct the feature file list: run `git log --format="%H" main..HEAD` to list all commit SHAs on this branch, then run `git show --name-only --format="" <sha>` for each commit made during the sub-feature implementation phase (sub-feature commits only — exclude chore commits and any commits not authored by the implementer during this session). Deduplicate the resulting file paths. Pass this explicit file list + the accumulated review context to the reviewer. The reviewer reads only those files and any files they directly import or affect.
    - **Cycles 2+:** Pass an explicit file list of files touched in the prior fix commit (do NOT pass the branch name — a branch name triggers a full re-read of all changed files, which is the wrong scope for a targeted verification pass) + the accumulated review context + the list of specific violations fixed in the prior cycle. The reviewer limits reads to those files and any files they directly import or affect.
