@@ -23,8 +23,8 @@ Before starting any sub-feature:
 5. If errors or failures surface: assess whether the current spec will resolve them as part of implementation.
    - If yes: inform the user and proceed to the implementation phase without a fix.
    - If no: classify each error as minor or major per the definitions in CLAUDE.md.
-     - **Minor** (mechanical to fix — adding or removing a field to match a changed type — and requiring no design judgment): fix autonomously, commit (`chore(<branch>): fix pre-existing test fixture errors`), and proceed to the implementation phase without surfacing to the user.
-     - **Major** (requires choosing between valid alternatives, or cause is ambiguous from the error output alone): present the errors to the user and propose a fix. Do not apply until the user approves.
+     - **Minor** (example: adding/removing a field to match a changed type): fix, commit, proceed to the implementation phase — per root CLAUDE.md's Minor/Major triage.
+     - **Major**: present to the user, wait for approval — per the same triage.
 6. If the user approves a major fix: apply it, commit it (`chore(<branch>): fix pre-existing errors before spec work`), then proceed to the implementation phase.
 
 ### Implementation phase
@@ -36,7 +36,7 @@ For each sub-feature defined in the spec, in order:
 1. Implement the sub-feature fully, applying all invariants below.
 2. Run `npx tsc --noEmit`. Resolve every error before continuing.
 3. Run `npx eslint .` from `app/`. Resolve every error before continuing.
-4. Run `prettier --check .` from `app/`. Resolve every formatting error before continuing. Run each check independently — do not chain them via `npm test`, so a tsc or eslint failure cannot block prettier.
+4. Run `prettier --check .` from `app/`. Resolve every formatting error before continuing — independently of tsc and eslint, per step 3 above.
 5. Do not run vitest between sub-features — intermediate states produce failures that are not yet meaningful.
 6. Stage and commit with a conventional commit message. To stage: cross-reference the spec's "Files affected" list for this sub-feature and build an explicit `git add <file1> <file2> ...` argument from it — never stage by directory path, glob, or shorthand. Verify the staged file list matches the "Files affected" list before committing. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
 7. Move to the next sub-feature.
@@ -170,13 +170,11 @@ Removing dead code, commented-out blocks, and artifacts from replaced approaches
 
 A step that leaves behind artifacts from what it replaced is not complete.
 
-Type derivation is a cleanup obligation, not a post-implementation task. After any change that alters how a file gets its data, removes a dependency, or replaces an approach, re-derive the types and exports of every affected file bottom-up from actual usage. A type field with no reader is dead code. An export with no consumer inside the module is a leak. Remove both in the same step that caused them.
+Type derivation is a cleanup obligation, not a post-implementation task — apply root CLAUDE.md's Re-derive-types-after-every-refactor trace in the same step that caused the change (a data-source change, a dependency removal, an approach replacement), never deferred.
 
 ## File Compliance
 
-Every file you create, extract, or modify is fully owned by you for the duration of the step that touches it. Apply every CLAUDE.md rule to it independently — do not wait for a reviewer to flag violations.
-
-This applies to modified files equally as to new ones. When a step changes a file, run a compliance check on that file's current state before marking the step complete — not only on the lines you added.
+Root CLAUDE.md's Fix-violations-in-files-you-touch check completes at this step's boundary, not the SF's.
 
 ## Ambiguity
 
