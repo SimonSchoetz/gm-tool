@@ -157,6 +157,8 @@ A function that fails either condition stays local to its consumer in `Component
 1. **Sibling components within the same parent module** — promote to the parent module's `helper/`. Never import across sibling boundaries (`../SiblingComponent/helper/...` is always wrong).
 2. **Unrelated components, or the helper is generic** — promote to `/src/util/` only when both util conditions are met.
 
+**The same test governs a shared non-function value — a constant, config table, or static data module — once its consumers span more than one module directory.** Promote it to `/src/util/` under the same two conditions above, naming the file for its domain content per Constants' Trigger 2 rather than `*.constants.ts` if the content isn't literally a constant.
+
 - ✅ `buildGridTemplate` needed by both `SortingTableHeader` and `SortableListItem` → `SortableList/helper/buildGridTemplate.ts`
 - ❌ `SortingTableHeader` importing from `../SortableListItem/helper/buildGridTemplate`
 
@@ -167,7 +169,7 @@ A function that fails either condition stays local to its consumer in `Component
 
 Extraction out of the component file is triggered by either of two independent conditions — consumer count, or content kind. Neither requires the other.
 
-**Trigger 1 — shared by 2+ consumers:** When a constant is shared by two or more TypeScript files within the same module directory, extract it to `ComponentName.constants.ts` at the **smallest directory containing all consumers**. A constant used only within a single file stays inlined — no constants file for single consumers. Only TypeScript files count as consumers — a CSS file hardcoding a numerically identical value is not a consumer.
+**Trigger 1 — shared by 2+ consumers:** When a constant is shared by two or more TypeScript files within the same module directory, extract it to `ComponentName.constants.ts` at the **smallest directory containing all consumers**. A constant used only within a single file stays inlined — no constants file for single consumers. Only TypeScript files count as consumers — a CSS file hardcoding a numerically identical value is not a consumer. When consumers span more than one module directory, this trigger does not apply — see Util vs. Helper Placement below.
 
 - ✅ `DEFAULT_COLUMN_WIDTH` shared by `SortingTableHeader` and `SortableListItem` (both under `SortableList/`) → `SortableList/SortableList.constants.ts`
 - ❌ A constant used only in `SortingTableHeader` → stays inlined in `SortingTableHeader.tsx`
@@ -187,7 +189,7 @@ Extraction out of the component file is triggered by either of two independent c
 
 ### Testing Policy
 
-- **Required**: All helper functions (`ComponentName/helper/`) and util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name. Exception: a helper whose entire body is DOM/canvas mutations with no branching, derived data, or multi-step logic is exempt — no independently verifiable output to assert against.
+- **Required**: All helper functions (`ComponentName/helper/`) and util functions (`/src/util/`) must have corresponding tests in a parallel `__tests__/` directory mirroring the file name — including non-function data modules (e.g. a static rule table) placed in either directory, or extracted as a Constants Trigger-2 sibling file directly in a component's own directory (e.g. `textFormattingConfig.ts`, `typographicTransformers.ts`). Exception 1: a helper whose entire body is DOM/canvas mutations with no branching, derived data, or multi-step logic is exempt — no independently verifiable output to assert against. Exception 2: a static data module with no transformation logic of its own is exempt when every value it exports is already exercised by a consumer's test asserting the consumer's transformed output — a standalone test asserting the array equals itself verifies nothing beyond the source.
 - **Forbidden**: React components — files whose exported function returns JSX — must not have unit tests. Components change shape frequently; testing helpers and the data layer gives sufficient logic-level coverage at lower cost — but not interaction behavior tied to the browser's native default action (e.g. `preventDefault()` in a keyboard/pointer handler), which needs a live DOM event dispatch no helper or data-layer test provides.
 - **Geometry and layout calculation helper tests must assert the relationship, computed from the same imported constants the implementation uses — never bake current numeric values into a separate literal expectation.** Applies to helpers whose output depends on constants under active visual tuning (spacing, offsets, clamping thresholds). A test hardcoding today's numeric output breaks — or worse, silently stops verifying the real relationship — every time the constant is tuned, even with unchanged logic.
   - ❌ BAD: `expect(calculateHintPosition(anchor)).toBe(anchor.top + 8)` — `8` copies `HINT_OFFSET`'s current value; tuning it to `12` breaks this test with no logic change

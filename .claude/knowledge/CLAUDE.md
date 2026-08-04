@@ -20,12 +20,12 @@ Every entry must follow this structure exactly:
 ## <Short declarative heading>
 
 **Verified at:** <version string, schema URL with version, or bare URL + date when no version exists>
-**Citation:** [Role_N: source]
+**Citation:** [role_N: source]
 
 <Fact body — one to three sentences stating the verified fact.>
 ```
 
-The heading must be a declarative statement of the fact, not a question or topic label. The citation must use the standard `[Role_N: source]` format from the Epistemological Discipline section of the root `CLAUDE.md`.
+The heading must be a declarative statement of the fact, not a question or topic label. The citation must use the standard `[role_N: source]` format from the Epistemological Discipline section of the root `CLAUDE.md`.
 
 ## Write Obligation
 
@@ -42,7 +42,7 @@ An entry is stale when the recorded version does not match the currently install
 ```markdown
 ---
 **Reverified at:** <new version string or URL + date>
-**Citation:** [Role_N: source]
+**Citation:** [role_N: source]
 
 <Updated fact body, or "Unchanged." if the fact is identical.>
 ```
