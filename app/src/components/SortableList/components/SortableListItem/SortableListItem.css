@@ -7,6 +7,9 @@
 
 .sortable-list-item--glass-panel {
   border: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .sortable-list-item:hover {
@@ -17,7 +20,8 @@
 
 .sortable-list-item--content {
   transition: var(--transition-hover-off);
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   display: grid;
 }
 

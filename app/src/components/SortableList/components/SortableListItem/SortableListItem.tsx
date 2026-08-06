@@ -3,8 +3,9 @@ import { useMemo } from 'react';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
-import { buildGridTemplate } from '../../helper';
+import { buildGridTemplate, isItemPinned } from '../../helper';
 import { renderCell } from './helper';
+import { RowActionsMenu } from './components';
 import { cn } from '@/util';
 
 type Props = {
@@ -32,6 +33,7 @@ export const SortableListItem = ({
   }, [config?.layout.columns, dragWidths]);
 
   const name = typeof item.name === 'string' ? item.name : '';
+  const itemId = typeof item.id === 'string' ? item.id : '';
 
   const isItemWithImage = 'image_id' in item;
 
@@ -40,7 +42,7 @@ export const SortableListItem = ({
       <GlassPanel className='sortable-list-item--glass-panel'>
         <ActionContainer
           label={`Go to ${name}`}
-          className={cn('sortable-list-item--content')}
+          className='sortable-list-item--content'
           style={{ gridTemplateColumns }}
           onClick={() => {
             onClick(item);
@@ -61,6 +63,12 @@ export const SortableListItem = ({
             </div>
           ))}
         </ActionContainer>
+
+        <RowActionsMenu
+          tableConfigId={tableConfigId}
+          itemId={itemId}
+          isPinned={isItemPinned(item)}
+        />
       </GlassPanel>
     </li>
   );
