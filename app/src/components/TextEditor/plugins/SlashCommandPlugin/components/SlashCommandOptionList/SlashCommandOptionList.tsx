@@ -35,7 +35,7 @@ export const SlashCommandOptionList: FCProps<Props> = ({
         return (
           <Fragment key={option.key}>
             {isNewSection && (
-              <li className='slash-command-option-list-section-heading'>
+              <li className='slash-command-option-list-section-heading label'>
                 {option.section}
               </li>
             )}

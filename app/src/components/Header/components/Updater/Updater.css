@@ -26,3 +26,7 @@
   transition: color var(--transition-fast);
   color: var(--color-success);
 }
+
+.updater--version {
+  font-family: var(--font-family-mono);
+}

@@ -93,8 +93,13 @@ export const Updater = () => {
 
       {!isProcessing && !isDownloaded && (
         <>
-          {<span>v{currentVersion}</span>}
-          {availableVersion && <span> &rarr; v{availableVersion}</span>}
+          {<span className='updater--version'>v{currentVersion}</span>}
+          {availableVersion && (
+            <span className='updater--version'>
+              {' '}
+              &rarr; v{availableVersion}
+            </span>
+          )}
         </>
       )}
 
