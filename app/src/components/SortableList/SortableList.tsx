@@ -9,6 +9,7 @@ import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
 import { HorizontalDivider } from '../HorizontalDivider/HorizontalDivider';
 import './SortableList.css';
 import { SortableListItem, SortingTableHeader } from './components';
+import { partitionPinnedItems } from './helper';
 
 type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   tableConfigId: string;
@@ -86,6 +87,9 @@ export const SortableList = <
     sortedNameMatches.length === 0 &&
     sortedFieldMatches.length === 0;
   const showCreateNewBtn = !!onCreateNew && (!isSearching || hasNothingToShow);
+  const { pinnedItems, unpinnedItems } = isSearching
+    ? { pinnedItems: [], unpinnedItems: sortedNameMatches }
+    : partitionPinnedItems(sortedNameMatches);
 
   return (
     <GlassPanel className={cn('sortable-list', className)}>
@@ -96,15 +100,32 @@ export const SortableList = <
         onDragWidthsChange={setDragWidths}
       />
 
-      <CustomScrollArea className='sortable-list__scroll-area'>
-        <ul className='sortable-list__table'>
+      <CustomScrollArea className='sortable-list-scroll-area'>
+        <ul className='sortable-list-table'>
           {showCreateNewBtn && (
             <li key='new-item-button'>
               <NewItemBtn label='Create new item' onClick={onCreateNew} />
             </li>
           )}
 
-          {sortedNameMatches.map((item) => (
+          {pinnedItems.length > 0 && (
+            <>
+              <li className='sortable-list-pinned-heading'>Pinned</li>
+              {pinnedItems.map((item) => (
+                <SortableListItem
+                  key={item.id}
+                  tableConfigId={tableConfigId}
+                  item={item}
+                  onClick={(item) => {
+                    onRowClick(item as T);
+                  }}
+                  dragWidths={dragWidths}
+                />
+              ))}
+            </>
+          )}
+
+          {unpinnedItems.map((item) => (
             <SortableListItem
               key={item.id}
               tableConfigId={tableConfigId}
@@ -118,7 +139,7 @@ export const SortableList = <
 
           {isSearching && hasFieldMatches && (
             <>
-              <HorizontalDivider className='sortable-list__divider' />
+              <HorizontalDivider className='sortable-list-divider' />
               {sortedFieldMatches.map((item) => (
                 <SortableListItem
                   key={item.id}
@@ -134,7 +155,7 @@ export const SortableList = <
           )}
 
           {hasNothingToShow && (
-            <li className='sortable-list__no-results'>No results found</li>
+            <li className='sortable-list-no-results'>No results found</li>
           )}
         </ul>
       </CustomScrollArea>

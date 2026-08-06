@@ -7,12 +7,12 @@
   gap: var(--spacing-sm);
 }
 
-.sortable-list__scroll-area {
+.sortable-list-scroll-area {
   flex: 1;
   min-height: 0;
 }
 
-.sortable-list__table {
+.sortable-list-table {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
@@ -21,12 +21,20 @@
   padding: var(--spacing-xs);
 }
 
-.sortable-list__divider {
+.sortable-list-divider {
   margin: var(--spacing-sm) var(--spacing-md);
 }
 
-.sortable-list__no-results {
+.sortable-list-no-results {
   padding: var(--spacing-lg);
   text-align: center;
   color: var(--color-text-muted);
+}
+
+.sortable-list-pinned-heading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semi-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  padding: var(--spacing-sm) var(--spacing-xs);
 }
