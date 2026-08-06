@@ -29,5 +29,5 @@ export { MentionPopup } from './MentionPopup';
 export type { PopupPosition, PopupPlacement } from './MentionPopup';
 export { LoadingIcon } from './LoadingIcon';
 export { AnchoredPopup } from './AnchoredPopup';
-export { PopupSurface } from './PopupSurface/PopupSurface';
-export { MenuOptionRow } from './MenuOptionRow/MenuOptionRow';
+export { PopupSurface } from './PopupSurface';
+export { MenuOptionRow } from './MenuOptionRow';

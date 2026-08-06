@@ -7,10 +7,11 @@ import {
   TableCellHeaderStates,
 } from '@lexical/table';
 import { AnchoredPopup } from '../../../AnchoredPopup';
-import { PopupSurface } from '../../../PopupSurface/PopupSurface';
+import { PopupSurface } from '../../../PopupSurface';
 import { TableHandleMenu, TableEdgeHint } from './components';
 import './TableEdgeHandlePlugin.css';
-import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
+import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
+import { PopupState } from './types';
 
 export type HintDirection = 'top' | 'left';
 
@@ -21,15 +22,6 @@ type HintState = {
   showTop: boolean;
   showLeft: boolean;
   cellRect: DOMRect;
-} | null;
-
-export type PopupState = {
-  type: 'row' | 'column';
-  cellX: number;
-  cellY: number;
-  tableElement: HTMLTableElement;
-  isHeader: boolean;
-  hintElement: HTMLDivElement;
 } | null;
 
 type ActiveHint = HintDirection | null;

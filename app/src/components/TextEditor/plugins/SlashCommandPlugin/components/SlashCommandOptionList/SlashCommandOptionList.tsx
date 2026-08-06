@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from 'react';
 import { FCProps } from '@/types';
-import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
+import { MenuOptionRow } from '../../../../../MenuOptionRow';
 import { SlashCommandOption } from '../../slashCommandOptions';
 import './SlashCommandOptionList.css';
 

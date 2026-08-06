@@ -7,8 +7,8 @@ import {
 import { $getSelection, $isRangeSelection, TextNode } from 'lexical';
 import './SlashCommandPlugin.css';
 import { AnchoredPopup } from '../../../AnchoredPopup';
-import { PopupSurface } from '../../../PopupSurface/PopupSurface';
-import { CustomScrollArea } from '../../../../components/CustomScrollArea/CustomScrollArea';
+import { PopupSurface } from '../../../PopupSurface';
+import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
 import { getSelectionRangeRect, resolveTopLevelBlock } from '../../helper';
 import {
   SLASH_COMMAND_OPTIONS,

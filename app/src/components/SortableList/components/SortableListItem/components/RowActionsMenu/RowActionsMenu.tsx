@@ -8,8 +8,8 @@ import {
 import { FCProps } from '@/types';
 import { useTableConfig, useSetPinnedOrder } from '@/data-access-layer';
 import { AnchoredPopup } from '../../../../../AnchoredPopup';
-import { PopupSurface } from '../../../../../PopupSurface/PopupSurface';
-import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
+import { PopupSurface } from '../../../../../PopupSurface';
+import { MenuOptionRow } from '../../../../../MenuOptionRow';
 import { ClickableIcon } from '../../../../../ClickableIcon/ClickableIcon';
 import './RowActionsMenu.css';
 

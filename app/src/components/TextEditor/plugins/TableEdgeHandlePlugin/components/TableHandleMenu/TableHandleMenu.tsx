@@ -8,7 +8,7 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import './TableHandleMenu.css';
-import { PopupState } from '../../TableEdgeHandlePlugin';
+import { PopupState } from '../../types';
 import {
   getTableObserverFromTableElement,
   TableCellHeaderStates,
@@ -18,7 +18,7 @@ import {
   $deleteTableColumnAtSelection,
 } from '@lexical/table';
 import { runTableCellMutation } from './helper';
-import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
+import { MenuOptionRow } from '../../../../../MenuOptionRow';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type Props = {
