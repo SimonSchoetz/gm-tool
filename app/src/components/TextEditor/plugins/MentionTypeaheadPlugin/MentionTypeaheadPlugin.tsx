@@ -10,7 +10,7 @@ import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@services/mentionSearchService';
 import { MentionNode } from '../../nodes';
 import './MentionTypeaheadPlugin.css';
-import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
+import { CustomScrollArea } from '../../../CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { AnchoredPopup } from '../../../AnchoredPopup';
 import { getSelectionRangeRect } from '../../helper';

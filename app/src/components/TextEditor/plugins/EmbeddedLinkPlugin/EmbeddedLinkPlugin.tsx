@@ -18,7 +18,7 @@ import {
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
-import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
+import { ClickableIcon } from '../../../ClickableIcon';
 import { AnchoredPopup } from '../../../AnchoredPopup';
 
 import './EmbeddedLinkPlugin.css';

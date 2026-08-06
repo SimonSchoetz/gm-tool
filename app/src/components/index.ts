@@ -18,7 +18,7 @@ export { UploadImgBtn } from './UploadImgBtn';
 export { DeleteDialog } from './DeleteDialog/DeleteDialog.tsx';
 export { ImagePlaceholderFrame } from './ImagePlaceholderFrame/ImagePlaceholderFrame.tsx';
 export { SearchInput } from './SearchInput/SearchInput';
-export { HorizontalDivider } from './HorizontalDivider/HorizontalDivider.tsx';
+export { HorizontalDivider } from './HorizontalDivider';
 export { SortableList } from './SortableList';
 export { DateInput } from './DateInput/DateInput.tsx';
 export { ColorInput } from './ColorInput';

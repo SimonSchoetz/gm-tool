@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { FCProps } from '@/types';
 import { cn } from '@/util';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import './ClickableIcon.css';
@@ -9,13 +10,13 @@ type Props = {
   variant?: 'danger';
 } & React.ComponentProps<typeof ActionContainer>;
 
-export const ClickableIcon = ({
+export const ClickableIcon: FCProps<Props> = ({
   icon,
   isActive,
   variant,
   className,
   ...rest
-}: Props) => (
+}) => (
   <ActionContainer
     className={cn(
       'clickable-icon',

@@ -1,5 +1,6 @@
 import './SortableListItem.css';
 import { useMemo } from 'react';
+import { FCProps } from '@/types';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
@@ -15,12 +16,12 @@ type Props = {
   dragWidths: Record<string, number> | null;
 };
 
-export const SortableListItem = ({
+export const SortableListItem: FCProps<Props> = ({
   tableConfigId,
   item,
   onClick,
   dragWidths,
-}: Props) => {
+}) => {
   const { config } = useTableConfig(tableConfigId);
   const columns = config?.layout.columns ?? [];
 

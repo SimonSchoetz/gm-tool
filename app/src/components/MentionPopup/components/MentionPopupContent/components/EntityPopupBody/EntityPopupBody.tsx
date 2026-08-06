@@ -1,7 +1,7 @@
 import { FCProps } from '@/types';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor/TextEditor';
-import { CustomScrollArea } from '../../../../../CustomScrollArea/CustomScrollArea';
+import { CustomScrollArea } from '../../../../../CustomScrollArea';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
 import './EntityPopupBody.css';
