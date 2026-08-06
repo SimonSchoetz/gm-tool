@@ -1,30 +1,39 @@
 import { FCProps } from '@/types';
-import { ActionContainer } from '.././../../../../../../ActionContainer/ActionContainer';
-import { GlassPanel } from '.././../../../../../../GlassPanel/GlassPanel';
+import { ActionContainer } from '../ActionContainer/ActionContainer';
+import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/util';
+import './MenuOptionRow.css';
 
-type Props = { Icon: LucideIcon; isActive?: boolean } & React.ComponentProps<
-  typeof ActionContainer
->;
+type Props = {
+  Icon: LucideIcon;
+  isActive?: boolean;
+  isSelected?: boolean;
+} & React.ComponentProps<typeof ActionContainer>;
 
-export const TableHandleMenuItem: FCProps<Props> = ({
+export const MenuOptionRow: FCProps<Props> = ({
   Icon,
   label,
   className,
   isActive,
+  isSelected,
   ...props
 }) => {
   return (
     <ActionContainer
       label={label}
       type='button'
-      className={cn('TEP--li', isActive && 'TEP--li--active', className)}
+      className={cn(
+        'menu-option-row',
+        isActive && 'menu-option-row--active',
+        isSelected && 'menu-option-row--selected',
+        className,
+      )}
       {...props}
     >
       <GlassPanel
         intensity={isActive ? 'bright' : 'dim'}
-        className='TEP--li-icon-container'
+        className='menu-option-row-icon'
       >
         <Icon />
       </GlassPanel>

@@ -1,1 +1,1 @@
-export { EditorPopup } from './EditorPopup';
+export { AnchoredPopup } from './AnchoredPopup';

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
 import { FCProps } from '@/types';
 import { calculateHorizontalClampOffset } from './helper';
-import './EditorPopup.css';
+import './AnchoredPopup.css';
 
 const EDGE_PADDING = 12;
 
@@ -13,7 +13,7 @@ type Props = {
   onClickOutside?: () => void;
 };
 
-export const EditorPopup: FCProps<Props> = ({
+export const AnchoredPopup: FCProps<Props> = ({
   getAnchorRect,
   children,
   onClickOutside,
@@ -77,7 +77,7 @@ export const EditorPopup: FCProps<Props> = ({
   return createPortal(
     <div
       ref={popupRef}
-      className='editor-popup'
+      className='anchored-popup'
       style={{
         top: rect.top,
         left: rect.left + rect.width / 2 + horizontalOffset,
