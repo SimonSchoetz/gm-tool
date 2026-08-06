@@ -1,0 +1,12 @@
+.popup-surface {
+  background: var(--color-surface);
+  width: max-content;
+  max-width: 250px; /* one-off */
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: none;
+}
+
+.popup-surface-scroll-area {
+  padding: var(--border-thin);
+}

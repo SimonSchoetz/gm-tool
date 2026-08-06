@@ -12,7 +12,7 @@ import { MentionNode } from '../../nodes';
 import './MentionTypeaheadPlugin.css';
 import { CustomScrollArea } from '../../../CustomScrollArea/CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
-import { EditorPopup } from '../../components/EditorPopup';
+import { AnchoredPopup } from '../../../AnchoredPopup';
 import { getSelectionRangeRect } from '../../helper';
 import { MentionMenuOption } from './mentionMenuOption';
 import { MentionOptionList } from './components';
@@ -92,7 +92,7 @@ export const MentionTypeaheadPlugin = () => {
       }
 
       return (
-        <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
+        <AnchoredPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <GlassPanel className='mention-typeahead-popup'>
             <CustomScrollArea className='mention-typeahead-content-container'>
               <MentionOptionList
@@ -103,7 +103,7 @@ export const MentionTypeaheadPlugin = () => {
               />
             </CustomScrollArea>
           </GlassPanel>
-        </EditorPopup>
+        </AnchoredPopup>
       );
     },
     [editor],

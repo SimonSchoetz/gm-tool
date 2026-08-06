@@ -1,7 +1,6 @@
 import { Fragment, useEffect } from 'react';
 import { FCProps } from '@/types';
-import { cn } from '@/util';
-import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
+import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
 import { SlashCommandOption } from '../../slashCommandOptions';
 import './SlashCommandOptionList.css';
 
@@ -30,7 +29,6 @@ export const SlashCommandOptionList: FCProps<Props> = ({
   return (
     <ul>
       {menuOptions.map((option, i) => {
-        const Icon = option.Icon;
         const isNewSection =
           i === 0 || menuOptions[i - 1].section !== option.section;
         const isActive = activeOptionKeys.has(option.key);
@@ -46,27 +44,19 @@ export const SlashCommandOptionList: FCProps<Props> = ({
               ref={(el) => {
                 option.setRefElement(el);
               }}
-              className={cn(
-                'TEP--li',
-                isActive && 'TEP--li--active',
-                i === selectedIndex && 'TEP--li--selected',
-              )}
-              onClick={() => {
-                selectOptionAndCleanUp(option);
-              }}
-              onMouseEnter={() => {
-                setHighlightedIndex(i);
-              }}
             >
-              <GlassPanel
-                className='TEP--li-icon-container'
-                intensity={isActive ? 'bright' : 'dim'}
-              >
-                <Icon />
-              </GlassPanel>
-              <span className='slash-command-option-list-item-label'>
-                {option.label}
-              </span>
+              <MenuOptionRow
+                Icon={option.Icon}
+                label={option.label}
+                isActive={isActive}
+                isSelected={i === selectedIndex}
+                onClick={() => {
+                  selectOptionAndCleanUp(option);
+                }}
+                onMouseEnter={() => {
+                  setHighlightedIndex(i);
+                }}
+              />
             </li>
           </Fragment>
         );

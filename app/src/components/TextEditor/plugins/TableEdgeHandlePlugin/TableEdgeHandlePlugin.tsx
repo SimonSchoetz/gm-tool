@@ -6,8 +6,8 @@ import {
   getTableObserverFromTableElement,
   TableCellHeaderStates,
 } from '@lexical/table';
-import { EditorPopup } from '../../components/EditorPopup';
-import { GlassPanel } from '../../../GlassPanel/GlassPanel';
+import { AnchoredPopup } from '../../../AnchoredPopup';
+import { PopupSurface } from '../../../PopupSurface/PopupSurface';
 import { TableHandleMenu, TableEdgeHint } from './components';
 import './TableEdgeHandlePlugin.css';
 import { CustomScrollArea } from '@/components/CustomScrollArea/CustomScrollArea';
@@ -240,22 +240,22 @@ export const TableEdgeHandlePlugin = () => {
           document.body,
         )}
       {popupState && (
-        <EditorPopup
+        <AnchoredPopup
           getAnchorRect={() => popupState.hintElement.getBoundingClientRect()}
           onClickOutside={() => {
             closePopup();
           }}
         >
-          <GlassPanel className='TEP-container'>
-            <CustomScrollArea className='table-popup-list TEP-scroll-area'>
+          <PopupSurface>
+            <CustomScrollArea className='table-popup-list'>
               <TableHandleMenu
                 popupState={popupState}
                 setPopupState={setPopupState}
                 closePopup={closePopup}
               />
             </CustomScrollArea>
-          </GlassPanel>
-        </EditorPopup>
+          </PopupSurface>
+        </AnchoredPopup>
       )}
     </>
   );

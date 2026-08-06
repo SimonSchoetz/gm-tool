@@ -6,8 +6,8 @@ import {
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $getSelection, $isRangeSelection, TextNode } from 'lexical';
 import './SlashCommandPlugin.css';
-import { GlassPanel } from '../../../GlassPanel/GlassPanel';
-import { EditorPopup } from '../../components/EditorPopup';
+import { AnchoredPopup } from '../../../AnchoredPopup';
+import { PopupSurface } from '../../../PopupSurface/PopupSurface';
 import { CustomScrollArea } from '../../../../components/CustomScrollArea/CustomScrollArea';
 import { getSelectionRangeRect, resolveTopLevelBlock } from '../../helper';
 import {
@@ -88,9 +88,9 @@ export const SlashCommandPlugin = () => {
       });
 
       return (
-        <EditorPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
-          <GlassPanel className='TEP-container'>
-            <CustomScrollArea childrenContainerClassName='TEP-scroll-area slash-command-scroll-area'>
+        <AnchoredPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
+          <PopupSurface>
+            <CustomScrollArea className='slash-command-scroll-area'>
               <SlashCommandOptionList
                 menuOptions={menuOptions}
                 selectedIndex={selectedIndex}
@@ -99,8 +99,8 @@ export const SlashCommandPlugin = () => {
                 setHighlightedIndex={setHighlightedIndex}
               />
             </CustomScrollArea>
-          </GlassPanel>
-        </EditorPopup>
+          </PopupSurface>
+        </AnchoredPopup>
       );
     },
     [editor],

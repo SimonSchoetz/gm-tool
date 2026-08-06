@@ -19,7 +19,7 @@ import { openUrl } from '@tauri-apps/plugin-opener';
 import { ExternalLinkIcon } from 'lucide-react';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
-import { EditorPopup } from '../../components/EditorPopup';
+import { AnchoredPopup } from '../../../AnchoredPopup';
 
 import './EmbeddedLinkPlugin.css';
 
@@ -99,7 +99,7 @@ export const EmbeddedLinkPlugin = () => {
   if (linkUrl === null) return;
 
   return (
-    <EditorPopup
+    <AnchoredPopup
       getAnchorRect={() =>
         linkElementRef.current?.getBoundingClientRect() ?? null
       }
@@ -120,6 +120,6 @@ export const EmbeddedLinkPlugin = () => {
           }}
         />
       </GlassPanel>
-    </EditorPopup>
+    </AnchoredPopup>
   );
 };

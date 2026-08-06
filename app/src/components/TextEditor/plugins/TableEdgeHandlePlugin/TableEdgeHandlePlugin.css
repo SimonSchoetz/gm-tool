@@ -1,4 +1,3 @@
-@import '../TextEditorPopupStyles.css';
 .editor-table-cell.table-cell--handle-hover {
   background-color: var(--color-secondary);
 }

@@ -1,5 +1,3 @@
-@import '../../../TextEditorPopupStyles.css';
-
 .table-handle-menu-divider {
   height: var(--border-thin);
   background-color: var(--color-primary-muted);

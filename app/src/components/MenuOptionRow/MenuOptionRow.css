@@ -1,18 +1,4 @@
-/*TEP -> text editor popup*/
-.TEP-container {
-  background: var(--color-surface);
-  width: max-content;
-  max-width: 250px; /* one-off */
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  border: none;
-}
-
-.TEP-scroll-area {
-  padding: var(--border-thin);
-}
-
-.TEP--li {
+.menu-option-row {
   width: 100%;
   cursor: pointer;
   font-size: var(--font-size-base);
@@ -29,32 +15,32 @@
     background-color var(--transition-fast);
 }
 
-.TEP--li:hover,
-.TEP--li--selected {
+.menu-option-row:hover,
+.menu-option-row--selected {
   color: var(--color-fg);
   background-color: var(--color-bg);
 }
 
-.TEP--li--active {
+.menu-option-row--active {
   color: var(--color-fg);
 }
 
-.TEP--li-icon-container {
+.menu-option-row-icon {
   padding: var(--spacing-xs);
   border-radius: var(--radius-sm);
 }
 
-.TEP--li--active .TEP--li-icon-container {
+.menu-option-row--active .menu-option-row-icon {
   background-color: var(--color-bg);
 }
 
-.TEP--li-icon-container svg {
+.menu-option-row-icon svg {
   width: var(--font-size-lg);
   height: var(--font-size-lg);
 }
 
-.TEP--li:hover .TEP--li-icon-container,
-.TEP--li--selected .TEP--li-icon-container {
+.menu-option-row:hover .menu-option-row-icon,
+.menu-option-row--selected .menu-option-row-icon {
   box-shadow: var(--box-shadow-active);
   background-color: var(--color-bg);
   transition:

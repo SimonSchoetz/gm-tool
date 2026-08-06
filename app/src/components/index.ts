@@ -28,3 +28,6 @@ export { ClickableIcon } from './ClickableIcon/ClickableIcon.tsx';
 export { MentionPopup } from './MentionPopup';
 export type { PopupPosition, PopupPlacement } from './MentionPopup';
 export { LoadingIcon } from './LoadingIcon';
+export { AnchoredPopup } from './AnchoredPopup';
+export { PopupSurface } from './PopupSurface/PopupSurface';
+export { MenuOptionRow } from './MenuOptionRow/MenuOptionRow';

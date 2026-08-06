@@ -18,7 +18,7 @@ import {
   $deleteTableColumnAtSelection,
 } from '@lexical/table';
 import { runTableCellMutation } from './helper';
-import { TableHandleMenuItem } from './components';
+import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type Props = {
@@ -114,7 +114,7 @@ export const TableHandleMenu: FCProps<Props> = ({
 
   return (
     <>
-      <TableHandleMenuItem
+      <MenuOptionRow
         Icon={Table2Icon}
         label={type === 'row' ? 'Toggle header row' : 'Toggle header column'}
         onClick={() => {
@@ -125,7 +125,7 @@ export const TableHandleMenu: FCProps<Props> = ({
 
       <div className='table-handle-menu-divider' />
 
-      <TableHandleMenuItem
+      <MenuOptionRow
         Icon={type === 'row' ? ArrowUpFromLineIcon : ArrowLeftFromLineIcon}
         label={type === 'row' ? 'Insert above' : 'Insert left'}
         onClick={
@@ -139,7 +139,7 @@ export const TableHandleMenu: FCProps<Props> = ({
         }
       />
 
-      <TableHandleMenuItem
+      <MenuOptionRow
         Icon={type === 'row' ? ArrowDownFromLineIcon : ArrowRightFromLineIcon}
         label={type === 'row' ? 'Insert below' : 'Insert right'}
         onClick={
@@ -153,7 +153,7 @@ export const TableHandleMenu: FCProps<Props> = ({
         }
       />
 
-      <TableHandleMenuItem
+      <MenuOptionRow
         Icon={Trash2Icon}
         label={type === 'row' ? 'Delete row' : 'Delete column'}
         onClick={

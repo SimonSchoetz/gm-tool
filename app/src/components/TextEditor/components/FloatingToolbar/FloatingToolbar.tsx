@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import './FloatingToolbar.css';
 import { LinkRow, TextFormattingRow } from './components';
 
-import { EditorPopup } from '../EditorPopup';
+import { AnchoredPopup } from '../../../AnchoredPopup';
 import { getSelectionRangeRect } from '../../helper';
 
 export const FloatingToolbar = () => {
@@ -52,12 +52,12 @@ export const FloatingToolbar = () => {
   };
 
   return (
-    <EditorPopup getAnchorRect={getAnchorRect}>
+    <AnchoredPopup getAnchorRect={getAnchorRect}>
       <div className='floating-toolbar' ref={toolbarRef}>
         <TextFormattingRow />
 
         <LinkRow />
       </div>
-    </EditorPopup>
+    </AnchoredPopup>
   );
 };
