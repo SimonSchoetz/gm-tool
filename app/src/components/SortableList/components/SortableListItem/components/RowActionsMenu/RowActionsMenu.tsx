@@ -10,7 +10,7 @@ import { useTableConfig, useSetPinnedOrder } from '@/data-access-layer';
 import { AnchoredPopup } from '../../../../../AnchoredPopup';
 import { PopupSurface } from '../../../../../PopupSurface';
 import { MenuOptionRow } from '../../../../../MenuOptionRow';
-import { ClickableIcon } from '../../../../../ClickableIcon/ClickableIcon';
+import { ClickableIcon } from '../../../../../ClickableIcon';
 import './RowActionsMenu.css';
 
 type Props = {
