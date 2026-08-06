@@ -1,3 +1,24 @@
 .row-actions-menu-trigger {
-  flex-shrink: 0;
+  height: 115px; /* why is 100% not working here?*/
+  display: flex;
+  z-index: 10;
+  --gradient-base: 6.25%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--color-surface-rgb), 1) 70%
+  );
+  background-size: 100%;
+  background-position: 0%;
+  transition: var(--transition-hover-on);
+}
+
+.row-actions-menu-trigger:hover {
+  background-size: 150%;
+  background-position: 100%;
+  transition: var(--transition-hover-off);
+}
+
+.row-actions-menu-trigger > * {
+  padding-left: var(--spacing-sm);
 }

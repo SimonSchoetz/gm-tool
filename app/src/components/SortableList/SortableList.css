@@ -21,20 +21,18 @@
   padding: var(--spacing-xs);
 }
 
-.sortable-list-divider {
-  margin: var(--spacing-sm) var(--spacing-md);
+.sortable-list-divider-li {
+  display: flex;
+  padding: var(--spacing-xs) var(--spacing-md);
 }
 
 .sortable-list-no-results {
   padding: var(--spacing-lg);
   text-align: center;
   color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
 }
 
-.sortable-list-pinned-heading {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semi-bold);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  padding: var(--spacing-sm) var(--spacing-xs);
+.sortable-list-section-heading {
+  padding: var(--spacing-sm) var(--spacing-md);
 }

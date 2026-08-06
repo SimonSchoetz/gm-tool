@@ -36,23 +36,25 @@ a:hover {
 .global-btn-styles {
   color: var(--color-primary);
   background-color: transparent;
-  transition-duration: var(--transition-hover-off);
+  transition-duration: var(--transition-hover-on);
 }
 
 .global-btn-styles:hover {
   box-shadow: var(--box-shadow-active);
   background-color: var(--color-hover-bg);
   color: var(--color-fg);
-  transition-duration: var(--transition-hover-on);
+  transition-duration: var(--transition-hover-off);
 }
 
 .global-btn-styles.active {
   color: var(--color-fg);
+  transition-duration: var(--transition-hover-off);
   background-color: var(--color-highlight-bg);
   box-shadow: var(--box-shadow-active);
 }
 
 .global-btn-styles.active:hover {
+  transition-duration: var(--transition-hover-off);
   background-color: var(--color-highlight-bg);
 }
 

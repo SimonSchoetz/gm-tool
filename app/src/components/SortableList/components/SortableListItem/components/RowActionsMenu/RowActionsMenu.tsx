@@ -54,15 +54,16 @@ export const RowActionsMenu: FCProps<Props> = ({
 
   return (
     <>
-      <ClickableIcon
-        ref={triggerRef}
-        className='row-actions-menu-trigger'
-        icon={<EllipsisVerticalIcon />}
-        label='Row actions'
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-        }}
-      />
+      <div className='row-actions-menu-trigger'>
+        <ClickableIcon
+          ref={triggerRef}
+          icon={<EllipsisVerticalIcon />}
+          label='Row actions'
+          onClick={() => {
+            setIsOpen((prev) => !prev);
+          }}
+        />
+      </div>
 
       {isOpen && (
         <AnchoredPopup
@@ -76,14 +77,15 @@ export const RowActionsMenu: FCProps<Props> = ({
           <PopupSurface>
             <ul>
               {options.map((option) => (
-                <MenuOptionRow
-                  key={option.key}
-                  Icon={option.Icon}
-                  label={option.label}
-                  onClick={() => {
-                    void handlePinToggle();
-                  }}
-                />
+                <li key={option.key}>
+                  <MenuOptionRow
+                    Icon={option.Icon}
+                    label={option.label}
+                    onClick={() => {
+                      void handlePinToggle();
+                    }}
+                  />
+                </li>
               ))}
             </ul>
           </PopupSurface>

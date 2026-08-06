@@ -110,7 +110,12 @@ export const SortableList = <
 
           {pinnedItems.length > 0 && (
             <>
-              <li className='sortable-list-pinned-heading'>Pinned</li>
+              <li
+                key='sortable-list-pinned-heading'
+                className='sortable-list-section-heading label'
+              >
+                Pinned
+              </li>
               {pinnedItems.map((item) => (
                 <SortableListItem
                   key={item.id}
@@ -122,6 +127,13 @@ export const SortableList = <
                   dragWidths={dragWidths}
                 />
               ))}
+
+              <li
+                className='sortable-list-divider-li'
+                key='sortable-list-pinned-divider'
+              >
+                <HorizontalDivider />
+              </li>
             </>
           )}
 
@@ -139,7 +151,12 @@ export const SortableList = <
 
           {isSearching && hasFieldMatches && (
             <>
-              <HorizontalDivider className='sortable-list-divider' />
+              <li
+                className='sortable-list-divider-li'
+                key='sortable-list-field-divider'
+              >
+                <HorizontalDivider />
+              </li>
               {sortedFieldMatches.map((item) => (
                 <SortableListItem
                   key={item.id}
@@ -155,7 +172,12 @@ export const SortableList = <
           )}
 
           {hasNothingToShow && (
-            <li className='sortable-list-no-results'>No results found</li>
+            <li
+              key='sortable-list-no-results'
+              className='sortable-list-no-results'
+            >
+              No results found
+            </li>
           )}
         </ul>
       </CustomScrollArea>
