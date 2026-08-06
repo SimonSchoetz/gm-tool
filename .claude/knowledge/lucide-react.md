@@ -7,6 +7,13 @@
 
 The previous version of this entry was wrong: it verified only that the bare names (`Table2`, `Trash2`, etc.) exist, and from that incorrectly concluded that the project's `*Icon`-suffix convention (root `app/src/CLAUDE.md` — "Icon components ... always bound to a name ending in Icon ... rename via the import alias **when necessary**") required manual `import { Table2 as Table2Icon } from 'lucide-react'` aliasing. It does not: `lucide-react`'s main package entry point (`dist/lucide-react.d.ts`, the file resolved by the bare `'lucide-react'` specifier — no subpath needed) exports **every** icon twice — once under its bare name and once under an auto-generated `*Icon`-suffixed alias — for the entire icon set, not just the six checked here. `import { Table2Icon } from 'lucide-react'` is a real, direct named import; aliasing is not "necessary" for this library and must not be added. Before writing an icon import with `as XIcon` for any icon library, grep that library's main type declaration file for the pre-suffixed name first — only alias when the library genuinely does not already export one.
 
+## EllipsisVerticalIcon, PinIcon, and PinOffIcon all exist; both `EllipsisVerticalIcon` and `MoreVerticalIcon` are exported for the vertical three-dot glyph
+
+**Verified at:** lucide-react 1.23.0
+**Citation:** [spec-writer_1: grep -oE '\b(EllipsisVertical|MoreVertical|Ellipsis|Pin|PinOff)(Icon)?\b' app/node_modules/lucide-react/dist/lucide-react.d.ts — found Ellipsis, EllipsisIcon, EllipsisVertical, EllipsisVerticalIcon, MoreVertical, MoreVerticalIcon, Pin, PinIcon, PinOff, PinOffIcon]
+
+The vertical three-dot glyph is available under two names, `EllipsisVerticalIcon` and `MoreVerticalIcon`; `MoreVertical` is lucide's legacy alias, so prefer `EllipsisVerticalIcon` for new code. `PinIcon` and `PinOffIcon` are the pin/unpin pair. All are exported pre-suffixed from the main entry, so no `as` aliasing is required.
+
 ## The globe status icon family includes GlobeCheckIcon, GlobeOffIcon, GlobeXIcon, and GlobeLockIcon — GlobeAlertIcon does not exist
 
 **Verified at:** lucide-react 1.23.0
