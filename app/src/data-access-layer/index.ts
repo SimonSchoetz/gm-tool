@@ -10,6 +10,7 @@ export { usePcs, usePc } from './pcs';
 export { useSessions, useSession } from './sessions';
 export { useTableConfig, useTableConfigs } from './table-config';
 export { useMentionEntityData } from './mentions';
+export { useSetPinnedOrder } from './pinned-order';
 export { useSessionSteps } from './session-steps';
 export { useSetting } from './settings';
 export { useUpdater } from './updater';

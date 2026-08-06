@@ -30,6 +30,7 @@ describe('get', () => {
       id: 'test-id',
       adventure_id: 'test-adventure-id',
       name: 'Test NPC',
+      pinned_order: null,
       created_at: '2025-01-01',
       updated_at: '2025-01-01',
     };

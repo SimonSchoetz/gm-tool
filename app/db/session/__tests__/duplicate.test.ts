@@ -34,6 +34,7 @@ const sourceRow = {
   session_date: '2024-03-01',
   active_view: 'ingame',
   adventure_id: 'adventure-123',
+  pinned_order: 3,
   created_at: '2023-05-01T08:00:00.000Z',
   updated_at: '2023-05-02T08:00:00.000Z',
 };
@@ -108,6 +109,15 @@ describe('session.duplicate', () => {
 
     await expect(duplicate('missing-session-id')).rejects.toThrow(
       'Session not found: missing-session-id',
+    );
+  });
+
+  it('omits pinned_order so the duplicate starts unpinned', async () => {
+    await duplicate('source-session-id');
+
+    expect(mockExecute).not.toHaveBeenCalledWith(
+      expect.stringMatching(/^INSERT INTO sessions \([^)]*\bpinned_order\b/),
+      expect.anything(),
     );
   });
 });

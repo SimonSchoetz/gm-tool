@@ -30,6 +30,7 @@ describe('getAll', () => {
       id: '1',
       adventure_id: 'adv-1',
       name: 'Foe 1',
+      pinned_order: null,
       created_at: '2025-01-02',
       updated_at: '2025-01-02',
     };
@@ -37,6 +38,7 @@ describe('getAll', () => {
       id: '2',
       adventure_id: 'adv-1',
       name: 'Foe 2',
+      pinned_order: null,
       created_at: '2025-01-01',
       updated_at: '2025-01-01',
     };

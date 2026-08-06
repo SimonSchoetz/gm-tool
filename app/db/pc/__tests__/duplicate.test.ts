@@ -33,6 +33,7 @@ const sourceRow = {
   summary: 'a dwarf merchant',
   description: 'Long lost brother',
   image_id: 'source-image-id',
+  pinned_order: 3,
   created_at: '2023-05-01T08:00:00.000Z',
   updated_at: '2023-05-02T08:00:00.000Z',
 };
@@ -126,6 +127,15 @@ describe('pc.duplicate', () => {
 
     await expect(duplicate('missing-pc-id', null)).rejects.toThrow(
       'Pc not found: missing-pc-id',
+    );
+  });
+
+  it('omits pinned_order so the duplicate starts unpinned', async () => {
+    await duplicate('source-pc-id', 'new-image-id');
+
+    expect(mockExecute).not.toHaveBeenCalledWith(
+      expect.stringMatching(/^INSERT INTO pcs \([^)]*\bpinned_order\b/),
+      expect.anything(),
     );
   });
 });

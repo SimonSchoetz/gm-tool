@@ -19,6 +19,7 @@ export const duplicate = async (
     id: _sourceRowId,
     name: _sourceName,
     image_id: _sourceImageId,
+    pinned_order: _sourcePinnedOrder,
     created_at: _sourceCreatedAt,
     updated_at: _sourceUpdatedAt,
     ...copiedColumns

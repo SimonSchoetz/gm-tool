@@ -16,6 +16,7 @@ export const duplicate = async (sourceId: string): Promise<string> => {
   const {
     id: _sourceRowId,
     name: _sourceName,
+    pinned_order: _sourcePinnedOrder,
     created_at: _sourceCreatedAt,
     updated_at: _sourceUpdatedAt,
     ...copiedColumns

@@ -70,6 +70,7 @@ user instruction.
 | `summary` | `TEXT` | Yes | `z.string().optional()` | Lexical JSON; template set in `create.ts` |
 | `description` | `TEXT` | Yes | `z.string().optional()` | Lexical JSON; no default template |
 | `image_id` | `TEXT` | Yes | `z.string().nullable().optional()` | FK → `images.id` ON DELETE SET NULL |
+| `pinned_order` | `INTEGER` | Yes | `z.number().nullable()` | `NULL` = unpinned; non-null = ascending pin position |
 | `created_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set in `create.ts` |
 | `updated_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set by `buildUpdateQuery` |
 
@@ -560,8 +561,8 @@ five points are wired. NPC reference: `db/npc/duplicate.ts`, `services/npcsServi
 `assertValidId(sourceId, '[Singular]')`, fetch the source row via `get(sourceId)`, throw
 `new Error(\`[Singular] not found: ${sourceId}\`)` when null (an internal invariant,
 exempt from the error-factory requirement), `generateId()` for the new id, then
-destructure the source row to exclude `id`, `name`, `image_id`, `created_at`, and
-`updated_at` into `copiedColumns`. Call
+destructure the source row to exclude `id`, `name`, `image_id`, `pinned_order`,
+`created_at`, and `updated_at` into `copiedColumns`. Call
 `buildDuplicateQuery('[plural]', id, copiedColumns, { image_id: imageId })` — never
 hand-roll `buildCreateQuery` + `generateDbTimestamps` here, see `app/db/CLAUDE.md` —
 Duplication. `name` is excluded with no override, so the duplicate's name column takes

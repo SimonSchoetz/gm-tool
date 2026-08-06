@@ -43,6 +43,10 @@ export const sessionTable = defineTable({
       },
       zod: z.string().min(1, 'Adventure ID is required'),
     },
+    pinned_order: {
+      type: 'INTEGER',
+      zod: z.number().nullable(),
+    },
     created_at: {
       type: 'TEXT',
       notNull: true,

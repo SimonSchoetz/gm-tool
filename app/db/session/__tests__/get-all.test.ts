@@ -37,6 +37,7 @@ describe('getAll', () => {
         created_at: '2025-10-13T00:00:00.000Z',
         updated_at: '2025-10-13T00:00:00.000Z',
         active_view: 'prep',
+        pinned_order: null,
       },
       {
         id: 'id-1',
@@ -45,6 +46,7 @@ describe('getAll', () => {
         created_at: '2025-10-12T00:00:00.000Z',
         updated_at: '2025-10-12T00:00:00.000Z',
         active_view: 'prep',
+        pinned_order: null,
       },
     ];
 

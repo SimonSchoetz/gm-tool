@@ -9,6 +9,7 @@ export * from './locations';
 export * from './mentions';
 export * from './npcs';
 export * from './pcs';
+export * from './pinned-order';
 export * from './session-steps';
 export * from './sessions';
 export * from './sync';

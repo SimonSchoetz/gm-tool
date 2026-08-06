@@ -40,6 +40,10 @@ export const npcTable = defineTable({
       },
       zod: z.string().nullable().optional(),
     },
+    pinned_order: {
+      type: 'INTEGER',
+      zod: z.number().nullable(),
+    },
     created_at: {
       type: 'TEXT',
       notNull: true,
