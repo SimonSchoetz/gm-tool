@@ -96,7 +96,7 @@ src/
 - ❌ BAD: `const handleMouseEnter = () => onMouseEnterBridge(); <Foo onMouseEnter={handleMouseEnter} />`
 - ✅ GOOD: `<Foo onMouseEnter={onMouseEnterBridge} />`
 
-**Before wiring a prop to any component you did not write in the current task, read its implementation file and verify the prop is forwarded to the element or sub-component where it takes effect.** A prop declared in a component's props type may not be forwarded internally — TypeScript types describe the interface surface, not the internal wiring. Passing a prop that is silently dropped is a runtime no-op with no compiler or linter error. Verify before writing the JSX; do not defer it to code review.
+**Before wiring a prop to any component you did not write in the current task, read its implementation file and verify the prop is forwarded to the element or sub-component where it takes effect.** This includes `ref` — under React 19, `ref` is an ordinary prop on function components, not separate infrastructure, so a `ref` you did not personally forward is exactly the case this rule governs. A prop declared in a component's props type may not be forwarded internally — TypeScript types describe the interface surface, not the internal wiring. Passing a prop that is silently dropped is a runtime no-op with no compiler or linter error. Verify before writing the JSX; do not defer it to code review.
 
 **Props pattern — three cases, pick exactly one:**
 

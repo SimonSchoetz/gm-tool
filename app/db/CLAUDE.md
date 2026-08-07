@@ -132,7 +132,7 @@ Migration file naming: `{ms_timestamp}_{description}.ts`, where the timestamp is
 
 Each migration file exports a named const with shape `{ id: string, up: (db: Database) => Promise<void> }`. The `id` must match the timestamp in the file name. After creating the file, add it to the `migrations` array in `db/_migrations/index.ts` in ascending timestamp order.
 
-All migrations must be idempotent: use `CREATE TABLE IF NOT EXISTS` for new tables; for column-level changes, use `DROP TABLE IF EXISTS` on any temp table before creating it.
+All migrations must be idempotent: use `CREATE TABLE IF NOT EXISTS` for new tables; for column-level changes, use `DROP TABLE IF EXISTS` on any temp table before creating it. `ALTER TABLE ... ADD COLUMN` has no `IF NOT EXISTS` form and SQLite provides no SQL-side guard for it — the `_migrations` ledger's one-time-execution guarantee is the sole and sufficient idempotency mechanism for this shape. Do not add a defensive column-existence check around an `ADD COLUMN` migration.
 
 The `_migrations` table is infrastructure owned by `database.ts`. Never reference or modify it in domain code or migrations.
 

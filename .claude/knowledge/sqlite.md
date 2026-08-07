@@ -28,6 +28,13 @@ FK actions run as step 4 of the parent-modification sequence, separate from trig
 
 A `CREATE TRIGGER trg AFTER INSERT ON t BEGIN stmt1; stmt2; END;` string passed whole to `db.execute()` (tauri-plugin-sql) is parsed by SQLite as exactly one statement — the inner semicolons never cause premature termination. Passing one such string per `db.execute()` call is safe; no special multi-statement handling is required as long as each call's SQL is a single complete top-level statement (which a full CREATE TRIGGER definition is, however many semicolons its body contains).
 
+## SQLite's ALTER TABLE supports no IF NOT EXISTS modifier on ADD COLUMN
+
+**Verified at:** sqlite.org current docs, fetched 2026-08-06
+**Citation:** [refine-claude_1: https://sqlite.org/lang_altertable.html — the four supported alterations are RENAME TO, RENAME COLUMN, ADD COLUMN, DROP COLUMN; no IF NOT EXISTS / IF EXISTS modifier appears in the ADD COLUMN syntax diagram]
+
+Unlike `CREATE TABLE IF NOT EXISTS` and `DROP TABLE IF EXISTS`, a column addition has no conditional-existence form — re-running `ALTER TABLE t ADD COLUMN c` against a table that already has `c` is an error, and statement-level idempotency cannot be expressed in the SQL itself.
+
 ## SQLite disables foreign key enforcement per connection by default, but sqlx enables it by default
 
 **Verified at:** sqlite.org current docs + sqlx latest docs, fetched 2026-07-12

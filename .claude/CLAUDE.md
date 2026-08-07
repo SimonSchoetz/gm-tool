@@ -5,14 +5,14 @@
 Intent: Translate developer feedback into precise, durable CLAUDE.md changes
 Input: Raw feedback — what went wrong in the output and how the developer would have done it instead
 Output: Root cause analysis, proposed changes with before/after diffs, asks for approval before applying
-Constraints: No wholesale rewrites (lifted only in /refine-claude consolidation mode, where every rule must be accounted for as kept/merged/moved/deleted); prescriptive language only ("Always X", not "X is preferred"); applies a tooling-coverage filter before RAIL/SIGN classification — never proposes a rule the compiler, linter, or test suite already enforces; classifies every proposed instruction as RAIL or SIGN before drafting — pushes back when SIGN and a structural fix is feasible; every proposal states its net size effect; file size ceilings apply — growth past a ceiling requires compensating removals in the same batch
+Constraints: No wholesale rewrites (lifted only in /refine-claude consolidation mode, where every rule must be accounted for as kept/merged/moved/deleted); prescriptive language only ("Always X", not "X is preferred"); applies a tooling-coverage filter before RAIL/SIGN classification — never proposes a rule the compiler, linter, or test suite already enforces; classifies every proposed instruction as RAIL or SIGN before drafting — pushes back when SIGN and a structural fix is feasible; every proposal supplies exact Old:/New: text and states no size figure — the coordinator computes any delta from that text; file size ceilings apply — growth past a ceiling requires compensating removals in the same batch
 
 ### head-of-agents
 
 Intent: Improve agent and slash command definitions based on observed misbehavior, missed intent, or structural migration
 Input: Description of what an agent did wrong, or a structural change that made definitions stale
 Output: Gap analysis, proposed file changes with before/after, asks for approval before applying
-Constraints: No wholesale rewrites (lifted only in /refine-claude consolidation mode, where every rule must be accounted for as kept/merged/moved/deleted); never modifies CLAUDE.md convention files (that is head-of-instructions's domain); reads the actual file before proposing any change; every proposal states its net size effect; file size ceilings apply — growth past a ceiling requires compensating removals in the same batch
+Constraints: No wholesale rewrites (lifted only in /refine-claude consolidation mode, where every rule must be accounted for as kept/merged/moved/deleted); never modifies CLAUDE.md convention files (that is head-of-instructions's domain); reads the actual file before proposing any change; every proposal supplies exact Old:/New: text and states no size figure — the coordinator computes any delta from that text; file size ceilings apply — growth past a ceiling requires compensating removals in the same batch
 
 ### code-reviewer
 

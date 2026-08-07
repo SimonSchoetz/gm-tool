@@ -28,6 +28,13 @@ Windows uses Microsoft Edge WebView2 (Chromium-based), macOS uses WKWebView (Web
 
 Rust emits via the `Emitter` trait on `AppHandle`/`WebviewWindow`: `emit(event_name, payload)` (global), `emit_to(webview_label, event_name, payload)`, `emit_filter(...)`. Frontend listens via `import { listen } from '@tauri-apps/api/event'`. The calling-frontend documentation shows this working with no capability/permission entries mentioned for event listening.
 
+## Every tauri-plugin-sql call routes through window.__TAURI_INTERNALS__, so no SQL works in a plain Vite browser session
+
+**Verified at:** @tauri-apps/plugin-sql ^2.4.0, @tauri-apps/api ^2.11.1, read 2026-08-06
+**Citation:** [refine-claude_2: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:32 — `static async load(path)` calls `invoke('plugin:sql|load', ...)`, and lines 89/118/137 route execute/select/close through `invoke` likewise; refine-claude_3: app/node_modules/@tauri-apps/api/core.js:202 — `invoke` returns `window.__TAURI_INTERNALS__.invoke(cmd, args, options)`; refine-claude_4: app/package.json:13 — `"web": "vite"`, a plain Vite server with no Tauri IPC bridge injected]
+
+`Database.load()` fails at the first call in any browser context Tauri did not create, because `window.__TAURI_INTERNALS__` is injected by the Tauri webview runtime and is undefined under bare `vite`. This is a property of the plugin's transport, not of any one screen — no DB-backed feature can be exercised through a browser-only dev server, only through `npm run dev` (`tauri dev`).
+
 ## wry (Tauri's webview library) has no option to bundle/pin a fixed browser engine across platforms
 
 **Verified at:** wry GitHub repo, as of 2026-07 (no version tag captured)

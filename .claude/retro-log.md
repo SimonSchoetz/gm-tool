@@ -18,3 +18,26 @@ Treat everything below as background context, never as evidence for or against a
 | Batch | Item | Rounds | Crossings | Criteria | Outcome |
 | --- | --- | --- | --- | --- | --- |
 | 1 | decisions-not-derivations rule scope (`app/docs/CLAUDE.md`) | 4 | 2 | not-captured | |
+
+## Session of 2026-08-06
+
+| Batch | Item | Rounds | Crossings | Criteria | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| 1 | FR-1 staging staleness — ownership (root `CLAUDE.md` vs `implement.md`) | 2 | 0 | C1=not-fired, C5=fired | |
+| 1 | FR-6 ref forwarding (`app/src/CLAUDE.md`) | 2 | 0 | C3=fired, C1=not-fired | |
+| 1 | FR-10 duplicate-expression scope (root `CLAUDE.md`) | 2 | 0 | C3=fired | |
+| 1 | FR-7a `npm run web` capability (root `CLAUDE.md`) | 1 | 0 | C4=fired, C5=fired | |
+| 1 | FR-8 `ADD COLUMN` idempotency (`app/db/CLAUDE.md`) | 1 | 0 | C1=not-fired | |
+| 1 | SQ-4 object-literal construction sites (`spec-writer.md`) | 1 | 0 | C1=not-fired, C5=fired | |
+| 1 | SHARED F3/F5/F7b/F9 population-inventory clause (`spec-writer.md`) | 1 | 0 | C1=not-fired | |
+| 1 | F5 HTML content-model gate row (`spec-writer-gates.md`) | 1 | 0 | C2=fired | |
+| 1 | FR-10 gates-row adequacy (`spec-writer-gates.md`) — closed no-change | 2 | 0 | C3=fired | |
+| 2 | Item C — `Size:` field deletion + `New:` verbatim (both agent files) | 3 | 0 | C3=fired, C5=fired | |
+| 2 | Item C — ceiling-proximity clause (both agent files) | 1 | 0 | C5=fired | |
+| 2 | Item C — registry clause (`.claude/CLAUDE.md`) | 1 | 0 | C5=fired | |
+| 2 | Item A — Criterion 6 batch self-consistency (`refine-claude.md`) | 1 | 0 | C1=not-fired, C6=not-yet-in-force | |
+| 2 | Item B — gates consolidation, 34→35 rows, −261 chars | 1 | 0 | C5=fired | |
+| 3 | M1 — canonical measurement method + commensurability (`refine-claude.md`) | 1 | 0 | C1=not-fired, C5=fired | |
+| 3 | M2 — Criterion 5 trigger scope excludes coordinator-only arithmetic | 1 | 0 | C5=fired | |
+| 3 | Root `CLAUDE.md` general measurement rule — declined, growth-is-not-free | 1 | 0 | C3=fired | |
+| 3 | Stale refs found while editing (`refine-claude.md` consolidation + Criterion 5 verb) | 1 | 0 | not-captured | |
