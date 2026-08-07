@@ -30,40 +30,26 @@ export const AdventureStats: FCProps<Props> = () => {
   if (!adventure) return;
 
   const startDate = getDateString(adventure.created_at);
+
+  const statsMap: { label: string; value: number | string }[] = [
+    { label: 'Started', value: startDate },
+    { label: 'Sessions', value: sessions.length },
+    { label: 'PCs', value: pcs.length },
+    { label: 'NPCs', value: npcs.length },
+    { label: 'Factions', value: factions.length },
+    { label: 'Locations', value: locations.length },
+    { label: 'Foes', value: foes.length },
+    { label: 'Items', value: items.length },
+  ];
+
   return (
     <ul className='adventure-stats'>
-      <li>
-        <span className='label'>Started:</span>
-        {startDate}
-      </li>
-      <li>
-        <span className='label'>Sessions:</span>
-        {sessions.length}
-      </li>
-      <li>
-        <span className='label'>PCs:</span>
-        {pcs.length}
-      </li>
-      <li>
-        <span className='label'>NPCs:</span>
-        {npcs.length}
-      </li>
-      <li>
-        <span className='label'>Factions:</span>
-        {factions.length}
-      </li>
-      <li>
-        <span className='label'>Locations:</span>
-        {locations.length}
-      </li>
-      <li>
-        <span className='label'>Foes:</span>
-        {foes.length}
-      </li>
-      <li>
-        <span className='label'>Items:</span>
-        {items.length}
-      </li>
+      {statsMap.map(({ label, value }) => (
+        <li key={label}>
+          <span className='label'>{label}:</span>
+          {value}
+        </li>
+      ))}
     </ul>
   );
 };
