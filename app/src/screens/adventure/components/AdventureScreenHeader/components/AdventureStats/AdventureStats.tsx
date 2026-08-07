@@ -11,7 +11,7 @@ import {
   useAdventure,
 } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { getDateTimeString } from '@util';
+import { getDateString } from '@util';
 
 type Props = object;
 
@@ -29,7 +29,7 @@ export const AdventureStats: FCProps<Props> = () => {
   const { items } = useItems(adventureId);
   if (!adventure) return;
 
-  const startDate = getDateTimeString(adventure.created_at);
+  const startDate = getDateString(adventure.created_at);
   return (
     <ul className='adventure-stats'>
       <li>
