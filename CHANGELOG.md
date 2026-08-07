@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.12.0] - 2026-08-07
+
+### Added
+
+- Adventure headers now show live counts of sessions, PCs, NPCs, factions, locations, foes, and items
+- Added a settings button to the Header
+
+### Fixed
+
+- Row-action and new-item button hover shadows no longer get clipped by list padding
+- The row-actions menu button now fills the full height of rows without an avatar
+- The text editor no longer overflows past the name input in the edit layout
+- The screens sidebar now scrolls its own content instead of the whole window
+- The side nav now scrolls its own content instead of the whole window
+
+### Changed
+
+- Moved forward/back navigation from the side nav to the Header
+- Reworked the basic app layout
+- Removed the duplicate settings button from the side nav and fixed its clipped shadow
+- Restyled the row actions menu
+
 ## [v0.11.0] - 2026-08-07
 
 ### Added
