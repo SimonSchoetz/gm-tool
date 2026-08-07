@@ -26,7 +26,7 @@ export const AdventureScreenHeader = () => {
         className='adventure-title-input'
       />
 
-      <ul className='adventure-facts'>
+      <ul className='adventure-stats'>
         <li>
           <span className='label'>Started:</span>
           {startDate}
