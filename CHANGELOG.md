@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.11.0] - 2026-08-07
+
+### Added
+
+- Every entity — NPCs, PCs, Foes, Factions, Locations, Items, and Sessions (with their session steps) — can now be duplicated from its detail screen sidebar
+- The app now uses IBM Plex Sans and IBM Plex Mono throughout, self-hosted instead of relying on system fonts
+- Typing `--`, `->`, or `<-` now automatically converts to an em dash or arrow (—, →, ←) in the text editor and in name, search, and delete-confirm inputs
+- Any item in the seven list screens can now be pinned from a new row-actions menu — pinned items collect in a "Pinned" section above the rest of the list and persist across restarts and paired devices
+
 ## [v0.10.1] - 2026-07-30
 
 ### Fixed
