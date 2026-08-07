@@ -1,5 +1,5 @@
 .header-content {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) 0;
   height: 100%;
   display: flex;
   align-items: center;
@@ -7,6 +7,22 @@
   justify-content: space-between;
 }
 
-.header-nav {
+.header-btns {
+  padding-left: var(--spacing-sm);
+  width: var(--app-sidebar-width);
   display: flex;
+  justify-content: space-between;
+}
+
+.header--breadcrumb-nav {
+  padding: 0 var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header--app-status {
+  padding: 0 var(--spacing-md);
+  display: flex;
+  align-items: center;
 }

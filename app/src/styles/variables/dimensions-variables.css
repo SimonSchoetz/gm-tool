@@ -5,4 +5,5 @@
   --mention-popup-max-height: 14rem; /* <=7 visible rows */
   --text-editor-max-width: 680px; /*  Results in 80 characters per line on font-size base */
   --custom-scrollbar-width: 12px;
+  --app-sidebar-width: 250px;
 }
