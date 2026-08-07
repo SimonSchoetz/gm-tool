@@ -97,15 +97,17 @@ export const SortableList = <
 
   return (
     <GlassPanel className={cn('sortable-list', className)}>
-      <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
+      <div className='sortable-list--header'>
+        <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
 
-      <SortingTableHeader
-        tableConfigId={tableConfigId}
-        onDragWidthsChange={setDragWidths}
-      />
+        <SortingTableHeader
+          tableConfigId={tableConfigId}
+          onDragWidthsChange={setDragWidths}
+        />
+      </div>
 
-      <CustomScrollArea className='sortable-list-scroll-area'>
-        <ul className='sortable-list-table'>
+      <CustomScrollArea className='sortable-list--scroll-area'>
+        <ul className='sortable-list--table'>
           {showCreateNewBtn && (
             <li key='new-item-button'>
               <NewItemBtn label='Create new item' onClick={onCreateNew} />
@@ -115,8 +117,8 @@ export const SortableList = <
           {pinnedItems.length > 0 && (
             <>
               <li
-                key='sortable-list-pinned-heading'
-                className='sortable-list-section-heading label'
+                key='sortable-list--pinned-heading'
+                className='sortable-list--section-heading label'
               >
                 Pinned
               </li>
@@ -131,8 +133,8 @@ export const SortableList = <
               ))}
 
               <li
-                className='sortable-list-divider-li'
-                key='sortable-list-pinned-divider'
+                className='sortable-list--divider-li'
+                key='sortable-list--pinned-divider'
               >
                 <HorizontalDivider />
               </li>
@@ -152,8 +154,8 @@ export const SortableList = <
           {isSearching && hasFieldMatches && (
             <>
               <li
-                className='sortable-list-divider-li'
-                key='sortable-list-field-divider'
+                className='sortable-list--divider-li'
+                key='sortable-list--field-divider'
               >
                 <HorizontalDivider />
               </li>
@@ -171,8 +173,8 @@ export const SortableList = <
 
           {hasNothingToShow && (
             <li
-              key='sortable-list-no-results'
-              className='sortable-list-no-results'
+              key='sortable-list--no-results'
+              className='sortable-list--no-results'
             >
               No results found
             </li>
