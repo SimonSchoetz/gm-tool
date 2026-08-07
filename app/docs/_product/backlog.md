@@ -2,7 +2,6 @@
 
 ## Closed Beta Ready
 
-- Feature: replace Adventure dummy stats with actual ones
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor something the editor must do?
@@ -14,9 +13,11 @@
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Images. Second step: Documents, like pdfs.
+- Fix: FW/BW navigators to show disabled when they can't move any further
 
 ### Done
 
+- Feature: replace Adventure dummy stats with actual ones
 - Feature: List items ins screens should be pinnable
 - Text Editor: arrow conversion '->' to '→' 
 - Feature (Fonts): 
