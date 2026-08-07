@@ -3,14 +3,13 @@
   width: 100vw;
   padding: var(--spacing-sm);
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
   gap: var(--spacing-sm);
 }
 
 .screens-container {
-  min-height: 0;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: auto 1fr;
   gap: var(--spacing-sm);
   overflow-x: hidden;
 }

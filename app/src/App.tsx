@@ -25,10 +25,10 @@ const AppContent = () => {
       <LightSource intensity='bright' />
 
       <main className='app'>
-        <SideBarNav />
+        <Header />
 
         <div className='screens-container'>
-          <Header />
+          <SideBarNav />
 
           <ErrorBoundary>
             <Suspense
