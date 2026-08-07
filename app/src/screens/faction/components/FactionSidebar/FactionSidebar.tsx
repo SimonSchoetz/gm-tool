@@ -3,8 +3,7 @@ import { useFaction } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
-import './FactionSidebar.css';
-import { ScreensDuplicateBtn } from '../../../components';
+import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
 
 export const FactionSidebar = () => {
   const router = useRouter();
@@ -23,7 +22,7 @@ export const FactionSidebar = () => {
   };
 
   return (
-    <aside className='faction-sidebar'>
+    <ScreensSidebar>
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={faction.image_id ?? null}
@@ -51,6 +50,6 @@ export const FactionSidebar = () => {
         }}
         buttonStyle={'danger'}
       />
-    </aside>
+    </ScreensSidebar>
   );
 };

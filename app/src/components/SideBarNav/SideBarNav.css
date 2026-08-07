@@ -1,8 +1,8 @@
-.sidebar-nav-container {
+.sidebar-nav {
   min-height: 0;
 }
 
-.sidebar-nav {
+.sidebar-nav--content-container {
   width: calc(15rem);
   z-index: var(--most-front);
   height: 100%;

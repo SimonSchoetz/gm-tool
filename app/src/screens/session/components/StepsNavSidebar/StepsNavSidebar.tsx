@@ -8,7 +8,9 @@ import {
 import { FCProps, HtmlProps } from '@/types';
 import { useSession } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { ScreensDuplicateBtn } from '../../../components';
+import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
+import { PREVIEW_WIDTH } from '../../../screens.constants';
+import { CSSProperties } from 'react';
 
 type Props = {
   areTooltipsVisible: boolean;
@@ -26,7 +28,15 @@ export const StepsNavSidebar: FCProps<Props> = ({
   const { session } = useSession(sessionId, adventureId);
 
   return (
-    <aside className='steps-sidebar' {...props}>
+    <ScreensSidebar
+      style={
+        {
+          '--session-sidebar-width': `${PREVIEW_WIDTH}px`,
+        } as CSSProperties
+      }
+      className='steps-sidebar'
+      {...props}
+    >
       <ToggleSessionViewBtn />
 
       <SessionStepsNav />
@@ -43,6 +53,6 @@ export const StepsNavSidebar: FCProps<Props> = ({
           <DeleteSessionBtn />
         </>
       )}
-    </aside>
+    </ScreensSidebar>
   );
 };

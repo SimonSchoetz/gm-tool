@@ -26,8 +26,8 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   };
 
   return (
-    <aside className={cn('sidebar-nav-container', className)} {...props}>
-      <GlassPanel className='sidebar-nav'>
+    <aside className={cn('sidebar-nav', className)} {...props}>
+      <GlassPanel className='sidebar-nav--content-container'>
         <FwBwNav />
 
         <CustomScrollArea childrenContainerClassName='sidebar-nav--btn-group'>

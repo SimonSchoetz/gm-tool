@@ -3,8 +3,7 @@ import { useNpc } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
-import './NpcSidebar.css';
-import { ScreensDuplicateBtn } from '../../../components';
+import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
 
 export const NpcSidebar = () => {
   const router = useRouter();
@@ -25,7 +24,7 @@ export const NpcSidebar = () => {
   };
 
   return (
-    <aside className='npc-sidebar'>
+    <ScreensSidebar>
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={npc.image_id ?? null}
@@ -53,6 +52,6 @@ export const NpcSidebar = () => {
         }}
         buttonStyle={'danger'}
       />
-    </aside>
+    </ScreensSidebar>
   );
 };

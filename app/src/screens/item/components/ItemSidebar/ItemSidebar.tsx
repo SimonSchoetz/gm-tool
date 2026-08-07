@@ -3,8 +3,7 @@ import { useItem } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
-import './ItemSidebar.css';
-import { ScreensDuplicateBtn } from '../../../components';
+import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
 
 export const ItemSidebar = () => {
   const router = useRouter();
@@ -25,7 +24,7 @@ export const ItemSidebar = () => {
   };
 
   return (
-    <aside className='item-sidebar'>
+    <ScreensSidebar>
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={item.image_id ?? null}
@@ -53,6 +52,6 @@ export const ItemSidebar = () => {
         }}
         buttonStyle={'danger'}
       />
-    </aside>
+    </ScreensSidebar>
   );
 };

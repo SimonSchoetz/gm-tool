@@ -1,6 +1,3 @@
 .steps-sidebar {
-  display: flex;
-  flex-direction: column;
-  width: 200px; /* one off */
-  gap: var(--spacing-md);
+  width: var(--session-sidebar-width);
 }

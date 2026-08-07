@@ -3,8 +3,7 @@ import { usePc } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
-import './PcSidebar.css';
-import { ScreensDuplicateBtn } from '../../../components';
+import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
 
 export const PcSidebar = () => {
   const router = useRouter();
@@ -22,7 +21,7 @@ export const PcSidebar = () => {
   };
 
   return (
-    <aside className='pc-sidebar'>
+    <ScreensSidebar>
       <UploadImgBtn
         dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
         image_id={pc.image_id ?? null}
@@ -50,6 +49,6 @@ export const PcSidebar = () => {
         }}
         buttonStyle={'danger'}
       />
-    </aside>
+    </ScreensSidebar>
   );
 };

@@ -2,12 +2,11 @@ import { UploadImgBtn, Button } from '@/components';
 import { useAdventure } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { useRouter, useParams } from '@tanstack/react-router';
-import './AdventureScreenSidebar.css';
 import {
   ADVENTURE_PREVIEW_HEIGHT,
   PREVIEW_WIDTH,
 } from '../../../screens.constants';
-import { ScreensDuplicateBtn } from '../../../components';
+import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
 
 export const AdventureScreenSidebar = () => {
   const router = useRouter();
@@ -27,7 +26,7 @@ export const AdventureScreenSidebar = () => {
     void router.navigate({ to: '/adventures' });
   };
   return (
-    <aside className='adventure-sidebar'>
+    <ScreensSidebar>
       <UploadImgBtn
         dimensions={{
           width: PREVIEW_WIDTH,
@@ -59,6 +58,6 @@ export const AdventureScreenSidebar = () => {
         }}
         buttonStyle={'danger'}
       />
-    </aside>
+    </ScreensSidebar>
   );
 };
