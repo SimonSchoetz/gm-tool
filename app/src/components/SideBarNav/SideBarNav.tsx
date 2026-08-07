@@ -28,60 +28,69 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   return (
     <aside className={cn('sidebar-nav', className)} {...props}>
       <GlassPanel className='sidebar-nav--content-container'>
-        <CustomScrollArea childrenContainerClassName='sidebar-nav--btn-group'>
-          <ScreenNavBtn label='Adventures' to='/adventures' />
-
-          <ScreenNavBtn
-            label='Sessions'
-            to='/adventure/$adventureId/sessions'
-            isDisabled={!adventureId}
-            configColor={getTableColor('sessions')}
-          />
-
-          <ScreenNavBtn
-            label='PCs'
-            to='/adventure/$adventureId/pcs'
-            isDisabled={!adventureId}
-            configColor={getTableColor('pcs')}
-          />
-
-          <ScreenNavBtn
-            label='NPCs'
-            to='/adventure/$adventureId/npcs'
-            isDisabled={!adventureId}
-            configColor={getTableColor('npcs')}
-          />
-
-          <ScreenNavBtn
-            label='Factions'
-            to='/adventure/$adventureId/factions'
-            isDisabled={!adventureId}
-            configColor={getTableColor('factions')}
-          />
-
-          <ScreenNavBtn
-            label='Locations'
-            to='/adventure/$adventureId/locations'
-            isDisabled={!adventureId}
-            configColor={getTableColor('locations')}
-          />
-
-          <ScreenNavBtn
-            label='Foes'
-            to='/adventure/$adventureId/foes'
-            isDisabled={!adventureId}
-            configColor={getTableColor('foes')}
-          />
-
-          <ScreenNavBtn
-            label='Items'
-            to='/adventure/$adventureId/items'
-            isDisabled={!adventureId}
-            configColor={getTableColor('items')}
-          />
+        <CustomScrollArea>
+          <ul className='sidebar-nav--btn-group'>
+            <li>
+              <ScreenNavBtn label='Adventures' to='/adventures' />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='Sessions'
+                to='/adventure/$adventureId/sessions'
+                isDisabled={!adventureId}
+                configColor={getTableColor('sessions')}
+              />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='PCs'
+                to='/adventure/$adventureId/pcs'
+                isDisabled={!adventureId}
+                configColor={getTableColor('pcs')}
+              />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='NPCs'
+                to='/adventure/$adventureId/npcs'
+                isDisabled={!adventureId}
+                configColor={getTableColor('npcs')}
+              />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='Factions'
+                to='/adventure/$adventureId/factions'
+                isDisabled={!adventureId}
+                configColor={getTableColor('factions')}
+              />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='Locations'
+                to='/adventure/$adventureId/locations'
+                isDisabled={!adventureId}
+                configColor={getTableColor('locations')}
+              />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='Foes'
+                to='/adventure/$adventureId/foes'
+                isDisabled={!adventureId}
+                configColor={getTableColor('foes')}
+              />
+            </li>
+            <li>
+              <ScreenNavBtn
+                label='Items'
+                to='/adventure/$adventureId/items'
+                isDisabled={!adventureId}
+                configColor={getTableColor('items')}
+              />
+            </li>
+          </ul>
         </CustomScrollArea>
-
-        <ScreenNavBtn label='Settings' to='/settings' />
       </GlassPanel>
     </aside>
   );
