@@ -79,7 +79,7 @@ Always use Conventional Commits with scope required:
 - Use descriptive names instead of comments
   ❌ BAD: `const data = await fetch(); // Get user data`
   ✅ GOOD: `const userData = await fetchUserData();`
-- **Route explanatory knowledge to its narrowest correct scope.** When a name alone is insufficient, stop at the first level that fits:
+- **Route explanatory knowledge to its narrowest correct scope, regardless of the channel it first surfaces in — a chat reply or review verdict routes through the same tiers as a code comment.** When a name alone is insufficient, stop at the first level that fits:
   1. **Inline comment** — specific to a single line, no meaning outside it
   2. **Top-of-file comment** — applies to multiple constructs within one file
   3. **Parent component comment** — scoped to a component subtree

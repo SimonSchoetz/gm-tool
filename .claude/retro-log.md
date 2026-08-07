@@ -41,3 +41,7 @@ Treat everything below as background context, never as evidence for or against a
 | 3 | M2 — Criterion 5 trigger scope excludes coordinator-only arithmetic | 1 | 0 | C5=fired | |
 | 3 | Root `CLAUDE.md` general measurement rule — declined, growth-is-not-free | 1 | 0 | C3=fired | |
 | 3 | Stale refs found while editing (`refine-claude.md` consolidation + Criterion 5 verb) | 1 | 0 | not-captured | |
+| 4 | D1 — crossing-count caveat, closed no-change both roles | 1 | 0 | C3=fired | |
+| 4 | D2 — durable-claim anchor: trigger vs. destination (`spec-writer-gates.md`) | 4 | 1 | C1=fired, C5=fired | |
+| 4 | D2 — routing-ladder channel scope (root `CLAUDE.md`) | 2 | 0 | C5=fired | |
+| 4 | D3 — Outcome field records confirmation (`refine-claude.md`) | 2 | 0 | C6=fired | |
