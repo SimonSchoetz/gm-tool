@@ -11,13 +11,13 @@
   - encryption?
 - Feature: Implement prefetching
 - Feature: cmd+f search for screens
-- Feature: List items ins screens should be pinnable
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Images. Second step: Documents, like pdfs.
 
 ### Done
 
+- Feature: List items ins screens should be pinnable
 - Text Editor: arrow conversion '->' to '→' 
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
