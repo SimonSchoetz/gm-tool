@@ -24,3 +24,8 @@
   gap: var(--spacing-md);
   height: 100%;
 }
+
+.screens-text-editor-layout--body > *:last-child {
+  flex: 1;
+  min-height: 0;
+}
