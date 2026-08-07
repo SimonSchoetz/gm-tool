@@ -392,6 +392,17 @@ after the existing domain entries:
 />
 ```
 
+### Adventure Header Stats
+
+**`app/src/screens/adventure/components/AdventureScreenHeader/components/AdventureStats/AdventureStats.tsx`**
+(Modified) — add `use[Plural]` to the `@/data-access-layer` import, call it alongside the
+existing six collection hooks (`const { [plural] } = use[Plural](adventureId);`), and add
+one entry to `statsMap`, after the existing domain entries:
+
+```tsx
+{ label: '[Plural]', value: [plural].length },
+```
+
 ### Breadcrumbs
 
 NPC reference: `src/components/Header/`. `BreadcrumbConfig`'s entity variant is
