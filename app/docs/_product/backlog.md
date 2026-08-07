@@ -2,7 +2,7 @@
 
 ## Closed Beta Ready
 
-- Fix: Adventure stats (facts)
+- Feature: replace Adventure dummy stats with actual ones (facts)
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor something the editor must do?

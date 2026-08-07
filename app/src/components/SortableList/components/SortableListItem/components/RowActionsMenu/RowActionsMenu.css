@@ -1,8 +1,6 @@
 .row-actions-menu-trigger {
-  height: 115px; /* why is 100% not working here?*/
+  align-self: stretch;
   display: flex;
-  z-index: 10;
-  --gradient-base: 6.25%;
   background: linear-gradient(
     90deg,
     transparent 0%,
