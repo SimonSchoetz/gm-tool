@@ -1,22 +1,15 @@
 .row-actions-menu-trigger {
   align-self: stretch;
   display: flex;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgb(var(--color-surface-rgb), 1) 70%
-  );
-  background-size: 100%;
-  background-position: 0%;
+  background: transparent;
   transition: var(--transition-hover-on);
 }
 
 .row-actions-menu-trigger:hover {
-  background-size: 150%;
-  background-position: 100%;
+  background: linear-gradient(90deg, transparent 0%, var(--color-surface) 70%);
   transition: var(--transition-hover-off);
 }
 
 .row-actions-menu-trigger > * {
-  padding-left: var(--spacing-sm);
+  padding: var(--spacing-xs);
 }

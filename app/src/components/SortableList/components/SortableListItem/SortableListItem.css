@@ -9,7 +9,7 @@
   border: none;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  /*gap: var(--spacing-sm);*/
 }
 
 .sortable-list-item:hover {
@@ -23,6 +23,7 @@
   flex: 1;
   min-width: 0;
   display: grid;
+  overflow: hidden;
 }
 
 .sortable-list-item--content-section {
