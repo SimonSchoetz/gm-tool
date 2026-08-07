@@ -1,0 +1,4 @@
+.fw-bw-btn-container {
+  display: flex;
+  flex-shrink: 0;
+}

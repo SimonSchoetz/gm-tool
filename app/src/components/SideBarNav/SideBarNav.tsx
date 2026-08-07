@@ -1,7 +1,7 @@
 import { FCProps, HtmlProps } from '@/types';
 import './SideBarNav.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { FwBwNav, ScreenNavBtn } from './components';
+import { ScreenNavBtn } from './components';
 import { useRouterState } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
 import { CustomScrollArea } from '../CustomScrollArea';
@@ -28,8 +28,6 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   return (
     <aside className={cn('sidebar-nav', className)} {...props}>
       <GlassPanel className='sidebar-nav--content-container'>
-        <FwBwNav />
-
         <CustomScrollArea childrenContainerClassName='sidebar-nav--btn-group'>
           <ScreenNavBtn label='Adventures' to='/adventures' />
 

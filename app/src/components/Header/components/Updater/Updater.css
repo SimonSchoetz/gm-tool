@@ -5,7 +5,6 @@
   transition: color var(--transition-fast);
   display: flex;
   gap: var(--spacing-xs);
-  padding: var(--spacing-md);
 }
 
 .updater:hover {

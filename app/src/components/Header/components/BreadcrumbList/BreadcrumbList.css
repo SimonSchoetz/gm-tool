@@ -3,11 +3,11 @@
   gap: var(--spacing-xs);
   align-items: center;
   list-style: none;
-  padding: var(--spacing-md);
 }
 
 .breadcrumb-list li {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-mono);
 }
 
 .breadcrumb-list svg {

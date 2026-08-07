@@ -61,7 +61,8 @@ export const BreadcrumbListEntry: FCProps<Props> = ({ config, isFirst }) => {
 
   return (
     <>
-      {!isFirst && <ChevronRightIcon />} {listItem}
+      {!isFirst && <ChevronRightIcon width={'var(--font-size-lg)'} />}
+      {listItem}
     </>
   );
 };
