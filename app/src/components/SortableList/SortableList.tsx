@@ -91,6 +91,10 @@ export const SortableList = <
     ? { pinnedItems: [], unpinnedItems: sortedNameMatches }
     : partitionPinnedItems(sortedNameMatches);
 
+  const handleRowClick = (item: Record<string, unknown>) => {
+    onRowClick(item as T);
+  };
+
   return (
     <GlassPanel className={cn('sortable-list', className)}>
       <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
@@ -121,9 +125,7 @@ export const SortableList = <
                   key={item.id}
                   tableConfigId={tableConfigId}
                   item={item}
-                  onClick={(item) => {
-                    onRowClick(item as T);
-                  }}
+                  onClick={handleRowClick}
                   dragWidths={dragWidths}
                 />
               ))}
@@ -142,9 +144,7 @@ export const SortableList = <
               key={item.id}
               tableConfigId={tableConfigId}
               item={item}
-              onClick={(item) => {
-                onRowClick(item as T);
-              }}
+              onClick={handleRowClick}
               dragWidths={dragWidths}
             />
           ))}
@@ -162,9 +162,7 @@ export const SortableList = <
                   key={item.id}
                   tableConfigId={tableConfigId}
                   item={item}
-                  onClick={(item) => {
-                    onRowClick(item as T);
-                  }}
+                  onClick={handleRowClick}
                   dragWidths={dragWidths}
                 />
               ))}

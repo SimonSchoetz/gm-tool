@@ -15,6 +15,15 @@ export const initDatabase = async () => {
 
   initializingPromise = (async () => {
     try {
+      if (
+        import.meta.env.DEV &&
+        !import.meta.env.TEST &&
+        !('__TAURI_INTERNALS__' in window)
+      ) {
+        throw new Error(
+          'No Tauri IPC bridge found — the database is unreachable from `npm run web`. Run `npm run dev` instead to reach the database.',
+        );
+      }
       console.log('Attempting to load database...');
       const database = await Database.load('sqlite:gm_tool.db');
       console.log('Database loaded successfully');

@@ -59,12 +59,13 @@ export const SortableListItem: FCProps<Props> = ({
               )}
               key={col.key}
             >
-              {/* span warpper is needed for clipping text */}
+              {/* span wrapper is needed for clipping text */}
               <span className='clip-text'>{renderCell(col.key, item)}</span>
             </div>
           ))}
         </ActionContainer>
 
+        {/* RowActionsMenu must stay a sibling of ActionContainer, never nested inside it — both render a button, and a button nested inside another button is invalid HTML that the parser silently relocates, so nesting plus stopPropagation would depend on parser-repaired DOM structure instead of guaranteeing isolation from row navigation */}
         <RowActionsMenu
           tableConfigId={tableConfigId}
           itemId={itemId}
