@@ -1,1 +1,2 @@
-export * from './FwBwNav/FwBwNav';
+export { FwBwNav } from './FwBwNav/FwBwNav';
+export { ScreenNavBtn } from './ScreenNavBtn/ScreenNavBtn';

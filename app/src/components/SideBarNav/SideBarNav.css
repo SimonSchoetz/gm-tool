@@ -1,9 +1,10 @@
-.sidebar-nav {
-  width: calc(15rem + 2rem);
-  z-index: 1000;
+.sidebar-nav-container {
+  min-height: 0;
 }
 
-.sidebar-nav > * {
+.sidebar-nav {
+  width: calc(15rem);
+  z-index: var(--most-front);
   height: 100%;
   padding: var(--spacing-md);
   display: flex;
@@ -11,7 +12,7 @@
   gap: var(--spacing-md);
 }
 
-.sidebar-nav-btn-group {
+.sidebar-nav--btn-group {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);

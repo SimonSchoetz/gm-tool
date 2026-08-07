@@ -1,14 +1,15 @@
 import { FCProps, HtmlProps } from '@/types';
 import './SideBarNav.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { FwBwNav } from './components';
-import { ScreenNavBtn } from './components/ScreenNavBtn/ScreenNavBtn';
+import { FwBwNav, ScreenNavBtn } from './components';
 import { useRouterState } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
+import { CustomScrollArea } from '../CustomScrollArea';
+import { cn } from '@/util';
 
 type Props = HtmlProps<'aside'>;
 
-export const SideBarNav: FCProps<Props> = ({ ...props }) => {
+export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   const router = useRouterState();
 
   const { tableConfigs } = useTableConfigs();
@@ -25,11 +26,11 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
   };
 
   return (
-    <aside className='sidebar-nav' {...props}>
-      <GlassPanel>
+    <aside className={cn('sidebar-nav-container', className)} {...props}>
+      <GlassPanel className='sidebar-nav'>
         <FwBwNav />
 
-        <div className='sidebar-nav-btn-group'>
+        <CustomScrollArea childrenContainerClassName='sidebar-nav--btn-group'>
           <ScreenNavBtn label='Adventures' to='/adventures' />
 
           <ScreenNavBtn
@@ -80,7 +81,7 @@ export const SideBarNav: FCProps<Props> = ({ ...props }) => {
             isDisabled={!adventureId}
             configColor={getTableColor('items')}
           />
-        </div>
+        </CustomScrollArea>
 
         <ScreenNavBtn label='Settings' to='/settings' />
       </GlassPanel>

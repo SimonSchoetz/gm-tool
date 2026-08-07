@@ -3,7 +3,7 @@
   width: 100vw;
   padding: var(--spacing-sm);
   display: grid;
-  grid-template-columns: calc(15rem + 2rem) 1fr;
+  grid-template-columns: auto 1fr;
   gap: var(--spacing-sm);
 }
 

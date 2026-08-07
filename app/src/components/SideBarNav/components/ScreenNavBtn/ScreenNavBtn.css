@@ -6,7 +6,6 @@
   color: var(--color-primary);
   text-decoration: none;
 }
-
 .screen-nav-btn-content:hover {
   color: rgb(var(--rt-screen-nav-btn-color));
 }

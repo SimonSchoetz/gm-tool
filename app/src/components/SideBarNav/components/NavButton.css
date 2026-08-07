@@ -2,4 +2,5 @@
   font-size: var(--font-size-xl);
   transition: 0.2s ease;
   border-radius: var(--radius-xl);
+  flex-shrink: 0;
 }
