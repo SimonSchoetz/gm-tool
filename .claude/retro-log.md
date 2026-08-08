@@ -61,3 +61,5 @@ Batch "Ceiling Evolution" — approved by user message "apply all", 2026-08-08.
 | 2 | Consolidation `app/src/CLAUDE.md` — try/catch pile-up + CSS merge, −117 (net-growth draft rejected, revised) | 2 | 0 | C5=fired | |
 | 2 | Consolidation `app/src/CLAUDE.md` — zero-remaining-candidates disposition verdict | 1 | 0 | C5=fired | |
 | 2 | Consolidation `implement.md` — 8 edits + `implement-post-loop.md` extraction, −3363 | 1 | 0 | C5=fired, C6=fired | |
+| 3 | Root relocation — instruction-files principle → both heads' dilution checks, root −1064 | 1 | 0 | C5=fired | |
+| 3 | Root disposition — zero-remaining verdict; `update-config` fossil claim resolved kept via coordinator verification (live skill roster) | 1 | 0 | C2=fired | |
