@@ -89,9 +89,11 @@ Extract the spec's "CLAUDE.md impact" section as written and output it to the us
 
 Applies to every handoff artifact this command produces: the friction brief, the deferred violations brief, the spec quality brief, and the CLAUDE.md impact extract.
 
-Each artifact must be self-contained per root CLAUDE.md's handoff-artifact self-containment principle (Epistemological Discipline) — state facts and reasoning directly, never in a form that requires the producing conversation to interpret. None of these four artifacts is ever submitted to `/refine-claude` by this command — output each to the user and stop; invoking `/refine-claude` is the user's decision, never this command's.
+Each artifact must be self-contained per root CLAUDE.md's handoff-artifact self-containment principle (Epistemological Discipline) — state facts and reasoning directly, never in a form that requires the producing conversation to interpret. None of these four artifacts is ever submitted to `/refine-claude` by this command — produce each per the delivery rule below and stop; invoking `/refine-claude` is the user's decision, never this command's.
 
-When manual fix mode amends the friction brief, re-output the full current set of handoff artifacts together as one bundle, not the friction-brief increment alone — the user must never have to reconstruct the current state of any artifact from a partial update.
+**Delivery.** Write the full content of every artifact to its own file in the cycle directory, creating the directory first if it does not already exist, per the cycle-directory scheme in `.claude/CLAUDE.md` — Agent Infrastructure. The file is the sole full-content copy — chat never duplicates it. For the deferred violations brief, also post the full content to chat: every entry requires its own explicit user disposition, and the entry is the atomic decision unit, with no smaller summary that preserves the ability to decide on it. For the friction brief, spec quality brief, and CLAUDE.md impact extract, post a chat pointer naming the file just written — these hand off for a later or separate decision, not one answered in this turn.
+
+When manual fix mode amends the friction brief, overwrite the full current set of handoff artifact files together as one bundle, not the friction-brief file alone, and re-post to chat per the Delivery rule above for whichever artifact changed — the user must never have to reconstruct the current state of any artifact from a partial update.
 
 ### Friction brief
 

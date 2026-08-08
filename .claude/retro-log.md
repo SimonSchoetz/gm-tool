@@ -63,3 +63,10 @@ Batch "Ceiling Evolution" — approved by user message "apply all", 2026-08-08.
 | 2 | Consolidation `implement.md` — 8 edits + `implement-post-loop.md` extraction, −3363 | 1 | 0 | C5=fired, C6=fired | |
 | 3 | Root relocation — instruction-files principle → both heads' dilution checks, root −1064 | 1 | 0 | C5=fired | |
 | 3 | Root disposition — zero-remaining verdict; `update-config` fossil claim resolved kept via coordinator verification (live skill roster) | 1 | 0 | C2=fired | |
+| 4 | Cycle directory — Agent Infrastructure entry, 4th category (`.claude/CLAUDE.md`) | 2 | 0 | C5=fired | |
+| 4 | Chat-delivery rule — file-only vs dual-write, converged to decision-unit test | 3 | 0 | C1=not-fired | |
+| 4 | Teammate read boundary — pre-gate self-fetch vs coordinator relay | 3 | 0 | C1=not-fired | |
+| 4 | Registry Output fields ×3 (`.claude/CLAUDE.md`) — 2 corrections in mediation before apply | 3 | 0 | C2=fired | |
+| 4 | `implement.md` Delivery insertion + create-if-absent | 1 | 0 | C5=fired | |
+| 4 | `refine-claude.md` ×6 incl. mode-count fossil — presented at 96% ceiling, position (a) stated | 2 | 0 | C5=fired | |
+| 4 | `spec-writer.md` paste-transport → file write | 1 | 0 | C5=fired | |

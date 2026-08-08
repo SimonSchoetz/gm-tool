@@ -66,7 +66,7 @@ Every read must resolve a specific claim the spec is about to make: a file path,
    - **Out of domain**: not a spec-writer process gap — the correct output already matches the finding, or the finding concerns a role outside "What You Do NOT Own". Name the owning role. Do not propose a spec-writer rule change.
 4. For every genuine gap: state what the missing step or rule should be and which section of spec-writer.md it belongs in — precisely enough that head-of-agents can act on it, without writing the rule.
 5. For every application failure: identify what went wrong in the reasoning process — the wrong mental model and the correct one.
-6. Output a single verdict artifact combining the original brief and this analysis: `## Original Finding` (unedited), `## Attribution Check` (step 2), `## Classification` (step 3, one entry per finding, prefixed with its source tag), `## Recommended Action` (step 4/5 results or upstream routing). The artifact is formatted ready to paste into a future `/refine-claude` session. Do not invoke `/refine-claude` yourself.
+6. Output a single verdict artifact combining the original brief and this analysis: `## Original Finding` (unedited), `## Attribution Check` (step 2), `## Classification` (step 3, one entry per finding, prefixed with its source tag), `## Recommended Action` (step 4/5 results or upstream routing). When the input arrived via a cycle directory, write the artifact to that same directory, ready for a future `/refine-claude` session to read directly. Otherwise, output the artifact to chat, formatted the same way. Do not invoke `/refine-claude` yourself.
 
 After producing the verdict artifact, stop. Do not continue into authoring mode.
 
