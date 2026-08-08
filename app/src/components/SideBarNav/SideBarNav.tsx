@@ -41,14 +41,14 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
                 configColor={getTableColor('sessions')}
               />
             </li>
-            <li>
+            {/*<li> commented out until feature is ready for release
               <ScreenNavBtn
                 label='Encounters'
                 to='/adventure/$adventureId/encounters'
                 isDisabled={!adventureId}
                 configColor={getTableColor('encounters')}
               />
-            </li>
+            </li>*/}
             <li>
               <ScreenNavBtn
                 label='PCs'
