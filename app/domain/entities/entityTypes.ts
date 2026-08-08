@@ -6,6 +6,7 @@ export const ENTITY_TYPES = [
   'locations',
   'items',
   'sessions',
+  'encounters',
   'adventures',
 ] as const;
 

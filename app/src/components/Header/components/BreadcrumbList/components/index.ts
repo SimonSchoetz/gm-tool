@@ -2,6 +2,7 @@ export { BreadcrumbListItem } from './BreadcrumbListItem';
 export { BreadcrumbListEntry } from './BreadcrumbListEntry';
 export { AdventureCrumb } from './AdventureCrumb';
 export { SessionCrumb } from './SessionCrumb';
+export { EncounterCrumb } from './EncounterCrumb';
 export { NpcCrumb } from './NpcCrumb';
 export { FoeCrumb } from './FoeCrumb';
 export { ItemCrumb } from './ItemCrumb';

@@ -5,3 +5,4 @@ export { FactionDuplicateBtn } from './FactionDuplicateBtn';
 export { LocationDuplicateBtn } from './LocationDuplicateBtn';
 export { ItemDuplicateBtn } from './ItemDuplicateBtn';
 export { SessionDuplicateBtn } from './SessionDuplicateBtn';
+export { EncounterDuplicateBtn } from './EncounterDuplicateBtn';

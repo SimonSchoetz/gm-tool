@@ -9,6 +9,7 @@ const ENTITY_SEGMENT: Record<EntityType, string> = {
   locations: 'location',
   items: 'item',
   sessions: 'session',
+  encounters: 'encounter',
   adventures: 'adventure',
 };
 

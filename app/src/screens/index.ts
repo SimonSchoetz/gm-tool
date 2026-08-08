@@ -2,6 +2,8 @@ export { AdventuresScreen } from './adventures/AdventuresScreen';
 export { AdventureScreen } from './adventure/AdventureScreen';
 export { SessionsScreen } from './sessions/SessionsScreen';
 export { SessionScreen } from './session/SessionScreen';
+export { EncountersScreen } from './encounters/EncountersScreen';
+export { EncounterScreen } from './encounter/EncounterScreen';
 export { NpcsScreen } from './npcs/NpcsScreen';
 export { NpcScreen } from './npc/NpcScreen';
 export { FoesScreen } from './foes/FoesScreen';

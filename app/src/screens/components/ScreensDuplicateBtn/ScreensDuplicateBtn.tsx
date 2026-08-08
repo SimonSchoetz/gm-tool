@@ -8,6 +8,7 @@ import {
   LocationDuplicateBtn,
   ItemDuplicateBtn,
   SessionDuplicateBtn,
+  EncounterDuplicateBtn,
 } from './components';
 
 type Props = { entityType: EntityType };
@@ -31,6 +32,8 @@ export const ScreensDuplicateBtn: FCProps<Props> = ({ entityType }) => {
       return <ItemDuplicateBtn label={label} />;
     case 'sessions':
       return <SessionDuplicateBtn label={label} />;
+    case 'encounters':
+      return <EncounterDuplicateBtn label={label} />;
     // Adventures own seven child tables; their duplication is out of scope. This case becomes a component when that ships.
     case 'adventures':
       return null;

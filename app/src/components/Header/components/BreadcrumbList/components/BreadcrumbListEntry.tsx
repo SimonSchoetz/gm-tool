@@ -6,6 +6,7 @@ import type { BreadcrumbConfig } from '../../../helper';
 import { BreadcrumbListItem } from './BreadcrumbListItem';
 import { AdventureCrumb } from './AdventureCrumb';
 import { SessionCrumb } from './SessionCrumb';
+import { EncounterCrumb } from './EncounterCrumb';
 import { NpcCrumb } from './NpcCrumb';
 import { FoeCrumb } from './FoeCrumb';
 import { ItemCrumb } from './ItemCrumb';
@@ -35,6 +36,9 @@ export const BreadcrumbListEntry: FCProps<Props> = ({ config, isFirst }) => {
         break;
       case 'sessions':
         crumb = <SessionCrumb />;
+        break;
+      case 'encounters':
+        crumb = <EncounterCrumb />;
         break;
       case 'npcs':
         crumb = <NpcCrumb />;

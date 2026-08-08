@@ -18,6 +18,12 @@ describe('buildEntityPath', () => {
     );
   });
 
+  it('returns adventure-scoped encounter path', () => {
+    expect(buildEntityPath('encounters', 'encounter-1', 'adv-1')).toBe(
+      '/adventure/adv-1/encounter/encounter-1',
+    );
+  });
+
   it('returns adventure-scoped foe path', () => {
     expect(buildEntityPath('foes', 'foe-1', 'adv-1')).toBe(
       '/adventure/adv-1/foe/foe-1',

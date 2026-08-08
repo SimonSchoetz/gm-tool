@@ -118,6 +118,40 @@ describe('buildBreadcrumbs', () => {
     expect(result[3]).toEqual({ kind: 'sessions' });
   });
 
+  it('maps /adventure/$adventureId/encounters to Encounters static', () => {
+    const result = buildBreadcrumbs([
+      match('__root__'),
+      match('/adventure/$adventureId', { adventureId: 'adv-1' }),
+      match('/adventure/$adventureId/encounters', { adventureId: 'adv-1' }),
+    ]);
+    expect(result).toHaveLength(3);
+    expect(result[2]).toEqual({
+      kind: 'static',
+      label: 'Encounters',
+      to: '/adventure/$adventureId/encounters',
+      params: { adventureId: 'adv-1' },
+    });
+  });
+
+  it('maps /adventure/$adventureId/encounter/$encounterId to Encounters static + encounter crumb', () => {
+    const result = buildBreadcrumbs([
+      match('__root__'),
+      match('/adventure/$adventureId', { adventureId: 'adv-1' }),
+      match('/adventure/$adventureId/encounter/$encounterId', {
+        adventureId: 'adv-1',
+        encounterId: 'enc-1',
+      }),
+    ]);
+    expect(result).toHaveLength(4);
+    expect(result[2]).toEqual({
+      kind: 'static',
+      label: 'Encounters',
+      to: '/adventure/$adventureId/encounters',
+      params: { adventureId: 'adv-1' },
+    });
+    expect(result[3]).toEqual({ kind: 'encounters' });
+  });
+
   it('maps /adventure/$adventureId/foes to Foes static', () => {
     const result = buildBreadcrumbs([
       match('__root__'),

@@ -10,6 +10,7 @@ describe('entityTypeLabel', () => {
     expect(entityTypeLabel('locations')).toBe('Location');
     expect(entityTypeLabel('items')).toBe('Item');
     expect(entityTypeLabel('sessions')).toBe('Session');
+    expect(entityTypeLabel('encounters')).toBe('Encounter');
     expect(entityTypeLabel('adventures')).toBe('Adventure');
   });
 

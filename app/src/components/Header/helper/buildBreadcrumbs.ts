@@ -156,6 +156,25 @@ export const buildBreadcrumbs = (
           },
           { kind: 'sessions' },
         ];
+      case '/adventure/$adventureId/encounters':
+        return [
+          {
+            kind: 'static',
+            label: 'Encounters',
+            to: '/adventure/$adventureId/encounters',
+            params: { adventureId: p.adventureId },
+          },
+        ];
+      case '/adventure/$adventureId/encounter/$encounterId':
+        return [
+          {
+            kind: 'static',
+            label: 'Encounters',
+            to: '/adventure/$adventureId/encounters',
+            params: { adventureId: p.adventureId },
+          },
+          { kind: 'encounters' },
+        ];
       case '/adventure/$adventureId/locations':
         return [
           {

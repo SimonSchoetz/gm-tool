@@ -1,7 +1,7 @@
-import { FCProps } from '@/types';
 import './AdventureStats.css';
 import {
   useSessions,
+  useEncounters,
   usePcs,
   useNpcs,
   useFactions,
@@ -13,14 +13,13 @@ import {
 import { useParams } from '@tanstack/react-router';
 import { getDateString } from '@util';
 
-type Props = object;
-
-export const AdventureStats: FCProps<Props> = () => {
+export const AdventureStats = () => {
   const { adventureId } = useParams({
     from: '/adventure/$adventureId/',
   });
   const { adventure } = useAdventure(adventureId);
   const { sessions } = useSessions(adventureId);
+  const { encounters } = useEncounters(adventureId);
   const { pcs } = usePcs(adventureId);
   const { npcs } = useNpcs(adventureId);
   const { factions } = useFactions(adventureId);
@@ -34,6 +33,7 @@ export const AdventureStats: FCProps<Props> = () => {
   const statsMap: { label: string; value: number | string }[] = [
     { label: 'Started', value: startDate },
     { label: 'Sessions', value: sessions.length },
+    { label: 'Encounters', value: encounters.length },
     { label: 'PCs', value: pcs.length },
     { label: 'NPCs', value: npcs.length },
     { label: 'Factions', value: factions.length },

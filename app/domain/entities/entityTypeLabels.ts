@@ -8,6 +8,7 @@ const ENTITY_TYPE_LABELS: Record<EntityType, string> = {
   locations: 'Location',
   items: 'Item',
   sessions: 'Session',
+  encounters: 'Encounter',
   adventures: 'Adventure',
 };
 

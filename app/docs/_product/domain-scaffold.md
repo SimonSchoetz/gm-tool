@@ -87,11 +87,12 @@ retroactively invalidate previously correct code — a stale reference propagate
 to every new domain that copies it. When a violation is found during this check, fix it
 before using the file as a template.
 
-**`routeTree.gen.ts` is gitignored.** TanStack Router regenerates it automatically on dev
-server start, but `tsc --noEmit` requires it during implementation. After creating new route
-files, manually add the two new route entries to `routeTree.gen.ts` so that type checks pass.
-This manual edit does not need to be committed — the dev server will regenerate the file
-correctly from the route files on first start.
+**`routeTree.gen.ts` is gitignored and does not need manual editing.** After creating the new
+route files, run `npm run build:frontend` once from `app/`. The `tanstackRouter` plugin
+registered in `vite.config.ts` rewrites `src/routeTree.gen.ts` from the route files during
+the build, which is what makes the new route ids available to `tsc --noEmit`,
+`useParams({ from: ... })`, and typed `<Link to=... />`. The file stays gitignored and is
+never committed.
 
 **SF coupling: screens + barrel registrations must be committed together.** The detail and
 list screen components import from `@/data-access-layer` (e.g. `usePc`, `usePcs`), which
@@ -312,13 +313,24 @@ case into the loading guard — a missing config is an error, not a loading stat
 **UI**: `SortableList<[Singular]>` with `tableConfigId`, `items`, `onRowClick`,
 `onCreateNew`, `searchPlaceholder`.
 
-Companion CSS file: `[Plural]Screen.css` (empty — no domain-specific list layout).
+No companion CSS file: `[Plural]Screen` renders only `SortableList` and a loading wrapper,
+composing existing styled primitives with no classes of its own. `app/src/CLAUDE.md` —
+Styles forbids creating an empty placeholder `.css` file for a component that owns no
+styles; create `[Plural]Screen.css` only if this domain's list screen ends up needing
+layout rules `SortableList` doesn't already provide.
 
 NPC reference: `screens/npcs/NpcsScreen.tsx`.
 
 ### Frontend — Detail Screen (`screens/[singular]/`)
 
-Three component files + barrel + two CSS files.
+Three component files + barrel. No screen-owned CSS file is created by default — the shared
+components below own their own styles; add a CSS file only if this domain's screen needs a
+layout rule none of them already provide. NPC reference: `screens/npc/`. `screens/foe/` is
+the reference implementation for the composition below — read it directly rather than this
+section's prose, since the prose is a summary and the file is the source of truth.
+**`screens/session/` is a deliberate exception**: its hand-rolled `SessionHeader` and
+custom `SessionScreen.css` layout predate the shared components below and must not be
+copied when scaffolding a new domain.
 
 **[Singular]Screen.tsx**
 
@@ -326,45 +338,42 @@ Three component files + barrel + two CSS files.
 
 **Behavior**: `useParams({ from: '/adventure/$adventureId/[singular]/$[singular]Id' })`.
 Calls `use[Singular]([singular]Id, adventureId)`. Loading/null guard returns
-`<div><LoadingIcon /></div>`. Description `TextEditor` calls `update[Singular]({ description })`.
-`textEditorId`: `'[SINGULAR_UPPER]_${[singular].id}_description'`.
+`<div className='content-center'><LoadingIcon /></div>`. Description `TextEditor` calls
+`update[Singular]({ description })`. `textEditorId`:
+`` `[SINGULAR_UPPER]_${[singular].id}_description` ``.
 
-**UI**: `GlassPanel className='[singular]-screen'` (CSS grid `grid-template-columns: auto 1fr`,
-`padding: var(--spacing-md)`, `gap: var(--spacing-lg)`). Left: `[Singular]Sidebar`. Right:
-`CustomScrollArea` > `div className='[singular]-text-edit-area'`
-(grid `grid-template-rows: auto 1fr`, `height: 100%`, `gap: var(--spacing-md)`) >
-`[Singular]Header` then `TextEditor`.
+**UI**: Composes `ScreensTextEditorLayout` (imported from `'../components'`), which owns the
+`GlassPanel` root, the sidebar slot, and the scrollable header/body layout itself — the
+screen supplies only its three slot children: `sideBar={<[Singular]Sidebar />}`,
+`header={<ScreensSummary><TextEditor .../></ScreensSummary>}` (the summary rich-text
+editor), and `body={<><ScreensNameInput .../><TextEditor .../></>}` (the name input followed
+by the description editor).
 
 **[Singular]Header.tsx**
 
-**Purpose**: Name input + summary rich-text editor in a styled panel.
-
-**Behavior**: `useParams` + `use[Singular]`. `useState([singular]?.name ?? '')` for name.
-`textEditorId`: `'[SINGULAR_UPPER]_${[singular].id}_summary'`. Returns `undefined` guard if
-no entity.
-
-**UI**: `GlassPanel className='[singular]-summary' intensity='bright'`
-(grid rows `auto 1fr`, `padding: var(--spacing-md)`, `gap: var(--spacing-sm)`,
-`height: var(--summary-content-height)`, `max-width: 600px`).
-`Input placeholder='Name'` with `className='[singular]-name-input'`
-(`font-size: var(--font-size-3xl)`, `font-weight: var(--font-weight-medium)`).
-`CustomScrollArea` > `TextEditor` for summary.
+Does not exist as a separate component in the current pattern — the name input and summary
+editor are composed directly inside `[Singular]Screen.tsx`'s `body`/`header` slots (see
+above), each calling `use[Singular]` itself as needed. Do not create a `[Singular]Header.tsx`
+file unless a later domain's screen needs to factor this composition out for its own reasons.
 
 **[Singular]Sidebar.tsx**
 
-**Purpose**: Image upload + delete controls.
+**Purpose**: Image upload + duplicate + delete controls.
 
 **Behavior**: `useParams({ from: '/adventure/$adventureId/[singular]/$[singular]Id' })` +
 `use[Singular]` + `useDeleteDialog` + `useRouter`. On delete: `await delete[Singular]()`,
-then navigate to `/adventure/${adventureId}/[plural]`. Returns `undefined` guard if no entity.
-`PREVIEW_WIDTH` and `PREVIEW_HEIGHT` from `'@/screens/screens.constants'`.
+then navigate to `/adventure/${adventureId}/[plural]`. Guards with `if (![singular]) return;`
+— a bare `return`, since the component's early exit is in a `void`-shaped position.
+`PREVIEW_WIDTH` and `PREVIEW_HEIGHT` from `'../../screens.constants'`.
 
-**UI**: `<aside className='[singular]-sidebar'>` (flex column, `gap: var(--spacing-md)`).
+**UI**: `ScreensSidebar` (imported from `'../../components'`), which already owns the
+`<aside>` root and its scroll area — the domain component supplies only its children:
 `UploadImgBtn`, then `<ScreensDuplicateBtn entityType='[plural]' />` (see Duplication
 below), then danger `Button label='Delete [Singular]'` via `openDeleteDialog`
 (`oneClickConfirm: false`).
 
-**components/index.ts** — explicit named exports: `[Singular]Sidebar`, `[Singular]Header`.
+**components/index.ts** — explicit named exports: `[Singular]Sidebar`, and `[Singular]Header`
+only if that file was created per the note above.
 
 NPC references: `screens/npc/`.
 
@@ -392,10 +401,10 @@ export const Route = createFileRoute('/adventure/$adventureId/[singular]/$[singu
 });
 ```
 
-After creating these files, manually add the two new route entries to
-`src/routeTree.gen.ts` so that `tsc --noEmit` passes during implementation.
-This edit is ephemeral — `routeTree.gen.ts` is gitignored and regenerates on
-dev server start.
+After creating these files, run `npm run build:frontend` once from `app/`. The
+`tanstackRouter` plugin registered in `vite.config.ts` regenerates `src/routeTree.gen.ts`
+from the route files during the build, which is what makes the two new route ids available
+to `tsc --noEmit`. The file stays gitignored and uncommitted.
 
 **`screens/index.ts`** (Modified) — add two exports:
 
@@ -568,11 +577,17 @@ Use the singular PascalCase form (`'Foe'`) unless the entity's own name is an ac
 (`npcs`/`pcs` → `'NPC'`/`'PC'`).
 
 **`src/components/MentionPopup/components/MentionPopupContent/components/`** (New directory) —
-create `[Singular]PopupContent/[Singular]PopupContent.tsx` and
-`[Singular]PopupContent/[Singular]PopupContent.css` (empty). Reference:
-`NpcPopupContent/NpcPopupContent.tsx`. Substitution:
+create `[Singular]PopupContent/[Singular]PopupContent.tsx` only — no CSS file. The popup
+content component owns no styles of its own, so `app/src/CLAUDE.md`'s ban on speculative
+placeholder CSS applies: create no `.css` file and write no CSS import. Reference:
+`NpcPopupContent/NpcPopupContent.tsx` for the substitution shape only —
 `NpcPopupContent → [Singular]PopupContent`, `useNpc → use[Singular]`,
-`npc → [singular]`, `` `npc-popup-${entityId}` → `[singular]-popup-${entityId}` ``.
+`npc → [singular]`, `` `npc-popup-${entityId}` → `[singular]-popup-${entityId}` `` — but
+not for its CSS file: `NpcPopupContent.css` is the one popup stylesheet with actual content,
+so its presence is not evidence that a new popup component needs one. The other six existing
+popup stylesheets (`SessionPopupContent.css`, `FoePopupContent.css`,
+`FactionPopupContent.css`, `ItemPopupContent.css`, `LocationPopupContent.css`,
+`PcPopupContent.css`) are zero-byte files that predate this ban and must not be replicated.
 
 **`MentionPopupContent/components/index.ts`** (Modified) — add:
 
