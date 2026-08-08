@@ -1,0 +1,12 @@
+export type { EncounterNotFoundError } from './errors';
+export { encounterNotFoundError } from './errors';
+export type { EncounterLoadError } from './errors';
+export { encounterLoadError } from './errors';
+export type { EncounterCreateError } from './errors';
+export { encounterCreateError } from './errors';
+export type { EncounterUpdateError } from './errors';
+export { encounterUpdateError } from './errors';
+export type { EncounterDeleteError } from './errors';
+export { encounterDeleteError } from './errors';
+export type { EncounterDuplicateError } from './errors';
+export { encounterDuplicateError } from './errors';
