@@ -328,9 +328,20 @@ components below own their own styles; add a CSS file only if this domain's scre
 layout rule none of them already provide. NPC reference: `screens/npc/`. `screens/foe/` is
 the reference implementation for the composition below — read it directly rather than this
 section's prose, since the prose is a summary and the file is the source of truth.
-**`screens/session/` is a deliberate exception**: its hand-rolled `SessionHeader` and
-custom `SessionScreen.css` layout predate the shared components below and must not be
-copied when scaffolding a new domain.
+**`screens/session/` and `screens/encounter/` are deliberate exceptions** to the
+`ScreensTextEditorLayout` composition described below — each for its own reason, and
+neither is a template to copy by default:
+
+- `screens/session/`: its hand-rolled `SessionHeader` re-implements what `ScreensNameInput`
+  now provides, and its custom `SessionScreen.css` layout predates the shared components
+  below. This shape must not be copied when scaffolding a new domain.
+- `screens/encounter/`: `EncounterScreen` bypasses `ScreensTextEditorLayout` because
+  Encounter has no summary field — its custom `EncounterScreen.css` (GlassPanel root,
+  header above a body grid) is a deliberately minimal base for a future encounter-specific
+  screen. Unlike `SessionHeader`, `EncounterHeader` composes the shared `ScreensNameInput`
+  rather than hand-rolling it — only the screen-level layout deviates, not the header's
+  internals. Do not copy this shape by default either; it's justified by Encounter's
+  specific lack of a summary field, not a new default pattern.
 
 **[Singular]Screen.tsx**
 

@@ -21,6 +21,7 @@ const encountersConfig = {
 const up = async (db: Database): Promise<void> => {
   await db.execute(encounterTable.createTableSQL);
 
+  // Frozen local copy of the sync-trigger shape buildTriggerSQL produces in 1784365870026_add_sync_infrastructure.ts — a migration must never depend on a shared helper, since a later edit to that helper would retroactively change this already-applied migration's behavior.
   await db.execute(`
     CREATE TRIGGER IF NOT EXISTS trg_sync_encounters_insert AFTER INSERT ON encounters BEGIN
       UPDATE _sync_meta SET value = value + 1 WHERE id = 'seq';
