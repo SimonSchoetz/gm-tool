@@ -136,6 +136,8 @@ All migrations must be idempotent: use `CREATE TABLE IF NOT EXISTS` for new tabl
 
 The `_migrations` table is infrastructure owned by `database.ts`. Never reference or modify it in domain code or migrations.
 
+**Migration-file duplication is required, not a DRY violation.** A migration must never depend on a live, mutable source — a shared registry, a shared helper function, or any other value that can change after this migration has already run — for a literal or logic it needs, since a later edit to that source would retroactively change an already-applied migration's behavior. When a migration needs a literal or logic that also exists in a live source, freeze a local copy inside the migration file instead, and add an inline comment stating what was frozen, where the live equivalent lives, and why (a migration must never depend on a shared source). This duplication is exempt from root CLAUDE.md's duplicate-raw-literal DRY rule: the frozen copy and its live counterpart are not the same call site under that rule's own test, since the frozen copy is pinned to the moment the migration ran and the live source is expected to diverge from it afterward. Precedent: `1784365870026_add_sync_infrastructure.ts` and `1784896762609_backfill_sync_changes.ts` each freeze their own copy of `SYNCED_TABLE_NAMES`; `1786186021664_add_encounters.ts` freezes the trigger-SQL shape `buildTriggerSQL` produces.
+
 ## Testing
 
 Every public function in a domain directory (`create`, `get`, `getAll`, `update`, `remove`) must have a corresponding test file in a `__tests__/` subdirectory within that domain directory. See `db/adventure/__tests__/` and `db/session/__tests__/` as reference implementations.

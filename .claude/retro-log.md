@@ -70,3 +70,16 @@ Batch "Ceiling Evolution" — approved by user message "apply all", 2026-08-08.
 | 4 | `implement.md` Delivery insertion + create-if-absent | 1 | 0 | C5=fired | |
 | 4 | `refine-claude.md` ×6 incl. mode-count fossil — presented at 96% ceiling, position (a) stated | 2 | 0 | C5=fired | |
 | 4 | `spec-writer.md` paste-transport → file write | 1 | 0 | C5=fired | |
+
+## Session of 2026-08-08 — encounters-domain retrospective
+
+Batch "Encounters Retrospective" — approved by user message "apply", 2026-08-08. Input: friction brief + spec-writer verdict + implementer input, all pasted (predates the cycle-directory mechanism).
+
+| Batch | Item | Rounds | Crossings | Criteria | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| 1 | R1 migration-immutability carve-out (`app/db/CLAUDE.md` + root pointer) — placement moved off root by hoi | 1 | 0 | C5=fired | |
+| 1 | R2 Encounter glossary row (`app/CLAUDE.md`) — schema-verified, implementer text not adopted as-is | 1 | 0 | C2=fired | |
+| 1 | R3 duplicate-mutation invalidation rule (`app/src/CLAUDE.md`) — 94%, position (a) stated; self-caught pile-up removed | 2 | 0 | C5=fired | |
+| 1 | R4 assertion-value-derivation gate row (`spec-writer-gates.md`) | 1 | 0 | C5=fired | |
+| 1 | R5+R6 widened Analogous-member parity row — hoa overrode spec-writer's own no-change recommendation | 1 | 0 | C1=not-fired, C5=fired | |
+| 1 | Application-code follow-up (8 DAL + 2 migration comment populations) → tracked task_a4428c57 | 1 | 0 | C4=fired | |
