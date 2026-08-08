@@ -19,7 +19,7 @@ const configs = [
   },
   {
     table_name: 'sessions',
-    color: '248, 255, 255',
+    color: '128, 255, 255',
     tagging_enabled: 0,
     scope: 'adventure',
     layout: {

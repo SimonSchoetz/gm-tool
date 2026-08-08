@@ -4,7 +4,7 @@ import { generateId, generateDbTimestamps } from '../util';
 
 const encountersConfig = {
   table_name: 'encounters',
-  color: '248, 255, 255',
+  color: '254, 157, 93',
   tagging_enabled: 1,
   scope: 'adventure',
   layout: {
