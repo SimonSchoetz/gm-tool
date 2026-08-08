@@ -37,3 +37,10 @@ Because the interface is empty by default, an un-augmented codebase cannot pass 
 **Citation:** [architect_3: app/src/routes/adventure.$adventureId.npc.$npcId.tsx — read, contains only `component`]
 
 Every route file under `app/src/routes/` currently declares only `component` in its `createFileRoute` options. Typed search params require adding `validateSearch` to each route individually; there is no app-wide default.
+
+## `vite build` regenerates `src/routeTree.gen.ts` from the route files
+
+**Verified at:** `@tanstack/router-plugin` 1.168.19 (devDependency in `app/package.json`), registered as `tanstackRouter({ target: 'react', autoCodeSplitting: true })` in `app/vite.config.ts`
+**Citation:** [spec-writer_1: ran `npx vite build` from `app/` after adding a scratch route file `src/routes/adventure.$adventureId.scratchprobe.tsx` — `src/routeTree.gen.ts` gained 13 `scratchprobe` occurrences; after deleting the scratch file and re-running, 0 remained]
+
+The plugin rewrites `src/routeTree.gen.ts` during the Vite build, so a newly added route file needs no manual editing of the generated tree — running `npm run build:frontend` (which is `vite build`) is sufficient to make `npx tsc --noEmit` see the new route ids. The package installs no CLI binary (`app/node_modules/.bin` contains no router generator), so the Vite build is the only regeneration entry point that does not require the Tauri dev environment. The file is gitignored (`app/.gitignore:30`) and the regeneration writes nothing else into the working tree.
