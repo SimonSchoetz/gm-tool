@@ -4,7 +4,6 @@ import { LoadingIcon, SortableList } from '@/components';
 import type { Npc } from '@db/npc';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
-import './NpcsScreen.css';
 
 export const NpcsScreen = () => {
   const router = useRouter();

@@ -4,7 +4,6 @@ import { LoadingIcon, SortableList } from '@/components';
 import type { Pc } from '@db/pc';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
-import './PcsScreen.css';
 
 export const PcsScreen = () => {
   const router = useRouter();

@@ -4,7 +4,6 @@ import { LoadingIcon, SortableList } from '@/components';
 import type { Faction } from '@db/faction';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
-import './FactionsScreen.css';
 
 export const FactionsScreen = () => {
   const router = useRouter();

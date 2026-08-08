@@ -4,7 +4,6 @@ import { LoadingIcon, SortableList } from '@/components';
 import type { Foe } from '@db/foe';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
-import './FoesScreen.css';
 
 export const FoesScreen = () => {
   const router = useRouter();

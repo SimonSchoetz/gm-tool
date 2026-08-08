@@ -4,7 +4,6 @@ import { LoadingIcon, SortableList } from '@/components';
 import type { Location } from '@db/location';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
-import './LocationsScreen.css';
 
 export const LocationsScreen = () => {
   const router = useRouter();
