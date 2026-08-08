@@ -13,7 +13,7 @@ changed conventions, new ambient systems). Do not delete it when specs are imple
 app/docs/_product/domain-scaffold.md.
 Customizations:
 - Summary template lines: [list placeholder lines for the rich-text summary, or 'base pattern']
-- Table config color: [hex string, e.g. '#e67e22']
+- Table config color: [rgb string, e.g. '248, 255, 255']
 - Custom columns beyond base schema: [list, or 'none']
 - tagging_enabled: [0 or 1, default 1]
 - scope: ['adventure' or 'global', default 'adventure']"

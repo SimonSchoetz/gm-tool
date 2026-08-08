@@ -2,6 +2,7 @@
 
 ## Closed Beta Ready
 
+- Feature: New domain: Encounter
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor something the editor must do?
@@ -14,6 +15,12 @@
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Additional Images. Coming after: other documents types. Moreover: Different tabs with e.g. a table of content based on headings
 - Fix: FW/BW navigators to show disabled when they can't move any further
+- Fix (test strategy):
+  - should earn their place.
+	- should cover the full (whatever full means and if this is feasible) outcome
+	- should cover error handling (should not throw or throw and what's the expected error message)
+	- example: 6d7a5df5 feat(adventure-stat-counts): refactor getDateTimeString.test to have useful tests
+
 
 ### Done
 
@@ -23,7 +30,7 @@
 - Feature (Fonts): 
   - Implement fonts (see `./epics/fonts.md`)
   - adjust all usages of fonts throughtout the app
-- Feature: Item screens should be duplicatable
+- Feature: detail screens should be duplicatable
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
 - Fix (Mention Pop Up): 
   - click on embedded link opens within app instead of external browser
