@@ -8,6 +8,7 @@ export { useLocations, useLocation } from './locations';
 export { useFactions, useFaction } from './factions';
 export { usePcs, usePc } from './pcs';
 export { useSessions, useSession } from './sessions';
+export { useEncounters, useEncounter } from './encounters';
 export { useTableConfig, useTableConfigs } from './table-config';
 export { useMentionEntityData } from './mentions';
 export { useSetPinnedOrder } from './pinned-order';
