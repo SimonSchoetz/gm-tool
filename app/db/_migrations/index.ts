@@ -7,6 +7,7 @@ import { addPairedDevicesTableMigration } from './1783763409778_add_paired_devic
 import { addSyncInfrastructureMigration } from './1784365870026_add_sync_infrastructure';
 import { backfillSyncChangesMigration } from './1784896762609_backfill_sync_changes';
 import { addPinnedOrderMigration } from './1786002768594_add_pinned_order';
+import { addEncountersMigration } from './1786186021664_add_encounters';
 
 export type Migration = {
   id: string;
@@ -22,6 +23,7 @@ export const migrations: Migration[] = [
   addSyncInfrastructureMigration,
   backfillSyncChangesMigration,
   addPinnedOrderMigration,
+  addEncountersMigration,
 ];
 
 // Equals the applied migration head after init; read here (not from the DB) to avoid an import cycle through database.ts.

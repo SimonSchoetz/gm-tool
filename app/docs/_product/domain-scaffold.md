@@ -66,13 +66,18 @@ user instruction.
 |---|---|---|---|---|
 | `id` | `TEXT` PRIMARY KEY | No | `z.string()` | nanoid, generated in `create.ts` |
 | `adventure_id` | `TEXT` NOT NULL | No | `z.string()` | FK → `adventures.id` ON DELETE CASCADE |
-| `name` | `TEXT` | Yes | `z.string().optional()` | user-editable, must be nullable (auto-save rule) |
-| `summary` | `TEXT` | Yes | `z.string().optional()` | Lexical JSON; template set in `create.ts` |
-| `description` | `TEXT` | Yes | `z.string().optional()` | Lexical JSON; no default template |
+| `name` | `TEXT` | Yes | `z.string().nullable()` | user-editable, must be nullable (auto-save rule) |
+| `summary` | `TEXT` | Yes | `z.string().nullable()` | Lexical JSON; template set in `create.ts` |
+| `description` | `TEXT` | Yes | `z.string().nullable()` | Lexical JSON; no default template |
 | `image_id` | `TEXT` | Yes | `z.string().nullable().optional()` | FK → `images.id` ON DELETE SET NULL |
 | `pinned_order` | `INTEGER` | Yes | `z.number().nullable()` | `NULL` = unpinned; non-null = ascending pin position |
 | `created_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set in `create.ts` |
 | `updated_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set by `buildUpdateQuery` |
+
+`app/db/CLAUDE.md` bans `.optional()` on any `zodSchema` field, and the ban applies
+unconditionally to new columns. Existing domain schemas that still use `.optional()` on
+`name`, `summary`, or `description` predate that rule and are grandfathered references —
+do not copy that form when scaffolding a new domain; use `.nullable()` alone as shown above.
 
 ## Implementation Notes
 
@@ -146,7 +151,30 @@ export type { [Singular], Update[Singular]Input } from './types';
 `vi.useFakeTimers()` / `vi.setSystemTime()` + `vi.useRealTimers()` in afterEach.
 NPC reference: `db/npc/__tests__/`.
 
-**`db/migrations/`** (New migration file) — Create a new migration file named `{Date.now()}_{domain-plural}.ts` that executes `[singular]Table.createTableSQL`. Add it to the `migrations` array in `db/migrations/index.ts`. Do not modify `db/database.ts`.
+**`db/_migrations/`** (New migration file) — Create a new migration file named
+`{Date.now()}_{domain-plural}.ts`. It performs three writes, in order: (1)
+`[singular]Table.createTableSQL`, (2) three `CREATE TRIGGER IF NOT EXISTS` statements
+registering the table with the sync infrastructure — written as literal SQL, substituting
+`[plural]` for `tableName` in the trigger template `buildTriggerSQL` produces in
+`db/_migrations/1784365870026_add_sync_infrastructure.ts`; do not import or re-export that
+helper, since a migration is a frozen historical artifact and a shared helper would let a
+later edit retroactively change an already-applied migration's behavior, and (3) the new
+domain's `table_config` row insert, following the `INSERT OR IGNORE INTO table_config`
+statement in `db/_migrations/1780099200000_seed_table_config.ts`. Add the migration to the
+`migrations` array in `db/_migrations/index.ts`, as the last element — `migrationHead` is
+read as `migrations[migrations.length - 1].id` and must remain the highest id. Do not
+modify `db/database.ts`.
+
+**Sync Registration** — `db/_sync/registry.ts` needs a
+`{ name: '[plural]', columns: Object.keys([singular]Table.zodSchema.shape) }` entry added
+to `SYNCED_TABLES`, placed inside the adventure-scoped block (after `adventures` and before
+`table_config`, per the file's own parents-before-children ordering comment). This is
+separate from the migration's frozen trigger copy above — the registry is the live,
+current-state list `getChangesSince` and the upsert/delete apply paths read, and it must be
+kept current on every new domain. `db/_sync/__tests__/registry.test.ts` asserts an exact
+synced-table count (`toHaveLength` and a `Set` size assertion) and an
+`ADVENTURE_SCOPED_TABLES` list — both go stale and must be updated on every new
+adventure-scoped table.
 
 ### Domain Layer (`domain/[plural]/`)
 
@@ -467,15 +495,16 @@ crumb regardless of kind.
 
 ### Seed Config
 
-**`db/table-config/seed.ts`** (Modified) — import `[Singular]` type, add config constant,
-add to `defaultConfigs` array. NPC reference: `npcsConfig` block in `seed.ts`.
+There is no `db/table-config/seed.ts` file — the initial `table_config` row for a new
+domain is inserted by the same migration that creates the table, following the pattern in
+`db/_migrations/1780099200000_seed_table_config.ts`'s `INSERT OR IGNORE INTO table_config`
+statement. See the "Sync Registration" bullet under DB Layer Patterns above for the full
+migration shape. The `TypedCreateTableConfigInput` type has no role in this flow.
 
 ```ts
-import type { [Singular] } from '@db/[singular]';
-
-const [plural]Config: TypedCreateTableConfigInput<[Singular]> = {
+const [plural]Config = {
   table_name: '[plural]',
-  color: '[hex]',          // Provided at spec-generation time
+  color: '[rgb string]',   // Provided at spec-generation time, e.g. '248, 255, 255'
   tagging_enabled: 1,      // Override per domain if needed
   scope: 'adventure',      // Override per domain if needed
   layout: {
@@ -490,8 +519,6 @@ const [plural]Config: TypedCreateTableConfigInput<[Singular]> = {
   },
 };
 ```
-
-Add `[plural]Config` to the `defaultConfigs` array.
 
 ### Entity Type Registration (MentionPopup, Breadcrumbs, Duplication)
 
@@ -666,7 +693,7 @@ Resolve these at spec-generation time. Provide them in the `/write-specs` prompt
 | Point | Default | Where used |
 |---|---|---|
 | Summary template lines | None — must specify | `db/[singular]/create.ts` |
-| Table config color | None — must specify | `db/table-config/seed.ts` |
-| `tagging_enabled` | `1` | `db/table-config/seed.ts` |
-| `scope` | `'adventure'` | `db/table-config/seed.ts` |
+| Table config color | None — must specify | `db/_migrations/{timestamp}_add_[plural].ts` |
+| `tagging_enabled` | `1` | `db/_migrations/{timestamp}_add_[plural].ts` |
+| `scope` | `'adventure'` | `db/_migrations/{timestamp}_add_[plural].ts` |
 | Custom schema columns | None | `db/[singular]/schema.ts` + downstream types |

@@ -7,6 +7,7 @@ import { foeTable } from '../foe/schema';
 import { factionTable } from '../faction/schema';
 import { locationTable } from '../location/schema';
 import { itemTable } from '../item/schema';
+import { encounterTable } from '../encounter/schema';
 import { sessionStepTable } from '../session-step/schema';
 import { tableConfigTable } from '../table-config/schema';
 
@@ -26,6 +27,10 @@ export const SYNCED_TABLES: SyncedTable[] = [
   { name: 'factions', columns: Object.keys(factionTable.zodSchema.shape) },
   { name: 'locations', columns: Object.keys(locationTable.zodSchema.shape) },
   { name: 'items', columns: Object.keys(itemTable.zodSchema.shape) },
+  {
+    name: 'encounters',
+    columns: Object.keys(encounterTable.zodSchema.shape),
+  },
   {
     name: 'session_steps',
     columns: Object.keys(sessionStepTable.zodSchema.shape),

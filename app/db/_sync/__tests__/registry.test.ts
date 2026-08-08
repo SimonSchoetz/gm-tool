@@ -9,6 +9,7 @@ const ADVENTURE_SCOPED_TABLES = [
   'factions',
   'locations',
   'items',
+  'encounters',
 ];
 
 describe('registry', () => {
@@ -33,9 +34,9 @@ describe('registry', () => {
     );
   });
 
-  it('should include all 11 synced tables with unique names', () => {
-    expect(SYNCED_TABLE_NAMES).toHaveLength(11);
-    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(11);
+  it('should include all 12 synced tables with unique names', () => {
+    expect(SYNCED_TABLE_NAMES).toHaveLength(12);
+    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(12);
   });
 
   it('should include id and updated_at in every table entry', () => {
