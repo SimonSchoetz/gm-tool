@@ -5,6 +5,7 @@ import * as service from '@services/itemsService';
 import type { UpdateItemData } from '@services/itemsService';
 import { itemKeys } from './itemKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseItemReturn = {
   item: Item | null;
@@ -56,15 +57,10 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateItem(itemId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: itemKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateItem = useDuplicateMutation(
+    () => service.duplicateItem(itemId),
+    itemKeys.list(adventureId),
+  );
 
   const removeItemImageMutation = useMutation({
     mutationFn: () => service.removeItemImage(itemId),
@@ -106,9 +102,6 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
   const deleteItem = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateItem = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   const removeItemImage = async (): Promise<void> => {
     await removeItemImageMutation.mutateAsync();

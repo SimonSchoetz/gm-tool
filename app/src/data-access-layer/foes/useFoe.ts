@@ -5,6 +5,7 @@ import * as service from '@services/foesService';
 import type { UpdateFoeData } from '@services/foesService';
 import { foeKeys } from './foeKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseFoeReturn = {
   foe: Foe | null;
@@ -56,15 +57,10 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateFoe(foeId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: foeKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateFoe = useDuplicateMutation(
+    () => service.duplicateFoe(foeId),
+    foeKeys.list(adventureId),
+  );
 
   const removeFoeImageMutation = useMutation({
     mutationFn: () => service.removeFoeImage(foeId),
@@ -105,9 +101,6 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
   const deleteFoe = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateFoe = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   const removeFoeImage = async (): Promise<void> => {
     await removeFoeImageMutation.mutateAsync();

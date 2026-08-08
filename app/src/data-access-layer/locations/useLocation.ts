@@ -5,6 +5,7 @@ import * as service from '@services/locationsService';
 import type { UpdateLocationData } from '@services/locationsService';
 import { locationKeys } from './locationKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseLocationReturn = {
   location: Location | null;
@@ -62,15 +63,10 @@ export const useLocation = (
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateLocation(locationId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: locationKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateLocation = useDuplicateMutation(
+    () => service.duplicateLocation(locationId),
+    locationKeys.list(adventureId),
+  );
 
   const removeLocationImageMutation = useMutation({
     mutationFn: () => service.removeLocationImage(locationId),
@@ -117,9 +113,6 @@ export const useLocation = (
   const deleteLocation = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateLocation = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   const removeLocationImage = async (): Promise<void> => {
     await removeLocationImageMutation.mutateAsync();

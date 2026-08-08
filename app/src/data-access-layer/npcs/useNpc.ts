@@ -5,6 +5,7 @@ import * as service from '@services/npcsService';
 import type { UpdateNpcData } from '@services/npcsService';
 import { npcKeys } from './npcKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseNpcReturn = {
   npc: Npc | null;
@@ -56,15 +57,10 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateNpc(npcId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: npcKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateNpc = useDuplicateMutation(
+    () => service.duplicateNpc(npcId),
+    npcKeys.list(adventureId),
+  );
 
   const removeNpcImageMutation = useMutation({
     mutationFn: () => service.removeNpcImage(npcId),
@@ -106,9 +102,6 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   const deleteNpc = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateNpc = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   const removeNpcImage = async (): Promise<void> => {
     await removeNpcImageMutation.mutateAsync();

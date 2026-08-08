@@ -5,6 +5,7 @@ import * as service from '@services/pcsService';
 import type { UpdatePcData } from '@services/pcsService';
 import { pcKeys } from './pcKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UsePcReturn = {
   pc: Pc | null;
@@ -56,15 +57,10 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicatePc(pcId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: pcKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicatePc = useDuplicateMutation(
+    () => service.duplicatePc(pcId),
+    pcKeys.list(adventureId),
+  );
 
   const removePcImageMutation = useMutation({
     mutationFn: () => service.removePcImage(pcId),
@@ -106,9 +102,6 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
   const deletePc = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicatePc = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   const removePcImage = async (): Promise<void> => {
     await removePcImageMutation.mutateAsync();

@@ -4,6 +4,7 @@ import type { Encounter, UpdateEncounterInput } from '@db/encounter';
 import * as service from '@services/encountersService';
 import { encounterKeys } from './encounterKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseEncounterReturn = {
   encounter: Encounter | null;
@@ -60,15 +61,10 @@ export const useEncounter = (
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateEncounter(encounterId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: encounterKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateEncounter = useDuplicateMutation(
+    () => service.duplicateEncounter(encounterId),
+    encounterKeys.list(adventureId),
+  );
 
   const updateEncounter = (data: UpdateEncounterInput) => {
     if (!encounterData) return;
@@ -101,9 +97,6 @@ export const useEncounter = (
   const deleteEncounter = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateEncounter = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   return {
     encounter: encounterData ?? null,

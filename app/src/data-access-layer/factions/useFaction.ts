@@ -5,6 +5,7 @@ import * as service from '@services/factionsService';
 import type { UpdateFactionData } from '@services/factionsService';
 import { factionKeys } from './factionKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseFactionReturn = {
   faction: Faction | null;
@@ -62,15 +63,10 @@ export const useFaction = (
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateFaction(factionId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: factionKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateFaction = useDuplicateMutation(
+    () => service.duplicateFaction(factionId),
+    factionKeys.list(adventureId),
+  );
 
   const removeFactionImageMutation = useMutation({
     mutationFn: () => service.removeFactionImage(factionId),
@@ -114,9 +110,6 @@ export const useFaction = (
   const deleteFaction = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateFaction = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   const removeFactionImage = async (): Promise<void> => {
     await removeFactionImageMutation.mutateAsync();

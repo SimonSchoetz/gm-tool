@@ -4,6 +4,7 @@ import type { Session, UpdateSessionInput } from '@db/session';
 import * as service from '@services/sessionService';
 import { sessionKeys } from './sessionKeys';
 import { mergeUpdate } from '../mergeUpdate';
+import { useDuplicateMutation } from '../useDuplicateMutation';
 
 type UseSessionReturn = {
   session: Session | null;
@@ -58,15 +59,10 @@ export const useSession = (
     },
   });
 
-  // Only the list key is invalidated: the duplicate's detail key holds no cached entry yet — the destination screen's useQuery fetches it on mount.
-  const duplicateMutation = useMutation({
-    mutationFn: () => service.duplicateSession(sessionId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: sessionKeys.list(adventureId),
-      });
-    },
-  });
+  const duplicateSession = useDuplicateMutation(
+    () => service.duplicateSession(sessionId),
+    sessionKeys.list(adventureId),
+  );
 
   const updateSession = (data: UpdateSessionInput) => {
     if (!sessionData) return;
@@ -101,9 +97,6 @@ export const useSession = (
   const deleteSession = async (): Promise<void> => {
     await deleteMutation.mutateAsync();
   };
-
-  const duplicateSession = async (): Promise<string> =>
-    duplicateMutation.mutateAsync();
 
   return {
     session: sessionData ?? null,
