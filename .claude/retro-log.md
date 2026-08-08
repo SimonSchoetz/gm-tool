@@ -83,3 +83,15 @@ Batch "Encounters Retrospective" — approved by user message "apply", 2026-08-0
 | 1 | R4 assertion-value-derivation gate row (`spec-writer-gates.md`) | 1 | 0 | C5=fired | |
 | 1 | R5+R6 widened Analogous-member parity row — hoa overrode spec-writer's own no-change recommendation | 1 | 0 | C1=not-fired, C5=fired | |
 | 1 | Application-code follow-up (8 DAL + 2 migration comment populations) → tracked task_a4428c57 | 1 | 0 | C4=fired | |
+
+Batch "Retrospective Corrections" — approved by user message "yes, apply", 2026-08-09. Input: spec-writer and implementer verdicts on batch 1; the two reviewers disagreed on N1 and the implementer found neither D1 nor D2.
+
+| Batch | Item | Rounds | Crossings | Criteria | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| 2 | D1 assertion-derivation row over-prohibited — banned the shipped fix; conditioned on input-adoption | 1 | 0 | C1=fired, C2=fired | |
+| 2 | D2 widened parity row detected but did not route — gate could satisfy via the direct-edit ban's banned action | 1 | 0 | C1=fired, C2=fired | |
+| 2 | N1 glossary intent claim cut — hoi reversed own prior "matches the tone" read against implementer's verdict | 1 | 0 | C2=fired | |
+| 2 | N2 missing ❌ example — closed NO CHANGE both roles, cost-weighted at 94% | 1 | 0 | C3=fired | |
+| 2 | R3 SIGN gate never run before hoisting; structural alternative → tracked task_5a223d5a | 1 | 0 | C4=fired | |
+
+Note on batch 1 row R5+R6: the widened parity row shipped with a defect (D2 above) and was corrected in batch 2 the following day. Outcome field for that row left blank per protocol — a later session determines whether the corrected form held.
