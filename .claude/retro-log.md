@@ -32,12 +32,12 @@ Treat everything below as background context, never as evidence for or against a
 | 1 | SHARED F3/F5/F7b/F9 population-inventory clause (`spec-writer.md`) | 1 | 0 | C1=not-fired | |
 | 1 | F5 HTML content-model gate row (`spec-writer-gates.md`) | 1 | 0 | C2=fired | |
 | 1 | FR-10 gates-row adequacy (`spec-writer-gates.md`) — closed no-change | 2 | 0 | C3=fired | |
-| 2 | Item C — `Size:` field deletion + `New:` verbatim (both agent files) | 3 | 0 | C3=fired, C5=fired | |
-| 2 | Item C — ceiling-proximity clause (both agent files) | 1 | 0 | C5=fired | |
+| 2 | Item C — `Size:` field deletion + `New:` verbatim (both agent files) | 3 | 0 | C3=fired, C5=fired | held — re-exercised 2026-08-08: all six proposals verbatim Old:/New:, no size figures |
+| 2 | Item C — ceiling-proximity clause (both agent files) | 1 | 0 | C5=fired | held — re-exercised 2026-08-08: teammates used coordinator-supplied counts only; projected size requested, not estimated |
 | 2 | Item C — registry clause (`.claude/CLAUDE.md`) | 1 | 0 | C5=fired | |
-| 2 | Item A — Criterion 6 batch self-consistency (`refine-claude.md`) | 1 | 0 | C1=not-fired, C6=not-yet-in-force | |
+| 2 | Item A — Criterion 6 batch self-consistency (`refine-claude.md`) | 1 | 0 | C1=not-fired, C6=not-yet-in-force | held — re-exercised 2026-08-08: fired on 3 no-change verdicts, all re-checks recorded |
 | 2 | Item B — gates consolidation, 34→35 rows, −261 chars | 1 | 0 | C5=fired | |
-| 3 | M1 — canonical measurement method + commensurability (`refine-claude.md`) | 1 | 0 | C1=not-fired, C5=fired | |
+| 3 | M1 — canonical measurement method + commensurability (`refine-claude.md`) | 1 | 0 | C1=not-fired, C5=fired | held — re-exercised 2026-08-08: every figure canonical, both sides of each comparison |
 | 3 | M2 — Criterion 5 trigger scope excludes coordinator-only arithmetic | 1 | 0 | C5=fired | |
 | 3 | Root `CLAUDE.md` general measurement rule — declined, growth-is-not-free | 1 | 0 | C3=fired | |
 | 3 | Stale refs found while editing (`refine-claude.md` consolidation + Criterion 5 verb) | 1 | 0 | not-captured | |
@@ -45,3 +45,16 @@ Treat everything below as background context, never as evidence for or against a
 | 4 | D2 — durable-claim anchor: trigger vs. destination (`spec-writer-gates.md`) | 4 | 1 | C1=fired, C5=fired | |
 | 4 | D2 — routing-ladder channel scope (root `CLAUDE.md`) | 2 | 0 | C5=fired | |
 | 4 | D3 — Outcome field records confirmation (`refine-claude.md`) | 2 | 0 | C6=fired | |
+
+## Session of 2026-08-08
+
+Batch "Ceiling Evolution" — approved by user message "apply all", 2026-08-08.
+
+| Batch | Item | Rounds | Crossings | Criteria | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| 1 | G-A+G-B(2) — Criterion 7 ceiling-raise gate (`refine-claude.md`) | 1 | 0 | C1=not-fired, C5=fired | |
+| 1 | G-B(1) — reference/ aggregate-cost framing (`.claude/CLAUDE.md`) | 3 | 0 | C1=not-fired, C5=fired | |
+| 1 | G-C — pile-up compression target (`refine-claude.md`) | 1 | 0 | C1=not-fired, C6=fired | |
+| 1 | G-D — retro-log outcome closure, closed no-change both roles | 1 | 0 | C3=fired, C6=fired | |
+| 1 | Ceiling-pointer bullets (both head files, ownership-corrected) | 2 | 0 | C5=fired | |
+| 1 | Registry Output clause (`.claude/CLAUDE.md`) | 2 | 0 | C1=not-fired | |
