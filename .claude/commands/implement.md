@@ -38,7 +38,7 @@ For each sub-feature defined in the spec, in order:
 3. Run `npx eslint .` from `app/`. Resolve every error before continuing.
 4. Run `prettier --check .` from `app/`. Resolve every formatting error before continuing — independently of tsc and eslint, per step 3 above.
 5. Do not run vitest, or the Rust suite even when `src-tauri/` is touched, between sub-features — intermediate states produce failures that are not yet meaningful; both run only at the baseline and pre-review checkpoints.
-6. Stage and commit with a conventional commit message. To stage: cross-reference the spec's "Files affected" list for this sub-feature and build an explicit `git add <file1> <file2> ...` argument from it — never stage by directory path, glob, or shorthand. Verify the staged file list matches the "Files affected" list, then run `git status --short` and confirm no staged file shows a second-column (worktree) status letter — any letter there means the file changed after staging (e.g. an edit landing after a `git mv`) and must be re-added before committing. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
+6. Stage and commit with a conventional commit message. To stage: cross-reference the spec's "Files affected" list for this sub-feature and build an explicit `git add <file1> <file2> ...` argument from it, per root CLAUDE.md's Git command discipline. Verify the staged file list matches the "Files affected" list, then run `git status --short` and confirm no staged file shows a second-column (worktree) status letter — any letter there means the file changed after staging (e.g. an edit landing after a `git mv`) and must be re-added before committing. The scope always mirrors the branch name after the type prefix. The commit type accurately reflects what the commit does — use the branch type for spec implementation work, or whichever standard type correctly describes the content.
 7. Move to the next sub-feature.
 
 Do not invoke code-reviewer between sub-features. Sub-features build on each other — reviewing an incomplete implementation produces false positives.
@@ -57,9 +57,9 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 1. Spawn `code-reviewer` via the Agent tool.
    - **Cycle 1:** Do not pass the branch name directly. Instead, construct the feature file list: run `git log --format="%H" main..HEAD` to list all commit SHAs on this branch, then run `git show --name-only --format="" <sha>` for each commit made during the sub-feature implementation phase (sub-feature commits only — exclude chore commits and any commits not authored by the implementer during this session). Deduplicate the resulting file paths. Pass this explicit file list + the accumulated review context to the reviewer. The reviewer reads only those files and any files they directly import or affect.
    - **Cycles 2+:** Pass an explicit file list of files touched in the prior fix commit (do NOT pass the branch name — a branch name triggers a full re-read of all changed files, which is the wrong scope for a targeted verification pass) + the accumulated review context + the list of specific violations fixed in the prior cycle. The reviewer limits reads to those files and any files they directly import or affect.
-2. Pass the full code-reviewer output to the user as informational. Append the full output to the accumulated review context. Do not classify, filter, or interpret it.
+2. Pass the full code-reviewer output to the user as informational. Append the full output to the accumulated review context.
 3. If the code-reviewer found zero violations: the loop exits immediately. Do not spawn architect. Proceed to the post-loop step. A clean reviewer verdict is the loop's exit condition — no architect confirmation is required or permitted.
-4. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context + the instruction: "You are operating in review-loop mode." The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict. Do not interpret or supplement the architect's output.
+4. Spawn `architect` via the Agent tool. Pass: the full accumulated review context (all cycles) + all prior architect briefs from this session as explicit read-only context + the instruction: "You are operating in review-loop mode." The architect determines which findings are in-scope violations, which are concerns, which are instruction gaps, and which are out of scope. It either produces a fix brief or returns a no-violations verdict.
 5. If the architect returns a no-violations verdict: the loop exits. Proceed to the post-loop step.
 6. For violations the architect marks out of scope: log them to the deferred violations list. Do not implement anything for them.
 7. Spawn `spec-writer` via the Agent tool. Pass: the architect brief, plus any engineering concerns you identified while reading the architect's output — do not surface those concerns to the user directly. The spec-writer resolves implementation ambiguity; engineering concerns about the architect's proposed approach are inputs to the spec-writer, not reasons to pause the loop. If spec-writer asks a clarifying question, pass it to the user verbatim and wait.
@@ -79,69 +79,27 @@ Run `npm test` once more. Resolve any remaining errors. Implementation is comple
 
 Run `npm run build:frontend` from `app/` and surface any warnings and errors.
 
-Run the following three post-loop advisory scans. Each produces a non-blocking advisory, distinct from the friction brief, deferred violations brief, and spec quality brief — the user decides what to do with each finding, never you. Never route any of their output through architect or code-reviewer, and never commit anything based on any of them.
-
-- **Raw CSS values**: run `git diff --name-only main...HEAD` for the touched-file list, then scan each `.css` file for raw property values (colors, spacing, border radii, shadows, font sizes) with no `/* one-off */` annotation on the same line or the line immediately preceding. Label: "Raw CSS values to review — not violations; you decide: add a design token, add `/* one-off */`, or leave as-is."
-- **Long-living reference currency**: for each doc `app/docs/CLAUDE.md` designates as a long-living infrastructure reference that must not be deleted after implementation (currently: `app/docs/_product/domain-scaffold.md`), reuse the touched-file list above; strip the leading `app/` from each touched path (the reference doc's own text names paths relative to `app/`, not repo root) and grep the reference doc for each resulting path as a literal string. If any match exists and the reference doc itself is not in the touched-file list, flag it. Label: "Long-living reference doc paths touched — not a violation; verify the referenced section still reflects this branch's change."
-- **Manual-verification risk**: grep the spec file(s) for this branch for the literal marker `[MANUAL-VERIFY]` (added by spec-writer's Untested residual risk gate). Label: "Manual verification required — not violations; these interactions are exempt from automated tests by Testing Policy and were not otherwise exercised. Verify by hand before considering the branch ready."
+Before running the post-loop advisory scans, read `.claude/reference/implement-post-loop.md` in full for the three scans' exact triggers, grep patterns, and labels — run all three exactly as specified there. Each produces a non-blocking advisory, distinct from the friction brief, deferred violations brief, and spec quality brief — the user decides what to do with each finding, never you. Never route any of their output through architect or code-reviewer, and never commit anything based on any of them.
 
 Produce a deferred violations brief listing every violation the architect marked out of scope, grouped by cycle, plus every spec-file line for this branch starting with `[DEFERRED-VIOLATION:` (prefix match — this marker's payload varies, unlike the bare `[MANUAL-VERIFY]` token the scan below matches in full; do not "correct" this to a closed-bracket literal) — added by spec-writer's widened SF self-containment rule for a deliberately-deferred violation. Extract each match as written, label it by source (architect cycle N, or spec-writer deferral), and group it separately from architect-sourced entries. Output it to the user alongside or immediately after the friction brief (if one is produced). Each entry requires an explicit user disposition — fix now, accept as tracked debt, or route to `/refine-claude` — before the session ends; an entry with no disposition is not closed by having been listed.
 
-Extract the spec's "CLAUDE.md impact" section as written and output it to the user as a distinct handoff artifact — the same shape as the deferred violations brief and spec quality brief — labeled "CLAUDE.md impact — route to /refine-claude" and listing each affected file and required update exactly as the spec stated them. Produce this before any spec file deletion, and regardless of whether the spec file is later deleted. Do not apply any entry directly to a CLAUDE.md file yourself, and do not invoke `/refine-claude` yourself. If the section states "None," skip this step.
+Extract the spec's "CLAUDE.md impact" section as written and output it to the user as a distinct handoff artifact — the same shape as the deferred violations brief and spec quality brief — labeled "CLAUDE.md impact — route to /refine-claude" and listing each affected file and required update exactly as the spec stated them. Produce this before any spec file deletion, and regardless of whether the spec file is later deleted. Do not apply any entry directly to a CLAUDE.md file yourself. If the section states "None," skip this step.
 
 ### Handoff artifact discipline
 
 Applies to every handoff artifact this command produces: the friction brief, the deferred violations brief, the spec quality brief, and the CLAUDE.md impact extract.
 
-Each artifact must be self-contained per root CLAUDE.md's handoff-artifact self-containment principle (Epistemological Discipline) — state facts and reasoning directly, never in a form that requires the producing conversation to interpret.
+Each artifact must be self-contained per root CLAUDE.md's handoff-artifact self-containment principle (Epistemological Discipline) — state facts and reasoning directly, never in a form that requires the producing conversation to interpret. None of these four artifacts is ever submitted to `/refine-claude` by this command — output each to the user and stop; invoking `/refine-claude` is the user's decision, never this command's.
 
 When manual fix mode amends the friction brief, re-output the full current set of handoff artifacts together as one bundle, not the friction-brief increment alone — the user must never have to reconstruct the current state of any artifact from a partial update.
 
 ### Friction brief
 
-This step runs only when friction occurred during the session or when non-blocking instruction gaps were surfaced during the review loop.
-
-Produce a friction summary covering:
-
-**Implementation friction** (if any):
-
-- Every friction event: what happened, which phase it occurred in, how it was resolved
-- The source of each friction event: was it a gap in an agent/command definition, a reasoning error, or a missing CLAUDE.md rule?
-- Any decision made under ambiguity — what the question was, what was chosen, why
-
-**Process gaps identified during manual fix mode** (if any):
-
-- Every process gap identified while diagnosing or fixing a bug during manual fix mode
-- For each: the phase it occurred in, whether the gap is scoped to the manual-fix-mode loop specifically or reflects a general reasoning/process principle, and the candidate owner file or domain for the fix
-- At least one contrast entry — a correct diagnosis or a clean fix reached under comparable conditions — when one occurred during the session; do not leave inclusion to author discretion
-
-**Instruction gaps** (if any):
-
-- Every instruction gap the code-reviewer surfaced that was not blocking the current task (blocking gaps were handled by architect in the review loop)
-- For each: what rule is missing or ambiguous, and in which file or context it was observed
-
-**Concerns** (if any):
-
-- Every concern the architect raised during the review loop that was not fixed on this branch
-- For each: what the concern is, which file or construct it applies to, and why it was not fixed (non-blocking by definition — concerns never block loop exit)
-
-Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session — do not invoke `/refine-claude` yourself.
+This step runs only when friction occurred during the session or when non-blocking instruction gaps were surfaced during the review loop. Before producing it, read `.claude/reference/implement-post-loop.md` in full for the required content shape (Implementation friction, Process gaps identified during manual fix mode, Instruction gaps, Concerns) and follow it exactly. Output the summary to the user per Handoff artifact discipline.
 
 ### Spec quality brief
 
-This step always runs at the end of the session, regardless of whether friction occurred.
-
-Produce a spec quality summary covering:
-
-**Over-specified** (if any): sections where the spec reproduced derivable content in full — file bodies that were pure name substitution, test structure descriptions the implementer re-derived from source files anyway. Name the specific sections.
-
-**Under-specified or wrong** (if any): gaps that caused friction — missing implementation-time details, incorrect claims about generated files, missing tsc-blocker annotations for cross-SF dependencies. Name the specific gaps and what the spec should have said.
-
-**Decisions vs. substitutions** — for each file group in the spec, classify: was the spec content a decision (non-obvious choice the implementer could not derive), a substitution (name-only change from a reference), or mixed? This is the raw material for spec-writer improvement.
-
-**Format observations** (if any): structural suggestions — sections that could have been shorter, sections that were missing, ordering that caused friction.
-
-Output the summary to the user. This is the handoff artifact for a `/refine-claude` session focused on spec-writer improvement.
+This step always runs at the end of the session, regardless of whether friction occurred. Before producing it, read `.claude/reference/implement-post-loop.md` in full for the required content shape (Over-specified, Under-specified or wrong, Decisions vs. substitutions, Format observations) and follow it exactly. Output the summary to the user per Handoff artifact discipline.
 
 ### Manual fix mode
 
@@ -168,13 +126,7 @@ Complete each step fully before advancing. A step is complete when the code chan
 
 Removing dead code, commented-out blocks, and artifacts from replaced approaches is part of completing a step — not a follow-up, not a nice-to-have. When an approach is replaced, all traces of the old approach are removed in the same step. When code becomes unreachable, it is deleted. When a comment describes something that no longer exists, it is removed.
 
-A step that leaves behind artifacts from what it replaced is not complete.
-
-Type derivation is a cleanup obligation, not a post-implementation task — apply root CLAUDE.md's Re-derive-types-after-every-refactor trace in the same step that caused the change (a data-source change, a dependency removal, an approach replacement), never deferred.
-
-## File Compliance
-
-Root CLAUDE.md's Fix-violations-in-files-you-touch check completes at this step's boundary, not the SF's.
+Any root CLAUDE.md obligation that would otherwise resolve at a sub-feature or task boundary instead resolves at this step's boundary — never deferred to the SF's own close. This includes root CLAUDE.md's Re-derive-types-after-every-refactor trace (applied in the same step that caused the change: a data-source change, a dependency removal, an approach replacement) and root CLAUDE.md's Fix-violations-in-files-you-touch check (applied to every file this step touches, not only the lines the step's own task required).
 
 ## Ambiguity
 

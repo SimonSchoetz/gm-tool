@@ -220,13 +220,10 @@ Extraction out of the component file is triggered by either of two independent c
   - ✅ `border-radius: 3px; /* one-off */`
 - **Raw values without `/* one-off */` are surfaced to the user after the task completes, not mid-task, and never block the commit.** Collect them during implementation and report file path, line, and value at the end of the task; the user then decides: add a token, add the annotation, or leave it. The deferred state is not a violation.
 
-**DB-sourced runtime values:** When a CSS property value comes from the database at runtime and cannot be known at build time, apply it as a CSS custom property via an inline `style` prop — never as a direct inline style property. The CSS file then consumes the custom property via `var()`. All runtime custom properties must be prefixed with `--rt-[component-name]-` to distinguish them from global tokens at a glance. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, include both in a single object cast — do not split them across two props or two casts.
+**Component-scoped custom properties:** When a CSS value cannot use a global token from `styles/variables/`, declare it as a CSS custom property on the component's root element — the prefix identifies its source. DB-sourced values (known only at runtime, cannot be known at build time) are applied via an inline `style` prop, never as a direct inline style property, and prefixed `--rt-[component-name]-` to distinguish them from global tokens at a glance; the CSS file then consumes the custom property via `var()`, and when a component needs both a runtime custom property and a standard CSS property in the same `style` prop, both go in a single object cast — never split across two props or two casts. Static component-scoped values (e.g., a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component) are prefixed `--[component-name]-` (kebab-cased, no `rt` segment) to distinguish from both global tokens and runtime values.
 
 - ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` (combined cast) or `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` (property alone) + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
-
-**Static CSS custom properties:** When a component-scoped CSS value is not DB-sourced but also cannot use a global token (e.g., a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component), declare it as a static custom property on the component's root element. Prefix with `--[component-name]-` (kebab-cased component name, no `rt` segment) to distinguish from both global tokens and runtime values.
-
 - ✅ `--card-flip-duration: 0.4s` (set in CSS) or `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value) — both consumed via `var(...)` within the same component; illustrative, not tied to any specific file
 - ❌ `--rt-toolbar-position: 8px` — the `--rt-` prefix signals DB-sourced; do not use it for static or JS-computed values that are not DB-derived
 
@@ -265,8 +262,8 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 
 - `app/services/` — business logic, wraps DB calls and Tauri API calls needing business logic, composing multiple operations, or domain-typed error handling; throws domain errors from `@domain`. Import via `@services/<file>`.
   - **Service-layer conventions (no fallback defaults for nullable columns, no replicating a DB `DEFAULT` at a call site) are documented in `app/services/CLAUDE.md`** — not duplicated here.
-- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API, no try/catch. Pure-read Tauri API calls with no business logic or domain error transformation go directly here — never through `services/`. One concern = one file: query keys, single-entity hooks, and collection hooks each own a separate file (`sessionKeys.ts`, `useSession.ts`, `useSessions.ts`) — the shared cache deduplicates across hooks, so no `DomainProvider` wrapping mutations is needed.
-- `screens/` — UI only, no error handling, no try/catch
+- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API. Pure-read Tauri API calls with no business logic or domain error transformation go directly here — never through `services/`. One concern = one file: query keys, single-entity hooks, and collection hooks each own a separate file (`sessionKeys.ts`, `useSession.ts`, `useSessions.ts`) — the shared cache deduplicates across hooks, so no `DomainProvider` wrapping mutations is needed.
+- `screens/` — UI only, no error handling
 - Error Boundary at app level catches all unhandled async errors
 
 **Non-negotiable rules:**

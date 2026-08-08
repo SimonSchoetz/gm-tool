@@ -58,3 +58,6 @@ Batch "Ceiling Evolution" — approved by user message "apply all", 2026-08-08.
 | 1 | G-D — retro-log outcome closure, closed no-change both roles | 1 | 0 | C3=fired, C6=fired | |
 | 1 | Ceiling-pointer bullets (both head files, ownership-corrected) | 2 | 0 | C5=fired | |
 | 1 | Registry Output clause (`.claude/CLAUDE.md`) | 2 | 0 | C1=not-fired | |
+| 2 | Consolidation `app/src/CLAUDE.md` — try/catch pile-up + CSS merge, −117 (net-growth draft rejected, revised) | 2 | 0 | C5=fired | |
+| 2 | Consolidation `app/src/CLAUDE.md` — zero-remaining-candidates disposition verdict | 1 | 0 | C5=fired | |
+| 2 | Consolidation `implement.md` — 8 edits + `implement-post-loop.md` extraction, −3363 | 1 | 0 | C5=fired, C6=fired | |
