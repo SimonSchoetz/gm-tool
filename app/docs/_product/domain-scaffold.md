@@ -397,8 +397,20 @@ Two new files in `src/routes/`. NPC reference: `routes/adventure.$adventureId.np
 ```ts
 import { createFileRoute } from '@tanstack/react-router';
 import { [Plural]Screen } from '@/screens';
+import {
+  [plural]ListQueryOptions,
+  tableConfigListQueryOptions,
+} from '@/data-access-layer';
 export const Route = createFileRoute('/adventure/$adventureId/[plural]')({
   component: [Plural]Screen,
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        [plural]ListQueryOptions(params.adventureId),
+      ),
+      context.queryClient.ensureQueryData(tableConfigListQueryOptions()),
+    ]);
+  },
 });
 ```
 
@@ -407,8 +419,18 @@ export const Route = createFileRoute('/adventure/$adventureId/[plural]')({
 ```ts
 import { createFileRoute } from '@tanstack/react-router';
 import { [Singular]Screen } from '@/screens';
+import {
+  [singular]QueryOptions,
+  ensureImagePainted,
+} from '@/data-access-layer';
 export const Route = createFileRoute('/adventure/$adventureId/[singular]/$[singular]Id')({
   component: [Singular]Screen,
+  loader: async ({ context, params }) => {
+    const [singular] = await context.queryClient.ensureQueryData(
+      [singular]QueryOptions(params.[singular]Id),
+    );
+    await ensureImagePainted(context.queryClient, [singular].image_id ?? null);
+  },
 });
 ```
 
