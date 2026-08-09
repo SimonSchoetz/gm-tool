@@ -5,6 +5,7 @@ export { adventureListQueryOptions, adventureQueryOptions } from './adventures';
 export { useImage, useUpdateImageFrame } from './images';
 export type { ImageFrame } from './images';
 export { imageQueryOptions } from './images';
+export { ensureImagePainted } from './images';
 export { useNpcs, useNpc } from './npcs';
 export { npcListQueryOptions, npcQueryOptions } from './npcs';
 export { useFoes, useFoe } from './foes';

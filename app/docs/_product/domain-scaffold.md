@@ -417,6 +417,18 @@ After creating these files, run `npm run build:frontend` once from `app/`. The
 from the route files during the build, which is what makes the two new route ids available
 to `tsc --noEmit`. The file stays gitignored and uncommitted.
 
+**Route loaders**: both route files require a `loader` that awaits the entity's
+`queryOptions` factory via `context.queryClient.ensureQueryData(...)`, so navigation
+resolves data before the screen mounts and no loading spinner flashes on arrival. The list
+route's loader awaits `[plural]ListQueryOptions(adventureId)` (and
+`tableConfigListQueryOptions()`, since `[Plural]Screen` also calls `useTableConfigs`), run
+concurrently via `Promise.all`. The detail route's loader awaits
+`[singular]QueryOptions([singular]Id)` and, when the entity carries an `image_id` column,
+then awaits `ensureImagePainted(context.queryClient, [singular].image_id ?? null)` so the
+hero image is painted before the route renders — sequential, since the image id is only
+known once the entity resolves. An entity added without both loaders silently reintroduces
+the loading flicker on its own list and detail screens only; other screens are unaffected.
+
 **`screens/index.ts`** (Modified) — add two exports:
 
 ```ts
