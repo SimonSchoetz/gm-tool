@@ -95,3 +95,16 @@ Batch "Retrospective Corrections" — approved by user message "yes, apply", 202
 | 2 | R3 SIGN gate never run before hoisting; structural alternative → tracked task_5a223d5a | 1 | 0 | C4=fired | |
 
 Note on batch 1 row R5+R6: the widened parity row shipped with a defect (D2 above) and was corrected in batch 2 the following day. Outcome field for that row left blank per protocol — a later session determines whether the corrected form held.
+
+## Session of 2026-08-09 — queryOptions / route-loader carve-out
+
+Batch "queryOptions Carve-Out" — approved by user message "yes, apply", 2026-08-09. Review task mode; blocking prerequisite for a queued implementation. Applied to branch `docs/queryoptions-carveout`, uncommitted at time of writing per user instruction. Proposals and applied record: `.claude/cycles/2026-08-09-queryoptions-carveout/`.
+
+| Batch | Item | Rounds | Crossings | Criteria | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Q1 Barrel Files carve-out (`app/src/CLAUDE.md`) — under-specified-not-wrong; 95.7%, position (a) stated | 2 | 0 | C5=fired | |
+| 1 | C1 Convention Discovery zero-result pointer (`app/CLAUDE.md`) — two candidate covering rules checked and rejected on firing conditions | 2 | 0 | C3=fired | |
+| 1 | G1 first-instance completeness gate row (`spec-writer-gates.md`) — hoa withdrew "complementary" framing on challenge, row restated as standalone | 2 | 0 | C2=fired | |
+| 1 | G2 `spec-writer.md` body — closed no-change, cites G1 (a target accepted in this same batch); coordinator ran no separate re-check, author self-checked against own G1 draft | 1 | 0 | C3=fired, C6=not-fired | |
+| 1 | G3 `implement.md` — closed no-change; Async ownership row confirmed never to reach a router loader | 1 | 0 | C3=fired | |
+| 1 | Application-code follow-up (`*QueryOptions` import boundary lint guard) → tracked task_6e608fcc | 1 | 0 | C4=fired | |
