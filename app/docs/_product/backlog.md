@@ -1,8 +1,15 @@
 # Product Backlog
 
 ## Closed Beta Ready
-
-- Feature: New domain: Encounter
+- Encounter:
+  - Feature (Stat Block): Summary field of PC, NPC, Foes and Items get tabs to switch between RP and Stat Block view.
+  - sidebar element similar to session nav that represents the combatents in turn order that can be changed via drag-and-drop
+  - header: images / placeholder of combatents mirroring order of sidebar
+  - body:
+    - text editor for combat notes
+    - click on combatent shows their summary field
+      - input field for HP, possibly prefilled via data from stat block and overwritable
+      - input field for accumulated dmg
 - Text editor:
   - Auto-Correct off (?)
   - drag-and-drop content within editor something the editor must do?
@@ -24,6 +31,7 @@
 
 ### Done
 
+- Feature: New domain -> Encounter
 - Feature: replace Adventure dummy stats with actual ones
 - Feature: List items ins screens should be pinnable
 - Text Editor: arrow conversion '->' to '→' 
