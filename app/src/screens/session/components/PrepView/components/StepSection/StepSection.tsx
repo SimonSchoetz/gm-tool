@@ -41,9 +41,9 @@ export const StepSection: FCProps<Props> = ({
         <TooltipPanel stepKey={step.default_step_key} />
       )}
 
-      <HorizontalDivider className='step-section-divider' />
-
+      <HorizontalDivider className='step-section--divider' />
       <TextEditor
+        className='step-section--editor'
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
         placeholder={

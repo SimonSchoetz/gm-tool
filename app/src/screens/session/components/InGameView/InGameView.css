@@ -5,16 +5,16 @@
   min-height: 0;
 }
 
-.in-game-summary {
-  padding: var(--spacing-sm);
+.in-game-view--summary {
+  padding: var(--spacing-md);
   border-radius: var(--radius-xl);
 }
 
-.in-game-summary-scroll-area {
-  height: 180px;
+.in-game-view--summary-scroll-area {
+  height: var(--summary-content-height);
 }
 
-.in-game-steps {
+.in-game-view--steps {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);

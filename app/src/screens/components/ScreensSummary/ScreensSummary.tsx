@@ -8,7 +8,10 @@ type Props = ComponentProps<typeof GlassPanel>;
 export const ScreensSummary: FCProps<Props> = ({ children }) => {
   return (
     <GlassPanel className='screens-summary' intensity='bright'>
-      <CustomScrollArea className='screens-summary--scroll-area'>
+      <CustomScrollArea
+        className='screens-summary--scroll-area'
+        childrenContainerClassName='screens-summary--content'
+      >
         {children}
       </CustomScrollArea>
     </GlassPanel>

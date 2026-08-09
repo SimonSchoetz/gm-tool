@@ -30,8 +30,8 @@ export const InGameView = () => {
 
   return (
     <div className='in-game-view'>
-      <GlassPanel className='in-game-summary'>
-        <CustomScrollArea className='in-game-summary-scroll-area'>
+      <GlassPanel className='in-game-view--summary'>
+        <CustomScrollArea className='in-game-view--summary-scroll-area'>
           <TextEditor
             textEditorId={`session-summary-${sessionId}`}
             value={session?.summary ?? ''}
@@ -43,7 +43,7 @@ export const InGameView = () => {
         </CustomScrollArea>
       </GlassPanel>
 
-      <CustomScrollArea childrenContainerClassName='in-game-steps'>
+      <CustomScrollArea childrenContainerClassName='in-game-view--steps'>
         {steps.map((step) => (
           <InGameStepSection key={step.id} step={step} />
         ))}

@@ -1,8 +1,11 @@
+.text-editor-container {
+  display: flex;
+  flex: 1;
+}
 .text-editor {
   position: relative;
-  height: fit-content;
-  min-height: 100%;
-  width: 100%;
+  min-height: 0;
+  flex: 1;
   max-width: var(--text-editor-max-width);
 }
 

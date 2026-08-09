@@ -12,9 +12,9 @@
   );
 }
 
-.encounter-body {
+.encounter-screen--body {
+  flex: 1;
   display: grid;
-  gap: var(--spacing-md);
   grid-template-columns: auto 1fr;
-  min-height: 0;
+  gap: var(--spacing-md);
 }

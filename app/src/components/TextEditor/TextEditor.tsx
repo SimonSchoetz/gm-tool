@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps, HtmlProps } from '@/types';
 import './TextEditor.css';
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -38,6 +38,7 @@ import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper';
 import { EXTERNAL_SYNC_TAG } from './TextEditor.constants';
 import { TYPOGRAPHIC_TRANSFORMERS } from './typographicTransformers';
+import { cn } from '@/util';
 
 type Props = {
   value: string;
@@ -45,6 +46,7 @@ type Props = {
   placeholder?: string;
   readOnly?: boolean;
   onChange?: (value: string) => void;
+  className?: HtmlProps<'div'>['className'];
 };
 
 const theme: EditorThemeClasses = {
@@ -84,6 +86,7 @@ export const TextEditor: FCProps<Props> = ({
   onChange,
   placeholder = 'Description...',
   readOnly = false,
+  className,
   ...props
 }) => {
   const initialConfig = {
@@ -123,47 +126,51 @@ export const TextEditor: FCProps<Props> = ({
   };
 
   return (
-    <LexicalComposer initialConfig={initialConfig} {...props}>
-      <div className='text-editor'>
-        <RichTextPlugin
-          contentEditable={<ContentEditable className='editor-content' />}
-          placeholder={
-            <div className='placeholder'>{!readOnly ? placeholder : null}</div>
-          }
-          ErrorBoundary={LexicalErrorBoundary}
-        />
+    <div className={cn('text-editor-container', className)}>
+      <LexicalComposer initialConfig={initialConfig} {...props}>
+        <div className='text-editor'>
+          <RichTextPlugin
+            contentEditable={<ContentEditable className='editor-content' />}
+            placeholder={
+              <div className='placeholder'>
+                {!readOnly ? placeholder : null}
+              </div>
+            }
+            ErrorBoundary={LexicalErrorBoundary}
+          />
 
-        <HistoryPlugin />
-        <ListPlugin />
-        <CheckListPlugin />
-        {/* hasCellMerge disabled — insert/delete/move operations assume a regular cell grid */}
-        <TablePlugin hasCellMerge={false} />
-        <TableCellBackgroundGuardPlugin />
-        <TabIndentationPlugin />
-        <LinkPlugin />
-        <EmbeddedLinkPlugin />
-        <MarkdownShortcutPlugin
-          transformers={[
-            UNORDERED_LIST,
-            ORDERED_LIST,
-            CHECK_LIST,
-            ...TYPOGRAPHIC_TRANSFORMERS,
-          ]}
-        />
+          <HistoryPlugin />
+          <ListPlugin />
+          <CheckListPlugin />
+          {/* hasCellMerge disabled — insert/delete/move operations assume a regular cell grid */}
+          <TablePlugin hasCellMerge={false} />
+          <TableCellBackgroundGuardPlugin />
+          <TabIndentationPlugin />
+          <LinkPlugin />
+          <EmbeddedLinkPlugin />
+          <MarkdownShortcutPlugin
+            transformers={[
+              UNORDERED_LIST,
+              ORDERED_LIST,
+              CHECK_LIST,
+              ...TYPOGRAPHIC_TRANSFORMERS,
+            ]}
+          />
 
-        {onChange && <OnChangePlugin onChange={handleChange} />}
-        <ExternalValueSyncPlugin value={value} />
-        <ToggleGutterPlugin />
-        {!readOnly && <FloatingToolbar />}
-        {!readOnly && <MentionTypeaheadPlugin />}
-        {!readOnly && <SlashCommandPlugin />}
-        {!readOnly && <TableEdgeHandlePlugin />}
-        {!readOnly && <MentionFormatPlugin />}
-        {!readOnly && <EmptyNodeHintPlugin />}
-        {!readOnly && <ToggleKeyboardPlugin />}
-        {!readOnly && <ToggleHeaderGuardPlugin />}
-        {readOnly && <CheckboxReadOnlyPlugin />}
-      </div>
-    </LexicalComposer>
+          {onChange && <OnChangePlugin onChange={handleChange} />}
+          <ExternalValueSyncPlugin value={value} />
+          <ToggleGutterPlugin />
+          {!readOnly && <FloatingToolbar />}
+          {!readOnly && <MentionTypeaheadPlugin />}
+          {!readOnly && <SlashCommandPlugin />}
+          {!readOnly && <TableEdgeHandlePlugin />}
+          {!readOnly && <MentionFormatPlugin />}
+          {!readOnly && <EmptyNodeHintPlugin />}
+          {!readOnly && <ToggleKeyboardPlugin />}
+          {!readOnly && <ToggleHeaderGuardPlugin />}
+          {readOnly && <CheckboxReadOnlyPlugin />}
+        </div>
+      </LexicalComposer>
+    </div>
   );
 };

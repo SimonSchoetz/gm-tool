@@ -5,6 +5,10 @@
 }
 
 .screens-summary--scroll-area {
-  max-width: var(--summary-max-width);
+  width: var(--summary-max-width);
   height: var(--summary-content-height);
+}
+
+.screens-summary--content {
+  display: flex;
 }

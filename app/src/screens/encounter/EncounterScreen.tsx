@@ -34,7 +34,7 @@ export const EncounterScreen = () => {
     >
       <EncounterHeader />
 
-      <div className='encounter-body'>
+      <div className='encounter-screen--body'>
         <EncounterSidebar />
 
         <TextEditor

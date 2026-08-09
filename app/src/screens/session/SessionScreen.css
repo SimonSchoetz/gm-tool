@@ -16,5 +16,4 @@
   display: grid;
   gap: var(--spacing-md);
   grid-template-columns: auto 1fr;
-  min-height: 0;
 }

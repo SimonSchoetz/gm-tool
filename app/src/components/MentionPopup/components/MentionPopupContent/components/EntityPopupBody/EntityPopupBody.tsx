@@ -30,7 +30,10 @@ export const EntityPopupBody: FCProps<Props> = ({
       </ImagePlaceholderFrame>
     )}
     {summary !== null && (
-      <CustomScrollArea className='entity-popup-summary'>
+      <CustomScrollArea
+        className='entity-popup-summary'
+        childrenContainerClassName='entity-popup-summary--content'
+      >
         <TextEditor
           value={summary}
           textEditorId={textEditorId}

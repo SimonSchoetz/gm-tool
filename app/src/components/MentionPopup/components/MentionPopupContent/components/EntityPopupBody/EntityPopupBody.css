@@ -14,3 +14,7 @@
   max-width: var(--summary-max-width);
   max-height: var(--summary-content-height);
 }
+
+.entity-popup-summary--content {
+  display: flex;
+}
