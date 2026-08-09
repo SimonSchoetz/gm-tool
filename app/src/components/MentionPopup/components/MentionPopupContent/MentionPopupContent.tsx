@@ -1,4 +1,5 @@
 import { FCProps } from '@/types';
+import type { MentionEntityType } from '@domain/mentions';
 import {
   NpcPopupContent,
   FoePopupContent,
@@ -16,37 +17,35 @@ type Props = {
   adventureId: string | null;
 };
 
+type PopupContentProps = {
+  entityId: string;
+  adventureId: string | null;
+};
+
+// keyed against MentionEntityType (domain/mentions/mentionEntityType.ts) so a mentionable entity added there and not here fails to compile
+const popupContentMap: Record<MentionEntityType, FCProps<PopupContentProps>> = {
+  npcs: NpcPopupContent,
+  foes: FoePopupContent,
+  pcs: PcPopupContent,
+  factions: FactionPopupContent,
+  locations: LocationPopupContent,
+  items: ItemPopupContent,
+  sessions: SessionPopupContent,
+  encounters: EncounterPopupContent,
+};
+
+const popupContentByType: Record<
+  string,
+  FCProps<PopupContentProps> | undefined
+> = popupContentMap;
+
 export const MentionPopupContent: FCProps<Props> = ({
   entityId,
   entityType,
   adventureId,
 }) => {
-  switch (entityType) {
-    case 'npcs':
-      return <NpcPopupContent entityId={entityId} adventureId={adventureId} />;
-    case 'foes':
-      return <FoePopupContent entityId={entityId} adventureId={adventureId} />;
-    case 'pcs':
-      return <PcPopupContent entityId={entityId} adventureId={adventureId} />;
-    case 'factions':
-      return (
-        <FactionPopupContent entityId={entityId} adventureId={adventureId} />
-      );
-    case 'locations':
-      return (
-        <LocationPopupContent entityId={entityId} adventureId={adventureId} />
-      );
-    case 'items':
-      return <ItemPopupContent entityId={entityId} adventureId={adventureId} />;
-    case 'sessions':
-      return (
-        <SessionPopupContent entityId={entityId} adventureId={adventureId} />
-      );
-    case 'encounters':
-      return (
-        <EncounterPopupContent entityId={entityId} adventureId={adventureId} />
-      );
-    default:
-      return;
-  }
+  const PopupContent = popupContentByType[entityType];
+  if (!PopupContent) return;
+
+  return <PopupContent entityId={entityId} adventureId={adventureId} />;
 };

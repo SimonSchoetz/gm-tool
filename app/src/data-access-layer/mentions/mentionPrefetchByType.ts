@@ -1,4 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
+import type { MentionEntityType } from '@domain/mentions';
 import { npcQueryOptions } from '../npcs';
 import { foeQueryOptions } from '../foes';
 import { pcQueryOptions } from '../pcs';
@@ -14,10 +15,8 @@ type MentionPrefetch = (
   entityId: string,
 ) => Promise<void>;
 
-export const mentionPrefetchByType: Record<
-  string,
-  MentionPrefetch | undefined
-> = {
+// keyed against MentionEntityType (domain/mentions/mentionEntityType.ts) so a mentionable entity added there and not here fails to compile
+const mentionPrefetchMap: Record<MentionEntityType, MentionPrefetch> = {
   npcs: async (queryClient, entityId) => {
     const npc = await queryClient.ensureQueryData(npcQueryOptions(entityId));
     await ensureImagePainted(queryClient, npc.image_id ?? null);
@@ -53,3 +52,8 @@ export const mentionPrefetchByType: Record<
     await queryClient.ensureQueryData(encounterQueryOptions(entityId));
   },
 };
+
+export const mentionPrefetchByType: Record<
+  string,
+  MentionPrefetch | undefined
+> = mentionPrefetchMap;
