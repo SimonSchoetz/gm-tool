@@ -25,6 +25,7 @@ export { encounterListQueryOptions, encounterQueryOptions } from './encounters';
 export { useTableConfig, useTableConfigs } from './table-config';
 export { tableConfigListQueryOptions } from './table-config';
 export { useMentionEntityData } from './mentions';
+export { usePrefetchMentionEntity } from './mentions';
 export { useSetPinnedOrder } from './pinned-order';
 export { useSessionSteps } from './session-steps';
 export { sessionStepListQueryOptions } from './session-steps';

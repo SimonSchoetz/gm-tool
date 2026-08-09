@@ -5,7 +5,11 @@ import { usePinnedPopups } from '@/providers';
 import { FCProps } from '@/types';
 import { cn } from '@/util';
 import { buildEntityPath } from '@domain';
-import { useMentionEntityData, useTableConfigs } from '@/data-access-layer';
+import {
+  useMentionEntityData,
+  useTableConfigs,
+  usePrefetchMentionEntity,
+} from '@/data-access-layer';
 import type { PopupPlacement } from '../../../MentionPopup';
 import { buildMentionTextDecoration } from './helper';
 import './MentionBadge.css';
@@ -33,6 +37,10 @@ export const MentionBadge: FCProps<Props> = ({
     loading,
   } = useMentionEntityData(entityId, entityType);
   const { tableConfigs } = useTableConfigs();
+  const { prefetchMentionEntity } = usePrefetchMentionEntity(
+    entityId,
+    entityType,
+  );
 
   const tableConfig = tableConfigs.find((c) => c.table_name === entityType);
   const resolvedColor = tableConfig?.color ?? null;
@@ -76,6 +84,8 @@ export const MentionBadge: FCProps<Props> = ({
   const handleBadgeMouseEnter = () => {
     if (hasPopup(entityId)) return;
     isMouseOnBadgeRef.current = true;
+    // must run alongside the delay timer, not inside showPopupFromBadge — moving it into the timer callback reintroduces the visible popup fill-in
+    prefetchMentionEntity();
     hoverTimerRef.current = setTimeout(showPopupFromBadge, 500);
   };
 
