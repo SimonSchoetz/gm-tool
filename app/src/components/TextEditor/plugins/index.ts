@@ -9,3 +9,4 @@ export { MentionFormatPlugin } from './MentionFormatPlugin/MentionFormatPlugin';
 export { ToggleGutterPlugin } from './ToggleGutterPlugin/ToggleGutterPlugin';
 export { ToggleKeyboardPlugin } from './ToggleKeyboardPlugin/ToggleKeyboardPlugin';
 export { ToggleHeaderGuardPlugin } from './ToggleHeaderGuardPlugin/ToggleHeaderGuardPlugin';
+export { TableCellBackgroundGuardPlugin } from './TableCellBackgroundGuardPlugin/TableCellBackgroundGuardPlugin';

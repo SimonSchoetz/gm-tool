@@ -28,6 +28,7 @@ import {
   ExternalValueSyncPlugin,
   MentionFormatPlugin,
   SlashCommandPlugin,
+  TableCellBackgroundGuardPlugin,
   TableEdgeHandlePlugin,
   ToggleGutterPlugin,
   ToggleHeaderGuardPlugin,
@@ -137,6 +138,7 @@ export const TextEditor: FCProps<Props> = ({
         <CheckListPlugin />
         {/* hasCellMerge disabled — insert/delete/move operations assume a regular cell grid */}
         <TablePlugin hasCellMerge={false} />
+        <TableCellBackgroundGuardPlugin />
         <TabIndentationPlugin />
         <LinkPlugin />
         <EmbeddedLinkPlugin />
