@@ -1,3 +1,5 @@
+export { queryClient } from './queryClient';
+export { TanstackQueryClientProvider } from './TanstackQueryClientProvider';
 export { useAdventures, useAdventure } from './adventures';
 export { useImage, useUpdateImageFrame } from './images';
 export type { ImageFrame } from './images';
