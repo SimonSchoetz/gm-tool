@@ -14,7 +14,7 @@ src/
 ├── providers/ # app-level UI infrastructure providers — see providers/ below
 │   └── index.ts
 ├── data-access-layer/ # domain data hooks (TanStack Query) — see State Management below for file-naming pattern
-├── routes/ # Tanstack router
+├── routes/ # Tanstack router — route files own data resolution via a `loader`
 ├── screens/ # see Screens below
 │   └── index.ts
 ├── styles/ # global/reset CSS + variables/ (design tokens) — see Styles below
@@ -264,7 +264,7 @@ All async data lives in TanStack Query. Data access hooks wrap `useQuery`/`useMu
 
 - `app/services/` — business logic, wraps DB calls and Tauri API calls needing business logic, composing multiple operations, or domain-typed error handling; throws domain errors from `@domain`. Import via `@services/<file>`.
   - **Service-layer conventions (no fallback defaults for nullable columns, no replicating a DB `DEFAULT` at a call site) are documented in `app/services/CLAUDE.md`** — not duplicated here.
-- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API. Pure-read Tauri API calls with no business logic or domain error transformation go directly here — never through `services/`. One concern = one file: query keys, single-entity hooks, and collection hooks each own a separate file (`sessionKeys.ts`, `useSession.ts`, `useSessions.ts`) — the shared cache deduplicates across hooks, so no `DomainProvider` wrapping mutations is needed.
+- `data-access-layer/` — wraps TanStack Query hooks, exposes clean API. Pure-read Tauri API calls with no business logic or domain error transformation go directly here — never through `services/`. One concern = one file: query keys, single-entity hooks, collection hooks, and a `queryOptions` factory module each own a separate file (`sessionKeys.ts`, `useSession.ts`, `useSessions.ts`, `sessionQueryOptions.ts`) — the shared cache deduplicates across hooks, so no `DomainProvider` wrapping mutations is needed. The `queryOptions` factory's own carve-out from the hook-only consumer rule is defined in Barrel Files above.
 - `screens/` — UI only, no error handling
 - Error Boundary at app level catches all unhandled async errors
 
