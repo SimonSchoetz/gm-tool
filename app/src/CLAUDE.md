@@ -38,7 +38,9 @@ src/
   - ✅ GOOD: `export { useNpcs, useNpc } from './npcs'` in a grouping barrel — explicit named exports only, never `export *`
   - ❌ BAD: missing `data-access-layer/index.ts` — grouping barrels are unconditionally required, not optional
   - ❌ BAD: `export * from './npcKeys'` in `npcs/index.ts` — accidentally leaks internal query key factories; if `npcKeys` is public API, name it explicitly
-- **Query key factories (`*Keys.ts`) are internal to the DAL module — never in the module barrel's public exports; only hooks are exported (`data-access-layer/domainA/index.ts` exports `useNpc`/`useNpcs`, never `npcKeys`).**
+- **Query key factories (`*Keys.ts`) are internal to the DAL module and never in the module barrel's public exports.** React components remain hook-only consumers (`data-access-layer/domainA/index.ts` exports `useNpc`/`useNpcs`, never `npcKeys`) — unchanged. A consumer structurally unable to call a hook (e.g. a route loader) may instead consume a `queryOptions`-built factory exported from the barrel: `queryOptions()` produces a typed options object that still encapsulates the key rather than exposing it raw, so exporting its result is not the same act as exporting the key factory.
+  - ✅ GOOD: `export const npcQueryOptions = (id: string) => queryOptions({ queryKey: npcKeys.detail(id), queryFn: () => service.getNpc(id) })` exported for a loader; illustrative, not tied to any specific file
+  - ❌ BAD: exporting `npcKeys` directly, or a hand-assembled `{ queryKey: npcKeys.detail(id), queryFn: ... }` object bypassing `queryOptions()` — the carve-out permits only a `queryOptions`-built factory, never the raw key or an ad hoc substitute
 
 ### Screens
 
