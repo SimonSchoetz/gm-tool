@@ -17,7 +17,7 @@ export const ImageById: FCProps<Props> = ({
 }) => {
   const { imageUrl, loading, frame } = useImage(imageId);
 
-  if (loading) return <div>Loading image...</div>;
+  if (loading) return <div className='image-by-id image-by-id--pending' />;
   if (!imageUrl) return;
 
   const frameStyles =

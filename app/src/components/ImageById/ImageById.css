@@ -8,3 +8,7 @@
   transform-origin: var(--rt-holo-img-frame-x, 50%)
     var(--rt-holo-img-frame-y, 0%);
 }
+
+.image-by-id--pending {
+  background-color: var(--color-bg-muted);
+}
