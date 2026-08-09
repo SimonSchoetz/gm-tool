@@ -3,6 +3,7 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-sm);
   background-color: var(--color-bg-muted);
+  height: calc(var(--summary-content-height) + 2 * var(--spacing-sm));
 }
 
 .entity-popup-image {
@@ -11,6 +12,5 @@
 
 .entity-popup-summary {
   max-width: var(--summary-max-width);
-  min-width: var(--summary-content-height);
   max-height: var(--summary-content-height);
 }

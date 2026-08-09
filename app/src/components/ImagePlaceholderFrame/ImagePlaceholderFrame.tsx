@@ -2,11 +2,12 @@ import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { cn } from '@/util';
 
 import './ImagePlaceholderFrame.css';
+import { CSSProperties } from 'react';
 
 type Props = React.ComponentProps<typeof GlassPanel> & {
   dimensions: {
-    width: number;
-    height: number;
+    width: CSSProperties['width'];
+    height: CSSProperties['height'];
   };
 };
 
@@ -16,11 +17,9 @@ export const ImagePlaceholderFrame = ({
   dimensions,
   ...props
 }: Props) => {
-  const { width, height } = dimensions;
-
   return (
     <GlassPanel
-      style={{ width, height }}
+      style={dimensions}
       intensity='bright'
       className={cn('image-placeholder-frame', className)}
       {...props}

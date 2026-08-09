@@ -3,7 +3,7 @@ import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor/TextEditor';
 import { CustomScrollArea } from '../../../../../CustomScrollArea';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
-import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '@/screens/screens.constants';
+import { PREVIEW_WIDTH } from '@/screens/screens.constants';
 import './EntityPopupBody.css';
 
 type Props = {
@@ -22,11 +22,11 @@ export const EntityPopupBody: FCProps<Props> = ({
       <ImagePlaceholderFrame
         className='entity-popup-image'
         dimensions={{
-          width: PREVIEW_WIDTH,
-          height: PREVIEW_HEIGHT,
+          width: PREVIEW_WIDTH / 2,
+          height: 'auto',
         }}
       >
-        <ImageById imageId={imageId} className='avatar-dimensions' />
+        <ImageById imageId={imageId} />
       </ImagePlaceholderFrame>
     )}
     {summary !== null && (

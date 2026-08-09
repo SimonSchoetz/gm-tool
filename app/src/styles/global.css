@@ -70,12 +70,6 @@ a:hover {
   transform: translateY(1px);
 }
 
-/* 200px is a deliberate one-off for popup avatar sizing — no design token exists for this value */
-.avatar-dimensions {
-  width: var(--summary-content-height);
-  aspect-ratio: 1 / 1;
-}
-
 .clip-text {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -1,5 +1,7 @@
 :root {
-  --summary-content-height: 200px;
+  --summary-content-height: calc(
+    200px - 2 * var(--spacing-md)
+  ); /* rooted in the UI of item screens */
   --summary-max-width: 600px;
   --dialog-max-width: 640px;
   --mention-popup-max-height: 14rem; /* <=7 visible rows */

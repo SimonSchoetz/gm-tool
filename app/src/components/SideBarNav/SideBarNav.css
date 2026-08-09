@@ -4,7 +4,6 @@
 }
 
 .sidebar-nav--content-container {
-  z-index: var(--most-front);
   height: 100%;
   display: flex;
   flex-direction: column;
