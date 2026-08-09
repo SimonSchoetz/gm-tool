@@ -9,7 +9,6 @@ import {
   ImagePreviewFramingOverlay,
 } from './components';
 import './ImageViewerDialog.css';
-import ImagePlaceholderFrame from '../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 
 type Props = {
   image_id: string;
@@ -17,7 +16,7 @@ type Props = {
   onClose: () => void;
   uploadFn: (filePath: string) => void;
   deleteFn: () => void;
-  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
+  dimensions: { width: number; height: number };
 };
 
 export const ImageViewerDialog: FCProps<Props> = ({

@@ -12,7 +12,7 @@ import { LoadingIcon } from '../LoadingIcon';
 type Props = {
   image_id?: string | null;
   title?: string;
-  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
+  dimensions: { width: number; height: number };
   uploadFn: (filePath: string) => void;
   deleteFn: () => void;
 };

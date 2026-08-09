@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 import { FCProps } from '@/types';
 import { useImage, useUpdateImageFrame } from '@/data-access-layer';
 import { ImageById } from '../../../../../ImageById/ImageById';
-import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { clampFrame, computePanDelta } from './helper';
 import type { FrameState } from './helper';
 import './ImagePreviewFramingOverlay.css';
@@ -16,7 +15,7 @@ const PERSIST_DEBOUNCE_MS = 600;
 
 type Props = {
   imageId: string;
-  dimensions: React.ComponentProps<typeof ImagePlaceholderFrame>['dimensions'];
+  dimensions: { width: number; height: number };
 };
 
 export const ImagePreviewFramingOverlay: FCProps<Props> = ({
