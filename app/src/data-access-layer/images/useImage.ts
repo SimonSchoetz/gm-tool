@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import * as imageService from '@services/imageService';
-import { imageKeys } from './imageKeys';
+import { imageQueryOptions } from './imageQueryOptions';
 import type { ImageFrame } from './useUpdateImageFrame';
 
 type UseImageReturn = {
@@ -11,26 +10,8 @@ type UseImageReturn = {
 
 export const useImage = (imageId: string | null): UseImageReturn => {
   const { data = null, isPending: loading } = useQuery({
-    queryKey: imageKeys.detail(imageId ?? ''),
-    queryFn: async () => {
-      if (imageId === null) return null;
-      const image = await imageService.getImageById(imageId);
-      const url = await imageService.getImageUrl(
-        image.id,
-        image.file_extension,
-      );
-
-      const frame = {
-        x: image.frame_x,
-        y: image.frame_y,
-        zoom: image.frame_zoom,
-      } as ImageFrame;
-      const isFrame = assertIsFrame(frame);
-
-      return { url, frame: isFrame ? frame : null };
-    },
+    ...imageQueryOptions(imageId ?? ''),
     enabled: imageId !== null,
-    throwOnError: true,
   });
 
   return {
@@ -38,12 +19,4 @@ export const useImage = (imageId: string | null): UseImageReturn => {
     frame: data?.frame ?? null,
     loading,
   };
-};
-
-const assertIsFrame = (frame: ImageFrame): frame is ImageFrame => {
-  return (
-    typeof frame.x === 'number' &&
-    typeof frame.y === 'number' &&
-    typeof frame.zoom === 'number'
-  );
 };

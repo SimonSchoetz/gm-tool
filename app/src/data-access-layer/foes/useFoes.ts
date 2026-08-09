@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Foe } from '@db/foe';
 import * as service from '@services/foesService';
 import { foeKeys } from './foeKeys';
+import { foeListQueryOptions } from './foeQueryOptions';
 
 type UseFoesReturn = {
   foes: Foe[];
@@ -12,12 +13,9 @@ type UseFoesReturn = {
 export const useFoes = (adventureId: string): UseFoesReturn => {
   const queryClient = useQueryClient();
 
-  const { data: foes = [], isPending: isLoadingFoes } = useQuery({
-    queryKey: foeKeys.list(adventureId),
-    queryFn: () => service.getAllFoes(adventureId),
-    enabled: !!adventureId,
-    throwOnError: true,
-  });
+  const { data: foes = [], isPending: isLoadingFoes } = useQuery(
+    foeListQueryOptions(adventureId),
+  );
 
   const createMutation = useMutation({
     mutationFn: () => service.createFoe(adventureId),

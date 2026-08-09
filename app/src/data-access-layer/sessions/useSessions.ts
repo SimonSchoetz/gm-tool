@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session } from '@db/session';
 import * as service from '@services/sessionService';
 import { sessionKeys } from './sessionKeys';
+import { sessionListQueryOptions } from './sessionQueryOptions';
 
 type UseSessionsReturn = {
   sessions: Session[];
@@ -13,12 +14,9 @@ type UseSessionsReturn = {
 export const useSessions = (adventureId: string): UseSessionsReturn => {
   const queryClient = useQueryClient();
 
-  const { data: sessions = [], isPending: loading } = useQuery({
-    queryKey: sessionKeys.list(adventureId),
-    queryFn: () => service.getAllSessions(adventureId),
-    enabled: !!adventureId,
-    throwOnError: true,
-  });
+  const { data: sessions = [], isPending: loading } = useQuery(
+    sessionListQueryOptions(adventureId),
+  );
 
   const createMutation = useMutation({
     mutationFn: () => service.createSession(adventureId),

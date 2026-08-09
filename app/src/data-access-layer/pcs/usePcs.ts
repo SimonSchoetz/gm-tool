@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Pc } from '@db/pc';
 import * as service from '@services/pcsService';
 import { pcKeys } from './pcKeys';
+import { pcListQueryOptions } from './pcQueryOptions';
 
 type UsePcsReturn = {
   pcs: Pc[];
@@ -12,12 +13,9 @@ type UsePcsReturn = {
 export const usePcs = (adventureId: string): UsePcsReturn => {
   const queryClient = useQueryClient();
 
-  const { data: pcs = [], isPending: isLoadingPcs } = useQuery({
-    queryKey: pcKeys.list(adventureId),
-    queryFn: () => service.getAllPcs(adventureId),
-    enabled: !!adventureId,
-    throwOnError: true,
-  });
+  const { data: pcs = [], isPending: isLoadingPcs } = useQuery(
+    pcListQueryOptions(adventureId),
+  );
 
   const createMutation = useMutation({
     mutationFn: () => service.createPc(adventureId),

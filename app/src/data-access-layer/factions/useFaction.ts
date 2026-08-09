@@ -4,6 +4,7 @@ import type { Faction } from '@db/faction';
 import * as service from '@services/factionsService';
 import type { UpdateFactionData } from '@services/factionsService';
 import { factionKeys } from './factionKeys';
+import { factionQueryOptions } from './factionQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -32,14 +33,9 @@ export const useFaction = (
     };
   }, []);
 
-  const { data: factionData, isPending: isLoadingFaction } = useQuery({
-    queryKey: factionKeys.detail(factionId),
-    queryFn: () => service.getFactionById(factionId),
-    enabled: !!factionId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: factionData, isPending: isLoadingFaction } = useQuery(
+    factionQueryOptions(factionId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateFactionData) =>

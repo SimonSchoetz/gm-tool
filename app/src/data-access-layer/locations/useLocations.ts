@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Location } from '@db/location';
 import * as service from '@services/locationsService';
 import { locationKeys } from './locationKeys';
+import { locationListQueryOptions } from './locationQueryOptions';
 
 type UseLocationsReturn = {
   locations: Location[];
@@ -12,12 +13,9 @@ type UseLocationsReturn = {
 export const useLocations = (adventureId: string): UseLocationsReturn => {
   const queryClient = useQueryClient();
 
-  const { data: locations = [], isPending: isLoadingLocations } = useQuery({
-    queryKey: locationKeys.list(adventureId),
-    queryFn: () => service.getAllLocations(adventureId),
-    enabled: !!adventureId,
-    throwOnError: true,
-  });
+  const { data: locations = [], isPending: isLoadingLocations } = useQuery(
+    locationListQueryOptions(adventureId),
+  );
 
   const createMutation = useMutation({
     mutationFn: () => service.createLocation(adventureId),

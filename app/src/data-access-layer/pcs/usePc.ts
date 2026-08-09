@@ -4,6 +4,7 @@ import type { Pc } from '@db/pc';
 import * as service from '@services/pcsService';
 import type { UpdatePcData } from '@services/pcsService';
 import { pcKeys } from './pcKeys';
+import { pcQueryOptions } from './pcQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -29,14 +30,9 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
     };
   }, []);
 
-  const { data: pcData, isPending: isLoadingPc } = useQuery({
-    queryKey: pcKeys.detail(pcId),
-    queryFn: () => service.getPcById(pcId),
-    enabled: !!pcId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: pcData, isPending: isLoadingPc } = useQuery(
+    pcQueryOptions(pcId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdatePcData) => service.updatePc(pcId, data),

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Adventure } from '@db/adventure';
 import * as service from '@services/adventureService';
 import { adventureKeys } from './adventureKeys';
+import { adventureListQueryOptions } from './adventureQueryOptions';
 
 type UseAdventuresReturn = {
   adventures: Adventure[];
@@ -13,11 +14,9 @@ type UseAdventuresReturn = {
 export const useAdventures = (): UseAdventuresReturn => {
   const queryClient = useQueryClient();
 
-  const { data: adventures = [], isPending: loading } = useQuery({
-    queryKey: adventureKeys.list(),
-    queryFn: service.getAllAdventures,
-    throwOnError: true,
-  });
+  const { data: adventures = [], isPending: loading } = useQuery(
+    adventureListQueryOptions(),
+  );
 
   const createMutation = useMutation({
     mutationFn: service.createAdventure,

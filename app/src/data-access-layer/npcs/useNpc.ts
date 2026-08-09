@@ -4,6 +4,7 @@ import type { Npc } from '@db/npc';
 import * as service from '@services/npcsService';
 import type { UpdateNpcData } from '@services/npcsService';
 import { npcKeys } from './npcKeys';
+import { npcQueryOptions } from './npcQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -29,14 +30,9 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
     };
   }, []);
 
-  const { data: npcData, isPending: isLoadingNpc } = useQuery({
-    queryKey: npcKeys.detail(npcId),
-    queryFn: () => service.getNpcById(npcId),
-    enabled: !!npcId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: npcData, isPending: isLoadingNpc } = useQuery(
+    npcQueryOptions(npcId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateNpcData) => service.updateNpc(npcId, data),

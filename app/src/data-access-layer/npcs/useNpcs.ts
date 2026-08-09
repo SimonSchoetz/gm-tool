@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Npc } from '@db/npc';
 import * as service from '@services/npcsService';
 import { npcKeys } from './npcKeys';
+import { npcListQueryOptions } from './npcQueryOptions';
 
 type UseNpcsReturn = {
   npcs: Npc[];
@@ -12,12 +13,9 @@ type UseNpcsReturn = {
 export const useNpcs = (adventureId: string): UseNpcsReturn => {
   const queryClient = useQueryClient();
 
-  const { data: npcs = [], isPending: isLoadingNpcs } = useQuery({
-    queryKey: npcKeys.list(adventureId),
-    queryFn: () => service.getAllNpcs(adventureId),
-    enabled: !!adventureId,
-    throwOnError: true,
-  });
+  const { data: npcs = [], isPending: isLoadingNpcs } = useQuery(
+    npcListQueryOptions(adventureId),
+  );
 
   const createMutation = useMutation({
     mutationFn: () => service.createNpc(adventureId),

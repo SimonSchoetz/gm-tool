@@ -4,6 +4,7 @@ import type { Item } from '@db/item';
 import * as service from '@services/itemsService';
 import type { UpdateItemData } from '@services/itemsService';
 import { itemKeys } from './itemKeys';
+import { itemQueryOptions } from './itemQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -29,14 +30,9 @@ export const useItem = (itemId: string, adventureId: string): UseItemReturn => {
     };
   }, []);
 
-  const { data: itemData, isPending: isLoadingItem } = useQuery({
-    queryKey: itemKeys.detail(itemId),
-    queryFn: () => service.getItemById(itemId),
-    enabled: !!itemId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: itemData, isPending: isLoadingItem } = useQuery(
+    itemQueryOptions(itemId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateItemData) => service.updateItem(itemId, data),

@@ -4,6 +4,7 @@ import type { Adventure } from '@db/adventure';
 import * as service from '@services/adventureService';
 import type { UpdateAdventureData } from '@services/adventureService';
 import { adventureKeys } from './adventureKeys';
+import { adventureQueryOptions } from './adventureQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseAdventureReturn = {
@@ -27,14 +28,9 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     };
   }, []);
 
-  const { data: adventureData, isPending: loading } = useQuery({
-    queryKey: adventureKeys.detail(adventureId),
-    queryFn: () => service.getAdventureById(adventureId),
-    enabled: !!adventureId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: adventureData, isPending: loading } = useQuery(
+    adventureQueryOptions(adventureId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateAdventureData) =>

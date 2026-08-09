@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { TableConfig } from '@db/table-config';
-import * as service from '@services/tableConfigService';
-import { tableConfigKeys } from './tableConfigKeys';
+import { tableConfigListQueryOptions } from './tableConfigQueryOptions';
 
 type UseTableConfigsReturn = {
   tableConfigs: TableConfig[];
@@ -9,11 +8,9 @@ type UseTableConfigsReturn = {
 };
 
 export const useTableConfigs = (): UseTableConfigsReturn => {
-  const { data: tableConfigs = [], isPending: loading } = useQuery({
-    queryKey: tableConfigKeys.all(),
-    queryFn: service.getAllTableConfigs,
-    throwOnError: true,
-  });
+  const { data: tableConfigs = [], isPending: loading } = useQuery(
+    tableConfigListQueryOptions(),
+  );
 
   return { tableConfigs, loading };
 };

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session, UpdateSessionInput } from '@db/session';
 import * as service from '@services/sessionService';
 import { sessionKeys } from './sessionKeys';
+import { sessionQueryOptions } from './sessionQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -30,12 +31,9 @@ export const useSession = (
     };
   }, []);
 
-  const { data: sessionData, isPending: loading } = useQuery({
-    queryKey: sessionKeys.detail(sessionId),
-    queryFn: () => service.getSessionById(sessionId),
-    enabled: !!sessionId,
-    throwOnError: true,
-  });
+  const { data: sessionData, isPending: loading } = useQuery(
+    sessionQueryOptions(sessionId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateSessionInput) =>

@@ -4,6 +4,7 @@ import type { Location } from '@db/location';
 import * as service from '@services/locationsService';
 import type { UpdateLocationData } from '@services/locationsService';
 import { locationKeys } from './locationKeys';
+import { locationQueryOptions } from './locationQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -32,14 +33,9 @@ export const useLocation = (
     };
   }, []);
 
-  const { data: locationData, isPending: isLoadingLocation } = useQuery({
-    queryKey: locationKeys.detail(locationId),
-    queryFn: () => service.getLocationById(locationId),
-    enabled: !!locationId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: locationData, isPending: isLoadingLocation } = useQuery(
+    locationQueryOptions(locationId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateLocationData) =>

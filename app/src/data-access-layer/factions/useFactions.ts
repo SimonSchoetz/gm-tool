@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Faction } from '@db/faction';
 import * as service from '@services/factionsService';
 import { factionKeys } from './factionKeys';
+import { factionListQueryOptions } from './factionQueryOptions';
 
 type UseFactionsReturn = {
   factions: Faction[];
@@ -12,12 +13,9 @@ type UseFactionsReturn = {
 export const useFactions = (adventureId: string): UseFactionsReturn => {
   const queryClient = useQueryClient();
 
-  const { data: factions = [], isPending: isLoadingFactions } = useQuery({
-    queryKey: factionKeys.list(adventureId),
-    queryFn: () => service.getAllFactions(adventureId),
-    enabled: !!adventureId,
-    throwOnError: true,
-  });
+  const { data: factions = [], isPending: isLoadingFactions } = useQuery(
+    factionListQueryOptions(adventureId),
+  );
 
   const createMutation = useMutation({
     mutationFn: () => service.createFaction(adventureId),

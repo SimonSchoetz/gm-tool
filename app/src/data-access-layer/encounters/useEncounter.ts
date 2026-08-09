@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Encounter, UpdateEncounterInput } from '@db/encounter';
 import * as service from '@services/encountersService';
 import { encounterKeys } from './encounterKeys';
+import { encounterQueryOptions } from './encounterQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -30,14 +31,9 @@ export const useEncounter = (
     };
   }, []);
 
-  const { data: encounterData, isPending: isLoadingEncounter } = useQuery({
-    queryKey: encounterKeys.detail(encounterId),
-    queryFn: () => service.getEncounterById(encounterId),
-    enabled: !!encounterId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: encounterData, isPending: isLoadingEncounter } = useQuery(
+    encounterQueryOptions(encounterId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateEncounterInput) =>

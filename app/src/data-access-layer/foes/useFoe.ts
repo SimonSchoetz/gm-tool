@@ -4,6 +4,7 @@ import type { Foe } from '@db/foe';
 import * as service from '@services/foesService';
 import type { UpdateFoeData } from '@services/foesService';
 import { foeKeys } from './foeKeys';
+import { foeQueryOptions } from './foeQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -29,14 +30,9 @@ export const useFoe = (foeId: string, adventureId: string): UseFoeReturn => {
     };
   }, []);
 
-  const { data: foeData, isPending: isLoadingFoe } = useQuery({
-    queryKey: foeKeys.detail(foeId),
-    queryFn: () => service.getFoeById(foeId),
-    enabled: !!foeId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    throwOnError: true,
-  });
+  const { data: foeData, isPending: isLoadingFoe } = useQuery(
+    foeQueryOptions(foeId),
+  );
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateFoeData) => service.updateFoe(foeId, data),
