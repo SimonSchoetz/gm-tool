@@ -9,7 +9,6 @@ import {
   SessionPopupContent,
   EncounterPopupContent,
 } from './components';
-import './MentionPopupContent.css';
 
 type Props = {
   entityId: string;

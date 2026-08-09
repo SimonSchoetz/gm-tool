@@ -1,7 +1,6 @@
 import { FCProps } from '@/types';
 import { useItem } from '@/data-access-layer';
 import { EntityPopupBody } from '../EntityPopupBody';
-import './ItemPopupContent.css';
 
 type Props = {
   entityId: string;

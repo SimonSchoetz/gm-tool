@@ -1,7 +1,6 @@
 import { FCProps } from '@/types';
 import { useSession } from '@/data-access-layer';
 import { EntityPopupBody } from '../EntityPopupBody';
-import './SessionPopupContent.css';
 
 type Props = {
   entityId: string;
