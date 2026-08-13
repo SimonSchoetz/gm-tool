@@ -1,11 +1,8 @@
-import { CSSProperties } from 'react';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { Button } from '@/components';
 import { useEncounter } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import { ScreensDuplicateBtn, ScreensSidebar } from '../../components';
-import { PREVIEW_WIDTH } from '../../screens.constants';
-import './EncounterSidebar.css';
 
 export const EncounterSidebar = () => {
   const router = useRouter();
@@ -23,14 +20,7 @@ export const EncounterSidebar = () => {
   };
 
   return (
-    <ScreensSidebar
-      className='encounter-sidebar'
-      style={
-        {
-          '--encounter-sidebar-width': `${PREVIEW_WIDTH}px`,
-        } as CSSProperties
-      }
-    >
+    <ScreensSidebar>
       <ScreensDuplicateBtn entityType='encounters' />
 
       <Button

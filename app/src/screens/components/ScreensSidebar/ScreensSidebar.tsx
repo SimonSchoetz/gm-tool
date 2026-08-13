@@ -1,6 +1,8 @@
+import { CSSProperties } from 'react';
 import { FCProps, HtmlProps } from '@/types';
 import './ScreensSidebar.css';
 import { cn } from '@/util';
+import { PREVIEW_WIDTH } from '../../screens.constants';
 
 type Props = HtmlProps<'aside'>;
 
@@ -10,7 +12,15 @@ export const ScreensSidebar: FCProps<Props> = ({
   ...props
 }) => {
   return (
-    <aside className={cn('screens-sidebar', className)} {...props}>
+    <aside
+      className={cn('screens-sidebar', className)}
+      style={
+        {
+          '--screens-sidebar-base-width': `${PREVIEW_WIDTH}px`,
+        } as CSSProperties
+      }
+      {...props}
+    >
       {children}
     </aside>
   );
