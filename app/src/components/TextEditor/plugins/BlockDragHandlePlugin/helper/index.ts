@@ -1,0 +1,1 @@
+export { isOnMenu } from './isOnMenu';

@@ -21,6 +21,7 @@ import { TableNode, TableRowNode, TableCellNode } from '@lexical/table';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { FloatingToolbar } from './components';
 import {
+  BlockDragHandlePlugin,
   MentionTypeaheadPlugin,
   CheckboxReadOnlyPlugin,
   EmbeddedLinkPlugin,
@@ -164,6 +165,7 @@ export const TextEditor: FCProps<Props> = ({
           {!readOnly && <MentionTypeaheadPlugin />}
           {!readOnly && <SlashCommandPlugin />}
           {!readOnly && <TableEdgeHandlePlugin />}
+          {!readOnly && <BlockDragHandlePlugin />}
           {!readOnly && <MentionFormatPlugin />}
           {!readOnly && <EmptyNodeHintPlugin />}
           {!readOnly && <ToggleKeyboardPlugin />}

@@ -1,0 +1,10 @@
+.block-drop-indicator {
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+  z-index: var(--most-front);
+  height: 3px; /* no spacing token represents line stroke thickness — flagged for user review */
+  border-radius: var(--radius-xs);
+  background-color: var(--color-primary);
+  pointer-events: none;
+}

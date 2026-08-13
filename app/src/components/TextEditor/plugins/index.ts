@@ -1,3 +1,4 @@
+export { BlockDragHandlePlugin } from './BlockDragHandlePlugin/BlockDragHandlePlugin';
 export { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin/MentionTypeaheadPlugin';
 export { SlashCommandPlugin } from './SlashCommandPlugin/SlashCommandPlugin';
 export { CheckboxReadOnlyPlugin } from './CheckboxReadOnlyPlugin';

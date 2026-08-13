@@ -10,6 +10,7 @@
 }
 
 .editor-content {
+  position: relative;
   font-size: var(--font-size-base);
   outline: none;
   min-height: 100%;
