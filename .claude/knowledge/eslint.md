@@ -8,6 +8,14 @@
 
 `react-hooks/refs` targets ref access during render only — reading and writing `ref.current` inside an effect callback (including `useLayoutEffect`) is not flagged. This is distinct from `react-hooks/set-state-in-effect`, which does fire on a `setState` call at an effect's top level; a `useLayoutEffect` that only performs imperative DOM work (caret placement via `setSelectionRange`, focus, scroll) triggers neither rule and needs no suppression. A `useLayoutEffect` with no dependency array — intentionally running after every render — is likewise not flagged by `react-hooks/exhaustive-deps`.
 
+## `react-hooks/set-state-in-effect` fires on a `setState` call written directly at a `useEffect` callback's top level, but not on one nested inside a listener/subscription callback registered within that effect
+
+**Verified at:** eslint-plugin-react-hooks 7.1.1, `reactHooks.configs.flat.recommended` as configured in app/eslint.config.js
+
+**Citation:** [spec-writer_16: ran `npx eslint` from `app/` against a disposable component calling `setAnchorElem(editor.getRootElement())` directly at a `useEffect`'s top level — observed exit code 1, `react-hooks/set-state-in-effect` error "Avoid calling setState() directly within an effect"; ran the same tool against the same component rewritten to `useEffect(() => editor.registerRootListener((root) => { setAnchorElem(root); }), [editor])` — observed exit code 0, no diagnostics; `npx tsc --noEmit` reported nothing for either version]
+
+A value with no synchronous source that must be read once and then kept current (e.g. an editor's root DOM element, only available after a sibling component's ref commits) cannot be captured via a bare `useEffect(() => { setState(getValue()); }, [dep])` — this trips `react-hooks/set-state-in-effect` regardless of the dependency array. The rule's own suggested fix (subscribe to the external system, call `setState` from inside the subscription callback) is not just style guidance — it is what the lint rule mechanically requires: wrap the read in whatever subscription API the source exposes and call `setState` inside that callback, not synchronously in the effect body. For Lexical's editor root element specifically, `editor.registerRootListener((rootElement) => { ... })` (from `lexical`, `LexicalEditor.registerRootListener`) is the source's own documented mechanism for this, called out directly in `getRootElement()`'s own doc comment ("if you need to know the current root element, or you need to attach an event listener, do it via `registerRootListener`, since this reference may not be stable").
+
 ## Flat config local/inline plugin rules require ESM `export default`, not CommonJS `module.exports`, in a `"type": "module"` project
 
 **Verified at:** eslint 10.6.0
