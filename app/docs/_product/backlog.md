@@ -12,7 +12,6 @@
       - input field for accumulated dmg
 - Text editor:
   - Auto-Correct off (?)
-  - drag-and-drop content within editor something the editor must do?
   - Lists: Mixed lists should be possible
 - Feature: Data access and db location/localization
   - encryption?
@@ -29,6 +28,7 @@
 
 ### Done
 
+- Text Editor: drag-and-drop content within editor
 - Fix: FW/BW navigators to show disabled when they can't move any further
 - Feature: Implement prefetching
 - Feature: New domain -> Encounter
