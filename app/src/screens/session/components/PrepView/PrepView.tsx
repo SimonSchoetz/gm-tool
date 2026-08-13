@@ -2,7 +2,7 @@ import { useSessionSteps } from '@/data-access-layer';
 import { StepSection } from './components';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
-import { CustomScrollArea } from '@/components';
+import './PrepView.css';
 
 type Props = {
   visibleTooltips: Set<string>;
@@ -23,7 +23,7 @@ export const PrepView: FCProps<Props> = ({
   }
 
   return (
-    <CustomScrollArea>
+    <div className='prep-view'>
       {steps.map((step) => (
         <StepSection
           key={step.id}
@@ -34,6 +34,6 @@ export const PrepView: FCProps<Props> = ({
           }}
         />
       ))}
-    </CustomScrollArea>
+    </div>
   );
 };

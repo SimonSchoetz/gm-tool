@@ -11,6 +11,7 @@
   background-color: transparent;
   transition: var(--transition-hover-off);
   cursor: pointer;
+  width: 100px; /*one-off to contain width of input type date*/
 }
 
 .date-input::-webkit-calendar-picker-indicator {

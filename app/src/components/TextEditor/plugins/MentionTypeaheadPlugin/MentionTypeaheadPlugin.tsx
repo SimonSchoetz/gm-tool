@@ -10,7 +10,6 @@ import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@services/mentionSearchService';
 import { MentionNode } from '../../nodes';
 import './MentionTypeaheadPlugin.css';
-import { CustomScrollArea } from '../../../CustomScrollArea';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { AnchoredPopup } from '../../../AnchoredPopup';
 import { getSelectionRangeRect } from '../../helper';
@@ -94,14 +93,12 @@ export const MentionTypeaheadPlugin = () => {
       return (
         <AnchoredPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <GlassPanel className='mention-typeahead-popup'>
-            <CustomScrollArea className='mention-typeahead-content-container'>
-              <MentionOptionList
-                menuOptions={menuOptions}
-                selectedIndex={selectedIndex}
-                selectOptionAndCleanUp={selectOptionAndCleanUp}
-                setHighlightedIndex={setHighlightedIndex}
-              />
-            </CustomScrollArea>
+            <MentionOptionList
+              menuOptions={menuOptions}
+              selectedIndex={selectedIndex}
+              selectOptionAndCleanUp={selectOptionAndCleanUp}
+              setHighlightedIndex={setHighlightedIndex}
+            />
           </GlassPanel>
         </AnchoredPopup>
       );

@@ -5,10 +5,8 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $getSelection, $isRangeSelection, TextNode } from 'lexical';
-import './SlashCommandPlugin.css';
 import { AnchoredPopup } from '../../../AnchoredPopup';
 import { PopupSurface } from '../../../PopupSurface';
-import { CustomScrollArea } from '../../../CustomScrollArea';
 import { getSelectionRangeRect, resolveTopLevelBlock } from '../../helper';
 import {
   SLASH_COMMAND_OPTIONS,
@@ -90,15 +88,13 @@ export const SlashCommandPlugin = () => {
       return (
         <AnchoredPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
           <PopupSurface>
-            <CustomScrollArea className='slash-command-scroll-area'>
-              <SlashCommandOptionList
-                menuOptions={menuOptions}
-                selectedIndex={selectedIndex}
-                activeOptionKeys={activeOptionKeys}
-                selectOptionAndCleanUp={selectOptionAndCleanUp}
-                setHighlightedIndex={setHighlightedIndex}
-              />
-            </CustomScrollArea>
+            <SlashCommandOptionList
+              menuOptions={menuOptions}
+              selectedIndex={selectedIndex}
+              activeOptionKeys={activeOptionKeys}
+              selectOptionAndCleanUp={selectOptionAndCleanUp}
+              setHighlightedIndex={setHighlightedIndex}
+            />
           </PopupSurface>
         </AnchoredPopup>
       );

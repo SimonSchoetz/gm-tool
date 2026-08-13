@@ -1,3 +1,13 @@
+.slash-command-option-list {
+  max-height: 150px; /* one-off - simulates exact hight of title + first three items */
+  overflow-y: auto;
+  /*min-height: 0;*/
+}
+
+.slash-command-option-list li {
+  list-style: none;
+}
+
 .slash-command-option-list-section-heading {
   padding: var(--spacing-sm);
   padding-bottom: 0;

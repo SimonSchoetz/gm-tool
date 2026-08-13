@@ -3,6 +3,7 @@
   align-items: center;
   color: var(--color-primary);
   background-color: var(--color-bg-muted);
+  border-radius: inherit;
 }
 
 .mention-popup-header:hover {

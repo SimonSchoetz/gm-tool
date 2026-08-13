@@ -1,3 +1,4 @@
 .steps-sidebar {
   width: var(--session-sidebar-width);
+  padding: 0;
 }

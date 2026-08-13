@@ -1,10 +1,5 @@
 import { useSession, useSessionSteps } from '@/data-access-layer';
-import {
-  CustomScrollArea,
-  GlassPanel,
-  LoadingIcon,
-  TextEditor,
-} from '@/components';
+import { GlassPanel, LoadingIcon, TextEditor } from '@/components';
 import { useParams } from '@tanstack/react-router';
 import { InGameStepSection } from './components';
 import './InGameView.css';
@@ -31,23 +26,22 @@ export const InGameView = () => {
   return (
     <div className='in-game-view'>
       <GlassPanel className='in-game-view--summary'>
-        <CustomScrollArea className='in-game-view--summary-scroll-area'>
-          <TextEditor
-            textEditorId={`session-summary-${sessionId}`}
-            value={session?.summary ?? ''}
-            onChange={(summary) => {
-              updateSession({ summary });
-            }}
-            placeholder='Ingame notes and session summmary...'
-          />
-        </CustomScrollArea>
+        <TextEditor
+          className='in-game-view--summary-text-editor'
+          textEditorId={`session-summary-${sessionId}`}
+          value={session?.summary ?? ''}
+          onChange={(summary) => {
+            updateSession({ summary });
+          }}
+          placeholder='Ingame notes and session summmary...'
+        />
       </GlassPanel>
 
-      <CustomScrollArea childrenContainerClassName='in-game-view--steps'>
+      <div className='in-game-view--steps'>
         {steps.map((step) => (
           <InGameStepSection key={step.id} step={step} />
         ))}
-      </CustomScrollArea>
+      </div>
     </div>
   );
 };

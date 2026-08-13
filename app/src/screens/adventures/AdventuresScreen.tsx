@@ -1,7 +1,7 @@
 import { useAdventures } from '@/data-access-layer';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from './components';
-import { NewItemBtn, CustomScrollArea, LoadingIcon } from '@/components';
+import { NewItemBtn, LoadingIcon } from '@/components';
 import { useRouter } from '@tanstack/react-router';
 import { buildEntityPath } from '@domain';
 import { ADVENTURE_PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../screens.constants';
@@ -31,25 +31,23 @@ export const AdventuresScreen = () => {
   } as React.CSSProperties;
 
   return (
-    <CustomScrollArea>
-      <ul className='content-center adventure-list-container'>
-        <li key='new-adventure'>
-          <NewItemBtn
-            className='new-adventure-btn'
-            label={'Create new adventure'}
-            onClick={() => {
-              void handleAdventureCreation();
-            }}
-            style={adventurePreviewDimensions}
-          />
-        </li>
+    <ul className='content-center adventure-list-container'>
+      <li key='new-adventure'>
+        <NewItemBtn
+          className='new-adventure-btn'
+          label={'Create new adventure'}
+          onClick={() => {
+            void handleAdventureCreation();
+          }}
+          style={adventurePreviewDimensions}
+        />
+      </li>
 
-        {adventures.map((adventure) => (
-          <li key={adventure.id}>
-            <ToAdventureBtn adventure={adventure} />
-          </li>
-        ))}
-      </ul>
-    </CustomScrollArea>
+      {adventures.map((adventure) => (
+        <li key={adventure.id}>
+          <ToAdventureBtn adventure={adventure} />
+        </li>
+      ))}
+    </ul>
   );
 };

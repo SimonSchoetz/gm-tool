@@ -35,7 +35,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
       />
 
       <label className='session-date'>
-        <span className='session-date-label'>Session Date:</span>
+        <span className='label'>Session Date:</span>
 
         <DateInput
           className='session-date-input'

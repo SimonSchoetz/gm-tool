@@ -1,5 +1,5 @@
 import { useTableConfigs } from '@/data-access-layer';
-import { CustomScrollArea, LoadingIcon } from '@/components';
+import { LoadingIcon } from '@/components';
 import { ListConfigRow } from './components';
 
 import './ListConfigSection.css';
@@ -20,13 +20,11 @@ export const ListConfigSection = () => {
   return (
     <Section>
       <H2 heading='List Configuration' />
-      <CustomScrollArea>
-        <ul className='list-config-section-list'>
-          {tableConfigs.map((config) => (
-            <ListConfigRow key={config.id} listConfigId={config.id} />
-          ))}
-        </ul>
-      </CustomScrollArea>
+      <ul className='list-config-section-list'>
+        {tableConfigs.map((config) => (
+          <ListConfigRow key={config.id} listConfigId={config.id} />
+        ))}
+      </ul>
     </Section>
   );
 };

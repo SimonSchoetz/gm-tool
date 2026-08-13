@@ -6,6 +6,7 @@
   padding: calc(
     var(--spacing-md) - var(--spacing-xs)
   ); /* preserves btn hover shadow*/
+  min-height: 0;
 }
 
 .sortable-list--header {
@@ -15,16 +16,16 @@
   padding: var(--spacing-xs); /* preserves btn hover shadow*/
 }
 
-.sortable-list--scroll-area {
-  flex: 1;
-  min-height: 0;
-}
-
 .sortable-list--table {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs); /* preserves btn hover shadow*/
+  overflow-y: auto;
+}
+
+.sortable-list--table li {
+  list-style: none;
 }
 
 .sortable-list--divider-li {

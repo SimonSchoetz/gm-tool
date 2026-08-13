@@ -4,6 +4,7 @@
   color: var(--color-primary);
   transition: var(--transition-hover-on);
   border-radius: var(--radius-xl);
+  overflow: hidden;
 }
 
 .labeled-toggle-panel:hover {

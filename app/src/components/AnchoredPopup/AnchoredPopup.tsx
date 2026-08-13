@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
 import { FCProps } from '@/types';
@@ -23,20 +23,8 @@ export const AnchoredPopup: FCProps<Props> = ({
   onClickOutside,
 }) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
-  const [, forceRerender] = useReducer((tick: number) => tick + 1, 0);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
   const [placement, setPlacement] = useState<'above' | 'below'>('above');
-
-  useEffect(() => {
-    // body has overflow:hidden — capture-phase document listener catches CustomScrollArea's scroll events without needing a ref to it.
-    const handleScroll = () => {
-      forceRerender();
-    };
-    document.addEventListener('scroll', handleScroll, true);
-    return () => {
-      document.removeEventListener('scroll', handleScroll, true);
-    };
-  }, []);
 
   useEffect(() => {
     if (!onClickOutside) return;

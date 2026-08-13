@@ -4,6 +4,7 @@
   padding: var(--spacing-sm);
   background-color: var(--color-bg-muted);
   height: calc(var(--summary-content-height) + 2 * var(--spacing-sm));
+  border-radius: inherit;
 }
 
 .entity-popup-image {
@@ -13,6 +14,7 @@
 .entity-popup-summary {
   max-width: var(--summary-max-width);
   max-height: var(--summary-content-height);
+  overflow-y: auto;
 }
 
 .entity-popup-summary--content {

@@ -4,11 +4,8 @@
   width: fit-content;
 }
 
-.screens-summary--scroll-area {
+.screens-summary--content {
   width: var(--summary-max-width);
   height: var(--summary-content-height);
-}
-
-.screens-summary--content {
-  display: flex;
+  overflow-y: auto;
 }

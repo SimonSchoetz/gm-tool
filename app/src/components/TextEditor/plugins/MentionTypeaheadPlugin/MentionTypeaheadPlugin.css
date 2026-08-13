@@ -2,10 +2,7 @@
   background: var(--color-surface);
   width: max-content;
   max-width: 250px; /* one-off */
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-}
-
-.mention-typeahead-content-container {
-  max-height: var(--mention-popup-max-height);
+  overflow: hidden;
 }

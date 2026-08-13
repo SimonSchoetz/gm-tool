@@ -1,5 +1,14 @@
-.table-handle-menu-divider {
+.table-handle-menu {
+  max-height: 169px; /* one-off - simulates exact hight of first 2 sections  (4 items + divider */
+  overflow-y: auto;
+}
+
+.table-handle-menu--divider {
   height: var(--border-thin);
   background-color: var(--color-primary-muted);
   margin: var(--spacing-sm);
+}
+
+.editor-table-cell.table-cell--handle-hover {
+  background-color: var(--color-secondary);
 }

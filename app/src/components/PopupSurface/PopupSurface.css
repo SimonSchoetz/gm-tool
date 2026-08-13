@@ -6,7 +6,3 @@
   box-shadow: var(--shadow-md);
   border: none;
 }
-
-.popup-surface-scroll-area {
-  padding: var(--border-thin);
-}

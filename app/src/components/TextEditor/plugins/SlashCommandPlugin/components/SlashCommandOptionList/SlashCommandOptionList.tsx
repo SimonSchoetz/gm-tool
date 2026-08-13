@@ -27,7 +27,7 @@ export const SlashCommandOptionList: FCProps<Props> = ({
   }, [selectedIndex, menuOptions]);
 
   return (
-    <ul>
+    <ul className='slash-command-option-list'>
       {menuOptions.map((option, i) => {
         const isNewSection =
           i === 0 || menuOptions[i - 1].section !== option.section;

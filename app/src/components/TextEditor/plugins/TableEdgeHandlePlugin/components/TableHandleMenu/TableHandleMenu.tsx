@@ -113,7 +113,7 @@ export const TableHandleMenu: FCProps<Props> = ({
   };
 
   return (
-    <>
+    <div className='table-handle-menu'>
       <MenuOptionRow
         Icon={Table2Icon}
         label={type === 'row' ? 'Toggle header row' : 'Toggle header column'}
@@ -123,7 +123,7 @@ export const TableHandleMenu: FCProps<Props> = ({
         isActive={isHeader}
       />
 
-      <div className='table-handle-menu-divider' />
+      <div className='table-handle-menu--divider' />
 
       <MenuOptionRow
         Icon={type === 'row' ? ArrowUpFromLineIcon : ArrowLeftFromLineIcon}
@@ -166,6 +166,6 @@ export const TableHandleMenu: FCProps<Props> = ({
               }
         }
       />
-    </>
+    </div>
   );
 };

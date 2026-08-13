@@ -1,3 +1,8 @@
+.mention-option-list {
+  max-height: var(--mention-popup-max-height);
+  overflow-y: auto;
+}
+
 .mention-option-list-item {
   cursor: pointer;
   font-size: var(--font-size-base);
@@ -7,11 +12,12 @@
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-md);
+  border-radius: var(--radius-md);
 }
 
 .mention-option-list-item:hover,
 .mention-option-list-item--selected {
-  background: var(--color-highlight-bg);
+  background: var(--color-bg);
 }
 
 .mention-option-list-item-table-label {

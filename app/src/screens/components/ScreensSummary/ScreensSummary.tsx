@@ -1,19 +1,14 @@
 import { FCProps } from '@/types';
 import './ScreensSummary.css';
 import { ComponentProps } from 'react';
-import { GlassPanel, CustomScrollArea } from '@/components';
+import { GlassPanel } from '@/components';
 
 type Props = ComponentProps<typeof GlassPanel>;
 
 export const ScreensSummary: FCProps<Props> = ({ children }) => {
   return (
     <GlassPanel className='screens-summary' intensity='bright'>
-      <CustomScrollArea
-        className='screens-summary--scroll-area'
-        childrenContainerClassName='screens-summary--content'
-      >
-        {children}
-      </CustomScrollArea>
+      <div className='screens-summary--content'>{children}</div>
     </GlassPanel>
   );
 };

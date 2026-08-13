@@ -9,14 +9,15 @@
   flex-direction: column;
   padding: calc(
     var(--spacing-md) - var(--spacing-xs)
-  ); /* preserves btn hover shadow*/
+  ); /* preserves btn hover shadow */
 }
 
 .sidebar-nav--btn-group {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs); /* preserves btn hover shadow*/
+  padding: var(--spacing-xs); /* preserves btn hover shadow */
+  overflow-y: auto;
 }
 
 .sidebar-nav--btn-group li {

@@ -10,12 +10,15 @@
   border-radius: var(--radius-xl);
 }
 
-.in-game-view--summary-scroll-area {
+.in-game-view--summary-text-editor {
   height: var(--summary-content-height);
+  overflow-y: auto;
 }
 
 .in-game-view--steps {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  min-height: 0;
+  overflow-y: auto;
 }

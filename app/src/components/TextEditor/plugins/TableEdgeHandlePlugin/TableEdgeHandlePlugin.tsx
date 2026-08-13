@@ -9,8 +9,6 @@ import {
 import { AnchoredPopup } from '../../../AnchoredPopup';
 import { PopupSurface } from '../../../PopupSurface';
 import { TableHandleMenu, TableEdgeHint } from './components';
-import './TableEdgeHandlePlugin.css';
-import { CustomScrollArea } from '../../../CustomScrollArea';
 import { PopupState } from './types';
 
 export type HintDirection = 'top' | 'left';
@@ -239,13 +237,11 @@ export const TableEdgeHandlePlugin = () => {
           }}
         >
           <PopupSurface>
-            <CustomScrollArea className='table-popup-list'>
-              <TableHandleMenu
-                popupState={popupState}
-                setPopupState={setPopupState}
-                closePopup={closePopup}
-              />
-            </CustomScrollArea>
+            <TableHandleMenu
+              popupState={popupState}
+              setPopupState={setPopupState}
+              closePopup={closePopup}
+            />
           </PopupSurface>
         </AnchoredPopup>
       )}

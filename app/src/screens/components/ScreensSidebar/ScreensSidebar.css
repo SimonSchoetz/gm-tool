@@ -1,13 +1,7 @@
 .screens-sidebar {
-  min-height: 0;
-}
-
-.screens-sidebar--content-container {
+  overflow-y: auto;
+  padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-}
-
-.screens-sidebar--content-container > * {
-  flex-shrink: 0;
 }

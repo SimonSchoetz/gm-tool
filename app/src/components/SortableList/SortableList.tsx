@@ -4,7 +4,6 @@ import { useTableConfig } from '@/data-access-layer';
 import { cn } from '@/util';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { SearchInput } from '../SearchInput/SearchInput';
-import { CustomScrollArea } from '../CustomScrollArea';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
 import { HorizontalDivider } from '../HorizontalDivider';
 import './SortableList.css';
@@ -106,81 +105,79 @@ export const SortableList = <
         />
       </div>
 
-      <CustomScrollArea className='sortable-list--scroll-area'>
-        <ul className='sortable-list--table'>
-          {showCreateNewBtn && (
-            <li key='new-item-button'>
-              <NewItemBtn label='Create new item' onClick={onCreateNew} />
-            </li>
-          )}
+      <ul className='sortable-list--table'>
+        {showCreateNewBtn && (
+          <li key='new-item-button'>
+            <NewItemBtn label='Create new item' onClick={onCreateNew} />
+          </li>
+        )}
 
-          {pinnedItems.length > 0 && (
-            <>
-              <li
-                key='sortable-list--pinned-heading'
-                className='sortable-list--section-heading label'
-              >
-                Pinned
-              </li>
-              {pinnedItems.map((item) => (
-                <SortableListItem
-                  key={item.id}
-                  tableConfigId={tableConfigId}
-                  item={item}
-                  onClick={handleRowClick}
-                  dragWidths={dragWidths}
-                />
-              ))}
-
-              <li
-                className='sortable-list--divider-li'
-                key='sortable-list--pinned-divider'
-              >
-                <HorizontalDivider />
-              </li>
-            </>
-          )}
-
-          {unpinnedItems.map((item) => (
-            <SortableListItem
-              key={item.id}
-              tableConfigId={tableConfigId}
-              item={item}
-              onClick={handleRowClick}
-              dragWidths={dragWidths}
-            />
-          ))}
-
-          {isSearching && hasFieldMatches && (
-            <>
-              <li
-                className='sortable-list--divider-li'
-                key='sortable-list--field-divider'
-              >
-                <HorizontalDivider />
-              </li>
-              {sortedFieldMatches.map((item) => (
-                <SortableListItem
-                  key={item.id}
-                  tableConfigId={tableConfigId}
-                  item={item}
-                  onClick={handleRowClick}
-                  dragWidths={dragWidths}
-                />
-              ))}
-            </>
-          )}
-
-          {hasNothingToShow && (
+        {pinnedItems.length > 0 && (
+          <>
             <li
-              key='sortable-list--no-results'
-              className='sortable-list--no-results'
+              key='sortable-list--pinned-heading'
+              className='sortable-list--section-heading label'
             >
-              No results found
+              Pinned
             </li>
-          )}
-        </ul>
-      </CustomScrollArea>
+            {pinnedItems.map((item) => (
+              <SortableListItem
+                key={item.id}
+                tableConfigId={tableConfigId}
+                item={item}
+                onClick={handleRowClick}
+                dragWidths={dragWidths}
+              />
+            ))}
+
+            <li
+              className='sortable-list--divider-li'
+              key='sortable-list--pinned-divider'
+            >
+              <HorizontalDivider />
+            </li>
+          </>
+        )}
+
+        {unpinnedItems.map((item) => (
+          <SortableListItem
+            key={item.id}
+            tableConfigId={tableConfigId}
+            item={item}
+            onClick={handleRowClick}
+            dragWidths={dragWidths}
+          />
+        ))}
+
+        {isSearching && hasFieldMatches && (
+          <>
+            <li
+              className='sortable-list--divider-li'
+              key='sortable-list--field-divider'
+            >
+              <HorizontalDivider />
+            </li>
+            {sortedFieldMatches.map((item) => (
+              <SortableListItem
+                key={item.id}
+                tableConfigId={tableConfigId}
+                item={item}
+                onClick={handleRowClick}
+                dragWidths={dragWidths}
+              />
+            ))}
+          </>
+        )}
+
+        {hasNothingToShow && (
+          <li
+            key='sortable-list--no-results'
+            className='sortable-list--no-results'
+          >
+            No results found
+          </li>
+        )}
+      </ul>
     </GlassPanel>
   );
 };

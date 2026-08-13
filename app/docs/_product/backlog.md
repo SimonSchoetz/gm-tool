@@ -16,7 +16,6 @@
   - Lists: Mixed lists should be possible
 - Feature: Data access and db location/localization
   - encryption?
-- Feature: Implement prefetching
 - Feature: cmd+f search for screens
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
@@ -31,6 +30,7 @@
 
 ### Done
 
+- Feature: Implement prefetching
 - Feature: New domain -> Encounter
 - Feature: replace Adventure dummy stats with actual ones
 - Feature: List items ins screens should be pinnable

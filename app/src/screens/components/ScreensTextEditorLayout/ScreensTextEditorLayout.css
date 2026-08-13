@@ -1,7 +1,5 @@
 .screens-text-editor-layout {
-  padding: var(--spacing-md);
   display: grid;
-  gap: var(--spacing-lg);
   grid-template-columns: auto 1fr;
   justify-self: center;
   width: 100%;
@@ -13,14 +11,17 @@
 }
 
 .screens-text-editor-layout--edit-area {
+  padding: var(--spacing-md);
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--spacing-md);
   height: 100%;
+  min-height: 0;
 }
 
 .screens-text-editor-layout--body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  overflow-y: auto;
 }

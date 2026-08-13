@@ -10,7 +10,6 @@ export { SideBarNav } from './SideBarNav/SideBarNav.tsx';
 export { Header } from './Header/Header.tsx';
 export { HoloImg } from './HoloImg/HoloImg.tsx';
 export { NewItemBtn } from './NewItemBtn/NewItemBtn.tsx';
-export { CustomScrollArea } from './CustomScrollArea';
 export { Button } from './Button/Button.tsx';
 export { TextEditor } from './TextEditor/TextEditor.tsx';
 export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';

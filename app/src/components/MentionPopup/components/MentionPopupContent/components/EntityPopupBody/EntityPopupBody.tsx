@@ -1,7 +1,6 @@
 import { FCProps } from '@/types';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor/TextEditor';
-import { CustomScrollArea } from '../../../../../CustomScrollArea';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { PREVIEW_WIDTH } from '@/screens/screens.constants';
 import './EntityPopupBody.css';
@@ -30,17 +29,14 @@ export const EntityPopupBody: FCProps<Props> = ({
       </ImagePlaceholderFrame>
     )}
     {summary !== null && (
-      <CustomScrollArea
-        className='entity-popup-summary'
-        childrenContainerClassName='entity-popup-summary--content'
-      >
+      <div className='entity-popup-summary'>
         <TextEditor
           value={summary}
           textEditorId={textEditorId}
           placeholder='Nothing here yet...'
           readOnly
         />
-      </CustomScrollArea>
+      </div>
     )}
   </div>
 );

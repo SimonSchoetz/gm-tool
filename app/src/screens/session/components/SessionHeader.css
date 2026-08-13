@@ -15,7 +15,3 @@
   justify-content: center;
   gap: var(--spacing-xs);
 }
-
-.session-date-label {
-  color: rgb(var(--color-fg-rgb), 0.6);
-}

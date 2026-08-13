@@ -12,7 +12,7 @@ export const PopupSurface: FCProps<Props> = ({
 }) => {
   return (
     <GlassPanel className={cn('popup-surface', className)} {...props}>
-      <div className='popup-surface-scroll-area'>{children}</div>
+      {children}
     </GlassPanel>
   );
 };

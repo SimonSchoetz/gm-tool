@@ -10,10 +10,12 @@
     var(--sidebar-inner-width) + var(--text-editor-max-width) +
       var(--spacing-lg) + 2 * var(--spacing-md) + var(--custom-scrollbar-width)
   );
+  min-height: 0;
 }
 
 .session-body {
   display: grid;
   gap: var(--spacing-md);
   grid-template-columns: auto 1fr;
+  min-height: 0;
 }
