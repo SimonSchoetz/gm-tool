@@ -20,7 +20,6 @@
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Additional Images. Coming after: other documents types. Moreover: Different tabs with e.g. a table of content based on headings
-- Fix: FW/BW navigators to show disabled when they can't move any further
 - Fix (test strategy):
   - should earn their place.
 	- should cover the full (whatever full means and if this is feasible) outcome
@@ -30,6 +29,7 @@
 
 ### Done
 
+- Fix: FW/BW navigators to show disabled when they can't move any further
 - Feature: Implement prefetching
 - Feature: New domain -> Encounter
 - Feature: replace Adventure dummy stats with actual ones
