@@ -42,6 +42,14 @@ Rust emits via the `Emitter` trait on `AppHandle`/`WebviewWindow`: `emit(event_n
 
 The `os-webview` feature flag is the default and only supported mode; the flag's own description notes it "was added in preparation of other ports like cef and servo," indicating a bundled-engine (CEF) mode was considered but is not implemented. There is no built-in mechanism to pin webview versions across Windows/macOS/Linux — each OS controls its own engine updates independently.
 
+## `app.windows[].dragDropEnabled` (default `true`) intercepts native HTML5 drag-and-drop on Windows — must be `false` for a webpage's own `draggable`/`dragover`/`drop` handling to work
+
+**Verified at:** tauri 2 (schema at `https://schema.tauri.app/config/2`, fetched 2026-08-13)
+
+**Citation:** [implement_3: WebFetch of https://schema.tauri.app/config/2 — `dragDropEnabled` property, type boolean, description "Whether the drag and drop is enabled or not on the webview. By default it is enabled. Disabling it is required to use HTML5 drag and drop on the frontend on Windows."; empirically confirmed via a diagnostic build in this repo: a native `document`-level `dragstart` listener fired once with the correct target (a `draggable="true"` wrapper element), but a parallel `dragover` listener on `document` never fired a single time during a sustained drag gesture on Windows 11 — with `dragDropEnabled` unset (defaulting to `true`) in `app/src-tauri/tauri.conf.json`]
+
+Any feature relying on native HTML5 `draggable`/`dragover`/`drop` DOM events (e.g. Lexical's `DraggableBlockPlugin_EXPERIMENTAL`, or a custom sortable list using native DnD instead of pointer events) is silently broken on Windows unless `app.windows[].dragDropEnabled: false` is set in `tauri.conf.json` — the OS-level webview drag-drop handler intercepts the gesture before it becomes web `dragover`/`drop` events, producing a `dragstart` with zero subsequent `dragover` events and a permanent "not-allowed" cursor. Setting `dragDropEnabled: false` disables Tauri's own file-drop-onto-window handling in exchange; before disabling, grep for `onDragDropEvent`/`getCurrentWebview().onDragDropEvent` (the Tauri API for native window-level file drop) to confirm nothing in the app depends on it.
+
 ## A continuously-firing requestAnimationFrame loop in WKWebView costs constant CPU in both the app process and the WebContent process, even when nothing is drawn
 
 **Verified at:** macOS 15.6 (Darwin 24.6.0), MacBookPro16,1, Tauri dev build, 2026-07-14

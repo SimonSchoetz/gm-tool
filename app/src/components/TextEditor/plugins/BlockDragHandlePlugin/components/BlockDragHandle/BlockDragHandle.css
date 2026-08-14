@@ -1,7 +1,8 @@
 .block-drag-handle {
   position: absolute;
-  left: -10000px;
-  top: -10000px;
+  left: -10px;
+  top: 0;
+  display: none;
   z-index: var(--most-front);
   cursor: grab;
   color: var(--color-primary);

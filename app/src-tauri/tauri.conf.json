@@ -15,7 +15,8 @@
         "title": "GM Tool",
         "width": 1000,
         "height": 700,
-        "backgroundColor": "#031322"
+        "backgroundColor": "#031322",
+        "dragDropEnabled": false
       }
     ],
     "security": {

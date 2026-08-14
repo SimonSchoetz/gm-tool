@@ -1,5 +1,13 @@
 # React
 
+## `recursivelyTraverseDeletionEffects` deletes sibling subtrees left-to-right in render order — a later sibling's DOM removal always commits after an earlier sibling's ref cleanup and host-node removal
+
+**Verified at:** react-dom 19.2.7
+
+**Citation:** [implement_1: app/node_modules/react-dom/cjs/react-dom-client.development.js:14217-14229 — `recursivelyTraverseDeletionEffects` iterates `parent.child`, then walks `.sibling` in a `for` loop, calling `commitDeletionEffectsOnFiber` on each in that order; :14230-14267 — `commitDeletionEffectsOnFiber` calls `safelyDetachRef` (ref cleanup) before recursing into a host fiber's own children, and performs the fiber's own `removeChild` after that recursion completes]
+
+For a set of sibling fibers under the same parent, React's commit-phase deletion traversal processes them in the same left-to-right order they were rendered (JSX child order) — the first sibling's ref cleanup, effect cleanup, and DOM `removeChild` calls all complete before the traversal moves to the next sibling. This means a component whose unmount must run — and specifically must finish removing its own DOM nodes — before a sibling's unmount side effects fire (e.g. a portal target that a later sibling's ref-cleanup callback mutates or clears) must be rendered earlier in the same JSX tree, not later. See `.claude/knowledge/lexical.md` — "`LexicalEditor.setRootElement(nextRootElement)` wipes the previous root element's DOM children..." for the concrete case this was verified against.
+
 ## `JSX.IntrinsicElements['input']` already carries `ref`, so `HtmlProps<'input'>` needs no `forwardRef` to accept one
 
 **Verified at:** react 19.2.7, @types/react 19.2.17

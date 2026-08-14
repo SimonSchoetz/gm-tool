@@ -1,7 +1,8 @@
 .block-drop-indicator {
   position: absolute;
-  left: -10000px;
-  top: -10000px;
+  left: -30px;
+  top: 0;
+  opacity: 0;
   z-index: var(--most-front);
   height: 3px; /* no spacing token represents line stroke thickness — flagged for user review */
   border-radius: var(--radius-xs);

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FCProps, HtmlProps } from '@/types';
 import './TextEditor.css';
 
@@ -90,6 +91,7 @@ export const TextEditor: FCProps<Props> = ({
   className,
   ...props
 }) => {
+  const [anchorElem, setAnchorElem] = useState<HTMLDivElement | null>(null);
   const initialConfig = {
     namespace: textEditorId,
     theme,
@@ -129,7 +131,7 @@ export const TextEditor: FCProps<Props> = ({
   return (
     <div className={cn('text-editor-container', className)}>
       <LexicalComposer initialConfig={initialConfig} {...props}>
-        <div className='text-editor'>
+        <div className='text-editor' ref={setAnchorElem}>
           <RichTextPlugin
             contentEditable={<ContentEditable className='editor-content' />}
             placeholder={
@@ -165,7 +167,9 @@ export const TextEditor: FCProps<Props> = ({
           {!readOnly && <MentionTypeaheadPlugin />}
           {!readOnly && <SlashCommandPlugin />}
           {!readOnly && <TableEdgeHandlePlugin />}
-          {!readOnly && <BlockDragHandlePlugin />}
+          {!readOnly && anchorElem && (
+            <BlockDragHandlePlugin anchorElem={anchorElem} />
+          )}
           {!readOnly && <MentionFormatPlugin />}
           {!readOnly && <EmptyNodeHintPlugin />}
           {!readOnly && <ToggleKeyboardPlugin />}
