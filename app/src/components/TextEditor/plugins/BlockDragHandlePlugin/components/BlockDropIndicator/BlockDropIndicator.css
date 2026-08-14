@@ -1,6 +1,8 @@
 .block-drop-indicator {
   position: absolute;
-  left: -30px;
+  left: calc(
+    var(--text-editor-gutter-width) - 24px
+  ); /* cancels Lexical's own hardcoded (TEXT_BOX_HORIZONTAL_PADDING - SPACE) = 24px transform offset (DraggableBlockPlugin_EXPERIMENTAL's setTargetLine), landing the line flush with --text-editor-gutter-width; the line's width is set inline by Lexical as anchorElem's width minus 48px and cannot be corrected from CSS, so it may fall short of the text's own right edge */
   top: 0;
   opacity: 0;
   z-index: var(--most-front);

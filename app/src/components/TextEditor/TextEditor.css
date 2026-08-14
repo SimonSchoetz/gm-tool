@@ -4,13 +4,16 @@
 }
 
 .text-editor {
+  --text-editor-gutter-width: calc(var(--spacing-lg) - var(--spacing-xs));
   position: relative;
   min-height: 0;
   flex: 1;
   max-width: var(--text-editor-max-width);
+  margin: var(--spacing-xs);
 }
 
 .editor-content {
+  padding-left: var(--text-editor-gutter-width);
   font-size: var(--font-size-base);
   outline: none;
   min-height: 100%;
@@ -19,6 +22,7 @@
 .placeholder {
   position: absolute;
   inset: 0;
+  padding-left: var(--text-editor-gutter-width);
   color: var(--color-text-muted);
   font-size: var(--font-size-base);
   pointer-events: none;

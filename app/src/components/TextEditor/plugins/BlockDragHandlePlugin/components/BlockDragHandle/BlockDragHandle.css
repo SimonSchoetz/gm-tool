@@ -1,16 +1,39 @@
-.block-drag-handle {
+.block-drag-handle-anchor {
   position: absolute;
-  left: -10px;
+  left: -4px; /* cancels Lexical's own hardcoded 4px transform offset (DraggableBlockPlugin_EXPERIMENTAL's SPACE constant), landing flush with --text-editor-gutter-width's reserved space */
   top: 0;
   display: none;
+  width: var(--spacing-md);
+  height: var(
+    --block-drag-handle-anchor-height,
+    var(--line-height-base)
+  ); /* must always equal what Lexical's own centering math measures for the hovered block (targetCalculateHeight) — a mismatch here is what makes Lexical's computed vertical offset wrong; the visually tall bar below is a separate absolutely-positioned child, decoupled from what Lexical measures here */
+}
+
+.block-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--block-drag-handle-height, 100%);
   z-index: var(--most-front);
   cursor: grab;
   color: var(--color-primary);
   transition: color var(--transition-fast);
+  border-radius: var(--radius-md);
+  border: none;
+}
+
+.block-drag-handle svg {
+  flex-shrink: 0;
 }
 
 .block-drag-handle:hover {
   color: var(--color-fg);
+  box-shadow: var(--box-shadow-active);
 }
 
 .block-drag-handle:active {
