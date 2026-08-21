@@ -27,4 +27,8 @@ code-reviewer flagged three CLAUDE.md violations. architect determined all three
 
 ---
 
-Every entry above needs your disposition before this review-loop session closes.
+## Disposition
+
+User disposition: fix all three now. All three fixed in commit `cfbb98aa` (`fix(block-drag-handle): resolve deferred review-loop violations`).
+
+The related concern (reset.css `max-width: 100%` removal, not a violation) was also disposed in the same commit: user chose to keep the removal and document the rationale with a comment, rather than revert it.
