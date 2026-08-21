@@ -16,6 +16,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* No max-width: 100% here (unlike most CSS resets) — it capped lucide-react icon SVGs to their flex container's width, shrinking icons like BlockDragHandle's whenever their container was narrower than the icon's own natural size. */
 img,
 picture,
 video,

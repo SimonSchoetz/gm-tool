@@ -2,12 +2,13 @@ import { useRef, useState } from 'react';
 import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggableBlockPlugin';
 import { BlockDragHandle, BlockDropIndicator } from './components';
 import { getTargetCalculateHeight, isOnMenu } from './helper';
+import { FCProps } from '@/types';
 
 type Props = {
   anchorElem: HTMLElement;
 };
 
-export const BlockDragHandlePlugin = ({ anchorElem }: Props) => {
+export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const targetLineRef = useRef<HTMLDivElement>(null);
   const [hoveredElement, setHoveredElement] = useState<HTMLElement | null>(
@@ -32,9 +33,7 @@ export const BlockDragHandlePlugin = ({ anchorElem }: Props) => {
       }
       targetLineComponent={<BlockDropIndicator ref={targetLineRef} />}
       isOnMenu={isOnMenu}
-      onElementChanged={(element) => {
-        setHoveredElement(element);
-      }}
+      onElementChanged={setHoveredElement}
     />
   );
 };
