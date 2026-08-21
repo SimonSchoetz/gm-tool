@@ -1,0 +1,10 @@
+.block-drop-highlight {
+  position: absolute;
+  top: var(--block-drop-highlight-top);
+  left: 0;
+  width: 100%;
+  height: var(--block-drop-highlight-height);
+  border-radius: var(--radius-sm);
+  background-color: rgb(var(--color-primary-rgb), 0.08);
+  pointer-events: none;
+}

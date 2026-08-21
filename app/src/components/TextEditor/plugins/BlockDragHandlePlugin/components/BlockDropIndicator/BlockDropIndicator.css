@@ -3,10 +3,10 @@
   left: calc(
     var(--text-editor-gutter-width) - 24px
   ); /* cancels Lexical's own hardcoded (TEXT_BOX_HORIZONTAL_PADDING - SPACE) = 24px transform offset (DraggableBlockPlugin_EXPERIMENTAL's setTargetLine), landing the line flush with --text-editor-gutter-width; the line's width is set inline by Lexical as anchorElem's width minus 48px and cannot be corrected from CSS, so it may fall short of the text's own right edge */
-  top: 0;
+  top: -8px;
   opacity: 0;
   z-index: var(--most-front);
-  height: 3px; /* no spacing token represents line stroke thickness — flagged for user review */
+  height: 24px; /* no spacing token represents line stroke thickness — flagged for user review */
   border-radius: var(--radius-xs);
   background-color: var(--color-primary);
   pointer-events: none;
