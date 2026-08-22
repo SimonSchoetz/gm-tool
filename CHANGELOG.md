@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- New Encounters domain: create, manage, and organize encounters for your sessions
+
+## [v0.13.0] - 2026-08-22
+
+### Added
+
+- Query prefetching on mention popup hover for faster navigation
+- Route data loaders for detail and list screens, improving initial load times
+- Layout-stable pending placeholders for images while loading
+
+### Fixed
+
+- Sidebar no longer shrinks when window width becomes too small
+- Forward and backward navigation buttons now show correct disabled state
+- Text editor fills its full parent height in edit layouts
+- Pasted table content no longer inherits Lexical's baked-in header background
+- Anchored popups now flip below their anchor when they would overflow above the viewport
+- Domain scaffold route templates now sync correctly with loader requirements
+
+### Changed
+
+- Removed custom scroll area implementation in favor of native scrolling
+- Extracted shared `MentionEntityType` union for reuse across domains
+- Extracted shared duplicate-mutation hook for cleaner code organization
+
 ## [v0.12.0] - 2026-08-07
 
 ### Added
