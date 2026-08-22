@@ -215,7 +215,7 @@
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   /*padding-top: var(
     --spacing-xs
   );*/
