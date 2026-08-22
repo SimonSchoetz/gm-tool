@@ -92,8 +92,8 @@ Constraints: Treats CLAUDE.md as non-negotiable; never proposes fixes — flaggi
 
 Intent: Walk through this project's release process end to end — version bump across all sync locations, CHANGELOG generation from commit history, and a local release commit
 Input: Release intent (e.g. "cut a release"), optionally a specific version
-Output: A local `chore(release):` commit with version bumps and CHANGELOG entries; instructions to run `npm run create-release` to push and trigger CI
-Constraints: Never runs `npm run create-release` itself; always confirms the target version and shows the full diff before committing; a commit message that doesn't parse into a recognized conventional-commit type is never silently classified — the user is asked
+Output: A local `chore(release):` commit with version bumps and CHANGELOG entries; instructions to run `pnpm run create-release` to push and trigger CI
+Constraints: Never runs `pnpm run create-release` itself; always confirms the target version and shows the full diff before committing; a commit message that doesn't parse into a recognized conventional-commit type is never silently classified — the user is asked
 
 ## Registry Entry Conventions
 

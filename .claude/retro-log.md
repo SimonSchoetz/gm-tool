@@ -108,3 +108,14 @@ Batch "queryOptions Carve-Out" — approved by user message "yes, apply", 2026-0
 | 1 | G2 `spec-writer.md` body — closed no-change, cites G1 (a target accepted in this same batch); coordinator ran no separate re-check, author self-checked against own G1 draft | 1 | 0 | C3=fired, C6=not-fired | |
 | 1 | G3 `implement.md` — closed no-change; Async ownership row confirmed never to reach a router loader | 1 | 0 | C3=fired | |
 | 1 | Application-code follow-up (`*QueryOptions` import boundary lint guard) → tracked task_6e608fcc | 1 | 0 | C4=fired | |
+
+## Session of 2026-08-22 — pnpm CLAUDE.md sync
+
+Batch "pnpm CLAUDE.md sync" — approved by user message "apply all, then commit, then merge to main", 2026-08-22. Retrospective mode; pasted-text input (no cycle-directory pre-gate applicable — the migration itself produced no `/implement` friction brief or spec-writer artifact for this input). Proposals and applied record: `.claude/cycles/2026-08-22-pnpm-claude-md-sync/`.
+
+| Batch | Item | Rounds | Crossings | Criteria | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| 1 | F1 Development Commands section npm→pnpm (root `CLAUDE.md`) | 1 | 0 | C1=not-fired, C2=not-fired | |
+| 1 | F2 cut-release registry Output+Constraints npm→pnpm (`.claude/CLAUDE.md`) — 2nd occurrence found on fresh re-read | 1 | 0 | C1=not-fired, C2=not-fired | |
+| 1 | F3 Post-loop `npm test`→`pnpm test` (`implement.md`) | 1 | 0 | C1=not-fired, C2=not-fired | |
+| 1 | F4 Package manifest consequences lockfile note (`spec-writer.md`) — 2nd occurrence in same sentence found on fresh re-read | 1 | 0 | C1=not-fired, C2=not-fired | |

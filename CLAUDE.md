@@ -43,11 +43,11 @@ See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`
 #### Running the application
 
 ```bash
-npm run dev                # Local Tauri environment
-npm run web                # Vite only in browser — no database
+pnpm run dev                # Local Tauri environment
+pnpm run web                # Vite only in browser — no database
 ```
 
-`npm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `npm run dev` can exercise them.
+`pnpm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `pnpm run dev` can exercise them.
 
 ### Git Conventions
 

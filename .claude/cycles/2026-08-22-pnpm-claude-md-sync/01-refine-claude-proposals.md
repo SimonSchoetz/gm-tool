@@ -33,7 +33,7 @@ correction is the complete fix for this root cause.
 
 ### head-of-instructions — F1
 
-```
+```text
 File: /home/user/gm-tool/CLAUDE.md
 Type: REPLACE
 Section: Development Commands
@@ -57,7 +57,7 @@ sync, not a convention change.
 
 ### head-of-instructions — F2 (includes the Constraints-field occurrence found during the fresh re-read)
 
-```
+```text
 File: /home/user/gm-tool/.claude/CLAUDE.md
 Type: REPLACE
 Section: cut-release
@@ -77,7 +77,7 @@ occurrences (Output and Constraints) in one pass.
 
 ### head-of-agents — F3
 
-```
+```text
 File: /home/user/gm-tool/.claude/commands/implement.md
 Type: REPLACE
 Section: Post-loop
@@ -92,7 +92,7 @@ same unchanged `test` script in app/package.json.
 
 ### head-of-agents — F4 (includes the second package-lock.json occurrence in the same sentence)
 
-```
+```text
 File: /home/user/gm-tool/.claude/agents/spec-writer.md
 Type: REPLACE
 Section: (sub-feature detail rules — "Package manifest consequences")

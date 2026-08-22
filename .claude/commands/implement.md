@@ -75,7 +75,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 **Post-loop:**
 
-Run `npm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
+Run `pnpm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
 Run `pnpm run build:frontend` from `app/` and surface any warnings and errors.
 
