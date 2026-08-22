@@ -2,3 +2,4 @@ src-tauri/
 src/routeTree.gen.ts
 docs/
 coverage/
+pnpm-lock.yaml

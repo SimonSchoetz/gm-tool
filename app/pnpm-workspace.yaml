@@ -1,0 +1,3 @@
+# Intentionally empty. Its presence stops pnpm from treating the root
+# pnpm-workspace.yaml (one directory up) as this project's workspace root —
+# without it, `pnpm install` here silently no-ops against the wrong lockfile.

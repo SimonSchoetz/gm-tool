@@ -4,7 +4,7 @@
 
 **Verified at:** react 19.2.7, @types/react 19.2.17
 
-**Citation:** [spec-writer_28: app/node_modules/@types/react/index.d.ts:4224 — `input: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;`; :2258 — `type DetailedHTMLProps<E extends HTMLAttributes<T>, T> = ClassAttributes<T> & E;`; :307 — `interface ClassAttributes<T> extends RefAttributes<T> {}`; :293-302 — `interface RefAttributes<T> extends Attributes { ref?: Ref<T> | undefined; }`; app/package.json:44 — `"react": "^19.2.7"`]
+**Citation:** [spec-writer_28: app/node_modules/@types/react/index.d.ts:4224 — `input: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;`; :2258 — `type DetailedHTMLProps<E extends HTMLAttributes<T>, T> = ClassAttributes<T> & E;`; :307 — `interface ClassAttributes<T> extends RefAttributes<T> {}`; :293-302 — `interface RefAttributes<T> extends Attributes { ref?: Ref<T> | undefined; }`; app/package.json:48 — `"react": "^19.2.7"`]
 
 In React 19 `ref` is an ordinary prop on function components, and the DOM element prop types already declare it: every `JSX.IntrinsicElements[T]` resolves through `DetailedHTMLProps` → `ClassAttributes` → `RefAttributes`, which declares `ref?: Ref<T> | undefined`. This repo's `HtmlProps<T>` alias is defined as `JSX.IntrinsicElements[T]` [app/src/types/htmlProps.type.ts:3-4], so any component typed `FCProps<HtmlProps<'input'>>` that spreads `...props` onto its underlying `<input>` accepts and forwards a `ref` with no `forwardRef` wrapper and no props-type change. `app/src/components/Input/Input.tsx:5-7` is such a component.
 

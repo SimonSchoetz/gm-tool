@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Bumps the version in all four locations across three files this project's release process requires to stay in sync: app/src-tauri/tauri.conf.json, app/src-tauri/Cargo.toml, app/package.json, app/package-lock.json (top-level "version" and packages[""].version). Every edit is a targeted string/regex replace, never a JSON.parse + JSON.stringify round-trip — stringify re-indents the whole file and collapses/expands arrays to its own formatting rules (verified: it turned tauri.conf.json's single-line "scope": ["**"] into a 3-line array), which would pollute a version-bump commit with unrelated formatting noise.
+// Bumps the version in all three locations this project's release process requires to stay in sync: app/src-tauri/tauri.conf.json, app/src-tauri/Cargo.toml, app/package.json. app/pnpm-lock.yaml carries no copy of the project's own version (verified: it records only dependency specifiers under `importers`), so — unlike npm's package-lock.json — it needs no corresponding edit here; `pnpm install` picks up the bumped package.json version on its own. Every edit is a targeted string/regex replace, never a JSON.parse + JSON.stringify round-trip — stringify re-indents the whole file and collapses/expands arrays to its own formatting rules (verified: it turned tauri.conf.json's single-line "scope": ["**"] into a 3-line array), which would pollute a version-bump commit with unrelated formatting noise.
 // Usage: node bump-version.ts <newVersion> — e.g. node bump-version.ts 0.9.0. Run from anywhere; paths resolve relative to this script's own location, not the caller's cwd.
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -53,44 +53,6 @@ const replaceFirstVersionField = (
   const oldVersion = (JSON.parse(content) as { version: string }).version;
   writeFileSync(file, replaceFirstVersionField(content, oldVersion, newVersion, file));
   updated.push({ file, field: 'version', oldVersion, newVersion });
-}
-
-// package-lock.json — two locations: top-level "version", then packages[""].version a few lines later. Both are always the first two "version" occurrences in the file (before any dependency package block), so replacing the first two matches of the exact old-version string is safe.
-{
-  const file = path.join(appDir, 'package-lock.json');
-  const content = readFileSync(file, 'utf8');
-  const parsed = JSON.parse(content) as {
-    version: string;
-    packages?: Record<string, { version?: string }>;
-  };
-  const oldVersion = parsed.version;
-  if (parsed.packages?.['']?.version !== oldVersion) {
-    console.error(
-      `${file}: top-level version (${oldVersion}) and packages[""].version (${parsed.packages?.['']?.version}) already disagree — fix that drift manually before bumping.`,
-    );
-    process.exit(1);
-  }
-  const target = `"version": "${oldVersion}"`;
-  const first = content.indexOf(target);
-  const second = content.indexOf(target, first + target.length);
-  if (first === -1 || second === -1) {
-    console.error(`Could not find two occurrences of ${target} in ${file}`);
-    process.exit(1);
-  }
-  const replacement = `"version": "${newVersion}"`;
-  const next =
-    content.slice(0, first) +
-    replacement +
-    content.slice(first + target.length, second) +
-    replacement +
-    content.slice(second + target.length);
-  writeFileSync(file, next);
-  updated.push({
-    file,
-    field: 'version (top-level + packages[""].version)',
-    oldVersion,
-    newVersion,
-  });
 }
 
 // src-tauri/tauri.conf.json — single top-level "version" field

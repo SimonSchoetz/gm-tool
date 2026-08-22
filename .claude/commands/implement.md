@@ -77,7 +77,7 @@ During this loop only, the implementer acts as a pure mediator — it passes out
 
 Run `npm test` once more. Resolve any remaining errors. Implementation is complete when the user confirms the branch is ready.
 
-Run `npm run build:frontend` from `app/` and surface any warnings and errors.
+Run `pnpm run build:frontend` from `app/` and surface any warnings and errors.
 
 Before running the post-loop advisory scans, read `.claude/reference/implement-post-loop.md` in full for the three scans' exact triggers, grep patterns, and labels — run all three exactly as specified there. Each produces a non-blocking advisory, distinct from the friction brief, deferred violations brief, and spec quality brief — the user decides what to do with each finding, never you. Never route any of their output through architect or code-reviewer, and never commit anything based on any of them.
 

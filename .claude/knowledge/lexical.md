@@ -14,7 +14,7 @@
 
 ---
 **Reverified at:** @lexical/table 0.46.0 (post-slash-command implementation)
-**Citation:** [spec-writer_7: app/package.json:28 — `"@lexical/table": "^0.46.0"` present as a direct dependency]
+**Citation:** [spec-writer_7: app/package.json:32 — `"@lexical/table": "^0.46.0"` present as a direct dependency]
 
 The slash command implementation added `@lexical/table` as a direct dependency. This entry is stale. Correct state: `@lexical/table` IS declared in `app/package.json`. Import from it directly — do not add it again.
 
