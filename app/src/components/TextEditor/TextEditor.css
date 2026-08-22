@@ -19,8 +19,10 @@
   min-height: 100%;
 }
 
-/* Animates the block-drag-handle's drop-target margin-bottom (BlockDragHandlePlugin.tsx) so the gap it opens/closes reads as smooth, not an instant jump. */
 .editor-content > * {
+  margin-bottom: var(--spacing-xs);
+
+  /* Animates the block-drag-handle's drop-target margin-bottom (BlockDragHandlePlugin.tsx) so the gap it opens/closes reads as smooth, not an instant jump. */
   transition: margin-bottom var(--transition-fast);
 }
 

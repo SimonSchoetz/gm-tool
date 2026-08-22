@@ -1,13 +1,28 @@
+/* Animates margin-left, not transform — Lexical's own setTargetLine overwrites .style.transform (and .style.width) on every dragover, so animating transform directly would fight it every frame. margin-left stacks additively on top of Lexical's positioning instead. */
+@keyframes block-drop-indicator-bounce {
+  0% {
+    margin-left: 0;
+    color: transparent;
+  }
+  70% {
+    color: var(--color-primary);
+  }
+  100% {
+    margin-left: 4%;
+    color: transparent;
+  }
+}
+
 .block-drop-indicator {
   position: absolute;
+  width: fit-content;
   left: calc(
     var(--text-editor-gutter-width) - 24px
   ); /* cancels Lexical's own hardcoded (TEXT_BOX_HORIZONTAL_PADDING - SPACE) = 24px transform offset (DraggableBlockPlugin_EXPERIMENTAL's setTargetLine), landing the line flush with --text-editor-gutter-width; the line's width is set inline by Lexical as anchorElem's width minus 48px and cannot be corrected from CSS, so it may fall short of the text's own right edge */
-  top: -8px;
+  top: calc(var(--spacing-sm) * -1);
   opacity: 0;
+  color: var(--color-primary);
   z-index: var(--most-front);
-  height: 24px; /* no spacing token represents line stroke thickness — flagged for user review */
-  border-radius: var(--radius-xs);
-  background-color: var(--color-primary);
   pointer-events: none;
+  animation: block-drop-indicator-bounce ease-in 0.8s infinite; /*one-off*/
 }
