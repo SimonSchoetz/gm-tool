@@ -31,3 +31,7 @@ rand = "0.10.2"
 tokio = { version = "1.52.3", features = ["sync", "time", "macros"] }
 futures-core = "0.3.32"
 base64 = "0.22.1"
+
+# `iroh-mdns-address-lookup` never passes an interface list to swarm-discovery, so mDNS binds to whichever single interface the OS picks for multicast — on this project's Windows hosts a Hyper-V/WSL virtual switch, which kills LAN discovery silently. The vendored copy adds that call. Drop this patch once upstream exposes multicast interface selection (absent as of 0.5.0).
+[patch.crates-io]
+iroh-mdns-address-lookup = { path = "vendor/iroh-mdns-address-lookup" }
