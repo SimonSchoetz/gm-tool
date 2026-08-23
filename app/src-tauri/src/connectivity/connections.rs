@@ -20,6 +20,9 @@ use super::{
     PeerConnectedPayload, PeerDisconnectedPayload, TrustedPeer, pairing, parse_endpoint_id,
 };
 
+// Fails the build if the vendored iroh-mdns-address-lookup patch is no longer in effect. Upstream does not define this constant, and without the patch mDNS joins the multicast group on a single OS-chosen interface — routinely a VPN or Hyper-V/WSL adapter rather than the LAN — which breaks peer discovery with no error on any layer.
+const _: () = assert!(iroh_mdns_address_lookup::MULTICAST_INTERFACE_PATCH_ACTIVE);
+
 const CONNECTION_IDLE_TIMEOUT: Duration = Duration::from_secs(10);
 
 pub async fn init(

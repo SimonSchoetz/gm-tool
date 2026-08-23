@@ -250,6 +250,9 @@ pub enum DiscoveryEvent {
     },
 }
 
+// LOCAL PATCH (not upstream): proves at compile time that this vendored copy is the one being built. `connections.rs` asserts on it, so dropping the `[patch.crates-io]` entry or resolving past this copy fails the build instead of silently restoring single-interface mDNS, whose only symptom is that peers stop being discovered.
+pub const MULTICAST_INTERFACE_PATCH_ACTIVE: bool = true;
+
 // LOCAL PATCH (not upstream): without an explicit interface list, `Discoverer::spawn` joins the multicast group and sends announcements only on the single interface the OS selects for 224.0.0.0/4. On a multi-homed host that selection routinely lands on a VPN tunnel or a Hyper-V/WSL virtual switch rather than the LAN interface, and discovery then goes silently dead in both directions while every socket still binds successfully. Passing every operational interface makes `Sockets::new` join the group per interface on the wildcard socket, so reception and announcement work regardless of which interface the OS would have picked.
 fn operational_multicast_interfaces_v4() -> Vec<std::net::Ipv4Addr> {
     netdev::get_interfaces()
