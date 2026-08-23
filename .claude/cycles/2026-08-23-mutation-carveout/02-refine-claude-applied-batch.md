@@ -44,5 +44,5 @@ Verified after write: **24582** characters (projected 24582). Old block matched 
 ## Not applied
 
 - No application-code change. The nine duplicated comments in `app/src/data-access-layer/` remain as they were — tracked as `task_bf5de8d0`, gated on F1 having landed (which it now has). Disposition is the user's.
-- No commit. The three files are modified in the working tree only; committing was not part of the approved batch.
+- No application-code commit. The batch was committed on the user's separate instruction ("everything is approved. Commit your changes") as `42455950`, `docs(cross-entity-description-overwrite):`, covering only the three rule files plus this cycle directory and `.claude/retro-log.md`. The bug-fix work in progress on this branch — the nine data-access-layer hooks and the component files — was left unstaged and uncommitted; it was never part of this session's scope. That commit also carried a one-line pre-existing prettier fix in `.claude/agents/spec-writer.md` (an italics-delimiter violation at a line untouched by F3), applied so the all-checks-pass-before-commit rule held.
 - F2's "in code" scoping was deliberately not broadened. Recorded as an open item in `01-refine-claude-proposals.md` for a future session, not as a deferred part of this batch.
