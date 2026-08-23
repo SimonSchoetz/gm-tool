@@ -2,6 +2,7 @@
   position: relative;
   border-radius: var(--radius-2xl);
   transition: box-shadow var(--transition-base);
+  overflow: hidden;
 }
 
 .glass-fx {

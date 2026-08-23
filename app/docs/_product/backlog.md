@@ -1,8 +1,10 @@
 # Product Backlog
 
 ## Closed Beta Ready
+
 - Encounter:
   - Feature (Stat Block): Summary field of PC, NPC, Foes and Items get tabs to switch between RP and Stat Block view.
+    - + icon that lets you add new tabs with different stat block views
   - sidebar element similar to session nav that represents the combatents in turn order that can be changed via drag-and-drop
   - header: images / placeholder of combatents mirroring order of sidebar
   - body:
@@ -12,11 +14,9 @@
       - input field for accumulated dmg
 - Text editor:
   - Auto-Correct off (?)
-  - drag-and-drop content within editor something the editor must do?
   - Lists: Mixed lists should be possible
 - Feature: Data access and db location/localization
   - encryption?
-- Feature: cmd+f search for screens
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Additional Images. Coming after: other documents types. Moreover: Different tabs with e.g. a table of content based on headings
@@ -29,6 +29,7 @@
 
 ### Done
 
+- Text Editor: drag-and-drop content within editor
 - Fix: FW/BW navigators to show disabled when they can't move any further
 - Feature: Implement prefetching
 - Feature: New domain -> Encounter
