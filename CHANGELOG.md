@@ -10,6 +10,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New Encounters domain: create, manage, and organize encounters for your sessions
 
+## [v0.13.2] - 2026-08-23
+
+### Fixed
+
+- Devices on the same network find each other again on Windows machines where a virtual network adapter (such as WSL, Hyper-V, or a VPN) was silently capturing local network discovery
+
 ## [v0.13.1] - 2026-08-23
 
 ### Fixed
