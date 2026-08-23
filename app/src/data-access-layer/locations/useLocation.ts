@@ -38,11 +38,11 @@ export const useLocation = (
   );
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateLocationData) =>
-      service.updateLocation(locationId, data),
-    onSuccess: () => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateLocationData }) =>
+      service.updateLocation(id, data),
+    onSuccess: (_result, { id }) => {
       void queryClient.invalidateQueries({
-        queryKey: locationKeys.detail(locationId),
+        queryKey: locationKeys.detail(id),
       });
       void queryClient.invalidateQueries({
         queryKey: locationKeys.list(adventureId),
@@ -102,7 +102,8 @@ export const useLocation = (
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
 
-      updateMutation.mutate(updates);
+      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      updateMutation.mutate({ id: locationId, data: updates });
     }, 500);
   };
 

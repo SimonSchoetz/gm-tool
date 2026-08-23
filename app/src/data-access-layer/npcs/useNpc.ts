@@ -35,9 +35,10 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
   );
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateNpcData) => service.updateNpc(npcId, data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: npcKeys.detail(npcId) });
+    mutationFn: ({ id, data }: { id: string; data: UpdateNpcData }) =>
+      service.updateNpc(id, data),
+    onSuccess: (_result, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: npcKeys.detail(id) });
       void queryClient.invalidateQueries({
         queryKey: npcKeys.list(adventureId),
       });
@@ -91,7 +92,8 @@ export const useNpc = (npcId: string, adventureId: string): UseNpcReturn => {
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
 
-      updateMutation.mutate(updates);
+      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      updateMutation.mutate({ id: npcId, data: updates });
     }, 500);
   };
 

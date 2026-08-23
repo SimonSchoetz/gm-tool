@@ -35,9 +35,10 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
   );
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdatePcData) => service.updatePc(pcId, data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: pcKeys.detail(pcId) });
+    mutationFn: ({ id, data }: { id: string; data: UpdatePcData }) =>
+      service.updatePc(id, data),
+    onSuccess: (_result, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: pcKeys.detail(id) });
       void queryClient.invalidateQueries({
         queryKey: pcKeys.list(adventureId),
       });
@@ -91,7 +92,8 @@ export const usePc = (pcId: string, adventureId: string): UsePcReturn => {
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
 
-      updateMutation.mutate(updates);
+      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      updateMutation.mutate({ id: pcId, data: updates });
     }, 500);
   };
 

@@ -36,11 +36,11 @@ export const useEncounter = (
   );
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateEncounterInput) =>
-      service.updateEncounter(encounterId, data),
-    onSuccess: () => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateEncounterInput }) =>
+      service.updateEncounter(id, data),
+    onSuccess: (_result, { id }) => {
       void queryClient.invalidateQueries({
-        queryKey: encounterKeys.detail(encounterId),
+        queryKey: encounterKeys.detail(id),
       });
       void queryClient.invalidateQueries({
         queryKey: encounterKeys.list(adventureId),
@@ -86,7 +86,9 @@ export const useEncounter = (
       const updates = { ...pendingUpdatesRef.current };
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
-      updateMutation.mutate(updates);
+
+      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      updateMutation.mutate({ id: encounterId, data: updates });
     }, 500);
   };
 
