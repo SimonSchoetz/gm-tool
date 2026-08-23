@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New Encounters domain: create, manage, and organize encounters for your sessions
 
+## [v0.13.1] - 2026-08-23
+
+### Fixed
+
+- Editing a Foe, PC, NPC, Faction, Location, Item, Encounter, Adventure, or Session's description, then navigating to another entity of the same type, no longer overwrites the new entity's content with the previous one's
+- Fixed content clipping and popup list styling overflow issues
+
 ## [v0.13.0] - 2026-08-22
 
 ### Added
