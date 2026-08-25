@@ -33,12 +33,12 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
   );
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateAdventureData) =>
-      service.updateAdventure(adventureId, data),
-    onSuccess: () => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateAdventureData }) =>
+      service.updateAdventure(id, data),
+    onSuccess: (_result, { id }) => {
       void queryClient.invalidateQueries({ queryKey: adventureKeys.list() });
       void queryClient.invalidateQueries({
-        queryKey: adventureKeys.detail(adventureId),
+        queryKey: adventureKeys.detail(id),
       });
     },
   });
@@ -86,7 +86,8 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
 
-      updateMutation.mutate(updates);
+      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      updateMutation.mutate({ id: adventureId, data: updates });
     }, 500);
   };
 

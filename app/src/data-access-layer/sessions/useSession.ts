@@ -36,11 +36,11 @@ export const useSession = (
   );
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateSessionInput) =>
-      service.updateSession(sessionId, data),
-    onSuccess: () => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) =>
+      service.updateSession(id, data),
+    onSuccess: (_result, { id }) => {
       void queryClient.invalidateQueries({
-        queryKey: sessionKeys.detail(sessionId),
+        queryKey: sessionKeys.detail(id),
       });
       void queryClient.invalidateQueries({
         queryKey: sessionKeys.list(adventureId),
@@ -88,7 +88,9 @@ export const useSession = (
       const updates = { ...pendingUpdatesRef.current };
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
-      updateMutation.mutate(updates);
+
+      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      updateMutation.mutate({ id: sessionId, data: updates });
     }, 500);
   };
 

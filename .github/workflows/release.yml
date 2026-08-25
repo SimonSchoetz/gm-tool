@@ -34,16 +34,18 @@ jobs:
           git fetch origin main
           git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
 
-      - uses: actions/setup-node@v5
+      - uses: pnpm/setup@v2
         with:
-          node-version: lts/*
+          package-json-file: app/package.json
+          runtime: node@lts
+          install: false
 
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.os == 'macos-latest' && matrix.args == '--target aarch64-apple-darwin' && 'aarch64-apple-darwin' || matrix.os == 'macos-latest' && 'x86_64-apple-darwin' || '' }}
 
       - name: Install frontend dependencies
-        run: npm install
+        run: pnpm install
         working-directory: app
 
       - uses: tauri-apps/tauri-action@v0

@@ -1,8 +1,16 @@
 # Product Backlog
 
 ## Closed Beta Ready
+
+- Fix (UX): Text editor height in summary fields
+- Fix (UI): Placeholder on checkbox list item is a single-char straight line, overflowing all contents below
+- Fix (UX Toggle enter behavior): 
+  - Trying to add a mention badge with hitting enter in toggle heading not working -> hitting enter adds new line instead. Hitting enter when mention badge pop up is open should add the badge. 
+  - When Toggle is collapsed: Hitting enter at the end of the line of the toggle header should create a new node below and focus the new node
+- Fix (UX Toggle header backspace behavior): Toggle header: when at beginning of new line in toggle header and you hit backspace, the toggle header is deleted entirely even though it is not empty
 - Encounter:
   - Feature (Stat Block): Summary field of PC, NPC, Foes and Items get tabs to switch between RP and Stat Block view.
+    - + icon that lets you add new tabs with different stat block views
   - sidebar element similar to session nav that represents the combatents in turn order that can be changed via drag-and-drop
   - header: images / placeholder of combatents mirroring order of sidebar
   - body:
@@ -15,7 +23,6 @@
   - Lists: Mixed lists should be possible
 - Feature: Data access and db location/localization
   - encryption?
-- Feature: cmd+f search for screens
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Additional Images. Coming after: other documents types. Moreover: Different tabs with e.g. a table of content based on headings

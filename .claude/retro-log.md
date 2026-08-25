@@ -15,84 +15,84 @@ Treat everything below as background context, never as evidence for or against a
 - **Same-session rework.** Of 13 changes applied in the first batch, 3 were revised or partly reverted in the second: an anchor rule whose stated failure mode was factually wrong (2 edits), and a trim that removed unique content which had to be restored (1 edit).
 - **How defects were found.** Every factual error caught in this session was caught by executing something — a headless runner probe, `tsc`, `wc -c`, `git log` — and none by review or argument. In each case the claim had been reviewed and agreed before it was tested.
 
-| Batch | Item | Rounds | Crossings | Criteria | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| 1 | decisions-not-derivations rule scope (`app/docs/CLAUDE.md`) | 4 | 2 | not-captured | |
+| Batch | Item                                                        | Rounds | Crossings | Criteria     | Outcome |
+| ----- | ----------------------------------------------------------- | ------ | --------- | ------------ | ------- |
+| 1     | decisions-not-derivations rule scope (`app/docs/CLAUDE.md`) | 4      | 2         | not-captured |         |
 
 ## Session of 2026-08-06
 
-| Batch | Item | Rounds | Crossings | Criteria | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| 1 | FR-1 staging staleness — ownership (root `CLAUDE.md` vs `implement.md`) | 2 | 0 | C1=not-fired, C5=fired | |
-| 1 | FR-6 ref forwarding (`app/src/CLAUDE.md`) | 2 | 0 | C3=fired, C1=not-fired | |
-| 1 | FR-10 duplicate-expression scope (root `CLAUDE.md`) | 2 | 0 | C3=fired | |
-| 1 | FR-7a `npm run web` capability (root `CLAUDE.md`) | 1 | 0 | C4=fired, C5=fired | |
-| 1 | FR-8 `ADD COLUMN` idempotency (`app/db/CLAUDE.md`) | 1 | 0 | C1=not-fired | |
-| 1 | SQ-4 object-literal construction sites (`spec-writer.md`) | 1 | 0 | C1=not-fired, C5=fired | |
-| 1 | SHARED F3/F5/F7b/F9 population-inventory clause (`spec-writer.md`) | 1 | 0 | C1=not-fired | |
-| 1 | F5 HTML content-model gate row (`spec-writer-gates.md`) | 1 | 0 | C2=fired | |
-| 1 | FR-10 gates-row adequacy (`spec-writer-gates.md`) — closed no-change | 2 | 0 | C3=fired | |
-| 2 | Item C — `Size:` field deletion + `New:` verbatim (both agent files) | 3 | 0 | C3=fired, C5=fired | held — re-exercised 2026-08-08: all six proposals verbatim Old:/New:, no size figures |
-| 2 | Item C — ceiling-proximity clause (both agent files) | 1 | 0 | C5=fired | held — re-exercised 2026-08-08: teammates used coordinator-supplied counts only; projected size requested, not estimated |
-| 2 | Item C — registry clause (`.claude/CLAUDE.md`) | 1 | 0 | C5=fired | |
-| 2 | Item A — Criterion 6 batch self-consistency (`refine-claude.md`) | 1 | 0 | C1=not-fired, C6=not-yet-in-force | held — re-exercised 2026-08-08: fired on 3 no-change verdicts, all re-checks recorded |
-| 2 | Item B — gates consolidation, 34→35 rows, −261 chars | 1 | 0 | C5=fired | |
-| 3 | M1 — canonical measurement method + commensurability (`refine-claude.md`) | 1 | 0 | C1=not-fired, C5=fired | held — re-exercised 2026-08-08: every figure canonical, both sides of each comparison |
-| 3 | M2 — Criterion 5 trigger scope excludes coordinator-only arithmetic | 1 | 0 | C5=fired | |
-| 3 | Root `CLAUDE.md` general measurement rule — declined, growth-is-not-free | 1 | 0 | C3=fired | |
-| 3 | Stale refs found while editing (`refine-claude.md` consolidation + Criterion 5 verb) | 1 | 0 | not-captured | |
-| 4 | D1 — crossing-count caveat, closed no-change both roles | 1 | 0 | C3=fired | |
-| 4 | D2 — durable-claim anchor: trigger vs. destination (`spec-writer-gates.md`) | 4 | 1 | C1=fired, C5=fired | |
-| 4 | D2 — routing-ladder channel scope (root `CLAUDE.md`) | 2 | 0 | C5=fired | |
-| 4 | D3 — Outcome field records confirmation (`refine-claude.md`) | 2 | 0 | C6=fired | |
+| Batch | Item                                                                                 | Rounds | Crossings | Criteria                          | Outcome                                                                                                                  |
+| ----- | ------------------------------------------------------------------------------------ | ------ | --------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1     | FR-1 staging staleness — ownership (root `CLAUDE.md` vs `implement.md`)              | 2      | 0         | C1=not-fired, C5=fired            |                                                                                                                          |
+| 1     | FR-6 ref forwarding (`app/src/CLAUDE.md`)                                            | 2      | 0         | C3=fired, C1=not-fired            |                                                                                                                          |
+| 1     | FR-10 duplicate-expression scope (root `CLAUDE.md`)                                  | 2      | 0         | C3=fired                          |                                                                                                                          |
+| 1     | FR-7a `npm run web` capability (root `CLAUDE.md`)                                    | 1      | 0         | C4=fired, C5=fired                |                                                                                                                          |
+| 1     | FR-8 `ADD COLUMN` idempotency (`app/db/CLAUDE.md`)                                   | 1      | 0         | C1=not-fired                      |                                                                                                                          |
+| 1     | SQ-4 object-literal construction sites (`spec-writer.md`)                            | 1      | 0         | C1=not-fired, C5=fired            |                                                                                                                          |
+| 1     | SHARED F3/F5/F7b/F9 population-inventory clause (`spec-writer.md`)                   | 1      | 0         | C1=not-fired                      |                                                                                                                          |
+| 1     | F5 HTML content-model gate row (`spec-writer-gates.md`)                              | 1      | 0         | C2=fired                          |                                                                                                                          |
+| 1     | FR-10 gates-row adequacy (`spec-writer-gates.md`) — closed no-change                 | 2      | 0         | C3=fired                          |                                                                                                                          |
+| 2     | Item C — `Size:` field deletion + `New:` verbatim (both agent files)                 | 3      | 0         | C3=fired, C5=fired                | held — re-exercised 2026-08-08: all six proposals verbatim Old:/New:, no size figures                                    |
+| 2     | Item C — ceiling-proximity clause (both agent files)                                 | 1      | 0         | C5=fired                          | held — re-exercised 2026-08-08: teammates used coordinator-supplied counts only; projected size requested, not estimated |
+| 2     | Item C — registry clause (`.claude/CLAUDE.md`)                                       | 1      | 0         | C5=fired                          |                                                                                                                          |
+| 2     | Item A — Criterion 6 batch self-consistency (`refine-claude.md`)                     | 1      | 0         | C1=not-fired, C6=not-yet-in-force | held — re-exercised 2026-08-08: fired on 3 no-change verdicts, all re-checks recorded                                    |
+| 2     | Item B — gates consolidation, 34→35 rows, −261 chars                                 | 1      | 0         | C5=fired                          |                                                                                                                          |
+| 3     | M1 — canonical measurement method + commensurability (`refine-claude.md`)            | 1      | 0         | C1=not-fired, C5=fired            | held — re-exercised 2026-08-08: every figure canonical, both sides of each comparison                                    |
+| 3     | M2 — Criterion 5 trigger scope excludes coordinator-only arithmetic                  | 1      | 0         | C5=fired                          |                                                                                                                          |
+| 3     | Root `CLAUDE.md` general measurement rule — declined, growth-is-not-free             | 1      | 0         | C3=fired                          |                                                                                                                          |
+| 3     | Stale refs found while editing (`refine-claude.md` consolidation + Criterion 5 verb) | 1      | 0         | not-captured                      |                                                                                                                          |
+| 4     | D1 — crossing-count caveat, closed no-change both roles                              | 1      | 0         | C3=fired                          |                                                                                                                          |
+| 4     | D2 — durable-claim anchor: trigger vs. destination (`spec-writer-gates.md`)          | 4      | 1         | C1=fired, C5=fired                |                                                                                                                          |
+| 4     | D2 — routing-ladder channel scope (root `CLAUDE.md`)                                 | 2      | 0         | C5=fired                          |                                                                                                                          |
+| 4     | D3 — Outcome field records confirmation (`refine-claude.md`)                         | 2      | 0         | C6=fired                          |                                                                                                                          |
 
 ## Session of 2026-08-08
 
 Batch "Ceiling Evolution" — approved by user message "apply all", 2026-08-08.
 
-| Batch | Item | Rounds | Crossings | Criteria | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| 1 | G-A+G-B(2) — Criterion 7 ceiling-raise gate (`refine-claude.md`) | 1 | 0 | C1=not-fired, C5=fired | |
-| 1 | G-B(1) — reference/ aggregate-cost framing (`.claude/CLAUDE.md`) | 3 | 0 | C1=not-fired, C5=fired | |
-| 1 | G-C — pile-up compression target (`refine-claude.md`) | 1 | 0 | C1=not-fired, C6=fired | |
-| 1 | G-D — retro-log outcome closure, closed no-change both roles | 1 | 0 | C3=fired, C6=fired | |
-| 1 | Ceiling-pointer bullets (both head files, ownership-corrected) | 2 | 0 | C5=fired | |
-| 1 | Registry Output clause (`.claude/CLAUDE.md`) | 2 | 0 | C1=not-fired | |
-| 2 | Consolidation `app/src/CLAUDE.md` — try/catch pile-up + CSS merge, −117 (net-growth draft rejected, revised) | 2 | 0 | C5=fired | |
-| 2 | Consolidation `app/src/CLAUDE.md` — zero-remaining-candidates disposition verdict | 1 | 0 | C5=fired | |
-| 2 | Consolidation `implement.md` — 8 edits + `implement-post-loop.md` extraction, −3363 | 1 | 0 | C5=fired, C6=fired | |
-| 3 | Root relocation — instruction-files principle → both heads' dilution checks, root −1064 | 1 | 0 | C5=fired | |
-| 3 | Root disposition — zero-remaining verdict; `update-config` fossil claim resolved kept via coordinator verification (live skill roster) | 1 | 0 | C2=fired | |
-| 4 | Cycle directory — Agent Infrastructure entry, 4th category (`.claude/CLAUDE.md`) | 2 | 0 | C5=fired | |
-| 4 | Chat-delivery rule — file-only vs dual-write, converged to decision-unit test | 3 | 0 | C1=not-fired | |
-| 4 | Teammate read boundary — pre-gate self-fetch vs coordinator relay | 3 | 0 | C1=not-fired | |
-| 4 | Registry Output fields ×3 (`.claude/CLAUDE.md`) — 2 corrections in mediation before apply | 3 | 0 | C2=fired | |
-| 4 | `implement.md` Delivery insertion + create-if-absent | 1 | 0 | C5=fired | |
-| 4 | `refine-claude.md` ×6 incl. mode-count fossil — presented at 96% ceiling, position (a) stated | 2 | 0 | C5=fired | |
-| 4 | `spec-writer.md` paste-transport → file write | 1 | 0 | C5=fired | |
+| Batch | Item                                                                                                                                   | Rounds | Crossings | Criteria               | Outcome |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---------------------- | ------- |
+| 1     | G-A+G-B(2) — Criterion 7 ceiling-raise gate (`refine-claude.md`)                                                                       | 1      | 0         | C1=not-fired, C5=fired |         |
+| 1     | G-B(1) — reference/ aggregate-cost framing (`.claude/CLAUDE.md`)                                                                       | 3      | 0         | C1=not-fired, C5=fired |         |
+| 1     | G-C — pile-up compression target (`refine-claude.md`)                                                                                  | 1      | 0         | C1=not-fired, C6=fired |         |
+| 1     | G-D — retro-log outcome closure, closed no-change both roles                                                                           | 1      | 0         | C3=fired, C6=fired     |         |
+| 1     | Ceiling-pointer bullets (both head files, ownership-corrected)                                                                         | 2      | 0         | C5=fired               |         |
+| 1     | Registry Output clause (`.claude/CLAUDE.md`)                                                                                           | 2      | 0         | C1=not-fired           |         |
+| 2     | Consolidation `app/src/CLAUDE.md` — try/catch pile-up + CSS merge, −117 (net-growth draft rejected, revised)                           | 2      | 0         | C5=fired               |         |
+| 2     | Consolidation `app/src/CLAUDE.md` — zero-remaining-candidates disposition verdict                                                      | 1      | 0         | C5=fired               |         |
+| 2     | Consolidation `implement.md` — 8 edits + `implement-post-loop.md` extraction, −3363                                                    | 1      | 0         | C5=fired, C6=fired     |         |
+| 3     | Root relocation — instruction-files principle → both heads' dilution checks, root −1064                                                | 1      | 0         | C5=fired               |         |
+| 3     | Root disposition — zero-remaining verdict; `update-config` fossil claim resolved kept via coordinator verification (live skill roster) | 1      | 0         | C2=fired               |         |
+| 4     | Cycle directory — Agent Infrastructure entry, 4th category (`.claude/CLAUDE.md`)                                                       | 2      | 0         | C5=fired               |         |
+| 4     | Chat-delivery rule — file-only vs dual-write, converged to decision-unit test                                                          | 3      | 0         | C1=not-fired           |         |
+| 4     | Teammate read boundary — pre-gate self-fetch vs coordinator relay                                                                      | 3      | 0         | C1=not-fired           |         |
+| 4     | Registry Output fields ×3 (`.claude/CLAUDE.md`) — 2 corrections in mediation before apply                                              | 3      | 0         | C2=fired               |         |
+| 4     | `implement.md` Delivery insertion + create-if-absent                                                                                   | 1      | 0         | C5=fired               |         |
+| 4     | `refine-claude.md` ×6 incl. mode-count fossil — presented at 96% ceiling, position (a) stated                                          | 2      | 0         | C5=fired               |         |
+| 4     | `spec-writer.md` paste-transport → file write                                                                                          | 1      | 0         | C5=fired               |         |
 
 ## Session of 2026-08-08 — encounters-domain retrospective
 
 Batch "Encounters Retrospective" — approved by user message "apply", 2026-08-08. Input: friction brief + spec-writer verdict + implementer input, all pasted (predates the cycle-directory mechanism).
 
-| Batch | Item | Rounds | Crossings | Criteria | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| 1 | R1 migration-immutability carve-out (`app/db/CLAUDE.md` + root pointer) — placement moved off root by hoi | 1 | 0 | C5=fired | |
-| 1 | R2 Encounter glossary row (`app/CLAUDE.md`) — schema-verified, implementer text not adopted as-is | 1 | 0 | C2=fired | |
-| 1 | R3 duplicate-mutation invalidation rule (`app/src/CLAUDE.md`) — 94%, position (a) stated; self-caught pile-up removed | 2 | 0 | C5=fired | |
-| 1 | R4 assertion-value-derivation gate row (`spec-writer-gates.md`) | 1 | 0 | C5=fired | |
-| 1 | R5+R6 widened Analogous-member parity row — hoa overrode spec-writer's own no-change recommendation | 1 | 0 | C1=not-fired, C5=fired | |
-| 1 | Application-code follow-up (8 DAL + 2 migration comment populations) → tracked task_a4428c57 | 1 | 0 | C4=fired | |
+| Batch | Item                                                                                                                  | Rounds | Crossings | Criteria               | Outcome |
+| ----- | --------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---------------------- | ------- |
+| 1     | R1 migration-immutability carve-out (`app/db/CLAUDE.md` + root pointer) — placement moved off root by hoi             | 1      | 0         | C5=fired               |         |
+| 1     | R2 Encounter glossary row (`app/CLAUDE.md`) — schema-verified, implementer text not adopted as-is                     | 1      | 0         | C2=fired               |         |
+| 1     | R3 duplicate-mutation invalidation rule (`app/src/CLAUDE.md`) — 94%, position (a) stated; self-caught pile-up removed | 2      | 0         | C5=fired               |         |
+| 1     | R4 assertion-value-derivation gate row (`spec-writer-gates.md`)                                                       | 1      | 0         | C5=fired               |         |
+| 1     | R5+R6 widened Analogous-member parity row — hoa overrode spec-writer's own no-change recommendation                   | 1      | 0         | C1=not-fired, C5=fired |         |
+| 1     | Application-code follow-up (8 DAL + 2 migration comment populations) → tracked task_a4428c57                          | 1      | 0         | C4=fired               |         |
 
 Batch "Retrospective Corrections" — approved by user message "yes, apply", 2026-08-09. Input: spec-writer and implementer verdicts on batch 1; the two reviewers disagreed on N1 and the implementer found neither D1 nor D2.
 
-| Batch | Item | Rounds | Crossings | Criteria | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| 2 | D1 assertion-derivation row over-prohibited — banned the shipped fix; conditioned on input-adoption | 1 | 0 | C1=fired, C2=fired | |
-| 2 | D2 widened parity row detected but did not route — gate could satisfy via the direct-edit ban's banned action | 1 | 0 | C1=fired, C2=fired | |
-| 2 | N1 glossary intent claim cut — hoi reversed own prior "matches the tone" read against implementer's verdict | 1 | 0 | C2=fired | |
-| 2 | N2 missing ❌ example — closed NO CHANGE both roles, cost-weighted at 94% | 1 | 0 | C3=fired | |
-| 2 | R3 SIGN gate never run before hoisting; structural alternative → tracked task_5a223d5a | 1 | 0 | C4=fired | |
+| Batch | Item                                                                                                          | Rounds | Crossings | Criteria           | Outcome |
+| ----- | ------------------------------------------------------------------------------------------------------------- | ------ | --------- | ------------------ | ------- |
+| 2     | D1 assertion-derivation row over-prohibited — banned the shipped fix; conditioned on input-adoption           | 1      | 0         | C1=fired, C2=fired |         |
+| 2     | D2 widened parity row detected but did not route — gate could satisfy via the direct-edit ban's banned action | 1      | 0         | C1=fired, C2=fired |         |
+| 2     | N1 glossary intent claim cut — hoi reversed own prior "matches the tone" read against implementer's verdict   | 1      | 0         | C2=fired           |         |
+| 2     | N2 missing ❌ example — closed NO CHANGE both roles, cost-weighted at 94%                                     | 1      | 0         | C3=fired           |         |
+| 2     | R3 SIGN gate never run before hoisting; structural alternative → tracked task_5a223d5a                        | 1      | 0         | C4=fired           |         |
 
 Note on batch 1 row R5+R6: the widened parity row shipped with a defect (D2 above) and was corrected in batch 2 the following day. Outcome field for that row left blank per protocol — a later session determines whether the corrected form held.
 
@@ -100,11 +100,37 @@ Note on batch 1 row R5+R6: the widened parity row shipped with a defect (D2 abov
 
 Batch "queryOptions Carve-Out" — approved by user message "yes, apply", 2026-08-09. Review task mode; blocking prerequisite for a queued implementation. Applied to branch `docs/queryoptions-carveout`, uncommitted at time of writing per user instruction. Proposals and applied record: `.claude/cycles/2026-08-09-queryoptions-carveout/`.
 
-| Batch | Item | Rounds | Crossings | Criteria | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Q1 Barrel Files carve-out (`app/src/CLAUDE.md`) — under-specified-not-wrong; 95.7%, position (a) stated | 2 | 0 | C5=fired | |
-| 1 | C1 Convention Discovery zero-result pointer (`app/CLAUDE.md`) — two candidate covering rules checked and rejected on firing conditions | 2 | 0 | C3=fired | |
-| 1 | G1 first-instance completeness gate row (`spec-writer-gates.md`) — hoa withdrew "complementary" framing on challenge, row restated as standalone | 2 | 0 | C2=fired | |
-| 1 | G2 `spec-writer.md` body — closed no-change, cites G1 (a target accepted in this same batch); coordinator ran no separate re-check, author self-checked against own G1 draft | 1 | 0 | C3=fired, C6=not-fired | |
-| 1 | G3 `implement.md` — closed no-change; Async ownership row confirmed never to reach a router loader | 1 | 0 | C3=fired | |
-| 1 | Application-code follow-up (`*QueryOptions` import boundary lint guard) → tracked task_6e608fcc | 1 | 0 | C4=fired | |
+| Batch | Item                                                                                                                                                                         | Rounds | Crossings | Criteria               | Outcome |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---------------------- | ------- |
+| 1     | Q1 Barrel Files carve-out (`app/src/CLAUDE.md`) — under-specified-not-wrong; 95.7%, position (a) stated                                                                      | 2      | 0         | C5=fired               |         |
+| 1     | C1 Convention Discovery zero-result pointer (`app/CLAUDE.md`) — two candidate covering rules checked and rejected on firing conditions                                       | 2      | 0         | C3=fired               |         |
+| 1     | G1 first-instance completeness gate row (`spec-writer-gates.md`) — hoa withdrew "complementary" framing on challenge, row restated as standalone                             | 2      | 0         | C2=fired               |         |
+| 1     | G2 `spec-writer.md` body — closed no-change, cites G1 (a target accepted in this same batch); coordinator ran no separate re-check, author self-checked against own G1 draft | 1      | 0         | C3=fired, C6=not-fired |         |
+| 1     | G3 `implement.md` — closed no-change; Async ownership row confirmed never to reach a router loader                                                                           | 1      | 0         | C3=fired               |         |
+| 1     | Application-code follow-up (`*QueryOptions` import boundary lint guard) → tracked task_6e608fcc                                                                              | 1      | 0         | C4=fired               |         |
+
+## Session of 2026-08-22 — pnpm CLAUDE.md sync
+
+Batch "pnpm CLAUDE.md sync" — approved by user message "apply all, then commit, then merge to main", 2026-08-22. Retrospective mode; pasted-text input (no cycle-directory pre-gate applicable — the migration itself produced no `/implement` friction brief or spec-writer artifact for this input). Proposals and applied record: `.claude/cycles/2026-08-22-pnpm-claude-md-sync/`.
+
+| Batch | Item                                                                                                                       | Rounds | Crossings | Criteria                   | Outcome |
+| ----- | -------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | -------------------------- | ------- |
+| 1     | F1 Development Commands section npm→pnpm (root `CLAUDE.md`)                                                                | 1      | 0         | C1=not-fired, C2=not-fired |         |
+| 1     | F2 cut-release registry Output+Constraints npm→pnpm (`.claude/CLAUDE.md`) — 2nd occurrence found on fresh re-read          | 1      | 0         | C1=not-fired, C2=not-fired |         |
+| 1     | F3 Post-loop `npm test`→`pnpm test` (`implement.md`)                                                                       | 1      | 0         | C1=not-fired, C2=not-fired |         |
+| 1     | F4 Package manifest consequences lockfile note (`spec-writer.md`) — 2nd occurrence in same sentence found on fresh re-read | 1      | 0         | C1=not-fired, C2=not-fired |         |
+
+## Session of 2026-08-23 — deferred-dispatch mutation carve-out
+
+Batch "Deferred-Dispatch Mutation Carve-Out" — approved by user message "yes, apply", 2026-08-23. Retrospective mode; pasted-text input (no cycle-directory artifact existed at session start, so the Retrospective-mode pre-write verdict gate did not apply). Applied to branch `fix/cross-entity-description-overwrite`, uncommitted at time of writing. Proposals and applied record: `.claude/cycles/2026-08-23-mutation-carveout/`.
+
+| Batch | Item                                                                                                                                                                                                                                  | Rounds | Crossings | Criteria                     | Outcome |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---------------------------- | ------- |
+| 1     | F1 deferred-dispatch carve-out (`app/src/CLAUDE.md`) — 3 drafting rounds: initial draft breached ceiling by 169, named trim reversed on symmetry challenge, prose trim instead; final 44846/45000                                     | 3      | 0         | C1=not-fired, C5=fired       |         |
+| 1     | F2 surfacing-rule broadening (root `CLAUDE.md`) — drafted once, unchanged; crosses 90% proximity threshold at 28844/32000                                                                                                             | 1      | 0         | C1=not-fired, C5=fired       |         |
+| 1     | F2 ownership mediation — hoi (root CLAUDE.md) vs hoa (`implement.md`); resolved on coordinator-established cycle-directory + `implement.md` ordering evidence, both agents withdrew a position and self-diagnosed the reasoning error | 2      | 0         | C2=fired                     |         |
+| 1     | F3 `spec-writer.md:126` contradiction — discovered by C6 re-check, absent from session input; ownership contested in both directions, resolved on the active-contradiction vs coverage-gap distinction; final 24582/26000             | 2      | 0         | C2=fired, C3=fired, C6=fired |         |
+| 1     | `implement.md` + `architect.md` closed NO CHANGE (hoa) — firing rule cited from its own Behavior Rules second-statement bar; re-checked against F2 `New:` text under C6 and held                                                      | 2      | 0         | C3=fired, C6=fired           |         |
+| 1     | Application-code follow-up (9 DAL duplicated comments → one-line pointer) → tracked task_bf5de8d0                                                                                                                                     | 1      | 0         | C4=fired                     |         |
+
+Note: C7's trigger condition never arose this session — no ceiling-raise was proposed. F2's "in code" scoping was surfaced by hoa as narrower than the principle intends and declined by hoi on cost/evidence grounds; carried forward as an open item, not a deferred batch element.

@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "web",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "app", "run", "web", "--", "--port", "5173"],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "app", "run", "web", "--port", "5173"],
       "port": 5173
     }
   ]

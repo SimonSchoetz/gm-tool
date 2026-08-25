@@ -43,11 +43,11 @@ See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`
 #### Running the application
 
 ```bash
-npm run dev                # Local Tauri environment
-npm run web                # Vite only in browser — no database
+pnpm run dev                # Local Tauri environment
+pnpm run web                # Vite only in browser — no database
 ```
 
-`npm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `npm run dev` can exercise them.
+`pnpm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `pnpm run dev` can exercise them.
 
 ### Git Conventions
 
@@ -118,10 +118,11 @@ Never open a response with a positive affirmation directed at the user or a team
 ### Best Practices & Code Quality
 
 - **When the user opts for an approach that conflicts with documented best practices or is flagged as inadvisable by the relevant framework or library authors, push back explicitly before implementing.** Do not assume the user's choice is informed — surface the concern and confirm it is intentional. One explicit pushback is required; if the user confirms, implement as asked.
-- **When a linter or compiler finding conflicts with an intentional design goal, surface the conflict — never comply silently.** Automated checks are heuristics, not commands. State what the rule flags, what design goal the code serves, and the options — let the user decide. If suppressing, apply the narrowest suppression with an inline explanation:
+- **When a codified project rule — an automated linter/compiler finding, or a CLAUDE.md-documented convention — conflicts with an intentional design goal or with the implementation actually required for correctness, surface the conflict — never resolve it silently in code.** Automated checks and written conventions are both heuristics, not commands, when a case arises they didn't anticipate. State what the rule flags, what design goal or correctness requirement the code serves, and the options — let the user decide. For an automated tool finding, if suppressing, apply the narrowest suppression with an inline explanation:
   - **ESLint (TypeScript/JS):** `eslint-disable-next-line <rule>` for a single occurrence; file-scoped `/* eslint-disable <rule> */` only when the formatter splits the flagged construct across lines (breaking the next-line form) and the design goal applies to the whole single-concern file.
   - **Clippy (Rust):** `#[allow(clippy::lint_name)]` on the smallest enclosing item with an inline comment — never `#![allow(...)]` at file/crate level. Suppress `clippy::correctness` only for demonstrably false positives (e.g. macro-generated code), with an inline comment.
-  - Silent removal or suppression without surfacing the conflict is always wrong.
+  - For a CLAUDE.md-documented convention, there is no suppression mechanism — state the rule's exact text, the conflicting requirement, and the implementation options, then wait for the user's decision before writing either path.
+  - Silent removal, suppression, or an unsurfaced workaround chosen to route around the conflict is always wrong.
 - **Missing required tests are never out of scope.** When any Claude instance — in any role — encounters a missing test that is required by rule or established convention, it must add the test, regardless of the primary task or role. Piece-by-piece closure is correct — do not batch, defer, or escalate missing tests as a separate task unless the test gap is so large it would dominate the current PR.
 - **Separation of concerns over DRY, and ownership boundaries are not negotiable**: Before applying DRY — in implementation or review — establish that both sites serve the same concern; if they serve different concerns, DRY does not apply regardless of structural similarity, and separation of concerns wins. Each component, hook, or module owns its own slice of responsibility, even if that means a parent holds less centralized state — and this is not negotiable under structural pressure: if a constraint seems to justify putting logic where separation-of-concerns says it shouldn't live, find an alternative rather than centralizing. When the user questions why a component owns something it shouldn't, treat that as an instruction to refactor, not an invitation to explain the rationale.
   - ❌ BAD: Centralizing column resize state in `SortableList` and passing it down because it "keeps things in one place"

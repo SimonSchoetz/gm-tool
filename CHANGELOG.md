@@ -6,6 +6,46 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- New Encounters domain: create, manage, and organize encounters for your sessions
+
+## [v0.13.2] - 2026-08-23
+
+### Fixed
+
+- Devices on the same network find each other again on Windows machines where a virtual network adapter (such as WSL, Hyper-V, or a VPN) was silently capturing local network discovery
+
+## [v0.13.1] - 2026-08-23
+
+### Fixed
+
+- Editing a Foe, PC, NPC, Faction, Location, Item, Encounter, Adventure, or Session's description, then navigating to another entity of the same type, no longer overwrites the new entity's content with the previous one's
+- Fixed content clipping and popup list styling overflow issues
+
+## [v0.13.0] - 2026-08-22
+
+### Added
+
+- Query prefetching on mention popup hover for faster navigation
+- Route data loaders for detail and list screens, improving initial load times
+- Layout-stable pending placeholders for images while loading
+
+### Fixed
+
+- Sidebar no longer shrinks when window width becomes too small
+- Forward and backward navigation buttons now show correct disabled state
+- Text editor fills its full parent height in edit layouts
+- Pasted table content no longer inherits Lexical's baked-in header background
+- Anchored popups now flip below their anchor when they would overflow above the viewport
+- Domain scaffold route templates now sync correctly with loader requirements
+
+### Changed
+
+- Removed custom scroll area implementation in favor of native scrolling
+- Extracted shared `MentionEntityType` union for reuse across domains
+- Extracted shared duplicate-mutation hook for cleaner code organization
+
 ## [v0.12.0] - 2026-08-07
 
 ### Added

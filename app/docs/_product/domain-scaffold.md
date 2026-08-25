@@ -88,7 +88,7 @@ to every new domain that copies it. When a violation is found during this check,
 before using the file as a template.
 
 **`routeTree.gen.ts` is gitignored and does not need manual editing.** After creating the new
-route files, run `npm run build:frontend` once from `app/`. The `tanstackRouter` plugin
+route files, run `pnpm run build:frontend` once from `app/`. The `tanstackRouter` plugin
 registered in `vite.config.ts` rewrites `src/routeTree.gen.ts` from the route files during
 the build, which is what makes the new route ids available to `tsc --noEmit`,
 `useParams({ from: ... })`, and typed `<Link to=... />`. The file stays gitignored and is
@@ -434,7 +434,7 @@ export const Route = createFileRoute('/adventure/$adventureId/[singular]/$[singu
 });
 ```
 
-After creating these files, run `npm run build:frontend` once from `app/`. The
+After creating these files, run `pnpm run build:frontend` once from `app/`. The
 `tanstackRouter` plugin registered in `vite.config.ts` regenerates `src/routeTree.gen.ts`
 from the route files during the build, which is what makes the two new route ids available
 to `tsc --noEmit`. The file stays gitignored and uncommitted.

@@ -13,3 +13,7 @@
 .row-actions-menu-trigger > * {
   padding: var(--spacing-xs);
 }
+
+.row-actions-menu-popup > * {
+  list-style: none;
+}

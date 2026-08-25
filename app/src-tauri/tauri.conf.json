@@ -1,12 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "GM-Tool",
-  "version": "0.12.0",
+  "version": "0.13.2",
   "identifier": "com.gm-tool",
   "build": {
-    "beforeDevCommand": "npm run web",
+    "beforeDevCommand": "pnpm run web",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build:frontend",
+    "beforeBuildCommand": "pnpm run build:frontend",
     "frontendDist": "../dist"
   },
   "app": {

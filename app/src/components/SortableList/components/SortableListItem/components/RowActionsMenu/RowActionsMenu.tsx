@@ -74,7 +74,7 @@ export const RowActionsMenu: FCProps<Props> = ({
             setIsOpen(false);
           }}
         >
-          <PopupSurface>
+          <PopupSurface className='row-actions-menu-popup'>
             <ul>
               {options.map((option) => (
                 <li key={option.key}>

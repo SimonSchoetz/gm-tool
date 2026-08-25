@@ -21,7 +21,7 @@ export const initDatabase = async () => {
         !('__TAURI_INTERNALS__' in window)
       ) {
         throw new Error(
-          'No Tauri IPC bridge found — the database is unreachable from `npm run web`. Run `npm run dev` instead to reach the database.',
+          'No Tauri IPC bridge found — the database is unreachable from `pnpm web`. Run `pnpm dev` instead to reach the database.',
         );
       }
       console.log('Attempting to load database...');

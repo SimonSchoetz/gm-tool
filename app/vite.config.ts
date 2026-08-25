@@ -19,11 +19,11 @@ export default defineConfig(async () => ({
 
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@db': path.resolve(__dirname, './db'),
-      '@util': path.resolve(__dirname, './util'),
-      '@services': path.resolve(__dirname, './services'),
-      '@domain': path.resolve(__dirname, './domain'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@db': path.resolve(import.meta.dirname, './db'),
+      '@util': path.resolve(import.meta.dirname, './util'),
+      '@services': path.resolve(import.meta.dirname, './services'),
+      '@domain': path.resolve(import.meta.dirname, './domain'),
     },
     dedupe: ['react', 'react-dom'],
   },
