@@ -49,6 +49,20 @@ If a raw `'BEGIN'` string is executed via `Executor::execute()` (as opposed to `
 
 A single JS-side `db.execute()` call (via tauri-plugin-sql) can safely contain multiple `;`-separated SQL statements with parameters correctly distributed across them — this closes the statement-splitting gap for a migration with no data-dependent branching between statements, though it does not by itself restore transaction safety (see the raw-SQL BEGIN entry above) and doesn't help a migration that reads a row and branches in JS before issuing further statements.
 
+## SQLite's ON CONFLICT target requires the constraint to already exist at prepare time
+
+**Verified at:** sqlite.org current docs, fetched 2026-08-27
+**Citation:** [architect_9: https://www.sqlite.org/lang_upsert.html — "UPSERT processing happens only for uniqueness constraints... an explicit UNIQUE or PRIMARY KEY constraint within the CREATE TABLE statement, or a unique index"; empirically confirmed via sqlite3 CLI in this repo: `INSERT ... ON CONFLICT(col) DO NOTHING` against a table with no unique constraint on `col` fails with "Error: in prepare, ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint"]
+
+A migration that both adds a row with `ON CONFLICT(col) DO NOTHING` and creates the `UNIQUE`/`PRIMARY KEY` constraint enabling that conflict target must create the constraint in an earlier-ordered migration, never the same or a later one — since migrations run in strict ascending timestamp order, a later-numbered constraint-creating migration cannot retroactively make an earlier `ON CONFLICT` clause valid on a fresh install.
+
+## sqlx-sqlite binds a reused `$N` placeholder by parameter number, not by occurrence order
+
+**Verified at:** sqlx-sqlite 0.8.6, read 2026-08-27
+**Citation:** [architect_10: ~/.cargo/registry/.../sqlx-sqlite-0.8.6/src/arguments.rs:78-120 — `SqliteArguments::bind()` iterates `1..=handle.bind_parameter_count()` (SQLite's own distinct-parameter count via `sqlite3_bind_parameter_count`) and parses the numeral out of each parameter's own name to index into the values array]
+
+Reusing the same `$N` placeholder more than once in a single query string (e.g. `$2` appearing in both a `SELECT` list and a `WHERE NOT EXISTS` clause) is safe — SQLite deduplicates same-numbered parameters at the C level, and sqlx binds by parsing each occurrence's own numeral rather than assuming sequential/positional order, so one values-array element correctly supplies every occurrence.
+
 ## SQLite disables foreign key enforcement per connection by default, but sqlx enables it by default
 
 **Verified at:** sqlite.org current docs + sqlx latest docs, fetched 2026-07-12
