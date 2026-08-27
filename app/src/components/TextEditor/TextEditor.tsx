@@ -136,7 +136,7 @@ export const TextEditor: FCProps<Props> = ({
         initialConfig={initialConfig}
         {...props}
       >
-        <div className='text-editor'>
+        <div className='text-editor' ref={setAnchorElem}>
           <RichTextPlugin
             contentEditable={<ContentEditable className='editor-content' />}
             placeholder={
