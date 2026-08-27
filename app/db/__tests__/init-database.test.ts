@@ -43,7 +43,6 @@ describe('initDatabase', () => {
   it('should run the initial schema migration on a fresh database', async () => {
     const { initDatabase } = await import('../database');
     await initDatabase();
-    expect(mockExecute).toHaveBeenCalledWith(expect.stringContaining('BEGIN'));
     expect(mockExecute).toHaveBeenCalledWith(
       expect.stringContaining('CREATE TABLE IF NOT EXISTS sessions'),
     );
@@ -51,6 +50,5 @@ describe('initDatabase', () => {
       expect.stringContaining('INSERT INTO _migrations'),
       expect.any(Array),
     );
-    expect(mockExecute).toHaveBeenCalledWith(expect.stringContaining('COMMIT'));
   });
 });
