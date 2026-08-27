@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New Encounters domain: create, manage, and organize encounters for your sessions
 
+## [v0.14.0] - 2026-08-27
+
+### Fixed
+
+- Fixed a crash on startup that could happen if a database update was interrupted, leaving the app unable to launch until manually repaired
+- Error screens now show what went wrong instead of a blank "Something went wrong" message
+
 ## [v0.13.2] - 2026-08-23
 
 ### Fixed
