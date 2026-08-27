@@ -10,13 +10,11 @@ describe('runMigrations', () => {
     mockSelect.mockResolvedValue([]);
   });
 
-  it('should call ROLLBACK and re-throw when migration.up() throws', async () => {
+  it('propagates migration.up() errors without writing a ledger row', async () => {
     const migrationError = new Error('migration failed');
 
     mockExecute.mockResolvedValueOnce(undefined); // CREATE TABLE IF NOT EXISTS _migrations
-    mockExecute.mockResolvedValueOnce(undefined); // BEGIN
     mockExecute.mockRejectedValueOnce(migrationError); // first execute inside migration.up()
-    mockExecute.mockResolvedValueOnce(undefined); // ROLLBACK
 
     const mockDb = {
       execute: mockExecute,
@@ -26,12 +24,11 @@ describe('runMigrations', () => {
     await expect(runMigrations(mockDb)).rejects.toThrow('migration failed');
 
     const callArgs = mockExecute.mock.calls.map((call) => call[0] as string);
-    const beginIndex = callArgs.findIndex((arg) => arg === 'BEGIN');
-    const rollbackIndex = callArgs.findIndex((arg) => arg === 'ROLLBACK');
-
-    expect(beginIndex).toBeGreaterThanOrEqual(0);
-    expect(rollbackIndex).toBeGreaterThanOrEqual(0);
-    expect(beginIndex).toBeLessThan(rollbackIndex);
+    expect(callArgs).not.toContain('BEGIN');
     expect(callArgs).not.toContain('COMMIT');
+    expect(callArgs).not.toContain('ROLLBACK');
+    expect(
+      callArgs.some((arg) => arg.startsWith('INSERT INTO _migrations')),
+    ).toBe(false);
   });
 });

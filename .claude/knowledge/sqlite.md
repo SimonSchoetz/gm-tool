@@ -35,6 +35,20 @@ A `CREATE TRIGGER trg AFTER INSERT ON t BEGIN stmt1; stmt2; END;` string passed 
 
 Unlike `CREATE TABLE IF NOT EXISTS` and `DROP TABLE IF EXISTS`, a column addition has no conditional-existence form — re-running `ALTER TABLE t ADD COLUMN c` against a table that already has `c` is an error, and statement-level idempotency cannot be expressed in the SQL itself.
 
+## sqlx's connection-pool rollback-on-release safety net only covers transactions opened via its own API, not raw-SQL BEGIN sent through execute()
+
+**Verified at:** sqlx-core 0.8.6, sqlx-sqlite 0.8.6, read 2026-08-27
+**Citation:** [architect_5: ~/.cargo/registry/.../sqlx-core-0.8.6/src/transaction.rs:264-274 — a `Transaction` opened via `Connection::begin()` gets an automatic rollback queued on `Drop`, even when the connection returns to a pool; architect_6: ~/.cargo/registry/.../sqlx-sqlite-0.8.6/src/connection/mod.rs:556 — `in_transaction()` (backed by the real `sqlite3_get_autocommit` C API) has zero callers anywhere in the crate]
+
+If a raw `'BEGIN'` string is executed via `Executor::execute()` (as opposed to `Connection::begin()`) and a later statement in the same logical "transaction" fails before a matching `COMMIT`/`ROLLBACK`, the physical connection is returned to the pool still inside an open transaction, with no cleanup mechanism — the next unrelated query that happens to reuse that connection would silently execute inside the stale transaction. Raw-SQL `BEGIN`/`COMMIT` sent as separate `execute()` calls cannot be made safe by any batching of calls; only sqlx's own `Connection::begin()`/`Transaction` API gets the drop-triggered rollback.
+
+## sqlx-sqlite supports multiple `;`-separated top-level statements in a single query string passed to one execute()/select() call
+
+**Verified at:** sqlx-sqlite 0.8.6, read 2026-08-27
+**Citation:** [architect_7: ~/.cargo/registry/.../sqlx-sqlite-0.8.6/src/connection/execute.rs:8-19 — `VirtualStatement`/`ExecuteIter` tracks `args_used` to distribute bind parameters across statements in order; architect_8: sqlx-sqlite-0.8.6/src/migrate.rs:145 — sqlx's own native migrator relies on this, running an entire multi-statement migration script via one `tx.execute(&*migration.sql)` call]
+
+A single JS-side `db.execute()` call (via tauri-plugin-sql) can safely contain multiple `;`-separated SQL statements with parameters correctly distributed across them — this closes the statement-splitting gap for a migration with no data-dependent branching between statements, though it does not by itself restore transaction safety (see the raw-SQL BEGIN entry above) and doesn't help a migration that reads a row and branches in JS before issuing further statements.
+
 ## SQLite disables foreign key enforcement per connection by default, but sqlx enables it by default
 
 **Verified at:** sqlite.org current docs + sqlx latest docs, fetched 2026-07-12

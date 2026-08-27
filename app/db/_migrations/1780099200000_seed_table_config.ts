@@ -173,10 +173,12 @@ const up = async (db: Database): Promise<void> => {
     const { created_at, updated_at } = generateDbTimestamps();
     const layout = JSON.stringify(config.layout);
 
+    // WHERE NOT EXISTS on table_name, not INSERT OR IGNORE on id: id is freshly generated on every retry, so id-based dedup would create a duplicate row if an earlier iteration of this loop had already succeeded before a later one failed. table_name is the real domain key. (ON CONFLICT(table_name) isn't usable here — this migration runs before 1787825905519_add_table_config_unique_index creates that constraint.)
     await db.execute(
-      `INSERT OR IGNORE INTO table_config
+      `INSERT INTO table_config
          (id, table_name, color, layout, tagging_enabled, scope, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+       SELECT $1, $2, $3, $4, $5, $6, $7, $8
+       WHERE NOT EXISTS (SELECT 1 FROM table_config WHERE table_name = $2)`,
       [
         id,
         config.table_name,

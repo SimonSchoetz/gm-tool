@@ -50,6 +50,20 @@ The `os-webview` feature flag is the default and only supported mode; the flag's
 
 Any feature relying on native HTML5 `draggable`/`dragover`/`drop` DOM events (e.g. Lexical's `DraggableBlockPlugin_EXPERIMENTAL`, or a custom sortable list using native DnD instead of pointer events) is silently broken on Windows unless `app.windows[].dragDropEnabled: false` is set in `tauri.conf.json` — the OS-level webview drag-drop handler intercepts the gesture before it becomes web `dragover`/`drop` events, producing a `dragstart` with zero subsequent `dragover` events and a permanent "not-allowed" cursor. Setting `dragDropEnabled: false` disables Tauri's own file-drop-onto-window handling in exchange; before disabling, grep for `onDragDropEvent`/`getCurrentWebview().onDragDropEvent` (the Tauri API for native window-level file drop) to confirm nothing in the app depends on it.
 
+## tauri-plugin-sql's SQLite pool defaults to 10 connections with no config surface to change it, so raw-SQL BEGIN/COMMIT across separate execute() calls is not atomic
+
+**Verified at:** tauri-plugin-sql 2.4.0, sqlx-core 0.8.6, read 2026-08-27
+**Citation:** [architect_1: ~/.cargo/registry/.../tauri-plugin-sql-2.4.0/src/wrapper.rs:68-91 — `DbPool::connect()` calls `sqlx::Pool::connect(conn_url)` with no `PoolOptions` override; architect_2: ~/.cargo/registry/.../sqlx-core-0.8.6/src/pool/options.rs:151 — default `max_connections: 10`; architect_3: wrapper.rs:37-64 — the only accessor exposing the raw `Pool<Sqlite>` (`pub fn sqlite()`) is commented out, dead code, so no custom Tauri command can reach the plugin's own pool either]
+
+Each `Database.execute()`/`select()` call from JS is an independent Tauri IPC round trip that checks out an arbitrary connection from a 10-connection pool (`wrapper.rs`'s `execute()`/`select()` call `pool.execute(query)`/`pool.fetch_all(query)` directly, no session object). A `BEGIN` sent in one `execute()` call has no guaranteed effect on the connection a later call draws from — raw-SQL transaction wrapping across multiple `db.execute()` calls is not safe with this plugin, confirmed by the open upstream feature request github.com/tauri-apps/plugins-workspace/issues/886 ("Add support for transactions").
+
+## tauri-plugin-sql's Builder::add_migrations() wires into sqlx's native Migrator (real per-migration atomicity, separate ledger table)
+
+**Verified at:** tauri-plugin-sql 2.4.0, sqlx-sqlite 0.8.6, read 2026-08-27
+**Citation:** [architect_4: ~/.cargo/registry/.../sqlx-sqlite-0.8.6/src/migrate.rs:136-162 — `apply()` uses a real `self.begin()`/`tx.commit()` transaction per migration, with automatic rollback on failure via `Transaction`'s `Drop`]
+
+This is a genuinely atomic alternative to hand-rolled raw-SQL migrations, but requires each migration's SQL as a Rust `&'static str` (no access to JS-side helpers like `generateId()`/`generateDbTimestamps()` or JSON-stringified config objects), and tracks its own `_sqlx_migrations` ledger table separate from any app-defined migration ledger. A large structural cost relative to making JS-side migrations independently idempotent, unless a project specifically needs bulletproof DDL transactions.
+
 ## A continuously-firing requestAnimationFrame loop in WKWebView costs constant CPU in both the app process and the WebContent process, even when nothing is drawn
 
 **Verified at:** macOS 15.6 (Darwin 24.6.0), MacBookPro16,1, Tauri dev build, 2026-07-14
