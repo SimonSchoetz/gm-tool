@@ -1,4 +1,4 @@
-.error-boundary-panel {
+.error-fallback-view-panel {
   padding: var(--spacing-lg);
   display: flex;
   height: fit-content;
@@ -9,7 +9,7 @@
   background: var(--background-danger);
 }
 
-.error-boundary-title {
+.error-fallback-view-title {
   font-size: var(--font-size-2xl);
   font-weight: bold;
   color: var(--color-danger);
@@ -17,13 +17,13 @@
   margin: 0;
 }
 
-.error-boundary-message {
+.error-fallback-view-message {
   font-size: var(--font-size-lg);
   color: var(--color-text);
   margin: 0;
 }
 
-.error-boundary-details {
+.error-fallback-view-details {
   overflow-y: auto;
   border: var(--border-thin) solid var(--color-border);
   border-radius: var(--radius-md);
@@ -31,25 +31,25 @@
   background: rgb(var(--color-bg-rgb), 0.5);
 }
 
-.error-boundary-details summary {
+.error-fallback-view-details summary {
   cursor: pointer;
   font-weight: 600;
   color: var(--color-text-secondary);
   user-select: none;
 }
 
-.error-boundary-details summary:hover {
+.error-fallback-view-details summary:hover {
   color: var(--color-text);
 }
 
-.error-boundary-stack {
+.error-fallback-view-stack {
   font-size: var(--font-size-md);
   color: var(--color-text-secondary);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-.error-boundary-actions {
+.error-fallback-view-actions {
   display: flex;
   gap: var(--spacing-md);
 }

@@ -13,6 +13,8 @@ export { NewItemBtn } from './NewItemBtn/NewItemBtn.tsx';
 export { Button } from './Button/Button.tsx';
 export { TextEditor } from './TextEditor/TextEditor.tsx';
 export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
+export { ErrorFallbackView } from './ErrorFallbackView/ErrorFallbackView';
+export { RouteErrorFallback } from './RouteErrorFallback/RouteErrorFallback';
 export { UploadImgBtn } from './UploadImgBtn';
 export { DeleteDialog } from './DeleteDialog/DeleteDialog.tsx';
 export { ImagePlaceholderFrame } from './ImagePlaceholderFrame/ImagePlaceholderFrame.tsx';

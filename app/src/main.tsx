@@ -11,6 +11,7 @@ import '@fontsource/ibm-plex-sans/700.css';
 import '@fontsource/ibm-plex-sans/700-italic.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
+import { RouteErrorFallback } from '@/components';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
@@ -21,6 +22,7 @@ const router = createRouter({
   context: { queryClient },
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
+  defaultErrorComponent: RouteErrorFallback,
 });
 
 // Register the router instance and context for type safety
