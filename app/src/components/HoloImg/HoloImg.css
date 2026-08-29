@@ -1,12 +1,13 @@
 .tilt-fx-container {
   transform-style: preserve-3d;
   perspective: 200px;
-  filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  filter: drop-shadow(
+    0 0 0 transparent
+  ); /* needed to display title when image is available -> not sure why */
   transition: filter var(--transition-base);
 }
 
 .tilt-fx-container:has(.tilt-fx.active) {
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
   transition: filter var(--transition-base);
 }
 
@@ -20,7 +21,7 @@
 }
 
 .tilt-fx.active {
-  transition: 0s; /* needs to be 0s otherwise the tilt movement will move with delay */
+  transition: transform 0s;
   outline: var(--border-thin) solid rgb(var(--color-primary-rgb), 0.4);
   box-shadow: 0 0 10px 1px rgb(var(--color-primary-rgb), 0.4);
 }
