@@ -27,7 +27,7 @@ export const ScreensTextEditorLayout: FCProps<Props> = ({
       {sideBar}
 
       <div className='screens-text-editor-layout--edit-area'>
-        {header}
+        <div className='screens-text-editor-layout--header'>{header}</div>
         <div className='screens-text-editor-layout--body'>{body}</div>
       </div>
     </GlassPanel>

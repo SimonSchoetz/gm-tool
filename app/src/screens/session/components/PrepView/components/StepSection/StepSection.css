@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  padding-left: 0;
   border-radius: var(--radius-lg);
 }
 
@@ -15,5 +16,9 @@
 }
 
 .step-section--editor {
-  min-height: calc(var(--line-height-base) * 2);
+  min-height: calc((var(--line-height-base) + var(--spacing-sm)) * 2);
+}
+
+.step-section--header-section {
+  padding-left: var(--spacing-sm);
 }

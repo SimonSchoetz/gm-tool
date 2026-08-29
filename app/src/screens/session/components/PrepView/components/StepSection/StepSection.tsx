@@ -31,17 +31,20 @@ export const StepSection: FCProps<Props> = ({
       id={`step-section-${stepId}`}
       className='step-section'
     >
-      <StepSectionHeader
-        stepId={stepId}
-        onToggleTooltip={onToggleTooltip}
-        tooltipVisible={tooltipVisible}
-      />
+      <div className='step-section--header-section'>
+        <StepSectionHeader
+          stepId={stepId}
+          onToggleTooltip={onToggleTooltip}
+          tooltipVisible={tooltipVisible}
+        />
 
-      {tooltipVisible && step.default_step_key != null && (
-        <TooltipPanel stepKey={step.default_step_key} />
-      )}
+        {tooltipVisible && step.default_step_key != null && (
+          <TooltipPanel stepKey={step.default_step_key} />
+        )}
 
-      <HorizontalDivider className='step-section--divider' />
+        <HorizontalDivider className='step-section--divider' />
+      </div>
+
       <TextEditor
         className='step-section--editor'
         textEditorId={`step-${step.id}`}

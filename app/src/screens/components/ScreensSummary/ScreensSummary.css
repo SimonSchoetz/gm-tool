@@ -1,11 +1,14 @@
 .screens-summary {
   gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+  padding: calc(var(--spacing-md) - var(--spacing-xs));
+  padding-left: 0;
   width: fit-content;
+  width: 100%;
+  max-width: var(--summary-max-width);
 }
 
 .screens-summary--content {
-  width: var(--summary-max-width);
   height: var(--summary-content-height);
   overflow-y: auto;
+  display: flex;
 }

@@ -1,10 +1,11 @@
 .entity-popup-body {
   display: flex;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md);
   background-color: var(--color-bg-muted);
-  height: calc(var(--summary-content-height) + 2 * var(--spacing-sm));
+  height: calc(var(--summary-content-height) + 2 * var(--spacing-md));
   border-radius: inherit;
+  max-width: var(--summary-max-width);
 }
 
 .entity-popup-image {
@@ -12,7 +13,6 @@
 }
 
 .entity-popup-summary {
-  max-width: var(--summary-max-width);
   max-height: var(--summary-content-height);
   overflow-y: auto;
 }

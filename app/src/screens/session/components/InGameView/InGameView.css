@@ -6,7 +6,8 @@
 }
 
 .in-game-view--summary {
-  padding: var(--spacing-md);
+  padding: calc(var(--spacing-md) - var(--spacing-xs));
+  padding-left: 0;
   border-radius: var(--radius-xl);
 }
 

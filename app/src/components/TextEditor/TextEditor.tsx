@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { FCProps, HtmlProps } from '@/types';
 import './TextEditor.css';
 
@@ -136,7 +136,17 @@ export const TextEditor: FCProps<Props> = ({
         initialConfig={initialConfig}
         {...props}
       >
-        <div className='text-editor' ref={setAnchorElem}>
+        <div
+          className='text-editor'
+          style={
+            {
+              '--text-editor-gutter-width': readOnly
+                ? '0'
+                : 'var(--spacing-md)',
+            } as CSSProperties
+          }
+          ref={setAnchorElem}
+        >
           <RichTextPlugin
             contentEditable={<ContentEditable className='editor-content' />}
             placeholder={

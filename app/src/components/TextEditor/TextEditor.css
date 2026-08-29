@@ -4,12 +4,10 @@
 }
 
 .text-editor {
-  --text-editor-gutter-width: calc(var(--spacing-lg) - var(--spacing-xs));
   position: relative;
   min-height: 0;
   flex: 1;
   max-width: var(--text-editor-max-width);
-  margin: var(--spacing-xs);
 }
 
 .editor-content {
