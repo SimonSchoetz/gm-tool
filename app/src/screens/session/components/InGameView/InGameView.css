@@ -3,12 +3,13 @@
   grid-template-rows: auto 1fr;
   gap: var(--spacing-md);
   min-height: 0;
+  padding: var(--spacing-md);
 }
 
 .in-game-view--summary {
-  padding: calc(var(--spacing-md) - var(--spacing-xs));
+  padding: var(--spacing-sm);
   padding-left: 0;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
 }
 
 .in-game-view--summary-text-editor {

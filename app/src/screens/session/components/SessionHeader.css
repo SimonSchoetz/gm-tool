@@ -1,6 +1,8 @@
 .session-header {
   gap: var(--spacing-md);
   color: var(--color-fg);
+  padding: var(--spacing-md);
+  padding-bottom: 0;
 }
 
 .session-name-input {

@@ -1,6 +1,6 @@
 .block-drag-handle-anchor {
   position: absolute;
-  left: -6px; /* cancels Lexical's own hardcoded 4px transform offset (DraggableBlockPlugin_EXPERIMENTAL's SPACE constant), landing flush with --text-editor-gutter-width's reserved space */
+  left: -4px; /* cancels Lexical's own hardcoded 4px transform offset (DraggableBlockPlugin_EXPERIMENTAL's SPACE constant), landing flush with --text-editor-gutter-width's reserved space */
   top: 0;
   display: none;
   width: var(--spacing-md);
@@ -33,7 +33,7 @@
 
 .block-drag-handle:hover {
   color: var(--color-fg);
-  box-shadow: var(--box-shadow-active);
+  background-color: var(--color-primary-muted);
 }
 
 .block-drag-handle:active {

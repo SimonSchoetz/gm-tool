@@ -25,7 +25,7 @@ export const InGameView = () => {
 
   return (
     <div className='in-game-view'>
-      <GlassPanel className='in-game-view--summary'>
+      <GlassPanel intensity='bright' className='in-game-view--summary'>
         <TextEditor
           className='in-game-view--summary-text-editor'
           textEditorId={`session-summary-${sessionId}`}
