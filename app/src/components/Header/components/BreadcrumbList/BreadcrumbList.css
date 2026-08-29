@@ -1,13 +1,19 @@
 .breadcrumb-list {
   display: flex;
+  padding-left: var(--spacing-md);
   gap: var(--spacing-xs);
   align-items: center;
   list-style: none;
   font-size: var(--font-size-md);
   font-family: var(--font-family-mono);
   text-transform: uppercase;
+  flex-wrap: wrap;
 }
 
 .breadcrumb-list svg {
   color: var(--color-fg-muted);
+}
+
+.clip-text {
+  white-space: wrap;
 }
