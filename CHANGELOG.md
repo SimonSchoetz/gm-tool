@@ -10,6 +10,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New Encounters domain: create, manage, and organize encounters for your sessions
 
+## [v0.14.1] - 2026-08-29
+
+### Fixed
+
+- Removed excessive drop shadow on holographic images
+- Fixed header overflow when entity names are long
+- Fixed various UI issues on the session screen
+- Fixed spacing in block drag handle components
+- Restored anchor element reference that was accidentally dropped during a merge
+
 ## [v0.14.0] - 2026-08-27
 
 ### Fixed
