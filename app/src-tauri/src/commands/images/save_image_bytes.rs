@@ -3,7 +3,7 @@ use base64::prelude::BASE64_STANDARD;
 use std::fs;
 use tauri::Manager;
 
-use super::VALID_EXTENSIONS;
+use super::{VALID_EXTENSIONS, is_valid_image_id};
 
 /// Writes base64-encoded image bytes to the app's data directory, overwriting any existing file.
 ///
@@ -23,6 +23,10 @@ pub async fn save_image_bytes(
     extension: String,
     data_base64: String,
 ) -> Result<(), String> {
+    if !is_valid_image_id(&id) {
+        return Err(format!("Invalid image id: {id}"));
+    }
+
     if !VALID_EXTENSIONS.contains(&extension.as_str()) {
         return Err(format!("Invalid file extension: {}", extension));
     }

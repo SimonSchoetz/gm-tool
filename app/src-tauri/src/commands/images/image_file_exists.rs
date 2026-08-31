@@ -1,6 +1,6 @@
 use tauri::Manager;
 
-use super::VALID_EXTENSIONS;
+use super::{VALID_EXTENSIONS, is_valid_image_id};
 
 /// Checks whether a stored image file exists in the app's data directory.
 ///
@@ -18,6 +18,10 @@ pub async fn image_file_exists(
     id: String,
     extension: String,
 ) -> Result<bool, String> {
+    if !is_valid_image_id(&id) {
+        return Err(format!("Invalid image id: {id}"));
+    }
+
     if !VALID_EXTENSIONS.contains(&extension.as_str()) {
         return Err(format!("Invalid file extension: {}", extension));
     }
