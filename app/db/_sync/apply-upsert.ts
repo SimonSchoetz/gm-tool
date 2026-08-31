@@ -1,6 +1,6 @@
 import type Database from '@tauri-apps/plugin-sql';
 import { getDatabase } from '../database';
-import { SYNCED_TABLES } from './registry';
+import { SYNCED_TABLES, SYNCED_TABLE_NAMES } from './registry';
 import type { ApplyResult } from './types';
 
 const filterToWhitelist = (
@@ -58,7 +58,8 @@ const applyTableConfigUpsert = async (
   force: boolean,
 ): Promise<ApplyResult> => {
   const tableName = filtered.table_name;
-  if (typeof tableName !== 'string' || tableName === '') return 'skipped';
+  if (typeof tableName !== 'string' || !SYNCED_TABLE_NAMES.includes(tableName))
+    return 'skipped';
 
   // table_config merges by table_name, not id: the same logical config row has different ids on each device (seeded per device), so id-based union would duplicate every list config on first sync.
   const localRows = await db.select<{ id: string; updated_at: string }[]>(

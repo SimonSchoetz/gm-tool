@@ -45,10 +45,10 @@ describe('searchByName', () => {
       { id: '2', name: 'Tavern', updated_at: '2025-01-02' },
     ]);
 
-    const result = await searchByName('places', 'tav', null);
+    const result = await searchByName('adventures', 'tav', null);
 
     expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM places WHERE name LIKE $1 ORDER BY updated_at DESC`,
+      `SELECT id, name, updated_at FROM adventures WHERE name LIKE $1 ORDER BY updated_at DESC`,
       ['%tav%'],
     );
     expect(result).toEqual([
@@ -62,6 +62,13 @@ describe('searchByName', () => {
     const result = await searchByName('npcs', 'zzz', 'adv-1');
 
     expect(result).toEqual([]);
+  });
+
+  it('should return an empty array for a non-entity table name without querying', async () => {
+    const result = await searchByName('table_config', 'x', 'adv-1');
+
+    expect(result).toEqual([]);
+    expect(mockSelect).not.toHaveBeenCalled();
   });
 });
 
@@ -100,5 +107,12 @@ describe('getById', () => {
     const result = await getById('npcs', 'missing-id');
 
     expect(result).toBeNull();
+  });
+
+  it('should return null for a non-entity table name without querying', async () => {
+    const result = await getById('table_config', '1');
+
+    expect(result).toBeNull();
+    expect(mockSelect).not.toHaveBeenCalled();
   });
 });
