@@ -167,7 +167,7 @@ read as `migrations[migrations.length - 1].id` and must remain the highest id. D
 modify `db/database.ts`.
 
 **Sync Registration** — `db/_sync/registry.ts` needs a
-`{ name: '[plural]', columns: Object.keys([singular]Table.zodSchema.shape) }` entry added
+`syncedTable('[plural]', [singular]Table)` entry added
 to `SYNCED_TABLES`, placed inside the adventure-scoped block (after `adventures` and before
 `table_config`, per the file's own parents-before-children ordering comment). This is
 separate from the migration's frozen trigger copy above — the registry is the live,

@@ -191,4 +191,11 @@ describe('applyUpsert', () => {
     expect(mockSelect).not.toHaveBeenCalled();
     expect(mockExecute).not.toHaveBeenCalled();
   });
+
+  it('should skip a row whose column value has the wrong type', async () => {
+    const result = await applyUpsert('npcs', { ...NPC_ROW, name: 42 }, false);
+
+    expect(result).toBe('skipped');
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
 });

@@ -23,6 +23,15 @@ pub(crate) fn load_or_create_secret_key(app_handle: &AppHandle) -> Result<Secret
         .map_err(|e| format!("Failed to create connectivity directory: {e}"))?;
     fs::write(&key_path, encode_hex_key(&secret_key.to_bytes()))
         .map_err(|e| format!("Failed to write device key file: {e}"))?;
+
+    // This file is the device's whole network identity, and fs::write leaves it at whatever the process umask allows. Windows has no umask equivalent and its default ACL on a per-user app data directory is already user-scoped, so the tightening is Unix-only by design rather than by omission.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&key_path, fs::Permissions::from_mode(0o600))
+            .map_err(|e| format!("Failed to restrict device key file permissions: {e}"))?;
+    }
+
     Ok(secret_key)
 }
 

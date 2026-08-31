@@ -45,4 +45,10 @@ describe('registry', () => {
       expect(table.columns).toContain('updated_at');
     }
   });
+
+  it('should expose a schema whose shape matches the column list for every table', () => {
+    for (const table of SYNCED_TABLES) {
+      expect(Object.keys(table.zodSchema.shape)).toEqual(table.columns);
+    }
+  });
 });

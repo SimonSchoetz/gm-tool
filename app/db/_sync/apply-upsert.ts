@@ -102,6 +102,10 @@ export const applyUpsert = async (
   }
 
   const filtered = filterToWhitelist(row, entry.columns);
+
+  // A peer row is untrusted network input, not a row read back from this database — parse it before it reaches SQL. partial() because a peer on a different schema version legitimately omits columns this device knows about, and dropping those rows would be a data-loss bug; a column that is present but carries the wrong type is what this catches.
+  if (!entry.zodSchema.partial().safeParse(filtered).success) return 'skipped';
+
   const db = await getDatabase();
 
   if (tableName === 'table_config') {
