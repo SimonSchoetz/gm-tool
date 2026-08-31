@@ -70,3 +70,24 @@ This is a genuinely atomic alternative to hand-rolled raw-SQL migrations, but re
 **Citation:** [implementer_3: ran top -l 7 -stats pid,command,cpu,power against the running GM-Tool dev app — observed ~7% CPU / ~9 power in gm-tool plus ~6% CPU / ~6.5 power in com.apple.WebKit.WebContent with an idle 60Hz rAF loop alive, and 0.0 / 0.0 for both after the loop was fully stopped; sample of the WebContent process showed the time in RemoteLayerTreeDrawingArea::updateRendering → ScriptedAnimationController::serviceRequestAnimationFrameCallbacks]
 
 WKWebView's rendering-update cycle is driven from timers coordinating with the app (UI) process, so an idle rAF loop burns energy in two processes at once. Killing the loop — not reducing the work inside it — is what returns the app to zero idle cost.
+
+## `app.security.csp` accepts a policy string, a directive-map object, or null; `devCsp` overrides it for `tauri dev` only
+
+**Verified at:** tauri 2 (schema at `https://schema.tauri.app/config/2` + v2 docs, fetched 2026-08-31)
+**Citation:** [spec-writer_1: WebFetch of https://schema.tauri.app/config/2 — `csp` is `{"anyOf": [{"$ref": "#/definitions/Csp"}, {"type": "null"}]}` with description "The Content Security Policy that will be injected on all HTML files on the built application. If [`dev_csp`](#SecurityConfig.devCsp) is not specified, this value is also injected on dev."; the `Csp` definition accepts either "The entire CSP policy in a single text string" or "An object mapping a directive with its sources values as a list of strings"; spec-writer_2: WebFetch of https://v2.tauri.app/security/csp/ — "Local scripts are hashed, styles and external scripts are referenced using a cryptographic nonce"]
+
+Tauri rewrites the configured policy at compile time, appending hashes for local scripts and a nonce for styles and external scripts present in the built `index.html`. That rewriting covers only what is in the bundle at build time — a `<style>` or `<script>` element a library injects at runtime carries no nonce, and the dev server's own inline output is not hashed at all, which is what `devCsp` exists for. `csp: null` disables the header entirely.
+
+## The Tauri asset protocol requires `asset:` and `http://asset.localhost` in `img-src`, and IPC requires `ipc:` in `connect-src`, once a CSP is set
+
+**Verified at:** tauri 2 (v2 docs, fetched 2026-08-31)
+**Citation:** [spec-writer_3: WebFetch of https://v2.tauri.app/security/csp/ — documented example policy contains `"default-src": "'self' customprotocol: asset:"` and `"img-src": "'self' asset: http://asset.localhost blob: data:"`, with `ipc:` shown in the `connect-src` directive]
+
+A URL produced by `convertFileSrc()` resolves to the `asset:` scheme on macOS/Linux and to `http://asset.localhost` on Windows, so both origins must appear in whichever directive loads the resource. Setting any CSP without these silently breaks every image served through the asset protocol.
+
+## Tauri's `assetProtocol.scope` takes either a glob array or an allow/deny object, and its path strings support base-directory variables such as `$APPDATA`
+
+**Verified at:** tauri 2 (schema at `https://schema.tauri.app/config/2` + v2 config reference, fetched 2026-08-31)
+**Citation:** [spec-writer_4: WebFetch of https://schema.tauri.app/config/2 — `assetProtocol.scope` is `{"description": "The access scope for the asset protocol.", "default": [], "allOf": [{"$ref": "#/definitions/FsScope"}]}`, and `FsScope` accepts a list ("A list of paths that are allowed by this scope") or an object with `allow`, `deny` ("This gets precedence over the allow list"), and `requireLiteralLeadingDot`; spec-writer_5: WebFetch of https://v2.tauri.app/reference/config/ — FsScope is "a list of glob patterns that restrict the API access from the webview. Each pattern can start with a variable that resolves to a system base directory", the recognized variables including `$APPDATA`, `$APPLOCALDATA`, `$APPCONFIG`, `$APPCACHE`, `$APPLOG`, `$RESOURCE`, `$HOME`, `$DATA`, `$LOCALDATA`, `$TEMP`]
+
+`$APPDATA` resolves to the same directory Rust's `app_handle.path().app_data_dir()` returns, so a file written under `app_data_dir().join("images")` is matched by the scope pattern `$APPDATA/images/*`. A scope of `["**"]` grants the webview read access to the entire filesystem through the asset protocol.
