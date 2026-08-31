@@ -402,8 +402,7 @@ pub(crate) async fn run_pairing_connection(
     }
 
     if succeeded {
-        // The normal auto-connect rule establishes the gm-tool connection; mDNS resolves
-        // the bare id to dialable addresses.
+        // The normal auto-connect rule establishes the gm-tool connection; mDNS resolves the bare id to dialable addresses.
         maybe_dial_trusted_peer(&app, &state, EndpointAddr::from(remote)).await;
     }
 }

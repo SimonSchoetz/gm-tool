@@ -42,7 +42,6 @@ pub async fn get_image_url(
         return Err(format!("Image file not found: {}.{}", id, extension));
     }
 
-    // Convert path to a URL that can be used in the frontend
-    // Tauri uses the convertFileSrc API on the frontend, so we just return the path
+    // Returns the raw path rather than a URL: the frontend passes it through convertFileSrc, which is what produces the asset-protocol URL an <img> tag can load.
     Ok(image_path.to_string_lossy().to_string())
 }
