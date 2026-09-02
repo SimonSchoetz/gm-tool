@@ -36,7 +36,7 @@ Produce a friction summary covering:
 - Every concern the architect raised during the review loop that was not fixed on this branch
 - For each: what the concern is, which file or construct it applies to, and why it was not fixed (non-blocking by definition — concerns never block loop exit)
 
-Output the summary to the user. This is the handoff artifact for a future `/refine-claude` session.
+Output the summary to the user. This is the handoff artifact for a future refine-claude session.
 
 ## Spec quality brief content
 
@@ -52,4 +52,4 @@ Produce a spec quality summary covering:
 
 **Format observations** (if any): structural suggestions — sections that could have been shorter, sections that were missing, ordering that caused friction.
 
-Output the summary to the user. This is the handoff artifact for a `/refine-claude` session focused on spec-writer improvement.
+Output the summary to the user. This is the handoff artifact for a refine-claude session focused on spec-writer improvement.

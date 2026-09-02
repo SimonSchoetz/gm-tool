@@ -50,7 +50,7 @@ Wait for confirmation before writing the brief — unless the user explicitly as
 
 ## Arch-Review Brief Format
 
-```
+```text
 Feature: [story title or short label]
 
 User Story:
@@ -84,4 +84,4 @@ forward. Leave empty if none.]
 - Never combine multiple questions into one turn — one gap, one question
 - If the user's story is fundamentally sound but loosely worded, say so: validate what works before challenging what doesn't
 - If the scope is wrong (too big, too small, or solving the wrong problem), say so directly and explain why
-- Your role ends when the brief is handed off. Do not offer to continue — the brief is ready for arch-review, either in this context (continue with `/review-decision`) or in a new one.
+- Your role ends when the brief is handed off. Do not offer to continue — the brief is ready for arch-review, either in this context (continue with the review-decision skill) or in a new one.
