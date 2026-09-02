@@ -36,7 +36,7 @@ app/
 └── util/
 ```
 
-See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`, and `domain/`.
+See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`, and `domain/`. See `app/docs/CLAUDE.md` for the canonical spec/plan format; its `_product/domain-scaffold.md` is a long-living infrastructure reference exempt from that format's delete-after-implementation rule.
 
 ### Development Commands
 
@@ -63,7 +63,7 @@ Always use `<type>/<branch-name>` format:
 
 Always use Conventional Commits with scope required:
 
-```
+```text
 <type>(<scope>): <description>
 ```
 
@@ -92,7 +92,7 @@ Always use Conventional Commits with scope required:
   - ✅ GOOD: `// unregister the pairing-mode listener before re-entry check — a still-registered listener double-fires enterPairingMode on rapid re-click`
 
 - **Markdown files must comply with markdownlint rules in `.markdownlint.json` at the repo root.** Configured overrides: no line-length limit (MD013 off), blank-lines-around-lists not enforced (MD032 off), bold uses `**bold**` (MD050). All other defaults apply — code blocks declare a language (MD040), first line is H1 (MD041), blank lines around fences (MD031).
-- **Never introduce manual line breaks within a single logical unit — a code comment anywhere in the codebase, or a prose paragraph/bullet item in an instruction file** (`.claude/agents/*.md`, `.claude/commands/*.md`, and all CLAUDE.md files). Each is one continuous line — visual wrapping is the IDE/renderer's responsibility; this does not apply to code blocks, tables, or fenced examples. Accepted tradeoff for code comments: some consumers (raw diffs, terminals) render long lines unwrapped. Content copied or adapted from any upstream artifact — a spec's code block, another migration, another agent's output — is not exempt: re-check it against this rule independently before it lands in a file, the same as freshly drafted code.
+- **Never introduce manual line breaks within a single logical unit — a code comment anywhere in the codebase, or a prose paragraph/bullet item in any CLAUDE.md file in this repository, at any scope, or in any agent, command, or skill definition file this repository currently owns.** Each is one continuous line — visual wrapping is the IDE/renderer's responsibility; this does not apply to code blocks, tables, or fenced examples. Accepted tradeoff for code comments: some consumers (raw diffs, terminals) render long lines unwrapped. Content copied or adapted from any upstream artifact — a spec's code block, another migration, another agent's output — is not exempt: re-check it against this rule independently before it lands in a file, the same as freshly drafted code.
 
 ### Accountability on Missed Requirements
 
@@ -152,7 +152,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
 **When an external system misbehaves, read its documentation before proposing any diagnosis.** This is a pre-proposal gate: the documentation read happens before the first stated cause, not after fix attempts. Assuming the existing configuration is complete and correct — and jumping to environment, credentials, versions, or runtime state — is the failure mode this rule closes.
 
-**Knowledge base.** `.claude/knowledge/` caches verified external-system facts by category file (e.g. `tauri.md`, `lexical.md`). Step 0 of any verification: read the relevant category file — a recorded fact at the current installed version is established, no lookup needed. After any new verification, write the result back. `.claude/knowledge/CLAUDE.md` is authoritative for the entry format, staleness protocol (version mismatch invalidates; append a reverification block, never overwrite), and error correction (fix incorrect entries in the same pass, mirroring "fix violations in files you touch"). Agents without Write permission surface unrecorded facts to the caller for persistence.
+**Knowledge base.** This project's verified external-system facts live in `~/dev/setup`, under `artifact-key: gm-tool` — not in this repository. Step 0 of any verification: read the relevant category file there — a recorded fact at the current installed version is established, no lookup needed. After any new verification, write the result back. The setup repo's own knowledge-base CLAUDE.md is authoritative for entry format, staleness protocol (version mismatch invalidates; append a reverification block, never overwrite), and error correction (fix incorrect entries in the same pass, mirroring "fix violations in files you touch"). Agents without Write permission surface unrecorded facts to the caller for persistence; an agent without file access to `~/dev/setup` at all invokes `update-config` per Tool Use Discipline rather than treating it as a fact-persistence gap.
 
 ### Third-Party Libraries
 
@@ -162,13 +162,24 @@ The general verification obligation above (Epistemological Discipline) applies t
 
 - **Read discipline: read immediately before editing, only what the current output depends on.** Prior read state is lost after context compaction — re-read before each edit, never after (trust the edit result). Every read must tie to a specific, named file or claim the current output depends on — if you can't name which output line a read resolves, don't make it; don't read to reconstruct historical context, traverse import graphs for ambient understanding, or confirm a just-performed write. Applies only to writing roles — read-only roles have no edits to gate and must not apply it as a defensive habit; role-specific scope ceilings are defined in each agent's file.
 - **Verify before naming a path or describing file content in any output — regardless of who supplied it.** Any named path makes a factual claim about the filesystem: "to create" requires verifying absence, "to touch" requires verifying existence, and any content claim (what a file contains, exports, or its length — even hedged) requires having read it in the current context window. Paths supplied by the user or an upstream agent are claims, not facts — the filesystem is the authority. Pattern recognition is not verification: only a Read or Glob result visible in the current response satisfies this rule.
-- **All automated checks must pass with zero errors before any commit; baseline failures are triaged by category before implementation begins.** Between sub-features, run `npx tsc --noEmit`, `npx eslint .`, and `prettier --check .` — vitest is deferred (it produces noise from intentionally incomplete intermediate states at sub-feature boundaries). The full suite (tsc + vitest + eslint + prettier) runs twice per session: at the start (baseline) and after the final review cycle, before committing. When `src-tauri/` is touched, the Rust suite (clippy + fmt-check) also runs at both points. Invocations:
-  - Type check: `npx tsc --noEmit` (from `app/`)
-  - Tests: `npx vitest run` (from `app/`)
-  - Lint: `npx eslint .` (from `app/`)
-  - Format: `prettier --check .` (from `app/`)
-  - Rust lint: `cargo clippy -- -D warnings` (from `app/src-tauri/`, when touched)
-  - Rust format: `cargo fmt --check` (from `app/src-tauri/`, when touched)
+- **All automated checks must pass with zero errors before any commit; baseline failures are triaged by category before implementation begins.**
+
+  **Check Commands:**
+
+  | Key | Invocation | Working directory | Cadence | Trigger |
+  | --- | --- | --- | --- | --- |
+  | `type-check` | `npx tsc --noEmit` | `app/` | every check | always |
+  | `lint` | `npx eslint .` | `app/` | every check | always |
+  | `format-check` | `prettier --check .` | `app/` | every check | always |
+  | `test` | `npx vitest run` | `app/` | full-suite-only | always |
+  | `rust-lint` | `cargo clippy -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
+  | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
+
+  `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs twice per session: at the start (baseline) and after the final review cycle, before committing.
+
+  **Build Command:** `pnpm run build:frontend`, from `app/`.
+
+  **Package Manager:** `pnpm` — lockfile `pnpm-lock.yaml`, regenerated via `pnpm install`.
 
   Baseline failures: Minor (mechanical, no design judgment) — fix and commit autonomously (`chore(<branch>): fix pre-existing test fixture errors`), no surfacing. Major (a choice between valid alternatives, or an ambiguous cause) — surface to the user with a proposed fix before applying. Never treat any pre-existing error, minor or major, as acceptable baseline noise to filter out or defer.
 
