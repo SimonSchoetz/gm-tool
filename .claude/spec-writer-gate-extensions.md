@@ -1,6 +1,6 @@
 # spec-writer Gate Extensions
 
-Project-specific rows for `spec-writer-gates.md`'s Pre-Emission Compliance Pass, run in addition to that file's own table — same four-column shape, so rows relocate verbatim. On-demand rather than auto-loaded: large (several thousand characters of gate rows) and consumed by exactly one role at one step, unlike the facts in root `CLAUDE.md` that every role needs by default.
+Project-specific rows for the Pre-Emission Compliance Pass, run in addition to the table in the devloop plugin's `reference/run-pre-emission-compliance-pass.md` — same four-column shape, so rows relocate verbatim. On-demand rather than auto-loaded: large (several thousand characters of gate rows) and consumed by exactly one role at one step, unlike the facts in root `CLAUDE.md` that every role needs by default.
 
 | Gate | Trigger | Check | Authority |
 | --- | --- | --- | --- |
