@@ -1,6 +1,6 @@
 # Project Claude Configuration
 
-Project-specific facts every role needs by default — check commands, build, package manager, source layout, spec format authority — live directly in this repo's own auto-loaded CLAUDE.md files: see root `CLAUDE.md`'s Tool Use Discipline and App Structure sections. `.claude/spec-writer-gate-extensions.md` holds project-specific gate rows too large and too narrowly-consumed to inline into an auto-loaded file. `cut-release` (below) is a release-automation skill local to this repo, since its release process is gm-tool-specific.
+Project-specific facts every role needs by default — check commands, build, package manager, source layout, spec format authority — live directly in this repo's own auto-loaded CLAUDE.md files: see root `CLAUDE.md`'s Tool Use Discipline and App Structure sections. `cut-release` (below) is a release-automation skill local to this repo, since its release process is gm-tool-specific.
 
 ## Local Skill: cut-release
 

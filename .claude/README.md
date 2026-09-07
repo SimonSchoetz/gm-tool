@@ -10,7 +10,6 @@ If you have taken this project over from someone else: **the workflow tooling is
 | --- | --- |
 | `CLAUDE.md` | Points at where the workflow definitions live and describes the one piece of infrastructure that stays in-repo. Short by design. |
 | `knowledge/` | Verified facts about this project's third-party libraries and tools — APIs, CLI flags, config formats — one file per system, each entry stamped with the version it was checked against. Tracked, and useful to any assistant or human working here; root `CLAUDE.md` says how entries are read and written. |
-| `spec-writer-gate-extensions.md` | A checklist of this project's own React/Tauri conventions, used by a spec-authoring workflow. Read on demand rather than loaded automatically — it is long and only one role consumes it. |
 | `cycles/` | Scratch space where separate AI sessions hand work off to each other. **Gitignored**, machine-local, and safe to delete at any time. If you see it, it is working as intended. |
 | `settings.local.json` | Personal tool-permission settings. Gitignored. |
 | `launch.json` | Dev-server config for the in-editor browser preview. |
