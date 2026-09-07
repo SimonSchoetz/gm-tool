@@ -201,3 +201,10 @@ The documented way to switch off one shared rules file for one machine or projec
 **Citation:** [refine-claude_15: documented plugin-root entries are `.claude-plugin/`, `skills/`, `commands/`, `agents/`, `workflows/`, `output-styles/`, `themes/`, `hooks/`, `.mcp.json`, `.lsp.json`, `monitors/`, `bin/`, `settings.json`, `scripts/`, `LICENSE`, `CHANGELOG.md`; "A `CLAUDE.md` file at the plugin root is not loaded as project context"; first observed by head-of-instructions, cited from the same page]
 
 A tracked symlink `claude/devloop/rules → ../rules` is inert to the plugin loader: the shared rules load once, through `~/.claude/rules/shared`, and the symlink only makes `${CLAUDE_PLUGIN_ROOT}/rules/<file>.md` a readable path.
+
+## A user-level rules file with `paths` frontmatter loads on demand, like a project rule, not at launch
+
+**Verified at:** <https://code.claude.com/docs/en/memory> (Path-specific rules; silent on user scope) + observation 2026-09-07
+**Citation:** [refine-claude_1: ran a fresh session in gm-tool with `~/.claude/rules/paths-test.md` carrying `paths: ["**/*.tsx"]` and a marker instruction — marker unknown at launch and before any file read; after reading `app/src/App.tsx` the session answered the marker and described the file; in a second session the same file loaded when a message merely referenced a `.tsx` path]
+
+A file under `~/.claude/rules/` (including one reached through the `~/.claude/rules/shared` symlink) with `paths` frontmatter is not loaded at launch and does not appear in the launch-time instruction set; it loads when the session reads or references a file matching the glob. So a stack-specific shared rule costs nothing in a session that never touches that stack. The docs document `paths` only under `.claude/rules/`; this entry is the user-scope evidence.
