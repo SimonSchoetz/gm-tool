@@ -90,7 +90,7 @@ Entity vocabulary grounded in the actual database schema (`db/*/schema.ts`). Eve
 
 ## Third-Party Libraries
 
-The general verification obligation in root `CLAUDE.md`'s Epistemological Discipline section applies to all external systems. For **npm packages specifically**, the lookup procedure is:
+The verification obligation stated in the shared rules file's Epistemological Discipline (the rule beginning "Training data confers reasoning capability...") applies to all external systems. For **npm packages specifically**, the lookup procedure is:
 
 1. Check the installed version in `package.json`
 2. Fetch the official documentation for that exact version from the internet
