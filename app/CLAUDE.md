@@ -65,6 +65,10 @@ This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific a
 
 Error handling: see `app/src/CLAUDE.md` — State Management & Error Handling.
 
+## Testing
+
+When two or more tests call a function that owns module-level singleton state, the test file resets the module registry between tests: `vi.resetModules()` in `beforeEach` plus a dynamic `await import('../moduleName')` of the module under test inside each test body, never a static top-level import — a static import captures the singleton at load time, so an instance cached by one test leaks into the next. This applies in every layer (`src/`, `services/`, `domain/`, `db/`); a spec or change that leaves the existing test scaffolding unchanged for such a function, or keeps the static imports, is wrong. `app/db/CLAUDE.md` — Testing holds the `plugin-sql` mock specifics for db tests.
+
 ## Convention Discovery
 
 **Before introducing a new instance of a recurring pattern, grep for the existing convention independently — do not rely solely on a spec's cited references.** A spec's Key Architectural Decisions may validate new code only against the conventions it explicitly names. Any recurring codebase pattern not named in the spec (naming suffixes, file placement conventions, prop shapes) must still be discovered and matched. Before writing code that introduces a new instance of something already done repeatedly elsewhere (e.g., a new icon import in `src/`, a new hook, a new error factory in `domain/`, a new service composition pattern in `services/`), search the codebase for at least one existing instance of that same kind of thing and match its convention — even when no reference implementation was named for it. When the search returns no existing instance, the resulting design choice is ambiguous per `implement.md`'s Ambiguity gate — surface it rather than originating a new convention silently.
