@@ -49,6 +49,12 @@ Any folder under a skills directory containing a `.claude-plugin/plugin.json` ma
 
 Install scopes are user (all of your projects), project ("install for all collaborators on this repository, which adds the plugin to `.claude/settings.json`"), and local (this repository, not shared). A project's `.claude/settings.json` registers the catalog via `extraKnownMarketplaces` and declares the plugin via `enabledPlugins`, so the repository itself records which workflow bundle it depends on without vendoring the definition files. A marketplace source may be a private git repository, and `/plugin marketplace add <url>#<ref>` pins it to a branch or tag.
 
+---
+**Reverified at:** <https://code.claude.com/docs/en/plugins-reference> and <https://code.claude.com/docs/en/plugin-marketplaces> — 2026-09-08
+**Citation:** [claude_1: <https://code.claude.com/docs/en/plugins-reference> — "Plugin caching and file resolution": "Claude Code copies *marketplace* plugins to the user's local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in place, except for `command` sources in link mode"; "Skills-directory plugins": "Unlike a copied marketplace install, the plugin is discovered in place rather than copied into the plugin cache"; <https://code.claude.com/docs/en/plugin-marketplaces>: "Copied plugins can't reference files outside their directory using paths like `../shared-utils`, because those files won't be copied" — quoted by refute-harness S2 from the stress-test evidence file, `43-claude-boundary-stress-test-evidence.md:921-922`]
+
+Unchanged as to the settings keys; qualified as to what a recorded install delivers. A marketplace install — the only kind `enabledPlugins` records — copies the plugin directory into a per-version directory under `~/.claude/plugins/cache`, so a tracked relative symlink that leaves the plugin directory (`rules → ../rules`, `projects → ../projects`) points at a nonexistent sibling of the cache copy and every `${CLAUDE_PLUGIN_ROOT}/rules/…` or `${CLAUDE_PLUGIN_ROOT}/projects/…` path dangles there. A plugin built on such symlinks is usable only through the in-place skills-directory install of the preceding entry, which no settings file records.
+
 ## Plugin content resolves three path variables, including a plugin-root anchor
 
 **Verified at:** <https://code.claude.com/docs/en/plugins-reference> — 2026-09-01
@@ -101,7 +107,7 @@ The variable is not limited to hook commands and MCP/LSP configs; it resolves in
 ## In the desktop app's Code tab, spawned agents are one-shot: no `SendMessage` tool is exposed and `ListAgents` does not list them
 
 **Verified at:** Claude desktop app, Code tab, session tool roster — 2026-09-04
-**Citation:** [refine-claude_1: `ToolSearch select:SendMessage` → "No matching deferred tools found", checked before and after spawning an agent; the Agent tool's own result text still says "use SendMessage with to: '<id>'"; `ListAgents` returned only peer sessions, not the spawned agent]
+**Citation:** [refine-claude_1: `ToolSearch select:SendMessage` → "No matching deferred tools found", checked before and after spawning an agent; the Agent tool's own result text still says "use SendMessage with `to: '<id>'`"; `ListAgents` returned only peer sessions, not the spawned agent]
 
 The Agent tool result advertises `SendMessage` for continuing a spawned agent, but the tool is absent from both the loaded and the deferred tool lists in this environment, and a completed agent is not addressable afterwards. A protocol that needs resumable teammates must re-spawn with prior output as context. Re-check at session start; the same absence was observed on 2026-09-04 in the preceding cycle's session.
 
@@ -208,3 +214,24 @@ A tracked symlink `claude/devloop/rules → ../rules` is inert to the plugin loa
 **Citation:** [refine-claude_1: ran a fresh session in gm-tool with `~/.claude/rules/paths-test.md` carrying `paths: ["**/*.tsx"]` and a marker instruction — marker unknown at launch and before any file read; after reading `app/src/App.tsx` the session answered the marker and described the file; in a second session the same file loaded when a message merely referenced a `.tsx` path]
 
 A file under `~/.claude/rules/` (including one reached through the `~/.claude/rules/shared` symlink) with `paths` frontmatter is not loaded at launch and does not appear in the launch-time instruction set; it loads when the session reads or references a file matching the glob. So a stack-specific shared rule costs nothing in a session that never touches that stack. The docs document `paths` only under `.claude/rules/`; this entry is the user-scope evidence.
+
+## `disable-model-invocation: true` removes a skill's description from the model's skill listing and blocks model invocation; the skill stays user-invocable
+
+**Verified at:** <https://code.claude.com/docs/en/skills> — 2026-09-08
+**Citation:** [claude_2: <https://code.claude.com/docs/en/skills> — invocation-control table row "`disable-model-invocation: true` | Yes | No | Description not in context, full skill loads when you invoke"; frontmatter table: "Set to `true` to prevent Claude from automatically loading this skill … Also prevents the skill from being preloaded into subagents"; "If you set `disable-model-invocation: true`, Claude can't run the skill automatically" (refute-harness_13: `grep -n -B2 -A6 disable-model-invocation` on the fetched page); confirmed on this machine: the coordinating session's own skill listing named other plugins' skills by namespace (`anthropic-skills:docx`, `cowork-plugin-management:cowork-plugin-customizer`, …) and no `devloop:*` skill while the devloop plugin was installed and loading, every devloop skill carrying the flag (refute-harness_15)]
+
+A skill with the flag is neither described to the model nor invocable by it, and it cannot be preloaded through a subagent's `skills` field; the user invokes it with `/name`, and only then does its body load. Consequence: "a skill namespaced `<plugin>:` appears in the session's skill listing" is not a test for whether that plugin is installed when its skills carry the flag — the listing is empty for such a plugin even though it loads and its skills run on user invocation.
+
+## `${CLAUDE_PLUGIN_ROOT}` is not substituted in files reached by the Read tool — only in skill and agent content, hook and monitor commands, and MCP/LSP fields
+
+**Verified at:** <https://code.claude.com/docs/en/plugins-reference> — 2026-09-08
+**Citation:** [claude_3: <https://code.claude.com/docs/en/plugins-reference> — path substitution table, whose rows are "Skill and agent content", "Hook and monitor commands", MCP `stdio` servers, MCP `http`/`sse`/`ws` servers and LSP servers, with no row for supporting or reference files; observed live: Read on `/Users/simonschoetz/.claude/skills/devloop/reference/run-pre-emission-compliance-pass.md` at offset 29 returned the literal string `${CLAUDE_PLUGIN_ROOT}/agents/spec-writer.md`, unsubstituted (refute-harness_16)]
+
+A helper under a plugin's `reference/` reaches context only through a Read, and Read returns the file's bytes, so a `${CLAUDE_PLUGIN_ROOT}` token inside it stays literal; the reader resolves it against the plugin root its own skill or agent content received, and a reader with no such anchor — a session that did not enter through a plugin skill or agent, or a helper handed over by bare path — has nothing to resolve it with. This qualifies the earlier entry "substitutes anywhere it appears in skill and agent content": that scope is exact, and reference files lie outside it.
+
+## A symlink at `~/.claude/skills/<name>` to a plugin directory outside `~/.claude` is followed by the loader
+
+**Verified at:** Claude desktop app, Code tab — 2026-09-08
+**Citation:** [claude_4: observational — the docs leave symlink handling under a skills directory unstated; gm-tool's `.claude/commands/` and `.claude/agents/` were deleted in `20d75d8b` (`git log --diff-filter=D --format='%h %ad %s' --date=short -- .claude/commands .claude/agents` — observed `20d75d8b 2026-09-02 refactor(workflow-globalization): remove definitions now supplied by the plugin`, refute-harness_5); the symlink `~/.claude/skills/devloop → /Users/simonschoetz/dev/setup/claude/devloop` was created 2026-09-02 (`stat -f '%SB' ~/.claude/skills/devloop` — `2026-09-02`, refute-harness_6); `13-refine-claude-proposals.md` and `41-refine-claude-step2-proposals.md` were written by the `refine-claude` role on 2026-09-07 (`stat` — `2026-09-07 15:31`, `2026-09-07 20:31`, refute-harness_7) when no `refine-claude` definition existed in the project]
+
+The only source of the `refine-claude` role on those dates was the plugin behind the symlink, so the skills-directory loader follows an absolute symlink whose target lies outside `~/.claude` and discovers the plugin in place there, where its tracked relative symlinks (`rules → ../rules`, `projects → ../projects`) resolve against the real directory. Documentation states nothing about symlinks under a skills directory; this entry is observational and holds for the harness build in use on 2026-09-07. It is the one install route under which the plugin's out-of-directory symlinks work (see the reverification on the project-scope-install entry above).
