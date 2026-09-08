@@ -8,17 +8,16 @@ If you have taken this project over from someone else: **the workflow tooling is
 
 | Path | What it is |
 | --- | --- |
-| `CLAUDE.md` | Points at where the workflow definitions live and describes the one piece of infrastructure that stays in-repo. Short by design. |
+| `CLAUDE.md` | Defines the `cut-release` local skill and points at root `CLAUDE.md` for the project-wide facts. Short by design. |
 | `knowledge/` | Verified facts about this project's third-party libraries and tools — APIs, CLI flags, config formats — one file per system, each entry stamped with the version it was checked against. Tracked, and useful to any assistant or human working here; root `CLAUDE.md` says how entries are read and written. |
-| `cycles/` | Scratch space where separate AI sessions hand work off to each other. **Gitignored**, machine-local, and safe to delete at any time. If you see it, it is working as intended. |
+| `cycles/` | Scratch space where separate AI sessions hand work off to each other. Excluded from git locally (`.git/info/exclude`), machine-local, and safe to delete at any time. If you see it, it is working as intended. |
+| `devloop.md` | The one file that declares this project to the Claude Code plugin that runs its spec-driven workflow; it explains itself and says where the plugin comes from. |
 | `settings.local.json` | Personal tool-permission settings. Gitignored. |
 | `launch.json` | Dev-server config for the in-editor browser preview. |
 
 ## What's deliberately *not* here
 
-Agent definitions, slash commands, skills, and shared reference material are supplied by a plugin from an external setup repository, shared across every project on that machine. They are intentionally absent from this repo — not missing, not deleted by accident.
-
-The same is true of the workflow's own execution log, keyed to this project by an `artifact-key` slug declared in the root `CLAUDE.md`.
+Agent definitions, slash commands, skills, and shared reference material are supplied by a Claude Code plugin installed per machine — `devloop.md` in this directory is the one file that declares this project to it. They are intentionally absent from this repo — not missing, not deleted by accident.
 
 ## Where the project's own conventions live
 

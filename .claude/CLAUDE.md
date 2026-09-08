@@ -10,11 +10,3 @@ Intent: Walk through this project's release process end to end — version bump 
 Input: Release intent (e.g. "cut a release"), optionally a specific version
 Output: A local `chore(release):` commit with version bumps and CHANGELOG entries; instructions to run `pnpm run create-release` to push and trigger CI
 Constraints: Never runs `pnpm run create-release` itself; always confirms the target version and shows the full diff before committing; a commit message that doesn't parse into a recognized conventional-commit type is never silently classified — the user is asked
-
-## Agent Infrastructure
-
-`.claude/knowledge/` is this project's knowledge store — verified external-system facts, tracked in this repo and used per root `CLAUDE.md`'s Epistemological Discipline → Knowledge base. This project's retro-log lives at `~/dev/setup/claude/projects/gm-tool/retro-log.md`, project-scoped under this project's `artifact-key` (declared in that same section) — see Retention below for how its rows gate a cycle directory's deletion.
-
-**`.claude/cycles/<YYYY-MM-DD>-<slug>/`** is a transient, same-machine handoff directory between sessions — gitignored, not tracked in git. One file per producing role, named `NN-<role-slug>-<artifact-slug>.md`, where `<role-slug>` matches the producing agent, command, or skill's own name (e.g. `cut-release`, or whichever role produced the file) — no agent ever edits another role's file, only creates its own. `<slug>` is a short kebab-case description of the cycle's trigger, chosen by whichever role produces the cycle's first artifact — branch name alone is never a valid key, since one branch can host multiple unrelated cycles in sequence. Creation is idempotent: the first-writing role checks for the directory's existence and creates it only if absent, and must never error when a prior invocation already created it. The directory name and filename together identify which cycle and which producing role a file belongs to when read cold, outside any chat context.
-
-**Retention is checked on a schedule, not left to incidental discovery.** A cycle directory is eligible for deletion once every row it produced in `~/dev/setup/claude/projects/gm-tool/retro-log.md` has a filled Outcome field; once eligible, it may be deleted.

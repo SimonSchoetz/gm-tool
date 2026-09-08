@@ -1,5 +1,4 @@
 _archive
 coverage
 .claude/settings.local.json
-.claude/cycles
 node_modules
