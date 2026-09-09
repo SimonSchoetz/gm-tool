@@ -8,10 +8,14 @@ This directory contains specs and planning documents. Specs are temporary and wi
 
 **Layered breakdown** — layers in dependency order:
 
-1. DB changes (schema, seed, CRUD)
-2. Services
-3. Data Access Layer
-4. Frontend (components, screens)
+1. Domain
+2. Database
+3. Rust backend
+4. Services
+5. Data Access Layer
+6. Frontend
+
+Domain and Database are peers, each referencing the other, and the Rust backend depends on neither — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller.
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
