@@ -86,7 +86,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
       pendingUpdatesRef.current = {};
       debounceTimeoutRef.current = null;
 
-      // Deferred-dispatch mutation carve-out (app/src/CLAUDE.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
+      // Deferred-dispatch mutation carve-out (.claude/rules/src-data-access-layer.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
       updateMutation.mutate({ id: adventureId, data: updates });
     }, 500);
   };
