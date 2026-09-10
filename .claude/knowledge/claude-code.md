@@ -250,6 +250,11 @@ The trigger is reading a file in a subdirectory, and every `CLAUDE.md` on that f
 
 The two mechanisms are not interchangeable: a `paths` glob selects by extension, filename pattern, or a directory name at any depth, so it can carve a cross-cutting set (`**/*.css`, `**/__tests__/**`) that no directory boundary expresses, and unlike a subdirectory `CLAUDE.md` it is not cumulative with any ancestor file. The documentation names path-scoped rules as the remedy for an oversized `CLAUDE.md` twice — "If your instructions are growing large, use path-scoped rules so instructions load only when Claude works with matching files", and again under "My CLAUDE.md is too large" — and directs a multi-step procedure or content that "only matters for one part of the codebase" to a skill or a path-scoped rule rather than to `CLAUDE.md`.
 
+**Reverified at:** gm-tool, Claude Code desktop app Code tab — 2026-09-10
+**Citation:** [refine-claude_26: in a session launched at the repository root, Read on `app/src/App.css` loaded `app/CLAUDE.md`, `app/src/CLAUDE.md` and `.claude/rules/src-css.md`, and none of the other six rule files in that directory]
+
+Observed rather than inferred, in this repository, with the globs this project ships: the glob selected exactly one rule file for a stylesheet reader, and every ancestor `CLAUDE.md` on the read path loaded alongside it, so the cumulative-ancestor entry below holds for `CLAUDE.md` files while path-scoped rules stay selective.
+
 ## Starting Claude in a subdirectory loads that directory's `CLAUDE.md` plus every ancestor's at launch; starting at the repository root loads the root file alone
 
 **Verified at:** <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
@@ -277,3 +282,10 @@ This is a launch-scope injection: it fires for every session in scope, so it bro
 **Citation:** [refine-claude_21: memory page, Deploy organization-wide CLAUDE.md — "The `claudeMd` key lets you put managed CLAUDE.md content directly inside `managed-settings.json` instead of deploying a separate file"; "**Where it's honored**: managed and policy settings only. Setting `claudeMd` in user, project, or local settings has no effect"; large-codebases page, "Exclude irrelevant CLAUDE.md files" — "The exclusion list is static, not a per-task switch. To focus on one package today and another tomorrow, start Claude from that package's directory instead of editing exclusions"]
 
 Neither is a mechanism for scoping a project's own conventions: `claudeMd` is unavailable outside managed settings, and `claudeMdExcludes` removes an instruction file wholesale for whoever configures it rather than narrowing its audience.
+
+## A `.claude/rules/` directory created during a session is discovered without a restart
+
+**Verified at:** gm-tool, Claude Code desktop app Code tab — 2026-09-10
+**Citation:** [refine-claude_27: `.claude/rules/` did not exist when the session started; seven path-scoped rule files were written to it mid-session; a later Read on `app/src/App.css` in the same session loaded `.claude/rules/src-css.md`]
+
+Rules discovery is not a launch-time snapshot, unlike plugin discovery, where a newly created plugin folder needs a restart and `/reload-plugins` does not find it. A session that writes a new path-scoped rule can therefore exercise it without restarting, which makes a rules partition testable in the session that performs it.
