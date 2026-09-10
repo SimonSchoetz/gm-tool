@@ -39,9 +39,11 @@ This file is this project's declaration for the `devloop` Claude Code plugin —
 | Database | `app/db/` | `app/db/CLAUDE.md` | db |
 | Domain | `app/domain/` | `app/domain/CLAUDE.md` | domain |
 | Services | `app/services/` | `app/services/CLAUDE.md` | service |
-| Data Access Layer | `app/src/data-access-layer/` | `app/src/CLAUDE.md` | data-access |
+| Data Access Layer | `app/src/data-access-layer/` | `.claude/rules/src-data-access-layer.md` | data-access |
 | Frontend | `app/src/` | `app/src/CLAUDE.md` | ui |
 | Rust backend | `app/src-tauri/` | `app/src-tauri/CLAUDE.md` | backend |
+
+Conventions for `app/src/` are additionally carried by path-scoped rules under `.claude/rules/`, indexed in `app/src/CLAUDE.md` — Structure. Each loads only when Claude reads or references a matching path.
 
 ## spec-directory
 
@@ -63,7 +65,7 @@ This file is this project's declaration for the `devloop` Claude Code plugin —
 
 | Scan | Files | Report | Exempt when | Disposition | Convention |
 | --- | --- | --- | --- | --- | --- |
-| Raw CSS values | `app/src/**/*.css` | raw property values (colors, spacing, border radii, shadows, font sizes) instead of a design token | `/* one-off */` on the same line or the line immediately preceding | add a design token, add `/* one-off */`, or leave as-is | `app/src/CLAUDE.md — Styles` |
+| Raw CSS values | `app/src/**/*.css` | raw property values (colors, spacing, border radii, shadows, font sizes) instead of a design token | `/* one-off */` on the same line or the line immediately preceding | add a design token, add `/* one-off */`, or leave as-is | `.claude/rules/src-css.md — Design token obligation` |
 
 ## citation-format
 
