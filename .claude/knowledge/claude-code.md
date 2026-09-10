@@ -235,3 +235,45 @@ A helper under a plugin's `reference/` reaches context only through a Read, and 
 **Citation:** [claude_4: observational — the docs leave symlink handling under a skills directory unstated; gm-tool's `.claude/commands/` and `.claude/agents/` were deleted in `20d75d8b` (`git log --diff-filter=D --format='%h %ad %s' --date=short -- .claude/commands .claude/agents` — observed `20d75d8b 2026-09-02 refactor(workflow-globalization): remove definitions now supplied by the plugin`, refute-harness_5); the symlink `~/.claude/skills/devloop → /Users/simonschoetz/dev/setup/claude/devloop` was created 2026-09-02 (`stat -f '%SB' ~/.claude/skills/devloop` — `2026-09-02`, refute-harness_6); `13-refine-claude-proposals.md` and `41-refine-claude-step2-proposals.md` were written by the `refine-claude` role on 2026-09-07 (`stat` — `2026-09-07 15:31`, `2026-09-07 20:31`, refute-harness_7) when no `refine-claude` definition existed in the project]
 
 The only source of the `refine-claude` role on those dates was the plugin behind the symlink, so the skills-directory loader follows an absolute symlink whose target lies outside `~/.claude` and discovers the plugin in place there, where its tracked relative symlinks (`rules → ../rules`, `projects → ../projects`) resolve against the real directory. Documentation states nothing about symlinks under a skills directory; this entry is observational and holds for the harness build in use on 2026-09-07. It is the one install route under which the plugin's out-of-directory symlinks work (see the reverification on the project-scope-install entry above).
+
+## Subdirectory `CLAUDE.md` loading is cumulative up the ancestor chain, not nearest-file-only
+
+**Verified at:** <https://code.claude.com/docs/en/memory> — 2026-09-10
+**Citation:** [refine-claude_10: WebFetch <https://code.claude.com/docs/en/memory> — "Claude also discovers CLAUDE.md and CLAUDE.local.md files in subdirectories under your current working directory. Instead of loading them at launch, they are included when Claude reads files in those subdirectories."]
+
+The trigger is reading a file in a subdirectory, and every `CLAUDE.md` on that file's ancestor path qualifies — a directory nested two levels below one that holds a `CLAUDE.md` is still "under" it. So reading `app/src/data-access-layer/useNpc.ts` would load both `app/src/CLAUDE.md` and a `CLAUDE.md` placed at `app/src/data-access-layer/`, not the deeper one alone. Splitting a large subdirectory `CLAUDE.md` into a parent and a child file therefore relieves only the reader that never descends into the child's directory; the reader that does descend holds both files and carries the same total, plus whatever framing the second file adds.
+
+## A path-scoped rule lives in the repo-root `.claude/rules/` and loads when Claude works with a matching file, which no `CLAUDE.md` placement can express
+
+**Verified at:** <https://code.claude.com/docs/en/memory> and <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
+**Citation:** [refine-claude_17: memory page, Path-specific rules — "Rules can be scoped to specific files using YAML frontmatter with the `paths` field. These conditional rules only apply when Claude is working with files matching the specified patterns"; "Path-scoped rules trigger when Claude reads files matching the pattern, not on every tool use"; pattern table rows `**/*.ts`, `src/**/*`, `*.md`, `src/components/*.tsx`; brace expansion supported under a budget of 1,000 expanded patterns and 4 MiB per rule, patterns exceeding it used unexpanded and matching nothing; large-codebases page, "Choose between per-directory CLAUDE.md and path-scoped rules" table — per-directory `CLAUDE.md` "Inside the directory, alongside its code" loading "At launch when started from that directory, or on demand when Claude reads a file there", path-scoped rule "Central `.claude/` at the repo root" loading "When Claude works with a file matching the rule's `paths:` glob", used when "the same rule applies to many scattered paths"]
+
+The two mechanisms are not interchangeable: a `paths` glob selects by extension, filename pattern, or a directory name at any depth, so it can carve a cross-cutting set (`**/*.css`, `**/__tests__/**`) that no directory boundary expresses, and unlike a subdirectory `CLAUDE.md` it is not cumulative with any ancestor file. The documentation names path-scoped rules as the remedy for an oversized `CLAUDE.md` twice — "If your instructions are growing large, use path-scoped rules so instructions load only when Claude works with matching files", and again under "My CLAUDE.md is too large" — and directs a multi-step procedure or content that "only matters for one part of the codebase" to a skill or a path-scoped rule rather than to `CLAUDE.md`.
+
+## Starting Claude in a subdirectory loads that directory's `CLAUDE.md` plus every ancestor's at launch; starting at the repository root loads the root file alone
+
+**Verified at:** <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
+**Citation:** [refine-claude_18: large-codebases page, "Choose where to start Claude" table — row "Repository root | Every file | Root only; subdirectory files load on demand when Claude reads there"; row "A subdirectory | That subtree only, until you grant more | That directory's plus every ancestor's"]
+
+The on-demand loading condition of a subdirectory `CLAUDE.md` therefore holds only for sessions launched above it; a session launched at or below that directory holds the file from the first turn. Project settings in `.claude/settings.json` are not inherited from parent directories the way `CLAUDE.md` files are.
+
+## A skill can be scoped by `paths` frontmatter or by placement in a subdirectory's own `.claude/skills/`
+
+**Verified at:** <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
+**Citation:** [refine-claude_19: large-codebases page, "Add per-directory skills" — "Skills live under `.claude/skills/` inside the directory"; "When Claude works on a file in `packages/api/`, it loads the api-testing skill. When it works in `packages/web/`, it loads component-patterns instead. Neither directory's skills load during the other's tasks"; "You can also scope a skill by file pattern instead of by placement. The `paths` frontmatter field takes glob patterns, and Claude loads the skill automatically only when it works with matching files"; "Which skills are in scope depends on where you start Claude" — from the root, "skills from every subdirectory Claude touches during the session, which can accumulate into the hundreds"]
+
+Names always load and only the chosen skill's full content enters context, but descriptions are shortened when many skills are discovered, which can strip the keywords the selection depends on. A skill's trigger is model judgment over that name and description, not a harness-enforced glob, even when `paths` narrows the candidate set.
+
+## A `SessionStart` hook's stdout is added to the session's context before the first prompt
+
+**Verified at:** <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
+**Citation:** [refine-claude_20: large-codebases page, "Recommend the right plugin at session start" — "A `SessionStart` hook can close that gap, since Claude Code adds plain text the hook prints to stdout to Claude's context before the first prompt"]
+
+This is a launch-scope injection: it fires for every session in scope, so it broadens what a session holds rather than narrowing it, and it is configuration rather than a durable instruction file.
+
+## `claudeMd` in a settings file is honored only in managed and policy layers, and `claudeMdExcludes` is a static list rather than a per-task switch
+
+**Verified at:** <https://code.claude.com/docs/en/memory> and <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
+**Citation:** [refine-claude_21: memory page, Deploy organization-wide CLAUDE.md — "The `claudeMd` key lets you put managed CLAUDE.md content directly inside `managed-settings.json` instead of deploying a separate file"; "**Where it's honored**: managed and policy settings only. Setting `claudeMd` in user, project, or local settings has no effect"; large-codebases page, "Exclude irrelevant CLAUDE.md files" — "The exclusion list is static, not a per-task switch. To focus on one package today and another tomorrow, start Claude from that package's directory instead of editing exclusions"]
+
+Neither is a mechanism for scoping a project's own conventions: `claudeMd` is unavailable outside managed settings, and `claudeMdExcludes` removes an instruction file wholesale for whoever configures it rather than narrowing its audience.
