@@ -11,13 +11,13 @@ If you have taken this project over from someone else: **the workflow tooling is
 | `CLAUDE.md` | Defines the `cut-release` local skill and points at root `CLAUDE.md` for the project-wide facts. Short by design. |
 | `knowledge/` | Verified facts about this project's third-party libraries and tools — APIs, CLI flags, config formats — one file per system, each entry stamped with the version it was checked against. Tracked, and useful to any assistant or human working here; root `CLAUDE.md` says how entries are read and written. |
 | `cycles/` | Scratch space where separate AI sessions hand work off to each other. Excluded from git locally (`.git/info/exclude`), machine-local, and safe to delete at any time. If you see it, it is working as intended. |
-| `devloop.md` | The one file that declares this project to the Claude Code plugin that runs its spec-driven workflow; it explains itself and says where the plugin comes from. |
+| `gimbal.md` | The one file that declares this project to the Claude Code plugin that runs its spec-driven workflow; it explains itself and says where the plugin comes from. |
 | `settings.local.json` | Personal tool-permission settings. Gitignored. |
 | `launch.json` | Dev-server config for the in-editor browser preview. |
 
 ## What's deliberately *not* here
 
-Agent definitions, slash commands, skills, and shared reference material are supplied by a Claude Code plugin installed per machine — `devloop.md` in this directory is the one file that declares this project to it. They are intentionally absent from this repo — not missing, not deleted by accident.
+Agent definitions, slash commands, skills, and shared reference material are supplied by a Claude Code plugin installed per machine — `gimbal.md` in this directory is the one file that declares this project to it. They are intentionally absent from this repo — not missing, not deleted by accident.
 
 ## Where the project's own conventions live
 
