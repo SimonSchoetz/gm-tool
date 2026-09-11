@@ -24,7 +24,7 @@ Whether a component or screen owns a `.css` file at all, and where its CSS goes 
   - ✅ `padding: var(--spacing-sm)`
   - ❌ `padding: 8px`
   - ❌ `color: #ffffff`
-- **`/* one-off */` — intentional CSS singularities:** when a raw value does not warrant a design token, because its use-case is narrow enough that the user has decided it need not be reused, mark it with a `/* one-off */` comment on the same line. A reviewer who sees `/* one-off */` must not file a violation. Whether a raw value warrants the annotation is the user's call — never the implementer's or reviewer's.
+- **`/* one-off */` — intentional CSS singularities:** when a raw value does not warrant a design token, because its use-case is narrow enough that the user has decided it need not be reused, mark it with a comment on the same line containing `one-off`; anything further in that comment records why the value was kept, for whoever reads it next. A reviewer who sees the marker must not file a violation. Whether a raw value warrants the annotation is the user's call — never the implementer's or reviewer's.
   - ✅ `border-radius: 3px; /* one-off */`
 - **Raw values without `/* one-off */` are surfaced to the user after the task completes, not mid-task, and never block the commit.** Collect them during implementation and report file path, line, and value at the end of the task; the user then decides: add a token, add the annotation, or leave it. The deferred state is not a violation.
 

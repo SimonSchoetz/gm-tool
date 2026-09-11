@@ -65,7 +65,7 @@ Conventions for `app/src/` are additionally carried by path-scoped rules under `
 
 | Scan | Files | Report | Exempt when | Disposition | Convention |
 | --- | --- | --- | --- | --- | --- |
-| Raw CSS values | `app/src/**/*.css` | raw property values (colors, spacing, border radii, shadows, font sizes) instead of a design token | `/* one-off */` on the same line or the line immediately preceding | add a design token, add `/* one-off */`, or leave as-is | `.claude/rules/src-css.md — Design token obligation` |
+| Raw CSS values | `app/src/**/*.css` | raw property values (colors, spacing, border radii, shadows, font sizes) instead of a design token | a same-line comment containing `one-off` | add a design token, add `/* one-off */`, or leave as-is | `.claude/rules/src-css.md — Design token obligation` |
 
 ## citation-format
 
