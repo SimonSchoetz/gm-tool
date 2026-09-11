@@ -7,6 +7,11 @@
 
 The Agent tool result advertises `SendMessage` for continuing a spawned agent, but the tool is absent from both the loaded and the deferred tool lists in this environment, and a completed agent is not addressable afterwards. A protocol that needs resumable teammates must re-spawn with prior output as context. Re-check at session start; the same absence was observed on 2026-09-04 in the preceding cycle's session.
 
+**Verified at:** Claude Code CLI, gm-tool session — 2026-09-11
+**Citation:** [refine-claude_1 (CLI): `SendMessage` was present via `ToolSearch select:SendMessage`; an agent spawned with `name: "head-of-instructions"` was pinged twice in separate `SendMessage({to: "head-of-instructions", ...})` calls across two turns, and replied distinctly to each ("Acknowledged — this is head-of-instructions, standing by" to the first, "Confirmed — received second ping, still standing by" to the second) — a `ListAgents` was not needed since the name alone resolved the send]
+
+In the CLI, `SendMessage` is exposed and a spawned agent stays addressable by its retained `name` across turns, tracking message-by-message state rather than just re-echoing. The one-shot limitation above is Code-tab-specific, not general to Claude Code.
+
 ## A subagent starts with its agent file, the CLAUDE.md hierarchy, a git-status snapshot, and any skills named in its `skills` field; every other file must be read with a tool
 
 **Verified at:** <https://code.claude.com/docs/en/sub-agents> — 2026-09-04
