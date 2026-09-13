@@ -1,6 +1,6 @@
 import z from 'zod';
 import { sessionStepTable } from './schema';
-import type { LazyDmStepKey } from './schema';
+import type { LazyDmStepKey } from '@domain';
 
 export type SessionStep = z.infer<typeof sessionStepTable.zodSchema>;
 export type CreateSessionStepInput = {

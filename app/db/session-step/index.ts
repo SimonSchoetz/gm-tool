@@ -9,4 +9,3 @@ export type {
   CreateSessionStepInput,
   UpdateSessionStepInput,
 } from './types';
-export type { LazyDmStepKey } from './schema';

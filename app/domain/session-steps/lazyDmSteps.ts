@@ -1,4 +1,4 @@
-import type { LazyDmStepKey } from '@db/session-step';
+import type { LazyDmStepKey } from './lazyDmStepKeys';
 
 type LazyDmStepDefinition = {
   key: LazyDmStepKey;

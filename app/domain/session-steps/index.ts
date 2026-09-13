@@ -1,4 +1,6 @@
 export { LAZY_DM_STEPS } from './lazyDmSteps';
+export { LAZY_DM_STEP_KEYS } from './lazyDmStepKeys';
+export type { LazyDmStepKey } from './lazyDmStepKeys';
 export type { SessionStepLoadError } from './errors';
 export { sessionStepLoadError } from './errors';
 export type { SessionStepCreateError } from './errors';

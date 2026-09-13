@@ -1,5 +1,4 @@
-import { LAZY_DM_STEPS } from '@domain';
-import type { LazyDmStepKey } from '@db/session-step';
+import { LAZY_DM_STEPS, type LazyDmStepKey } from '@domain';
 import { FCProps } from '@/types';
 import './TooltipPanel.css';
 
