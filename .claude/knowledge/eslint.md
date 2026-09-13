@@ -36,3 +36,10 @@ A local ESLint rule file registered via flat config's `plugins: { local: { rules
 **Citation:** [type declaration read: `node_modules/eslint/lib/types/rules.d.ts` — `"multiline-comment-style": Linter.RuleEntry<["starred-block" | "bare-block" | "separate-lines"]>`, marked `@deprecated since 8.53.0`, superseded by `@stylistic/eslint-plugin` (not installed in this repo)]
 
 No ESLint core or already-installed plugin rule (`@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`) detects a single sentence manually split across consecutive `//` line comments — `multiline-comment-style`'s three options only govern which comment *form* to use (JSDoc-style block, bare block, or separate `//` lines), not whether a line comment's content is grammatically complete on its own line. A rule targeting this pattern must be custom-written.
+
+## An inline arrow `component` in a TanStack `createFileRoute` options object passes this project's lint config, including `reactRefresh.configs.vite()`
+
+**Verified at:** eslint-plugin-react-refresh ^0.5.3, as configured in app/eslint.config.js
+**Citation:** [spec-writer_3: ran `npx eslint src/routes/zz-scratch-inline-component.tsx` from `app/` against a disposable route file exporting only `export const Route = createFileRoute('/adventure/$adventureId/npcs')({ component: () => <NpcsScreen /> })` — observed exit code 0, no diagnostics]
+
+A route file whose only export is `Route` may declare its `component` as an unexported inline arrow that renders a screen with a static prop (e.g. `component: () => <Screen entityType='npcs' />`); `react-refresh/only-export-components` does not flag it, so a per-route static prop needs no separately exported wrapper component.

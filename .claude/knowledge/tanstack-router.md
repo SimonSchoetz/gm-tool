@@ -38,6 +38,19 @@ Because the interface is empty by default, an un-augmented codebase cannot pass 
 
 Every route file under `app/src/routes/` currently declares only `component` in its `createFileRoute` options. Typed search params require adding `validateSearch` to each route individually; there is no app-wide default.
 
+---
+**Reverified at:** `@tanstack/react-router` ^1.170.17, route files read 2026-09-13
+**Citation:** [spec-writer_5: app/src/routes/adventure.$adventureId.npc.$npcId.tsx:5-13 and adventure.$adventureId.npcs.tsx:8-18 — each declares `component` and `loader`, neither declares `validateSearch`]
+
+The route files now declare a `loader` alongside `component`, so "only `component`" no longer holds. The fact this entry exists for is unchanged: no route declares `validateSearch`, and typed search params still require adding it per route.
+
+## `<Link>` accepts a plain `string` in `to` without a `params` prop
+
+**Verified at:** `@tanstack/react-router` ^1.170.17, app/tsconfig.json compiler options
+**Citation:** [spec-writer_4: ran `npx tsc --noEmit` from `app/` with a disposable component `({ to }: { to: string }) => <Link to={to}>x</Link>` — observed exit code 0, 0 errors]
+
+A component can link to a runtime-built path (e.g. the string `buildEntityPath` returns) by passing it straight to `to`, with no typed route literal and no `params` object; the type-check accepts it.
+
 ## `vite build` regenerates `src/routeTree.gen.ts` from the route files
 
 **Verified at:** `@tanstack/router-plugin` 1.168.19 (devDependency in `app/package.json`), registered as `tanstackRouter({ target: 'react', autoCodeSplitting: true })` in `app/vite.config.ts`

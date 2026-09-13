@@ -69,3 +69,17 @@ Reusing the same `$N` placeholder more than once in a single query string (e.g. 
 **Citation:** [spec-writer_3: https://www.sqlite.org/foreignkeys.html — "Foreign key constraints are disabled by default (for backwards compatibility)"; https://docs.rs/sqlx/latest/sqlx/sqlite/struct.SqliteConnectOptions.html — "SQLx chooses to enable this by default so that foreign keys function as expected"]
 
 tauri-plugin-sql connects through sqlx, so this app's SQLite connections have `foreign_keys = ON` — FK CASCADE/SET NULL actions are active.
+
+## An INSERT ... SELECT carrying an ON CONFLICT upsert clause needs a WHERE clause in its SELECT, even `WHERE true`, and the conflict decision is made per row
+
+**Verified at:** sqlite.org current docs (UPSERT added in 3.24.0), fetched 2026-09-13
+**Citation:** [spec-writer_1: https://www.sqlite.org/lang_upsert.html — section 2.2: "the SELECT statement should always include a WHERE clause, even if that WHERE clause is just 'WHERE true'"; "the upsert decision is made separately for each row of the insert"]
+
+Without a WHERE clause the parser cannot tell whether `ON` introduces the upsert or a join constraint, so `INSERT INTO t1 SELECT * FROM t2 ON CONFLICT(x) DO NOTHING` is ambiguous; `INSERT INTO t1 SELECT * FROM t2 WHERE true ON CONFLICT(x) DO NOTHING` is the safe form. For a multi-row INSERT ... SELECT, each row independently takes the DO NOTHING / DO UPDATE path.
+
+## `sqlite_master` is a recognized name for the schema table, which holds one row per table, index, view, and trigger
+
+**Verified at:** sqlite.org current docs, fetched 2026-09-13
+**Citation:** [spec-writer_2: https://www.sqlite.org/schematab.html — "The sqlite_schema table contains one row for each table, index, view, and trigger"; "sqlite_master" listed as an alternative name that works anywhere]
+
+`SELECT name FROM sqlite_master WHERE type = 'table' AND name = $1` returns one row exactly when an ordinary table of that name exists, and zero rows once it has been dropped — usable as an existence guard before a statement that would otherwise fail against a missing table.
