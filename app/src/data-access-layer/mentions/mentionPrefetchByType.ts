@@ -1,50 +1,33 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { MentionEntityType } from '@domain/mentions';
-import { npcQueryOptions } from '../npcs';
-import { foeQueryOptions } from '../foes';
-import { pcQueryOptions } from '../pcs';
-import { factionQueryOptions } from '../factions';
-import { locationQueryOptions } from '../locations';
-import { itemQueryOptions } from '../items';
+import type { BaseEntityType } from '@domain/entities';
 import { sessionQueryOptions } from '../sessions';
 import { encounterQueryOptions } from '../encounters';
 import { ensureImagePainted } from '../images';
+import { baseEntityQueryOptions } from '../base-entities';
 
 type MentionPrefetch = (
   queryClient: QueryClient,
   entityId: string,
 ) => Promise<void>;
 
+const prefetchBaseEntity =
+  (entityType: BaseEntityType): MentionPrefetch =>
+  async (queryClient, entityId) => {
+    const baseEntity = await queryClient.ensureQueryData(
+      baseEntityQueryOptions(entityType, entityId),
+    );
+    await ensureImagePainted(queryClient, baseEntity.image_id);
+  };
+
 // keyed against MentionEntityType (domain/mentions/mentionEntityType.ts) so a mentionable entity added there and not here fails to compile
 const mentionPrefetchMap: Record<MentionEntityType, MentionPrefetch> = {
-  npcs: async (queryClient, entityId) => {
-    const npc = await queryClient.ensureQueryData(npcQueryOptions(entityId));
-    await ensureImagePainted(queryClient, npc.image_id ?? null);
-  },
-  foes: async (queryClient, entityId) => {
-    const foe = await queryClient.ensureQueryData(foeQueryOptions(entityId));
-    await ensureImagePainted(queryClient, foe.image_id ?? null);
-  },
-  pcs: async (queryClient, entityId) => {
-    const pc = await queryClient.ensureQueryData(pcQueryOptions(entityId));
-    await ensureImagePainted(queryClient, pc.image_id ?? null);
-  },
-  factions: async (queryClient, entityId) => {
-    const faction = await queryClient.ensureQueryData(
-      factionQueryOptions(entityId),
-    );
-    await ensureImagePainted(queryClient, faction.image_id ?? null);
-  },
-  locations: async (queryClient, entityId) => {
-    const location = await queryClient.ensureQueryData(
-      locationQueryOptions(entityId),
-    );
-    await ensureImagePainted(queryClient, location.image_id ?? null);
-  },
-  items: async (queryClient, entityId) => {
-    const item = await queryClient.ensureQueryData(itemQueryOptions(entityId));
-    await ensureImagePainted(queryClient, item.image_id ?? null);
-  },
+  npcs: prefetchBaseEntity('npcs'),
+  foes: prefetchBaseEntity('foes'),
+  pcs: prefetchBaseEntity('pcs'),
+  factions: prefetchBaseEntity('factions'),
+  locations: prefetchBaseEntity('locations'),
+  items: prefetchBaseEntity('items'),
   sessions: async (queryClient, entityId) => {
     await queryClient.ensureQueryData(sessionQueryOptions(entityId));
   },
