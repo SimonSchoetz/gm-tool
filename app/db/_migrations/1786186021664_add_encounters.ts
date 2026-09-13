@@ -1,6 +1,19 @@
 import type Database from '@tauri-apps/plugin-sql';
-import { encounterTable } from '../encounter/schema';
 import { generateId, generateDbTimestamps } from '../util';
+
+// Frozen copy of what db/encounter/schema.ts's createTableSQL produced when this migration was frozen, for the same reason the trigger SQL below is frozen — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
+const CREATE_ENCOUNTERS_SQL = `
+  CREATE TABLE IF NOT EXISTS encounters (
+    id TEXT PRIMARY KEY,
+    adventure_id TEXT NOT NULL,
+    name TEXT,
+    description TEXT,
+    pinned_order INTEGER,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (adventure_id) REFERENCES adventures(id) ON DELETE CASCADE
+  )
+`;
 
 const encountersConfig = {
   table_name: 'encounters',
@@ -19,7 +32,7 @@ const encountersConfig = {
 };
 
 const up = async (db: Database): Promise<void> => {
-  await db.execute(encounterTable.createTableSQL);
+  await db.execute(CREATE_ENCOUNTERS_SQL);
 
   // Frozen local copy of the sync-trigger shape buildTriggerSQL produces in 1784365870026_add_sync_infrastructure.ts — a migration must never depend on a shared helper, since a later edit to that helper would retroactively change this already-applied migration's behavior.
   await db.execute(`
