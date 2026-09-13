@@ -1,0 +1,12 @@
+export type { BaseEntityNotFoundError } from './errors';
+export { baseEntityNotFoundError } from './errors';
+export type { BaseEntityLoadError } from './errors';
+export { baseEntityLoadError } from './errors';
+export type { BaseEntityCreateError } from './errors';
+export { baseEntityCreateError } from './errors';
+export type { BaseEntityUpdateError } from './errors';
+export { baseEntityUpdateError } from './errors';
+export type { BaseEntityDeleteError } from './errors';
+export { baseEntityDeleteError } from './errors';
+export type { BaseEntityDuplicateError } from './errors';
+export { baseEntityDuplicateError } from './errors';
