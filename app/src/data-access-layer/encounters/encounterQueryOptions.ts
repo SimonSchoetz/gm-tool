@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import * as service from '@services/encountersService';
+import * as service from '@services/encounterService';
 import { encounterKeys } from './encounterKeys';
 
 export const encounterListQueryOptions = (adventureId: string) =>

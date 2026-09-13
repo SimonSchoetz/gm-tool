@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Encounter, UpdateEncounterInput } from '@db/encounter';
-import * as service from '@services/encountersService';
+import * as service from '@services/encounterService';
 import { encounterKeys } from './encounterKeys';
 import { encounterQueryOptions } from './encounterQueryOptions';
 import { mergeUpdate } from '../mergeUpdate';
