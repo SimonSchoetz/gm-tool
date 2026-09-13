@@ -31,7 +31,7 @@ const LEGACY_BASE_ENTITY_TABLES = [
 const up = async (db: Database): Promise<void> => {
   await db.execute(CREATE_BASE_ENTITIES_SQL);
 
-  // The sync triggers are created before any row is copied so every copied row (inserted below) gets a base_entities change record — the legacy tables' own change records are deleted in step 5 below, and a row with no change record never reaches a paired device.
+  // The sync triggers are created before any row is copied so every copied row (inserted below) gets a base_entities change record — the legacy tables' own change records are deleted by the per-table _sync_changes cleanup at the end of the loop below, and a row with no change record never reaches a paired device.
   await db.execute(`
     CREATE TRIGGER IF NOT EXISTS trg_sync_base_entities_insert AFTER INSERT ON base_entities BEGIN
       UPDATE _sync_meta SET value = value + 1 WHERE id = 'seq';
@@ -60,8 +60,9 @@ const up = async (db: Database): Promise<void> => {
     END;
   `);
 
+  // table is interpolated into the copy INSERT and the DROP TABLE statement inside this loop because SQL does not support parameterized table names; it only ever comes from the fixed LEGACY_BASE_ENTITY_TABLES constant above, never from user input (mirrors backfill_sync_changes.ts).
   for (const table of LEGACY_BASE_ENTITY_TABLES) {
-    // The sqlite_master guard keeps a resumed run from selecting a table an earlier attempt already dropped (step 4 below).
+    // The sqlite_master guard keeps a resumed run from selecting a table an earlier attempt already dropped (by the DROP TABLE statement below).
     const existing = await db.select<{ name: string }[]>(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = $1",
       [table],
@@ -84,7 +85,6 @@ const up = async (db: Database): Promise<void> => {
     // The drop precedes the _sync_changes cleanup below so no change record the drop could emit survives.
     await db.execute(`DROP TABLE IF EXISTS ${table}`);
 
-    // Runs after the drop, so no change record the drop could emit survives. table only ever receives values from the fixed LEGACY_BASE_ENTITY_TABLES constant above, never from user input (mirrors mention-search.ts).
     await db.execute('DELETE FROM _sync_changes WHERE table_name = $1', [
       table,
     ]);
