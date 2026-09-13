@@ -2,7 +2,7 @@
   --summary-content-height: calc(
     200px - 2 * var(--spacing-md)
   ); /* rooted in the UI of item screens */
-  --summary-max-width: 600px;
+  --summary-max-width: 450px;
   --dialog-max-width: 640px;
   --mention-popup-max-height: 14rem; /* <=7 visible rows */
   --text-editor-max-width: 680px; /*  Results in 80 characters per line on font-size base */

@@ -2,7 +2,6 @@ import { FCProps } from '@/types';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor/TextEditor';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
-import { PREVIEW_WIDTH } from '@/screens/screens.constants';
 import './EntityPopupBody.css';
 
 type Props = {
@@ -19,17 +18,17 @@ export const EntityPopupBody: FCProps<Props> = ({
   <div className='entity-popup-body'>
     {imageId !== null && (
       <ImagePlaceholderFrame
-        className='entity-popup-image'
+        className='entity-popup-body--image'
         dimensions={{
-          width: PREVIEW_WIDTH / 2,
-          height: 'auto',
+          width: 'var(--summary-content-height)',
+          height: 'var(--summary-content-height)',
         }}
       >
         <ImageById imageId={imageId} />
       </ImagePlaceholderFrame>
     )}
     {summary !== null && (
-      <div className='entity-popup-summary'>
+      <div className='entity-popup-body--summary'>
         <TextEditor
           value={summary}
           textEditorId={textEditorId}

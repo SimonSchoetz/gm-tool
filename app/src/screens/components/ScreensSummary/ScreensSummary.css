@@ -3,12 +3,11 @@
   padding: calc(var(--spacing-md) - var(--spacing-xs));
   padding-left: 0;
   width: fit-content;
-  width: 100%;
-  max-width: var(--summary-max-width);
 }
 
 .screens-summary--content {
   height: var(--summary-content-height);
+  max-width: var(--summary-max-width);
   overflow-y: auto;
   display: flex;
 }
