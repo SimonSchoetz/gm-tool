@@ -22,15 +22,15 @@ const TOMBSTONE_SQL =
 
 const CLEANUP_SQL = 'DELETE FROM _sync_changes WHERE table_name = $1';
 
+type ExecuteCall = [string, unknown[]?];
+
 // TOMBSTONE_SQL and CLEANUP_SQL are identical for every table and differ only in the bound table name, so finding "the call for table X" needs both the SQL text and the first bound value.
 const findCallIndex = (sql: string, tableValue?: string): number =>
-  (mockExecute.mock.calls as [string, unknown[]?][]).findIndex(
-    ([callSql, values]) => {
-      if (callSql !== sql) return false;
-      if (tableValue === undefined) return true;
-      return Array.isArray(values) && values[0] === tableValue;
-    },
-  );
+  (mockExecute.mock.calls as ExecuteCall[]).findIndex(([callSql, values]) => {
+    if (callSql !== sql) return false;
+    if (tableValue === undefined) return true;
+    return Array.isArray(values) && values[0] === tableValue;
+  });
 
 describe('addBaseEntitiesMigration.up', () => {
   beforeEach(() => {
@@ -43,7 +43,7 @@ describe('addBaseEntitiesMigration.up', () => {
 
     await addBaseEntitiesMigration.up(mockDb);
 
-    const calls = mockExecute.mock.calls as [string, unknown[]?][];
+    const calls = mockExecute.mock.calls as ExecuteCall[];
     expect(calls[0][0]).toContain('CREATE TABLE IF NOT EXISTS base_entities');
     expect(calls[1][0]).toContain(
       'CREATE TRIGGER IF NOT EXISTS trg_sync_base_entities_insert',
