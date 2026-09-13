@@ -59,7 +59,7 @@ describe('applyDelete', () => {
     mockSelect.mockResolvedValue([{ updated_at: '2099-01-01T00:00:00.000Z' }]);
 
     const result = await applyDelete(
-      'npcs',
+      'base_entities',
       'npc-1',
       '2024-01-01T00:00:00.000Z',
     );
@@ -72,15 +72,16 @@ describe('applyDelete', () => {
     mockSelect.mockResolvedValue([{ updated_at: '2000-01-01T00:00:00.000Z' }]);
 
     const result = await applyDelete(
-      'npcs',
+      'base_entities',
       'npc-1',
       '2024-01-01T00:00:00.000Z',
     );
 
     expect(result).toBe('applied');
-    expect(mockExecute).toHaveBeenCalledWith('DELETE FROM npcs WHERE id = $1', [
-      'npc-1',
-    ]);
+    expect(mockExecute).toHaveBeenCalledWith(
+      'DELETE FROM base_entities WHERE id = $1',
+      ['npc-1'],
+    );
     const tombstoneCall = mockExecute.mock.calls.find(([sql]) =>
       (sql as string).includes('INSERT INTO _sync_changes'),
     );
@@ -93,14 +94,14 @@ describe('applyDelete', () => {
     mockSelect.mockResolvedValue([]);
 
     const result = await applyDelete(
-      'npcs',
+      'base_entities',
       'npc-1',
       '2024-01-01T00:00:00.000Z',
     );
 
     expect(result).toBe('applied');
     expect(mockExecute).not.toHaveBeenCalledWith(
-      'DELETE FROM npcs WHERE id = $1',
+      'DELETE FROM base_entities WHERE id = $1',
       ['npc-1'],
     );
     expect(mockExecute).toHaveBeenCalledWith(

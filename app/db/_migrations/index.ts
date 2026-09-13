@@ -9,6 +9,7 @@ import { backfillSyncChangesMigration } from './1784896762609_backfill_sync_chan
 import { addPinnedOrderMigration } from './1786002768594_add_pinned_order';
 import { addEncountersMigration } from './1786186021664_add_encounters';
 import { addTableConfigUniqueIndexMigration } from './1787825905519_add_table_config_unique_index';
+import { addBaseEntitiesMigration } from './1789304154994_add_base_entities';
 
 export type Migration = {
   id: string;
@@ -26,6 +27,7 @@ export const migrations: Migration[] = [
   addPinnedOrderMigration,
   addEncountersMigration,
   addTableConfigUniqueIndexMigration,
+  addBaseEntitiesMigration,
 ];
 
 // Equals the applied migration head after init; read here (not from the DB) to avoid an import cycle through database.ts.

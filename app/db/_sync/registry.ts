@@ -2,12 +2,7 @@ import { z } from 'zod';
 import { imageTable } from '../image/schema';
 import { adventureTable } from '../adventure/schema';
 import { sessionTable } from '../session/schema';
-import { npcTable } from '../npc/schema';
-import { pcTable } from '../pc/schema';
-import { foeTable } from '../foe/schema';
-import { factionTable } from '../faction/schema';
-import { locationTable } from '../location/schema';
-import { itemTable } from '../item/schema';
+import { baseEntityTable } from '../base-entity/schema';
 import { encounterTable } from '../encounter/schema';
 import { sessionStepTable } from '../session-step/schema';
 import { tableConfigTable } from '../table-config/schema';
@@ -32,12 +27,7 @@ export const SYNCED_TABLES: SyncedTable[] = [
   syncedTable('images', imageTable),
   syncedTable('adventures', adventureTable),
   syncedTable('sessions', sessionTable),
-  syncedTable('npcs', npcTable),
-  syncedTable('pcs', pcTable),
-  syncedTable('foes', foeTable),
-  syncedTable('factions', factionTable),
-  syncedTable('locations', locationTable),
-  syncedTable('items', itemTable),
+  syncedTable('base_entities', baseEntityTable),
   syncedTable('encounters', encounterTable),
   syncedTable('session_steps', sessionStepTable),
   syncedTable('table_config', tableConfigTable),

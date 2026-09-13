@@ -25,9 +25,10 @@ vi.mock('@tauri-apps/plugin-sql', () => ({
 import { getDatabase } from '../../database';
 import { applyUpsert } from '../apply-upsert';
 
-const NPC_ROW = {
+const BASE_ENTITY_ROW = {
   id: 'npc-1',
   adventure_id: 'adv-1',
+  entity_type: 'npcs',
   name: 'Goblin',
   updated_at: '2024-06-01T00:00:00.000Z',
 };
@@ -51,7 +52,7 @@ describe('applyUpsert', () => {
   });
 
   it('should skip an unknown table without querying', async () => {
-    const result = await applyUpsert('not_a_table', NPC_ROW, false);
+    const result = await applyUpsert('not_a_table', BASE_ENTITY_ROW, false);
 
     expect(result).toBe('skipped');
     expect(mockSelect).not.toHaveBeenCalled();
@@ -60,8 +61,8 @@ describe('applyUpsert', () => {
 
   it('should skip a row without a string id', async () => {
     const result = await applyUpsert(
-      'npcs',
-      { ...NPC_ROW, id: undefined },
+      'base_entities',
+      { ...BASE_ENTITY_ROW, id: undefined },
       false,
     );
 
@@ -71,8 +72,8 @@ describe('applyUpsert', () => {
 
   it('should skip a row without a string updated_at', async () => {
     const result = await applyUpsert(
-      'npcs',
-      { ...NPC_ROW, updated_at: undefined },
+      'base_entities',
+      { ...BASE_ENTITY_ROW, updated_at: undefined },
       false,
     );
 
@@ -83,7 +84,11 @@ describe('applyUpsert', () => {
   it('should drop a key outside the column whitelist', async () => {
     mockSelect.mockResolvedValue([]);
 
-    await applyUpsert('npcs', { ...NPC_ROW, unknown_column: 'nope' }, false);
+    await applyUpsert(
+      'base_entities',
+      { ...BASE_ENTITY_ROW, unknown_column: 'nope' },
+      false,
+    );
 
     const [sql] = mockExecute.mock.calls[0] as [string, unknown[]];
     expect(sql).not.toContain('unknown_column');
@@ -93,7 +98,7 @@ describe('applyUpsert', () => {
   it('should skip when the local row is not older', async () => {
     mockSelect.mockResolvedValue([{ updated_at: '2099-01-01T00:00:00.000Z' }]);
 
-    const result = await applyUpsert('npcs', NPC_ROW, false);
+    const result = await applyUpsert('base_entities', BASE_ENTITY_ROW, false);
 
     expect(result).toBe('skipped');
     expect(mockExecute).not.toHaveBeenCalled();
@@ -102,26 +107,26 @@ describe('applyUpsert', () => {
   it('should apply verbatim over an older local row', async () => {
     mockSelect.mockResolvedValue([{ updated_at: '2000-01-01T00:00:00.000Z' }]);
 
-    const result = await applyUpsert('npcs', NPC_ROW, false);
+    const result = await applyUpsert('base_entities', BASE_ENTITY_ROW, false);
 
     expect(result).toBe('applied');
     const [sql, values] = mockExecute.mock.calls[0] as [string, unknown[]];
     expect(sql).toContain('ON CONFLICT(id) DO UPDATE');
-    expect(values).toContain(NPC_ROW.updated_at);
+    expect(values).toContain(BASE_ENTITY_ROW.updated_at);
   });
 
   it('should apply when no local row exists', async () => {
     mockSelect.mockResolvedValue([]);
 
-    const result = await applyUpsert('npcs', NPC_ROW, false);
+    const result = await applyUpsert('base_entities', BASE_ENTITY_ROW, false);
 
     expect(result).toBe('applied');
   });
 
   it('should apply on equal timestamps when force is true', async () => {
-    mockSelect.mockResolvedValue([{ updated_at: NPC_ROW.updated_at }]);
+    mockSelect.mockResolvedValue([{ updated_at: BASE_ENTITY_ROW.updated_at }]);
 
-    const result = await applyUpsert('npcs', NPC_ROW, true);
+    const result = await applyUpsert('base_entities', BASE_ENTITY_ROW, true);
 
     expect(result).toBe('applied');
   });
@@ -132,7 +137,7 @@ describe('applyUpsert', () => {
       new Error('FOREIGN KEY constraint failed'),
     );
 
-    const result = await applyUpsert('npcs', NPC_ROW, false);
+    const result = await applyUpsert('base_entities', BASE_ENTITY_ROW, false);
 
     expect(result).toBe('skipped');
   });
@@ -171,7 +176,7 @@ describe('applyUpsert', () => {
     expect(insertValues).toContain('incoming-config-id');
   });
 
-  it('should skip a table_config row whose table_name is not a synced table', async () => {
+  it('should skip a table_config row whose table_name is not an entity type', async () => {
     const result = await applyUpsert(
       'table_config',
       {
@@ -193,7 +198,11 @@ describe('applyUpsert', () => {
   });
 
   it('should skip a row whose column value has the wrong type', async () => {
-    const result = await applyUpsert('npcs', { ...NPC_ROW, name: 42 }, false);
+    const result = await applyUpsert(
+      'base_entities',
+      { ...BASE_ENTITY_ROW, name: 42 },
+      false,
+    );
 
     expect(result).toBe('skipped');
     expect(mockExecute).not.toHaveBeenCalled();

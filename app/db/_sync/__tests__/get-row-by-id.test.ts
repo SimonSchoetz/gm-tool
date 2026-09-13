@@ -37,10 +37,10 @@ describe('getRowById', () => {
   it('should select by id for a known table', async () => {
     mockSelect.mockResolvedValue([{ id: 'npc-1', name: 'Goblin' }]);
 
-    const result = await getRowById('npcs', 'npc-1');
+    const result = await getRowById('base_entities', 'npc-1');
 
     expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM npcs WHERE id = $1',
+      'SELECT * FROM base_entities WHERE id = $1',
       ['npc-1'],
     );
     expect(result).toEqual({ id: 'npc-1', name: 'Goblin' });
@@ -49,7 +49,7 @@ describe('getRowById', () => {
   it('should return null when the row is absent', async () => {
     mockSelect.mockResolvedValue([]);
 
-    const result = await getRowById('npcs', 'missing');
+    const result = await getRowById('base_entities', 'missing');
 
     expect(result).toBeNull();
   });

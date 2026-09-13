@@ -1,16 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { SYNCED_TABLES, SYNCED_TABLE_NAMES } from '../registry';
 
-const ADVENTURE_SCOPED_TABLES = [
-  'sessions',
-  'npcs',
-  'pcs',
-  'foes',
-  'factions',
-  'locations',
-  'items',
-  'encounters',
-];
+const ADVENTURE_SCOPED_TABLES = ['sessions', 'base_entities', 'encounters'];
 
 describe('registry', () => {
   it('should order images before adventures', () => {
@@ -34,9 +25,9 @@ describe('registry', () => {
     );
   });
 
-  it('should include all 12 synced tables with unique names', () => {
-    expect(SYNCED_TABLE_NAMES).toHaveLength(12);
-    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(12);
+  it('should include all 7 synced tables with unique names', () => {
+    expect(SYNCED_TABLE_NAMES).toHaveLength(7);
+    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(7);
   });
 
   it('should include id and updated_at in every table entry', () => {

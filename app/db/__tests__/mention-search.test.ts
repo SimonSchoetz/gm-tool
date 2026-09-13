@@ -24,7 +24,7 @@ describe('searchByName', () => {
     vi.resetModules();
   });
 
-  it('should search with LIKE pattern scoped to adventureId when adventureId is not null', async () => {
+  it('should search a base entity type scoped to adventureId when adventureId is not null', async () => {
     mockSelect.mockResolvedValue([
       { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
     ]);
@@ -32,11 +32,43 @@ describe('searchByName', () => {
     const result = await searchByName('npcs', 'gob', 'adv-1');
 
     expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM npcs WHERE name LIKE $1 AND adventure_id = $2 ORDER BY updated_at DESC`,
-      ['%gob%', 'adv-1'],
+      `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 AND adventure_id = $3 ORDER BY updated_at DESC`,
+      ['npcs', '%gob%', 'adv-1'],
     );
     expect(result).toEqual([
       { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
+    ]);
+  });
+
+  it('should search a base entity type without adventureId filter when adventureId is null', async () => {
+    mockSelect.mockResolvedValue([
+      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
+    ]);
+
+    const result = await searchByName('npcs', 'gob', null);
+
+    expect(mockSelect).toHaveBeenCalledWith(
+      `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 ORDER BY updated_at DESC`,
+      ['npcs', '%gob%'],
+    );
+    expect(result).toEqual([
+      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
+    ]);
+  });
+
+  it('should search a non-base entity type scoped to adventureId', async () => {
+    mockSelect.mockResolvedValue([
+      { id: '1', name: 'Session One', updated_at: '2025-01-01' },
+    ]);
+
+    const result = await searchByName('sessions', 'ses', 'adv-1');
+
+    expect(mockSelect).toHaveBeenCalledWith(
+      `SELECT id, name, updated_at FROM sessions WHERE name LIKE $1 AND adventure_id = $2 ORDER BY updated_at DESC`,
+      ['%ses%', 'adv-1'],
+    );
+    expect(result).toEqual([
+      { id: '1', name: 'Session One', updated_at: '2025-01-01' },
     ]);
   });
 
@@ -83,7 +115,7 @@ describe('getById', () => {
     vi.resetModules();
   });
 
-  it('returns the row when a matching id exists', async () => {
+  it('returns the row for a base entity type when a matching id exists', async () => {
     mockSelect.mockResolvedValue([
       { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
     ]);
@@ -91,12 +123,30 @@ describe('getById', () => {
     const result = await getById('npcs', '1');
 
     expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM npcs WHERE id = $1`,
-      ['1'],
+      `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND id = $2`,
+      ['npcs', '1'],
     );
     expect(result).toEqual({
       id: '1',
       name: 'Goblin',
+      updated_at: '2025-01-01',
+    });
+  });
+
+  it('returns the row for a non-base entity type when a matching id exists', async () => {
+    mockSelect.mockResolvedValue([
+      { id: 's-1', name: 'Session One', updated_at: '2025-01-01' },
+    ]);
+
+    const result = await getById('sessions', 's-1');
+
+    expect(mockSelect).toHaveBeenCalledWith(
+      `SELECT id, name, updated_at FROM sessions WHERE id = $1`,
+      ['s-1'],
+    );
+    expect(result).toEqual({
+      id: 's-1',
+      name: 'Session One',
       updated_at: '2025-01-01',
     });
   });

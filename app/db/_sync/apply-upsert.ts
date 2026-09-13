@@ -1,6 +1,7 @@
 import type Database from '@tauri-apps/plugin-sql';
+import { isEntityType } from '@domain/entities';
 import { getDatabase } from '../database';
-import { SYNCED_TABLES, SYNCED_TABLE_NAMES } from './registry';
+import { SYNCED_TABLES } from './registry';
 import type { ApplyResult } from './types';
 
 const filterToWhitelist = (
@@ -58,7 +59,8 @@ const applyTableConfigUpsert = async (
   force: boolean,
 ): Promise<ApplyResult> => {
   const tableName = filtered.table_name;
-  if (typeof tableName !== 'string' || !SYNCED_TABLE_NAMES.includes(tableName))
+  // table_config.table_name names an entity type — six of which (npcs, pcs, foes, factions, locations, items) share the single base_entities synced table — so the check is against entity types, not synced table names.
+  if (typeof tableName !== 'string' || !isEntityType(tableName))
     return 'skipped';
 
   // table_config merges by table_name, not id: the same logical config row has different ids on each device (seeded per device), so id-based union would duplicate every list config on first sync.
