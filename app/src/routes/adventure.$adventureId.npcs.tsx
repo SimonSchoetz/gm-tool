@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { NpcsScreen } from '@/screens';
+import { BaseEntitiesScreen } from '@/screens';
 import {
-  npcListQueryOptions,
+  baseEntityListQueryOptions,
   tableConfigListQueryOptions,
 } from '@/data-access-layer';
 
 export const Route = createFileRoute('/adventure/$adventureId/npcs')({
-  component: NpcsScreen,
+  component: () => <BaseEntitiesScreen entityType='npcs' />,
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        npcListQueryOptions(params.adventureId),
+        baseEntityListQueryOptions('npcs', params.adventureId),
       ),
       context.queryClient.ensureQueryData(tableConfigListQueryOptions()),
     ]);

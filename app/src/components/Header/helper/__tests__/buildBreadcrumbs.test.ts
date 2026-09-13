@@ -65,13 +65,13 @@ describe('buildBreadcrumbs', () => {
     });
   });
 
-  it('maps /adventure/$adventureId/npc/$npcId to Adventures + adventure + NPCs + npc crumb', () => {
+  it('maps /adventure/$adventureId/npc/$baseEntityId to Adventures + adventure + NPCs + npc crumb', () => {
     const result = buildBreadcrumbs([
       match('__root__'),
       match('/adventure/$adventureId', { adventureId: 'adv1' }),
-      match('/adventure/$adventureId/npc/$npcId', {
+      match('/adventure/$adventureId/npc/$baseEntityId', {
         adventureId: 'adv1',
-        npcId: 'npc1',
+        baseEntityId: 'npc1',
       }),
     ]);
     expect(result).toHaveLength(4);
@@ -167,13 +167,13 @@ describe('buildBreadcrumbs', () => {
     });
   });
 
-  it('maps /adventure/$adventureId/foe/$foeId to Foes static + foe crumb', () => {
+  it('maps /adventure/$adventureId/foe/$baseEntityId to Foes static + foe crumb', () => {
     const result = buildBreadcrumbs([
       match('__root__'),
       match('/adventure/$adventureId', { adventureId: 'adv-1' }),
-      match('/adventure/$adventureId/foe/$foeId', {
+      match('/adventure/$adventureId/foe/$baseEntityId', {
         adventureId: 'adv-1',
-        foeId: 'foe-1',
+        baseEntityId: 'foe-1',
       }),
     ]);
     expect(result).toHaveLength(4);
@@ -201,13 +201,13 @@ describe('buildBreadcrumbs', () => {
     });
   });
 
-  it('maps /adventure/$adventureId/pc/$pcId to PCs static + pc crumb', () => {
+  it('maps /adventure/$adventureId/pc/$baseEntityId to PCs static + pc crumb', () => {
     const result = buildBreadcrumbs([
       match('__root__'),
       match('/adventure/$adventureId', { adventureId: 'adv-1' }),
-      match('/adventure/$adventureId/pc/$pcId', {
+      match('/adventure/$adventureId/pc/$baseEntityId', {
         adventureId: 'adv-1',
-        pcId: 'pc-1',
+        baseEntityId: 'pc-1',
       }),
     ]);
     expect(result).toHaveLength(4);
@@ -235,13 +235,13 @@ describe('buildBreadcrumbs', () => {
     });
   });
 
-  it('maps /adventure/$adventureId/faction/$factionId to Factions static + faction crumb', () => {
+  it('maps /adventure/$adventureId/faction/$baseEntityId to Factions static + faction crumb', () => {
     const result = buildBreadcrumbs([
       match('__root__'),
       match('/adventure/$adventureId', { adventureId: 'adv-1' }),
-      match('/adventure/$adventureId/faction/$factionId', {
+      match('/adventure/$adventureId/faction/$baseEntityId', {
         adventureId: 'adv-1',
-        factionId: 'faction-1',
+        baseEntityId: 'faction-1',
       }),
     ]);
     expect(result).toHaveLength(4);
@@ -269,13 +269,13 @@ describe('buildBreadcrumbs', () => {
     });
   });
 
-  it('maps /adventure/$adventureId/location/$locationId to Locations static + location crumb', () => {
+  it('maps /adventure/$adventureId/location/$baseEntityId to Locations static + location crumb', () => {
     const result = buildBreadcrumbs([
       match('__root__'),
       match('/adventure/$adventureId', { adventureId: 'adv-1' }),
-      match('/adventure/$adventureId/location/$locationId', {
+      match('/adventure/$adventureId/location/$baseEntityId', {
         adventureId: 'adv-1',
-        locationId: 'location-1',
+        baseEntityId: 'location-1',
       }),
     ]);
     expect(result).toHaveLength(4);
@@ -303,13 +303,13 @@ describe('buildBreadcrumbs', () => {
     });
   });
 
-  it('maps /adventure/$adventureId/item/$itemId to Items static + item crumb', () => {
+  it('maps /adventure/$adventureId/item/$baseEntityId to Items static + item crumb', () => {
     const result = buildBreadcrumbs([
       match('__root__'),
       match('/adventure/$adventureId', { adventureId: 'adv-1' }),
-      match('/adventure/$adventureId/item/$itemId', {
+      match('/adventure/$adventureId/item/$baseEntityId', {
         adventureId: 'adv-1',
-        itemId: 'item-1',
+        baseEntityId: 'item-1',
       }),
     ]);
     expect(result).toHaveLength(4);

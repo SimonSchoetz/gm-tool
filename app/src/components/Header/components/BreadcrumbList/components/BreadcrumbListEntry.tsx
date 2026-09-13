@@ -7,12 +7,7 @@ import { BreadcrumbListItem } from './BreadcrumbListItem';
 import { AdventureCrumb } from './AdventureCrumb';
 import { SessionCrumb } from './SessionCrumb';
 import { EncounterCrumb } from './EncounterCrumb';
-import { NpcCrumb } from './NpcCrumb';
-import { FoeCrumb } from './FoeCrumb';
-import { ItemCrumb } from './ItemCrumb';
-import { FactionCrumb } from './FactionCrumb';
-import { PcCrumb } from './PcCrumb';
-import { LocationCrumb } from './LocationCrumb';
+import { BaseEntityCrumb } from './BaseEntityCrumb';
 
 type Props = { config: BreadcrumbConfig; isFirst: boolean };
 
@@ -41,22 +36,12 @@ export const BreadcrumbListEntry: FCProps<Props> = ({ config, isFirst }) => {
         crumb = <EncounterCrumb />;
         break;
       case 'npcs':
-        crumb = <NpcCrumb />;
-        break;
       case 'foes':
-        crumb = <FoeCrumb />;
-        break;
       case 'items':
-        crumb = <ItemCrumb />;
-        break;
       case 'factions':
-        crumb = <FactionCrumb />;
-        break;
       case 'pcs':
-        crumb = <PcCrumb />;
-        break;
       case 'locations':
-        crumb = <LocationCrumb />;
+        crumb = <BaseEntityCrumb entityType={config.kind} />;
         break;
     }
 

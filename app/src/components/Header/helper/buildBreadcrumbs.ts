@@ -51,7 +51,7 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
         ];
-      case '/adventure/$adventureId/npc/$npcId':
+      case '/adventure/$adventureId/npc/$baseEntityId':
         return [
           {
             kind: 'static',
@@ -70,7 +70,7 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
         ];
-      case '/adventure/$adventureId/foe/$foeId':
+      case '/adventure/$adventureId/foe/$baseEntityId':
         return [
           {
             kind: 'static',
@@ -89,7 +89,7 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
         ];
-      case '/adventure/$adventureId/item/$itemId':
+      case '/adventure/$adventureId/item/$baseEntityId':
         return [
           {
             kind: 'static',
@@ -108,7 +108,7 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
         ];
-      case '/adventure/$adventureId/faction/$factionId':
+      case '/adventure/$adventureId/faction/$baseEntityId':
         return [
           {
             kind: 'static',
@@ -127,7 +127,7 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
         ];
-      case '/adventure/$adventureId/pc/$pcId':
+      case '/adventure/$adventureId/pc/$baseEntityId':
         return [
           {
             kind: 'static',
@@ -184,7 +184,7 @@ export const buildBreadcrumbs = (
             params: { adventureId: p.adventureId },
           },
         ];
-      case '/adventure/$adventureId/location/$locationId':
+      case '/adventure/$adventureId/location/$baseEntityId':
         return [
           {
             kind: 'static',

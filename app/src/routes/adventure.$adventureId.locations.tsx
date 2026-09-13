@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { LocationsScreen } from '@/screens';
+import { BaseEntitiesScreen } from '@/screens';
 import {
-  locationListQueryOptions,
+  baseEntityListQueryOptions,
   tableConfigListQueryOptions,
 } from '@/data-access-layer';
 
 export const Route = createFileRoute('/adventure/$adventureId/locations')({
-  component: LocationsScreen,
+  component: () => <BaseEntitiesScreen entityType='locations' />,
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        locationListQueryOptions(params.adventureId),
+        baseEntityListQueryOptions('locations', params.adventureId),
       ),
       context.queryClient.ensureQueryData(tableConfigListQueryOptions()),
     ]);

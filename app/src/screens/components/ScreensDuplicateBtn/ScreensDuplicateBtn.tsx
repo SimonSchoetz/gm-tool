@@ -1,12 +1,7 @@
 import { entityTypeLabel, type EntityType } from '@domain';
 import { FCProps } from '@/types';
 import {
-  NpcDuplicateBtn,
-  PcDuplicateBtn,
-  FoeDuplicateBtn,
-  FactionDuplicateBtn,
-  LocationDuplicateBtn,
-  ItemDuplicateBtn,
+  BaseEntityDuplicateBtn,
   SessionDuplicateBtn,
   EncounterDuplicateBtn,
 } from './components';
@@ -19,17 +14,12 @@ export const ScreensDuplicateBtn: FCProps<Props> = ({ entityType }) => {
 
   switch (entityType) {
     case 'npcs':
-      return <NpcDuplicateBtn label={label} />;
     case 'pcs':
-      return <PcDuplicateBtn label={label} />;
     case 'foes':
-      return <FoeDuplicateBtn label={label} />;
     case 'factions':
-      return <FactionDuplicateBtn label={label} />;
     case 'locations':
-      return <LocationDuplicateBtn label={label} />;
     case 'items':
-      return <ItemDuplicateBtn label={label} />;
+      return <BaseEntityDuplicateBtn entityType={entityType} label={label} />;
     case 'sessions':
       return <SessionDuplicateBtn label={label} />;
     case 'encounters':

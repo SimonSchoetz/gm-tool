@@ -1,12 +1,8 @@
 import { FCProps } from '@/types';
 import type { MentionEntityType } from '@domain/mentions';
+import { isBaseEntityType, type BaseEntityType } from '@domain/entities';
 import {
-  NpcPopupContent,
-  FoePopupContent,
-  PcPopupContent,
-  FactionPopupContent,
-  LocationPopupContent,
-  ItemPopupContent,
+  BaseEntityPopupContent,
   SessionPopupContent,
   EncounterPopupContent,
 } from './components';
@@ -22,14 +18,11 @@ type PopupContentProps = {
   adventureId: string | null;
 };
 
-// keyed against MentionEntityType (domain/mentions/mentionEntityType.ts) so a mentionable entity added there and not here fails to compile
-const popupContentMap: Record<MentionEntityType, FCProps<PopupContentProps>> = {
-  npcs: NpcPopupContent,
-  foes: FoePopupContent,
-  pcs: PcPopupContent,
-  factions: FactionPopupContent,
-  locations: LocationPopupContent,
-  items: ItemPopupContent,
+// Keyed by the non-base mentionable types (domain/mentions/mentionEntityType.ts minus domain/entities/entityTypes.ts's base types) so a non-base mentionable entity added there and not here fails to compile. Base entity types dispatch through isBaseEntityType above.
+const popupContentMap: Record<
+  Exclude<MentionEntityType, BaseEntityType>,
+  FCProps<PopupContentProps>
+> = {
   sessions: SessionPopupContent,
   encounters: EncounterPopupContent,
 };
@@ -44,6 +37,15 @@ export const MentionPopupContent: FCProps<Props> = ({
   entityType,
   adventureId,
 }) => {
+  if (isBaseEntityType(entityType))
+    return (
+      <BaseEntityPopupContent
+        entityType={entityType}
+        entityId={entityId}
+        adventureId={adventureId}
+      />
+    );
+
   const PopupContent = popupContentByType[entityType];
   if (!PopupContent) return;
 

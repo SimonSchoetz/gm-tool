@@ -1,8 +1,3 @@
-export { NpcDuplicateBtn } from './NpcDuplicateBtn';
-export { PcDuplicateBtn } from './PcDuplicateBtn';
-export { FoeDuplicateBtn } from './FoeDuplicateBtn';
-export { FactionDuplicateBtn } from './FactionDuplicateBtn';
-export { LocationDuplicateBtn } from './LocationDuplicateBtn';
-export { ItemDuplicateBtn } from './ItemDuplicateBtn';
+export { BaseEntityDuplicateBtn } from './BaseEntityDuplicateBtn';
 export { SessionDuplicateBtn } from './SessionDuplicateBtn';
 export { EncounterDuplicateBtn } from './EncounterDuplicateBtn';

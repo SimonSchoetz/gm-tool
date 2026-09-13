@@ -2,12 +2,7 @@ import './AdventureStats.css';
 import {
   useSessions,
   useEncounters,
-  usePcs,
-  useNpcs,
-  useFactions,
-  useLocations,
-  useFoes,
-  useItems,
+  useBaseEntities,
   useAdventure,
 } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
@@ -20,12 +15,12 @@ export const AdventureStats = () => {
   const { adventure } = useAdventure(adventureId);
   const { sessions } = useSessions(adventureId);
   const { encounters } = useEncounters(adventureId);
-  const { pcs } = usePcs(adventureId);
-  const { npcs } = useNpcs(adventureId);
-  const { factions } = useFactions(adventureId);
-  const { locations } = useLocations(adventureId);
-  const { foes } = useFoes(adventureId);
-  const { items } = useItems(adventureId);
+  const { baseEntities: pcs } = useBaseEntities('pcs', adventureId);
+  const { baseEntities: npcs } = useBaseEntities('npcs', adventureId);
+  const { baseEntities: factions } = useBaseEntities('factions', adventureId);
+  const { baseEntities: locations } = useBaseEntities('locations', adventureId);
+  const { baseEntities: foes } = useBaseEntities('foes', adventureId);
+  const { baseEntities: items } = useBaseEntities('items', adventureId);
   if (!adventure) return;
 
   const startDate = getDateString(adventure.created_at);
