@@ -8,7 +8,7 @@ changed conventions, new ambient systems). Do not delete it when specs are imple
 
 ## Usage
 
-```
+```text
 /write-specs "Implement a new domain named [SINGULAR] (plural: [PLURAL]) following
 app/docs/_product/domain-scaffold.md.
 Customizations:
@@ -28,7 +28,7 @@ customizations above.
 Given a singular/plural pair (example: `Foe` / `Foes`):
 
 | Identifier | Rule | Example |
-|---|---|---|
+| --- | --- | --- |
 | DB table name | plural lowercase | `foes` |
 | DB directory | `db/[singular lowercase]` | `db/foe/` |
 | Domain directory | `domain/[plural lowercase]` | `domain/foes/` |
@@ -63,7 +63,7 @@ All standard domain entities share these columns. Do not add or remove without e
 user instruction.
 
 | Column | SQL type | Nullable | Zod | Notes |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `id` | `TEXT` PRIMARY KEY | No | `z.string()` | nanoid, generated in `create.ts` |
 | `adventure_id` | `TEXT` NOT NULL | No | `z.string()` | FK → `adventures.id` ON DELETE CASCADE |
 | `name` | `TEXT` | Yes | `z.string().nullable()` | user-editable, must be nullable (auto-save rule) |
@@ -184,7 +184,7 @@ Two files: `errors.ts`, `index.ts`. NPC reference: `domain/npcs/`.
 **errors.ts** — five error factory functions following `app/CLAUDE.md` factory pattern:
 
 | Name | Message template |
-|---|---|
+| --- | --- |
 | `[singular]NotFoundError(id)` | `'[Singular] with id ${id} not found'` |
 | `[singular]LoadError(cause?)` | `'Failed to load [Plural]: ${String(cause)}'` |
 | `[singular]CreateError(cause?)` | `'Failed to create [Singular]: ${String(cause)}'` |
@@ -226,7 +226,7 @@ domain errors from `@domain/[plural]`.
 Six exported functions:
 
 | Function | Throws |
-|---|---|
+| --- | --- |
 | `get[Plural](adventureId)` | `[singular]LoadError` |
 | `get[Singular]ById(id)` | `[singular]NotFoundError` on null |
 | `create[Singular](adventureId)` | `[singular]CreateError` |
@@ -279,7 +279,7 @@ delete[Singular]: () => Promise<void>, remove[Singular]Image: () => Promise<void
 Import `mergeUpdate` from `'../mergeUpdate'`.
 `delete[Singular]` and `remove[Singular]Image` must be declared as named wrapper functions
 — never assign `mutation.mutateAsync` directly on the return object (violates the
-"never expose TanStack internals" rule in `src/CLAUDE.md`).
+"never expose TanStack internals" rule in `.claude/rules/src-data-access-layer.md`).
 
 ```ts
 const delete[Singular] = async (): Promise<void> => {
@@ -751,7 +751,7 @@ not apply to standard (leaf) domains scaffolded from this document.
 Resolve these at spec-generation time. Provide them in the `/write-specs` prompt.
 
 | Point | Default | Where used |
-|---|---|---|
+| --- | --- | --- |
 | Summary template lines | None — must specify | `db/[singular]/create.ts` |
 | Table config color | None — must specify | `db/_migrations/{timestamp}_add_[plural].ts` |
 | `tagging_enabled` | `1` | `db/_migrations/{timestamp}_add_[plural].ts` |

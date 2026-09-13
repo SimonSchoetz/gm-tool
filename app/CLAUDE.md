@@ -49,7 +49,8 @@ Conventions that apply across `app/` — TypeScript conventions for all TypeScri
 Two directory types exist — distinguish them before adding or deleting a barrel:
 
 - **Module directory**: owns a single table or concern. Always exposes its public API through an `index.ts`. This barrel is required.
-- **Grouping folder**: organizes module directories but owns no domain itself. Requires an `index.ts` barrel with explicit named exports — `export *` is banned in grouping barrels. **Exception**: when the owning layer's own CLAUDE.md documents both the grouping barrel and direct `<layer>/<subdomain>` imports as equally sanctioned external import paths (a documented dual-path convention — see `domain/CLAUDE.md` — Imports), the subdomain's own barrel is already the full, curated public-API statement, and the grouping barrel's block for that subdomain may use `export * from './<subdomain>'` instead of hand-copying its name list — re-listing identical names adds a second hand-maintained copy with no curation value. This exception does not apply to a grouping folder that is the sole sanctioned external import path for its layer (e.g. `src/`'s `components/`, `providers/`, `data-access-layer/`, `util/`, `hooks/`, `screens/`, `types/`, per `src/CLAUDE.md`).
+- **Grouping folder**: organizes module directories but owns no domain itself. Requires an `index.ts` barrel with explicit named exports — `export *` is banned in grouping barrels. **Exception**: when the owning layer's own CLAUDE.md documents both the grouping barrel and direct `<layer>/<subdomain>` imports as equally sanctioned external import paths (a documented dual-path convention — see `domain/CLAUDE.md` — Imports), the subdomain's own barrel is already the full, curated public-API statement, and the grouping barrel's block for that subdomain may use `export * from './<subdomain>'` instead of hand-copying its name list — re-listing identical names adds a second hand-maintained copy with no curation value. This exception does not apply to a grouping folder that is the sole sanctioned external import path for its layer — every `src/` grouping folder is one, and `app/src/CLAUDE.md` — Barrel Files owns that list.
+- **A file inside any grouping folder must never import a sibling through that folder's own barrel.** Barrels exist for external consumers; a file importing through a barrel it is part of creates a circular dependency. Use a direct relative path to the sibling instead. This holds in every layer and at every depth, including a grouping folder nested inside a module directory.
 
 This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific applications of this rule (which directories are grouping folders, import depth conventions) are documented in each layer's own CLAUDE.md.
 
@@ -64,6 +65,10 @@ This distinction applies in `src/`, `services/`, and `domain/`. Layer-specific a
 - ❌ BAD: `utils.ts` with unrelated helpers dumped together
 
 Error handling: see `app/src/CLAUDE.md` — State Management & Error Handling.
+
+## Testing
+
+When two or more tests call a function that owns module-level singleton state, the test file resets the module registry between tests: `vi.resetModules()` in `beforeEach` plus a dynamic `await import('../moduleName')` of the module under test inside each test body, never a static top-level import — a static import captures the singleton at load time, so an instance cached by one test leaks into the next. This applies in every layer (`src/`, `services/`, `domain/`, `db/`); a spec or change that leaves the existing test scaffolding unchanged for such a function, or keeps the static imports, is wrong. `app/db/CLAUDE.md` — Testing holds the `plugin-sql` mock specifics for db tests.
 
 ## Convention Discovery
 
@@ -90,7 +95,7 @@ Entity vocabulary grounded in the actual database schema (`db/*/schema.ts`). Eve
 
 ## Third-Party Libraries
 
-The general verification obligation in root `CLAUDE.md`'s Epistemological Discipline section applies to all external systems. For **npm packages specifically**, the lookup procedure is:
+The verification obligation stated in the shared rules file's Epistemological Discipline (the rule beginning "Training data confers reasoning capability...") applies to all external systems. For **npm packages specifically**, the lookup procedure is:
 
 1. Check the installed version in `package.json`
 2. Fetch the official documentation for that exact version from the internet
