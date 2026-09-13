@@ -30,7 +30,7 @@ Hook-hygiene rules that fire for any file calling a React hook, regardless of wh
 
 - ✅ GOOD: `MentionTypeaheadPlugin.tsx` — `options` populated inside a `.then()` on `mentionSearchService.searchMentions(...)` (no synchronous source; a `queryGenerationRef` guard discards stale resolutions)
 - ❌ BAD: `SlashCommandPlugin.tsx` — `options` synchronously filters the static `SLASH_COMMAND_OPTIONS` import in `onQueryChange`; no async boundary exists — should be `useMemo(() => SLASH_COMMAND_OPTIONS.filter(...), [matchingString])`
-- **Exception:** Controlled inputs that drive auto-save mutations (`.claude/rules/src-components.md` — Controlled inputs that drive auto-save mutations) store a synchronous value (`npc?.name`) in `useState` anyway — justified by preventing mid-keystroke jank from re-fetch races, not by absence of a synchronous source. Not an instance of this principle; a documented carve-out.
+- **Exception:** Controlled inputs that drive auto-save mutations (`.claude/rules/src-components.md` — Controlled inputs that drive auto-save mutations) store a synchronous value (`widget?.name`) in `useState` anyway — justified by preventing mid-keystroke jank from re-fetch races, not by absence of a synchronous source. Not an instance of this principle; a documented carve-out.
 
 ## Never gate a continuous listener's state update
 

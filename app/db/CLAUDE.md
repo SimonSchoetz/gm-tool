@@ -33,7 +33,7 @@ Follows the global file organization conventions from the root CLAUDE.md, plus:
 - **Infrastructure tables prefixed with `_` (e.g., `_migrations`, `_system`) are exempt from the `created_at` and `updated_at` domain column requirements. The `id TEXT PRIMARY KEY` naming rule is **not** exempt — all tables, including infrastructure tables, use `id` as the primary key column name. Infrastructure tables define their own schema otherwise to match their structural purpose.**
 - **Naming consistency**: All entities use `name` as the primary identifier column
   - Use `name`, not `title`, `label`, or other variations
-  - Example: `adventures.name`, `npcs.name`, `sessions.name`
+  - Example: `adventures.name`, `base_entities.name`, `sessions.name`
   - This creates consistency across the database schema
 - **User-editable text columns are nullable**: Any column whose value is written via a text input that the user can clear entirely must be defined as nullable in the SQL schema and optional in the Zod schema (no `.min(1)`, no `.refine` for empty / whitespace). Debounced auto-saves send every intermediate state — including empty strings — to the DB; NOT NULL constraints and non-empty validation on these columns cause runtime errors during normal editing.
   - Columns set programmatically (`id`, `adventure_id`, `default_step_key`, etc.) are unaffected by this rule.
@@ -64,7 +64,7 @@ Place defaults as close to the database as possible. Use this hierarchy:
 1. **SQL schema** (`DEFAULT` clause in `schema.ts`) — for short static strings (e.g. `'active'`) and numeric literals. These are single-value constants the DB can own entirely.
 2. **`create.ts`** — for any default that cannot be expressed as a SQL literal: computed strings (e.g. `'New Adventure ' + readableDatetimeString()`), and timestamps (e.g. `new Date().toISOString()` for `created_at` / `updated_at` — SQLite's `CURRENT_TIMESTAMP` produces `YYYY-MM-DD HH:MM:SS`, which is not ISO 8601 UTC).
 
-**Exception:** Stringified JSON that is interpreted by a downstream consumer (e.g. a rich-text editor) belongs in `create.ts` even when the value is a static string. The schema is not the right owner for content whose structure is defined by an external component.
+**Exception:** Stringified JSON that is interpreted by a downstream consumer (e.g. a rich-text editor) belongs in `create.ts` even when the value is a static string. The schema is not the right owner for content whose structure is defined by an external component. This exception governs placement even when the value is also a `Record<DomainType, string>` lookup table keyed by a `domain/` type that would otherwise fall under `app/domain/CLAUDE.md` — What Belongs Here's constant-lookup-table rule: a value that is genuinely a DB column default is placed by this hierarchy, never relocated to `domain/` on the basis of being keyed by a domain type. `domain/CLAUDE.md`'s rule governs a lookup table's placement only when the table's value is not itself a DB default (e.g. a route-segment or display-label lookup).
 
 Never place defaults in the service layer or frontend. A default that travels up the call stack has left the layer that owns the schema contract.
 
@@ -80,19 +80,20 @@ Only specify required fields in INSERT statements. Let the database handle NULL 
 ```typescript
 // ✅ GOOD - Only required fields
 await db.execute(
-  'INSERT INTO npcs (id, adventure_id, name) VALUES ($1, $2, $3)',
-  [id, validated.adventure_id, validated.name],
+  'INSERT INTO base_entities (id, adventure_id, entity_type, name) VALUES ($1, $2, $3, $4)',
+  [id, validated.adventure_id, validated.entity_type, validated.name],
 );
 
 // ❌ BAD - Explicit NULL for every optional field
 await db.execute(
-  'INSERT INTO npcs (id, adventure_id, name, rank, faction) VALUES ($1, $2, $3, $4, $5)',
+  'INSERT INTO base_entities (id, adventure_id, entity_type, name, image_id, pinned_order) VALUES ($1, $2, $3, $4, $5, $6)',
   [
     id,
     validated.adventure_id,
+    validated.entity_type,
     validated.name,
-    validated.rank ?? null,
-    validated.faction ?? null,
+    validated.image_id ?? null,
+    validated.pinned_order ?? null,
   ],
 );
 ```
@@ -109,9 +110,9 @@ await db.execute(
 
 Domains that support duplication (see `db/<domain>/duplicate.ts`) share one column-copying mechanism: `buildDuplicateQuery` (`db/util/build-duplicate-query.ts`). Never compose `buildCreateQuery` + `generateDbTimestamps` directly for a duplicate operation — that bypasses the shared contract and has already produced divergent implementations once.
 
-`duplicate.ts` always follows this shape: `assertValidId` the source id, fetch the source row, generate a new id, then destructure the source row to build `copiedColumns` — excluding `id`, `created_at`, and `updated_at` unconditionally (`buildDuplicateQuery` supplies the id and generates fresh timestamps itself), plus any column that must differ in the duplicate (e.g. `image_id` when the image itself is duplicated separately). Columns excluded from `copiedColumns` are re-supplied via the `overrides` argument — an excluded column with no override is omitted from the INSERT and takes its SQL default. Reference: `db/npc/duplicate.ts` + `db/util/build-duplicate-query.ts`.
+`duplicate.ts` always follows this shape: `assertValidId` the source id, fetch the source row, generate a new id, then destructure the source row to build `copiedColumns` — excluding `id`, `created_at`, and `updated_at` unconditionally (`buildDuplicateQuery` supplies the id and generates fresh timestamps itself), plus any column that must differ in the duplicate (e.g. `image_id` when the image itself is duplicated separately). Columns excluded from `copiedColumns` are re-supplied via the `overrides` argument — an excluded column with no override is omitted from the INSERT and takes its SQL default. Reference: `db/base-entity/duplicate.ts` + `db/util/build-duplicate-query.ts`.
 
-- ✅ GOOD: `const { id: _id, image_id: _imageId, created_at: _createdAt, updated_at: _updatedAt, ...copiedColumns } = source; buildDuplicateQuery('npcs', newId, copiedColumns, { image_id: newImageId })`
+- ✅ GOOD: `const { id: _id, name: _name, image_id: _imageId, pinned_order: _pinnedOrder, created_at: _createdAt, updated_at: _updatedAt, ...copiedColumns } = source; buildDuplicateQuery('base_entities', newId, copiedColumns, { image_id: newImageId })`
 - ❌ BAD: hand-rolling `buildCreateQuery(tableName, newId, { ...source, id: newId, ...generateDbTimestamps() })` — reimplements the exclude-then-spread contract per domain instead of delegating to `buildDuplicateQuery`
 
 ## Cross-table utilities
@@ -136,7 +137,7 @@ All migrations must be idempotent — not only against being re-run after the le
 
 The `_migrations` table is infrastructure owned by `database.ts`. Never reference or modify it in domain code or migrations.
 
-**Migration-file duplication is required, not a DRY violation.** A migration must never depend on a live, mutable source — a shared registry, a shared helper function, or any other value that can change after this migration has already run — for a literal or logic it needs, since a later edit to that source would retroactively change an already-applied migration's behavior. When a migration needs a literal or logic that also exists in a live source, freeze a local copy inside the migration file instead, and add an inline comment stating what was frozen, where the live equivalent lives, and why (a migration must never depend on a shared source). This duplication is exempt from root CLAUDE.md's duplicate-raw-literal DRY rule: the frozen copy and its live counterpart are not the same call site under that rule's own test, since the frozen copy is pinned to the moment the migration ran and the live source is expected to diverge from it afterward. Precedent: `1784365870026_add_sync_infrastructure.ts` and `1784896762609_backfill_sync_changes.ts` each freeze their own copy of `SYNCED_TABLE_NAMES`; `1786186021664_add_encounters.ts` freezes the trigger-SQL shape `buildTriggerSQL` produces.
+**Migration-file duplication is required, not a DRY violation.** A migration must never depend on a live, mutable source — a shared registry, a shared helper function, or any other value that can change after this migration has already run — for a literal or logic it needs, since a later edit to that source would retroactively change an already-applied migration's behavior. When a migration needs a literal or logic that also exists in a live source, freeze a local copy inside the migration file instead, and add an inline comment stating what was frozen, where the live equivalent lives, and why (a migration must never depend on a shared source). This duplication is exempt from root CLAUDE.md's duplicate-raw-literal DRY rule: the frozen copy and its live counterpart are not the same call site under that rule's own test, since the frozen copy is pinned to the moment the migration ran and the live source is expected to diverge from it afterward. Precedent: `1784365870026_add_sync_infrastructure.ts` and `1784896762609_backfill_sync_changes.ts` each freeze their own copy of `SYNCED_TABLE_NAMES`; `1786186021664_add_encounters.ts` freezes both the trigger-SQL shape `buildTriggerSQL` produces and its own copy of `db/encounter/schema.ts`'s `createTableSQL`; `1779321600000_initial_schema.ts` and `1789304154994_add_base_entities.ts` each freeze a domain schema module's `createTableSQL` too (`db/base-entity/schema.ts`'s, in the latter case) — a schema module's own SQL-generating export is exactly the kind of value the catch-all above already covers.
 
 ## Testing
 

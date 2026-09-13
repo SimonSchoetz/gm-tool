@@ -104,8 +104,8 @@ When a CSS value cannot use a global token from `styles/variables/`, declare it 
 
 **Controlled inputs that drive auto-save mutations use local state for the displayed value.** When a text or date input is bound to a server value and calls a mutation on change, bind `value` to a `useState` variable — not directly to the query result. Call both the local setter and the debounced updater in `onChange`. Binding `value` directly to the query result causes the input to jump mid-keystroke when TanStack Query re-fetches after invalidation. The `?? ''` initializer is correct at this boundary: HTML inputs require a string, and the empty string represents "nothing displayed" — a distinct concept from the nullable DB column representing "nothing stored."
 
-- ✅ GOOD: `const [name, setName] = useState(npc?.name ?? ''); <Input value={name} onChange={(e) => { setName(e.target.value); updateNpc({ name: e.target.value }); }} />`
-- ❌ BAD: `<Input value={npc.name ?? ''} onChange={(e) => updateNpc({ name: e.target.value })} />`
+- ✅ GOOD: `const [name, setName] = useState(widget?.name ?? ''); <Input value={name} onChange={(e) => { setName(e.target.value); updateWidget({ name: e.target.value }); }} />` — illustrative; the codebase's own extracted implementation of this exact pattern is `SyncedInput` (`src/components/SyncedInput/SyncedInput.tsx`, via `useSyncedInputValue`)
+- ❌ BAD: `<Input value={widget.name ?? ''} onChange={(e) => updateWidget({ name: e.target.value })} />`
 
 ## Framework context is not a prop
 
