@@ -11,18 +11,6 @@ export {
   baseEntityListQueryOptions,
   baseEntityQueryOptions,
 } from './base-entities';
-export { useNpcs, useNpc } from './npcs';
-export { npcListQueryOptions, npcQueryOptions } from './npcs';
-export { useFoes, useFoe } from './foes';
-export { foeListQueryOptions, foeQueryOptions } from './foes';
-export { useItems, useItem } from './items';
-export { itemListQueryOptions, itemQueryOptions } from './items';
-export { useLocations, useLocation } from './locations';
-export { locationListQueryOptions, locationQueryOptions } from './locations';
-export { useFactions, useFaction } from './factions';
-export { factionListQueryOptions, factionQueryOptions } from './factions';
-export { usePcs, usePc } from './pcs';
-export { pcListQueryOptions, pcQueryOptions } from './pcs';
 export { useSessions, useSession } from './sessions';
 export { sessionListQueryOptions, sessionQueryOptions } from './sessions';
 export { useEncounters, useEncounter } from './encounters';
