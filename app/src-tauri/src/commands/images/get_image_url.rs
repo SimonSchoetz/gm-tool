@@ -1,5 +1,7 @@
 use tauri::Manager;
 
+use super::{VALID_EXTENSIONS, is_valid_image_id};
+
 /// Gets a URL for an image that can be used in frontend <img> tags.
 ///
 /// # Arguments
@@ -16,6 +18,14 @@ pub async fn get_image_url(
     id: String,
     extension: String,
 ) -> Result<String, String> {
+    if !is_valid_image_id(&id) {
+        return Err(format!("Invalid image id: {id}"));
+    }
+
+    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
+        return Err(format!("Invalid file extension: {extension}"));
+    }
+
     // Get app data directory
     let app_data_dir = app_handle
         .path()
@@ -32,7 +42,6 @@ pub async fn get_image_url(
         return Err(format!("Image file not found: {}.{}", id, extension));
     }
 
-    // Convert path to a URL that can be used in the frontend
-    // Tauri uses the convertFileSrc API on the frontend, so we just return the path
+    // Returns the raw path rather than a URL: the frontend passes it through convertFileSrc, which is what produces the asset-protocol URL an <img> tag can load.
     Ok(image_path.to_string_lossy().to_string())
 }

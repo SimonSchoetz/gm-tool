@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { ENVELOPE_VERSION } from '../devices/messages';
 
+// Mirrors is_valid_image_id in src-tauri/src/commands/images/mod.rs. That Rust check is the trust boundary; this one rejects a malformed id at the message edge so it never reaches an invoke call. The duplication cannot be factored out across the runtime boundary — the same split already exists for ENDPOINT_ID_HEX_REGEX and decode_hex_key.
+const IMAGE_ID_REGEX = /^[A-Za-z0-9_-]+$/;
+
 export const SYNC_PROTOCOL_VERSION = 1;
 
 const syncChangeSchema = z.object({
@@ -41,13 +44,16 @@ export const syncMessageSchema = z.discriminatedUnion('type', [
   z.object({
     v: z.number(),
     type: z.literal('file-request'),
-    payload: z.object({ imageId: z.string(), extension: z.string() }),
+    payload: z.object({
+      imageId: z.string().regex(IMAGE_ID_REGEX),
+      extension: z.string(),
+    }),
   }),
   z.object({
     v: z.number(),
     type: z.literal('file-chunk'),
     payload: z.object({
-      imageId: z.string(),
+      imageId: z.string().regex(IMAGE_ID_REGEX),
       extension: z.string(),
       seqNo: z.number(),
       dataBase64: z.string(),

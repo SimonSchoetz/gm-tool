@@ -15,3 +15,11 @@ pub use save_image::save_image;
 pub use save_image_bytes::save_image_bytes;
 
 pub(crate) const VALID_EXTENSIONS: [&str; 5] = ["jpg", "jpeg", "png", "webp", "gif"];
+
+/// Image ids come from nanoid over the URL-safe alphabet. Restricting to that character class keeps a peer- or webview-supplied id from carrying a path separator, a `..` sequence, or a NUL into the joined file path — `PathBuf::join` does not resolve any of them, the OS does, at open time.
+pub(crate) fn is_valid_image_id(id: &str) -> bool {
+    !id.is_empty()
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+}

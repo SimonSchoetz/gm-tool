@@ -22,6 +22,8 @@ pub(crate) struct PairingSession {
     pub(crate) code: String,
     pub(crate) candidates: HashMap<EndpointId, PairingCandidate>,
     pub(crate) probing: HashSet<EndpointId>,
+    // Keyed by endpoint id and never cleared on failure: the counter must outlive the connection it was incremented on, or an attacker resets the attempt limit by reconnecting. It dies with the session, which ends when the user closes the pairing dialog and the code rotates.
+    pub(crate) code_failures: HashMap<EndpointId, u8>,
     // Number of live enter_pairing_mode calls not yet matched by an exit. React StrictMode double-mounts the dialog in dev (enter, exit, enter in arbitrary async order), so the session is torn down only when the last holder exits — a stale exit cannot wipe a session another mount still holds.
     pub(crate) ref_count: u32,
 }
@@ -29,7 +31,6 @@ pub(crate) struct PairingSession {
 pub(crate) struct PairingCandidate {
     pub(crate) frame_sender: Sender<PairingFrame>,
     pub(crate) pending_verdict: Option<Sender<bool>>,
-    pub(crate) failures: u8,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -69,6 +70,7 @@ pub async fn enter_pairing_mode(
             code: code.clone(),
             candidates: HashMap::new(),
             probing: HashSet::new(),
+            code_failures: HashMap::new(),
             ref_count: 1,
         });
         let known_unpaired: Vec<EndpointAddr> = data
@@ -279,7 +281,6 @@ pub(crate) async fn run_pairing_connection(
                             session.candidates.insert(remote, PairingCandidate {
                                 frame_sender: sender,
                                 pending_verdict: None,
-                                failures: 0,
                             });
                             drop(data);
                             let _ = app.emit(EVENT_PAIRING_CANDIDATE, PairingCandidatePayload {
@@ -315,12 +316,11 @@ pub(crate) async fn run_pairing_connection(
                                 succeeded = true;
                                 break 'connection;
                             }
-                            let failures = match session.candidates.get_mut(&remote) {
-                                Some(candidate) => {
-                                    candidate.failures += 1;
-                                    candidate.failures
-                                }
-                                None => MAX_CODE_FAILURES,
+                            // MANUAL-VERIFY: from a second device, submit three wrong codes, let the connection close, then reconnect and submit a fourth. The fourth must be rejected immediately without granting a fresh three attempts.
+                            let failures = {
+                                let count = session.code_failures.entry(remote).or_insert(0);
+                                *count += 1;
+                                *count
                             };
                             if failures >= MAX_CODE_FAILURES {
                                 session.candidates.remove(&remote);
@@ -402,8 +402,7 @@ pub(crate) async fn run_pairing_connection(
     }
 
     if succeeded {
-        // The normal auto-connect rule establishes the gm-tool connection; mDNS resolves
-        // the bare id to dialable addresses.
+        // The normal auto-connect rule establishes the gm-tool connection; mDNS resolves the bare id to dialable addresses.
         maybe_dial_trusted_peer(&app, &state, EndpointAddr::from(remote)).await;
     }
 }

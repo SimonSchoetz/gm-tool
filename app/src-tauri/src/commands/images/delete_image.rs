@@ -1,6 +1,8 @@
 use std::fs;
 use tauri::Manager;
 
+use super::{VALID_EXTENSIONS, is_valid_image_id};
+
 /// Deletes an image file from the app's data directory.
 ///
 /// # Arguments
@@ -17,6 +19,14 @@ pub async fn delete_image(
     id: String,
     extension: String,
 ) -> Result<(), String> {
+    if !is_valid_image_id(&id) {
+        return Err(format!("Invalid image id: {id}"));
+    }
+
+    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
+        return Err(format!("Invalid file extension: {extension}"));
+    }
+
     // Get app data directory
     let app_data_dir = app_handle
         .path()

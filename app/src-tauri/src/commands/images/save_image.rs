@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::Manager;
 
-use super::VALID_EXTENSIONS;
+use super::{VALID_EXTENSIONS, is_valid_image_id};
 
 /// Saves an image file from the source path to the app's data directory.
 ///
@@ -22,6 +22,10 @@ pub async fn save_image(
     id: String,
     extension: String,
 ) -> Result<u64, String> {
+    if !is_valid_image_id(&id) {
+        return Err(format!("Invalid image id: {id}"));
+    }
+
     // Validate extension
     if !VALID_EXTENSIONS.contains(&extension.as_str()) {
         return Err(format!("Invalid file extension: {}", extension));
@@ -41,7 +45,7 @@ pub async fn save_image(
     // Construct destination path
     let destination_path = images_dir.join(format!("{}.{}", id, extension));
 
-    // Check if source file exists and get metadata
+    // source_path is deliberately unvalidated: no peer message routes to this command, and a compromised webview — the only caller — already holds sql:allow-execute and sql:allow-select, so constraining the path grants nothing it cannot already do. A real constraint needs a capability token tying the path to a dialog the user actually opened.
     let source = PathBuf::from(&source_path);
     if !source.exists() {
         return Err(format!("Source file does not exist: {}", source_path));

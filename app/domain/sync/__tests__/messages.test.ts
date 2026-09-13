@@ -70,6 +70,30 @@ describe('syncMessageSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('rejects a file-request whose imageId contains a path traversal', () => {
+    const result = syncMessageSchema.safeParse({
+      v: 1,
+      type: 'file-request',
+      payload: { imageId: '../../../../etc/passwd', extension: 'png' },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a file-chunk whose imageId contains a path traversal', () => {
+    const result = syncMessageSchema.safeParse({
+      v: 1,
+      type: 'file-chunk',
+      payload: {
+        imageId: '../../secrets',
+        extension: 'png',
+        seqNo: 0,
+        dataBase64: '',
+        last: true,
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it('rejects an unknown sync message type', () => {
     const result = syncMessageSchema.safeParse({
       v: 1,

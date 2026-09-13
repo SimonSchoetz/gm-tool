@@ -18,7 +18,10 @@ export const searchMentions = async (
   tableConfigs: TableConfig[],
 ): Promise<MentionSearchResult[]> => {
   try {
-    const enabledConfigs = tableConfigs.filter((c) => c.tagging_enabled === 1);
+    // Not the security boundary — searchByName validates its own tableName. This filter only avoids issuing a query per non-entity config on every keystroke.
+    const enabledConfigs = tableConfigs.filter(
+      (c) => c.tagging_enabled === 1 && isEntityType(c.table_name),
+    );
     const allResults: MentionSearchResult[] = [];
 
     for (const config of enabledConfigs) {

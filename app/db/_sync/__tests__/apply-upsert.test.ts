@@ -170,4 +170,32 @@ describe('applyUpsert', () => {
     expect(insertSql).toContain('INSERT INTO table_config');
     expect(insertValues).toContain('incoming-config-id');
   });
+
+  it('should skip a table_config row whose table_name is not a synced table', async () => {
+    const result = await applyUpsert(
+      'table_config',
+      {
+        id: 'incoming-config-id',
+        table_name: 'npcs; DROP TABLE adventures',
+        color: 'blue',
+        tagging_enabled: 1,
+        scope: 'adventure',
+        layout: '{}',
+        created_at: '2024-01-01T00:00:00.000Z',
+        updated_at: '2024-06-01T00:00:00.000Z',
+      },
+      false,
+    );
+
+    expect(result).toBe('skipped');
+    expect(mockSelect).not.toHaveBeenCalled();
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
+
+  it('should skip a row whose column value has the wrong type', async () => {
+    const result = await applyUpsert('npcs', { ...NPC_ROW, name: 42 }, false);
+
+    expect(result).toBe('skipped');
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
 });

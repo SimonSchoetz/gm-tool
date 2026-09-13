@@ -1,6 +1,6 @@
 import type Database from '@tauri-apps/plugin-sql';
 import { getDatabase } from '../database';
-import { SYNCED_TABLES } from './registry';
+import { SYNCED_TABLES, SYNCED_TABLE_NAMES } from './registry';
 import type { ApplyResult } from './types';
 
 const filterToWhitelist = (
@@ -58,7 +58,8 @@ const applyTableConfigUpsert = async (
   force: boolean,
 ): Promise<ApplyResult> => {
   const tableName = filtered.table_name;
-  if (typeof tableName !== 'string' || tableName === '') return 'skipped';
+  if (typeof tableName !== 'string' || !SYNCED_TABLE_NAMES.includes(tableName))
+    return 'skipped';
 
   // table_config merges by table_name, not id: the same logical config row has different ids on each device (seeded per device), so id-based union would duplicate every list config on first sync.
   const localRows = await db.select<{ id: string; updated_at: string }[]>(
@@ -101,6 +102,10 @@ export const applyUpsert = async (
   }
 
   const filtered = filterToWhitelist(row, entry.columns);
+
+  // A peer row is untrusted network input, not a row read back from this database — parse it before it reaches SQL. partial() because a peer on a different schema version legitimately omits columns this device knows about, and dropping those rows would be a data-loss bug; a column that is present but carries the wrong type is what this catches.
+  if (!entry.zodSchema.partial().safeParse(filtered).success) return 'skipped';
+
   const db = await getDatabase();
 
   if (tableName === 'table_config') {
