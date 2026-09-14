@@ -1,5 +1,11 @@
 ---
-paths: ["app/src/**/*.tsx", "src/**/*.tsx", "app/src/**/helper/**", "src/**/helper/**"]
+paths:
+  [
+    "app/src/**/*.tsx",
+    "src/**/*.tsx",
+    "app/src/**/helper/**",
+    "src/**/helper/**",
+  ]
 ---
 
 # Components under `src/`
@@ -102,10 +108,11 @@ When a CSS value cannot use a global token from `styles/variables/`, declare it 
 
 ## Controlled inputs that drive auto-save mutations
 
-**Controlled inputs that drive auto-save mutations use local state for the displayed value.** When a text or date input is bound to a server value and calls a mutation on change, bind `value` to a `useState` variable — not directly to the query result. Call both the local setter and the debounced updater in `onChange`. Binding `value` directly to the query result causes the input to jump mid-keystroke when TanStack Query re-fetches after invalidation. The `?? ''` initializer is correct at this boundary: HTML inputs require a string, and the empty string represents "nothing displayed" — a distinct concept from the nullable DB column representing "nothing stored."
+**A controlled input bound to a server value that calls a mutation on change must never bind `value` directly to the query result** — TanStack Query re-fetching after invalidation causes the input to jump mid-keystroke. Case 1 — the element is (or wraps) `Input`: use `SyncedInput` (`src/components/SyncedInput/SyncedInput.tsx`), which owns local display state via `useSyncedInputValue` and also adopts an external value change (a synced edit from a paired device) once the field isn't focused — a plain `useState` mirror of the query value handles the mid-keystroke jump but not that second-device case. Case 2 — the element is something other than `Input` (e.g. `DateInput`): wire `useSyncedInputValue`'s `value`, `setValue`, and `focusProps` onto that element directly, and call both `setValue` and the debounced updater from the change handler. The `?? ''` initializer is correct at this boundary: HTML inputs require a string, and the empty string represents "nothing displayed" — a distinct concept from the nullable DB column representing "nothing stored."
 
-- ✅ GOOD: `const [name, setName] = useState(widget?.name ?? ''); <Input value={name} onChange={(e) => { setName(e.target.value); updateWidget({ name: e.target.value }); }} />` — illustrative; the codebase's own extracted implementation of this exact pattern is `SyncedInput` (`src/components/SyncedInput/SyncedInput.tsx`, via `useSyncedInputValue`)
-- ❌ BAD: `<Input value={widget.name ?? ''} onChange={(e) => updateWidget({ name: e.target.value })} />`
+- ✅ GOOD (Case 1): `<SyncedInput initValue={widget?.name ?? ''} onCommit={(value) => updateWidget({ name: value })} />`
+- ✅ GOOD (Case 2): `const { value, setValue, focusProps } = useSyncedInputValue(widget?.dueDate ?? ''); <DateInput value={value} onChange={(e) => { setValue(e.target.value); updateWidget({ dueDate: e.target.value }); }} {...focusProps} />`
+- ❌ BAD: `<Input value={widget.name ?? ''} onChange={(e) => updateWidget({ name: e.target.value })} />` — jumps mid-keystroke on re-fetch, and never adopts a paired-device edit either way
 
 ## Framework context is not a prop
 
