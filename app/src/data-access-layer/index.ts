@@ -11,6 +11,7 @@ export {
   baseEntityListQueryOptions,
   baseEntityQueryOptions,
 } from './base-entities';
+export { useBaseEntityContentSections } from './base-entity-content-sections';
 export { useSessions, useSession } from './sessions';
 export { sessionListQueryOptions, sessionQueryOptions } from './sessions';
 export { useEncounters, useEncounter } from './encounters';
