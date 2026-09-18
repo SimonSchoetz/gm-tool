@@ -12,7 +12,7 @@
   },
   "author": "Simon Sch\u00f6tz",
   "type": "module",
-  "packageManager": "pnpm@11.22.0",
+  "packageManager": "pnpm@12.4.2",
   "scripts": {
     "prepare": "simple-git-hooks",
     "test": "cd app && pnpm run test",
