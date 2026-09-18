@@ -24,6 +24,10 @@ throw typed domain errors. They have no React dependencies and no UI logic.
   - ✅ GOOD: `baseEntityService.removeBaseEntityImage(entityType, baseEntityId)` — the base-entity service owns image lifecycle for every entity type; component calls one mutation
   - ❌ BAD: component calls `deleteImage(baseEntity.image_id)` then `updateBaseEntity({ image_id: null })` — service layer gap exposed at the component
 
+## Testing
+
+A service function that adds logic beyond delegating to `@db/<domain>` calls and wrapping failures in a typed domain error — a branch, a computed value such as the next `sort_order`, or a multi-step composition — must have a test in `services/__tests__/` named after its service file, mocking the `@db/<domain>` modules it calls. A pure delegate-and-wrap function needs none. The obligation applies when such a function is added or its logic changes.
+
 ## What Does NOT Belong Here
 
 - React hooks, context, or any import from `react`

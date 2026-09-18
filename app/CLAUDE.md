@@ -42,7 +42,7 @@ Conventions that apply across `app/` — TypeScript conventions for all TypeScri
 - **When a file is moved or promoted to a new location, update all consumers to import from the new location — never introduce a re-export in the old barrel solely to preserve existing import paths.** A backward-compat re-export hides the migration and leaves consumers pointing at a stale path through an indirection layer — imports must reflect where symbols actually live.
   - ❌ BAD: Adding `export { getDateTimeString } from '@util/getDateTimeString'` to `src/util/index.ts` so existing callers do not need updating
   - ✅ GOOD: Remove the barrel re-export; update every consumer to import from the new location directly
-- **Code in any artifact must be valid under the project's full toolchain configuration, not just type-declaration correct.** Verify against the active `tsconfig.json` compiler flags and `eslint.config.js` plugin rules before writing code that depends on them. Three error classes pass symbol verification but fail at toolchain time: (1) tsc narrowing mechanics — tsc narrows variables, not re-evaluated call expressions; store the result in a `const` before the guard; (2) strictness flags — e.g. `exactOptionalPropertyTypes` rejects assigning `T | undefined` to an optional property typed `T`; (3) ESLint plugin rules — e.g. `react-hooks/refs` bans reading `ref.current` inside a render callback. Training knowledge of what TypeScript or ESLint permits in the abstract is never sufficient.
+- **Code in any artifact must be valid under the project's full toolchain configuration, not just type-declaration correct.** Verify against the active `tsconfig.json` compiler flags and `eslint.config.js` plugin rules before writing code that depends on them. Three error classes pass symbol verification but fail at toolchain time: (1) tsc narrowing mechanics — tsc narrows variables, not re-evaluated call expressions; store the result in a `const` before the guard; (2) strictness flags — e.g. `exactOptionalPropertyTypes` rejects assigning `T | undefined` to an optional property typed `T`; (3) ESLint plugin rules — e.g. `react-hooks/refs` bans reading `ref.current` inside a render callback.
 
 ## Directory Structure (all TypeScript layers)
 
@@ -93,6 +93,7 @@ Entity vocabulary grounded in the actual database schema. Most terms below own a
 | Encounter                  | A scene or set-piece within the Adventure — no summary or image.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | Image                      | A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Table Config               | Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity.                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Content section            | An ordered (`sort_order`), typed (`text` or `5e-stat-block`) child row of a Base entity (`db/base-entity-content-section/schema.ts`), linked by `base_entity_id` with cascade delete. It is not scoped by `adventure_id`. A base entity's summary is held in its content sections; `base_entities` has no summary column.                                                                                                                                                                                                 |
 
 ## Third-Party Libraries
 
@@ -102,14 +103,9 @@ The verification obligation stated in the shared rules file's Epistemological Di
 2. Fetch the official documentation for that exact version from the internet
 3. If documentation is ambiguous or unavailable, ask before proceeding
 
-This applies especially to: TanStack Query, TanStack Router, Lexical, Tauri, and Drizzle.
-
 To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
 
 For **ambient/global runtime types specifically** (DOM API, ES built-ins, and other globals available without an import statement) — these are not tied to any single npm package's `dist/index.d.ts`; they ship inside the TypeScript compiler's own `lib` files (`node_modules/typescript/lib/lib.*.d.ts`, e.g. `lib.dom.d.ts` for the DOM API), selected by the `lib` array in `tsconfig.json`. Read the specific `lib.*.d.ts` file directly to confirm a type's actual shape before asserting it — training-data familiarity with a well-known global API is not verification, and a supertype's signature does not apply to a subtype that narrows it via its own override.
-
-- ✅ GOOD: confirming `HTMLElement.textContent` returns `string` (not `string | null`) by reading `lib.dom.d.ts`'s `Element` getter override, rather than assuming `Node.textContent`'s nullable signature applies down the inheritance chain
-- ❌ BAD: asserting `domNode.textContent ?? ''` in a spec because `Node.textContent` is commonly known to be nullable, without checking whether the concrete type in use (`HTMLElement`) overrides that signature
 
 For **Rust crates specifically** (dependencies in `app/src-tauri/Cargo.toml`), the lookup procedure is:
 

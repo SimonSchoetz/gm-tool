@@ -83,18 +83,6 @@ await db.execute(
   'INSERT INTO base_entities (id, adventure_id, entity_type, name) VALUES ($1, $2, $3, $4)',
   [id, validated.adventure_id, validated.entity_type, validated.name],
 );
-
-// ❌ BAD - explicit NULL for an omitted optional field
-await db.execute(
-  'INSERT INTO base_entities (id, adventure_id, entity_type, name, image_id) VALUES ($1, $2, $3, $4, $5)',
-  [
-    id,
-    validated.adventure_id,
-    validated.entity_type,
-    validated.name,
-    validated.image_id ?? null,
-  ],
-);
 ```
 
 ## Naming
@@ -151,4 +139,4 @@ A migration whose `up()` destroys or irreversibly overwrites existing data — `
 
 Every test file that calls `vi.mock('@tauri-apps/plugin-sql', ...)` at module scope must reset the module registry between tests. Default: `afterEach(() => { vi.resetModules(); })` with a static top-level import of the function under test — correct for domain CRUD test files (see `db/adventure/__tests__/`, `db/session/__tests__/`), where `getDatabase()` is incidental plumbing and every assertion targets `mockExecute`/`mockSelect` call history, already reset per test by `vi.clearAllMocks()` regardless of the module-level `db` cache. The stricter pattern — `vi.resetModules()` in `beforeEach` plus a dynamic `await import('../moduleName')` inside each test body, never a static top-level import — is required only when the suite itself asserts on `initDatabase`'s or `getDatabase`'s own init-or-caching behavior (e.g. `db/__tests__/init-database.test.ts`, expecting the full migration-running path to re-fire on every call): there, a stale cached `db` from a prior test would silently short-circuit that path and falsify the assertion.
 
-Every test that calls `getDatabase()` runs the full init path, which runs migrations and calls `database.select()` to check applied ones — omitting `mockSelect.mockResolvedValue([])` crashes the init. Any test file that invokes `getDatabase()` — directly or indirectly — must call `mockSelect.mockResolvedValue([])` in its `beforeEach` block before any other setup.
+Every test that calls `getDatabase()` runs the full init path, which runs every migration's statements — the applied-ledger `database.select()` and any `select` a migration step issues — against whatever `mockSelect` returns at that moment; omitting `mockSelect.mockResolvedValue([])` crashes the init. Any test file that invokes `getDatabase()` — directly or indirectly — must call `mockSelect.mockResolvedValue([])` in its `beforeEach` block before any other setup, and a test that needs `select` to return rows scopes that override to its own SQL: `mockSelect.mockImplementation((query: string) => query.includes('<the SQL under test>') ? rows : [])` (see `db/_system/__tests__/get.test.ts`). A blanket `mockSelect.mockResolvedValue(rows)` after that also answers the init path's selects with the same rows, so a migration step that parses selected row content throws on a foreign row. Adding such a step to the migration chain therefore requires auditing every `db/` test file that mocks `select` for a blanket override, and scoping those overrides in the same change.

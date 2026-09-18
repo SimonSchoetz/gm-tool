@@ -53,7 +53,7 @@ A function belongs in `/src/util/` only when **both** conditions are met:
 1. It is consumed by more than one component or module
 2. It is generic — no coupling to a specific domain concept, named without domain nouns
 
-A function that fails either condition stays local to its consumer in `ComponentName/helper/`. When a helper is later needed by more than one consumer, apply in order:
+A function that fails either condition stays local to its consumer in that module directory's `helper/` — `ComponentName/helper/`, or `data-access-layer/<module>/helper/` for a DAL hook. When a helper is later needed by more than one consumer, apply in order:
 
 1. **Sibling components within the same parent module** — promote to the parent module's `helper/`. Never import across sibling boundaries (`../SiblingComponent/helper/...` is always wrong).
 2. **Unrelated components, or the helper is generic** — promote to `/src/util/` only when both util conditions are met.
