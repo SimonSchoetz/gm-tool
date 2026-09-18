@@ -41,13 +41,14 @@ describe('getAll', () => {
       updated_at: '2025-01-01',
     };
 
-    mockSelect.mockResolvedValue([adventure1, adventure2]);
+    const SELECT_SQL = 'SELECT * FROM adventures ORDER BY created_at DESC';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [adventure1, adventure2] : []),
+    );
 
     const result = await getAll();
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM adventures ORDER BY created_at DESC',
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL);
     expect(result).toEqual([adventure1, adventure2]);
   });
 

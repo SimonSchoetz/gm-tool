@@ -39,13 +39,14 @@ describe('getAll', () => {
       updated_at: '2025-01-01',
     };
 
-    mockSelect.mockResolvedValue([device1, device2]);
+    const SELECT_SQL = 'SELECT * FROM paired_devices ORDER BY created_at DESC';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [device1, device2] : []),
+    );
 
     const result = await getAll();
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM paired_devices ORDER BY created_at DESC',
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL);
     expect(result).toEqual([device1, device2]);
   });
 

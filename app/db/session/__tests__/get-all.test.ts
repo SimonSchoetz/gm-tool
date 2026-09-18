@@ -50,14 +50,15 @@ describe('getAll', () => {
       },
     ];
 
-    mockSelect.mockResolvedValue(mockSessions);
+    const SELECT_SQL =
+      'SELECT * FROM sessions WHERE adventure_id = $1 ORDER BY created_at DESC';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? mockSessions : []),
+    );
 
     const result = await getAll('adv-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM sessions WHERE adventure_id = $1 ORDER BY created_at DESC',
-      ['adv-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['adv-1']);
     expect(result).toEqual(mockSessions);
   });
 

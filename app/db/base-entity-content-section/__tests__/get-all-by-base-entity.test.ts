@@ -49,14 +49,15 @@ describe('getAllByBaseEntity', () => {
       updated_at: '2024-01-15T10:30:00.000Z',
     };
 
-    mockSelect.mockResolvedValue([section1, section2]);
+    const SELECT_SQL =
+      'SELECT * FROM base_entity_content_sections WHERE base_entity_id = $1 ORDER BY sort_order ASC';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [section1, section2] : []),
+    );
 
     const result = await getAllByBaseEntity('entity-123');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM base_entity_content_sections WHERE base_entity_id = $1 ORDER BY sort_order ASC',
-      ['entity-123'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['entity-123']);
     expect(result).toEqual([section1, section2]);
   });
 

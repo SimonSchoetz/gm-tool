@@ -35,14 +35,16 @@ describe('getRowById', () => {
   });
 
   it('should select by id for a known table', async () => {
-    mockSelect.mockResolvedValue([{ id: 'npc-1', name: 'Goblin' }]);
+    const SELECT_SQL = 'SELECT * FROM base_entities WHERE id = $1';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL ? [{ id: 'npc-1', name: 'Goblin' }] : [],
+      ),
+    );
 
     const result = await getRowById('base_entities', 'npc-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM base_entities WHERE id = $1',
-      ['npc-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npc-1']);
     expect(result).toEqual({ id: 'npc-1', name: 'Goblin' });
   });
 

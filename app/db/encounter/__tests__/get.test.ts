@@ -36,14 +36,14 @@ describe('get', () => {
       updated_at: '2025-01-01',
     };
 
-    mockSelect.mockResolvedValue([mockEncounter]);
+    const SELECT_SQL = 'SELECT * FROM encounters WHERE id = $1';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [mockEncounter] : []),
+    );
 
     const result = await get('test-id');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM encounters WHERE id = $1',
-      ['test-id'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id']);
     expect(result).toEqual(mockEncounter);
   });
 

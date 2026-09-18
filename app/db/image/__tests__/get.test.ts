@@ -38,14 +38,14 @@ describe('image.get', () => {
       updated_at: '2025-01-01T00:00:00.000Z',
     };
 
-    mockSelect.mockResolvedValue([mockImage]);
+    const SELECT_SQL = 'SELECT * FROM images WHERE id = $1';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [mockImage] : []),
+    );
 
     const image = await get('test-id-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM images WHERE id = $1',
-      ['test-id-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id-1']);
     expect(image).toEqual(mockImage);
   });
 
@@ -71,7 +71,11 @@ describe('image.get', () => {
       updated_at: '2025-01-01T00:00:00.000Z',
     };
 
-    mockSelect.mockResolvedValue([mockImage]);
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === 'SELECT * FROM images WHERE id = $1' ? [mockImage] : [],
+      ),
+    );
 
     const image = await get('test-id-2');
 

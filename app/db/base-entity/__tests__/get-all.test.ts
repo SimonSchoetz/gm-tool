@@ -49,14 +49,15 @@ describe('getAll', () => {
       updated_at: '2025-01-01',
     };
 
-    mockSelect.mockResolvedValue([row1, row2]);
+    const SELECT_SQL =
+      'SELECT * FROM base_entities WHERE adventure_id = $1 AND entity_type = $2 ORDER BY created_at DESC';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [row1, row2] : []),
+    );
 
     const result = await getAll('npcs', 'adv-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM base_entities WHERE adventure_id = $1 AND entity_type = $2 ORDER BY created_at DESC',
-      ['adv-1', 'npcs'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['adv-1', 'npcs']);
     expect(result).toEqual([row1, row2]);
   });
 

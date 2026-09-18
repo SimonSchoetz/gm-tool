@@ -110,9 +110,6 @@ const up = async (db: Database): Promise<void> => {
   );
 
   for (const row of configRows) {
-    // db.select<T>()'s type parameter is a compile-time assertion only, never runtime-validated, so a row that doesn't actually carry a layout string is skipped here rather than crashing the whole migration chain; a row whose layout IS a string but isn't valid JSON still throws via frozenTableLayoutSchema.parse below.
-    if (typeof row.layout !== 'string') continue;
-
     const layout = frozenTableLayoutSchema.parse(JSON.parse(row.layout));
     if (!layout.searchable_columns.includes('summary')) continue;
 

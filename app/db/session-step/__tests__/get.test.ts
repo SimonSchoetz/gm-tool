@@ -35,14 +35,14 @@ describe('get', () => {
       updated_at: '2024-01-15T10:30:00.000Z',
     };
 
-    mockSelect.mockResolvedValue([mockStep]);
+    const SELECT_SQL = 'SELECT * FROM session_steps WHERE id = $1';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [mockStep] : []),
+    );
 
     const result = await get('step-id');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM session_steps WHERE id = $1',
-      ['step-id'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['step-id']);
     expect(result).toEqual(mockStep);
   });
 

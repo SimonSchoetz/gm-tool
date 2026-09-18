@@ -43,14 +43,15 @@ describe('getAllBySession', () => {
       updated_at: '2024-01-15T10:30:00.000Z',
     };
 
-    mockSelect.mockResolvedValue([step1, step2]);
+    const SELECT_SQL =
+      'SELECT * FROM session_steps WHERE session_id = $1 ORDER BY sort_order ASC';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [step1, step2] : []),
+    );
 
     const result = await getAllBySession('sess-id');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT * FROM session_steps WHERE session_id = $1 ORDER BY sort_order ASC',
-      ['sess-id'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['sess-id']);
     expect(result).toEqual([step1, step2]);
   });
 

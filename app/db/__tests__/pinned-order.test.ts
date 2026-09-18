@@ -25,31 +25,37 @@ describe('getMaxPinnedOrder', () => {
   });
 
   it('scopes the maximum to the adventure of the given row for a base entity type', async () => {
-    mockSelect.mockResolvedValue([{ max_order: 4 }]);
+    const SELECT_SQL =
+      'SELECT MAX(pinned_order) as max_order FROM base_entities WHERE pinned_order IS NOT NULL AND entity_type = $2 AND adventure_id = (SELECT adventure_id FROM base_entities WHERE id = $1)';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [{ max_order: 4 }] : []),
+    );
 
     const result = await getMaxPinnedOrder('npcs', 'npc-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT MAX(pinned_order) as max_order FROM base_entities WHERE pinned_order IS NOT NULL AND entity_type = $2 AND adventure_id = (SELECT adventure_id FROM base_entities WHERE id = $1)',
-      ['npc-1', 'npcs'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npc-1', 'npcs']);
     expect(result).toBe(4);
   });
 
   it('scopes the maximum to the adventure of the given row for a non-base entity type', async () => {
-    mockSelect.mockResolvedValue([{ max_order: 2 }]);
+    const SELECT_SQL =
+      'SELECT MAX(pinned_order) as max_order FROM sessions WHERE pinned_order IS NOT NULL AND adventure_id = (SELECT adventure_id FROM sessions WHERE id = $1)';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [{ max_order: 2 }] : []),
+    );
 
     const result = await getMaxPinnedOrder('sessions', 'session-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT MAX(pinned_order) as max_order FROM sessions WHERE pinned_order IS NOT NULL AND adventure_id = (SELECT adventure_id FROM sessions WHERE id = $1)',
-      ['session-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['session-1']);
     expect(result).toBe(2);
   });
 
   it('returns null when no row is pinned', async () => {
-    mockSelect.mockResolvedValue([{ max_order: null }]);
+    const SELECT_SQL =
+      'SELECT MAX(pinned_order) as max_order FROM base_entities WHERE pinned_order IS NOT NULL AND entity_type = $2 AND adventure_id = (SELECT adventure_id FROM base_entities WHERE id = $1)';
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(sql === SELECT_SQL ? [{ max_order: null }] : []),
+    );
 
     const result = await getMaxPinnedOrder('npcs', 'npc-1');
 

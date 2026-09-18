@@ -25,64 +25,76 @@ describe('searchByName', () => {
   });
 
   it('should search a base entity type scoped to adventureId when adventureId is not null', async () => {
-    mockSelect.mockResolvedValue([
-      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
-    ]);
+    const SELECT_SQL = `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 AND adventure_id = $3 ORDER BY updated_at DESC`;
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL
+          ? [{ id: '1', name: 'Goblin', updated_at: '2025-01-01' }]
+          : [],
+      ),
+    );
 
     const result = await searchByName('npcs', 'gob', 'adv-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 AND adventure_id = $3 ORDER BY updated_at DESC`,
-      ['npcs', '%gob%', 'adv-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, [
+      'npcs',
+      '%gob%',
+      'adv-1',
+    ]);
     expect(result).toEqual([
       { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
     ]);
   });
 
   it('should search a base entity type without adventureId filter when adventureId is null', async () => {
-    mockSelect.mockResolvedValue([
-      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
-    ]);
+    const SELECT_SQL = `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 ORDER BY updated_at DESC`;
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL
+          ? [{ id: '1', name: 'Goblin', updated_at: '2025-01-01' }]
+          : [],
+      ),
+    );
 
     const result = await searchByName('npcs', 'gob', null);
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 ORDER BY updated_at DESC`,
-      ['npcs', '%gob%'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npcs', '%gob%']);
     expect(result).toEqual([
       { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
     ]);
   });
 
   it('should search a non-base entity type scoped to adventureId', async () => {
-    mockSelect.mockResolvedValue([
-      { id: '1', name: 'Session One', updated_at: '2025-01-01' },
-    ]);
+    const SELECT_SQL = `SELECT id, name, updated_at FROM sessions WHERE name LIKE $1 AND adventure_id = $2 ORDER BY updated_at DESC`;
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL
+          ? [{ id: '1', name: 'Session One', updated_at: '2025-01-01' }]
+          : [],
+      ),
+    );
 
     const result = await searchByName('sessions', 'ses', 'adv-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM sessions WHERE name LIKE $1 AND adventure_id = $2 ORDER BY updated_at DESC`,
-      ['%ses%', 'adv-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['%ses%', 'adv-1']);
     expect(result).toEqual([
       { id: '1', name: 'Session One', updated_at: '2025-01-01' },
     ]);
   });
 
   it('should search without adventureId filter when adventureId is null', async () => {
-    mockSelect.mockResolvedValue([
-      { id: '2', name: 'Tavern', updated_at: '2025-01-02' },
-    ]);
+    const SELECT_SQL = `SELECT id, name, updated_at FROM adventures WHERE name LIKE $1 ORDER BY updated_at DESC`;
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL
+          ? [{ id: '2', name: 'Tavern', updated_at: '2025-01-02' }]
+          : [],
+      ),
+    );
 
     const result = await searchByName('adventures', 'tav', null);
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM adventures WHERE name LIKE $1 ORDER BY updated_at DESC`,
-      ['%tav%'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['%tav%']);
     expect(result).toEqual([
       { id: '2', name: 'Tavern', updated_at: '2025-01-02' },
     ]);
@@ -116,16 +128,18 @@ describe('getById', () => {
   });
 
   it('returns the row for a base entity type when a matching id exists', async () => {
-    mockSelect.mockResolvedValue([
-      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
-    ]);
+    const SELECT_SQL = `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND id = $2`;
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL
+          ? [{ id: '1', name: 'Goblin', updated_at: '2025-01-01' }]
+          : [],
+      ),
+    );
 
     const result = await getById('npcs', '1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND id = $2`,
-      ['npcs', '1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npcs', '1']);
     expect(result).toEqual({
       id: '1',
       name: 'Goblin',
@@ -134,16 +148,18 @@ describe('getById', () => {
   });
 
   it('returns the row for a non-base entity type when a matching id exists', async () => {
-    mockSelect.mockResolvedValue([
-      { id: 's-1', name: 'Session One', updated_at: '2025-01-01' },
-    ]);
+    const SELECT_SQL = `SELECT id, name, updated_at FROM sessions WHERE id = $1`;
+    mockSelect.mockImplementation((sql: string) =>
+      Promise.resolve(
+        sql === SELECT_SQL
+          ? [{ id: 's-1', name: 'Session One', updated_at: '2025-01-01' }]
+          : [],
+      ),
+    );
 
     const result = await getById('sessions', 's-1');
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      `SELECT id, name, updated_at FROM sessions WHERE id = $1`,
-      ['s-1'],
-    );
+    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['s-1']);
     expect(result).toEqual({
       id: 's-1',
       name: 'Session One',
