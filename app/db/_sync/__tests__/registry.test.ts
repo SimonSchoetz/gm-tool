@@ -25,9 +25,15 @@ describe('registry', () => {
     );
   });
 
-  it('should include all 7 synced tables with unique names', () => {
-    expect(SYNCED_TABLE_NAMES).toHaveLength(7);
-    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(7);
+  it('should order base_entities before base_entity_content_sections', () => {
+    expect(SYNCED_TABLE_NAMES.indexOf('base_entities')).toBeLessThan(
+      SYNCED_TABLE_NAMES.indexOf('base_entity_content_sections'),
+    );
+  });
+
+  it('should include all 8 synced tables with unique names', () => {
+    expect(SYNCED_TABLE_NAMES).toHaveLength(8);
+    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(8);
   });
 
   it('should include id and updated_at in every table entry', () => {
