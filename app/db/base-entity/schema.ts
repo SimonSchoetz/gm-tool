@@ -29,10 +29,6 @@ export const baseEntityTable = defineTable({
       type: 'TEXT',
       zod: z.string().nullable(),
     },
-    summary: {
-      type: 'TEXT',
-      zod: z.string().nullable(),
-    },
     description: {
       type: 'TEXT',
       zod: z.string().nullable(),

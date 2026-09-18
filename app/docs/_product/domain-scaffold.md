@@ -18,7 +18,6 @@ changed conventions, new ambient systems). Do not delete it when specs are imple
 app/docs/_product/domain-scaffold.md.
 Customizations:
 - Display label: [PascalCase singular label, e.g. 'Foe', or an acronym like 'NPC'/'PC']
-- Summary template lines: [list placeholder lines for the rich-text summary, or 'base pattern']
 - Table config color: [rgb string, e.g. '248, 255, 255']
 - Search hint word: [the one type-specific word shown in the list screen's search placeholder]
 - tagging_enabled: [0 or 1, default 1]
@@ -69,7 +68,6 @@ add or remove a column without explicit user instruction.
 | `adventure_id` | `TEXT` NOT NULL | No | `z.string()` | FK → `adventures.id` ON DELETE CASCADE |
 | `entity_type` | `TEXT` NOT NULL | No | `z.enum(BASE_ENTITY_TYPES)` | discriminator |
 | `name` | `TEXT` | Yes | `z.string().nullable()` | user-editable, must be nullable (auto-save rule) |
-| `summary` | `TEXT` | Yes | `z.string().nullable()` | Lexical JSON; template set in `create.ts` |
 | `description` | `TEXT` | Yes | `z.string().nullable()` | Lexical JSON; no default template |
 | `image_id` | `TEXT` | Yes | `z.string().nullable()` | FK → `images.id` ON DELETE SET NULL |
 | `pinned_order` | `INTEGER` | Yes | `z.number().nullable()` | `NULL` = unpinned; non-null = ascending pin position |
@@ -79,6 +77,10 @@ add or remove a column without explicit user instruction.
 `app/db/CLAUDE.md` bans `.optional()` on any `zodSchema` field, and the ban applies
 unconditionally. `db/base-entity/schema.ts` uses `.nullable()` alone on every nullable
 column, including `image_id` — no field on this table is grandfathered.
+
+A base entity's summary lives in `base_entity_content_sections` (one `'text'` section, the
+first by `sort_order`), keyed by `base_entity_id`. A new base entity type needs no
+registration there.
 
 ## Implementation Notes
 
@@ -117,8 +119,6 @@ entry added to an existing shared table, map, or switch.
 
 ### Database
 
-- Add a `SUMMARY_TEMPLATES` entry in `db/base-entity/create.ts` — the new type's Lexical
-  JSON summary template string.
 - Add a migration that inserts only the new type's `table_config` row — no table and no
   triggers, since `base_entities` and its sync triggers already exist. Follow the
   `WHERE NOT EXISTS` form in `db/_migrations/1780099200000_seed_table_config.ts`:
@@ -133,7 +133,7 @@ entry added to an existing shared table, map, or switch.
     tagging_enabled: 1,
     scope: 'adventure',
     layout: {
-      searchable_columns: ['name', 'summary', 'description'],
+      searchable_columns: ['name', 'description'],
       columns: [
         {
           key: 'image_id',
@@ -279,9 +279,10 @@ Implementation Notes above.
 
 `screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the sidebar
 slot renders `<BaseEntitySidebar entityType={entityType} />`, the header slot renders the
-summary rich-text editor inside `ScreensSummary`, and the body slot renders the name input
-followed by the description editor. This is the reference implementation for that
-composition pattern.
+rich-text editor for the entity's summary content section (`summarySection` from
+`useBaseEntityContentSections`) inside `ScreensSummary`, and passes `null` when the entity
+has no `'text'` section, and the body slot renders the name input followed by the
+description editor. This is the reference implementation for that composition pattern.
 
 **`screens/session/` and `screens/encounter/` are deliberate exceptions** to this
 composition — each for its own reason, and neither is a template to copy:
@@ -303,7 +304,6 @@ Resolve these at spec-generation time. Provide them in the `/write-specs` prompt
 
 | Point | Default | Where used |
 | --- | --- | --- |
-| Summary template lines | None — must specify | `db/base-entity/create.ts` |
 | Table config color | None — must specify | the new `table_config`-seeding migration |
 | `tagging_enabled` | `1` | the new `table_config`-seeding migration |
 | `scope` | `'adventure'` | the new `table_config`-seeding migration |

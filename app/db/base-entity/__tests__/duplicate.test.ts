@@ -31,7 +31,6 @@ const sourceRow = {
   adventure_id: 'adventure-123',
   entity_type: 'npcs',
   name: 'Gundren Rockseeker',
-  summary: 'a dwarf merchant',
   description: 'Long lost brother',
   image_id: 'source-image-id',
   pinned_order: 3,
@@ -40,7 +39,7 @@ const sourceRow = {
 };
 
 const INSERT_SQL =
-  'INSERT INTO base_entities (id, adventure_id, entity_type, summary, description, image_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)';
+  'INSERT INTO base_entities (id, adventure_id, entity_type, description, image_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)';
 
 describe('base-entity.duplicate', () => {
   beforeEach(() => {
@@ -80,7 +79,6 @@ describe('base-entity.duplicate', () => {
       'new-npc-id',
       'adventure-123',
       'npcs',
-      'a dwarf merchant',
       'Long lost brother',
       'new-image-id',
       '2024-01-15T10:30:00.000Z',
@@ -108,7 +106,6 @@ describe('base-entity.duplicate', () => {
       'new-npc-id',
       'adventure-123',
       'npcs',
-      'a dwarf merchant',
       'Long lost brother',
       null,
       '2024-01-15T10:30:00.000Z',
@@ -124,7 +121,6 @@ describe('base-entity.duplicate', () => {
       'new-npc-id',
       'adventure-123',
       'npcs',
-      'a dwarf merchant',
       'Long lost brother',
       'new-image-id',
       '2024-01-15T10:30:00.000Z',

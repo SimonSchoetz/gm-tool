@@ -31,7 +31,6 @@ describe('get', () => {
       adventure_id: 'test-adventure-id',
       entity_type: 'npcs',
       name: 'Test NPC',
-      summary: null,
       description: null,
       image_id: null,
       pinned_order: null,

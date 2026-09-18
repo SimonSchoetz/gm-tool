@@ -37,11 +37,14 @@ describe('update', () => {
   });
 
   it('should update multiple fields', async () => {
-    await update('test-id', { name: 'New Name', summary: 'New summary' });
+    await update('test-id', {
+      name: 'New Name',
+      description: 'New description',
+    });
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entities SET name = $1, summary = $2, updated_at = $3 WHERE id = $4',
-      ['New Name', 'New summary', '2024-01-15T10:30:00.000Z', 'test-id'],
+      'UPDATE base_entities SET name = $1, description = $2, updated_at = $3 WHERE id = $4',
+      ['New Name', 'New description', '2024-01-15T10:30:00.000Z', 'test-id'],
     );
   });
 

@@ -5,6 +5,7 @@ import { sessionQueryOptions } from '../sessions';
 import { encounterQueryOptions } from '../encounters';
 import { ensureImagePainted } from '../images';
 import { baseEntityQueryOptions } from '../base-entities';
+import { baseEntityContentSectionListQueryOptions } from '../base-entity-content-sections';
 
 type MentionPrefetch = (
   queryClient: QueryClient,
@@ -16,6 +17,9 @@ const prefetchBaseEntity =
   async (queryClient, entityId) => {
     const baseEntity = await queryClient.ensureQueryData(
       baseEntityQueryOptions(entityType, entityId),
+    );
+    await queryClient.ensureQueryData(
+      baseEntityContentSectionListQueryOptions(entityId),
     );
     await ensureImagePainted(queryClient, baseEntity.image_id);
   };

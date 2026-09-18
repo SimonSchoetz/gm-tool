@@ -45,7 +45,7 @@ describe('create', () => {
     expect(id).toBe('test-generated-id');
   });
 
-  it('should set adventure_id, entity_type, default name, summary, and ISO timestamps', async () => {
+  it('should set adventure_id, entity_type, default name, and ISO timestamps', async () => {
     await create('npcs', 'adventure-123');
 
     expect(mockExecute).toHaveBeenCalledWith(
@@ -55,7 +55,6 @@ describe('create', () => {
         'adventure-123',
         'npcs',
         expect.stringMatching(/^New NPC /),
-        expect.stringContaining('"type":"root"'),
         '2024-01-15T10:30:00.000Z',
         '2024-01-15T10:30:00.000Z',
       ],
@@ -68,17 +67,6 @@ describe('create', () => {
     expect(mockExecute).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO base_entities'),
       expect.arrayContaining([expect.stringMatching(/^New PC /)]),
-    );
-  });
-
-  it('should write the factions summary template', async () => {
-    await create('factions', 'adventure-123');
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO base_entities'),
-      expect.arrayContaining([
-        expect.stringContaining('Leader | Type | Alignment'),
-      ]),
     );
   });
 

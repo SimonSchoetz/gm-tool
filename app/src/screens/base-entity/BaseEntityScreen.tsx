@@ -1,5 +1,8 @@
 import { LoadingIcon, TextEditor } from '@/components';
-import { useBaseEntity } from '@/data-access-layer';
+import {
+  useBaseEntity,
+  useBaseEntityContentSections,
+} from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { entityTypeLabel, type BaseEntityType } from '@domain';
 import { FCProps } from '@/types';
@@ -20,9 +23,14 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
     params.baseEntityId ?? '',
     params.adventureId ?? '',
   );
+  const {
+    summarySection,
+    updateSection,
+    loading: sectionsLoading,
+  } = useBaseEntityContentSections(params.baseEntityId ?? '');
   const label = entityTypeLabel(entityType);
 
-  if (loading || !baseEntity) {
+  if (loading || sectionsLoading || !baseEntity) {
     return (
       <div className='content-center'>
         <LoadingIcon />
@@ -34,16 +42,18 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
     <ScreensTextEditorLayout
       sideBar={<BaseEntitySidebar entityType={entityType} />}
       header={
-        <ScreensSummary>
-          <TextEditor
-            placeholder={`${label} Summary`}
-            value={baseEntity.summary ?? ''}
-            textEditorId={`${entityType}_${baseEntity.id}_summary`}
-            onChange={(summary) => {
-              updateBaseEntity({ summary });
-            }}
-          />
-        </ScreensSummary>
+        summarySection ? (
+          <ScreensSummary>
+            <TextEditor
+              placeholder={`${label} Summary`}
+              value={summarySection.content ?? ''}
+              textEditorId={`${entityType}_${baseEntity.id}_summary`}
+              onChange={(content) => {
+                updateSection(summarySection.id, { content });
+              }}
+            />
+          </ScreensSummary>
+        ) : null
       }
       body={
         <>

@@ -1,5 +1,8 @@
 import { FCProps } from '@/types';
-import { useBaseEntity } from '@/data-access-layer';
+import {
+  useBaseEntity,
+  useBaseEntityContentSections,
+} from '@/data-access-layer';
 import type { BaseEntityType } from '@domain/entities';
 import { EntityPopupBody } from '../EntityPopupBody';
 
@@ -19,12 +22,14 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
     entityId,
     adventureId ?? '',
   );
+  const { summarySection, loading: sectionsLoading } =
+    useBaseEntityContentSections(entityId);
 
-  if (loading || !baseEntity) return;
+  if (loading || sectionsLoading || !baseEntity) return;
 
   return (
     <EntityPopupBody
-      summary={baseEntity.summary}
+      summary={summarySection?.content ?? null}
       imageId={baseEntity.image_id}
       textEditorId={`${entityType}-popup-${entityId}`}
     />

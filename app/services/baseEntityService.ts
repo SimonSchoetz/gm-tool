@@ -1,4 +1,5 @@
 import * as baseEntityDb from '@db/base-entity';
+import * as baseEntityContentSectionDb from '@db/base-entity-content-section';
 import * as imageService from '@services/imageService';
 import type { BaseEntity, UpdateBaseEntityInput } from '@db/base-entity';
 import type { BaseEntityType } from '@domain/entities';
@@ -125,7 +126,9 @@ export const duplicateBaseEntity = async (
     const imageId = source.image_id
       ? await imageService.duplicateImage(source.image_id)
       : null;
-    return await baseEntityDb.duplicate(entityType, id, imageId);
+    const newId = await baseEntityDb.duplicate(entityType, id, imageId);
+    await baseEntityContentSectionDb.duplicateByBaseEntity(id, newId);
+    return newId;
   } catch (err) {
     throw baseEntityDuplicateError(entityType, id, err);
   }
