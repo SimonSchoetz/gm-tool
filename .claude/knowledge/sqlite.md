@@ -83,3 +83,24 @@ Without a WHERE clause the parser cannot tell whether `ON` introduces the upsert
 **Citation:** [spec-writer_2: https://www.sqlite.org/schematab.html — "The sqlite_schema table contains one row for each table, index, view, and trigger"; "sqlite_master" listed as an alternative name that works anywhere]
 
 `SELECT name FROM sqlite_master WHERE type = 'table' AND name = $1` returns one row exactly when an ordinary table of that name exists, and zero rows once it has been dropped — usable as an existence guard before a statement that would otherwise fail against a missing table.
+
+## ALTER TABLE DROP COLUMN exists since SQLite 3.35.0, has no IF EXISTS form, and fails when the column is referenced elsewhere in the schema
+
+**Verified at:** sqlite.org current docs, fetched 2026-09-18
+**Citation:** [spec-writer_1: https://www.sqlite.org/releaselog/3_35_0.html — "Added support for ALTER TABLE DROP COLUMN"; https://www.sqlite.org/lang_altertable.html — "The DROP COLUMN command only works if the column is not referenced by any other parts of the schema and is not a PRIMARY KEY and does not have a UNIQUE constraint"]
+
+The drop fails if the column is a PRIMARY KEY, has a UNIQUE constraint, is indexed, appears in a partial index's WHERE, a CHECK constraint, a foreign key, a generated column, a trigger, or a view. With no `IF EXISTS` form, a re-runnable migration guards the drop with a `PRAGMA table_info` check.
+
+## This app's SQLite engine is the 3.46.0 amalgamation bundled by libsqlite3-sys 0.30.1
+
+**Verified at:** libsqlite3-sys 0.30.1, sqlx 0.8.6 (Cargo.lock), read 2026-09-18
+**Citation:** [spec-writer_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.h:149 — `#define SQLITE_VERSION "3.46.0"`; ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sqlx-0.8.6/Cargo.toml:478-481 — `sqlite = ["_sqlite", "sqlx-sqlite/bundled", ...]`]
+
+tauri-plugin-sql enables sqlx's `sqlite` feature, which turns on `bundled`, so the engine version is the vendored amalgamation's rather than the OS's system SQLite. Any SQL feature introduced at or before 3.46.0 is available.
+
+## TYPE, CONTENT, and CHECKED are not SQLite keywords and are usable as unquoted column names
+
+**Verified at:** sqlite.org current docs, fetched 2026-09-18
+**Citation:** [spec-writer_3: https://www.sqlite.org/lang_keywords.html — none of the three appear in the 147-element keyword list]
+
+A column named `type`, `content`, or `checked` needs no quoting in `CREATE TABLE` or DML.
