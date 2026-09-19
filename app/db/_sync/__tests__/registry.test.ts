@@ -1,51 +1,76 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
+import {
+  openTestDatabase,
+  type TestDatabase,
+} from '@db/__tests__/support/sqlite-test-database';
+import { runMigrations } from '@db/_migrations';
 import { SYNCED_TABLES, SYNCED_TABLE_NAMES } from '../registry';
 
-const ADVENTURE_SCOPED_TABLES = ['sessions', 'base_entities', 'encounters'];
+const openMigratedDatabase = async (): Promise<TestDatabase> => {
+  const db = openTestDatabase();
+  await runMigrations(db);
+  return db;
+};
 
 describe('registry', () => {
-  it('should order images before adventures', () => {
-    expect(SYNCED_TABLE_NAMES.indexOf('images')).toBeLessThan(
-      SYNCED_TABLE_NAMES.indexOf('adventures'),
+  it('has an insert, an update and a delete trigger for every synced table and no trigger for any other table', async () => {
+    const db = await openMigratedDatabase();
+
+    const triggers = await db.select<{ name: string; tbl_name: string }[]>(
+      "SELECT name, tbl_name FROM sqlite_master WHERE type = 'trigger' AND name LIKE 'trg_sync_%'",
     );
+
+    expect(new Set(triggers.map((trigger) => trigger.tbl_name))).toEqual(
+      new Set(SYNCED_TABLE_NAMES),
+    );
+    for (const tableName of SYNCED_TABLE_NAMES) {
+      expect(
+        triggers
+          .filter((trigger) => trigger.tbl_name === tableName)
+          .map((trigger) => trigger.name)
+          .sort(),
+      ).toEqual([
+        `trg_sync_${tableName}_delete`,
+        `trg_sync_${tableName}_insert`,
+        `trg_sync_${tableName}_update`,
+      ]);
+    }
   });
 
-  it('should order adventures before every adventure-scoped table', () => {
-    const adventuresIndex = SYNCED_TABLE_NAMES.indexOf('adventures');
-    for (const tableName of ADVENTURE_SCOPED_TABLES) {
-      expect(adventuresIndex).toBeLessThan(
-        SYNCED_TABLE_NAMES.indexOf(tableName),
+  it("lists the column names of each migrated table as the table's registry columns", async () => {
+    const db = await openMigratedDatabase();
+
+    for (const table of SYNCED_TABLES) {
+      const migratedColumns = await db.select<{ name: string }[]>(
+        `PRAGMA table_info(${table.name})`,
+      );
+      expect([...table.columns].sort(), table.name).toEqual(
+        migratedColumns.map((column) => column.name).sort(),
       );
     }
   });
 
-  it('should order sessions before session_steps', () => {
-    expect(SYNCED_TABLE_NAMES.indexOf('sessions')).toBeLessThan(
-      SYNCED_TABLE_NAMES.indexOf('session_steps'),
-    );
-  });
+  it('places every synced table after each synced table it references', async () => {
+    const db = await openMigratedDatabase();
 
-  it('should order base_entities before base_entity_content_sections', () => {
-    expect(SYNCED_TABLE_NAMES.indexOf('base_entities')).toBeLessThan(
-      SYNCED_TABLE_NAMES.indexOf('base_entity_content_sections'),
-    );
-  });
-
-  it('should include all 8 synced tables with unique names', () => {
-    expect(SYNCED_TABLE_NAMES).toHaveLength(8);
-    expect(new Set(SYNCED_TABLE_NAMES).size).toBe(8);
-  });
-
-  it('should include id and updated_at in every table entry', () => {
     for (const table of SYNCED_TABLES) {
-      expect(table.columns).toContain('id');
-      expect(table.columns).toContain('updated_at');
+      const references = await db.select<{ table: string }[]>(
+        `PRAGMA foreign_key_list(${table.name})`,
+      );
+      for (const reference of references) {
+        expect(
+          SYNCED_TABLE_NAMES.indexOf(reference.table),
+          `${table.name} references ${reference.table}`,
+        ).toBeLessThan(SYNCED_TABLE_NAMES.indexOf(table.name));
+      }
     }
   });
 
-  it('should expose a schema whose shape matches the column list for every table', () => {
+  it('includes id and updated_at in the columns of every synced table', () => {
     for (const table of SYNCED_TABLES) {
-      expect(Object.keys(table.zodSchema.shape)).toEqual(table.columns);
+      expect(table.columns, table.name).toContain('id');
+      expect(table.columns, table.name).toContain('updated_at');
     }
   });
 });

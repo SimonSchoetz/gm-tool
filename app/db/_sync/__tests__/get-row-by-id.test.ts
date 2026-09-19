@@ -1,58 +1,51 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-import { getRowById } from '../get-row-by-id';
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
 
 describe('getRowById', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should reject an unknown table name without querying', async () => {
-    await expect(getRowById('not_a_table', 'id-1')).rejects.toThrow(
-      'Unknown synced table: not_a_table',
+  it('returns the full row of the requested adventure when several are stored, and null for an unknown id', async () => {
+    const { create, update } = await import('@db/adventure');
+    const { getRowById } = await import('../get-row-by-id');
+    await create();
+    const secondId = await create();
+    await update(secondId, {
+      name: 'Second adventure',
+      description: 'Second description',
+    });
+
+    expect(await getRowById('adventures', secondId)).toEqual({
+      id: secondId,
+      name: 'Second adventure',
+      description: 'Second description',
+      image_id: null,
+      created_at: CREATED_AT,
+      updated_at: CREATED_AT,
+    });
+    expect(await getRowById('adventures', 'missing-adventure')).toBeNull();
+  });
+
+  it('rejects a table missing from the sync registry', async () => {
+    const { getRowById } = await import('../get-row-by-id');
+
+    await expect(getRowById('paired_devices', 'any-id')).rejects.toThrow(
+      /^Unknown synced table/,
     );
-    expect(mockSelect).not.toHaveBeenCalled();
-  });
-
-  it('should select by id for a known table', async () => {
-    const SELECT_SQL = 'SELECT * FROM base_entities WHERE id = $1';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL ? [{ id: 'npc-1', name: 'Goblin' }] : [],
-      ),
-    );
-
-    const result = await getRowById('base_entities', 'npc-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npc-1']);
-    expect(result).toEqual({ id: 'npc-1', name: 'Goblin' });
-  });
-
-  it('should return null when the row is absent', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await getRowById('base_entities', 'missing');
-
-    expect(result).toBeNull();
   });
 });

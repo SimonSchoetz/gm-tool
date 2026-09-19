@@ -1,49 +1,24 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-import { getMaxSeq } from '../get-max-seq';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getMaxSeq', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should return the counter value', async () => {
-    const SELECT_SQL = "SELECT value FROM _sync_meta WHERE id = 'seq'";
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [{ value: 42 }] : []),
-    );
+  it('grows by exactly one when one adventure is created', async () => {
+    const { create } = await import('@db/adventure');
+    const { getMaxSeq } = await import('../get-max-seq');
+    const seqBefore = await getMaxSeq();
 
-    const result = await getMaxSeq();
+    await create();
 
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL);
-    expect(result).toBe(42);
-  });
-
-  it('should return 0 when no row exists', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await getMaxSeq();
-
-    expect(result).toBe(0);
+    expect(await getMaxSeq()).toBe(seqBefore + 1);
   });
 });

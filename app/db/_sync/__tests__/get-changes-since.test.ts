@@ -1,56 +1,33 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { SyncChangeRecord } from '../schema';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-import { getChangesSince } from '../get-changes-since';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getChangesSince', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should query with seq filter, order, and limit', async () => {
-    await getChangesSince(10, 200);
+  it('returns the changes after the given seq in ascending order, at most the limit, and none at or before the seq', async () => {
+    const { create } = await import('@db/adventure');
+    const { getChangesSince } = await import('../get-changes-since');
+    const { getMaxSeq } = await import('../get-max-seq');
+    await create();
+    const secondId = await create();
+    const thirdId = await create();
+    await create();
+    const seqBeforeSecond = (await getMaxSeq()) - 3;
 
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT table_name, row_id, seq, deleted, deleted_at FROM _sync_changes WHERE seq > $1 ORDER BY seq ASC LIMIT $2',
-      [10, 200],
-    );
-  });
+    const changes = await getChangesSince(seqBeforeSecond, 2);
 
-  it('should return the mocked rows', async () => {
-    const rows: SyncChangeRecord[] = [
-      {
-        table_name: 'npcs',
-        row_id: 'npc-1',
-        seq: 11,
-        deleted: 0,
-        deleted_at: null,
-      },
-    ];
-    mockSelect.mockResolvedValue(rows);
-
-    const result = await getChangesSince(10, 200);
-
-    expect(result).toEqual(rows);
+    expect(changes.map((change) => change.row_id)).toEqual([secondId, thirdId]);
+    expect(changes.map((change) => change.seq)).toEqual([
+      seqBeforeSecond + 1,
+      seqBeforeSecond + 2,
+    ]);
   });
 });

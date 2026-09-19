@@ -1,6 +1,7 @@
 import type Database from '@tauri-apps/plugin-sql';
 import { getDatabase } from '../database';
 import { SYNCED_TABLE_NAMES } from './registry';
+import { changeRecordId, getTombstoneDeletedAt } from './tombstone';
 import type { ApplyResult } from './types';
 
 const upsertTombstone = async (
@@ -20,7 +21,7 @@ const upsertTombstone = async (
     `INSERT INTO _sync_changes (id, table_name, row_id, seq, deleted, deleted_at)
      VALUES ($1, $2, $3, (SELECT value FROM _sync_meta WHERE id = 'seq'), 1, $4)
      ON CONFLICT(id) DO UPDATE SET seq = excluded.seq, deleted = 1, deleted_at = excluded.deleted_at`,
-    [`${tableName}:${rowId}`, tableName, rowId, deletedAt],
+    [changeRecordId(tableName, rowId), tableName, rowId, deletedAt],
   );
 };
 
@@ -49,7 +50,12 @@ export const applyDelete = async (
     return 'applied';
   }
 
-  // No local row and no trigger fires — record the tombstone directly so a late insert of this row is blocked and the deletion relays onward.
+  // With no local row no trigger fires, so the tombstone is recorded directly — which lets applyUpsert refuse an older late update of every table except table_config, and relays the deletion onward — unless an equal or later tombstone is already recorded, because re-recording a known deletion would give it a new seq and the two devices would send it back and forth indefinitely.
+  const recordedDeletedAt = await getTombstoneDeletedAt(db, tableName, rowId);
+  if (recordedDeletedAt !== null && recordedDeletedAt >= deletedAt) {
+    return 'skipped';
+  }
+
   await upsertTombstone(db, tableName, rowId, deletedAt, true);
   return 'applied';
 };

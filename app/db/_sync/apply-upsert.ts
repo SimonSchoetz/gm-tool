@@ -2,6 +2,7 @@ import type Database from '@tauri-apps/plugin-sql';
 import { isEntityType } from '@domain/entities';
 import { getDatabase } from '../database';
 import { SYNCED_TABLES } from './registry';
+import { getTombstoneDeletedAt } from './tombstone';
 import type { ApplyResult } from './types';
 
 const filterToWhitelist = (
@@ -112,6 +113,12 @@ export const applyUpsert = async (
 
   if (tableName === 'table_config') {
     return applyTableConfigUpsert(db, filtered, id, updatedAt, force);
+  }
+
+  // A deletion recorded later than the incoming row wins, a newer update brings the row back, and an equal timestamp keeps the row, mirroring applyDelete's tie rule. table_config merges by table_name in the branch above and is not affected.
+  const recordedDeletedAt = await getTombstoneDeletedAt(db, tableName, id);
+  if (recordedDeletedAt !== null && recordedDeletedAt > updatedAt) {
+    return 'skipped';
   }
 
   const localRows = await db.select<{ updated_at: string }[]>(

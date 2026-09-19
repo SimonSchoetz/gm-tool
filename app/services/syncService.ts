@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
-import { getDevice } from '@db/_system';
+import * as systemDb from '@db/_system';
 import * as syncDb from '@db/_sync';
-import { migrationHead } from '@db/_migrations';
+import * as migrationsDb from '@db/_migrations';
 import {
   SYNC_PROTOCOL_VERSION,
   syncMessageSchema,
@@ -47,7 +47,9 @@ export const sendSyncHello = async (endpointId: string): Promise<void> => {
   try {
     await invoke('send_message', {
       endpointId,
-      envelope: JSON.stringify(buildSyncHelloMessage(migrationHead, false)),
+      envelope: JSON.stringify(
+        buildSyncHelloMessage(migrationsDb.migrationHead, false),
+      ),
     });
   } catch (cause) {
     throw syncHandshakeError(cause);
@@ -72,7 +74,7 @@ const handleSyncHello = async (
 ): Promise<SyncMessageOutcome> => {
   const compat: 'compatible' | 'incompatible' =
     payload.syncProtocolVersion === SYNC_PROTOCOL_VERSION &&
-    payload.migrationHead === migrationHead
+    payload.migrationHead === migrationsDb.migrationHead
       ? 'compatible'
       : 'incompatible';
 
@@ -87,7 +89,9 @@ const handleSyncHello = async (
       if (!payload.isReply) {
         await invoke('send_message', {
           endpointId,
-          envelope: JSON.stringify(buildSyncHelloMessage(migrationHead, true)),
+          envelope: JSON.stringify(
+            buildSyncHelloMessage(migrationsDb.migrationHead, true),
+          ),
         });
       }
     } catch {
@@ -120,7 +124,7 @@ const pushBatchesTo = async (endpointId: string): Promise<void> => {
         continue;
       }
 
-      // A null row means the row is gone — cascade-deleted; its disappearance travels with the parent tombstone, so it is skipped entirely here.
+      // A null row means the row was deleted after this change was read; its own delete trigger — cascade deletes included — has already rewritten the change as a tombstone with a later seq, which a later batch sends, so this change is skipped.
       const row = await syncDb.getRowById(change.table_name, change.row_id);
       if (row === null) continue;
       syncChanges.push({
@@ -155,10 +159,6 @@ const applyBatch = async (
   endpointId: string,
   payload: { changes: SyncChange[]; maxSeq: number },
 ): Promise<void> => {
-  const ownDevice = await getDevice();
-  // Timestamp ties only occur when local and incoming updated_at are equal; for any non-equal pair force is a no-op, so it is safe to compute once per batch from device ids alone rather than pre-reading every local row.
-  const force = endpointId > (ownDevice?.id ?? '');
-
   const upsertsByTable = new Map<string, SyncChange[]>();
   const deletesByTable = new Map<string, SyncChange[]>();
   for (const change of payload.changes) {
@@ -173,6 +173,10 @@ const applyBatch = async (
   // No wrapping BEGIN/COMMIT: tauri-plugin-sql runs each statement on an arbitrary pooled connection and never tracks a raw transaction, so an orphaned BEGIN holds a write lock that starves every other writer with SQLITE_BUSY ("database is locked").
   // The module-level applyQueue serializes whole batches and every applyUpsert/applyDelete is idempotent under LWW, so a mid-batch crash is recovered when the peer re-sends from the unadvanced watermark on reconnect.
   try {
+    const ownDevice = await systemDb.getDevice();
+    // Timestamp ties only occur when local and incoming updated_at are equal; for any non-equal pair force is a no-op, so it is safe to compute once per batch from device ids alone rather than pre-reading every local row.
+    const force = endpointId > (ownDevice?.id ?? '');
+
     for (const table of syncDb.SYNCED_TABLES) {
       const tableChanges = (upsertsByTable.get(table.name) ?? []).sort(
         (a, b) => a.seq - b.seq,

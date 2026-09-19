@@ -1,77 +1,58 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+const PEER = 'a'.repeat(64);
+const OTHER_PEER = 'b'.repeat(64);
 
-import {
-  getPeerWatermark,
-  setPeerWatermark,
-  removePeerState,
-} from '../peer-state';
-
-const PEER_ID =
-  'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2';
-
-describe('peer-state', () => {
+describe('peer state', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should return 0 when no watermark is stored', async () => {
-    mockSelect.mockResolvedValue([]);
+  it('starts an unknown peer at watermark 0 and follows each new watermark that is set', async () => {
+    const { getPeerWatermark, setPeerWatermark } =
+      await import('../peer-state');
 
-    const result = await getPeerWatermark(PEER_ID);
-
-    expect(result).toBe(0);
+    expect(await getPeerWatermark(PEER)).toBe(0);
+    await setPeerWatermark(PEER, 5);
+    expect(await getPeerWatermark(PEER)).toBe(5);
+    await setPeerWatermark(PEER, 9);
+    expect(await getPeerWatermark(PEER)).toBe(9);
   });
 
-  it('should return the stored watermark', async () => {
-    mockSelect.mockResolvedValue([{ last_received_seq: 17 }]);
+  it('resets a removed peer to watermark 0 and leaves other peers alone', async () => {
+    const { getPeerWatermark, setPeerWatermark, removePeerState } =
+      await import('../peer-state');
+    await setPeerWatermark(PEER, 5);
+    await setPeerWatermark(OTHER_PEER, 7);
 
-    const result = await getPeerWatermark(PEER_ID);
+    await removePeerState(PEER);
 
-    expect(result).toBe(17);
+    expect(await getPeerWatermark(PEER)).toBe(0);
+    expect(await getPeerWatermark(OTHER_PEER)).toBe(7);
   });
 
-  it('should reject a malformed peer id', async () => {
-    await expect(getPeerWatermark('not-a-valid-id')).rejects.toThrow(
-      'Valid peer ID is required',
-    );
-    expect(mockSelect).not.toHaveBeenCalled();
-  });
+  it('rejects a peer id that is not hex from each function and writes nothing', async () => {
+    const { getPeerWatermark, setPeerWatermark, removePeerState } =
+      await import('../peer-state');
+    const { getDatabase } = await import('@db/database');
+    await setPeerWatermark(PEER, 3);
 
-  it('should upsert the watermark on conflict', async () => {
-    await setPeerWatermark(PEER_ID, 25);
+    await expect(getPeerWatermark('not-hex')).rejects.toThrow();
+    await expect(setPeerWatermark('not-hex', 1)).rejects.toThrow();
+    await expect(removePeerState('not-hex')).rejects.toThrow();
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('ON CONFLICT(id) DO UPDATE'),
-      [PEER_ID, 25],
-    );
-  });
-
-  it('should delete the peer state row', async () => {
-    await removePeerState(PEER_ID);
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'DELETE FROM _sync_peers WHERE id = $1',
-      [PEER_ID],
-    );
+    const db = await getDatabase();
+    expect(
+      await db.select<unknown[]>(
+        'SELECT id, last_received_seq FROM _sync_peers',
+      ),
+    ).toEqual([{ id: PEER, last_received_seq: 3 }]);
   });
 });
