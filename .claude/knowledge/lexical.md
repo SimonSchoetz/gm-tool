@@ -14,16 +14,12 @@
 
 Any consumer plugin that renders a `createPortal(..., anchorElem)` where `anchorElem` is `editor.getRootElement()` (e.g. `DraggableBlockPlugin_EXPERIMENTAL` — see the entry below) has its portaled DOM nodes forcibly removed by this `textContent = ''` wipe on unmount, with no opportunity to unmount the portal first via `registerRootListener` — by the time that listener fires, the wipe has already happened. The plugin's own portaled nodes are then already absent from the DOM by the time React's own deletion-effects pass reaches the portal fiber and calls `removeChild` on the node it still believes is present, throwing `NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.` The only lever available to a consumer is deletion-traversal order — see `.claude/knowledge/react.md` — "`recursivelyTraverseDeletionEffects` deletes sibling subtrees left-to-right in render order...". A component that portals into `anchorElem` must be rendered before (never after) the component owning `ContentEditable` in the same JSX tree, so its own subtree — and therefore its portal's `removeChild` calls — is deleted before `ContentEditable`'s ref cleanup fires the wipe.
 
-## `@lexical/table` is a transitive-only dependency in this repo — not declared in `package.json`
+## `@lexical/table` is declared as a direct dependency in `app/package.json`
 
-**Verified at:** @lexical/table 0.46.0 (matches installed `@lexical/react`/`lexical` version)
-**Citation:** [spec-writer_2: app/node_modules/@lexical/table/package.json:2; grep '@lexical' app/package.json — `@lexical/table` absent]
+**Verified at:** @lexical/table ^0.46.0 — 2026-09-19
+**Citation:** [head-of-instructions_3: app/package.json:32 — `"@lexical/table": "^0.46.0"`]
 
----
-**Reverified at:** @lexical/table 0.46.0 (post-slash-command implementation)
-**Citation:** [spec-writer_7: app/package.json:32 — `"@lexical/table": "^0.46.0"` present as a direct dependency]
-
-The slash command implementation added `@lexical/table` as a direct dependency. This entry is stale. Correct state: `@lexical/table` IS declared in `app/package.json`. Import from it directly — do not add it again.
+Import from `@lexical/table` directly; do not add it again.
 
 `TableNode`, `TableRowNode`, `TableCellNode`, and `INSERT_TABLE_COMMAND` (payload `{ columns: string; rows: string; includeHeaders?: boolean | { rows: boolean; columns: boolean } }`) are exported from `@lexical/table` [app/node_modules/@lexical/table/dist/index.d.ts:9-19]. `TablePlugin` (no required props; all of `hasCellMerge`/`hasCellBackgroundColor`/`hasTabHandler`/`hasHorizontalScroll`/`hasNestedTables` default `true`/`false` per its own doc comment) is exported from `@lexical/react/LexicalTablePlugin` [app/node_modules/@lexical/react/dist/LexicalTablePlugin.d.ts:12-46]. Any feature that dispatches `INSERT_TABLE_COMMAND` must (1) add `@lexical/table` as a direct `package.json` dependency, (2) register `TableNode`, `TableRowNode`, `TableCellNode` in the editor's `nodes` array, and (3) render `<TablePlugin />` — otherwise the command throws at runtime because the node types are unregistered.
 

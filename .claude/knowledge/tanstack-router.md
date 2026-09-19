@@ -33,16 +33,10 @@ Because the interface is empty by default, an un-augmented codebase cannot pass 
 
 ## Route files carry no search-param validation unless `validateSearch` is declared
 
-**Verified at:** `@tanstack/react-router` 1.170.17
-**Citation:** [architect_3: app/src/routes/adventure.$adventureId.npc.$npcId.tsx — read, contains only `component`]
+**Verified at:** `@tanstack/react-router` ^1.170.17 (installed 1.170.31); routes searched 2026-09-19
+**Citation:** [head-of-instructions_2: grep validateSearch app/src/routes — not found]
 
-Every route file under `app/src/routes/` currently declares only `component` in its `createFileRoute` options. Typed search params require adding `validateSearch` to each route individually; there is no app-wide default.
-
----
-**Reverified at:** `@tanstack/react-router` ^1.170.17, route files read 2026-09-13
-**Citation:** [spec-writer_5: app/src/routes/adventure.$adventureId.npc.$npcId.tsx:5-13 and adventure.$adventureId.npcs.tsx:8-18 — each declares `component` and `loader`, neither declares `validateSearch`]
-
-The route files now declare a `loader` alongside `component`, so "only `component`" no longer holds. The fact this entry exists for is unchanged: no route declares `validateSearch`, and typed search params still require adding it per route.
+No route file under `app/src/routes/` declares `validateSearch`. Typed search params require adding it to each route individually; there is no app-wide default.
 
 ## `<Link>` accepts a plain `string` in `to` without a `params` prop
 
