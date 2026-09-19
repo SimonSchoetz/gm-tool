@@ -2,15 +2,15 @@
 
 ## Importing `node:sqlite` fails under the jsdom environment; a first-line `// @vitest-environment node` docblock overrides the configured environment and makes it work
 
-**Verified at:** vitest 4.1.11, vite 8.2.2, Node v22.23.2, run 2026-09-19
-**Citation:** [review-decision_4: ran `npx vitest run` on a scratch test importing `node:sqlite` — with `--environment jsdom` observed `Cannot bundle Node.js built-in "node:sqlite"`; with the docblock on the first line, the test passed under both `--environment jsdom` and a config using `environment: 'jsdom'` plus a `setupFiles` entry importing `@testing-library/jest-dom` and `@testing-library/react`]
+**Verified at:** vitest 5.0.1, vite 8.3.0, Node v22.23.2, run 2026-09-19
+**Citation:** [dependency-update_5: ran `npx vitest run` from `app/` on a scratch test importing `node:sqlite` — without the docblock under the config's `environment: 'jsdom'` observed `Cannot bundle Node.js built-in "node:sqlite"`; with `// @vitest-environment node` on the first line the test passed both under that config and with `--environment jsdom`] [dependency-update_6: ran `npx vitest run` on a scratch test with the docblock that imports `@tauri-apps/plugin-sql` — observed `vi.isMockFunction(Database.load)` true, so the config's `setupFiles` entry `app/src/__tests__/setup.ts` (which mocks that module) ran in the file]
 
 The per-file docblock takes precedence over the config's `environment`, and the config's `setupFiles` still run in that file. A test that needs a Node built-in without a browser shim can therefore opt out of a global jsdom environment on its own.
 
 ## Inside Vitest, `import.meta.env.TEST` is the string `'true'` and `import.meta.env.DEV` is `true`; under the node environment `window` is undefined
 
-**Verified at:** vitest 4.1.11, run 2026-09-19
-**Citation:** [review-decision_5: ran `npx vitest run` on a scratch test with `// @vitest-environment node` asserting `{ dev: import.meta.env.DEV, test: import.meta.env.TEST, hasWindow: typeof window !== 'undefined' }` — observed `{ dev: true, test: 'true', hasWindow: false }`]
+**Verified at:** vitest 5.0.1, run 2026-09-19
+**Citation:** [dependency-update_7: ran `npx vitest run` from `app/` on a scratch test with `// @vitest-environment node` asserting `toEqual({ dev: true, test: 'true', hasWindow: false })` on `{ dev: import.meta.env.DEV, test: import.meta.env.TEST, hasWindow: typeof window !== 'undefined' }` — observed the test pass]
 
 `TEST` is a truthy string, not a boolean, so it works in a condition but fails a strict `=== true` comparison. A guard such as `import.meta.env.DEV && !import.meta.env.TEST && … window …` short-circuits before touching `window` in a node-environment test.
 
