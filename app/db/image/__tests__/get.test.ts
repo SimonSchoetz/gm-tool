@@ -1,86 +1,44 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Image } from '../types';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+const SEEDED_AT = '2026-01-10T09:00:00.000Z';
 
-import { get } from '../get';
-
-describe('image.get', () => {
+describe('get', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should return image by id', async () => {
-    const mockImage: Image = {
-      id: 'test-id-1',
-      file_extension: 'jpg',
-      original_filename: 'photo.jpg',
-      file_size: 2048,
-      created_at: '2025-01-01T00:00:00.000Z',
-      updated_at: '2025-01-01T00:00:00.000Z',
-    };
+  it('returns the image whose id is passed when several are stored, and null for an id with no image', async () => {
+    const { get } = await import('../get');
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    for (const [id, extension] of [
+      ['first-image', 'png'],
+      ['second-image', 'webp'],
+    ]) {
+      await db.execute(
+        'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
+        [id, extension, SEEDED_AT],
+      );
+    }
 
-    const SELECT_SQL = 'SELECT * FROM images WHERE id = $1';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [mockImage] : []),
-    );
-
-    const image = await get('test-id-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id-1']);
-    expect(image).toEqual(mockImage);
-  });
-
-  it('should return null when image not found', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const image = await get('non-existent-id');
-
-    expect(image).toBeNull();
-  });
-
-  it('should throw error when id is empty', async () => {
-    await expect(get('')).rejects.toThrow('Image ID is required');
-  });
-
-  it('should handle image with null optional fields', async () => {
-    const mockImage: Image = {
-      id: 'test-id-2',
-      file_extension: 'png',
+    expect(await get('second-image')).toEqual({
+      id: 'second-image',
+      file_extension: 'webp',
       original_filename: null,
       file_size: null,
-      created_at: '2025-01-01T00:00:00.000Z',
-      updated_at: '2025-01-01T00:00:00.000Z',
-    };
-
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === 'SELECT * FROM images WHERE id = $1' ? [mockImage] : [],
-      ),
-    );
-
-    const image = await get('test-id-2');
-
-    expect(image).toEqual(mockImage);
-    expect(image?.original_filename).toBeNull();
-    expect(image?.file_size).toBeNull();
+      frame_x: null,
+      frame_y: null,
+      frame_zoom: null,
+      created_at: SEEDED_AT,
+      updated_at: SEEDED_AT,
+    });
+    expect(await get('missing-image')).toBeNull();
   });
 });

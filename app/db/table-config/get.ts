@@ -1,15 +1,10 @@
-import z from 'zod';
 import { getDatabase } from '../database';
-import { tableConfigTable } from './schema';
+import { assertValidId } from '../util';
 import { parseLayoutFromRow } from './parse-layout-row';
-import type { TableConfig } from './types';
-
-type TableConfigRow = z.infer<typeof tableConfigTable.zodSchema>;
+import type { TableConfig, TableConfigRow } from './types';
 
 export const get = async (id: string): Promise<TableConfig | null> => {
-  if (!id || typeof id !== 'string' || id.trim() === '') {
-    throw new Error('Valid table config ID is required');
-  }
+  assertValidId(id, 'table config');
 
   const db = await getDatabase();
   const result = await db.select<TableConfigRow[]>(

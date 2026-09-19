@@ -1,149 +1,99 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { entityTypeLabel } from '@domain';
+import type { BaseEntity } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'new-npc-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-const mockGet = vi.fn();
-vi.mock('../get', () => ({
-  get: (entityType: string, id: string) => mockGet(entityType, id) as unknown,
-}));
+const T1 = '2026-01-10T09:00:00.000Z';
+const T2 = '2026-01-11T09:00:00.000Z';
+const SOURCE_IMAGE_ID = 'image-of-the-source';
+const COPY_IMAGE_ID = 'image-of-the-copy';
 
-import { duplicate } from '../duplicate';
-
-const sourceRow = {
-  id: 'source-npc-id',
-  adventure_id: 'adventure-123',
-  entity_type: 'npcs',
-  name: 'Gundren Rockseeker',
-  description: 'Long lost brother',
-  image_id: 'source-image-id',
-  pinned_order: 3,
-  created_at: '2023-05-01T08:00:00.000Z',
-  updated_at: '2023-05-02T08:00:00.000Z',
+const readBaseEntity = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<BaseEntity[]>(
+    'SELECT * FROM base_entities WHERE id = $1',
+    [id],
+  );
+  return rows[0];
 };
 
-const INSERT_SQL =
-  'INSERT INTO base_entities (id, adventure_id, entity_type, description, image_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)';
+// The source holds a description, an image and a pin, so a copy of a column the duplicate must reset or replace shows. The images are foreign-key targets only, so they are plain rows.
+const seedSourceEntity = async () => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create } = await import('../create');
+  const { update } = await import('../update');
+  const { setPinnedOrder } = await import('@db/pinned-order');
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  for (const imageId of [SOURCE_IMAGE_ID, COPY_IMAGE_ID]) {
+    await db.execute(
+      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
+      [imageId, 'png', T1],
+    );
+  }
+  const adventureId = await createAdventure();
+  const sourceId = await create('npcs', adventureId);
+  await update(sourceId, { description: 'd', image_id: SOURCE_IMAGE_ID });
+  await setPinnedOrder('npcs', sourceId, 2);
+  return { adventureId, sourceId };
+};
 
-describe('base-entity.duplicate', () => {
+describe('duplicate', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    mockGet.mockResolvedValue(sourceRow);
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(T1));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('fetches the source scoped to the given type', async () => {
-    await duplicate('npcs', 'source-npc-id', 'new-image-id');
+  it('creates a new entity of the same type and adventure that takes the given image and resets the name, pin and timestamps', async () => {
+    const { duplicate } = await import('../duplicate');
+    const { adventureId, sourceId } = await seedSourceEntity();
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockGet).toHaveBeenCalledWith('npcs', 'source-npc-id');
+    const duplicateId = await duplicate('npcs', sourceId, COPY_IMAGE_ID);
+
+    expect(duplicateId).not.toBe(sourceId);
+    expect(await readBaseEntity(duplicateId)).toEqual({
+      id: duplicateId,
+      adventure_id: adventureId,
+      entity_type: 'npcs',
+      name: null,
+      description: 'd',
+      image_id: COPY_IMAGE_ID,
+      pinned_order: null,
+      created_at: T2,
+      updated_at: T2,
+    });
   });
 
-  it('omits name so the duplicate has no name', async () => {
-    await duplicate('npcs', 'source-npc-id', 'new-image-id');
+  it('leaves the source entity unchanged, timestamps included', async () => {
+    const { duplicate } = await import('../duplicate');
+    const { sourceId } = await seedSourceEntity();
+    const before = await readBaseEntity(sourceId);
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, expect.any(Array));
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      expect.stringMatching(/^INSERT INTO base_entities \([^)]*\bname\b/),
-      expect.anything(),
-    );
+    await duplicate('npcs', sourceId, COPY_IMAGE_ID);
+
+    expect(await readBaseEntity(sourceId)).toEqual(before);
   });
 
-  it('copies every other source column', async () => {
-    await duplicate('npcs', 'source-npc-id', 'new-image-id');
+  it('rejects an id of another entity type', async () => {
+    const { duplicate } = await import('../duplicate');
+    const { sourceId } = await seedSourceEntity();
 
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-npc-id',
-      'adventure-123',
-      'npcs',
-      'Long lost brother',
-      'new-image-id',
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-  });
-
-  it("writes the passed image id, not the source's", async () => {
-    await duplicate('npcs', 'source-npc-id', 'new-image-id');
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      INSERT_SQL,
-      expect.arrayContaining(['new-image-id']),
-    );
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      INSERT_SQL,
-      expect.arrayContaining(['source-image-id']),
-    );
-  });
-
-  it('writes a null image id when passed null', async () => {
-    await duplicate('npcs', 'source-npc-id', null);
-
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-npc-id',
-      'adventure-123',
-      'npcs',
-      'Long lost brother',
-      null,
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-  });
-
-  it('generates a fresh id and timestamps', async () => {
-    const result = await duplicate('npcs', 'source-npc-id', 'new-image-id');
-
-    expect(result).toBe('new-npc-id');
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-npc-id',
-      'adventure-123',
-      'npcs',
-      'Long lost brother',
-      'new-image-id',
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-  });
-
-  it('throws when the source row does not exist', async () => {
-    mockGet.mockResolvedValue(null);
-
-    await expect(duplicate('npcs', 'missing-npc-id', null)).rejects.toThrow(
-      'NPC not found: missing-npc-id',
-    );
-  });
-
-  it('omits pinned_order so the duplicate starts unpinned', async () => {
-    await duplicate('npcs', 'source-npc-id', 'new-image-id');
-
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      expect.stringMatching(
-        /^INSERT INTO base_entities \([^)]*\bpinned_order\b/,
-      ),
-      expect.anything(),
+    await expect(duplicate('pcs', sourceId, null)).rejects.toThrow(
+      `${entityTypeLabel('pcs')} not found: ${sourceId}`,
     );
   });
 });

@@ -1,60 +1,43 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { PairedDevice } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { getAll } from '../get-all';
+const LATEST_DEVICE = 'a'.repeat(64);
+const OLDEST_DEVICE = 'b'.repeat(64);
+const MIDDLE_DEVICE = 'c'.repeat(64);
 
 describe('getAll', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return paired devices ordered by created_at DESC', async () => {
-    const device1: PairedDevice = {
-      id: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
-      name: 'Laptop',
-      created_at: '2025-01-02',
-      updated_at: '2025-01-02',
-    };
-    const device2: PairedDevice = {
-      id: 'b1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
-      name: 'Desktop',
-      created_at: '2025-01-01',
-      updated_at: '2025-01-01',
-    };
+  it('returns every device, the most recently created first', async () => {
+    const { create } = await import('../create');
+    const { getAll } = await import('../get-all');
+    // Created out of order, so insertion order and creation order differ.
+    vi.setSystemTime(new Date('2026-01-03T00:00:00.000Z'));
+    await create({ id: LATEST_DEVICE, name: null });
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    await create({ id: OLDEST_DEVICE, name: null });
+    vi.setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+    await create({ id: MIDDLE_DEVICE, name: null });
 
-    const SELECT_SQL = 'SELECT * FROM paired_devices ORDER BY created_at DESC';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [device1, device2] : []),
-    );
+    const devices = await getAll();
 
-    const result = await getAll();
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL);
-    expect(result).toEqual([device1, device2]);
-  });
-
-  it('should return empty array when no paired devices exist', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await getAll();
-
-    expect(result).toEqual([]);
+    expect(devices.map((device) => device.id)).toEqual([
+      LATEST_DEVICE,
+      MIDDLE_DEVICE,
+      OLDEST_DEVICE,
+    ]);
   });
 });

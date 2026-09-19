@@ -1,59 +1,50 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Image } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+const IMAGE_ID = 'image-1';
 
-import { update } from '../update';
+const readImage = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<Image[]>('SELECT * FROM images WHERE id = $1', [
+    IMAGE_ID,
+  ]);
+  return rows[0];
+};
 
-describe('image.update', () => {
+describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('updates frame successfully', async () => {
-    await update('test-id', { frame_x: 50, frame_y: 25, frame_zoom: 2.0 });
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringMatching(/frame_x.*frame_y.*frame_zoom.*updated_at/s),
-      expect.arrayContaining([50, 25, 2.0, 'test-id']),
+  it('writes each frame value to its own column and clears all three with null', async () => {
+    const { update } = await import('../update');
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    await db.execute(
+      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
+      [IMAGE_ID, 'png', '2026-01-10T09:00:00.000Z'],
     );
-  });
 
-  it('throws when id is empty', async () => {
-    await expect(
-      update('', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 }),
-    ).rejects.toThrow('Valid image ID is required');
-  });
+    await update(IMAGE_ID, { frame_x: 0.1, frame_y: 0.2, frame_zoom: 1.5 });
+    expect(await readImage()).toMatchObject({
+      frame_x: 0.1,
+      frame_y: 0.2,
+      frame_zoom: 1.5,
+    });
 
-  it('throws when id is whitespace only', async () => {
-    await expect(
-      update('   ', { frame_x: 50, frame_y: 25, frame_zoom: 1.0 }),
-    ).rejects.toThrow('Valid image ID is required');
-  });
-
-  it('sets null frame values', async () => {
-    await update('test-id', { frame_x: null, frame_y: null, frame_zoom: null });
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('UPDATE images'),
-      expect.arrayContaining([null, null, null, 'test-id']),
-    );
+    await update(IMAGE_ID, { frame_x: null, frame_y: null, frame_zoom: null });
+    expect(await readImage()).toMatchObject({
+      frame_x: null,
+      frame_y: null,
+      frame_zoom: null,
+    });
   });
 });

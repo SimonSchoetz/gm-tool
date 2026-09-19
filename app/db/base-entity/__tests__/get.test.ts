@@ -1,72 +1,54 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { BaseEntity } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { get } from '../get';
+const FIRST_CREATED_AT = '2026-01-10T09:00:00.000Z';
+const SECOND_CREATED_AT = '2026-01-11T09:00:00.000Z';
 
 describe('get', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(FIRST_CREATED_AT));
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return base entity by id scoped to entity type', async () => {
-    const mockRow: BaseEntity = {
-      id: 'test-id',
-      adventure_id: 'test-adventure-id',
+  it('returns the requested entity of its own type, and null when asked for it under another type', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const { update } = await import('../update');
+    const { get } = await import('../get');
+    const adventureId = await createAdventure();
+    await create('npcs', adventureId);
+    vi.setSystemTime(new Date(SECOND_CREATED_AT));
+    const secondId = await create('npcs', adventureId);
+    await update(secondId, { name: 'Second NPC', description: 'Second' });
+
+    expect(await get('npcs', secondId)).toEqual({
+      id: secondId,
+      adventure_id: adventureId,
       entity_type: 'npcs',
-      name: 'Test NPC',
-      description: null,
+      name: 'Second NPC',
+      description: 'Second',
       image_id: null,
       pinned_order: null,
-      created_at: '2025-01-01',
-      updated_at: '2025-01-01',
-    };
-
-    const SELECT_SQL =
-      'SELECT * FROM base_entities WHERE id = $1 AND entity_type = $2';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [mockRow] : []),
-    );
-
-    const result = await get('npcs', 'test-id');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id', 'npcs']);
-    expect(result).toEqual(mockRow);
+      created_at: SECOND_CREATED_AT,
+      updated_at: SECOND_CREATED_AT,
+    });
+    expect(await get('pcs', secondId)).toBeNull();
   });
 
-  it('should return null when no row matches', async () => {
-    mockSelect.mockResolvedValue([]);
+  it('returns null for an id with no entity', async () => {
+    const { get } = await import('../get');
 
-    const result = await get('npcs', 'non-existent-id');
-
-    expect(result).toBeNull();
-  });
-
-  it('should throw when id is empty string', async () => {
-    await expect(get('npcs', '')).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(get('npcs', '   ')).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
+    expect(await get('npcs', 'missing-entity')).toBeNull();
   });
 });

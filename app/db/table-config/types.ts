@@ -2,7 +2,7 @@ import z from 'zod';
 import { tableConfigTable } from './schema';
 import type { LayoutColumn, SortDirection, TableLayout } from './layout-schema';
 
-type TableConfigRow = z.infer<typeof tableConfigTable.zodSchema>;
+export type TableConfigRow = z.infer<typeof tableConfigTable.zodSchema>;
 
 export type TableConfig = Omit<TableConfigRow, 'layout'> & {
   layout: TableLayout;

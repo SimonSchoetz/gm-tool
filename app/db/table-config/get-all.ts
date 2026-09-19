@@ -1,10 +1,6 @@
-import z from 'zod';
 import { getDatabase } from '../database';
-import { tableConfigTable } from './schema';
 import { parseLayoutFromRow } from './parse-layout-row';
-import type { TableConfig } from './types';
-
-type TableConfigRow = z.infer<typeof tableConfigTable.zodSchema>;
+import type { TableConfig, TableConfigRow } from './types';
 
 export const getAll = async (): Promise<TableConfig[]> => {
   const db = await getDatabase();

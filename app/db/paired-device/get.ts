@@ -1,10 +1,9 @@
 import { getDatabase } from '../database';
+import { assertValidId } from '../util';
 import type { PairedDevice } from './types';
 
 export const get = async (id: string): Promise<PairedDevice | null> => {
-  if (!id || typeof id !== 'string' || id.trim() === '') {
-    throw new Error('Valid paired device ID is required');
-  }
+  assertValidId(id, 'paired device');
 
   const db = await getDatabase();
   const result = await db.select<PairedDevice[]>(

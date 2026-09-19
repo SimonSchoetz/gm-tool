@@ -1,49 +1,49 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { remove } from '../remove';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('remove', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should delete base entity by id', async () => {
-    await remove('test-id');
+  it('deletes the entity and its content sections and leaves another entity and its sections', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createSection } =
+      await import('@db/base-entity-content-section');
+    const { create } = await import('../create');
+    const { remove } = await import('../remove');
+    const { getAll } = await import('../get-all');
+    const { getDatabase } = await import('@db/database');
+    const adventureId = await createAdventure();
+    const removedId = await create('npcs', adventureId);
+    const keptId = await create('npcs', adventureId);
+    await createSection({
+      base_entity_id: removedId,
+      type: 'text',
+      sort_order: 0,
+    });
+    await createSection({
+      base_entity_id: keptId,
+      type: 'text',
+      sort_order: 0,
+    });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'DELETE FROM base_entities WHERE id = $1',
-      ['test-id'],
-    );
-  });
+    await remove(removedId);
 
-  it('should throw when id is empty', async () => {
-    await expect(remove('')).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(remove('   ')).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect((await getAll('npcs', adventureId)).map((npc) => npc.id)).toEqual([
+      keptId,
+    ]);
+    const db = await getDatabase();
+    expect(
+      await db.select<{ base_entity_id: string }[]>(
+        'SELECT base_entity_id FROM base_entity_content_sections',
+      ),
+    ).toEqual([{ base_entity_id: keptId }]);
   });
 });

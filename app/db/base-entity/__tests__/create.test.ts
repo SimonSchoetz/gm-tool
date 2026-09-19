@@ -1,79 +1,63 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { entityTypeLabel } from '@domain';
+import { getDateTimeString } from '@util';
+import type { BaseEntity } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'test-generated-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-import { create } from '../create';
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
+
+const readBaseEntities = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<BaseEntity[]>('SELECT * FROM base_entities');
+};
 
 describe('create', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should insert base entity and return generated ID', async () => {
-    const id = await create('npcs', 'adventure-123');
+  it('stores an entity of the given type for the adventure, named after its type label and the creation time', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const adventureId = await createAdventure();
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO base_entities'),
-      expect.arrayContaining(['test-generated-id']),
-    );
-    expect(id).toBe('test-generated-id');
+    const id = await create('npcs', adventureId);
+
+    expect(await readBaseEntities()).toEqual([
+      {
+        id,
+        adventure_id: adventureId,
+        entity_type: 'npcs',
+        name: `New ${entityTypeLabel('npcs')} ${getDateTimeString(CREATED_AT)}`,
+        description: null,
+        image_id: null,
+        pinned_order: null,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
   });
 
-  it('should set adventure_id, entity_type, default name, and ISO timestamps', async () => {
-    await create('npcs', 'adventure-123');
+  it('rejects an adventure id with no adventure and stores nothing', async () => {
+    const { create } = await import('../create');
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO base_entities'),
-      [
-        'test-generated-id',
-        'adventure-123',
-        'npcs',
-        expect.stringMatching(/^New NPC /),
-        '2024-01-15T10:30:00.000Z',
-        '2024-01-15T10:30:00.000Z',
-      ],
+    await expect(create('npcs', 'missing-adventure')).rejects.toThrow(
+      'FOREIGN KEY constraint failed',
     );
-  });
 
-  it('should write a name matching New PC for pcs', async () => {
-    await create('pcs', 'adventure-123');
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO base_entities'),
-      expect.arrayContaining([expect.stringMatching(/^New PC /)]),
-    );
-  });
-
-  it('should throw when adventure_id is empty', async () => {
-    await expect(create('npcs', '')).rejects.toThrow(
-      'Valid adventure ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(await readBaseEntities()).toEqual([]);
   });
 });

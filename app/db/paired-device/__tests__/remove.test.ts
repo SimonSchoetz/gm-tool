@@ -1,52 +1,29 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-import { remove } from '../remove';
+const REMOVED_DEVICE = 'a'.repeat(64);
+const KEPT_DEVICE = 'b'.repeat(64);
 
 describe('remove', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should delete paired device by id', async () => {
-    await remove('test-id');
+  it('removes only the given device', async () => {
+    const { create } = await import('../create');
+    const { remove } = await import('../remove');
+    const { getAll } = await import('../get-all');
+    await create({ id: REMOVED_DEVICE, name: null });
+    await create({ id: KEPT_DEVICE, name: null });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'DELETE FROM paired_devices WHERE id = $1',
-      ['test-id'],
-    );
-  });
+    await remove(REMOVED_DEVICE);
 
-  it('should throw error when id is empty', async () => {
-    await expect(remove('')).rejects.toThrow(
-      'Valid paired device ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw error when id is whitespace only', async () => {
-    await expect(remove('   ')).rejects.toThrow(
-      'Valid paired device ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect((await getAll()).map((device) => device.id)).toEqual([KEPT_DEVICE]);
   });
 });

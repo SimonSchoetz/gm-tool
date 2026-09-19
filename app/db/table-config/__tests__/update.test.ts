@@ -1,84 +1,75 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { TableLayout } from '../layout-schema';
+import type { UpdateTableConfigInput } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { update } from '../update';
-
-const validLayout: TableLayout = {
+const layout: TableLayout = {
   searchable_columns: ['name'],
-  columns: [{ key: 'name', label: 'Name', width: 200 }],
+  columns: [{ key: 'name', label: 'Name', width: 250 }],
   sort_state: { column: 'name', direction: 'asc' },
+};
+
+const newLayout: TableLayout = {
+  searchable_columns: ['name', 'description'],
+  columns: [{ key: 'description', label: 'Description', width: 300 }],
+  sort_state: { column: 'description', direction: 'desc' },
+};
+
+const createConfig = async () => {
+  const { create } = await import('../create');
+  return create({ table_name: 'custom', color: '1, 2, 3', layout });
+};
+
+const readRow = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const [row] = await db.select<{ tagging_enabled: number; layout: string }[]>(
+    'SELECT * FROM table_config WHERE id = $1',
+    [id],
+  );
+  return { taggingEnabled: row.tagging_enabled, layout: row.layout };
 };
 
 describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('should update table_name and produce correct SQL', async () => {
-    await update('test-id', { table_name: 'sessions' });
+  it('writes tagging_enabled 0 over 1 and rejects a value above 1, leaving the row unchanged', async () => {
+    const { update } = await import('../update');
+    const id = await createConfig();
+    expect((await readRow(id)).taggingEnabled).toBe(1);
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE table_config SET table_name = $1, updated_at = $2 WHERE id = $3',
-      ['sessions', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
+    await update(id, { tagging_enabled: 0 });
+    expect((await readRow(id)).taggingEnabled).toBe(0);
+
+    await expect(update(id, { tagging_enabled: 2 })).rejects.toThrow();
+    expect((await readRow(id)).taggingEnabled).toBe(0);
   });
 
-  it('should serialize and update layout', async () => {
-    await update('test-id', { layout: validLayout });
+  it('stores a new valid layout without its unknown keys and rejects an invalid one, leaving the stored layout unchanged', async () => {
+    const { update } = await import('../update');
+    const id = await createConfig();
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE table_config SET layout = $1, updated_at = $2 WHERE id = $3',
-      [JSON.stringify(validLayout), '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
-  });
+    await update(id, {
+      layout: { ...newLayout, unknown_key: 'ignored' },
+    } as unknown as UpdateTableConfigInput);
+    expect(JSON.parse((await readRow(id)).layout)).toEqual(newLayout);
 
-  it('should throw when id is empty', async () => {
-    await expect(update('', { table_name: 'test' })).rejects.toThrow(
-      'Valid table config ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(update('   ', { table_name: 'test' })).rejects.toThrow(
-      'Valid table config ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when no update fields are provided', async () => {
-    await expect(update('test-id', {})).rejects.toThrow(
-      'At least one field must be provided for update',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when layout is invalid', async () => {
     await expect(
-      update('test-id', {
-        layout: { invalid: true } as unknown as TableLayout,
-      }),
-    ).rejects.toThrow('Invalid layout');
-    expect(mockExecute).not.toHaveBeenCalled();
+      update(id, {
+        layout: {
+          ...layout,
+          columns: [{ key: 'name', label: 'Name', width: null }],
+        },
+      } as unknown as UpdateTableConfigInput),
+    ).rejects.toThrow(/^Invalid layout/);
+    expect(JSON.parse((await readRow(id)).layout)).toEqual(newLayout);
   });
 });

@@ -1,147 +1,116 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { invoke } from '@tauri-apps/api/core';
+import type { Image } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'new-image-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-vi.mock('@tauri-apps/api/core', () => ({
-  invoke: vi.fn(),
-}));
+const invoke = vi.hoisted(() =>
+  vi.fn<
+    (command: string, args?: Record<string, unknown>) => Promise<unknown>
+  >(),
+);
+vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-const mockGet = vi.fn();
-vi.mock('../get', () => ({
-  get: (id: string) => mockGet(id) as unknown,
-}));
-
-import { duplicate } from '../duplicate';
-
-const sourceRow = {
-  id: 'source-image-id',
-  file_extension: 'png',
-  original_filename: 'portrait.png',
-  file_size: 2048,
-  frame_x: 12.5,
-  frame_y: -30,
-  frame_zoom: 1.75,
-  created_at: '2023-05-01T08:00:00.000Z',
-  updated_at: '2023-05-02T08:00:00.000Z',
+const answerCommand = (command: string): Promise<unknown> => {
+  switch (command) {
+    case 'save_image':
+      return Promise.resolve(1234);
+    case 'read_image_bytes':
+      return Promise.resolve('aW1hZ2U=');
+    case 'save_image_bytes':
+    case 'delete_image':
+      return Promise.resolve(undefined);
+    default:
+      return Promise.reject(new Error(`Unexpected command: ${command}`));
+  }
 };
 
-const INSERT_SQL =
-  'INSERT INTO images (id, file_extension, original_filename, file_size, frame_x, frame_y, frame_zoom, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)';
+const T1 = '2026-01-10T09:00:00.000Z';
+const T2 = '2026-01-11T09:00:00.000Z';
+const SOURCE_ID = 'source-image';
 
-describe('image.duplicate', () => {
+const readImage = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<Image[]>('SELECT * FROM images WHERE id = $1', [
+    id,
+  ]);
+  return rows[0];
+};
+
+// The source's size differs from what the save command reports, and every frame value is set, so a copy that takes the size from a save command or drops the framing shows.
+const seedSourceImage = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  await db.execute(
+    'INSERT INTO images (id, file_extension, original_filename, file_size, frame_x, frame_y, frame_zoom, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)',
+    [SOURCE_ID, 'png', 'src.png', 999, 0.25, 0.5, 1.5, T1],
+  );
+};
+
+describe('duplicate', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
-    mockGet.mockResolvedValue(sourceRow);
-    vi.mocked(invoke).mockResolvedValue('base64-bytes');
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    invoke.mockImplementation(answerCommand);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(T1));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it("copies the source row's framing values into the new row", async () => {
-    await duplicate('source-image-id');
+  it('copies the row under a fresh id with new timestamps and copies the file bytes to that id', async () => {
+    const { duplicate } = await import('../duplicate');
+    await seedSourceImage();
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-image-id',
-      'png',
-      'portrait.png',
-      2048,
-      12.5,
-      -30,
-      1.75,
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-  });
+    const duplicateId = await duplicate(SOURCE_ID);
 
-  it('takes file_size from the source row, not from the save command', async () => {
-    vi.mocked(invoke).mockImplementation((command: string) =>
-      command === 'read_image_bytes'
-        ? Promise.resolve('base64-bytes')
-        : Promise.resolve(undefined),
-    );
-
-    await duplicate('source-image-id');
-
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-image-id',
-      'png',
-      'portrait.png',
-      2048,
-      12.5,
-      -30,
-      1.75,
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-  });
-
-  it("reads and writes the file with the source's extension", async () => {
-    await duplicate('source-image-id');
-
-    expect(invoke).toHaveBeenCalledWith('read_image_bytes', {
-      id: 'source-image-id',
+    expect(duplicateId).not.toBe(SOURCE_ID);
+    expect(await readImage(duplicateId)).toEqual({
+      id: duplicateId,
+      file_extension: 'png',
+      original_filename: 'src.png',
+      file_size: 999,
+      frame_x: 0.25,
+      frame_y: 0.5,
+      frame_zoom: 1.5,
+      created_at: T2,
+      updated_at: T2,
+    });
+    expect(invoke).toHaveBeenCalledTimes(2);
+    expect(invoke).toHaveBeenNthCalledWith(1, 'read_image_bytes', {
+      id: SOURCE_ID,
       extension: 'png',
     });
-    expect(invoke).toHaveBeenCalledWith('save_image_bytes', {
-      id: 'new-image-id',
+    expect(invoke).toHaveBeenNthCalledWith(2, 'save_image_bytes', {
+      id: duplicateId,
       extension: 'png',
-      dataBase64: 'base64-bytes',
+      dataBase64: 'aW1hZ2U=',
     });
   });
 
-  it("generates fresh timestamps rather than copying the source's", async () => {
-    await duplicate('source-image-id');
+  it('leaves the source row unchanged, timestamps included', async () => {
+    const { duplicate } = await import('../duplicate');
+    await seedSourceImage();
+    const before = await readImage(SOURCE_ID);
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-image-id',
-      'png',
-      'portrait.png',
-      2048,
-      12.5,
-      -30,
-      1.75,
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      INSERT_SQL,
-      expect.arrayContaining(['2023-05-01T08:00:00.000Z']),
-    );
+    await duplicate(SOURCE_ID);
+
+    expect(await readImage(SOURCE_ID)).toEqual(before);
   });
 
-  it('throws when the source image does not exist', async () => {
-    mockGet.mockResolvedValue(null);
+  it('rejects an unknown source id', async () => {
+    const { duplicate } = await import('../duplicate');
 
-    await expect(duplicate('missing-image-id')).rejects.toThrow(
-      'Image not found: missing-image-id',
+    await expect(duplicate('missing-image')).rejects.toThrow(
+      'Image not found: missing-image',
     );
   });
 });

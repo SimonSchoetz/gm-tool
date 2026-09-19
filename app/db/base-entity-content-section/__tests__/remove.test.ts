@@ -1,42 +1,42 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { remove } from '../remove';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('remove', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('deletes the section by id', async () => {
-    await remove('section-id');
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'DELETE FROM base_entity_content_sections WHERE id = $1',
-      ['section-id'],
+  it("removes only the given section and leaves the entity's other section", async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createBaseEntity } = await import('@db/base-entity');
+    const { create } = await import('../create');
+    const { remove } = await import('../remove');
+    const { getAllByBaseEntity } = await import('../get-all-by-base-entity');
+    const baseEntityId = await createBaseEntity(
+      'npcs',
+      await createAdventure(),
     );
-  });
+    const removedId = await create({
+      base_entity_id: baseEntityId,
+      type: 'text',
+      sort_order: 0,
+    });
+    const keptId = await create({
+      base_entity_id: baseEntityId,
+      type: 'text',
+      sort_order: 1,
+    });
 
-  it('throws when id is empty', async () => {
-    await expect(remove('')).rejects.toThrow(
-      'Valid Base entity content section ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    await remove(removedId);
+
+    expect(
+      (await getAllByBaseEntity(baseEntityId)).map((section) => section.id),
+    ).toEqual([keptId]);
   });
 });

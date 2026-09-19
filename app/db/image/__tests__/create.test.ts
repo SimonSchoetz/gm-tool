@@ -1,123 +1,99 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { CreateImageInput } from '../types';
+import type { Image } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'test-generated-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-vi.mock('@tauri-apps/api/core', () => ({
-  invoke: vi.fn(() => Promise.resolve(1024)),
-}));
+const invoke = vi.hoisted(() =>
+  vi.fn<
+    (command: string, args?: Record<string, unknown>) => Promise<unknown>
+  >(),
+);
+vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-import { create } from '../create';
+const answerCommand = (command: string): Promise<unknown> => {
+  switch (command) {
+    case 'save_image':
+      return Promise.resolve(1234);
+    case 'read_image_bytes':
+      return Promise.resolve('aW1hZ2U=');
+    case 'save_image_bytes':
+    case 'delete_image':
+      return Promise.resolve(undefined);
+    default:
+      return Promise.reject(new Error(`Unexpected command: ${command}`));
+  }
+};
 
-describe('image.create', () => {
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
+
+const readImages = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<Image[]>('SELECT * FROM images');
+};
+
+describe('create', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    invoke.mockImplementation(answerCommand);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should create image with all fields', async () => {
-    const input: CreateImageInput = {
-      filePath: '/path/to/my-photo.jpg',
-    };
+  it('stores an upper-case extension in lower case with the file name and the saved size, and saves the file under the id of its row', async () => {
+    const { create } = await import('../create');
 
-    const result = await create(input);
+    const id = await create({ filePath: '/pics/Photo.JPG' });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
-      [
-        expect.any(String),
-        'jpg',
-        'my-photo.jpg',
-        1024,
-        '2024-01-15T10:30:00.000Z',
-        '2024-01-15T10:30:00.000Z',
-      ],
+    expect(await readImages()).toEqual([
+      {
+        id,
+        file_extension: 'jpg',
+        original_filename: 'Photo.JPG',
+        file_size: 1234,
+        frame_x: null,
+        frame_y: null,
+        frame_zoom: null,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke).toHaveBeenCalledWith('save_image', {
+      sourcePath: '/pics/Photo.JPG',
+      id,
+      extension: 'jpg',
+    });
+  });
+
+  it('rejects an unsupported extension before saving any file and stores no row', async () => {
+    const { create } = await import('../create');
+
+    await expect(create({ filePath: '/docs/notes.pdf' })).rejects.toThrow(
+      'Unsupported file extension: pdf',
     );
 
-    expect(typeof result).toBe('string');
-    expect(result).toBeTruthy();
+    expect(invoke).not.toHaveBeenCalled();
+    expect(await readImages()).toEqual([]);
   });
 
-  it('should accept all valid file extensions', async () => {
-    const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'] as const;
+  it('stores no row when the file cannot be saved', async () => {
+    const { create } = await import('../create');
+    invoke.mockImplementation(() => Promise.reject(new Error('disk full')));
 
-    for (const ext of validExtensions) {
-      vi.clearAllMocks();
-      mockExecute.mockResolvedValue({ lastInsertId: 0 });
-      mockSelect.mockResolvedValue([]);
+    await expect(create({ filePath: '/pics/Photo.png' })).rejects.toThrow(
+      'disk full',
+    );
 
-      const input: CreateImageInput = {
-        filePath: `/path/to/image.${ext}`,
-      };
-
-      const result = await create(input);
-
-      expect(mockExecute).toHaveBeenCalledWith(
-        'INSERT INTO images (id, file_extension, original_filename, file_size, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
-        [
-          expect.any(String),
-          ext,
-          `image.${ext}`,
-          1024,
-          '2024-01-15T10:30:00.000Z',
-          '2024-01-15T10:30:00.000Z',
-        ],
-      );
-      expect(typeof result).toBe('string');
-      expect(result).toBeTruthy();
-    }
-  });
-
-  it('should set created_at and updated_at as ISO 8601 timestamps', async () => {
-    mockExecute.mockResolvedValue({});
-    await create({ filePath: '/path/to/image.png' });
-
-    const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values.at(-2)).toBe('2024-01-15T10:30:00.000Z');
-    expect(values.at(-1)).toBe('2024-01-15T10:30:00.000Z');
-  });
-
-  it('should throw validation error for invalid file extension', async () => {
-    const input: CreateImageInput = {
-      filePath: '/path/to/document.pdf',
-    };
-
-    await expect(create(input)).rejects.toThrow('Unsupported file extension');
-  });
-
-  it('should throw validation error for missing file_extension', async () => {
-    const input = {
-      filePath: '/path/to/file',
-    };
-
-    await expect(create(input)).rejects.toThrow('Unsupported file extension');
+    expect(await readImages()).toEqual([]);
   });
 });

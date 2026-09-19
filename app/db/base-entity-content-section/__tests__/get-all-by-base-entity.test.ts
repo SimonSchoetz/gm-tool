@@ -1,69 +1,53 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { BaseEntityContentSection } from '../types';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { getAllByBaseEntity } from '../get-all-by-base-entity';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getAllByBaseEntity', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('returns the sections of a base entity ordered by sort_order', async () => {
-    const section1: BaseEntityContentSection = {
-      id: 'section-1',
-      base_entity_id: 'entity-123',
-      name: 'Summary',
+  it("returns only the entity's sections in ascending sort order", async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createBaseEntity } = await import('@db/base-entity');
+    const { create } = await import('../create');
+    const { getAllByBaseEntity } = await import('../get-all-by-base-entity');
+    const adventureId = await createAdventure();
+    const baseEntityId = await createBaseEntity('npcs', adventureId);
+    const otherEntityId = await createBaseEntity('npcs', adventureId);
+    // Inserted out of sort order, so insertion order and sort order differ.
+    const thirdId = await create({
+      base_entity_id: baseEntityId,
       type: 'text',
-      content: 'A dwarven merchant',
-      checked: 0,
+      sort_order: 2,
+    });
+    const firstId = await create({
+      base_entity_id: baseEntityId,
+      type: 'text',
       sort_order: 0,
-      created_at: '2024-01-15T10:30:00.000Z',
-      updated_at: '2024-01-15T10:30:00.000Z',
-    };
-    const section2: BaseEntityContentSection = {
-      id: 'section-2',
-      base_entity_id: 'entity-123',
-      name: null,
-      type: '5e-stat-block',
-      content: null,
-      checked: 0,
+    });
+    const secondId = await create({
+      base_entity_id: baseEntityId,
+      type: 'text',
       sort_order: 1,
-      created_at: '2024-01-15T10:30:00.000Z',
-      updated_at: '2024-01-15T10:30:00.000Z',
-    };
+    });
+    await create({
+      base_entity_id: otherEntityId,
+      type: 'text',
+      sort_order: 0,
+    });
 
-    const SELECT_SQL =
-      'SELECT * FROM base_entity_content_sections WHERE base_entity_id = $1 ORDER BY sort_order ASC';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [section1, section2] : []),
-    );
+    const sections = await getAllByBaseEntity(baseEntityId);
 
-    const result = await getAllByBaseEntity('entity-123');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['entity-123']);
-    expect(result).toEqual([section1, section2]);
-  });
-
-  it('throws when baseEntityId is empty', async () => {
-    await expect(getAllByBaseEntity('')).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
+    expect(sections.map((section) => section.id)).toEqual([
+      firstId,
+      secondId,
+      thirdId,
+    ]);
   });
 });

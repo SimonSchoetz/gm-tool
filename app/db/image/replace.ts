@@ -6,7 +6,7 @@ export const replace = async (
   oldId: string,
   data: CreateImageInput,
 ): Promise<string> => {
-  await remove(oldId);
   const newId = await create(data);
+  await remove(oldId);
   return newId;
 };

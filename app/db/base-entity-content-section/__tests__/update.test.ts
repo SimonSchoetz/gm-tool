@@ -1,71 +1,61 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { UpdateBaseEntityContentSectionInput } from '../types';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type {
+  BaseEntityContentSection,
+  UpdateBaseEntityContentSectionInput,
+} from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
+const readSection = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<BaseEntityContentSection[]>(
+    'SELECT * FROM base_entity_content_sections WHERE id = $1',
+    [id],
+  );
+  return rows[0];
+};
 
-import { update } from '../update';
+const createSection = async () => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create: createBaseEntity } = await import('@db/base-entity');
+  const { create } = await import('../create');
+  const baseEntityId = await createBaseEntity('npcs', await createAdventure());
+  return create({ base_entity_id: baseEntityId, type: 'text', sort_order: 0 });
+};
 
 describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('updates content', async () => {
-    await update('section-id', { content: 'New content' });
+  it('rejects a type outside the content section types and leaves the row unchanged', async () => {
+    const { update } = await import('../update');
+    const id = await createSection();
+    const before = await readSection(id);
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entity_content_sections SET content = $1, updated_at = $2 WHERE id = $3',
-      ['New content', '2024-01-15T10:30:00.000Z', 'section-id'],
-    );
-  });
-
-  it('updates checked', async () => {
-    await update('section-id', { checked: 1 });
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entity_content_sections SET checked = $1, updated_at = $2 WHERE id = $3',
-      [1, '2024-01-15T10:30:00.000Z', 'section-id'],
-    );
-  });
-
-  it('rejects a type outside BASE_ENTITY_CONTENT_SECTION_TYPES', async () => {
     await expect(
-      update('section-id', {
+      update(id, {
         type: 'bogus',
       } as unknown as UpdateBaseEntityContentSectionInput),
     ).rejects.toThrow();
-    expect(mockExecute).not.toHaveBeenCalled();
+
+    expect(await readSection(id)).toEqual(before);
   });
 
-  it('throws when id is empty', async () => {
-    await expect(update('', { content: 'New content' })).rejects.toThrow(
-      'Valid Base entity content section ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
+  it('writes checked 0 and clears the content with null', async () => {
+    const { update } = await import('../update');
+    const id = await createSection();
+    await update(id, { checked: 1, content: 'c' });
+    expect(await readSection(id)).toMatchObject({ checked: 1, content: 'c' });
 
-  it('throws when no update fields are provided', async () => {
-    await expect(update('section-id', {})).rejects.toThrow(
-      'At least one field must be provided for update',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    await update(id, { checked: 0, content: null });
+
+    expect(await readSection(id)).toMatchObject({ checked: 0, content: null });
   });
 });

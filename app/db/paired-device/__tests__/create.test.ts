@@ -1,65 +1,74 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { PairedDevice } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
+const DEVICE_A = 'a'.repeat(64);
+const DEVICE_B = 'b'.repeat(64);
 
-import { create } from '../create';
-
-const hexId =
-  'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2';
+const readDevices = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<PairedDevice[]>(
+    'SELECT * FROM paired_devices ORDER BY rowid',
+  );
+};
 
 describe('create', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should insert with the supplied EndpointId and return it', async () => {
-    const deviceId = await create({ id: hexId, name: 'Laptop' });
+  it('stores the given id with the given name, or with no name when it is null', async () => {
+    const { create } = await import('../create');
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO paired_devices'),
-      expect.arrayContaining([hexId]),
+    expect(await create({ id: DEVICE_A, name: 'Laptop' })).toBe(DEVICE_A);
+    expect(await create({ id: DEVICE_B, name: null })).toBe(DEVICE_B);
+
+    expect(await readDevices()).toEqual([
+      {
+        id: DEVICE_A,
+        name: 'Laptop',
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+      {
+        id: DEVICE_B,
+        name: null,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
+  });
+
+  it('rejects an id that is not 64 lowercase hex characters and stores nothing', async () => {
+    const { create } = await import('../create');
+
+    await expect(create({ id: 'not-hex', name: null })).rejects.toThrow();
+
+    expect(await readDevices()).toEqual([]);
+  });
+
+  it('rejects creating the same id twice', async () => {
+    const { create } = await import('../create');
+    await create({ id: DEVICE_A, name: 'Laptop' });
+
+    await expect(create({ id: DEVICE_A, name: 'Again' })).rejects.toThrow(
+      'UNIQUE constraint failed',
     );
-    expect(deviceId).toBe(hexId);
-  });
 
-  it('should set created_at and updated_at as ISO 8601 timestamps', async () => {
-    await create({ id: hexId, name: 'Laptop' });
-
-    const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values.at(-2)).toBe('2024-01-15T10:30:00.000Z');
-    expect(values.at(-1)).toBe('2024-01-15T10:30:00.000Z');
-  });
-
-  it('should reject an id that fails the 64-char hex regex', async () => {
-    await expect(create({ id: 'short', name: null })).rejects.toThrow();
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should accept name null', async () => {
-    await create({ id: hexId, name: null });
-
-    const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values).toContain(null);
+    expect(await readDevices()).toHaveLength(1);
   });
 });

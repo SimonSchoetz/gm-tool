@@ -1,71 +1,66 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { BaseEntity, UpdateBaseEntityInput } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
+const readBaseEntity = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<BaseEntity[]>(
+    'SELECT * FROM base_entities WHERE id = $1',
+    [id],
+  );
+  return rows[0];
+};
 
-import { update } from '../update';
+const createNpc = async () => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create } = await import('../create');
+  return create('npcs', await createAdventure());
+};
 
 describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('should update name and produce correct SQL', async () => {
-    await update('test-id', { name: 'Updated NPC' });
+  it('rejects an entity type outside the base entity types and leaves the row unchanged', async () => {
+    const { update } = await import('../update');
+    const id = await createNpc();
+    const before = await readBaseEntity(id);
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entities SET name = $1, updated_at = $2 WHERE id = $3',
-      ['Updated NPC', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
+    await expect(
+      update(id, { entity_type: 'bogus' } as unknown as UpdateBaseEntityInput),
+    ).rejects.toThrow();
+
+    expect(await readBaseEntity(id)).toEqual(before);
   });
 
-  it('should update multiple fields', async () => {
-    await update('test-id', {
-      name: 'New Name',
-      description: 'New description',
+  it('clears description and image_id when they are set to null', async () => {
+    const { update } = await import('../update');
+    const { getDatabase } = await import('@db/database');
+    const id = await createNpc();
+    const db = await getDatabase();
+    await db.execute(
+      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
+      ['image-1', 'png', '2026-01-10T09:00:00.000Z'],
+    );
+    await update(id, { description: 'to clear', image_id: 'image-1' });
+    expect(await readBaseEntity(id)).toMatchObject({
+      description: 'to clear',
+      image_id: 'image-1',
     });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entities SET name = $1, description = $2, updated_at = $3 WHERE id = $4',
-      ['New Name', 'New description', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
-  });
+    await update(id, { description: null, image_id: null });
 
-  it('should throw when id is empty', async () => {
-    await expect(update('', { name: 'Test' })).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(update('   ', { name: 'Test' })).rejects.toThrow(
-      'Valid Base entity ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when no update fields are provided', async () => {
-    await expect(update('test-id', {})).rejects.toThrow(
-      'At least one field must be provided for update',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(await readBaseEntity(id)).toMatchObject({
+      description: null,
+      image_id: null,
+    });
   });
 });

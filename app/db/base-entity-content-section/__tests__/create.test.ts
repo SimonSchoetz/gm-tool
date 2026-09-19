@@ -1,78 +1,86 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { BaseEntityContentSection } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'test-generated-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-import { create } from '../create';
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
+
+const readSections = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<BaseEntityContentSection[]>(
+    'SELECT * FROM base_entity_content_sections',
+  );
+};
+
+const createBaseEntity = async () => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create } = await import('@db/base-entity');
+  return create('npcs', await createAdventure());
+};
 
 describe('create', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('inserts a section with base_entity_id, type, sort_order and timestamps and returns its id', async () => {
-    const sectionId = await create({
-      base_entity_id: 'entity-123',
-      type: 'text',
-      sort_order: 0,
+  it('stores a section created without a name as unchecked with no name or content', async () => {
+    const { create } = await import('../create');
+    const baseEntityId = await createBaseEntity();
+
+    const id = await create({
+      base_entity_id: baseEntityId,
+      type: '5e-stat-block',
+      sort_order: 4,
     });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO base_entity_content_sections (id, base_entity_id, type, sort_order, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)',
-      [
-        'test-generated-id',
-        'entity-123',
-        'text',
-        0,
-        '2024-01-15T10:30:00.000Z',
-        '2024-01-15T10:30:00.000Z',
-      ],
-    );
-    expect(sectionId).toBe('test-generated-id');
+    expect(await readSections()).toEqual([
+      {
+        id,
+        base_entity_id: baseEntityId,
+        name: null,
+        type: '5e-stat-block',
+        content: null,
+        checked: 0,
+        sort_order: 4,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
   });
 
-  it('includes name when provided', async () => {
+  it('stores the name when one is given', async () => {
+    const { create } = await import('../create');
+    const baseEntityId = await createBaseEntity();
+
     await create({
-      base_entity_id: 'entity-123',
+      base_entity_id: baseEntityId,
       type: 'text',
       sort_order: 0,
-      name: 'Summary',
+      name: 'Backstory',
     });
 
-    const [sql, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(sql).toContain('name');
-    expect(values).toContain('Summary');
+    expect(await readSections()).toMatchObject([{ name: 'Backstory' }]);
   });
 
-  it('throws when base_entity_id is empty', async () => {
+  it('rejects a base entity id with no base entity and stores nothing', async () => {
+    const { create } = await import('../create');
+
     await expect(
-      create({ base_entity_id: '', type: 'text', sort_order: 0 }),
-    ).rejects.toThrow('Valid Base entity ID is required');
-    expect(mockExecute).not.toHaveBeenCalled();
+      create({ base_entity_id: 'missing-entity', type: 'text', sort_order: 0 }),
+    ).rejects.toThrow('FOREIGN KEY constraint failed');
+
+    expect(await readSections()).toEqual([]);
   });
 });
