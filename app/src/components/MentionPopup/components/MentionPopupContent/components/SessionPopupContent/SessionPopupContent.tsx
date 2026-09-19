@@ -17,7 +17,7 @@ export const SessionPopupContent: FCProps<Props> = ({
 
   return (
     <EntityPopupBody
-      summary={session.summary ?? null}
+      summary={session.summary}
       imageId={null}
       textEditorId={`session-popup-${entityId}`}
     />

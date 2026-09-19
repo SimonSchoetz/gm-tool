@@ -1,76 +1,90 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Adventure, UpdateAdventureInput } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+const T1 = '2026-01-10T09:00:00.000Z';
+const T2 = '2026-01-11T09:00:00.000Z';
 
-import { update } from '../update';
+const readAdventure = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<Adventure[]>(
+    'SELECT * FROM adventures WHERE id = $1',
+    [id],
+  );
+  return rows[0];
+};
 
 describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(T1));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should update all provided fields', async () => {
-    await update('test-id', {
-      name: 'Updated Name',
-      description: 'Updated Description',
+  it('writes a new name with a new updated_at and leaves the other fields as they were', async () => {
+    const { create } = await import('../create');
+    const { update } = await import('../update');
+    const id = await create();
+    await update(id, { description: 'kept' });
+    vi.setSystemTime(new Date(T2));
+
+    await update(id, { name: 'New name' });
+
+    expect(await readAdventure(id)).toEqual({
+      id,
+      name: 'New name',
+      description: 'kept',
+      image_id: null,
+      created_at: T1,
+      updated_at: T2,
+    });
+  });
+
+  it('clears description and image_id when they are set to null', async () => {
+    const { create } = await import('../create');
+    const { update } = await import('../update');
+    const { getDatabase } = await import('@db/database');
+    const id = await create();
+    const db = await getDatabase();
+    await db.execute(
+      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
+      ['image-1', 'png', T1],
+    );
+    await update(id, { description: 'to clear', image_id: 'image-1' });
+    expect(await readAdventure(id)).toMatchObject({
+      description: 'to clear',
+      image_id: 'image-1',
     });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE adventures SET name = $1, description = $2, updated_at = $3 WHERE id = $4',
-      [
-        'Updated Name',
-        'Updated Description',
-        '2024-01-15T10:30:00.000Z',
-        'test-id',
-      ],
-    );
-  });
+    await update(id, { description: null, image_id: null });
 
-  it('should update only name', async () => {
-    await update('test-id', {
-      name: 'Updated Name',
+    expect(await readAdventure(id)).toMatchObject({
+      description: null,
+      image_id: null,
     });
-
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE adventures SET name = $1, updated_at = $2 WHERE id = $3',
-      ['Updated Name', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
   });
 
-  it('should throw error when id is empty', async () => {
-    await expect(update('', { name: 'Test' })).rejects.toThrow(
-      'Valid adventure ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
+  it('rejects a numeric name and leaves the row unchanged', async () => {
+    const { create } = await import('../create');
+    const { update } = await import('../update');
+    const id = await create();
+    const before = await readAdventure(id);
 
-  it('should allow empty name', async () => {
-    await update('test-id', { name: '' });
+    await expect(
+      update(id, { name: 5 } as unknown as UpdateAdventureInput),
+    ).rejects.toThrow();
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE adventures SET name = $1, updated_at = $2 WHERE id = $3',
-      ['', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
+    expect(await readAdventure(id)).toEqual(before);
   });
 });

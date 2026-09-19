@@ -13,19 +13,19 @@ export const sessionTable = defineTable({
     },
     name: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     description: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     summary: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     session_date: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     active_view: {
       type: 'TEXT',

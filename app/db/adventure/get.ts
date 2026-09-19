@@ -1,10 +1,9 @@
 import { getDatabase } from '../database';
+import { assertValidId } from '../util';
 import type { Adventure } from './types';
 
 export const get = async (id: string): Promise<Adventure | null> => {
-  if (!id || typeof id !== 'string' || id.trim() === '') {
-    throw new Error('Valid adventure ID is required');
-  }
+  assertValidId(id, 'adventure');
 
   const db = await getDatabase();
   const result = await db.select<Adventure[]>(

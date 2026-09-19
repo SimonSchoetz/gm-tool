@@ -1,49 +1,31 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { remove } from '../remove';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('remove', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should delete session step by id', async () => {
-    await remove('step-id');
+  it("removes only the given step and leaves the session's other step", async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createSession } = await import('@db/session');
+    const { create } = await import('../create');
+    const { remove } = await import('../remove');
+    const { getAllBySession } = await import('../get-all-by-session');
+    const sessionId = await createSession(await createAdventure());
+    const removedId = await create({ session_id: sessionId, sort_order: 0 });
+    const keptId = await create({ session_id: sessionId, sort_order: 1 });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'DELETE FROM session_steps WHERE id = $1',
-      ['step-id'],
-    );
-  });
+    await remove(removedId);
 
-  it('should throw when id is empty', async () => {
-    await expect(remove('')).rejects.toThrow(
-      'Valid Session Step ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(remove('   ')).rejects.toThrow(
-      'Valid Session Step ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect((await getAllBySession(sessionId)).map((step) => step.id)).toEqual([
+      keptId,
+    ]);
   });
 });

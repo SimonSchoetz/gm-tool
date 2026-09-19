@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import './ToAdventureBtn.css';
 
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types';
 
 import { HoloImg } from '@/components';
 import { Adventure } from '@db/adventure';
@@ -13,7 +13,7 @@ import {
 
 type Props = {
   adventure: Adventure;
-} & HtmlProps<'div'>;
+};
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
   const route = buildEntityPath('adventures', adventure.id, null);
 
@@ -21,10 +21,10 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
     <Link
       to={route}
       className={'to-adventure-link'}
-      aria-label={adventure.name}
+      aria-label={adventure.name ?? undefined}
     >
       <HoloImg
-        image_id={adventure.image_id ?? null}
+        image_id={adventure.image_id}
         title={adventure.name ?? ''}
         dimensions={{
           width: PREVIEW_WIDTH,

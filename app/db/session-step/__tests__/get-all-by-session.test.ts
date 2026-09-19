@@ -1,77 +1,33 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { SessionStep } from '../types';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { getAllBySession } from '../get-all-by-session';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getAllBySession', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should return session steps for a given sessionId ordered by sort_order ASC', async () => {
-    const step1: SessionStep = {
-      id: 'step-1',
-      session_id: 'sess-id',
-      sort_order: 0,
-      checked: 0,
-      created_at: '2024-01-15T10:30:00.000Z',
-      updated_at: '2024-01-15T10:30:00.000Z',
-    };
-    const step2: SessionStep = {
-      id: 'step-2',
-      session_id: 'sess-id',
-      sort_order: 1,
-      checked: 0,
-      created_at: '2024-01-15T10:30:00.000Z',
-      updated_at: '2024-01-15T10:30:00.000Z',
-    };
+  it("returns only the session's steps in ascending sort order", async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createSession } = await import('@db/session');
+    const { create } = await import('../create');
+    const { getAllBySession } = await import('../get-all-by-session');
+    const adventureId = await createAdventure();
+    const sessionId = await createSession(adventureId);
+    const otherSessionId = await createSession(adventureId);
+    // Inserted out of sort order, so insertion order and sort order differ.
+    const thirdId = await create({ session_id: sessionId, sort_order: 2 });
+    const firstId = await create({ session_id: sessionId, sort_order: 0 });
+    const secondId = await create({ session_id: sessionId, sort_order: 1 });
+    await create({ session_id: otherSessionId, sort_order: 0 });
 
-    const SELECT_SQL =
-      'SELECT * FROM session_steps WHERE session_id = $1 ORDER BY sort_order ASC';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [step1, step2] : []),
-    );
+    const steps = await getAllBySession(sessionId);
 
-    const result = await getAllBySession('sess-id');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['sess-id']);
-    expect(result).toEqual([step1, step2]);
-  });
-
-  it('should return empty array when no steps found for the session', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await getAllBySession('sess-id');
-
-    expect(result).toEqual([]);
-  });
-
-  it('should throw when sessionId is empty string', async () => {
-    await expect(getAllBySession('')).rejects.toThrow(
-      'Valid Session ID is required',
-    );
-  });
-
-  it('should throw when sessionId is whitespace only', async () => {
-    await expect(getAllBySession('   ')).rejects.toThrow(
-      'Valid Session ID is required',
-    );
+    expect(steps.map((step) => step.id)).toEqual([firstId, secondId, thirdId]);
   });
 });

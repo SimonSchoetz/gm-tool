@@ -1,62 +1,39 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Adventure } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { getAll } from '../get-all';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getAll', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return adventures ordered by created_at DESC', async () => {
-    const adventure1: Adventure = {
-      id: '1',
-      name: 'Adventure 1',
-      description: 'Desc 1',
-      created_at: '2025-01-02',
-      updated_at: '2025-01-02',
-    };
-    const adventure2: Adventure = {
-      id: '2',
-      name: 'Adventure 2',
-      description: 'Desc 2',
-      created_at: '2025-01-01',
-      updated_at: '2025-01-01',
-    };
+  it('returns every adventure, the most recently created first', async () => {
+    const { create } = await import('../create');
+    const { getAll } = await import('../get-all');
+    // Created out of order, so insertion order and creation order differ.
+    vi.setSystemTime(new Date('2026-01-03T00:00:00.000Z'));
+    const latestId = await create();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const oldestId = await create();
+    vi.setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+    const middleId = await create();
 
-    const SELECT_SQL = 'SELECT * FROM adventures ORDER BY created_at DESC';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [adventure1, adventure2] : []),
-    );
+    const adventures = await getAll();
 
-    const result = await getAll();
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL);
-    expect(result).toEqual([adventure1, adventure2]);
-  });
-
-  it('should return empty array when no adventures exist', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await getAll();
-
-    expect(result).toEqual([]);
+    expect(adventures.map((adventure) => adventure.id)).toEqual([
+      latestId,
+      middleId,
+      oldestId,
+    ]);
   });
 });

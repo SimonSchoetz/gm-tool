@@ -22,15 +22,15 @@ export const sessionStepTable = defineTable({
     },
     name: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     content: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     default_step_key: {
       type: 'TEXT',
-      zod: z.enum(LAZY_DM_STEP_KEYS).nullable().optional(),
+      zod: z.enum(LAZY_DM_STEP_KEYS).nullable(),
     },
     checked: {
       type: 'INTEGER',

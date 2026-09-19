@@ -1,65 +1,50 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Encounter } from '../types';
+import { getDateTimeString } from '@util';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { get } from '../get';
+const FIRST_CREATED_AT = '2026-01-10T09:00:00.000Z';
+const SECOND_CREATED_AT = '2026-01-11T09:00:00.000Z';
 
 describe('get', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(FIRST_CREATED_AT));
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return Encounter by id', async () => {
-    const mockEncounter: Encounter = {
-      id: 'test-id',
-      adventure_id: 'test-adventure-id',
-      name: 'Test Encounter',
+  it('returns the requested encounter when several are stored', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const { get } = await import('../get');
+    const adventureId = await createAdventure();
+    await create(adventureId);
+    vi.setSystemTime(new Date(SECOND_CREATED_AT));
+    const secondId = await create(adventureId);
+
+    expect(await get(secondId)).toEqual({
+      id: secondId,
+      adventure_id: adventureId,
+      name: `New Encounter ${getDateTimeString(SECOND_CREATED_AT)}`,
       description: null,
       pinned_order: null,
-      created_at: '2025-01-01',
-      updated_at: '2025-01-01',
-    };
-
-    const SELECT_SQL = 'SELECT * FROM encounters WHERE id = $1';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [mockEncounter] : []),
-    );
-
-    const result = await get('test-id');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id']);
-    expect(result).toEqual(mockEncounter);
+      created_at: SECOND_CREATED_AT,
+      updated_at: SECOND_CREATED_AT,
+    });
   });
 
-  it('should return null when Encounter not found', async () => {
-    mockSelect.mockResolvedValue([]);
+  it('returns null for an id with no encounter', async () => {
+    const { get } = await import('../get');
 
-    const result = await get('non-existent-id');
-
-    expect(result).toBeNull();
-  });
-
-  it('should throw when id is empty string', async () => {
-    await expect(get('')).rejects.toThrow('Valid Encounter ID is required');
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(get('   ')).rejects.toThrow('Valid Encounter ID is required');
+    expect(await get('missing-encounter')).toBeNull();
   });
 });

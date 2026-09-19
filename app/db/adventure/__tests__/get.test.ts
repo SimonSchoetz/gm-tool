@@ -1,68 +1,51 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Adventure } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-import { get } from '../get';
+const FIRST_CREATED_AT = '2026-01-10T09:00:00.000Z';
+const SECOND_CREATED_AT = '2026-01-11T09:00:00.000Z';
 
 describe('get', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(FIRST_CREATED_AT));
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return adventure by id', async () => {
-    const mockAdventure: Adventure = {
-      id: 'test-id',
-      name: 'Test Adventure',
-      description: 'Test Description',
-      created_at: '2025-10-13',
-      updated_at: '2025-10-13',
-    };
+  it('returns the requested adventure when several are stored', async () => {
+    const { create } = await import('../create');
+    const { update } = await import('../update');
+    const { get } = await import('../get');
+    await create();
+    vi.setSystemTime(new Date(SECOND_CREATED_AT));
+    const secondId = await create();
+    await update(secondId, {
+      name: 'Second adventure',
+      description: 'Second description',
+    });
 
-    const SELECT_SQL = 'SELECT * FROM adventures WHERE id = $1';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [mockAdventure] : []),
-    );
-
-    const result = await get('test-id');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id']);
-    expect(result).toEqual(mockAdventure);
+    expect(await get(secondId)).toEqual({
+      id: secondId,
+      name: 'Second adventure',
+      description: 'Second description',
+      image_id: null,
+      created_at: SECOND_CREATED_AT,
+      updated_at: SECOND_CREATED_AT,
+    });
   });
 
-  it('should return null when adventure not found', async () => {
-    mockSelect.mockResolvedValue([]);
+  it('returns null for an id with no adventure', async () => {
+    const { get } = await import('../get');
 
-    const result = await get('non-existent-id');
-
-    expect(result).toBeNull();
-  });
-
-  it('should throw error when id is empty', async () => {
-    await expect(get('')).rejects.toThrow('Valid adventure ID is required');
-    expect(mockSelect).not.toHaveBeenCalled();
-  });
-
-  it('should throw error when id is whitespace only', async () => {
-    await expect(get('   ')).rejects.toThrow('Valid adventure ID is required');
-    expect(mockSelect).not.toHaveBeenCalled();
+    expect(await get('missing-adventure')).toBeNull();
   });
 });

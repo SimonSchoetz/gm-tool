@@ -1,60 +1,62 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Session } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'test-generated-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-import { create } from '../create';
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
+
+const readSessions = async () => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<Session[]>('SELECT * FROM sessions');
+};
 
 describe('create', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should insert session and return generated ID', async () => {
-    const sessionId = await create('adventure-123');
+  it('stores a session for the adventure in the prep view with no name, description, summary or date', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const adventureId = await createAdventure();
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT INTO sessions (id, adventure_id, created_at, updated_at) VALUES ($1, $2, $3, $4)',
-      [
-        'test-generated-id',
-        'adventure-123',
-        '2024-01-15T10:30:00.000Z',
-        '2024-01-15T10:30:00.000Z',
-      ],
+    const id = await create(adventureId);
+
+    expect(await readSessions()).toEqual([
+      {
+        id,
+        name: null,
+        description: null,
+        summary: null,
+        session_date: null,
+        active_view: 'prep',
+        adventure_id: adventureId,
+        pinned_order: null,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
+  });
+
+  it('rejects an adventure id with no adventure and stores nothing', async () => {
+    const { create } = await import('../create');
+
+    await expect(create('missing-adventure')).rejects.toThrow(
+      'FOREIGN KEY constraint failed',
     );
-    expect(sessionId).toBe('test-generated-id');
-  });
 
-  it('should throw when adventure_id is empty', async () => {
-    await expect(create('')).rejects.toThrow('Valid adventure ID is required');
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(await readSessions()).toEqual([]);
   });
 });

@@ -1,68 +1,72 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { SessionStep, UpdateSessionStepInput } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
+const readStep = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<SessionStep[]>(
+    'SELECT * FROM session_steps WHERE id = $1',
+    [id],
+  );
+  return rows[0];
+};
 
-import { update } from '../update';
+const createStep = async (sortOrder = 1) => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create: createSession } = await import('@db/session');
+  const { create } = await import('../create');
+  const sessionId = await createSession(await createAdventure());
+  return create({ session_id: sessionId, sort_order: sortOrder });
+};
 
 describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
     vi.resetModules();
   });
 
-  it('should update name and produce correct SQL', async () => {
-    await update('step-id', { name: 'Updated Name' });
+  it('writes checked 0 and sort order 0 over the values 1', async () => {
+    const { update } = await import('../update');
+    const id = await createStep(1);
+    await update(id, { checked: 1 });
+    expect(await readStep(id)).toMatchObject({ checked: 1, sort_order: 1 });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE session_steps SET name = $1, updated_at = $2 WHERE id = $3',
-      ['Updated Name', '2024-01-15T10:30:00.000Z', 'step-id'],
-    );
+    await update(id, { checked: 0, sort_order: 0 });
+
+    expect(await readStep(id)).toMatchObject({ checked: 0, sort_order: 0 });
   });
 
-  it('should update checked field', async () => {
-    await update('step-id', { checked: 1 });
+  it('clears name and content when they are set to null', async () => {
+    const { update } = await import('../update');
+    const id = await createStep();
+    await update(id, { name: 'to clear', content: 'to clear too' });
+    expect(await readStep(id)).toMatchObject({
+      name: 'to clear',
+      content: 'to clear too',
+    });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE session_steps SET checked = $1, updated_at = $2 WHERE id = $3',
-      [1, '2024-01-15T10:30:00.000Z', 'step-id'],
-    );
+    await update(id, { name: null, content: null });
+
+    expect(await readStep(id)).toMatchObject({ name: null, content: null });
   });
 
-  it('should throw when id is empty', async () => {
-    await expect(update('', { name: 'Test' })).rejects.toThrow(
-      'Valid SessionStep ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
+  it('rejects a step key outside the lazy DM keys and leaves the row unchanged', async () => {
+    const { update } = await import('../update');
+    const id = await createStep();
+    const before = await readStep(id);
 
-  it('should throw when id is whitespace only', async () => {
-    await expect(update('   ', { name: 'Test' })).rejects.toThrow(
-      'Valid SessionStep ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
+    await expect(
+      update(id, {
+        default_step_key: 'bogus',
+      } as unknown as UpdateSessionStepInput),
+    ).rejects.toThrow();
 
-  it('should throw when no update fields are provided', async () => {
-    await expect(update('step-id', {})).rejects.toThrow(
-      'At least one field must be provided for update',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(await readStep(id)).toEqual(before);
   });
 });

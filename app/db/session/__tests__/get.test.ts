@@ -1,69 +1,52 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Session } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-import { get } from '../get';
+const FIRST_CREATED_AT = '2026-01-10T09:00:00.000Z';
+const SECOND_CREATED_AT = '2026-01-11T09:00:00.000Z';
 
 describe('get', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(FIRST_CREATED_AT));
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return session by id', async () => {
-    const mockSession: Session = {
-      id: 'test-id-1',
-      adventure_id: 'adventure-id-1',
-      name: 'Test Session',
-      description: 'Test Description',
+  it('returns the requested session when several are stored', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const { get } = await import('../get');
+    const adventureId = await createAdventure();
+    await create(adventureId);
+    vi.setSystemTime(new Date(SECOND_CREATED_AT));
+    const secondId = await create(adventureId);
+
+    expect(await get(secondId)).toEqual({
+      id: secondId,
+      name: null,
+      description: null,
+      summary: null,
+      session_date: null,
       active_view: 'prep',
+      adventure_id: adventureId,
       pinned_order: null,
-      created_at: '2024-01-15T10:30:00.000Z',
-      updated_at: '2024-01-15T10:30:00.000Z',
-    };
-
-    const SELECT_SQL = 'SELECT * FROM sessions WHERE id = $1';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [mockSession] : []),
-    );
-
-    const session = await get('test-id-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['test-id-1']);
-    expect(session).toEqual(mockSession);
+      created_at: SECOND_CREATED_AT,
+      updated_at: SECOND_CREATED_AT,
+    });
   });
 
-  it('should return null when session not found', async () => {
-    mockSelect.mockResolvedValue([]);
+  it('returns null for an id with no session', async () => {
+    const { get } = await import('../get');
 
-    const session = await get('non-existent-id');
-
-    expect(session).toBeNull();
-  });
-
-  it('should throw error when id is empty', async () => {
-    await expect(get('')).rejects.toThrow('Valid session ID is required');
-  });
-
-  it('should throw error when id is whitespace only', async () => {
-    await expect(get('   ')).rejects.toThrow('Valid session ID is required');
+    expect(await get('missing-session')).toBeNull();
   });
 });

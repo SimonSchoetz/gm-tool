@@ -1,47 +1,30 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { remove } from '../remove';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('remove', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
     vi.resetModules();
   });
 
-  it('should delete encounter by id', async () => {
-    await remove('test-id');
+  it("removes the encounter and leaves the adventure's other encounter", async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const { remove } = await import('../remove');
+    const { getAll } = await import('../get-all');
+    const adventureId = await createAdventure();
+    const removedId = await create(adventureId);
+    const keptId = await create(adventureId);
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'DELETE FROM encounters WHERE id = $1',
-      ['test-id'],
-    );
-  });
+    await remove(removedId);
 
-  it('should throw when id is empty', async () => {
-    await expect(remove('')).rejects.toThrow('Valid Encounter ID is required');
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
-  it('should throw when id is whitespace only', async () => {
-    await expect(remove('   ')).rejects.toThrow(
-      'Valid Encounter ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(
+      (await getAll(adventureId)).map((encounter) => encounter.id),
+    ).toEqual([keptId]);
   });
 });

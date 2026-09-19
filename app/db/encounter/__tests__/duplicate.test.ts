@@ -1,108 +1,85 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Encounter } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'new-encounter-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-const mockGet = vi.fn();
-vi.mock('../get', () => ({
-  get: (id: string) => mockGet(id) as unknown,
-}));
+const T1 = '2026-01-10T09:00:00.000Z';
+const T2 = '2026-01-11T09:00:00.000Z';
 
-import { duplicate } from '../duplicate';
-
-const sourceRow = {
-  id: 'source-encounter-id',
-  adventure_id: 'adventure-123',
-  name: 'Goblin Ambush',
-  description: 'Three goblins behind the rocks',
-  pinned_order: 3,
-  created_at: '2023-05-01T08:00:00.000Z',
-  updated_at: '2023-05-02T08:00:00.000Z',
+const readEncounter = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<Encounter[]>(
+    'SELECT * FROM encounters WHERE id = $1',
+    [id],
+  );
+  return rows[0];
 };
 
-const INSERT_SQL =
-  'INSERT INTO encounters (id, adventure_id, description, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)';
+// The source holds a name, a description and a pin, so a copy of a column the duplicate must reset shows.
+const seedSourceEncounter = async () => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create } = await import('../create');
+  const { update } = await import('../update');
+  const { setPinnedOrder } = await import('@db/pinned-order');
+  const adventureId = await createAdventure();
+  const sourceId = await create(adventureId);
+  await update(sourceId, { description: 'd' });
+  await setPinnedOrder('encounters', sourceId, 2);
+  return { adventureId, sourceId };
+};
 
-describe('encounter.duplicate', () => {
+describe('duplicate', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    mockGet.mockResolvedValue(sourceRow);
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(T1));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('omits name so the duplicate has no name', async () => {
-    await duplicate('source-encounter-id');
+  it('creates a new encounter of the same adventure that keeps the description and resets the name, pin and timestamps', async () => {
+    const { duplicate } = await import('../duplicate');
+    const { adventureId, sourceId } = await seedSourceEncounter();
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, expect.any(Array));
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      expect.stringMatching(/^INSERT INTO encounters \([^)]*\bname\b/),
-      expect.anything(),
-    );
+    const duplicateId = await duplicate(sourceId);
+
+    expect(duplicateId).not.toBe(sourceId);
+    expect(await readEncounter(duplicateId)).toEqual({
+      id: duplicateId,
+      adventure_id: adventureId,
+      name: null,
+      description: 'd',
+      pinned_order: null,
+      created_at: T2,
+      updated_at: T2,
+    });
   });
 
-  it('copies every other source column', async () => {
-    await duplicate('source-encounter-id');
+  it('leaves the source encounter unchanged, timestamps included', async () => {
+    const { duplicate } = await import('../duplicate');
+    const { sourceId } = await seedSourceEncounter();
+    const before = await readEncounter(sourceId);
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-encounter-id',
-      'adventure-123',
-      'Three goblins behind the rocks',
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
+    await duplicate(sourceId);
+
+    expect(await readEncounter(sourceId)).toEqual(before);
   });
 
-  it('generates a fresh id and fresh timestamps', async () => {
-    const result = await duplicate('source-encounter-id');
+  it('rejects an unknown source id', async () => {
+    const { duplicate } = await import('../duplicate');
 
-    expect(result).toBe('new-encounter-id');
-    expect(mockExecute).toHaveBeenCalledWith(INSERT_SQL, [
-      'new-encounter-id',
-      'adventure-123',
-      'Three goblins behind the rocks',
-      '2024-01-15T10:30:00.000Z',
-      '2024-01-15T10:30:00.000Z',
-    ]);
-  });
-
-  it('throws when the source row does not exist', async () => {
-    mockGet.mockResolvedValue(null);
-
-    await expect(duplicate('missing-encounter-id')).rejects.toThrow(
-      'Encounter not found: missing-encounter-id',
-    );
-  });
-
-  it('omits pinned_order so the duplicate starts unpinned', async () => {
-    await duplicate('source-encounter-id');
-
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      expect.stringMatching(/^INSERT INTO encounters \([^)]*\bpinned_order\b/),
-      expect.anything(),
+    await expect(duplicate('missing-encounter')).rejects.toThrow(
+      'Encounter not found: missing-encounter',
     );
   });
 });

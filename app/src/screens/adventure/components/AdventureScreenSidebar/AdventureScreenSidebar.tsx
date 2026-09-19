@@ -32,7 +32,7 @@ export const AdventureScreenSidebar = () => {
           width: PREVIEW_WIDTH,
           height: ADVENTURE_PREVIEW_HEIGHT,
         }}
-        image_id={adventure.image_id ?? null}
+        image_id={adventure.image_id}
         uploadFn={(filePath) => {
           updateAdventure({
             imgFilePath: filePath,

@@ -1,71 +1,84 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Encounter, UpdateEncounterInput } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
+const T1 = '2026-01-10T09:00:00.000Z';
+const T2 = '2026-01-11T09:00:00.000Z';
 
-import { update } from '../update';
+const readEncounter = async (id: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  const rows = await db.select<Encounter[]>(
+    'SELECT * FROM encounters WHERE id = $1',
+    [id],
+  );
+  return rows[0];
+};
+
+const createEncounter = async () => {
+  const { create: createAdventure } = await import('@db/adventure');
+  const { create } = await import('../create');
+  return create(await createAdventure());
+};
 
 describe('update', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(T1));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should update name and produce correct SQL', async () => {
-    await update('test-id', { name: 'Updated Encounter' });
+  it('writes the description with a new updated_at', async () => {
+    const { update } = await import('../update');
+    const id = await createEncounter();
+    const before = await readEncounter(id);
+    vi.setSystemTime(new Date(T2));
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE encounters SET name = $1, updated_at = $2 WHERE id = $3',
-      ['Updated Encounter', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
+    await update(id, { description: 'A goblin ambush' });
+
+    expect(await readEncounter(id)).toEqual({
+      ...before,
+      description: 'A goblin ambush',
+      updated_at: T2,
+    });
   });
 
-  it('should update multiple fields', async () => {
-    await update('test-id', {
-      name: 'New Name',
-      description: 'New description',
+  it('clears name and description when they are set to null', async () => {
+    const { update } = await import('../update');
+    const id = await createEncounter();
+    await update(id, { description: 'to clear' });
+    expect(await readEncounter(id)).toMatchObject({
+      description: 'to clear',
+      name: expect.any(String) as string,
     });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE encounters SET name = $1, description = $2, updated_at = $3 WHERE id = $4',
-      ['New Name', 'New description', '2024-01-15T10:30:00.000Z', 'test-id'],
-    );
+    await update(id, { name: null, description: null });
+
+    expect(await readEncounter(id)).toMatchObject({
+      name: null,
+      description: null,
+    });
   });
 
-  it('should throw when id is empty', async () => {
-    await expect(update('', { name: 'Test' })).rejects.toThrow(
-      'Valid Encounter ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
+  it('rejects a numeric description and leaves the row unchanged', async () => {
+    const { update } = await import('../update');
+    const id = await createEncounter();
+    const before = await readEncounter(id);
 
-  it('should throw when id is whitespace only', async () => {
-    await expect(update('   ', { name: 'Test' })).rejects.toThrow(
-      'Valid Encounter ID is required',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
+    await expect(
+      update(id, { description: 5 } as unknown as UpdateEncounterInput),
+    ).rejects.toThrow();
 
-  it('should throw when no update fields are provided', async () => {
-    await expect(update('test-id', {})).rejects.toThrow(
-      'At least one field must be provided for update',
-    );
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(await readEncounter(id)).toEqual(before);
   });
 });

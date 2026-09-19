@@ -9,6 +9,6 @@ export const Route = createFileRoute('/adventure/$adventureId/')({
       ...adventureQueryOptions(params.adventureId),
       staleTime: 'static',
     });
-    await ensureImagePainted(context.queryClient, adventure.image_id ?? null);
+    await ensureImagePainted(context.queryClient, adventure.image_id);
   },
 });

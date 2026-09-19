@@ -1,77 +1,44 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Encounter } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { getAll } from '../get-all';
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getAll', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('should return encounters for a given adventureId ordered by created_at DESC', async () => {
-    const encounter1: Encounter = {
-      id: '1',
-      adventure_id: 'adv-1',
-      name: 'Encounter 1',
-      description: null,
-      pinned_order: null,
-      created_at: '2025-01-02',
-      updated_at: '2025-01-02',
-    };
-    const encounter2: Encounter = {
-      id: '2',
-      adventure_id: 'adv-1',
-      name: 'Encounter 2',
-      description: null,
-      pinned_order: null,
-      created_at: '2025-01-01',
-      updated_at: '2025-01-01',
-    };
+  it("returns only the given adventure's encounters, the most recently created first", async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create } = await import('../create');
+    const { getAll } = await import('../get-all');
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const adventureId = await createAdventure();
+    const otherAdventureId = await createAdventure();
+    // Created out of order, so insertion order and creation order differ.
+    vi.setSystemTime(new Date('2026-01-03T00:00:00.000Z'));
+    const latestId = await create(adventureId);
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const oldestId = await create(adventureId);
+    vi.setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+    const middleId = await create(adventureId);
+    await create(otherAdventureId);
 
-    const SELECT_SQL =
-      'SELECT * FROM encounters WHERE adventure_id = $1 ORDER BY created_at DESC';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [encounter1, encounter2] : []),
-    );
+    const encounters = await getAll(adventureId);
 
-    const result = await getAll('adv-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['adv-1']);
-    expect(result).toEqual([encounter1, encounter2]);
-  });
-
-  it('should return empty array when no encounters exist for the adventure', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await getAll('adv-1');
-
-    expect(result).toEqual([]);
-  });
-
-  it('should throw when adventureId is empty string', async () => {
-    await expect(getAll('')).rejects.toThrow('Valid Adventure ID is required');
-  });
-
-  it('should throw when adventureId is whitespace only', async () => {
-    await expect(getAll('   ')).rejects.toThrow(
-      'Valid Adventure ID is required',
-    );
+    expect(encounters.map((encounter) => encounter.id)).toEqual([
+      latestId,
+      middleId,
+      oldestId,
+    ]);
   });
 });

@@ -11,11 +11,11 @@ export const adventureTable = defineTable({
     },
     name: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     description: {
       type: 'TEXT',
-      zod: z.string().optional(),
+      zod: z.string().nullable(),
     },
     image_id: {
       type: 'TEXT',
@@ -24,7 +24,7 @@ export const adventureTable = defineTable({
         column: 'id',
         onDelete: 'SET NULL',
       },
-      zod: z.string().nullable().optional(),
+      zod: z.string().nullable(),
     },
     created_at: {
       type: 'TEXT',

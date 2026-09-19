@@ -1,69 +1,43 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { getDateTimeString } from '@util';
+import type { Adventure } from '../types';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
-
-vi.mock('../../util', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../util')>();
-  return {
-    ...actual,
-    generateId: vi.fn(() => 'test-generated-id'),
-  };
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-import { create } from '../create';
+const CREATED_AT = '2026-01-10T09:00:00.000Z';
 
 describe('create', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T10:30:00.000Z'));
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(CREATED_AT));
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.resetModules();
   });
 
-  it('should insert adventure and return generated ID', async () => {
-    const adventureId = await create();
+  it('stores a named adventure without description or image and returns its id', async () => {
+    const { create } = await import('../create');
+    const { getDatabase } = await import('@db/database');
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO adventures'),
-      expect.arrayContaining(['test-generated-id']),
-    );
-    expect(adventureId).toBe('test-generated-id');
-  });
+    const id = await create();
 
-  it('should create adventure with a default name prefixed "New adventure"', async () => {
-    await create();
-
-    const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    const name = values.find(
-      (v): v is string =>
-        typeof v === 'string' && v.startsWith('New adventure '),
-    );
-    expect(name).toBeDefined();
-  });
-
-  it('should set created_at and updated_at as ISO 8601 timestamps', async () => {
-    await create();
-
-    const [, values] = mockExecute.mock.calls[0] as [string, unknown[]];
-    expect(values.at(-2)).toBe('2024-01-15T10:30:00.000Z');
-    expect(values.at(-1)).toBe('2024-01-15T10:30:00.000Z');
+    const db = await getDatabase();
+    expect(await db.select<Adventure[]>('SELECT * FROM adventures')).toEqual([
+      {
+        id,
+        name: `New adventure ${getDateTimeString(CREATED_AT)}`,
+        description: null,
+        image_id: null,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
   });
 });
