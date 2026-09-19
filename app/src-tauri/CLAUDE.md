@@ -315,7 +315,7 @@ Requests the other side generate and display a pairing code (a random 6-digit co
 
 ## Testing
 
-TODO: Add testing patterns when implemented
+Pure functions and state-machine logic that can run without networking — frame parsing, key encoding, id validation at the peer trust boundary, pairing verdict handling — are unit-tested with `#[cfg(test)]` modules colocated with the code they test. Networking glue (`connectivity/` state and I/O, `commands/connectivity/` wrappers) is not unit-tested; see Structure and Connectivity Commands above for the logic/I/O boundary.
 
 ## Dependencies
 

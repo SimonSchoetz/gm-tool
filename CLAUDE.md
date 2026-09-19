@@ -97,6 +97,7 @@ The verification obligation stated in the shared rules file's Epistemological Di
   | `test` | `npx vitest run` | `app/` | full-suite-only | always |
   | `rust-lint` | `cargo clippy -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
+  | `rust-test` | `cargo test` | `app/src-tauri/` | full-suite-only | when `app/src-tauri/` is touched |
 
   `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs twice per session: at the start (baseline) and after the final review cycle, before committing.
 
