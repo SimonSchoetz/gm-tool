@@ -7,7 +7,8 @@ export const Route = createFileRoute(
 )({
   component: EncounterScreen,
   loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(
-      encounterQueryOptions(params.encounterId),
-    ),
+    context.queryClient.query({
+      ...encounterQueryOptions(params.encounterId),
+      staleTime: 'static',
+    }),
 });

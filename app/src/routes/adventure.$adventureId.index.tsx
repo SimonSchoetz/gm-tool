@@ -5,9 +5,10 @@ import { adventureQueryOptions, ensureImagePainted } from '@/data-access-layer';
 export const Route = createFileRoute('/adventure/$adventureId/')({
   component: AdventureScreen,
   loader: async ({ context, params }) => {
-    const adventure = await context.queryClient.ensureQueryData(
-      adventureQueryOptions(params.adventureId),
-    );
+    const adventure = await context.queryClient.query({
+      ...adventureQueryOptions(params.adventureId),
+      staleTime: 'static',
+    });
     await ensureImagePainted(context.queryClient, adventure.image_id ?? null);
   },
 });

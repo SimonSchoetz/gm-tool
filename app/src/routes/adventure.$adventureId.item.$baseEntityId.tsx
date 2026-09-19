@@ -10,9 +10,10 @@ export const Route = createFileRoute(
 )({
   component: () => <BaseEntityScreen entityType='items' />,
   loader: async ({ context, params }) => {
-    const baseEntity = await context.queryClient.ensureQueryData(
-      baseEntityQueryOptions('items', params.baseEntityId),
-    );
+    const baseEntity = await context.queryClient.query({
+      ...baseEntityQueryOptions('items', params.baseEntityId),
+      staleTime: 'static',
+    });
     await ensureImagePainted(context.queryClient, baseEntity.image_id);
   },
 });

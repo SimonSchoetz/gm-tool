@@ -7,7 +7,10 @@ export const ensureImagePainted = async (
 ): Promise<void> => {
   if (imageId === null) return;
 
-  const { url } = await queryClient.ensureQueryData(imageQueryOptions(imageId));
+  const { url } = await queryClient.query({
+    ...imageQueryOptions(imageId),
+    staleTime: 'static',
+  });
   if (!url) return;
 
   const image = new Image();

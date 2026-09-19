@@ -11,12 +11,14 @@ export const Route = createFileRoute(
   component: SessionScreen,
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(
-        sessionQueryOptions(params.sessionId),
-      ),
-      context.queryClient.ensureQueryData(
-        sessionStepListQueryOptions(params.sessionId),
-      ),
+      context.queryClient.query({
+        ...sessionQueryOptions(params.sessionId),
+        staleTime: 'static',
+      }),
+      context.queryClient.query({
+        ...sessionStepListQueryOptions(params.sessionId),
+        staleTime: 'static',
+      }),
     ]);
   },
 });

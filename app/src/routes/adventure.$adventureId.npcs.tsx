@@ -9,10 +9,14 @@ export const Route = createFileRoute('/adventure/$adventureId/npcs')({
   component: () => <BaseEntitiesScreen entityType='npcs' />,
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(
-        baseEntityListQueryOptions('npcs', params.adventureId),
-      ),
-      context.queryClient.ensureQueryData(tableConfigListQueryOptions()),
+      context.queryClient.query({
+        ...baseEntityListQueryOptions('npcs', params.adventureId),
+        staleTime: 'static',
+      }),
+      context.queryClient.query({
+        ...tableConfigListQueryOptions(),
+        staleTime: 'static',
+      }),
     ]);
   },
 });

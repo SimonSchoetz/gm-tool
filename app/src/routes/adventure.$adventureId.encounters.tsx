@@ -9,10 +9,14 @@ export const Route = createFileRoute('/adventure/$adventureId/encounters')({
   component: EncountersScreen,
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(
-        encounterListQueryOptions(params.adventureId),
-      ),
-      context.queryClient.ensureQueryData(tableConfigListQueryOptions()),
+      context.queryClient.query({
+        ...encounterListQueryOptions(params.adventureId),
+        staleTime: 'static',
+      }),
+      context.queryClient.query({
+        ...tableConfigListQueryOptions(),
+        staleTime: 'static',
+      }),
     ]);
   },
 });

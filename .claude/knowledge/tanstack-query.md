@@ -7,12 +7,19 @@
 
 `onMutate` fires synchronously before `mutationFn` runs (optimistic-update hook). A callback declared with only the leading `variables` parameter (omitting `context`) type-checks fine against this signature — TypeScript permits assigning a shorter-parameter-list function to a longer-parameter-list callback type. Safe to use `onMutate: (variables: TVariables) => { /* sync side effect */ }` without declaring the second parameter.
 
-## `QueryClient` exposes `prefetchQuery` and `ensureQueryData`; `queryOptions` builds shareable option objects
+## `QueryClient.query({ ...options, staleTime: 'static' })` replaces the deprecated `ensureQueryData`; `fetchQuery` and `prefetchQuery` are deprecated in favor of `query(options)`
 
-**Verified at:** @tanstack/react-query 5.101.2
-**Citation:** [plan-feature_15: app/node_modules/@tanstack/query-core/build/legacy/_tsup-dts-rollup.d.ts:1300 — `ensureQueryData<...>(options: EnsureQueryDataOptions<...>): Promise<TData>`; :1311 — `prefetchQuery<...>(options: FetchQueryOptions<...>): Promise<void>`; app/node_modules/@tanstack/react-query/build/legacy/_tsup-dts-rollup.d.ts:643 — `declare function queryOptions<...>`]
+**Verified at:** @tanstack/react-query 5.103.1 / @tanstack/query-core 5.103.1 — 2026-09-19
+**Citation:** [dependency-update_1: app/node_modules/.pnpm/@tanstack+query-core@5.103.1/node_modules/@tanstack/query-core/build/modern/hydration-Cq7QYAzB.d.ts:1336 — read: `@deprecated Use queryClient.query({ ...options, staleTime: 'static' }) instead` on `ensureQueryData`; :1490-1491 — `query` "replaces the deprecated `fetchQuery`, and — combined with `{ staleTime: 'static' }` — the deprecated `ensureQueryData`"; :1504,1508 — `@deprecated Use queryClient.query(options) instead` on `fetchQuery` and `prefetchQuery` (the latter adds "You can swallow errors with `.catch(noop)`"); app/node_modules/.pnpm/@tanstack+query-core@5.103.1/node_modules/@tanstack/query-core/build/modern/queryClient.js:129-136 — read: `ensureQueryData` returns `query.state.data` when defined and calls `fetchQuery` otherwise; query.js:216 — `if (staleTime === "static") return false;`; dependency-update_2: ran npx eslint . — observed 32 `@typescript-eslint/no-deprecated` errors on `ensureQueryData` call sites, then 0 after they became `queryClient.query({ ...options, staleTime: 'static' })`]
 
-`ensureQueryData` resolves to the cached data, fetching only on a cache miss, and is the correct primitive for a route loader that must guarantee data before render. `prefetchQuery` returns `Promise<void>` and swallows errors, making it the correct primitive for speculative warm-ups (hover intent) where a failure must not surface. The `queryOptions` helper produces a single typed options object consumable by both `useQuery` and the `QueryClient` methods, which is how one query definition is shared between a React hook and a non-React caller such as a router loader.
+`ensureQueryData` returned the cached data and fetched only on an empty cache, and `Query.isStaleByTime` treats a `'static'` staleTime as never stale. A route loader that must guarantee data before render therefore calls `queryClient.query({ ...options, staleTime: 'static' })`. `prefetchQuery` is deprecated too, with `query(options)` plus `.catch(noop)` as its replacement.
+
+## `queryOptions` builds one typed options object consumable by both `useQuery` and `QueryClient` methods
+
+**Verified at:** @tanstack/react-query 5.103.1 — 2026-09-19
+**Citation:** [dependency-update_3: app/node_modules/.pnpm/@tanstack+react-query@5.103.1_react@19.3.0/node_modules/@tanstack/react-query/build/modern/queryOptions.d.ts:104,136,191 — read: `declare function queryOptions<...>` overloads; dependency-update_4: ran npx tsc --noEmit — observed exit 0 with `context.queryClient.query({ ...adventureListQueryOptions(), staleTime: 'static' })` in app/src/routes/adventures.tsx]
+
+One query definition is shared between a React hook and a non-React caller such as a router loader by spreading the `queryOptions` result into the `QueryClient` call.
 
 ## `useMutation`'s returned `mutate`/`mutateAsync` always dispatches through one `MutationObserver` instance shared across every re-render of the same hook call site — never a per-render-frozen `mutationFn` closure
 

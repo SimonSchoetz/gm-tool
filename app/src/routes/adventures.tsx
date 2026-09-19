@@ -5,5 +5,8 @@ import { adventureListQueryOptions } from '@/data-access-layer';
 export const Route = createFileRoute('/adventures')({
   component: AdventuresScreen,
   loader: ({ context }) =>
-    context.queryClient.ensureQueryData(adventureListQueryOptions()),
+    context.queryClient.query({
+      ...adventureListQueryOptions(),
+      staleTime: 'static',
+    }),
 });

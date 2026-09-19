@@ -15,12 +15,14 @@ type MentionPrefetch = (
 const prefetchBaseEntity =
   (entityType: BaseEntityType): MentionPrefetch =>
   async (queryClient, entityId) => {
-    const baseEntity = await queryClient.ensureQueryData(
-      baseEntityQueryOptions(entityType, entityId),
-    );
-    await queryClient.ensureQueryData(
-      baseEntityContentSectionListQueryOptions(entityId),
-    );
+    const baseEntity = await queryClient.query({
+      ...baseEntityQueryOptions(entityType, entityId),
+      staleTime: 'static',
+    });
+    await queryClient.query({
+      ...baseEntityContentSectionListQueryOptions(entityId),
+      staleTime: 'static',
+    });
     await ensureImagePainted(queryClient, baseEntity.image_id);
   };
 
@@ -33,10 +35,16 @@ const mentionPrefetchMap: Record<MentionEntityType, MentionPrefetch> = {
   locations: prefetchBaseEntity('locations'),
   items: prefetchBaseEntity('items'),
   sessions: async (queryClient, entityId) => {
-    await queryClient.ensureQueryData(sessionQueryOptions(entityId));
+    await queryClient.query({
+      ...sessionQueryOptions(entityId),
+      staleTime: 'static',
+    });
   },
   encounters: async (queryClient, entityId) => {
-    await queryClient.ensureQueryData(encounterQueryOptions(entityId));
+    await queryClient.query({
+      ...encounterQueryOptions(entityId),
+      staleTime: 'static',
+    });
   },
 };
 
