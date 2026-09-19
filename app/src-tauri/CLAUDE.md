@@ -321,3 +321,14 @@ TODO: Add testing patterns when implemented
 
 Every dependency's purpose is documented inline in `Cargo.toml` as a trailing `# <purpose>` comment on its own line — not duplicated here, since a hand-maintained copy of the list drifts the moment a dependency is added or removed without a matching CLAUDE.md edit (as happened twice: the original connectivity crates, and now `base64`). When adding a new dependency, add its purpose comment in the same commit. Read `Cargo.toml` directly for the current list.
 
+## Third-Party Libraries
+
+For **Rust crates** (dependencies in `Cargo.toml`), the lookup procedure is:
+
+1. Check the installed version in `Cargo.toml` (or `Cargo.lock` for the resolved version when a range is specified)
+2. Fetch docs.rs for that exact version — confirm the version segment in the URL matches before treating anything on the page as authoritative
+3. If documentation is ambiguous or unavailable, ask before proceeding
+
+To inspect what a crate exports or how a specific API is shaped, read its source directly from the local Cargo registry (`~/.cargo/registry/src/<crate>-<version>/`, resolved from `Cargo.lock`) — version-exact by construction with no manual version-matching step, unlike docs.rs. Prefer local source over docs.rs for any concrete signature question (a function's parameters, a type's fields, a trait's methods); reserve docs.rs for narrative usage guidance the source itself doesn't cover.
+
+For **Tauri configuration values** (`tauri.conf.json` and related config files): locate the `$schema` field (e.g. `"$schema": "https://schema.tauri.app/config/2"`), fetch the JSON schema at that URL, and read the accepted enum strings directly from the schema — never infer them from prose documentation, which may use colloquial language that does not match the schema's declared values.

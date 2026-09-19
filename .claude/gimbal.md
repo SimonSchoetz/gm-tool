@@ -43,7 +43,7 @@ This file is this project's declaration for the `gimbal` Claude Code plugin — 
 | Frontend | `app/src/` | `app/src/CLAUDE.md` | ui |
 | Rust backend | `app/src-tauri/` | `app/src-tauri/CLAUDE.md` | backend |
 
-Conventions for `app/src/` are additionally carried by path-scoped rules under `.claude/rules/`, indexed in `app/src/CLAUDE.md` — Structure. Each loads only when Claude reads or references a matching path.
+Conventions for `app/src/` are additionally carried by path-scoped rules under `.claude/rules/`, indexed in `app/src/CLAUDE.md` — Structure. Each loads only when Claude reads a matching file.
 
 ## spec-directory
 

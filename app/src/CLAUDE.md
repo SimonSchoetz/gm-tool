@@ -26,7 +26,7 @@ src/
 └── main.tsx
 ```
 
-Conventions for `src/` are split by artifact kind across `.claude/rules/`, each file loading only when Claude reads or references a matching path: `src-css.md` (a stylesheet), `src-components.md` (a file that renders JSX, or a component-owned `helper/`), `src-screens.md` (a file under `screens/`), `src-routes.md` (a file under `routes/`), `src-providers.md` (a file under `providers/`), `src-data-access-layer.md` (a file under `data-access-layer/`), `src-unit-tests.md` (a `__tests__/`, `helper/` or `util/` file), `src-react-hooks.md` (a file that may call a React hook). Read one directly when you are about to create the first artifact of a kind you have not yet opened — nothing has loaded its rule yet.
+Conventions for `src/` are split by artifact kind across `.claude/rules/`, each file loading only when Claude reads a matching file: `src-css.md` (a stylesheet), `src-components.md` (a file that renders JSX, or a component-owned `helper/`), `src-screens.md` (a file under `screens/`), `src-routes.md` (a file under `routes/`), `src-providers.md` (a file under `providers/`), `src-data-access-layer.md` (a file under `data-access-layer/`), `src-unit-tests.md` (a `__tests__/`, `helper/` or `util/` file), `src-react-hooks.md` (a file that may call a React hook). Read one directly when you are about to create the first artifact of a kind you have not yet opened — nothing has loaded its rule yet.
 
 ## File Organization
 
