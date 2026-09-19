@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Adventure } from '@db/adventure';
 import * as service from '@services/adventureService';
 import type { UpdateAdventureData } from '@services/adventureService';
 import { adventureKeys } from './adventureKeys';
 import { adventureQueryOptions } from './adventureQueryOptions';
+import { createAutosaveQueue } from '../createAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseAdventureReturn = {
@@ -17,16 +18,6 @@ type UseAdventureReturn = {
 
 export const useAdventure = (adventureId: string): UseAdventureReturn => {
   const queryClient = useQueryClient();
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingUpdatesRef = useRef<UpdateAdventureData>({});
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const { data: adventureData, isPending: loading } = useQuery(
     adventureQueryOptions(adventureId),
@@ -42,6 +33,21 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
       });
     },
   });
+
+  const [saveQueue] = useState(() =>
+    createAutosaveQueue<UpdateAdventureData>(
+      (pending, patch) => ({ ...pending, ...patch }),
+      (id, data) => {
+        updateMutation.mutate({ id, data });
+      },
+    ),
+  );
+
+  useEffect(() => {
+    return () => {
+      saveQueue.flushAll();
+    };
+  }, [saveQueue]);
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteAdventure(adventureId),
@@ -72,23 +78,7 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
       },
     );
 
-    pendingUpdatesRef.current = {
-      ...pendingUpdatesRef.current,
-      ...data,
-    };
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      const updates = { ...pendingUpdatesRef.current };
-      pendingUpdatesRef.current = {};
-      debounceTimeoutRef.current = null;
-
-      // Deferred-dispatch mutation carve-out (.claude/rules/src-data-access-layer.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
-      updateMutation.mutate({ id: adventureId, data: updates });
-    }, 500);
+    saveQueue.schedule(adventureId, data);
   };
 
   const deleteAdventure = async (): Promise<void> => {

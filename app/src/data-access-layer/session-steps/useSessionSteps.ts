@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { SessionStep, UpdateSessionStepInput } from '@db/session-step';
 import * as service from '@services/sessionStepService';
 import { sessionStepKeys } from './sessionStepKeys';
 import { sessionStepListQueryOptions } from './sessionStepQueryOptions';
+import { createAutosaveQueue } from '../createAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseSessionStepsReturn = {
@@ -16,24 +17,8 @@ type UseSessionStepsReturn = {
   bulkReorder: (orderedStepIds: string[]) => void;
 };
 
-type DebounceEntry = {
-  timeout: NodeJS.Timeout | null;
-  pending: UpdateSessionStepInput;
-};
-
 export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
   const queryClient = useQueryClient();
-
-  const debounceMapRef = useRef<Map<string, DebounceEntry>>(new Map());
-
-  useEffect(() => {
-    const map = debounceMapRef.current;
-    return () => {
-      map.forEach((entry) => {
-        if (entry.timeout !== null) clearTimeout(entry.timeout);
-      });
-    };
-  }, []);
 
   const { data: steps = [], isPending: loading } = useQuery(
     sessionStepListQueryOptions(sessionId),
@@ -43,6 +28,21 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
     mutationFn: ({ id, data }: { id: string; data: UpdateSessionStepInput }) =>
       service.updateStep(id, data),
   });
+
+  const [saveQueue] = useState(() =>
+    createAutosaveQueue<UpdateSessionStepInput>(
+      (pending, patch) => ({ ...pending, ...patch }),
+      (id, data) => {
+        updateMutation.mutate({ id, data });
+      },
+    ),
+  );
+
+  useEffect(() => {
+    return () => {
+      saveQueue.flushAll();
+    };
+  }, [saveQueue]);
 
   const createMutation = useMutation({
     mutationFn: (name?: string) => service.createCustomStep(sessionId, name),
@@ -83,24 +83,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
       },
     );
 
-    const map = debounceMapRef.current;
-    const existing = map.get(stepId);
-
-    if (existing) {
-      if (existing.timeout) clearTimeout(existing.timeout);
-      existing.pending = { ...existing.pending, ...data };
-    } else {
-      map.set(stepId, { timeout: null, pending: { ...data } });
-    }
-
-    const entry = map.get(stepId);
-    if (entry) {
-      entry.timeout = setTimeout(() => {
-        const accumulated = { ...entry.pending };
-        map.delete(stepId);
-        updateMutation.mutate({ id: stepId, data: accumulated });
-      }, 500);
-    }
+    saveQueue.schedule(stepId, data);
   };
 
   const createStep = async (name?: string): Promise<string> =>

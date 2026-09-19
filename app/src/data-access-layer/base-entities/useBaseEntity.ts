@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityType } from '@domain/entities';
@@ -6,6 +6,7 @@ import * as service from '@services/baseEntityService';
 import type { UpdateBaseEntityData } from '@services/baseEntityService';
 import { baseEntityKeys } from './baseEntityKeys';
 import { baseEntityQueryOptions } from './baseEntityQueryOptions';
+import { createAutosaveQueue } from '../createAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -24,16 +25,6 @@ export const useBaseEntity = (
   adventureId: string,
 ): UseBaseEntityReturn => {
   const queryClient = useQueryClient();
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingUpdatesRef = useRef<UpdateBaseEntityData>({});
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const { data: baseEntityData, isPending: isLoadingBaseEntity } = useQuery(
     baseEntityQueryOptions(entityType, baseEntityId),
@@ -58,6 +49,32 @@ export const useBaseEntity = (
       });
     },
   });
+
+  const [saveQueue] = useState(() =>
+    createAutosaveQueue<{
+      entityType: BaseEntityType;
+      data: UpdateBaseEntityData;
+    }>(
+      (pending, patch) => ({
+        entityType: patch.entityType,
+        data: { ...pending.data, ...patch.data },
+      }),
+      // `entityType` travels in the pending patch, taken from the most recent `schedule` for that id, and is passed through `mutate()` because it selects the error label and both invalidated keys.
+      (id, pending) => {
+        updateMutation.mutate({
+          entityType: pending.entityType,
+          id,
+          data: pending.data,
+        });
+      },
+    ),
+  );
+
+  useEffect(() => {
+    return () => {
+      saveQueue.flushAll();
+    };
+  }, [saveQueue]);
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteBaseEntity(entityType, baseEntityId),
@@ -97,23 +114,7 @@ export const useBaseEntity = (
       },
     );
 
-    pendingUpdatesRef.current = {
-      ...pendingUpdatesRef.current,
-      ...data,
-    };
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      const updates = { ...pendingUpdatesRef.current };
-      pendingUpdatesRef.current = {};
-      debounceTimeoutRef.current = null;
-
-      // Deferred-dispatch mutation carve-out (.claude/rules/src-data-access-layer.md) — entityType and id passed via mutate() call-time variables, not closed over by mutationFn: a scheduled write must target the entity being edited when the debounce started, and the entity type is part of that target (it selects the error label and both invalidated keys). See .claude/knowledge/tanstack-query.md.
-      updateMutation.mutate({ entityType, id: baseEntityId, data: updates });
-    }, 500);
+    saveQueue.schedule(baseEntityId, { entityType, data });
   };
 
   const deleteBaseEntity = async (): Promise<void> => {

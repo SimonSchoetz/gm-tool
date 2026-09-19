@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Encounter, UpdateEncounterInput } from '@db/encounter';
 import * as service from '@services/encounterService';
 import { encounterKeys } from './encounterKeys';
 import { encounterQueryOptions } from './encounterQueryOptions';
+import { createAutosaveQueue } from '../createAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -20,16 +21,6 @@ export const useEncounter = (
   adventureId: string,
 ): UseEncounterReturn => {
   const queryClient = useQueryClient();
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingUpdatesRef = useRef<UpdateEncounterInput>({});
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const { data: encounterData, isPending: isLoadingEncounter } = useQuery(
     encounterQueryOptions(encounterId),
@@ -47,6 +38,21 @@ export const useEncounter = (
       });
     },
   });
+
+  const [saveQueue] = useState(() =>
+    createAutosaveQueue<UpdateEncounterInput>(
+      (pending, patch) => ({ ...pending, ...patch }),
+      (id, data) => {
+        updateMutation.mutate({ id, data });
+      },
+    ),
+  );
+
+  useEffect(() => {
+    return () => {
+      saveQueue.flushAll();
+    };
+  }, [saveQueue]);
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteEncounter(encounterId),
@@ -73,23 +79,7 @@ export const useEncounter = (
       },
     );
 
-    pendingUpdatesRef.current = {
-      ...pendingUpdatesRef.current,
-      ...data,
-    };
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      const updates = { ...pendingUpdatesRef.current };
-      pendingUpdatesRef.current = {};
-      debounceTimeoutRef.current = null;
-
-      // Deferred-dispatch mutation carve-out (.claude/rules/src-data-access-layer.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
-      updateMutation.mutate({ id: encounterId, data: updates });
-    }, 500);
+    saveQueue.schedule(encounterId, data);
   };
 
   const deleteEncounter = async (): Promise<void> => {

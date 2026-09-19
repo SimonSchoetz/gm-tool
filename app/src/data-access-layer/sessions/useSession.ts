@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session, UpdateSessionInput } from '@db/session';
 import * as service from '@services/sessionService';
 import { sessionKeys } from './sessionKeys';
 import { sessionQueryOptions } from './sessionQueryOptions';
+import { createAutosaveQueue } from '../createAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -20,16 +21,6 @@ export const useSession = (
   adventureId: string,
 ): UseSessionReturn => {
   const queryClient = useQueryClient();
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingUpdatesRef = useRef<UpdateSessionInput>({});
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const { data: sessionData, isPending: loading } = useQuery(
     sessionQueryOptions(sessionId),
@@ -47,6 +38,21 @@ export const useSession = (
       });
     },
   });
+
+  const [saveQueue] = useState(() =>
+    createAutosaveQueue<UpdateSessionInput>(
+      (pending, patch) => ({ ...pending, ...patch }),
+      (id, data) => {
+        updateMutation.mutate({ id, data });
+      },
+    ),
+  );
+
+  useEffect(() => {
+    return () => {
+      saveQueue.flushAll();
+    };
+  }, [saveQueue]);
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteSession(sessionId),
@@ -78,20 +84,7 @@ export const useSession = (
       },
     );
 
-    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...data };
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      const updates = { ...pendingUpdatesRef.current };
-      pendingUpdatesRef.current = {};
-      debounceTimeoutRef.current = null;
-
-      // Deferred-dispatch mutation carve-out (.claude/rules/src-data-access-layer.md) — id passed via mutate() call-time variable, not closed over by mutationFn. See .claude/knowledge/tanstack-query.md.
-      updateMutation.mutate({ id: sessionId, data: updates });
-    }, 500);
+    saveQueue.schedule(sessionId, data);
   };
 
   const deleteSession = async (): Promise<void> => {

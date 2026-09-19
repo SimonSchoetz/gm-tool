@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   BaseEntityContentSection,
@@ -8,6 +8,7 @@ import type { BaseEntityContentSectionType } from '@domain';
 import * as service from '@services/baseEntityContentSectionService';
 import { baseEntityContentSectionKeys } from './baseEntityContentSectionKeys';
 import { baseEntityContentSectionListQueryOptions } from './baseEntityContentSectionQueryOptions';
+import { createAutosaveQueue } from '../createAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseBaseEntityContentSectionsReturn = {
@@ -26,26 +27,10 @@ type UseBaseEntityContentSectionsReturn = {
   bulkReorder: (orderedSectionIds: string[]) => void;
 };
 
-type DebounceEntry = {
-  timeout: NodeJS.Timeout | null;
-  pending: UpdateBaseEntityContentSectionInput;
-};
-
 export const useBaseEntityContentSections = (
   baseEntityId: string,
 ): UseBaseEntityContentSectionsReturn => {
   const queryClient = useQueryClient();
-
-  const debounceMapRef = useRef<Map<string, DebounceEntry>>(new Map());
-
-  useEffect(() => {
-    const map = debounceMapRef.current;
-    return () => {
-      map.forEach((entry) => {
-        if (entry.timeout !== null) clearTimeout(entry.timeout);
-      });
-    };
-  }, []);
 
   const { data: sections = [], isPending: loading } = useQuery(
     baseEntityContentSectionListQueryOptions(baseEntityId),
@@ -63,6 +48,21 @@ export const useBaseEntityContentSections = (
       data: UpdateBaseEntityContentSectionInput;
     }) => service.updateSection(id, data),
   });
+
+  const [saveQueue] = useState(() =>
+    createAutosaveQueue<UpdateBaseEntityContentSectionInput>(
+      (pending, patch) => ({ ...pending, ...patch }),
+      (id, data) => {
+        updateMutation.mutate({ id, data });
+      },
+    ),
+  );
+
+  useEffect(() => {
+    return () => {
+      saveQueue.flushAll();
+    };
+  }, [saveQueue]);
 
   const createMutation = useMutation({
     mutationFn: ({
@@ -112,24 +112,7 @@ export const useBaseEntityContentSections = (
       },
     );
 
-    const map = debounceMapRef.current;
-    const existing = map.get(sectionId);
-
-    if (existing) {
-      if (existing.timeout) clearTimeout(existing.timeout);
-      existing.pending = { ...existing.pending, ...data };
-    } else {
-      map.set(sectionId, { timeout: null, pending: { ...data } });
-    }
-
-    const entry = map.get(sectionId);
-    if (entry) {
-      entry.timeout = setTimeout(() => {
-        const accumulated = { ...entry.pending };
-        map.delete(sectionId);
-        updateMutation.mutate({ id: sectionId, data: accumulated });
-      }, 500);
-    }
+    saveQueue.schedule(sectionId, data);
   };
 
   const createSection = async (
