@@ -31,12 +31,12 @@ Because the interface is empty by default, an un-augmented codebase cannot pass 
 
 `useRouterState({ select })` projects the router state to a derived slice and subscribes to it. The payload passed as `navigate({ state })` is reachable at `state.location.state`. Supplying `select` narrows the return type to the projection, so a component reading one flag re-renders only on that flag's changes rather than on every router state change.
 
-## Route files carry no search-param validation unless `validateSearch` is declared
+## A route's typed search params come only from a `validateSearch` declared on that route or a parent route, and the router options carry no app-wide validator
 
-**Verified at:** `@tanstack/react-router` ^1.170.17 (installed 1.170.31); routes searched 2026-09-19
-**Citation:** [head-of-instructions_2: grep validateSearch app/src/routes — not found]
+**Verified at:** @tanstack/router-core 1.171.26 / @tanstack/react-router 1.170.31 — 2026-09-19
+**Citation:** [head-of-instructions_4: app/node_modules/@tanstack/router-core/dist/esm/route.d.ts:250-251 — `validateSearch?: Constrain<TSearchValidator, AnyValidator, DefaultValidator>;` on the route-options interface, `TSearchValidator = undefined` by default; route.d.ts:161 — `ResolveFullSearchSchema = IntersectAssign<InferFullSearchSchema<TParentRoute>, ResolveValidatorOutput<TSearchValidator>>`; app/node_modules/@tanstack/router-core/dist/esm/validators.d.ts:44,50 — `AnySchema = {}` and `ResolveValidatorOutputFn` of a non-function resolves to it (types read, not compiled); grep validateSearch app/node_modules/@tanstack/router-core/dist/esm/*.d.ts and app/node_modules/@tanstack/react-router/dist/esm/*.d.ts — only route.d.ts:251 and a comment at router.d.ts:290, none in the router options; router.d.ts:288-295 — `search.strict?: boolean`, default `false`]
 
-No route file under `app/src/routes/` declares `validateSearch`. Typed search params require adding it to each route individually; there is no app-wide default.
+`validateSearch` is an optional route option, and a route's full search schema is its parent's schema intersected with its own validator's output, so a route with no validator adds no typed keys beyond what its parents declare. The router options declare no `validateSearch` of their own — only `search.strict` (default `false`), which governs unknown params not returned by any `validateSearch`. Typed search params therefore need `validateSearch` declared on the route that owns them or on one of its parents.
 
 ## `<Link>` accepts a plain `string` in `to` without a `params` prop
 
