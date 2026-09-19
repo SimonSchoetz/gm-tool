@@ -206,3 +206,27 @@ Both position functions compute a `translate()` offset as `(targetRect.top - anc
 **Citation:** [spec-writer_27: app/node_modules/lexical/dist/nodes/LexicalTextNode.d.ts:222 — `setTextContent(text: string): this;`; :245 — `spliceText(offset: number, delCount: number, newText: string, moveSelection?: boolean): TextNode;`]
 
 `setTextContent` replaces a `TextNode`'s entire text content while preserving the same node identity, and therefore its format bits (bold, italic, underline, strikethrough) and its position in the tree. `spliceText` is the partial-range equivalent and additionally accepts `moveSelection`. Both must be called inside an active `editor.update()` context.
+
+## `parseEditorState` does not throw on an unregistered node type — it passes the error to the editor's `onError` and returns the partially built state
+
+**Verified at:** lexical 0.46.0
+
+**Citation:** [review-decision_8: app/node_modules/lexical/dist/Lexical.dev.js:11638-11644 — `$parseSerializedNodeImpl` throws `parseEditorState: type "<type>" + not found` when `registeredNodes.get(type)` is undefined; :11706-11708 — `parseEditorState`'s `catch` hands any `Error` to `editor._onError(error)`; :11719 — `return editorState` after the `finally`] [review-decision_11: ran `node -e` with `createEditor({ onError })` parsing a root whose children are paragraph "before", an unregistered `mystery` node, paragraph "after" — observed one `onError` call and root text content `"before"`]
+
+Whether a serialized state with an unknown node type fails loudly depends entirely on the `onError` the editor was created with. Nodes parsed before the unknown one stay in the returned state and the rest are missing, so the result is a truncated document rather than an exception at the call site.
+
+## `setEditorState` throws when the given state holds only the root node and no selection
+
+**Verified at:** lexical 0.46.0
+
+**Citation:** [review-decision_9: app/node_modules/lexical/dist/Lexical.dev.js:14578-14582 — `setEditorState` calls `formatDevErrorMessage('setEditorState: the editor state is empty…')` when `editorState.isEmpty()`; :13372-13374 — `isEmpty()` returns `this._nodeMap.size === 1 && this._selection === null`; :21-23 — `formatDevErrorMessage` is `throw new Error(message)`]
+
+A parsed state whose root has no children therefore throws synchronously when applied, unlike a state with an unknown node type, which reaches `setEditorState` already truncated.
+
+## `registerNodeTransform` marks every existing node of the registered type dirty, so the transform runs on current content at the next update
+
+**Verified at:** lexical 0.46.0
+
+**Citation:** [review-decision_10: app/node_modules/lexical/dist/Lexical.dev.js:14421-14433 — `registerNodeTransform` calls `markNodesWithTypesAsDirty(this, registeredNodes.map(node => node.klass.getType()))` after registering the listener; :15243-15254 — `markNodesWithTypesAsDirty` collects the cached node map of each type from the current editor state]
+
+A transform registered after content already exists is not limited to nodes created later: every node of that type in the current state is transformed on the next update, including a replacement class registered via `replaceWithKlass`.

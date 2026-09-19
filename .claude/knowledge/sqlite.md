@@ -7,12 +7,12 @@
 
 "Support for recursive triggers was added in version 3.6.18 but was initially turned OFF by default, for compatibility." The setting controls a trigger re-invoking itself; a statement inside a trigger body that writes a different table fires that table's triggers regardless.
 
-## Foreign key ON DELETE CASCADE does not fire the child table's DELETE triggers
+## Foreign key ON DELETE CASCADE fires the child table's DELETE triggers, before the parent's AFTER DELETE trigger
 
-**Verified at:** sqlite.org current docs, fetched 2026-07-12
-**Citation:** [spec-writer_2: https://www.sqlite.org/foreignkeys.html]
+**Verified at:** SQLite 3.46.0 (the libsqlite3-sys 0.30.1 amalgamation) and 3.51.3 (node:sqlite), run 2026-09-19
+**Citation:** [review-decision_6: compiled ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.c into a probe running `PRAGMA foreign_keys=on`, a parent `p` and a child `c REFERENCES p(id) ON DELETE CASCADE`, an AFTER DELETE trigger on each inserting into a log table, then `DELETE FROM p` — observed log `c:10` then `p:1` and no child rows left; same result with node:sqlite 3.51.3]
 
-FK actions run as step 4 of the parent-modification sequence, separate from trigger execution (steps 1 and 5 run the parent's triggers). Cascade-deleted child rows therefore produce no trigger side effects — change-tracking triggers only capture directly-deleted rows.
+Every row a cascade deletes runs the child table's own DELETE triggers, so a change-tracking trigger on a child table records one row per cascade-deleted child, ahead of the parent's AFTER DELETE record. https://www.sqlite.org/foreignkeys.html's five-step sequence (BEFORE triggers, local constraints, parent row change, FK actions, AFTER triggers) lists the parent's own triggers and says nothing that exempts the child's.
 
 ## strftime('%Y-%m-%dT%H:%M:%fZ','now') produces an ISO 8601 UTC string matching JS toISOString()
 
