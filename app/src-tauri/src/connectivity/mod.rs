@@ -94,6 +94,19 @@ pub(crate) enum ConnectionRole {
     Acceptor,
 }
 
+/// The preferred connection between two devices is the one dialed by the smaller endpoint id, which both devices compute identically. A missing own id means connectivity is shutting down, so no connection is preferred.
+pub(crate) fn is_preferred_direction(
+    role: ConnectionRole,
+    own: Option<EndpointId>,
+    remote: EndpointId,
+) -> bool {
+    match (role, own) {
+        (ConnectionRole::Dialer, Some(own)) => own < remote,
+        (ConnectionRole::Acceptor, Some(own)) => remote < own,
+        (_, None) => false,
+    }
+}
+
 // A live main connection plus the outbound-frame sender feeding its send loop. The Connection handle is retained so a simultaneous-open conflict can close the losing direction in place (run_main_connection's dedup).
 pub(crate) struct ActiveConnection {
     pub(crate) sender: Sender<String>,
@@ -118,4 +131,67 @@ pub(crate) fn parse_endpoint_id(endpoint_id: &str) -> Result<EndpointId, String>
     endpoint_id
         .parse::<EndpointId>()
         .map_err(|e| format!("Invalid endpoint id '{endpoint_id}': {e}"))
+}
+
+/// A distinct, stable endpoint id per seed, built without binding an endpoint.
+#[cfg(test)]
+pub(crate) fn test_endpoint_id(seed: u8) -> EndpointId {
+    iroh::SecretKey::from_bytes(&[seed; 32]).public()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Two distinct ids as (smaller, larger), so each test holds whichever way the seeds happen to sort.
+    fn ordered_ids() -> (EndpointId, EndpointId) {
+        let (first, second) = (test_endpoint_id(1), test_endpoint_id(2));
+        if first < second {
+            (first, second)
+        } else {
+            (second, first)
+        }
+    }
+
+    #[test]
+    fn both_devices_agree_on_a_connection_whichever_of_them_dialed_it() {
+        let (small, large) = ordered_ids();
+        for (dialer, acceptor) in [(small, large), (large, small)] {
+            assert_eq!(
+                is_preferred_direction(ConnectionRole::Dialer, Some(dialer), acceptor),
+                is_preferred_direction(ConnectionRole::Acceptor, Some(acceptor), dialer),
+            );
+        }
+    }
+
+    #[test]
+    fn only_the_connection_dialed_by_the_smaller_id_is_preferred() {
+        let (small, large) = ordered_ids();
+        // Seen from the smaller id: the connection it dialed is preferred, the one the larger id dialed is not.
+        assert!(is_preferred_direction(
+            ConnectionRole::Dialer,
+            Some(small),
+            large
+        ));
+        assert!(!is_preferred_direction(
+            ConnectionRole::Acceptor,
+            Some(small),
+            large
+        ));
+    }
+
+    #[test]
+    fn no_connection_is_preferred_without_an_own_id() {
+        let remote = test_endpoint_id(1);
+        assert!(!is_preferred_direction(
+            ConnectionRole::Dialer,
+            None,
+            remote
+        ));
+        assert!(!is_preferred_direction(
+            ConnectionRole::Acceptor,
+            None,
+            remote
+        ));
+    }
 }

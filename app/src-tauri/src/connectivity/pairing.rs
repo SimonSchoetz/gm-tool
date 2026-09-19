@@ -12,7 +12,8 @@ use super::{
     ALPN_PAIRING, ConnectionRole, ConnectivityState, EVENT_PAIRING_CANDIDATE,
     EVENT_PAIRING_CANDIDATE_LOST, EVENT_PAIRING_CODE_REQUESTED, EVENT_PAIRING_FAILED,
     EVENT_PAIRING_SUCCEEDED, PairingCandidateLostPayload, PairingCandidatePayload,
-    PairingCodeRequestedPayload, PairingFailedPayload, PairingSucceededPayload, parse_endpoint_id,
+    PairingCodeRequestedPayload, PairingFailedPayload, PairingSucceededPayload,
+    is_preferred_direction, parse_endpoint_id,
 };
 
 const MAX_CODE_FAILURES: u8 = 3;
@@ -22,8 +23,8 @@ pub(crate) struct PairingSession {
     pub(crate) code: String,
     pub(crate) candidates: HashMap<EndpointId, PairingCandidate>,
     pub(crate) probing: HashSet<EndpointId>,
-    // Keyed by endpoint id and never cleared on failure: the counter must outlive the connection it was incremented on, or an attacker resets the attempt limit by reconnecting. It dies with the session, which ends when the user closes the pairing dialog and the code rotates.
-    pub(crate) code_failures: HashMap<EndpointId, u8>,
+    // Session-wide, not per device: endpoint ids are free to generate, so a per-device count would not bound guesses against the 6-digit code. It is never reset and ends with the session, whose code rotates when the dialog is reopened.
+    pub(crate) code_failures: u8,
     // Number of live enter_pairing_mode calls not yet matched by an exit. React StrictMode double-mounts the dialog in dev (enter, exit, enter in arbitrary async order), so the session is torn down only when the last holder exits — a stale exit cannot wipe a session another mount still holds.
     pub(crate) ref_count: u32,
 }
@@ -31,6 +32,8 @@ pub(crate) struct PairingSession {
 pub(crate) struct PairingCandidate {
     pub(crate) frame_sender: Sender<PairingFrame>,
     pub(crate) pending_verdict: Option<Sender<bool>>,
+    // `Connection::stable_id()` of the connection that registered this candidate.
+    pub(crate) connection_id: usize,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -52,6 +55,70 @@ pub(crate) enum PairingFrame {
     },
 }
 
+pub(crate) enum CodeSubmitOutcome {
+    Accepted,
+    Rejected,
+    LimitReached,
+}
+
+/// Decides one code submitted to this device. The limit is checked before the code is compared, so a device over the limit cannot succeed with a correct guess, and a wrong code from any device counts toward the same limit.
+pub(crate) fn evaluate_code_submit(
+    session: &mut PairingSession,
+    trusted: &mut HashSet<EndpointId>,
+    remote: EndpointId,
+    code: &str,
+) -> CodeSubmitOutcome {
+    if session.code_failures >= MAX_CODE_FAILURES {
+        session.candidates.remove(&remote);
+        session.probing.remove(&remote);
+        return CodeSubmitOutcome::LimitReached;
+    }
+    if code == session.code {
+        session.candidates.remove(&remote);
+        session.probing.remove(&remote);
+        trusted.insert(remote);
+        return CodeSubmitOutcome::Accepted;
+    }
+    session.code_failures += 1;
+    if session.code_failures >= MAX_CODE_FAILURES {
+        session.candidates.remove(&remote);
+        session.probing.remove(&remote);
+        return CodeSubmitOutcome::LimitReached;
+    }
+    CodeSubmitOutcome::Rejected
+}
+
+pub(crate) enum CodeVerdictOutcome {
+    Ignored,
+    Accepted(Sender<bool>),
+    Rejected(Sender<bool>),
+}
+
+/// Applies a peer's verdict on a code this device submitted. Only a submission this device is still waiting on can create trust: a verdict with no pending submission, or whose waiter has already given up, is ignored.
+pub(crate) fn evaluate_code_verdict(
+    session: &mut PairingSession,
+    trusted: &mut HashSet<EndpointId>,
+    remote: EndpointId,
+    accepted: bool,
+) -> CodeVerdictOutcome {
+    let Some(candidate) = session.candidates.get_mut(&remote) else {
+        return CodeVerdictOutcome::Ignored;
+    };
+    let Some(verdict_sender) = candidate.pending_verdict.take() else {
+        return CodeVerdictOutcome::Ignored;
+    };
+    if verdict_sender.is_closed() {
+        return CodeVerdictOutcome::Ignored;
+    }
+    if accepted {
+        session.candidates.remove(&remote);
+        session.probing.remove(&remote);
+        trusted.insert(remote);
+        return CodeVerdictOutcome::Accepted(verdict_sender);
+    }
+    CodeVerdictOutcome::Rejected(verdict_sender)
+}
+
 pub async fn enter_pairing_mode(
     app: &AppHandle,
     state: &ConnectivityState,
@@ -70,7 +137,7 @@ pub async fn enter_pairing_mode(
             code: code.clone(),
             candidates: HashMap::new(),
             probing: HashSet::new(),
-            code_failures: HashMap::new(),
+            code_failures: 0,
             ref_count: 1,
         });
         let known_unpaired: Vec<EndpointAddr> = data
@@ -205,6 +272,7 @@ pub(crate) async fn run_pairing_connection(
     role: ConnectionRole,
 ) {
     let remote = connection.remote_id();
+    let connection_id = connection.stable_id();
 
     let streams = match role {
         ConnectionRole::Dialer => connection.open_bi().await,
@@ -236,8 +304,8 @@ pub(crate) async fn run_pairing_connection(
     }
 
     let (frame_sender, mut frame_receiver) = channel::<PairingFrame>(8);
-    // Moved into the candidate entry on the peer's hello; the map is then the only owner, so dropping the session (or replacing the entry) terminates this task.
-    let mut sender_to_register = Some(frame_sender.clone());
+    // Moved into the session's candidate entry when the peer's hello arrives; the entry then holds the only sender, so dropping the session or replacing the entry closes the channel and ends this task.
+    let mut sender_to_register = Some(frame_sender);
     let mut candidate_name: Option<String> = None;
     let mut succeeded = false;
     let mut sent_accept_verdict = false;
@@ -273,16 +341,28 @@ pub(crate) async fn run_pairing_connection(
                             let Some(sender) = sender_to_register.take() else {
                                 continue;
                             };
-                            let mut data = state.lock().await;
+                            let mut guard = state.lock().await;
+                            let data = &mut *guard;
                             let Some(session) = data.pairing.as_mut() else {
                                 break 'connection;
                             };
+                            // Both devices may dial each other at once, giving two candidate connections. Each device keeps the preferred one, so neither closes the connection the other keeps.
+                            if session.candidates.contains_key(&remote)
+                                && !is_preferred_direction(
+                                    role,
+                                    data.endpoint.as_ref().map(|endpoint| endpoint.id()),
+                                    remote,
+                                )
+                            {
+                                break 'connection;
+                            }
                             candidate_name = name.clone();
                             session.candidates.insert(remote, PairingCandidate {
                                 frame_sender: sender,
                                 pending_verdict: None,
+                                connection_id,
                             });
-                            drop(data);
+                            drop(guard);
                             let _ = app.emit(EVENT_PAIRING_CANDIDATE, PairingCandidatePayload {
                                 endpoint_id: remote.to_string(),
                                 name,
@@ -298,71 +378,61 @@ pub(crate) async fn run_pairing_connection(
                             );
                         }
                         PairingFrame::CodeSubmit { code } => {
-                            let mut data = state.lock().await;
+                            let mut guard = state.lock().await;
+                            let data = &mut *guard;
                             let Some(session) = data.pairing.as_mut() else {
                                 break 'connection;
                             };
-                            if code == session.code {
-                                session.candidates.remove(&remote);
-                                session.probing.remove(&remote);
-                                data.trusted.insert(remote);
-                                drop(data);
-                                send_verdict(&mut send_stream, true).await;
-                                sent_accept_verdict = true;
-                                let _ = app.emit(EVENT_PAIRING_SUCCEEDED, PairingSucceededPayload {
-                                    endpoint_id: remote.to_string(),
-                                    name: candidate_name.clone(),
-                                });
-                                succeeded = true;
-                                break 'connection;
+                            let outcome =
+                                evaluate_code_submit(session, &mut data.trusted, remote, &code);
+                            drop(guard);
+                            match outcome {
+                                CodeSubmitOutcome::Accepted => {
+                                    send_verdict(&mut send_stream, true).await;
+                                    sent_accept_verdict = true;
+                                    let _ = app.emit(EVENT_PAIRING_SUCCEEDED, PairingSucceededPayload {
+                                        endpoint_id: remote.to_string(),
+                                        name: candidate_name.clone(),
+                                    });
+                                    succeeded = true;
+                                    break 'connection;
+                                }
+                                CodeSubmitOutcome::Rejected => {
+                                    send_verdict(&mut send_stream, false).await;
+                                }
+                                CodeSubmitOutcome::LimitReached => {
+                                    send_verdict(&mut send_stream, false).await;
+                                    let _ = app.emit(EVENT_PAIRING_FAILED, PairingFailedPayload {
+                                        endpoint_id: remote.to_string(),
+                                        reason: "attempt limit reached".to_string(),
+                                    });
+                                    break 'connection;
+                                }
                             }
-                            // MANUAL-VERIFY: from a second device, submit three wrong codes, let the connection close, then reconnect and submit a fourth. The fourth must be rejected immediately without granting a fresh three attempts.
-                            let failures = {
-                                let count = session.code_failures.entry(remote).or_insert(0);
-                                *count += 1;
-                                *count
-                            };
-                            if failures >= MAX_CODE_FAILURES {
-                                session.candidates.remove(&remote);
-                                session.probing.remove(&remote);
-                                drop(data);
-                                send_verdict(&mut send_stream, false).await;
-                                let _ = app.emit(EVENT_PAIRING_FAILED, PairingFailedPayload {
-                                    endpoint_id: remote.to_string(),
-                                    reason: "attempt limit reached".to_string(),
-                                });
-                                break 'connection;
-                            }
-                            drop(data);
-                            send_verdict(&mut send_stream, false).await;
                         }
                         PairingFrame::CodeVerdict { accepted } => {
-                            let mut data = state.lock().await;
+                            let mut guard = state.lock().await;
+                            let data = &mut *guard;
                             let Some(session) = data.pairing.as_mut() else {
                                 break 'connection;
                             };
-                            let Some(candidate) = session.candidates.get_mut(&remote) else {
-                                continue;
-                            };
-                            let verdict_sender = candidate.pending_verdict.take();
-                            if accepted {
-                                session.candidates.remove(&remote);
-                                session.probing.remove(&remote);
-                                data.trusted.insert(remote);
-                                drop(data);
-                                if let Some(sender) = verdict_sender {
+                            let outcome =
+                                evaluate_code_verdict(session, &mut data.trusted, remote, accepted);
+                            drop(guard);
+                            match outcome {
+                                CodeVerdictOutcome::Ignored => {}
+                                CodeVerdictOutcome::Accepted(sender) => {
                                     let _ = sender.try_send(true);
+                                    let _ = app.emit(EVENT_PAIRING_SUCCEEDED, PairingSucceededPayload {
+                                        endpoint_id: remote.to_string(),
+                                        name: candidate_name.clone(),
+                                    });
+                                    succeeded = true;
+                                    break 'connection;
                                 }
-                                let _ = app.emit(EVENT_PAIRING_SUCCEEDED, PairingSucceededPayload {
-                                    endpoint_id: remote.to_string(),
-                                    name: candidate_name.clone(),
-                                });
-                                succeeded = true;
-                                break 'connection;
-                            }
-                            drop(data);
-                            if let Some(sender) = verdict_sender {
-                                let _ = sender.try_send(false);
+                                CodeVerdictOutcome::Rejected(sender) => {
+                                    let _ = sender.try_send(false);
+                                }
                             }
                         }
                     }
@@ -385,7 +455,7 @@ pub(crate) async fn run_pairing_connection(
         let owns_entry = session
             .candidates
             .get(&remote)
-            .is_some_and(|candidate| candidate.frame_sender.same_channel(&frame_sender));
+            .is_some_and(|candidate| candidate.connection_id == connection_id);
         if owns_entry {
             session.candidates.remove(&remote);
             candidate_was_listed = true;
@@ -417,5 +487,190 @@ async fn remove_probe(state: &ConnectivityState, remote: &EndpointId) {
     let mut data = state.lock().await;
     if let Some(session) = data.pairing.as_mut() {
         session.probing.remove(remote);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use tauri::async_runtime::Receiver;
+
+    use super::*;
+    use crate::connectivity::test_endpoint_id;
+
+    const CODE: &str = "123456";
+    const WRONG_CODE: &str = "000000";
+
+    // Every registered candidate is also being probed, as in the live flow (`maybe_probe_candidate`), so a path that forgets to remove it from `probing` fails.
+    fn session_with_candidates(remotes: &[EndpointId]) -> PairingSession {
+        let mut session = PairingSession {
+            code: CODE.to_string(),
+            candidates: HashMap::new(),
+            probing: HashSet::new(),
+            code_failures: 0,
+            ref_count: 1,
+        };
+        for remote in remotes {
+            let (frame_sender, _frame_receiver) = channel::<PairingFrame>(1);
+            session.candidates.insert(
+                *remote,
+                PairingCandidate {
+                    frame_sender,
+                    pending_verdict: None,
+                    connection_id: 0,
+                },
+            );
+            session.probing.insert(*remote);
+        }
+        session
+    }
+
+    // The waiter counts as alive only while the returned receiver stays bound.
+    fn wait_for_verdict(session: &mut PairingSession, remote: EndpointId) -> Receiver<bool> {
+        let (verdict_sender, verdict_receiver) = channel::<bool>(1);
+        session
+            .candidates
+            .get_mut(&remote)
+            .expect("candidate is registered")
+            .pending_verdict = Some(verdict_sender);
+        verdict_receiver
+    }
+
+    #[test]
+    fn accept_verdict_without_a_pending_submission_trusts_nobody() {
+        let remote = test_endpoint_id(1);
+        let mut session = session_with_candidates(&[remote]);
+        let mut trusted = HashSet::new();
+
+        let outcome = evaluate_code_verdict(&mut session, &mut trusted, remote, true);
+
+        assert!(matches!(outcome, CodeVerdictOutcome::Ignored));
+        assert!(trusted.is_empty());
+        assert!(session.candidates.contains_key(&remote));
+    }
+
+    #[test]
+    fn accept_verdict_after_the_waiter_gave_up_trusts_nobody() {
+        let remote = test_endpoint_id(1);
+        let mut session = session_with_candidates(&[remote]);
+        let mut trusted = HashSet::new();
+        drop(wait_for_verdict(&mut session, remote));
+
+        let outcome = evaluate_code_verdict(&mut session, &mut trusted, remote, true);
+
+        assert!(matches!(outcome, CodeVerdictOutcome::Ignored));
+        assert!(trusted.is_empty());
+        let candidate = session
+            .candidates
+            .get(&remote)
+            .expect("candidate stays listed");
+        assert!(candidate.pending_verdict.is_none());
+    }
+
+    #[test]
+    fn accept_verdict_for_a_pending_submission_trusts_the_remote() {
+        let remote = test_endpoint_id(1);
+        let mut session = session_with_candidates(&[remote]);
+        let mut trusted = HashSet::new();
+        let mut verdict_receiver = wait_for_verdict(&mut session, remote);
+
+        let outcome = evaluate_code_verdict(&mut session, &mut trusted, remote, true);
+
+        let CodeVerdictOutcome::Accepted(verdict_sender) = outcome else {
+            panic!("expected an accepted verdict outcome");
+        };
+        assert!(trusted.contains(&remote));
+        assert!(!session.candidates.contains_key(&remote));
+        assert!(!session.probing.contains(&remote));
+        // The returned sender is the waiter's own, so the submitter learns the verdict.
+        verdict_sender.try_send(true).expect("waiter is alive");
+        assert_eq!(verdict_receiver.try_recv(), Ok(true));
+    }
+
+    #[test]
+    fn reject_verdict_for_a_pending_submission_clears_the_pending_sender() {
+        let remote = test_endpoint_id(1);
+        let mut session = session_with_candidates(&[remote]);
+        let mut trusted = HashSet::new();
+        let mut verdict_receiver = wait_for_verdict(&mut session, remote);
+
+        let outcome = evaluate_code_verdict(&mut session, &mut trusted, remote, false);
+
+        let CodeVerdictOutcome::Rejected(verdict_sender) = outcome else {
+            panic!("expected a rejected verdict outcome");
+        };
+        assert!(trusted.is_empty());
+        let candidate = session
+            .candidates
+            .get(&remote)
+            .expect("candidate stays listed");
+        assert!(candidate.pending_verdict.is_none());
+        verdict_sender.try_send(false).expect("waiter is alive");
+        assert_eq!(verdict_receiver.try_recv(), Ok(false));
+    }
+
+    #[test]
+    fn correct_code_trusts_the_remote_and_removes_its_candidate() {
+        let remote = test_endpoint_id(1);
+        let mut session = session_with_candidates(&[remote]);
+        let mut trusted = HashSet::new();
+
+        let outcome = evaluate_code_submit(&mut session, &mut trusted, remote, CODE);
+
+        assert!(matches!(outcome, CodeSubmitOutcome::Accepted));
+        assert!(trusted.contains(&remote));
+        assert!(!session.candidates.contains_key(&remote));
+        assert!(!session.probing.contains(&remote));
+    }
+
+    #[test]
+    fn third_wrong_code_reaches_the_limit_and_removes_the_candidate() {
+        let remote = test_endpoint_id(1);
+        let mut session = session_with_candidates(&[remote]);
+        let mut trusted = HashSet::new();
+
+        for _ in 0..2 {
+            let outcome = evaluate_code_submit(&mut session, &mut trusted, remote, WRONG_CODE);
+            assert!(matches!(outcome, CodeSubmitOutcome::Rejected));
+            assert!(session.candidates.contains_key(&remote));
+        }
+        let outcome = evaluate_code_submit(&mut session, &mut trusted, remote, WRONG_CODE);
+
+        assert!(matches!(outcome, CodeSubmitOutcome::LimitReached));
+        assert!(!session.candidates.contains_key(&remote));
+        assert!(!session.probing.contains(&remote));
+        assert!(trusted.is_empty());
+    }
+
+    #[test]
+    fn correct_code_from_another_device_is_refused_after_the_limit() {
+        let (locked_out, other) = (test_endpoint_id(1), test_endpoint_id(2));
+        let mut session = session_with_candidates(&[locked_out, other]);
+        let mut trusted = HashSet::new();
+        for _ in 0..3 {
+            evaluate_code_submit(&mut session, &mut trusted, locked_out, WRONG_CODE);
+        }
+
+        let outcome = evaluate_code_submit(&mut session, &mut trusted, other, CODE);
+
+        assert!(matches!(outcome, CodeSubmitOutcome::LimitReached));
+        assert!(trusted.is_empty());
+        assert!(!session.candidates.contains_key(&other));
+    }
+
+    #[test]
+    fn wrong_codes_from_three_devices_lock_the_session_for_a_fourth() {
+        let devices = [1, 2, 3, 4].map(test_endpoint_id);
+        let mut session = session_with_candidates(&devices);
+        let mut trusted = HashSet::new();
+
+        for device in &devices[..2] {
+            let outcome = evaluate_code_submit(&mut session, &mut trusted, *device, WRONG_CODE);
+            assert!(matches!(outcome, CodeSubmitOutcome::Rejected));
+        }
+        let third = evaluate_code_submit(&mut session, &mut trusted, devices[2], WRONG_CODE);
+        assert!(matches!(third, CodeSubmitOutcome::LimitReached));
+
+        let fourth = evaluate_code_submit(&mut session, &mut trusted, devices[3], WRONG_CODE);
+        assert!(matches!(fourth, CodeSubmitOutcome::LimitReached));
     }
 }

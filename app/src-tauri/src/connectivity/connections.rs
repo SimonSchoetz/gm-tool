@@ -17,7 +17,8 @@ use super::identity::load_or_create_secret_key;
 use super::{
     ALPN_MAIN, ALPN_PAIRING, ActiveConnection, ConnectionRole, ConnectivityState,
     EVENT_MESSAGE_RECEIVED, EVENT_PEER_CONNECTED, EVENT_PEER_DISCONNECTED, MessageReceivedPayload,
-    PeerConnectedPayload, PeerDisconnectedPayload, TrustedPeer, pairing, parse_endpoint_id,
+    PeerConnectedPayload, PeerDisconnectedPayload, TrustedPeer, is_preferred_direction, pairing,
+    parse_endpoint_id,
 };
 
 // Fails the build if the vendored iroh-mdns-address-lookup patch is no longer in effect. Upstream does not define this constant, and without the patch mDNS joins the multicast group on a single OS-chosen interface — routinely a VPN or Hyper-V/WSL adapter rather than the LAN — which breaks peer discovery with no error on any layer.
@@ -51,10 +52,7 @@ pub async fn init(
         .build(own_id)
         .map_err(|e| format!("Failed to start mDNS address lookup: {e}"))?;
 
-    // iroh's default connection idle timeout is 30s, so a peer that dies without sending
-    // CONNECTION_CLOSE (a crash, a kill, or the dev watcher rebuilding) would show as
-    // connected for that long. The builder keeps iroh's 5s heartbeat, so a peer that has
-    // really gone silent is detected within this window instead.
+    // iroh's default connection idle timeout is 30s, so a peer that dies without sending CONNECTION_CLOSE (a crash, a kill, or the dev watcher rebuilding) would show as connected for that long. The builder keeps iroh's 5s heartbeat, so a peer that has really gone silent is detected within this window instead.
     let idle_timeout = IdleTimeout::try_from(CONNECTION_IDLE_TIMEOUT)
         .map_err(|e| format!("Invalid connection idle timeout: {e}"))?;
     let transport_config = QuicTransportConfig::builder()
@@ -111,7 +109,7 @@ pub async fn remove_peer(state: &ConnectivityState, endpoint_id: &str) -> Result
     let remote = parse_endpoint_id(endpoint_id)?;
     let mut data = state.lock().await;
     data.trusted.remove(&remote);
-    // Dropping the sender terminates the connection task, which closes the connection.
+    // Removing the entry drops the only sender, so the connection task writes any queued frames, finishes its stream, waits briefly for the peer to close, closes the connection and reports the peer disconnected.
     data.connections.remove(&remote);
     Ok(())
 }
@@ -121,9 +119,7 @@ pub async fn connected_peers(state: &ConnectivityState) -> Result<Vec<String>, S
     Ok(data.connections.keys().map(EndpointId::to_string).collect())
 }
 
-/// Closes the endpoint so peers are told immediately that this device is gone. Without this,
-/// a peer keeps the connection in its live set until iroh's ~30s connection idle timeout
-/// expires, leaving a stale "connected" indicator on the other device.
+/// Closes the endpoint so peers are told immediately that this device is gone. Without this, a peer keeps the connection in its live set until iroh's ~30s connection idle timeout expires, leaving a stale "connected" indicator on the other device.
 pub async fn shutdown(state: &ConnectivityState) {
     let endpoint = state.lock().await.endpoint.clone();
     if let Some(endpoint) = endpoint {
@@ -188,25 +184,17 @@ pub(crate) async fn run_main_connection(
     role: ConnectionRole,
 ) {
     let remote = connection.remote_id();
+    // The map entry must hold the only sender: `remove_peer` ends this task by removing the entry, and the task recognizes its own entry by `connection_id` rather than by keeping a sender. A clone kept here would leave a forgotten peer connected, and no test would notice.
     let (sender, mut receiver) = channel::<String>(32);
+    let connection_id = connection.stable_id();
 
-    // Both peers may dial, so both directions can establish at once. Deduplicate deterministically:
-    // the "preferred" direction is the one dialed by the lexicographically smaller EndpointId, which
-    // both peers compute identically. On a genuine conflict the preferred connection supersedes the
-    // other; when only one direction establishes (e.g. the other is firewall-blocked) there is no
-    // conflict and it is kept regardless of direction — that is what makes a one-directional block
-    // survivable, mirroring how the pairing probe already dials both ways.
+    // Both peers may dial, so both directions can establish at once. Deduplicate deterministically: the "preferred" direction is the one dialed by the lexicographically smaller EndpointId, which both peers compute identically. On a genuine conflict the preferred connection supersedes the other; when only one direction establishes (e.g. the other is firewall-blocked) there is no conflict and it is kept regardless of direction — that is what makes a one-directional block survivable, mirroring how the pairing probe already dials both ways.
     let emit_connected = {
         let mut data = state.lock().await;
         data.dialing.remove(&remote);
 
         let own_id = data.endpoint.as_ref().map(|endpoint| endpoint.id());
-        let this_is_preferred = match (role, own_id) {
-            (ConnectionRole::Dialer, Some(own)) => own < remote,
-            (ConnectionRole::Acceptor, Some(own)) => remote < own,
-            // No endpoint means connectivity is shutting down — abandon this connection.
-            (_, None) => false,
-        };
+        let this_is_preferred = is_preferred_direction(role, own_id, remote);
 
         match data
             .connections
@@ -223,7 +211,7 @@ pub(crate) async fn run_main_connection(
                 data.connections.insert(
                     remote,
                     ActiveConnection {
-                        sender: sender.clone(),
+                        sender,
                         connection: connection.clone(),
                     },
                 );
@@ -234,7 +222,7 @@ pub(crate) async fn run_main_connection(
                 data.connections.insert(
                     remote,
                     ActiveConnection {
-                        sender: sender.clone(),
+                        sender,
                         connection: connection.clone(),
                     },
                 );
@@ -257,6 +245,7 @@ pub(crate) async fn run_main_connection(
         ConnectionRole::Acceptor => connection.accept_bi().await,
     };
 
+    let mut channel_closed = false;
     if let Ok((mut send_stream, mut recv_stream)) = streams {
         let mut frame_buffer: Vec<u8> = Vec::new();
         let mut chunk = [0u8; 4096];
@@ -269,7 +258,10 @@ pub(crate) async fn run_main_connection(
                                 break;
                             }
                         }
-                        None => break,
+                        None => {
+                            channel_closed = true;
+                            break;
+                        }
                     }
                 }
                 incoming = recv_stream.read(&mut chunk) => {
@@ -293,13 +285,19 @@ pub(crate) async fn run_main_connection(
         }
     }
 
+    // The entry was removed after every queued frame (such as an `unpair` envelope sent just before `remove_trusted_peer`) was written, and the streams have just been dropped, which finishes the send stream, so the peer reads end-of-stream and closes. Waiting for that close keeps a local close from discarding the last frame in flight — the same bounded wait the pairing verifier uses.
+    if channel_closed {
+        let _ = tokio::time::timeout(Duration::from_secs(5), connection.closed()).await;
+    }
+
     connection.close(0u32.into(), b"closed");
     let mut data = state.lock().await;
-    let is_current_connection = data
+    // An entry with another connection id means a newer connection replaced this one and the peer stays connected; an absent entry means `remove_peer` removed it.
+    let is_superseded = data
         .connections
         .get(&remote)
-        .is_some_and(|current| current.sender.same_channel(&sender));
-    if is_current_connection {
+        .is_some_and(|current| current.connection.stable_id() != connection_id);
+    if !is_superseded {
         data.connections.remove(&remote);
         drop(data);
         let _ = app.emit(
@@ -333,10 +331,7 @@ pub(crate) fn drain_frames(frame_buffer: &mut Vec<u8>) -> Vec<String> {
     frames
 }
 
-/// Dials the peer over `gm-tool` when it is trusted and neither connected nor already being dialed.
-/// Both peers may dial the same pair; `run_main_connection` deduplicates if both directions succeed.
-/// mDNS re-delivers `Discovered` for a live peer repeatedly, so this is retried until a connection
-/// exists — no separate reconnect timer is needed.
+/// Dials the peer over `gm-tool` when it is trusted and neither connected nor already being dialed. Both peers may dial the same pair; `run_main_connection` deduplicates if both directions succeed. mDNS re-delivers `Discovered` for a live peer repeatedly, so this is retried until a connection exists — no separate reconnect timer is needed.
 pub(crate) async fn maybe_dial_trusted_peer(
     app: &AppHandle,
     state: &ConnectivityState,
