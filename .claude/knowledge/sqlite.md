@@ -12,7 +12,7 @@
 **Verified at:** SQLite 3.46.0 (the libsqlite3-sys 0.30.1 amalgamation) and 3.51.3 (node:sqlite), run 2026-09-19
 **Citation:** [review-decision_6: compiled ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.c into a probe running `PRAGMA foreign_keys=on`, a parent `p` and a child `c REFERENCES p(id) ON DELETE CASCADE`, an AFTER DELETE trigger on each inserting into a log table, then `DELETE FROM p` — observed log `c:10` then `p:1` and no child rows left; same result with node:sqlite 3.51.3]
 
-Every row a cascade deletes runs the child table's own DELETE triggers, so a change-tracking trigger on a child table records one row per cascade-deleted child, ahead of the parent's AFTER DELETE record. https://www.sqlite.org/foreignkeys.html's five-step sequence (BEFORE triggers, local constraints, parent row change, FK actions, AFTER triggers) lists the parent's own triggers and says nothing that exempts the child's.
+Every row a cascade deletes runs the child table's own DELETE triggers, so a change-tracking trigger on a child table records one row per cascade-deleted child, ahead of the parent's AFTER DELETE record. The five-step sequence on SQLite's foreign-keys page (`https://www.sqlite.org/foreignkeys.html`) (BEFORE triggers, local constraints, parent row change, FK actions, AFTER triggers) lists the parent's own triggers and says nothing that exempts the child's.
 
 ## strftime('%Y-%m-%dT%H:%M:%fZ','now') produces an ISO 8601 UTC string matching JS toISOString()
 
@@ -104,3 +104,10 @@ tauri-plugin-sql enables sqlx's `sqlite` feature, which turns on `bundled`, so t
 **Citation:** [spec-writer_3: https://www.sqlite.org/lang_keywords.html — none of the three appear in the 147-element keyword list]
 
 A column named `type`, `content`, or `checked` needs no quoting in `CREATE TABLE` or DML.
+
+## An `ON DELETE SET NULL` foreign-key action fires the child table's AFTER UPDATE trigger, before the parent's AFTER DELETE trigger, and changes no other column
+
+**Verified at:** SQLite 3.46.0 (the libsqlite3-sys 0.30.1 amalgamation) and 3.51.3 (node:sqlite), run 2026-09-19
+**Citation:** [sync-behavior_22: compiled the libsqlite3-sys 0.30.1 amalgamation and ran node:sqlite, each with a parent table, a child whose FK has `ON DELETE SET NULL`, and logging triggers on both — observed `ent-update:e1:NULL` logged before `img-delete:i1` and the child's `updated_at` unchanged]
+
+A change-tracking UPDATE trigger on the child records a change for every row the action nulls, while the row's own `updated_at` stays at its old value.

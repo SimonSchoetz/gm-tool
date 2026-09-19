@@ -72,3 +72,10 @@ Unlike preloading, a route's `loader` runs on every navigation regardless of whe
 **Citation:** [plan-feature_14: app/node_modules/@tanstack/react-router/dist/esm/index.d.ts:23 — exports `createRootRoute, createRootRouteWithContext` among others]
 
 Typed router context (e.g. passing a `QueryClient` into `createRouter({ context })` so `loader`s can reach it) requires the root route to be declared with `createRootRouteWithContext<TContext>()(...)` rather than `createRootRoute(...)`.
+
+## A param change on the same route keeps the route component mounted unless `remountDeps` or `defaultRemountDeps` is set
+
+**Verified at:** @tanstack/react-router 1.170.38 (@tanstack/router-core 1.171.32)
+**Citation:** [debounce_21: app/node_modules/.pnpm/@tanstack+react-router@1.170.38_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@tanstack/react-router/dist/esm/Match.js:81-99 — the route component's key is computed only from `route.options.remountDeps ?? router.options.defaultRemountDeps`] [debounce_24: ran a routing probe with a parent route and two child routes — observed `npc#1:a` → `npc#1:b` with no unmount, and an unmount plus remount once `remountDeps` was set]
+
+Hooks inside a detail screen keep their state and refs when the user navigates from one entity to another of the same route, so per-entity state must be keyed by the entity id.

@@ -20,3 +20,38 @@ The per-file docblock takes precedence over the config's `environment`, and the 
 **Citation:** [head-of-instructions_1: web fetch https://vitest.dev/api/vi — resetModules does not re-evaluate top-level static imports; a dynamic import after the reset is required] [refine-claude_1: ran `npx vitest run db/base-entity-content-section/__tests__/create.test.ts -t "includes name when provided"` from `app/`, a file with a static import and `afterEach(vi.resetModules)` — observed `mockExecute.mock.calls[0]` holding the init path's `CREATE TABLE IF NOT EXISTS _migrations` instead of the INSERT under test]
 
 A statically imported module keeps its module-level state (such as a cached database handle) for the whole test file even when `vi.resetModules()` runs between tests, so the state depends on which test ran first. Resetting per test requires `vi.resetModules()` in `beforeEach` followed by `await import(...)` inside each test.
+
+## Vitest 5 throws at transform time on a `vi.mock` or `vi.hoisted` call that is not at the module's top level
+
+**Verified at:** vitest 5.0.1 (@vitest/mocker 5.0.1)
+**Citation:** [spec-writer_51: app/node_modules/.pnpm/@vitest+mocker@5.0.1_vite@8.3.0_@types+node@26.6.1_jiti@2.7.0_/node_modules/@vitest/mocker/dist/chunk-hoistMocks.js:631-660 — "validate that hoisted nodes are defined on the top level" … `throw new Error(message)` naming calls "defined outside of the module's top level scope"]
+
+A helper function that calls `vi.mock` cannot be shared between test files; each file declares its mocks at top level, and a factory can still `await import()` shared setup code.
+
+## Vitest 5 clears every mock's call history before each test by default
+
+**Verified at:** vitest 5.0.1
+**Citation:** [spec-writer_52: app/node_modules/vitest/dist/chunks/defaults.D2ip7f-X.js:57 — `clearMocks: true`]
+
+Calls recorded in a setup file, at module top level or in `beforeAll` are gone by the time a test runs; implementations set with `mockImplementation` are kept.
+
+## A test file's `vi.mock` overrides a `setupFiles` mock of the same module only when both specifiers resolve to the same file
+
+**Verified at:** vitest 5.0.1, run 2026-09-19
+**Citation:** [harness-probe_25: ran a debug probe from a directory outside `app/` — observed the test's own import getting the test factory while `app/db/database.ts` got the setup file's mock] [harness-probe_27: ran the same probe with a `node_modules/@tauri-apps/plugin-sql` symlink making the bare specifier resolve to the app's package — observed the test factory reaching `database.ts`]
+
+Inside `app/`, a test file's `vi.mock('@tauri-apps/plugin-sql', factory)` replaces the global mock in `app/src/__tests__/setup.ts` for every importer, because both resolve to the same installed package.
+
+## Vitest 5 fails a test whose `.resolves`, `.rejects` or `toMatchFileSnapshot` assertion is not awaited
+
+**Verified at:** vitest 5.0.1, <https://github.com/vitest-dev/vitest/blob/v5.0.1/docs/guide/migration/index.md> fetched 2026-09-19
+**Citation:** [spec-writer_9: https://github.com/vitest-dev/vitest/blob/v5.0.1/docs/guide/migration/index.md, lines 349-362 — "Unawaited Asynchronous Assertions Fail the Test"]
+
+Vitest 4 auto-awaited such an assertion at the end of the test and only printed a warning; Vitest 5 fails the test and points the error at the unawaited assertion. Every `expect(...).rejects`/`.resolves` in a test body needs `await`.
+
+## Vitest collects only files matching `**/*.{test,spec}.?(c|m)[jt]s?(x)` by default
+
+**Verified at:** vitest 5.0.1
+**Citation:** [spec-writer_3: app/node_modules/vitest/dist/chunks/defaults.D2ip7f-X.js:5 — `const defaultInclude = ["**/*.{test,spec}.?(c|m)[jt]s?(x)"]`]
+
+A support module under `__tests__/` whose name has no `.test` or `.spec` segment is never run as a test file, so shared test helpers can live beside the tests that import them.

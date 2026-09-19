@@ -20,3 +20,10 @@ A `?N` parameter takes the N-th positional argument wherever it appears in the s
 **Citation:** [review-decision_3: ran `node -e` with `db.prepare('create table a (x); create table b (y);').run()` — observed no error and only table `a` in `sqlite_master`]
 
 Every statement after the first `;` is dropped without an error, unlike sqlx, which executes each top-level statement of one query string. `DatabaseSync.exec()` runs every statement but accepts no bind values.
+
+## `node:sqlite` returns rows with a null prototype
+
+**Verified at:** Node v22.23.2 (SQLite 3.51.3), run 2026-09-19
+**Citation:** [harness-probe_35: ran a scratch probe reading rows through `DatabaseSync.prepare().all()` — observed `Object.getPrototypeOf(row) === null`] [harness-probe_37: same probe — observed Vitest `toEqual` against a plain literal passing, `toStrictEqual` failing, and template-string coercion throwing]
+
+Code that treats a row like an ordinary object works, but a strict equality assertion or string coercion behaves differently from a plain-object row; copying with `{ ...row }` restores `Object.prototype`.

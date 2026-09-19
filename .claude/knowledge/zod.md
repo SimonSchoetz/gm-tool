@@ -20,3 +20,10 @@
 **Citation:** [spec-writer_10: app/node_modules/zod/v4/classic/schemas.d.ts:91 — `regex(regex: RegExp, params?: string | core.$ZodCheckRegexParams): this`]
 
 `z.string().regex(SOME_REGEX)` is valid in Zod 4 and returns `this`, so it chains and remains assignable wherever the unrefined `z.string()` was.
+
+## A `z.string().optional()` field rejects `null`, also after `ZodObject.partial()`
+
+**Verified at:** zod 4.6.5, run 2026-09-19
+**Citation:** [schema-inventory_100: ran a scratch probe parsing rows read back from the database with `zodSchema.partial().safeParse` — observed failures "Invalid input: expected string, received null" on columns declared `z.string().optional()`]
+
+`.optional()` admits `undefined` or a missing key, not `null`, and `.partial()` adds only optionality; a nullable database column needs `.nullable()` for its `null` value to validate.

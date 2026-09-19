@@ -43,3 +43,11 @@ No ESLint core or already-installed plugin rule (`@eslint/js`, `typescript-eslin
 **Citation:** [spec-writer_3: ran `npx eslint src/routes/zz-scratch-inline-component.tsx` from `app/` against a disposable route file exporting only `export const Route = createFileRoute('/adventure/$adventureId/npcs')({ component: () => <NpcsScreen /> })` — observed exit code 0, no diagnostics]
 
 A route file whose only export is `Route` may declare its `component` as an unexported inline arrow that renders a screen with a static prop (e.g. `component: () => <Screen entityType='npcs' />`); `react-refresh/only-export-components` does not flag it, so a per-route static prop needs no separately exported wrapper component.
+
+## `react-hooks/exhaustive-deps` requires the mutation object itself, not its `.mutate`, in the dependencies of a `useMemo` whose callback calls `updateMutation.mutate(...)`
+
+**Verified at:** eslint-plugin-react-hooks 7.1.1, `reactHooks.configs.flat.recommended` as configured in app/eslint.config.js, run 2026-09-19
+
+**Citation:** [spec-writer_55: ran `npx eslint` on a scratch copy of a data-access hook whose `useMemo` callback calls `updateMutation.mutate({ id, data })` inside a nested callback — observed "React Hook useMemo has a missing dependency: 'updateMutation'" with `[]`, and no finding with `[updateMutation]`]
+
+The memo is therefore keyed on `updateMutation`, which `useMutation` rebuilds on every render (`.claude/knowledge/tanstack-query.md`), so it recomputes each time.

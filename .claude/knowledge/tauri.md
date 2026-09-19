@@ -28,7 +28,7 @@ Windows uses Microsoft Edge WebView2 (Chromium-based), macOS uses WKWebView (Web
 
 Rust emits via the `Emitter` trait on `AppHandle`/`WebviewWindow`: `emit(event_name, payload)` (global), `emit_to(webview_label, event_name, payload)`, `emit_filter(...)`. Frontend listens via `import { listen } from '@tauri-apps/api/event'`. The calling-frontend documentation shows this working with no capability/permission entries mentioned for event listening.
 
-## Every tauri-plugin-sql call routes through window.__TAURI_INTERNALS__, so no SQL works in a plain Vite browser session
+## Every tauri-plugin-sql call routes through `window.__TAURI_INTERNALS__`, so no SQL works in a plain Vite browser session
 
 **Verified at:** @tauri-apps/plugin-sql ^2.4.0, @tauri-apps/api ^2.11.1, read 2026-08-06
 **Citation:** [refine-claude_2: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:32 — `static async load(path)` calls `invoke('plugin:sql|load', ...)`, and lines 89/118/137 route execute/select/close through `invoke` likewise; refine-claude_3: app/node_modules/@tauri-apps/api/core.js:202 — `invoke` returns `window.__TAURI_INTERNALS__.invoke(cmd, args, options)`; refine-claude_4: app/package.json:14 — `"web": "vite"`, a plain Vite server with no Tauri IPC bridge injected]
@@ -74,7 +74,7 @@ WKWebView's rendering-update cycle is driven from timers coordinating with the a
 ## `app.security.csp` accepts a policy string, a directive-map object, or null; `devCsp` overrides it for `tauri dev` only
 
 **Verified at:** tauri 2 (schema at `https://schema.tauri.app/config/2` + v2 docs, fetched 2026-08-31)
-**Citation:** [spec-writer_1: WebFetch of https://schema.tauri.app/config/2 — `csp` is `{"anyOf": [{"$ref": "#/definitions/Csp"}, {"type": "null"}]}` with description "The Content Security Policy that will be injected on all HTML files on the built application. If [`dev_csp`](#SecurityConfig.devCsp) is not specified, this value is also injected on dev."; the `Csp` definition accepts either "The entire CSP policy in a single text string" or "An object mapping a directive with its sources values as a list of strings"; spec-writer_2: WebFetch of https://v2.tauri.app/security/csp/ — "Local scripts are hashed, styles and external scripts are referenced using a cryptographic nonce"]
+**Citation:** [spec-writer_1: WebFetch of https://schema.tauri.app/config/2 — `csp` is `{"anyOf": [{"$ref": "#/definitions/Csp"}, {"type": "null"}]}` with description "The Content Security Policy that will be injected on all HTML files on the built application. If `dev_csp` is not specified, this value is also injected on dev."; the `Csp` definition accepts either "The entire CSP policy in a single text string" or "An object mapping a directive with its sources values as a list of strings"; spec-writer_2: WebFetch of https://v2.tauri.app/security/csp/ — "Local scripts are hashed, styles and external scripts are referenced using a cryptographic nonce"]
 
 Tauri rewrites the configured policy at compile time, appending hashes for local scripts and a nonce for styles and external scripts present in the built `index.html`. That rewriting covers only what is in the bundle at build time — a `<style>` or `<script>` element a library injects at runtime carries no nonce, and the dev server's own inline output is not hashed at all, which is what `devCsp` exists for. `csp: null` disables the header entirely.
 
@@ -91,3 +91,24 @@ A URL produced by `convertFileSrc()` resolves to the `asset:` scheme on macOS/Li
 **Citation:** [spec-writer_4: WebFetch of https://schema.tauri.app/config/2 — `assetProtocol.scope` is `{"description": "The access scope for the asset protocol.", "default": [], "allOf": [{"$ref": "#/definitions/FsScope"}]}`, and `FsScope` accepts a list ("A list of paths that are allowed by this scope") or an object with `allow`, `deny` ("This gets precedence over the allow list"), and `requireLiteralLeadingDot`; spec-writer_5: WebFetch of https://v2.tauri.app/reference/config/ — FsScope is "a list of glob patterns that restrict the API access from the webview. Each pattern can start with a variable that resolves to a system base directory", the recognized variables including `$APPDATA`, `$APPLOCALDATA`, `$APPCONFIG`, `$APPCACHE`, `$APPLOG`, `$RESOURCE`, `$HOME`, `$DATA`, `$LOCALDATA`, `$TEMP`]
 
 `$APPDATA` resolves to the same directory Rust's `app_handle.path().app_data_dir()` returns, so a file written under `app_data_dir().join("images")` is matched by the scope pattern `$APPDATA/images/*`. A scope of `["**"]` grants the webview read access to the entire filesystem through the asset protocol.
+
+## `tauri::async_runtime`'s `channel`, `Sender` and `Receiver` are tokio's mpsc types
+
+**Verified at:** tauri 2.11.5 (Cargo.lock)
+**Citation:** [spec-writer_47: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.5/src/async_runtime.rs:13-17 — `pub use tokio::{ runtime::{…}, sync::{ mpsc::{channel, Receiver, Sender}, Mutex, RwLock, … } }`]
+
+Channel semantics in Rust code that imports them from `tauri::async_runtime` are tokio's (see `.claude/knowledge/tokio.md`).
+
+## tauri-plugin-sql decodes SQL `NULL` to JSON `null`
+
+**Verified at:** tauri-plugin-sql 2.4.1 (Cargo.lock)
+**Citation:** [spec-writer_48: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-sql-2.4.1/src/decode/sqlite.rs:11-14 — `pub(crate) fn to_json(v: SqliteValueRef) -> Result<JsonValue, Error> { if v.is_null() { return Ok(JsonValue::Null); }`]
+
+A nullable column read through `select()` arrives in JavaScript as `null`, never `undefined` or a missing key, so every row from `SELECT *` carries every column.
+
+## `@tauri-apps/plugin-sql`'s `execute` resolves `{ rowsAffected, lastInsertId? }` and `select<T>` resolves the rows
+
+**Verified at:** @tauri-apps/plugin-sql 2.4.1
+**Citation:** [harness-probe_2: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:1-13 — `QueryResult { rowsAffected: number; lastInsertId?: number }`] [harness-probe_6: same file:88 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`] [harness-probe_7: same file:107 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`]
+
+A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module.

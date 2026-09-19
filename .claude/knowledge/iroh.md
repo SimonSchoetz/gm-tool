@@ -49,7 +49,7 @@ The conventional string form of a device/endpoint identity is the 64-character l
 
 `Endpoint::builder(preset)` takes a mandatory `impl Preset`. `presets::Minimal` sets only the mandatory rustls crypto provider (ring) and adds no address lookup or relay services; `presets::N0` additionally adds a Pkarr publisher, DNS address lookup, and the default relay mode. For LAN-only operation, `Minimal` + `relay_mode(RelayMode::Disabled)` + mDNS lookup is the correct base — nothing needs clearing.
 
-## iroh 1.0.2 accept flow: Accept → Option<Incoming> → Accepting → Connection
+## iroh 1.0.2 accept flow: `Accept` → `Option<Incoming>` → `Accepting` → `Connection`
 
 **Verified at:** iroh 1.0.2
 **Citation:** [implementer_2: iroh-1.0.2/src/endpoint.rs:1162, endpoint/connection.rs:106,147,660 — read in source]
@@ -129,3 +129,17 @@ Neither `iroh-mdns-address-lookup` 0.4.0 nor 0.5.0 (the newest published version
 **Citation:** [claude_1: swarm-discovery-0.6.3/src/lib.rs:369 — `pub fn with_multicast_interfaces_v4(mut self, interfaces: Vec<Ipv4Addr>) -> Self`; socket.rs:295-297 — `Sockets::new` then calls `join_group_on_main_v4(addr)` for every supplied address, joining the group per interface on the wildcard socket] [claude_2: ran the patched debug build 2026-08-23 — observed `Created interface-specific socket for 192.168.2.32`, `joined multicast group on interface 192.168.2.32`, and the peer endpoint id `7vpfcha…` discovered 1.5s after startup with 88 packets from 192.168.2.154, where the unpatched build had seen only its own id]
 
 Windows selects the multicast interface for an `INADDR_ANY` join by neither interface metric, longest-prefix route, nor the interface's address — all three were changed with no effect, while a Hyper-V/WSL vEthernet adapter kept winning over Wi-Fi [claude_3: ran a wildcard-bind probe replicating `socket_v4(None)` after each change — source address stayed on the virtual adapter through `InterfaceMetric` 1 on Wi-Fi, an added `224.0.0.251/32` route on Wi-Fi at `RouteMetric` 1, and `Remove-NetIPAddress` on the virtual adapter, which Windows immediately replaced with an APIPA address on the same interface]. Windows also refuses `Disable-NetAdapter` and `Disable-NetAdapterBinding` on that adapter even when elevated. Supplying the interface list explicitly is therefore the only reliable fix, and enumerating every up, non-loopback interface avoids having to identify the correct one. A supplied address whose interface cannot join (an APIPA address) fails with os error 10022 at DEBUG level and is tolerated without affecting the others.
+
+## `iroh::SecretKey::from_bytes(&[u8; 32]).public()` builds a deterministic `EndpointId` without networking
+
+**Verified at:** iroh 1.2.0 (iroh-base 1.2.0)
+**Citation:** [spec-writer_49: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/lib.rs:285-286 — `pub use iroh_base::{EndpointAddr, EndpointId, KeyParsingError, PublicKey, RelayUrl, RelayUrlParseError, SecretKey, …}`] [pairing_73: ran `cargo test --offline` on a scratch crate with iroh-base =1.2.0 — observed `SecretKey::from_bytes(&[1u8; 32]).public()` identical across runs and different from `[2u8; 32]`]
+
+Unit tests can create distinct, stable endpoint ids from fixed byte arrays with no endpoint bound.
+
+## iroh `Connection::stable_id()` stays fixed for the connection's lifetime and differs between connections open at the same time
+
+**Verified at:** iroh 1.2.0 (noq 1.3.0)
+**Citation:** [spec-writer_50: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/connection.rs:1066-1074 — "A stable identifier for this connection. Peer addresses and connection IDs can change, but this value will remain fixed for the lifetime of the connection." `pub fn stable_id(&self) -> usize`, returning `self.inner.stable_id()`] [spec-writer_12: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/connection.rs:1393-1395 — `&*self.0 as *const _ as usize`]
+
+The value is the address of the connection's shared state, so two connections alive at the same time never share it, while a closed connection's value can be reused by a later one. Comparing `stable_id()` values therefore tells whether two `Connection` handles are the same live connection, without holding a channel sender or any other resource.
