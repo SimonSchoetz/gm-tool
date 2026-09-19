@@ -10,7 +10,14 @@ export default defineConfig({
     setupFiles: './src/__tests__/setup.ts',
     css: true,
     coverage: {
-      include: ['src/**/*.{ts,tsx}', 'services/**/*.ts', 'domain/**/*.ts'],
+      include: [
+        'src/**/*.{ts,tsx}',
+        'services/**/*.ts',
+        'domain/**/*.ts',
+        'db/**/*.ts',
+        'util/**/*.ts',
+      ],
+      exclude: ['**/__tests__/**'],
     },
   },
   resolve: {
