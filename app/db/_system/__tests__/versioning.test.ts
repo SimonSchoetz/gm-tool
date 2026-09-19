@@ -1,84 +1,55 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { VersioningData } from '../schema';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('versioning', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
   });
 
-  it('getVersioning returns parsed VersioningData when the row exists', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _system')) {
-        return Promise.resolve([{ value: '{"snoozed_update_version":null}' }]);
-      }
-      return Promise.resolve([]);
-    });
+  it('returns the seeded value with no snoozed version', async () => {
     const { getVersioning } = await import('../versioning');
-    const result = await getVersioning();
-    expect(result).toEqual({ snoozed_update_version: null });
+
+    expect(await getVersioning()).toEqual({ snoozed_update_version: null });
   });
 
-  it('getVersioning returns null when no row exists for the key', async () => {
-    // beforeEach default: mockSelect.mockResolvedValue([]) — no row returned
+  it('returns null when the versioning row is missing', async () => {
     const { getVersioning } = await import('../versioning');
-    const result = await getVersioning();
-    expect(result).toBeNull();
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    await db.execute("DELETE FROM _system WHERE id = 'versioning'");
+
+    expect(await getVersioning()).toBeNull();
   });
 
-  it('getVersioning returns null when the row exists but its value is SQL NULL', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _system')) {
-        return Promise.resolve([{ value: null }]);
-      }
-      return Promise.resolve([]);
-    });
+  it('rejects a stored value that fails the schema', async () => {
     const { getVersioning } = await import('../versioning');
-    const result = await getVersioning();
-    expect(result).toBeNull();
-  });
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    await db.execute(
+      "UPDATE _system SET value = '{\"wrong_field\":true}' WHERE id = 'versioning'",
+    );
 
-  it('getVersioning throws when the stored JSON does not match the schema', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _system')) {
-        return Promise.resolve([{ value: '{"wrong_field":true}' }]);
-      }
-      return Promise.resolve([]);
-    });
-    const { getVersioning } = await import('../versioning');
     await expect(getVersioning()).rejects.toThrow();
   });
 
-  it('updateVersioning serializes and writes null snoozed_update_version', async () => {
-    const { updateVersioning } = await import('../versioning');
-    await updateVersioning({ snoozed_update_version: null });
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
-      ['versioning', '{"snoozed_update_version":null}'],
-    );
-  });
+  it('returns the snoozed version that updateVersioning stored and rejects an invalid one, leaving the stored value unchanged', async () => {
+    const { getVersioning, updateVersioning } = await import('../versioning');
 
-  it('updateVersioning serializes and writes a version string', async () => {
-    const { updateVersioning } = await import('../versioning');
     await updateVersioning({ snoozed_update_version: '1.2.3' });
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
-      ['versioning', '{"snoozed_update_version":"1.2.3"}'],
-    );
+    expect(await getVersioning()).toEqual({ snoozed_update_version: '1.2.3' });
+
+    await expect(
+      updateVersioning({
+        snoozed_update_version: 1,
+      } as unknown as VersioningData),
+    ).rejects.toThrow();
+    expect(await getVersioning()).toEqual({ snoozed_update_version: '1.2.3' });
   });
 });

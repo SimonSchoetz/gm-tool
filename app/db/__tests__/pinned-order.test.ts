@@ -1,103 +1,121 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// @vitest-environment node
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { getMaxPinnedOrder, setPinnedOrder } from '../pinned-order';
-
-describe('getMaxPinnedOrder', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
-    vi.resetModules();
-  });
-
-  it('scopes the maximum to the adventure of the given row for a base entity type', async () => {
-    const SELECT_SQL =
-      'SELECT MAX(pinned_order) as max_order FROM base_entities WHERE pinned_order IS NOT NULL AND entity_type = $2 AND adventure_id = (SELECT adventure_id FROM base_entities WHERE id = $1)';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [{ max_order: 4 }] : []),
-    );
-
-    const result = await getMaxPinnedOrder('npcs', 'npc-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npc-1', 'npcs']);
-    expect(result).toBe(4);
-  });
-
-  it('scopes the maximum to the adventure of the given row for a non-base entity type', async () => {
-    const SELECT_SQL =
-      'SELECT MAX(pinned_order) as max_order FROM sessions WHERE pinned_order IS NOT NULL AND adventure_id = (SELECT adventure_id FROM sessions WHERE id = $1)';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [{ max_order: 2 }] : []),
-    );
-
-    const result = await getMaxPinnedOrder('sessions', 'session-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['session-1']);
-    expect(result).toBe(2);
-  });
-
-  it('returns null when no row is pinned', async () => {
-    const SELECT_SQL =
-      'SELECT MAX(pinned_order) as max_order FROM base_entities WHERE pinned_order IS NOT NULL AND entity_type = $2 AND adventure_id = (SELECT adventure_id FROM base_entities WHERE id = $1)';
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(sql === SELECT_SQL ? [{ max_order: null }] : []),
-    );
-
-    const result = await getMaxPinnedOrder('npcs', 'npc-1');
-
-    expect(result).toBeNull();
-  });
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-describe('setPinnedOrder', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
+const createAdventure = async () => {
+  const { create } = await import('@db/adventure');
+  return create();
+};
 
-  afterEach(() => {
+// Pins are set through each module's own update, so the reads under test do not depend on the writer under test.
+const addNpc = async (adventureId: string, pinnedOrder: number | null) => {
+  const { create, update } = await import('@db/base-entity');
+  const id = await create('npcs', adventureId);
+  if (pinnedOrder !== null) await update(id, { pinned_order: pinnedOrder });
+  return id;
+};
+
+const addPc = async (adventureId: string, pinnedOrder: number) => {
+  const { create, update } = await import('@db/base-entity');
+  const id = await create('pcs', adventureId);
+  await update(id, { pinned_order: pinnedOrder });
+  return id;
+};
+
+const addSession = async (adventureId: string, pinnedOrder: number | null) => {
+  const { create, update } = await import('@db/session');
+  const id = await create(adventureId);
+  if (pinnedOrder !== null) await update(id, { pinned_order: pinnedOrder });
+  return id;
+};
+
+const readPinnedOrders = async (table: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<{ id: string; pinned_order: number | null }[]>(
+    `SELECT id, pinned_order FROM ${table} ORDER BY rowid`,
+  );
+};
+
+describe('pinned order', () => {
+  beforeEach(() => {
     vi.resetModules();
   });
 
-  it('writes the given number to the identified row for a base entity type', async () => {
-    await setPinnedOrder('npcs', 'npc-1', 3);
+  describe('getMaxPinnedOrder', () => {
+    it("returns the highest pin among the entity's adventure's pinned entities of its type", async () => {
+      const { getMaxPinnedOrder } = await import('../pinned-order');
+      const adventureId = await createAdventure();
+      const otherAdventureId = await createAdventure();
+      const firstNpc = await addNpc(adventureId, 1);
+      await addNpc(adventureId, 3);
+      await addNpc(adventureId, null);
+      await addPc(adventureId, 9);
+      await addNpc(otherAdventureId, 8);
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entities SET pinned_order = $1 WHERE id = $2',
-      [3, 'npc-1'],
-    );
+      expect(await getMaxPinnedOrder('npcs', firstNpc)).toBe(3);
+    });
+
+    it('returns null when no entity of the type is pinned in the adventure', async () => {
+      const { getMaxPinnedOrder } = await import('../pinned-order');
+      const adventureId = await createAdventure();
+      const npc = await addNpc(adventureId, null);
+      await addNpc(adventureId, null);
+
+      expect(await getMaxPinnedOrder('npcs', npc)).toBeNull();
+    });
+
+    it("returns the highest pin among the session's adventure's sessions for a non-base type", async () => {
+      const { getMaxPinnedOrder } = await import('../pinned-order');
+      const adventureId = await createAdventure();
+      const otherAdventureId = await createAdventure();
+      const firstSession = await addSession(adventureId, 1);
+      await addSession(adventureId, 2);
+      await addSession(adventureId, null);
+      await addSession(otherAdventureId, 7);
+      await addNpc(adventureId, 9);
+
+      expect(await getMaxPinnedOrder('sessions', firstSession)).toBe(2);
+    });
   });
 
-  it('writes null when unpinning a base entity type', async () => {
-    await setPinnedOrder('npcs', 'npc-1', null);
+  describe('setPinnedOrder', () => {
+    it('stores a pin on the given entity only and clears it with null', async () => {
+      const { setPinnedOrder } = await import('../pinned-order');
+      const adventureId = await createAdventure();
+      const pinnedNpc = await addNpc(adventureId, null);
+      const otherNpc = await addNpc(adventureId, 5);
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE base_entities SET pinned_order = $1 WHERE id = $2',
-      [null, 'npc-1'],
-    );
-  });
+      await setPinnedOrder('npcs', pinnedNpc, 3);
+      expect(await readPinnedOrders('base_entities')).toEqual([
+        { id: pinnedNpc, pinned_order: 3 },
+        { id: otherNpc, pinned_order: 5 },
+      ]);
 
-  it('writes the given number to the identified row for a non-base entity type', async () => {
-    await setPinnedOrder('sessions', 'session-1', 2);
+      await setPinnedOrder('npcs', pinnedNpc, null);
+      expect(await readPinnedOrders('base_entities')).toEqual([
+        { id: pinnedNpc, pinned_order: null },
+        { id: otherNpc, pinned_order: 5 },
+      ]);
+    });
 
-    expect(mockExecute).toHaveBeenCalledWith(
-      'UPDATE sessions SET pinned_order = $1 WHERE id = $2',
-      [2, 'session-1'],
-    );
+    it('stores a pin on the given session only', async () => {
+      const { setPinnedOrder } = await import('../pinned-order');
+      const adventureId = await createAdventure();
+      const pinnedSession = await addSession(adventureId, null);
+      const otherSession = await addSession(adventureId, 5);
+
+      await setPinnedOrder('sessions', pinnedSession, 2);
+
+      expect(await readPinnedOrders('sessions')).toEqual([
+        { id: pinnedSession, pinned_order: 2 },
+        { id: otherSession, pinned_order: 5 },
+      ]);
+    });
   });
 });

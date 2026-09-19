@@ -1,42 +1,33 @@
-import { describe, it, expect, vi } from 'vitest';
-import type Database from '@tauri-apps/plugin-sql';
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import { openTestDatabase } from '@db/__tests__/support/sqlite-test-database';
 import { ensureColumn } from '../ensure-column';
 
-const buildMockDb = (existingColumns: string[]) => {
-  const select = vi
-    .fn()
-    .mockResolvedValue(existingColumns.map((name) => ({ name })));
-  const execute = vi.fn().mockResolvedValue(undefined);
-  return { select, execute, db: { select, execute } as unknown as Database };
-};
+const ADD_LABEL_SQL = 'ALTER TABLE things ADD COLUMN label TEXT';
+
+const readColumnNames = async (
+  db: ReturnType<typeof openTestDatabase>,
+): Promise<string[]> =>
+  (await db.select<{ name: string }[]>('PRAGMA table_info(things)')).map(
+    (column) => column.name,
+  );
 
 describe('ensureColumn', () => {
-  it('runs the ALTER statement when the column is missing', async () => {
-    const { db, select, execute } = buildMockDb(['id', 'name']);
+  it('adds the column when the table does not have it', async () => {
+    const db = openTestDatabase();
+    await db.execute('CREATE TABLE things (id TEXT PRIMARY KEY)');
 
-    await ensureColumn(
-      db,
-      'npcs',
-      'pinned_order',
-      'ALTER TABLE npcs ADD COLUMN pinned_order INTEGER',
-    );
+    await ensureColumn(db, 'things', 'label', ADD_LABEL_SQL);
 
-    expect(select).toHaveBeenCalledWith('PRAGMA table_info(npcs)');
-    expect(execute).toHaveBeenCalledWith(
-      'ALTER TABLE npcs ADD COLUMN pinned_order INTEGER',
-    );
+    expect(await readColumnNames(db)).toEqual(['id', 'label']);
   });
 
-  it('skips the ALTER statement when the column already exists', async () => {
-    const { db, execute } = buildMockDb(['id', 'name', 'pinned_order']);
+  it('resolves and leaves the table unchanged when the column already exists', async () => {
+    const db = openTestDatabase();
+    await db.execute('CREATE TABLE things (id TEXT PRIMARY KEY, label TEXT)');
 
-    await ensureColumn(
-      db,
-      'npcs',
-      'pinned_order',
-      'ALTER TABLE npcs ADD COLUMN pinned_order INTEGER',
-    );
+    await ensureColumn(db, 'things', 'label', ADD_LABEL_SQL);
 
-    expect(execute).not.toHaveBeenCalled();
+    expect(await readColumnNames(db)).toEqual(['id', 'label']);
   });
 });

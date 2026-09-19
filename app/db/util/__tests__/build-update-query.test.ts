@@ -51,13 +51,14 @@ describe('buildUpdateQuery', () => {
     expect(values).toEqual(['Name', '2024-01-15T10:30:00.000Z', 'test-id']);
   });
 
-  it('should use the correct final parameter index for id', () => {
-    const { sql, values } = buildUpdateQuery('sessions', 'sess-id', {
-      name: 'A',
-      summary: 'B',
+  it('should keep an explicit null in the SET list and bind it as null', () => {
+    const { sql, values } = buildUpdateQuery('adventures', 'test-id', {
+      description: null,
     });
 
-    expect(sql).toContain('updated_at = $3 WHERE id = $4');
-    expect(values[3]).toBe('sess-id');
+    expect(sql).toBe(
+      'UPDATE adventures SET description = $1, updated_at = $2 WHERE id = $3',
+    );
+    expect(values).toEqual([null, '2024-01-15T10:30:00.000Z', 'test-id']);
   });
 });

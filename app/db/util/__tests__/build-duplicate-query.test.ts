@@ -31,17 +31,18 @@ describe('buildDuplicateQuery', () => {
     ]);
   });
 
-  it('preserves null copied values as null', () => {
+  it('keeps falsy copied values as they are', () => {
     const { values } = buildDuplicateQuery(
       'npcs',
       'new-id',
-      { description: null },
+      { pinned_order: 0, description: '' },
       {},
     );
 
     expect(values).toEqual([
       'new-id',
-      null,
+      0,
+      '',
       '2024-01-15T10:30:00.000Z',
       '2024-01-15T10:30:00.000Z',
     ]);
@@ -67,16 +68,47 @@ describe('buildDuplicateQuery', () => {
     ]);
   });
 
-  it('generates fresh matching created_at and updated_at, not passed through copiedColumns', () => {
-    const { values } = buildDuplicateQuery(
+  it('writes fresh timestamps over stale ones in copiedColumns, which keep their early position', () => {
+    const { sql, values } = buildDuplicateQuery(
       'npcs',
       'new-id',
-      { adventure_id: 'adv-1' },
+      {
+        created_at: 'stale-created',
+        updated_at: 'stale-updated',
+        name: 'kept name',
+      },
       {},
     );
 
-    expect(values.at(-2)).toBe('2024-01-15T10:30:00.000Z');
-    expect(values.at(-1)).toBe('2024-01-15T10:30:00.000Z');
+    expect(sql).toBe(
+      'INSERT INTO npcs (id, created_at, updated_at, name) VALUES ($1, $2, $3, $4)',
+    );
+    expect(values).toEqual([
+      'new-id',
+      '2024-01-15T10:30:00.000Z',
+      '2024-01-15T10:30:00.000Z',
+      'kept name',
+    ]);
+  });
+
+  it('lets an override replace a copied column of the same name', () => {
+    const { sql, values } = buildDuplicateQuery(
+      'npcs',
+      'new-id',
+      { adventure_id: 'copied-adventure', name: 'kept name' },
+      { adventure_id: 'overriding-adventure' },
+    );
+
+    expect(sql).toBe(
+      'INSERT INTO npcs (id, adventure_id, name, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)',
+    );
+    expect(values).toEqual([
+      'new-id',
+      'overriding-adventure',
+      'kept name',
+      '2024-01-15T10:30:00.000Z',
+      '2024-01-15T10:30:00.000Z',
+    ]);
   });
 
   it('produces an INSERT with only id and timestamps when no columns or overrides are given', () => {

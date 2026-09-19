@@ -1,57 +1,42 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('getSetting', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
   });
 
-  it('returns the parsed value for an existing key', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _settings')) {
-        return Promise.resolve([{ value: '{"animation_enabled":true}' }]);
-      }
-      return Promise.resolve([]);
-    });
+  it('returns the seeded background setting parsed through its schema', async () => {
     const { getSetting } = await import('../get');
-    const result = await getSetting('background');
-    expect(result).toEqual({ animation_enabled: true });
-    expect(mockSelect).toHaveBeenCalledWith(
-      'SELECT value FROM _settings WHERE id = $1',
-      ['background'],
+
+    expect(await getSetting('background')).toEqual({
+      animation_enabled: true,
+    });
+  });
+
+  it('returns null when the setting row is missing', async () => {
+    const { getSetting } = await import('../get');
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    await db.execute("DELETE FROM _settings WHERE id = 'background'");
+
+    expect(await getSetting('background')).toBeNull();
+  });
+
+  it('rejects a stored value that fails the schema', async () => {
+    const { getSetting } = await import('../get');
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    await db.execute(
+      'UPDATE _settings SET value = \'{"animation_enabled":"yes"}\' WHERE id = \'background\'',
     );
-  });
 
-  it('returns null when the key does not exist', async () => {
-    const { getSetting } = await import('../get');
-    const result = await getSetting('background');
-    expect(result).toBeNull();
-  });
-
-  it('throws when stored JSON does not match the schema', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _settings')) {
-        return Promise.resolve([{ value: '{"animation_enabled":"yes"}' }]);
-      }
-      return Promise.resolve([]);
-    });
-    const { getSetting } = await import('../get');
     await expect(getSetting('background')).rejects.toThrow();
   });
 });

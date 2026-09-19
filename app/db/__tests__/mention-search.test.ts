@@ -1,184 +1,180 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({ execute: mockExecute, select: mockSelect }),
-    ),
-  },
-}));
-
-import { searchByName, getById } from '../mention-search';
-
-describe('searchByName', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
-  });
-
-  afterEach(() => {
-    vi.resetModules();
-  });
-
-  it('should search a base entity type scoped to adventureId when adventureId is not null', async () => {
-    const SELECT_SQL = `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 AND adventure_id = $3 ORDER BY updated_at DESC`;
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL
-          ? [{ id: '1', name: 'Goblin', updated_at: '2025-01-01' }]
-          : [],
-      ),
-    );
-
-    const result = await searchByName('npcs', 'gob', 'adv-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, [
-      'npcs',
-      '%gob%',
-      'adv-1',
-    ]);
-    expect(result).toEqual([
-      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
-    ]);
-  });
-
-  it('should search a base entity type without adventureId filter when adventureId is null', async () => {
-    const SELECT_SQL = `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND name LIKE $2 ORDER BY updated_at DESC`;
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL
-          ? [{ id: '1', name: 'Goblin', updated_at: '2025-01-01' }]
-          : [],
-      ),
-    );
-
-    const result = await searchByName('npcs', 'gob', null);
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npcs', '%gob%']);
-    expect(result).toEqual([
-      { id: '1', name: 'Goblin', updated_at: '2025-01-01' },
-    ]);
-  });
-
-  it('should search a non-base entity type scoped to adventureId', async () => {
-    const SELECT_SQL = `SELECT id, name, updated_at FROM sessions WHERE name LIKE $1 AND adventure_id = $2 ORDER BY updated_at DESC`;
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL
-          ? [{ id: '1', name: 'Session One', updated_at: '2025-01-01' }]
-          : [],
-      ),
-    );
-
-    const result = await searchByName('sessions', 'ses', 'adv-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['%ses%', 'adv-1']);
-    expect(result).toEqual([
-      { id: '1', name: 'Session One', updated_at: '2025-01-01' },
-    ]);
-  });
-
-  it('should search without adventureId filter when adventureId is null', async () => {
-    const SELECT_SQL = `SELECT id, name, updated_at FROM adventures WHERE name LIKE $1 ORDER BY updated_at DESC`;
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL
-          ? [{ id: '2', name: 'Tavern', updated_at: '2025-01-02' }]
-          : [],
-      ),
-    );
-
-    const result = await searchByName('adventures', 'tav', null);
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['%tav%']);
-    expect(result).toEqual([
-      { id: '2', name: 'Tavern', updated_at: '2025-01-02' },
-    ]);
-  });
-
-  it('should return empty array when no results match', async () => {
-    mockSelect.mockResolvedValue([]);
-
-    const result = await searchByName('npcs', 'zzz', 'adv-1');
-
-    expect(result).toEqual([]);
-  });
-
-  it('should return an empty array for a non-entity table name without querying', async () => {
-    const result = await searchByName('table_config', 'x', 'adv-1');
-
-    expect(result).toEqual([]);
-    expect(mockSelect).not.toHaveBeenCalled();
-  });
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-describe('getById', () => {
+const isoAtMinute = (minute: number) =>
+  `2026-01-10T09:${String(minute).padStart(2, '0')}:00.000Z`;
+
+const setMinute = (minute: number) => {
+  vi.setSystemTime(new Date(isoAtMinute(minute)));
+};
+
+// Names are set through each module's update, so updated_at is the frozen minute of that call. Every matching name has "dra" after its first character, so a prefix-only pattern finds nothing. Within an adventure the NPC created first is also updated first, so the expected most-recently-updated-first order is the reverse of insertion order.
+const seedFixture = async () => {
+  const { create: createAdventure, update: updateAdventure } =
+    await import('@db/adventure');
+  const { create: createBaseEntity, update: updateBaseEntity } =
+    await import('@db/base-entity');
+  const { create: createSession, update: updateSession } =
+    await import('@db/session');
+
+  const addAdventure = async (minute: number, name: string) => {
+    setMinute(minute);
+    const id = await createAdventure();
+    await updateAdventure(id, { name });
+    return id;
+  };
+  const addBaseEntity = async (
+    minute: number,
+    entityType: 'npcs' | 'pcs',
+    adventureId: string,
+    name: string,
+  ) => {
+    setMinute(minute);
+    const id = await createBaseEntity(entityType, adventureId);
+    await updateBaseEntity(id, { name });
+    return id;
+  };
+  const addSession = async (
+    minute: number,
+    adventureId: string,
+    name: string,
+  ) => {
+    setMinute(minute);
+    const id = await createSession(adventureId);
+    await updateSession(id, { name });
+    return id;
+  };
+
+  const adventureA = await addAdventure(1, 'Hydra hunt');
+  const adventureB = await addAdventure(2, 'Alexandra saga');
+  await addAdventure(3, 'Plain adventure');
+  const firstNpcOfA = await addBaseEntity(
+    4,
+    'npcs',
+    adventureA,
+    'Hydra of the deep',
+  );
+  const secondNpcOfA = await addBaseEntity(
+    5,
+    'npcs',
+    adventureA,
+    'Alexandra the bold',
+  );
+  await addBaseEntity(6, 'npcs', adventureA, 'Bob');
+  await addBaseEntity(7, 'pcs', adventureA, 'Cassandra');
+  const npcOfB = await addBaseEntity(8, 'npcs', adventureB, 'Sandra the sly');
+  const sessionOfA = await addSession(9, adventureA, 'Hydra session');
+  await addSession(10, adventureB, 'Cassandra session');
+
+  return {
+    adventureA,
+    adventureB,
+    firstNpcOfA,
+    secondNpcOfA,
+    npcOfB,
+    sessionOfA,
+  };
+};
+
+describe('mention search', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockSelect.mockResolvedValue([]);
-    mockExecute.mockResolvedValue({});
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
   });
 
   afterEach(() => {
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
-  it('returns the row for a base entity type when a matching id exists', async () => {
-    const SELECT_SQL = `SELECT id, name, updated_at FROM base_entities WHERE entity_type = $1 AND id = $2`;
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL
-          ? [{ id: '1', name: 'Goblin', updated_at: '2025-01-01' }]
-          : [],
-      ),
-    );
+  describe('searchByName', () => {
+    it("finds exactly the adventure's matching entities of the type, most recently updated first", async () => {
+      const { searchByName } = await import('../mention-search');
+      const { adventureA, firstNpcOfA, secondNpcOfA } = await seedFixture();
 
-    const result = await getById('npcs', '1');
+      expect(await searchByName('npcs', 'dra', adventureA)).toEqual([
+        {
+          id: secondNpcOfA,
+          name: 'Alexandra the bold',
+          updated_at: isoAtMinute(5),
+        },
+        {
+          id: firstNpcOfA,
+          name: 'Hydra of the deep',
+          updated_at: isoAtMinute(4),
+        },
+      ]);
+    });
 
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['npcs', '1']);
-    expect(result).toEqual({
-      id: '1',
-      name: 'Goblin',
-      updated_at: '2025-01-01',
+    it('searches every adventure but only the given entity type when no adventure is given', async () => {
+      const { searchByName } = await import('../mention-search');
+      const { firstNpcOfA, secondNpcOfA, npcOfB } = await seedFixture();
+
+      const matches = await searchByName('npcs', 'dra', null);
+
+      expect(matches.map((match) => match.id)).toEqual([
+        npcOfB,
+        secondNpcOfA,
+        firstNpcOfA,
+      ]);
+    });
+
+    it("finds only the adventure's matching sessions for a non-base type", async () => {
+      const { searchByName } = await import('../mention-search');
+      const { adventureA, sessionOfA } = await seedFixture();
+
+      const matches = await searchByName('sessions', 'dra', adventureA);
+
+      expect(matches.map((match) => match.id)).toEqual([sessionOfA]);
+    });
+
+    it('finds matching adventures, most recently updated first, when searching without an adventure', async () => {
+      const { searchByName } = await import('../mention-search');
+      const { adventureA, adventureB } = await seedFixture();
+
+      const matches = await searchByName('adventures', 'dra', null);
+
+      expect(matches.map((match) => match.id)).toEqual([
+        adventureB,
+        adventureA,
+      ]);
+    });
+
+    it('returns no matches for a type that is not an entity type', async () => {
+      const { searchByName } = await import('../mention-search');
+
+      expect(await searchByName('images', 'dra', null)).toEqual([]);
     });
   });
 
-  it('returns the row for a non-base entity type when a matching id exists', async () => {
-    const SELECT_SQL = `SELECT id, name, updated_at FROM sessions WHERE id = $1`;
-    mockSelect.mockImplementation((sql: string) =>
-      Promise.resolve(
-        sql === SELECT_SQL
-          ? [{ id: 's-1', name: 'Session One', updated_at: '2025-01-01' }]
-          : [],
-      ),
-    );
+  describe('getById', () => {
+    it("returns the entity's row under its own type and null under another type or a non-entity table", async () => {
+      const { getById } = await import('../mention-search');
+      const { firstNpcOfA } = await seedFixture();
 
-    const result = await getById('sessions', 's-1');
-
-    expect(mockSelect).toHaveBeenCalledWith(SELECT_SQL, ['s-1']);
-    expect(result).toEqual({
-      id: 's-1',
-      name: 'Session One',
-      updated_at: '2025-01-01',
+      expect(await getById('npcs', firstNpcOfA)).toEqual({
+        id: firstNpcOfA,
+        name: 'Hydra of the deep',
+        updated_at: isoAtMinute(4),
+      });
+      expect(await getById('pcs', firstNpcOfA)).toBeNull();
+      expect(await getById('images', firstNpcOfA)).toBeNull();
     });
-  });
 
-  it('returns null when no row matches', async () => {
-    mockSelect.mockResolvedValue([]);
+    it('returns the row of a non-base entity', async () => {
+      const { getById } = await import('../mention-search');
+      const { sessionOfA } = await seedFixture();
 
-    const result = await getById('npcs', 'missing-id');
-
-    expect(result).toBeNull();
-  });
-
-  it('should return null for a non-entity table name without querying', async () => {
-    const result = await getById('table_config', '1');
-
-    expect(result).toBeNull();
-    expect(mockSelect).not.toHaveBeenCalled();
+      expect(await getById('sessions', sessionOfA)).toEqual({
+        id: sessionOfA,
+        name: 'Hydra session',
+        updated_at: isoAtMinute(9),
+      });
+    });
   });
 });

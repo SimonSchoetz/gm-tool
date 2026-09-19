@@ -32,16 +32,4 @@ describe('buildCreateQuery', () => {
     expect(sql).toBe('INSERT INTO test_table (id) VALUES ($1)');
     expect(values).toEqual(['test-id']);
   });
-
-  it('should start id at $1 and use sequential indices', () => {
-    const { sql, values } = buildCreateQuery('npcs', 'npc-id', {
-      a: 1,
-      b: 2,
-      c: 3,
-    });
-
-    expect(sql).toContain('($1, $2, $3, $4)');
-    expect(values[0]).toBe('npc-id');
-    expect(values).toEqual(['npc-id', 1, 2, 3]);
-  });
 });

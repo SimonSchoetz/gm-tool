@@ -18,11 +18,4 @@ describe('generateDbTimestamps', () => {
     expect(result.updated_at).toBe('2024-01-15T10:30:00.000Z');
     expect(result.now).toBe('2024-01-15T10:30:00.000Z');
   });
-
-  it('should return all three fields with the same value', () => {
-    const { created_at, updated_at, now } = generateDbTimestamps();
-
-    expect(created_at).toBe(now);
-    expect(updated_at).toBe(now);
-  });
 });

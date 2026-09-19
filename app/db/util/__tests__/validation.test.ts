@@ -40,9 +40,9 @@ describe('assertHasUpdateFields', () => {
     }).not.toThrow();
   });
 
-  it('should not throw when multiple values are defined', () => {
+  it('should not throw when the only value is null, which clears a field', () => {
     expect(() => {
-      assertHasUpdateFields({ name: 'New Name', description: 'New Desc' });
+      assertHasUpdateFields({ name: null });
     }).not.toThrow();
   });
 });

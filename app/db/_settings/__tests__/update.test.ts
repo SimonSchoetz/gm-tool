@@ -1,44 +1,41 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { BackgroundSettings } from '../schema';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
-
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
 describe('updateSetting', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
   });
 
-  it('writes the JSON-serialised value with INSERT OR REPLACE', async () => {
+  it('stores the value so the next read returns it', async () => {
     const { updateSetting } = await import('../update');
+    const { getSetting } = await import('../get');
+
     await updateSetting('background', { animation_enabled: false });
-    expect(mockExecute).toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO _settings (id, value) VALUES ($1, $2)',
-      ['background', '{"animation_enabled":false}'],
-    );
+
+    expect(await getSetting('background')).toEqual({
+      animation_enabled: false,
+    });
   });
 
-  it('throws when the value does not match the schema', async () => {
+  it('rejects a value that fails the schema and leaves the stored value unchanged', async () => {
     const { updateSetting } = await import('../update');
+    const { getSetting } = await import('../get');
+
     await expect(
-      updateSetting('background', { animation_enabled: 'yes' } as never),
+      updateSetting('background', {
+        animation_enabled: 'yes',
+      } as unknown as BackgroundSettings),
     ).rejects.toThrow();
-    expect(mockExecute).not.toHaveBeenCalledWith(
-      'INSERT OR REPLACE INTO _settings (id, value) VALUES ($1, $2)',
-      expect.anything(),
-    );
+
+    expect(await getSetting('background')).toEqual({
+      animation_enabled: true,
+    });
   });
 });

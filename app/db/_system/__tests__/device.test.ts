@@ -1,80 +1,61 @@
+// @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const mockExecute = vi.fn();
-const mockSelect = vi.fn();
+vi.mock('@tauri-apps/plugin-sql', async () => {
+  const { openTestDatabase } =
+    await import('@db/__tests__/support/sqlite-test-database');
+  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+});
 
-vi.mock('@tauri-apps/plugin-sql', () => ({
-  default: {
-    load: vi.fn(() =>
-      Promise.resolve({
-        execute: mockExecute,
-        select: mockSelect,
-      }),
-    ),
-  },
-}));
+const DEVICE_ID = 'a'.repeat(64);
 
-const hexId =
-  'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2';
+const writeDeviceValue = async (value: string | null) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  await db.execute(
+    'INSERT OR REPLACE INTO _system (id, value) VALUES ($1, $2)',
+    ['device', value],
+  );
+};
 
 describe('device', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.clearAllMocks();
-    mockExecute.mockResolvedValue({ lastInsertId: 0 });
-    mockSelect.mockResolvedValue([]);
   });
 
-  it('getDevice returns parsed DeviceData when the row exists', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _system')) {
-        return Promise.resolve([
-          { value: `{"id":"${hexId}","name":"Laptop"}` },
-        ]);
-      }
-      return Promise.resolve([]);
-    });
+  it('has no device on a fresh database', async () => {
     const { getDevice } = await import('../device');
-    const result = await getDevice();
-    expect(result).toEqual({ id: hexId, name: 'Laptop' });
+
+    expect(await getDevice()).toBeNull();
   });
 
-  it('getDevice returns null when no row exists for the key', async () => {
-    // beforeEach default: mockSelect.mockResolvedValue([]) — no row returned
+  it('reads a device row whose value is SQL NULL as no device', async () => {
     const { getDevice } = await import('../device');
-    const result = await getDevice();
-    expect(result).toBeNull();
+    await writeDeviceValue(null);
+
+    expect(await getDevice()).toBeNull();
   });
 
-  it('getDevice returns null when the row exists but its value is SQL NULL', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _system')) {
-        return Promise.resolve([{ value: null }]);
-      }
-      return Promise.resolve([]);
-    });
-    const { getDevice } = await import('../device');
-    const result = await getDevice();
-    expect(result).toBeNull();
+  it('returns the device that updateDevice stored', async () => {
+    const { getDevice, updateDevice } = await import('../device');
+
+    await updateDevice({ id: DEVICE_ID, name: 'My laptop' });
+
+    expect(await getDevice()).toEqual({ id: DEVICE_ID, name: 'My laptop' });
   });
 
-  it('getDevice throws when the stored JSON does not match the schema', async () => {
-    mockSelect.mockImplementation((query: string) => {
-      if (query.includes('SELECT value FROM _system')) {
-        return Promise.resolve([{ value: '{"id":"not-hex","name":null}' }]);
-      }
-      return Promise.resolve([]);
-    });
+  it('rejects an id that is not hex and stores no device', async () => {
+    const { getDevice, updateDevice } = await import('../device');
+
+    await expect(updateDevice({ id: 'not-hex', name: null })).rejects.toThrow();
+
+    expect(await getDevice()).toBeNull();
+  });
+
+  it('rejects a stored device that fails the schema', async () => {
     const { getDevice } = await import('../device');
+    await writeDeviceValue('{"id":"not-hex","name":null}');
+
     await expect(getDevice()).rejects.toThrow();
-  });
-
-  it('updateDevice writes the JSON-serialized value under the device key', async () => {
-    const { updateDevice } = await import('../device');
-    await updateDevice({ id: hexId, name: 'Laptop' });
-    expect(mockExecute).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT OR REPLACE INTO _system'),
-      ['device', `{"id":"${hexId}","name":"Laptop"}`],
-    );
   });
 });
