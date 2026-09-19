@@ -55,3 +55,31 @@ Vitest 4 auto-awaited such an assertion at the end of the test and only printed 
 **Citation:** [spec-writer_3: app/node_modules/vitest/dist/chunks/defaults.D2ip7f-X.js:5 — `const defaultInclude = ["**/*.{test,spec}.?(c|m)[jt]s?(x)"]`]
 
 A support module under `__tests__/` whose name has no `.test` or `.spec` segment is never run as a test file, so shared test helpers can live beside the tests that import them.
+
+## `await expect(promise).rejects.toMatchObject({ name })` matches an Error whose `name` was assigned after construction and fails on a plain `Error`
+
+**Verified at:** vitest 5.0.1, run 2026-09-19
+**Citation:** [spec-writer_59: ran `npx vitest run services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test — observed `rejects.toMatchObject({ name: 'SyncApplyError' })` pass on an error made by a factory that sets `error.name` after `new Error(...)`, and `expect(Promise.reject(new Error('raw'))).rejects.toMatchObject({ name: 'SyncApplyError' })` throw]
+
+An error type identified only by its `name` can be asserted without `instanceof`, and the assertion separates a wrapped typed error from a raw one, whose `name` is `'Error'`.
+
+## A `vi.mock` factory returning `vi.hoisted` spies gives every module instance imported after `vi.resetModules()` the same spy objects
+
+**Verified at:** vitest 5.0.1, run 2026-09-19
+**Citation:** [spec-writer_60: ran `npx vitest run services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test with four top-level `vi.mock` factories returning `vi.hoisted` spies, `vi.resetModules()` in `beforeEach` and `await import('../syncService')` in each test — observed seven tests pass, each asserting on the hoisted spies its freshly imported module had called, and a `mockResolvedValue` set in `beforeEach` replace the `mockRejectedValue` a previous test had left on the same spy]
+
+Spies configured before the dynamic `import()` are the ones the fresh module instance calls. A `mockResolvedValue` set in `beforeEach` replaces whatever implementation an earlier test left on the same spy.
+
+## `vi.fn<typeof ns.fn>()` declared through a type-only namespace import (`import type * as ns`) compiles, lints clean, and types `mockImplementation` callback parameters from the real function
+
+**Verified at:** vitest 5.0.1, typescript 6.0.3, typescript-eslint 8.70.0, run 2026-09-19
+**Citation:** [spec-writer_61: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test declaring `vi.hoisted(() => vi.fn<typeof syncDb.applyUpsert>())` under `import type * as syncDb from '@db/_sync'` with `mockImplementation((table, row) => …)` callbacks — observed both report no findings under `strict`, so the callback parameters were contextually typed]
+
+A result type that a module's barrel does not export, such as `'applied' | 'skipped'`, is therefore reachable from a test without re-declaring it or importing from a path below the barrel.
+
+## `expect.any(Boolean)` written as a direct argument of `toHaveBeenCalledWith`, or as an element inside a `toEqual` array literal, passes `tsc` and `eslint` without a cast
+
+**Verified at:** vitest 5.0.1, typescript 6.0.3, typescript-eslint 8.70.0, run 2026-09-19
+**Citation:** [spec-writer_62: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-any.test.ts` from `app/` on a scratch test calling `expect(spy).toHaveBeenCalledWith('adventures', { id: 'a' }, expect.any(Boolean))` and `expect(spy.mock.calls).toEqual([['adventures', { id: 'a' }, expect.any(Boolean)]])` — observed no findings from either]
+
+The matcher needs no `as` cast in those two positions.

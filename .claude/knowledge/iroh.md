@@ -143,3 +143,10 @@ Unit tests can create distinct, stable endpoint ids from fixed byte arrays with 
 **Citation:** [spec-writer_50: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/connection.rs:1066-1074 — "A stable identifier for this connection. Peer addresses and connection IDs can change, but this value will remain fixed for the lifetime of the connection." `pub fn stable_id(&self) -> usize`, returning `self.inner.stable_id()`] [spec-writer_12: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/connection.rs:1393-1395 — `&*self.0 as *const _ as usize`]
 
 The value is the address of the connection's shared state, so two connections alive at the same time never share it, while a closed connection's value can be reused by a later one. Comparing `stable_id()` values therefore tells whether two `Connection` handles are the same live connection, without holding a channel sender or any other resource.
+
+## Dropping an iroh `SendStream` finishes it
+
+**Verified at:** iroh 1.2.0 (noq 1.3.0), 2026-09-19
+**Citation:** [review_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/send_stream.rs:351-375 — Drop for SendStream calls conn.inner.send_stream(self.stream).finish(), resetting only on FinishError::Stopped and returning early when conn.error is set; iroh-1.2.0/src/endpoint/quic.rs:13-37 re-exports SendStream via pub use noq]
+
+Dropping an `iroh::endpoint::SendStream` calls `finish()` on its stream, and resets the stream only when `finish()` reports that the peer had already stopped it. The drop does nothing further when the connection has already errored.
