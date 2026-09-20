@@ -16,8 +16,8 @@ The per-file docblock takes precedence over the config's `environment`, and the 
 
 ## `vi.resetModules()` does not re-evaluate a module already bound by a static top-level import; only a later dynamic `import()` gets a fresh instance
 
-**Verified at:** vitest 4.1.11 (installed), <https://vitest.dev/api/vi> + run 2026-09-19
-**Citation:** [head-of-instructions_1: web fetch https://vitest.dev/api/vi — resetModules does not re-evaluate top-level static imports; a dynamic import after the reset is required] [refine-claude_1: ran `npx vitest run db/base-entity-content-section/__tests__/create.test.ts -t "includes name when provided"` from `app/`, a file with a static import and `afterEach(vi.resetModules)` — observed `mockExecute.mock.calls[0]` holding the init path's `CREATE TABLE IF NOT EXISTS _migrations` instead of the INSERT under test]
+**Verified at:** vitest 5.0.1, run 2026-09-19
+**Citation:** [review_3: ran `npx vitest run services/__tests__/zz-probe.test.ts` from a scratch export of `a5ec893b`'s `app/` with `app/node_modules` linked (vitest 5.0.1) — observed a statically imported module's counter read 2 in the second test with `vi.resetModules()` in `afterEach`, and a dynamic `import()` after `vi.resetModules()` in `beforeEach` read 1 in both tests]
 
 A statically imported module keeps its module-level state (such as a cached database handle) for the whole test file even when `vi.resetModules()` runs between tests, so the state depends on which test ran first. Resetting per test requires `vi.resetModules()` in `beforeEach` followed by `await import(...)` inside each test.
 
@@ -66,14 +66,21 @@ An error type identified only by its `name` can be asserted without `instanceof`
 ## A `vi.mock` factory returning `vi.hoisted` spies gives every module instance imported after `vi.resetModules()` the same spy objects
 
 **Verified at:** vitest 5.0.1, run 2026-09-19
-**Citation:** [spec-writer_60: ran `npx vitest run services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test with four top-level `vi.mock` factories returning `vi.hoisted` spies, `vi.resetModules()` in `beforeEach` and `await import('../syncService')` in each test — observed seven tests pass, each asserting on the hoisted spies its freshly imported module had called, and a `mockResolvedValue` set in `beforeEach` replace the `mockRejectedValue` a previous test had left on the same spy]
+**Citation:** [spec-writer_60: ran `npx vitest run services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test with four top-level `vi.mock` factories returning `vi.hoisted` spies, `vi.resetModules()` in `beforeEach` and `await import('../syncService')` in each test — observed seven tests pass, each asserting on the hoisted spies its freshly imported module had called]
 
-Spies configured before the dynamic `import()` are the ones the fresh module instance calls. A `mockResolvedValue` set in `beforeEach` replaces whatever implementation an earlier test left on the same spy.
+Spies configured before the dynamic `import()` are the ones the fresh module instance calls.
 
-## `vi.fn<typeof ns.fn>()` declared through a type-only namespace import (`import type * as ns`) compiles, lints clean, and types `mockImplementation` callback parameters from the real function
+## A `mockResolvedValue` set in `beforeEach` replaces the `mockRejectedValue` an earlier test left on the same `vi.hoisted` spy
+
+**Verified at:** vitest 5.0.1, run 2026-09-19
+**Citation:** [spec-writer_60: ran `npx vitest run services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test with `vi.hoisted` spies behind top-level `vi.mock` factories and `vi.resetModules()` in `beforeEach` — observed a `mockResolvedValue` set in `beforeEach` replace the `mockRejectedValue` a previous test had left on the same spy]
+
+A rejection one test sets on a spy does not carry into a later test whose `beforeEach` sets a resolved value again.
+
+## `vi.fn<typeof ns.fn>()` declared through a type-only namespace import (`import type * as ns`) compiles, lints clean, and types both the `mockImplementation` callback parameters and its return value from the real function
 
 **Verified at:** vitest 5.0.1, typescript 6.0.3, typescript-eslint 8.70.0, run 2026-09-19
-**Citation:** [spec-writer_61: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test declaring `vi.hoisted(() => vi.fn<typeof syncDb.applyUpsert>())` under `import type * as syncDb from '@db/_sync'` with `mockImplementation((table, row) => …)` callbacks — observed both report no findings under `strict`, so the callback parameters were contextually typed]
+**Citation:** [spec-writer_61: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test declaring `vi.hoisted(() => vi.fn<typeof syncDb.applyUpsert>())` under `import type * as syncDb from '@db/_sync'` with `mockImplementation((table, row) => …)` callbacks — observed both report no findings under `strict`, so the callback parameters were contextually typed] [review_4: ran `npx tsc --noEmit -p tsconfig.json` from a scratch export of `a5ec893b`'s `app/` on a scratch test declaring `vi.fn<typeof syncDb.applyUpsert>()` under `import type * as syncDb from '@db/_sync'` — observed TS2322 "Type 'Promise<"bogus">' is not assignable to type 'Promise<ApplyResult>'" for `mockImplementation(() => Promise.resolve('bogus'))` and no diagnostic for `Promise.resolve('applied')` or a conditional `'skipped' | 'applied'`]
 
 A result type that a module's barrel does not export, such as `'applied' | 'skipped'`, is therefore reachable from a test without re-declaring it or importing from a path below the barrel.
 

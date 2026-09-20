@@ -144,9 +144,9 @@ Unit tests can create distinct, stable endpoint ids from fixed byte arrays with 
 
 The value is the address of the connection's shared state, so two connections alive at the same time never share it, while a closed connection's value can be reused by a later one. Comparing `stable_id()` values therefore tells whether two `Connection` handles are the same live connection, without holding a channel sender or any other resource.
 
-## Dropping an iroh `SendStream` finishes it
+## Dropping an iroh `SendStream` finishes it unless the connection has already errored or the stream is 0-RTT and its 0-RTT was not accepted
 
 **Verified at:** iroh 1.2.0 (noq 1.3.0), 2026-09-19
-**Citation:** [review_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/send_stream.rs:351-375 — Drop for SendStream calls conn.inner.send_stream(self.stream).finish(), resetting only on FinishError::Stopped and returning early when conn.error is set; iroh-1.2.0/src/endpoint/quic.rs:13-37 re-exports SendStream via pub use noq]
+**Citation:** [review_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/send_stream.rs:351-375 — Drop for SendStream returns early when conn.error.is_some() || (self.is_0rtt && conn.check_0rtt().is_err()), else calls finish(), resets on FinishError::Stopped and does nothing on FinishError::ClosedStream; iroh-1.2.0/src/endpoint.rs:90,98-118 — pub(crate) mod quic and pub use self::{ quic::{…, SendStream, …} }; iroh-1.2.0/src/endpoint/quic.rs:15-45 — pub use noq::{…, SendStream, …}] [implement_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/connection.rs:1924-1933 — check_0rtt returns Err(()) only when the connection is no longer handshaking, has not accepted 0-RTT and is not the server side]
 
-Dropping an `iroh::endpoint::SendStream` calls `finish()` on its stream, and resets the stream only when `finish()` reports that the peer had already stopped it. The drop does nothing further when the connection has already errored.
+Dropping an `iroh::endpoint::SendStream` calls `finish()` on its stream, and resets the stream only when `finish()` reports that the peer had already stopped it. The drop does nothing further when the connection has already errored, or when the stream is 0-RTT and `check_0rtt()` fails, which it does once the handshake has finished on the client side without 0-RTT having been accepted.
