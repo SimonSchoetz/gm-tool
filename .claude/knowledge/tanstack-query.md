@@ -43,3 +43,10 @@ A hook can flush a pending write from its unmount cleanup through its own `mutat
 **Citation:** [spec-writer_54: app/node_modules/.pnpm/@tanstack+react-query@5.103.1_react@19.3.0/node_modules/@tanstack/react-query/build/modern/useMutation.js:185-193 — `mutate` is a `React.useCallback` over `[observer]`, and the hook returns the object literal `{ ...result, mutate, mutateAsync: result.mutate }`]
 
 A hook dependency on the whole mutation object (`[updateMutation]`) changes on every render, so a `useMemo` or effect keyed on it re-runs each time; a dependency on `updateMutation.mutate` alone does not.
+
+## A `mutationFn` is called with `(variables, context)`
+
+**Verified at:** @tanstack/query-core 5.103.1, read 2026-09-21
+**Citation:** [spec-writer_37: app/node_modules/.pnpm/@tanstack+query-core@5.103.1/node_modules/@tanstack/query-core/build/modern/hydration-Cq7QYAzB.d.ts:2478 — `type MutationFunction<TData = unknown, TVariables = unknown> = (variables: TVariables, context: MutationFunctionContext) => Promise<TData>`]
+
+A function passed directly as `mutationFn` receives the mutation's variables and TanStack's context object as arguments, so a test of a hook that forwards a caller's function as `mutationFn` cannot assert a call with no arguments.
