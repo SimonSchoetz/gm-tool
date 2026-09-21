@@ -43,8 +43,7 @@ Conventions for `src/` are split by artifact kind across `.claude/rules/`, each 
 
 ### Coding Style
 
-- TypeScript only. No JavaScript files in `src/`.
-  See [app/CLAUDE.md](../CLAUDE.md) — TypeScript Coding Style.
+- TypeScript only. No JavaScript files in `src/`. See [app/CLAUDE.md](../CLAUDE.md) — TypeScript Coding Style.
 
 ### Util vs. Helper Placement
 
@@ -59,7 +58,7 @@ A function that fails either condition stays local to its consumer in that modul
 2. **Several data-access-layer modules, and nothing outside the layer** — promote to the layer root, `data-access-layer/<name>.ts` (as `mergeUpdate.ts` and `createAutosaveQueue.ts` are), generic or not; a helper function or data module there is tested like any other (`.claude/rules/src-unit-tests.md` — Testing Policy). Not `/src/util/`: that directory belongs to the Frontend layer, which sits above the data-access layer (`app/docs/CLAUDE.md` — Layered breakdown), so a data-access-layer file importing from it would import upward.
 3. **Unrelated components, or the helper is generic** — promote to `/src/util/` only when both util conditions are met and no data-access-layer file consumes it, for the reason in rung 2.
 
-4. **Consumers in more than one layer** — a generic helper imported by `db/` and `src/` alike lives in the app-root `util/` (`@util`), as `getDateTimeString` does.
+4. **Consumers in more than one layer** — a generic helper imported by `db/` and `src/` alike lives in the app-root `util/` (`@util`), as `getDateTimeString` does; its test scope is in `.claude/rules/util-unit-tests.md`, which loads when a path under `app/util/` is read.
 
 A helper or value that is not generic and that both a data-access-layer file and a Frontend file consume has no home in this ladder: ask before placing it, and never put it in `/src/util/` (a data-access-layer file would import upward) or at the layer root (the layer's barrel is its only sanctioned import path from outside).
 

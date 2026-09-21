@@ -1,7 +1,6 @@
 # Services
 
-Business logic layer. Services compose DB calls, apply business rules, and
-throw typed domain errors. They have no React dependencies and no UI logic.
+Business logic layer. Services compose DB calls, apply business rules, and throw typed domain errors. They have no React dependencies and no UI logic.
 
 ## Conventions
 
@@ -9,14 +8,9 @@ throw typed domain errors. They have no React dependencies and no UI logic.
 - Import DB layer via `@db/<domain>` namespace imports: `import * as sessionDb from '@db/session'`
 - Import domain errors via `@domain` or `@domain/<subdomain>`: `import { sessionCreateError } from '@domain'`
 - Import sibling services via `@services/<file>`: `import * as imageService from '@services/imageService'`
-- Every exported function wraps its DB call(s) in try/catch and throws a typed
-  domain error — never re-throws raw DB errors to callers
-- No fallback defaults for nullable or DB-defaulted columns. A nullable column's
-  correct value when not provided is NULL. Never supply `?? 'fallback'` for a
-  column the DB schema defines as nullable.
-- The service function that creates an entity with mandatory initialization is
-  the single exported entry point — no separately-callable initialization
-  function that can bypass the contract.
+- Every exported function wraps its DB call(s) in try/catch and throws a typed domain error — never re-throws raw DB errors to callers
+- No fallback defaults for nullable or DB-defaulted columns. A nullable column's correct value when not provided is NULL. Never supply `?? 'fallback'` for a column the DB schema defines as nullable.
+- The service function that creates an entity with mandatory initialization is the single exported entry point — no separately-callable initialization function that can bypass the contract.
 - **Never replicate a DB default value at a call site.** When a column has a SQL `DEFAULT`, omit the field — the database supplies the value. There is no shared, auto-generated create schema (see `app/db/CLAUDE.md`) — every domain's `db/<domain>/create.ts` declares its own ad hoc typed object literal for `buildCreateQuery`. When a `NOT NULL DEFAULT x` column appears non-optional at a service call site, the fix is in that domain's `create.ts`: its inline object type must not require the defaulted column — never patch the call site by supplying the default value manually.
   - ❌ BAD: `active_view: 'prep'` in a service `create` call because `db/session/create.ts`'s inline type requires the field
   - ✅ GOOD: omit `active_view` entirely from the service call; fix `db/session/create.ts`'s inline `buildCreateQuery` type to exclude `active_view` so the SQL `DEFAULT` fires
