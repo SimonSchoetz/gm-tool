@@ -51,3 +51,10 @@ A route file whose only export is `Route` may declare its `component` as an unex
 **Citation:** [spec-writer_55: ran `npx eslint` on a scratch copy of a data-access hook whose `useMemo` callback calls `updateMutation.mutate({ id, data })` inside a nested callback — observed "React Hook useMemo has a missing dependency: 'updateMutation'" with `[]`, and no finding with `[updateMutation]`]
 
 The memo is therefore keyed on `updateMutation`, which `useMutation` rebuilds on every render (`.claude/knowledge/tanstack-query.md`), so it recomputes each time.
+
+## `@typescript-eslint/no-invalid-void-type` rejects `void` as the type argument of `Promise.withResolvers<void>()`
+
+**Verified at:** typescript-eslint 8.70.0, `tseslint.configs.strictTypeChecked` as configured in app/eslint.config.js, run 2026-09-21
+**Citation:** [implement_1: ran `npx eslint .` from `app/` with `const firstUpsertDone = Promise.withResolvers<void>();` in `services/__tests__/syncService.test.ts` — observed `error  void is only valid as a return type or generic type argument  @typescript-eslint/no-invalid-void-type` on that type argument; with `Promise.withResolvers<null>()` and `resolve(null)` the run reported no problems]
+
+Although the message names generic type arguments as allowed, this config flags `void` in the type argument of a `Promise.withResolvers` call. A deferred used only as a signal, whose value is never read, therefore takes a non-`void` type argument such as `null` and is resolved with that value.
