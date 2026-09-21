@@ -97,3 +97,10 @@ The matcher needs no `as` cast in those two positions.
 **Citation:** [refine-claude_1: app/node_modules/vitest/dist/index.d.ts:814-817 — "Resets modules registry by clearing the cache of all modules … This method does not reset mocks registry."]
 
 A `vi.hoisted` spy keeps whatever implementation or resolved value the previous test left on it after `vi.resetModules()` runs, so a test file that resets modules re-arms each spy's default in the same `beforeEach`.
+
+## Under `vi.useFakeTimers()`, `await act(() => vi.advanceTimersByTimeAsync(ms))` settles a TanStack Query query and a debounced mutation rendered with `renderHook`
+
+**Verified at:** vitest 5.0.1, @testing-library/react 16.3.3, @tanstack/react-query 5.103.1, run 2026-09-21
+**Citation:** [spec-writer_27: app/node_modules/vitest/dist/index.d.ts:466-468 — `advanceTimersByTimeAsync`: "This will include and await asynchronously set timers."] [spec-writer_28: ran `npx vitest run` from `app/` on a scratch test rendering `useSession` with `renderHook` under a `QueryClientProvider`, with `vi.useFakeTimers()` and a mocked `@services/sessionService` — observed the hook's query data present after `await act(() => vi.advanceTimersByTimeAsync(0))`; after two scheduled edits, a re-render with other ids and `await act(() => vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS))`, the mocked update called once with the scheduled id and merged data and `invalidateQueries` called exactly with the scheduled keys; scratch deleted]
+
+The async variant also runs timers set while promises resolve during the advanced window, so a query's fetch, a debounced save's timer and the mutation it dispatches, `onSuccess` included, all complete without `waitFor`. Vitest defines no `jest` global, so Testing Library's `waitFor` does not work under these timers (`.claude/knowledge/testing-library.md`).
