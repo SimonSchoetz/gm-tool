@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { FCProps } from '@/types';
 import { useImage, useUpdateImageFrame } from '@/data-access-layer';
@@ -11,7 +11,8 @@ import { IPFO_FRAME_BORDER_WIDTH } from './ImagePreviewFramingOverlay.constants'
 
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.001;
-const PERSIST_DEBOUNCE_MS = 600;
+// The values `ImageById.css` falls back to for an image with no stored frame.
+const DEFAULT_FRAME: FrameState = { x: 50, y: 0, zoom: 1 };
 
 type Props = {
   imageId: string;
@@ -34,20 +35,14 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
   });
 
   const [frameState, setFrameState] = useState<FrameState>(
-    () => frame ?? { x: 50, y: 0, zoom: 1 },
+    frame ?? DEFAULT_FRAME,
   );
+  const initialFrameRef = useRef(frameState);
 
+  // The frame the overlay opened with is either stored already or equals `ImageById.css`'s fallback, so only a frame the user changed is saved.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      void updateFrameRef.current({
-        x: frameState.x,
-        y: frameState.y,
-        zoom: frameState.zoom,
-      });
-    }, PERSIST_DEBOUNCE_MS);
-    return () => {
-      clearTimeout(timer);
-    };
+    if (frameState === initialFrameRef.current) return;
+    updateFrameRef.current(frameState);
   }, [frameState]);
 
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -69,45 +64,38 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
     };
   }, []);
 
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      isDraggingRef.current = true;
-      lastPointerRef.current = { x: e.clientX, y: e.clientY };
-      e.currentTarget.setPointerCapture(e.pointerId);
-    },
-    [],
-  );
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    lastPointerRef.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
 
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!isDraggingRef.current || lastPointerRef.current === null)
-        return null;
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || lastPointerRef.current === null) return;
 
-      const dx = e.clientX - lastPointerRef.current.x;
-      const dy = e.clientY - lastPointerRef.current.y;
-      lastPointerRef.current = { x: e.clientX, y: e.clientY };
+    const dx = e.clientX - lastPointerRef.current.x;
+    const dy = e.clientY - lastPointerRef.current.y;
+    lastPointerRef.current = { x: e.clientX, y: e.clientY };
 
-      setFrameState((prev) => {
-        const delta = computePanDelta(
-          dx,
-          dy,
-          dimensions.width,
-          dimensions.height,
-          prev.zoom,
-        );
-        return clampFrame(
-          { ...prev, x: prev.x - delta.dx, y: prev.y - delta.dy },
-          MAX_ZOOM,
-        );
-      });
-    },
-    [dimensions],
-  );
+    setFrameState((prev) => {
+      const delta = computePanDelta(
+        dx,
+        dy,
+        dimensions.width,
+        dimensions.height,
+        prev.zoom,
+      );
+      return clampFrame(
+        { ...prev, x: prev.x - delta.dx, y: prev.y - delta.dy },
+        MAX_ZOOM,
+      );
+    });
+  };
 
-  const handlePointerUp = useCallback(() => {
+  const handlePointerUp = () => {
     isDraggingRef.current = false;
     lastPointerRef.current = null;
-  }, []);
+  };
 
   const overlayStyle = {
     '--rt-ipfo-x': `${frameState.x}%`,

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as imageService from '@services/imageService';
 import { imageKeys } from './imageKeys';
+import { useAutosaveQueue } from '../useAutosaveQueue';
 
 export type ImageFrame = {
   x: number;
@@ -9,7 +10,7 @@ export type ImageFrame = {
 };
 
 type UseUpdateImageFrameReturn = {
-  updateFrame: (frame: ImageFrame) => Promise<void>;
+  updateFrame: (frame: ImageFrame) => void;
 };
 
 export const useUpdateImageFrame = (
@@ -18,16 +19,25 @@ export const useUpdateImageFrame = (
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (frame: ImageFrame) =>
-      imageService.updateImageFrame(imageId, frame),
-    onSuccess: () => {
+    mutationFn: ({ id, frame }: { id: string; frame: ImageFrame }) =>
+      imageService.updateImageFrame(id, frame),
+    onSuccess: (_result, { id }) => {
       void queryClient.invalidateQueries({
-        queryKey: imageKeys.detail(imageId),
+        queryKey: imageKeys.detail(id),
       });
     },
   });
 
+  const saveQueue = useAutosaveQueue<ImageFrame>(
+    (_pending, frame) => frame,
+    (id, frame) => {
+      mutation.mutate({ id, frame });
+    },
+  );
+
   return {
-    updateFrame: (frame) => mutation.mutateAsync(frame),
+    updateFrame: (frame) => {
+      saveQueue.schedule(imageId, frame);
+    },
   };
 };
