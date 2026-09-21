@@ -80,7 +80,7 @@ A rejection one test sets on a spy does not carry into a later test whose `befor
 ## `vi.fn<typeof ns.fn>()` declared through a type-only namespace import (`import type * as ns`) compiles, lints clean, and types both the `mockImplementation` callback parameters and its return value from the real function
 
 **Verified at:** vitest 5.0.1, typescript 6.0.3, typescript-eslint 8.70.0, run 2026-09-19
-**Citation:** [spec-writer_61: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test declaring `vi.hoisted(() => vi.fn<typeof syncDb.applyUpsert>())` under `import type * as syncDb from '@db/_sync'` with `mockImplementation((table, row) => …)` callbacks — observed both report no findings under `strict`, so the callback parameters were contextually typed] [review_4: ran `npx tsc --noEmit -p tsconfig.json` from a scratch export of `a5ec893b`'s `app/` on a scratch test declaring `vi.fn<typeof syncDb.applyUpsert>()` under `import type * as syncDb from '@db/_sync'` — observed TS2322 "Type 'Promise<"bogus">' is not assignable to type 'Promise<ApplyResult>'" for `mockImplementation(() => Promise.resolve('bogus'))` and no diagnostic for `Promise.resolve('applied')` or a conditional `'skipped' | 'applied'`]
+**Citation:** [spec-writer_61: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-probe.test.ts` from `app/` on a scratch test declaring `vi.hoisted(() => vi.fn<typeof syncDb.applyUpsert>())` under `import type * as syncDb from '@db/_sync'` with `mockImplementation((table, row) => …)` callbacks — observed both report no findings under `strict`, so the callback parameters were contextually typed] [review_4: ran `npx tsc --noEmit -p tsconfig.json` from a scratch export of `a5ec893b`'s `app/` on a scratch test declaring `vi.fn<typeof syncDb.applyUpsert>()` under `import type * as syncDb from '@db/_sync'` — observed TS2322 `Type 'Promise<"bogus">' is not assignable to type 'Promise<ApplyResult>'` for `mockImplementation(() => Promise.resolve('bogus'))` and no diagnostic for `Promise.resolve('applied')` or a conditional `'skipped' | 'applied'`]
 
 A result type that a module's barrel does not export, such as `'applied' | 'skipped'`, is therefore reachable from a test without re-declaring it or importing from a path below the barrel.
 
@@ -90,3 +90,10 @@ A result type that a module's barrel does not export, such as `'applied' | 'skip
 **Citation:** [spec-writer_62: ran `npx tsc --noEmit` and `npx eslint services/__tests__/zz-scratch-any.test.ts` from `app/` on a scratch test calling `expect(spy).toHaveBeenCalledWith('adventures', { id: 'a' }, expect.any(Boolean))` and `expect(spy.mock.calls).toEqual([['adventures', { id: 'a' }, expect.any(Boolean)]])` — observed no findings from either]
 
 The matcher needs no `as` cast in those two positions.
+
+## `vi.resetModules()` clears only the module cache and does not reset the mock registry or any spy's state
+
+**Verified at:** vitest 5.0.1
+**Citation:** [refine-claude_1: app/node_modules/vitest/dist/index.d.ts:814-817 — "Resets modules registry by clearing the cache of all modules … This method does not reset mocks registry."]
+
+A `vi.hoisted` spy keeps whatever implementation or resolved value the previous test left on it after `vi.resetModules()` runs, so a test file that resets modules re-arms each spy's default in the same `beforeEach`.

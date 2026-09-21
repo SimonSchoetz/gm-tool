@@ -93,7 +93,7 @@ The verification obligation stated in the shared rules file's Epistemological Di
   | --- | --- | --- | --- | --- |
   | `type-check` | `npx tsc --noEmit` | `app/` | every check | always |
   | `lint` | `npx eslint .` | `app/` | every check | always |
-  | `format-check` | `prettier --check .` | `app/` | every check | always |
+  | `format-check` | `npx prettier --check .` | `app/` | every check | always |
   | `test` | `npx vitest run` | `app/` | full-suite-only | always |
   | `rust-lint` | `cargo clippy --all-targets -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
