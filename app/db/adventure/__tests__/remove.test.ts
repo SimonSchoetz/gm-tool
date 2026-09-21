@@ -54,12 +54,16 @@ describe('remove', () => {
 
   it('deletes the adventure together with its sessions, steps, encounters, base entities and content sections', async () => {
     const { remove } = await import('../remove');
-    const { getAll } = await import('../get-all');
+    const { getDatabase } = await import('@db/database');
     const adventureId = await seedAdventureWithChildren();
 
     await remove(adventureId);
 
-    expect(await getAll()).toEqual([]);
+    expect(
+      await (
+        await getDatabase()
+      ).select<unknown[]>('SELECT id FROM adventures'),
+    ).toEqual([]);
     expect(await countChildRows()).toEqual({
       sessions: 0,
       session_steps: 0,

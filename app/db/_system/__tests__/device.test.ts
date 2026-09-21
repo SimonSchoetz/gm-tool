@@ -45,11 +45,17 @@ describe('device', () => {
   });
 
   it('rejects an id that is not hex and stores no device', async () => {
-    const { getDevice, updateDevice } = await import('../device');
+    const { updateDevice } = await import('../device');
+    const { getDatabase } = await import('@db/database');
+    const readSystemRows = async () =>
+      (await getDatabase()).select<unknown[]>(
+        'SELECT id, value FROM _system ORDER BY id',
+      );
+    const rowsBefore = await readSystemRows();
 
     await expect(updateDevice({ id: 'not-hex', name: null })).rejects.toThrow();
 
-    expect(await getDevice()).toBeNull();
+    expect(await readSystemRows()).toEqual(rowsBefore);
   });
 
   it('rejects a stored device that fails the schema', async () => {
