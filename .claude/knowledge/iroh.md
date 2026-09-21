@@ -2,117 +2,117 @@
 
 ## iroh connections are QUIC-based and end-to-end encrypted, with direct P2P connections preferred over relays
 
-**Verified at:** iroh 1.0.2 (docs.rs, released 2026-07-06)
-**Citation:** [architect_6: https://docs.iroh.computer/]
+**Verified at:** iroh 1.2.0 (Cargo.lock), read 2026-09-21
+**Citation:** [branch-review_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/lib.rs:1-5,70-72,83-85 — "Peer-to-peer QUIC connections.", "direct connectivity using [hole punching] complemented by relay servers", "attempt to create a direct connection … relay server is no longer involved", "encrypted using TLS … SecretKey used to authenticate and encrypt the connection"]
 
-iroh establishes authenticated, end-to-end encrypted QUIC connections and "establishes direct connections whenever possible, falling back to relay servers if necessary."
+iroh establishes authenticated, end-to-end encrypted QUIC connections, attempts a direct connection between the two endpoints, and uses a relay server only as a complement while no direct path exists.
 
 ## An iroh EndpointId is the public half of an Ed25519 keypair and cryptographically authenticates the peer
 
-**Verified at:** iroh 1.0.2
-**Citation:** [architect_7: https://docs.iroh.computer/concepts/endpoints.md]
+**Verified at:** iroh-base 1.2.0 (Cargo.lock), read 2026-09-21
+**Citation:** [branch-review_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-base-1.2.0/src/key.rs:60-62,70,107-108 — "mechanism by which all traffic is always encrypted for a specific endpoint only", `pub type EndpointId = PublicKey;`, "The length of an ed25519 `PublicKey`" / `ed25519_dalek::PUBLIC_KEY_LENGTH`] [branch-review_3: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/connection.rs:1129-1132 — "Returns the EndpointId from the peer's TLS certificate"]
 
-"An `EndpointID` (the public half of an Ed25519 keypair)." EndpointIDs are also the encryption mechanism — "all traffic is always encrypted for a specific endpoint only," so dialing an EndpointId guarantees the responder holds the corresponding private key.
+An `EndpointId` is the public half of an Ed25519 keypair and is also the encryption mechanism, since all traffic is always encrypted for a specific endpoint only, so dialing an `EndpointId` guarantees the responder holds the corresponding private key, and an accepted connection's `remote_id()` comes from the peer's TLS certificate.
 
 ## iroh supports LAN-only mDNS discovery and direct local connections without any relay or internet access
 
-**Verified at:** iroh 1.0.2 + iroh-mdns-address-lookup 0.4
-**Citation:** [architect_8: https://docs.iroh.computer/connecting/local-address-lookup.md]
+**Verified at:** iroh 1.2.0, iroh-mdns-address-lookup 0.4.0 vendored, read 2026-09-21
+**Citation:** [branch-review_4: app/src-tauri/vendor/iroh-mdns-address-lookup/src/lib.rs:1-3,225-231 — "on your local network, no relay or outside internet needed", `impl AddressLookupBuilder for MdnsAddressLookupBuilder`] [branch-review_5: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:612 — `pub fn address_lookup(mut self, address_lookup: impl AddressLookupBuilder) -> Self`]
 
-The separate `iroh-mdns-address-lookup` crate broadcasts endpoint presence on the local network and listens for announcements; "the dialing information is exchanged, and a connection can be established directly over the local network without needing a relay." mDNS does not work across networks. Enabled via the endpoint builder: `Endpoint::builder(presets::N0).address_lookup(MdnsAddressLookup::builder()).bind()`.
+The separate `iroh-mdns-address-lookup` crate broadcasts endpoint presence on the local network and listens for announcements, so the dialing information is exchanged and a connection is established directly over the local network without a relay; mDNS does not work across networks. It is enabled through the endpoint builder: `Endpoint::builder(preset).address_lookup(MdnsAddressLookup::builder()).bind()`.
 
 ## The iroh endpoint Builder can disable relays and replace all address lookup services
 
-**Verified at:** iroh 1.0.2
-**Citation:** [spec-writer_1: https://docs.rs/iroh/latest/iroh/endpoint/struct.Builder.html]
+**Verified at:** iroh 1.2.0, read 2026-09-21
+**Citation:** [branch-review_6: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:517,528-531,542,564,592,612,1985-1997 — `pub fn clear_relay_transports(mut self) -> Self`, "If not set, a new secret key will be generated." / `pub fn secret_key(mut self, secret_key: SecretKey)`, `pub fn alpns(mut self, alpn_protocols: Vec<Vec<u8>>)`, `pub fn relay_mode(mut self, relay_mode: RelayMode)`, `pub fn clear_address_lookup(mut self) -> Self`, `pub fn address_lookup(mut self, address_lookup: impl AddressLookupBuilder) -> Self`, `pub enum RelayMode { Disabled, Default, Staging, Custom(RelayMap) }`]
 
-Relevant Builder methods: `secret_key(SecretKey)` (generates a new key if unset), `alpns(Vec<Vec<u8>>)`, `address_lookup(impl AddressLookupBuilder)` (addable multiple times), `clear_address_lookup()` (removes all lookup services), `relay_mode(RelayMode)` with variants `RelayMode::Default`, `RelayMode::Disabled`, `RelayMode::Custom`, and `clear_relay_transports()`. LAN-only operation = `relay_mode(RelayMode::Disabled)` + `clear_address_lookup()` + adding only the mDNS lookup.
+Relevant Builder methods: `secret_key(SecretKey)` (generates a new key if unset), `alpns(Vec<Vec<u8>>)`, `address_lookup(impl AddressLookupBuilder)` (addable multiple times), `clear_address_lookup()` (removes all lookup services), `relay_mode(RelayMode)` with variants `RelayMode::Default`, `RelayMode::Disabled`, `RelayMode::Staging`, `RelayMode::Custom`, and `clear_relay_transports()`. LAN-only operation = `relay_mode(RelayMode::Disabled)` + `clear_address_lookup()` + adding only the mDNS lookup.
 
 ## iroh SecretKey generates via rand, round-trips through 32 bytes, and derives its PublicKey
 
-**Verified at:** iroh 1.0.2
-**Citation:** [spec-writer_2: https://docs.rs/iroh/latest/iroh/struct.SecretKey.html]
+**Verified at:** iroh-base 1.2.0, read 2026-09-21
+**Citation:** [branch-review_7: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-base-1.2.0/src/key.rs:269,278,287,299,306,318-319,332,337 — `impl FromStr for SecretKey`, `impl Serialize for SecretKey`, `impl<'de> Deserialize<'de> for SecretKey`, `pub fn public(&self) -> PublicKey`, "uses the default random number generator from the `rand` crate", `pub fn generate() -> Self { Self::from_bytes(&rand::random()) }`, `pub fn to_bytes(&self) -> [u8; 32]`, `pub fn from_bytes(bytes: &[u8; 32]) -> Self`]
 
 `SecretKey::generate()` uses the `rand` crate's default RNG; `to_bytes()` returns `[u8; 32]`; `from_bytes(&[u8; 32])` reconstructs; `public()` returns the `PublicKey`. Also implements `FromStr`, `Serialize`, `Deserialize`.
 
-## iroh EndpointId is a type alias of PublicKey; Display is 64-char hex, FromStr parses hex or z-base-32
+## iroh EndpointId is a type alias of PublicKey; Display is 64-char lowercase hex, FromStr parses hex or RFC 4648 base32, and z-base-32 has its own `from_z32`/`to_z32`
 
-**Verified at:** iroh 1.0.2
-**Citation:** [spec-writer_3: https://docs.rs/iroh/latest/iroh/type.EndpointId.html and struct.PublicKey.html — "pub type EndpointId = PublicKey"; "Parses a PublicKey from its hex or z-base-32 encoding. Display produces the hex encoding"; PublicKey::LENGTH = 32 bytes]
+**Verified at:** iroh-base 1.2.0, read 2026-09-21
+**Citation:** [branch-review_8: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-base-1.2.0/src/key.rs:70,221-224,246-249,478-492 — `pub type EndpointId = PublicKey;`, `write!(f, "{}", data_encoding::HEXLOWER.encode(self.as_bytes()))`, "Parses a `PublicKey` from its hex or base32 encoding.", the hex branch taken when `s.len() == PublicKey::LENGTH * 2`, otherwise `s.to_ascii_uppercase()` decoded with `data_encoding::BASE32_NOPAD`] [branch-review_9: same file:162-172 — `pub fn to_z32(&self) -> String` and `pub fn from_z32(s: &str)` on the `Z_BASE_32` alphabet]
 
-The conventional string form of a device/endpoint identity is the 64-character lowercase hex encoding produced by `Display`; `FromStr` accepts hex or z-base-32.
+The conventional string form of a device/endpoint identity is the 64-character lowercase hex encoding produced by `Display`. `FromStr` decodes a 64-character input as lowercase hex and any other length as case-insensitive RFC 4648 base32 without padding; it does not accept z-base-32, which only `PublicKey::from_z32` and `to_z32` handle.
 
-## iroh 1.0.2 Endpoint::builder requires a preset argument; presets::Minimal is the LAN-only base
+## Endpoint::builder requires a preset argument; presets::Minimal is the LAN-only base
 
-**Verified at:** iroh 1.0.2
-**Citation:** [implementer_1: ~/.cargo/registry/src/.../iroh-1.0.2/src/endpoint.rs:950 — `pub fn builder(preset: impl Preset) -> Builder`; endpoint/presets.rs — `Empty`, `Minimal`, `N0`, `N0DisableRelay`]
+**Verified at:** iroh 1.2.0, read 2026-09-21
+**Citation:** [branch-review_10: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:960 — `pub fn builder(preset: impl Preset) -> Builder`] [branch-review_11: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/presets.rs:37,47-48,59-78,113,125-136,175 — `Empty`, "the only mandatory option … is Builder::crypto_provider", `pub struct Minimal;` setting only `crypto_provider`, `N0` adding `PkarrPublisher::n0_dns()`, `PkarrResolver::n0_dns()`, `DnsAddressLookup::n0_dns()` and `relay_mode(default_relay_mode())`, `N0DisableRelay`]
 
-`Endpoint::builder(preset)` takes a mandatory `impl Preset`. `presets::Minimal` sets only the mandatory rustls crypto provider (ring) and adds no address lookup or relay services; `presets::N0` additionally adds a Pkarr publisher, DNS address lookup, and the default relay mode. For LAN-only operation, `Minimal` + `relay_mode(RelayMode::Disabled)` + mDNS lookup is the correct base — nothing needs clearing.
+`Endpoint::builder(preset)` takes a mandatory `impl Preset`. `presets::Minimal` sets only the mandatory rustls crypto provider (ring) and adds no address lookup or relay services; `presets::N0` additionally adds a Pkarr publisher and resolver, DNS address lookup, and the default relay mode. For LAN-only operation, `Minimal` + `relay_mode(RelayMode::Disabled)` + mDNS lookup is the correct base — nothing needs clearing.
 
-## iroh 1.0.2 accept flow: `Accept` → `Option<Incoming>` → `Accepting` → `Connection`
+## The accept flow is `Accept` → `Option<Incoming>` → `Accepting` → `Connection`
 
-**Verified at:** iroh 1.0.2
-**Citation:** [implementer_2: iroh-1.0.2/src/endpoint.rs:1162, endpoint/connection.rs:106,147,660 — read in source]
+**Verified at:** iroh 1.2.0, read 2026-09-21
+**Citation:** [branch-review_12: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:1171-1173 — "yield `None` if the endpoint is closed", `pub fn accept(&self) -> Accept<'_>`] [branch-review_13: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/connection.rs:105-106,147,670-671,927,969,1123-1125,1137 — `impl Future for Accept<'_> { type Output = Option<Incoming>;`, `pub fn accept(self) -> Result<Accepting, ConnectionError>`, `impl Future for Accepting { type Output = Result<Connection, ConnectingError>;`, `pub async fn closed(&self) -> ConnectionError`, `pub fn close(&self, error_code: VarInt, reason: &[u8])`, `impl Connection<HandshakeCompleted>` / `pub fn alpn(&self) -> &[u8]`, `pub fn remote_id(&self) -> EndpointId`]
 
-`endpoint.accept().await` yields `Option<Incoming>` (`None` when the endpoint is closed); `Incoming::accept()` returns `Result<Accepting, ConnectionError>`; awaiting `Accepting` yields `Result<Connection, ConnectingError>`. `Connection<HandshakeCompleted>::alpn()` returns `&[u8]` and `remote_id()` returns `EndpointId` (connection.rs:1115,1127). `Connection::close(VarInt, &[u8])` closes; `closed().await` yields `ConnectionError` when the connection ends.
+`endpoint.accept().await` yields `Option<Incoming>` (`None` when the endpoint is closed); `Incoming::accept()` returns `Result<Accepting, ConnectionError>`; awaiting `Accepting` yields `Result<Connection, ConnectingError>`. `Connection<HandshakeCompleted>::alpn()` returns `&[u8]` and `remote_id()` returns `EndpointId`. `Connection::close(VarInt, &[u8])` closes; `closed().await` yields `ConnectionError` when the connection ends.
 
-## iroh 1.0.2 bi-streams resolve to (SendStream, RecvStream) with inherent async read/write
+## Bi-streams resolve to (SendStream, RecvStream) with inherent async read/write
 
-**Verified at:** iroh 1.0.2 (noq 1.0.1)
-**Citation:** [implementer_3: noq-1.0.1/src/connection.rs:982,1049 — `type Output = Result<(SendStream, RecvStream), ConnectionError>`; send_stream.rs:74 `write_all`; recv_stream.rs:76 `read(&mut buf) -> Result<Option<usize>, ReadError>`]
+**Verified at:** iroh 1.2.0 (noq 1.3.0), read 2026-09-21
+**Citation:** [branch-review_14: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/connection.rs:1066-1067,1133-1134 — `impl Future for OpenBi<'_> { type Output = Result<(SendStream, RecvStream), ConnectionError>;` and the same `Output` for `AcceptBi`] [branch-review_15: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/send_stream.rs:74,333 — `pub async fn write_all(&mut self, mut buf: &[u8]) -> Result<(), WriteError>`, `impl tokio::io::AsyncWrite for SendStream`] [branch-review_16: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-1.3.0/src/recv_stream.rs:73-76,602 — "or `None` if the stream was finished" / `pub async fn read(&mut self, buf: &mut [u8]) -> Result<Option<usize>, ReadError>`, `impl tokio::io::AsyncRead for RecvStream`] [branch-review_17: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/quic.rs:15-45 — `pub use noq::{…, OpenBi, AcceptBi, SendStream, RecvStream, …}`]
 
-`open_bi()`/`accept_bi()` futures resolve to `(SendStream, RecvStream)`. Streams have inherent `async fn write_all(&mut self, &[u8])` and `async fn read(&mut self, &mut [u8]) -> Result<Option<usize>, ReadError>` (`None` = stream finished); they also implement tokio `AsyncRead`/`AsyncWrite` (recv_stream.rs:588, send_stream.rs:329).
+`open_bi()`/`accept_bi()` futures resolve to `(SendStream, RecvStream)`. Streams have inherent `async fn write_all(&mut self, &[u8])` and `async fn read(&mut self, &mut [u8]) -> Result<Option<usize>, ReadError>` (`None` = stream finished); they also implement tokio `AsyncRead`/`AsyncWrite`.
 
 ## MdnsAddressLookup is Clone, buildable pre-bind, attachable post-bind, and exposes subscribe()
 
-**Verified at:** iroh-mdns-address-lookup 0.4.0
-**Citation:** [implementer_4: iroh-mdns-address-lookup-0.4.0/src/lib.rs:102,211,255,462,570 — read in source]
+**Verified at:** iroh-mdns-address-lookup 0.4.0 vendored, iroh 1.2.0, read 2026-09-21
+**Citation:** [branch-review_18: app/src-tauri/vendor/iroh-mdns-address-lookup/src/lib.rs:102-103,209-215,235-251,267,474,583 — `#[derive(Debug, Clone)] pub struct MdnsAddressLookup`, "will panic if called outside of the context of a tokio runtime" / `pub fn build(self, endpoint_id: EndpointId)`, `#[non_exhaustive] pub enum DiscoveryEvent { Discovered { endpoint_info: EndpointInfo, last_updated: Option<u64> }, Expired { endpoint_id: EndpointId } }`, `pub fn builder()`, `pub async fn subscribe(&self) -> impl Stream<Item = DiscoveryEvent> + Unpin + use<>`, `impl AddressLookup for MdnsAddressLookup`] [branch-review_19: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/address_lookup.rs:462-463,476-553 — `services: Arc<RwLock<Vec<Box<dyn AddressLookup>>>>`; the public methods are `set_addr_filter`, `add`, `add_boxed`, `is_empty`, `len`, `clear` and `resolve`, with no typed getter]
 
 `MdnsAddressLookup` derives `Clone` and implements `AddressLookup`. `MdnsAddressLookup::builder().build(endpoint_id)` constructs it directly (requires a running tokio runtime; panics outside one). `endpoint.address_lookup()?.add(service)` attaches it after bind — required when a handle must be kept, because `AddressLookupServices` stores services as `Box<dyn AddressLookup>` with no typed getter. `subscribe().await` returns `impl Stream<Item = DiscoveryEvent> + Unpin`; `DiscoveryEvent` is `Discovered { endpoint_info: EndpointInfo, last_updated: Option<u64> }` or `Expired { endpoint_id: EndpointId }` (non_exhaustive).
 
 ## EndpointInfo carries endpoint_id and converts into a dialable EndpointAddr
 
-**Verified at:** iroh 1.0.2 (iroh-dns 1.0.2)
-**Citation:** [implementer_5: iroh-dns-1.0.2/src/endpoint_info.rs:357-417 — `pub endpoint_id: EndpointId`, `impl From<EndpointInfo> for EndpointAddr`, `into_endpoint_addr()`]
+**Verified at:** iroh 1.2.0 (iroh-dns 1.3.0), read 2026-09-21
+**Citation:** [branch-review_20: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-dns-1.3.0/src/endpoint_info.rs:357-359,364,417 — `pub struct EndpointInfo { pub endpoint_id: EndpointId,`, `impl From<EndpointInfo> for EndpointAddr`, `pub fn into_endpoint_addr(self) -> EndpointAddr`] [branch-review_21: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:1060-1064 — `pub async fn connect(&self, endpoint_addr: impl Into<EndpointAddr>, alpn: &[u8])`; src/lib.rs:291 — `pub use iroh_dns::endpoint_info;`]
 
 `EndpointInfo` has a public `endpoint_id` field and converts to `EndpointAddr` via `From`/`into_endpoint_addr()`; `Endpoint::connect(impl Into<EndpointAddr>, alpn: &[u8])` accepts it directly.
 
-## iroh-mdns-address-lookup 0.4.0 joins multicast only on the default-route interface
+## Upstream iroh-mdns-address-lookup 0.4.0 joins multicast only on the default-route interface; the vendored copy this project builds joins it on every operational interface
 
-**Verified at:** iroh-mdns-address-lookup 0.4.0 (swarm-discovery 0.6.3)
-**Citation:** [implementer_7: swarm-discovery-0.6.3/src/socket.rs:100-160 — `socket_v4(None)` joins 224.0.0.251 on `Ipv4Addr::UNSPECIFIED` (kernel default route interface); iroh-mdns-address-lookup-0.4.0/src/lib.rs:472-509 — `spawn_discoverer` never calls `with_multicast_interfaces_v4` or `add_interface_v4`, so no per-interface sockets or group joins exist]
+**Verified at:** swarm-discovery 0.6.3, iroh-mdns-address-lookup 0.4.0 vendored, read 2026-09-21
+**Citation:** [implementer_7: swarm-discovery-0.6.3/src/socket.rs:100-160 — `socket_v4(None)` joins 224.0.0.251 on `Ipv4Addr::UNSPECIFIED` (kernel default route interface); upstream iroh-mdns-address-lookup-0.4.0/src/lib.rs:472-509 — `spawn_discoverer` never calls `with_multicast_interfaces_v4` or `add_interface_v4`, so no per-interface sockets or group joins exist] [branch-review_22: app/src-tauri/vendor/iroh-mdns-address-lookup/src/lib.rs:254,257-263,509-512 — `pub const MULTICAST_INTERFACE_PATCH_ACTIVE: bool = true;`, `operational_multicast_interfaces_v4()` collecting the IPv4 addresses of every interface with `interface.is_up() && !interface.is_loopback()`, `.with_multicast_interfaces_v4(operational_multicast_interfaces_v4())` on the `Discoverer`] [branch-review_23: app/src-tauri/Cargo.toml:35-36 — `[patch.crates-io]` / `iroh-mdns-address-lookup = { path = "vendor/iroh-mdns-address-lookup" }`]
 
-On multi-homed hosts the mDNS discoverer sends and receives multicast solely on the interface the OS picks for 224.0.0.0/4 — decided on Windows by lowest interface metric. VPN adapters (e.g. NordLynx, metric 5 vs. Wi-Fi 35) capture it even when the VPN session is "disconnected" but the adapter stays up, making discovery silently dead in both directions while init succeeds. swarm-discovery's `Discoverer::with_multicast_interfaces_v4`/`DropGuard::add_interface_v4` could fix this, but the 0.4.0 wrapper does not expose them.
+With no explicit interface list, the discoverer sends and receives multicast solely on the interface the OS picks for 224.0.0.0/4 — on Windows by lowest interface metric, so a VPN adapter (NordLynx, metric 5 vs. Wi-Fi 35) captures it even while the VPN session is disconnected, and discovery is silently dead in both directions while init succeeds. The copy this project builds is the vendored, patched one, which passes every up, non-loopback IPv4 interface to `with_multicast_interfaces_v4` (the entry on that method below), and `connectivity/connections.rs` asserts on `MULTICAST_INTERFACE_PATCH_ACTIVE` so a build that resolves past the patch fails instead of silently regressing.
 
 ## iroh-mdns-address-lookup emits `Discovered` repeatedly for the same peer, not once
 
-**Verified at:** iroh 1.0.2 / iroh-mdns-address-lookup 0.4.0, observed 2026-07-22
-**Citation:** [implementer_11: ran `npm run dev` with an eprintln on every `DiscoveryEvent` in `connectivity/connections.rs::run_discovery` — observed 10+ consecutive `Discovered` events for the same peer id within one session, no intervening `Expired`]
+**Verified at:** iroh-mdns-address-lookup 0.4.0 vendored, swarm-discovery 0.6.3, read 2026-09-21; observed 2026-07-22 at iroh 1.0.2
+**Citation:** [implementer_11: ran `npm run dev` with an eprintln on every `DiscoveryEvent` in `connectivity/connections.rs::run_discovery` — observed 10+ consecutive `Discovered` events for the same peer id within one session, no intervening `Expired`] [branch-review_24: app/src-tauri/vendor/iroh-mdns-address-lookup/src/lib.rs:386-392,414-418 — the republish is suppressed only when `entry.get() == &peer_info`, otherwise `subscribers.send(DiscoveryEvent::Discovered {…})`] [branch-review_25: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/swarm-discovery-0.6.3/src/lib.rs:111-126 — `#[derive(Clone, Debug, PartialEq, Eq, …)] pub struct Peer { addrs, last_seen: Instant, txt }`, constructed with `last_seen: Instant::now()`]
 
-`app/src-tauri/CLAUDE.md`'s `enter_pairing_mode` description and the `enter_pairing_mode` comment in `connectivity/pairing.rs` both state that mDNS emits `Discovered` once per peer and that republished announcements are dropped. Direct observation contradicts this: the same peer id is re-delivered repeatedly while the discovery loop runs.
+The same peer id is re-delivered repeatedly while the discovery loop runs: the crate suppresses a republish only for a `Peer` equal to the stored one, and `Peer`'s derived `PartialEq` covers `last_seen`, which every fresh announcement sets to `Instant::now()` (one step not traced in source: that swarm-discovery constructs a new `Peer` per received packet).
 
-Consequences: any handler reached from `handle_discovered` must be idempotent, since it is invoked many times per peer (`maybe_dial_trusted_peer` and `maybe_probe_candidate` both already guard on `connections`/`dialing` and `probing`/`candidates`, so both are safe). Conversely, never diagnose a peer's failure to (re)connect as "the second discovery event never arrives" — that premise is false, and a repeated `Discovered` means the failure lies downstream in the dial or accept path.
+Consequences: any handler reached from `handle_discovered` must be idempotent, since it is invoked many times per peer (`maybe_dial_trusted_peer` and `maybe_probe_candidate` both guard on `connections`/`dialing` and `probing`/`candidates`, so both are safe). Conversely, never diagnose a peer's failure to (re)connect as "the second discovery event never arrives" — that premise is false, and a repeated `Discovered` means the failure lies downstream in the dial or accept path.
 
 ## iroh Connection is a cheap Clone handle and close() is synchronous
 
-**Verified at:** iroh 1.0.2
-**Citation:** [implementer_12: iroh-1.0.2/src/endpoint/connection.rs:736 `#[derive(Debug, Clone)] pub struct Connection` with doc "May be cloned to obtain another handle to the same connection"; :959 `pub fn close(&self, error_code: VarInt, reason: &[u8])` — takes `&self`, not async]
+**Verified at:** iroh 1.2.0, read 2026-09-21
+**Citation:** [branch-review_26: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/connection.rs:745-747,969 — "May be cloned to obtain another handle to the same connection.", `#[derive(Debug, Clone)] pub struct Connection<State: ConnectionState = HandshakeCompleted>`, `pub fn close(&self, error_code: VarInt, reason: &[u8])` — takes `&self`, not async]
 
 A `Connection` can be cloned to store one handle (e.g. in a state map) while another drives the read/write loop; both refer to the same underlying connection. `close()` is a synchronous `&self` method that signals QUIC to send CONNECTION_CLOSE and returns immediately, so it is safe to call while holding a `Mutex` guard. This enables deterministic connection dedup: on a simultaneous-open conflict, the losing connection's stored clone can be closed in-place under the lock.
 
 ## iroh connections idle out after 30s by default; a dead peer is not detected sooner without a graceful close
 
-**Verified at:** iroh 1.0.2
-**Citation:** [implementer_8: iroh-1.0.2/src/endpoint/quic.rs:187-190 — `max_idle_timeout` doc: "The true idle timeout is the minimum of this and the peer's own max idle timeout. `None` represents an infinite timeout. Defaults to 30 seconds."; quic.rs:151-163 — `QuicTransportConfigBuilder::new` sets only `keep_alive_interval`/`default_path_keep_alive_interval` (HEARTBEAT_INTERVAL) and `default_path_max_idle_timeout` (PATH_MAX_IDLE_TIMEOUT), never `max_idle_timeout`; socket.rs:109,117 — HEARTBEAT_INTERVAL = 5s, PATH_MAX_IDLE_TIMEOUT = 15s]
+**Verified at:** iroh 1.2.0 (noq-proto 1.3.0), read 2026-09-21
+**Citation:** [branch-review_27: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint/quic.rs:153-162,189-190,211 — `QuicTransportConfigBuilder::new` sets `keep_alive_interval`, `default_path_keep_alive_interval`, `default_path_max_idle_timeout`, `max_concurrent_multipath_paths`, `max_remote_nat_traversal_addresses` and `server_handshake_migration`, never `max_idle_timeout`; "`None` represents an infinite timeout. Defaults to 30 seconds."; `pub fn max_idle_timeout(mut self, value: Option<IdleTimeout>)`] [branch-review_28: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/noq-proto-1.3.0/src/config/transport.rs:559-560 — "30 second default recommended by RFC 9308 § 3.2" / `max_idle_timeout: Some(VarInt(30_000))`] [branch-review_29: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/socket.rs:109,117 — `HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5)`, `PATH_MAX_IDLE_TIMEOUT: Duration = Duration::from_secs(15)`] [branch-review_30: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:676,1719 — `pub fn transport_config(mut self, transport_config: QuicTransportConfig)`, `pub async fn close(&self)`]
 
-A peer whose process exits without sending CONNECTION_CLOSE stays in the local live-connection set until the ~30s connection idle timeout expires, so any UI derived from that set shows the peer as connected for up to 30s. Override with `Endpoint::builder(..).transport_config(QuicTransportConfig::builder().max_idle_timeout(..).build())` [implementer_9: endpoint.rs:669 `pub fn transport_config(mut self, transport_config: QuicTransportConfig) -> Self`], and/or call `Endpoint::close()` on app shutdown [implementer_10: endpoint.rs:1697 `pub async fn close(&self)`] so peers are notified immediately.
+A peer whose process exits without sending CONNECTION_CLOSE stays in the local live-connection set until the ~30s connection idle timeout expires, so any UI derived from that set shows the peer as connected for up to 30s. Override with `Endpoint::builder(..).transport_config(QuicTransportConfig::builder().max_idle_timeout(..).build())`, and/or call `Endpoint::close()` on app shutdown so peers are notified immediately.
 
 ## iroh requires at least one ALPN protocol identifier when accepting connections
 
-**Verified at:** iroh 1.0.2
-**Citation:** [architect_9: https://docs.rs/iroh/latest/iroh/]
+**Verified at:** iroh 1.2.0, read 2026-09-21
+**Citation:** [branch-review_31: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/endpoint.rs:538-539 — "to accept incoming connections at least one [ALPN] must be set."] [branch-review_32: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iroh-1.2.0/src/lib.rs:215 — "To accept connections at least one ALPN must be configured."]
 
-When accepting connections "at least one ALPN must be configured" (e.g. `alpns(vec![b"hello-world".to_vec()])`); ALPN is used by both sides to agree on the application-specific protocol running over the QUIC connection.
+When accepting connections at least one ALPN must be configured (e.g. `alpns(vec![b"hello-world".to_vec()])`); ALPN is used by both sides to agree on the application-specific protocol running over the QUIC connection. The requirement is stated in the builder's documentation; no emptiness check was found in `bind`, so an endpoint bound without an ALPN does not fail at bind time.
 
 ## swarm-discovery binds both mDNS sockets successfully but sends and receives multicast only on the interface Windows picks, which a Hyper-V/WSL vEthernet adapter captures regardless of interface metric
 
