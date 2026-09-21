@@ -1,7 +1,8 @@
 import { invoke } from '@tauri-apps/api/core';
 import * as pairedDeviceDb from '@db/paired-device';
 import type { PairedDevice } from '@db/paired-device';
-import { getDevice, updateDevice, type DeviceData } from '@db/_system';
+import * as systemDb from '@db/_system';
+import type { DeviceData } from '@db/_system';
 import * as syncDb from '@db/_sync';
 import {
   buildHelloEnvelope,
@@ -22,7 +23,7 @@ import {
 export const initializeConnectivity = async (): Promise<void> => {
   try {
     const peers = await pairedDeviceDb.getAll();
-    const stored = await getDevice();
+    const stored = await systemDb.getDevice();
     const id = await invoke<string>('init_connectivity', {
       ownName: stored?.name ?? null,
       trustedPeers: peers.map((peer) => ({
@@ -31,7 +32,7 @@ export const initializeConnectivity = async (): Promise<void> => {
       })),
     });
     // The _system write runs on every init: the Rust key file is the identity source of truth, so a divergent stored id (e.g. after the key file was deleted) self-heals here.
-    await updateDevice({ id, name: stored?.name ?? null });
+    await systemDb.updateDevice({ id, name: stored?.name ?? null });
   } catch (cause) {
     throw connectivityInitError(cause);
   }
@@ -39,7 +40,7 @@ export const initializeConnectivity = async (): Promise<void> => {
 
 export const getOwnDevice = async (): Promise<DeviceData | null> => {
   try {
-    return await getDevice();
+    return await systemDb.getDevice();
   } catch (cause) {
     throw devicesLoadError(cause);
   }
@@ -63,11 +64,11 @@ export const getConnectedPeers = async (): Promise<string[]> => {
 
 export const renameOwnDevice = async (name: string | null): Promise<void> => {
   try {
-    const stored = await getDevice();
+    const stored = await systemDb.getDevice();
     if (stored === null) {
       throw new Error('rename before connectivity init is not possible');
     }
-    await updateDevice({ id: stored.id, name });
+    await systemDb.updateDevice({ id: stored.id, name });
     await invoke('update_own_name', { name });
     const connected = await invoke<string[]>('get_connected_peers');
     for (const endpointId of connected) {
@@ -87,7 +88,7 @@ export const renameOwnDevice = async (name: string | null): Promise<void> => {
 
 export const sendHello = async (endpointId: string): Promise<void> => {
   try {
-    const stored = await getDevice();
+    const stored = await systemDb.getDevice();
     await invoke('send_message', {
       endpointId,
       envelope: JSON.stringify(buildHelloEnvelope(stored?.name ?? null)),

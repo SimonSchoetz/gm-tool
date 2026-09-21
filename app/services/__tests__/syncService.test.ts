@@ -38,17 +38,6 @@ const PEER_ID = 'peer';
 const UPDATED_AT = '2026-01-01T00:00:00.000Z';
 const DELETED_AT = '2026-03-01T00:00:00.000Z';
 
-const answerCommand = (command: string): Promise<unknown> => {
-  switch (command) {
-    case 'image_file_exists':
-      return Promise.resolve(true);
-    case 'send_message':
-      return Promise.resolve(undefined);
-    default:
-      return Promise.reject(new Error(`Unexpected command: ${command}`));
-  }
-};
-
 const upsert = (
   tableName: string,
   rowId: string,
@@ -97,7 +86,7 @@ describe('handleSyncMessage with a sync-batch message', () => {
     applyUpsert.mockResolvedValue('applied');
     applyDelete.mockResolvedValue('applied');
     setPeerWatermark.mockResolvedValue(undefined);
-    invoke.mockImplementation(answerCommand);
+    invoke.mockResolvedValue(undefined);
   });
 
   it('rejects with SyncApplyError and applies nothing when the own device cannot be read', async () => {
@@ -246,7 +235,7 @@ describe('handleSyncMessage with a sync-batch message', () => {
     invoke.mockImplementation((command, args) =>
       command === 'image_file_exists'
         ? Promise.resolve(args?.id === 'image-b')
-        : answerCommand(command),
+        : Promise.resolve(undefined),
     );
     const changes = [
       upsert('images', 'image-a', 1, { file_extension: 'png' }),
@@ -290,5 +279,73 @@ describe('handleSyncMessage with a sync-batch message', () => {
       ['image_file_exists', { id: 'image-b', extension: 'png' }],
     ]);
     expect(sentMessages()).toHaveLength(1);
+  });
+
+  it('passes force true for any peer id when this device has no stored identity', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getDevice.mockResolvedValue(null);
+    const change = upsert('adventures', 'adventure-a', 1);
+
+    await handleSyncMessage(PEER_ID, rawBatch([change], 1));
+
+    expect(applyUpsert).toHaveBeenCalledWith('adventures', change.row, true);
+  });
+
+  it('requests no file for an applied image row whose file_extension is missing or not a string', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const changes = [
+      upsert('images', 'image-a', 1),
+      upsert('images', 'image-b', 2, { file_extension: 42 }),
+    ];
+
+    await handleSyncMessage(PEER_ID, rawBatch(changes, 2));
+
+    expect(imageFileChecks()).toEqual([]);
+    expect(sentMessages()).toEqual([]);
+  });
+
+  it('checks no file for an applied non-image row that carries a file_extension key', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const change = upsert('adventures', 'adventure-a', 1, {
+      file_extension: 'png',
+    });
+
+    await handleSyncMessage(PEER_ID, rawBatch([change], 1));
+
+    expect(imageFileChecks()).toEqual([]);
+    expect(sentMessages()).toEqual([]);
+  });
+
+  it('applies a second sync batch only after the first batch has finished', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const firstUpsertDone = Promise.withResolvers<null>();
+    const events: string[] = [];
+    applyUpsert.mockImplementation(async (_table, row) => {
+      events.push(`start ${String(row.id)}`);
+      if (row.id === 'adventure-a') await firstUpsertDone.promise;
+      events.push(`end ${String(row.id)}`);
+      return 'applied';
+    });
+
+    const first = handleSyncMessage(
+      PEER_ID,
+      rawBatch([upsert('adventures', 'adventure-a', 1)], 1),
+    );
+    const second = handleSyncMessage(
+      PEER_ID,
+      rawBatch([upsert('adventures', 'adventure-b', 2)], 2),
+    );
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    firstUpsertDone.resolve(null);
+    await Promise.all([first, second]);
+
+    expect(events).toEqual([
+      'start adventure-a',
+      'end adventure-a',
+      'start adventure-b',
+      'end adventure-b',
+    ]);
   });
 });
