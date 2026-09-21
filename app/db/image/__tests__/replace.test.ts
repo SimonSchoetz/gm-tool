@@ -1,6 +1,5 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Image } from '../types';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -15,48 +14,27 @@ const invoke = vi.hoisted(() =>
 );
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-const answerCommand = (command: string): Promise<unknown> => {
-  switch (command) {
-    case 'save_image':
-      return Promise.resolve(1234);
-    case 'read_image_bytes':
-      return Promise.resolve('aW1hZ2U=');
-    case 'save_image_bytes':
-    case 'delete_image':
-      return Promise.resolve(undefined);
-    default:
-      return Promise.reject(new Error(`Unexpected command: ${command}`));
-  }
-};
-
 const OLD_ID = 'old-image';
 
 const commandsInvoked = () => invoke.mock.calls.map(([command]) => command);
 
-const readImages = async () => {
-  const { getDatabase } = await import('@db/database');
-  const db = await getDatabase();
-  return db.select<Image[]>('SELECT * FROM images');
-};
-
 // The old image is a plain row: the only invoke calls a test sees are the ones `replace` makes.
 const seedOldImage = async () => {
-  const { getDatabase } = await import('@db/database');
-  const db = await getDatabase();
-  await db.execute(
-    'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
-    [OLD_ID, 'png', '2026-01-10T09:00:00.000Z'],
-  );
+  const { seedImage } = await import('@db/__tests__/support/image-fixtures');
+  await seedImage(OLD_ID, 'png', '2026-01-10T09:00:00.000Z');
 };
 
 describe('replace', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules();
-    invoke.mockImplementation(answerCommand);
+    const { answerImageCommand } =
+      await import('@db/__tests__/support/image-fixtures');
+    invoke.mockImplementation(answerImageCommand);
   });
 
   it('saves the new file first, then deletes the old image, and returns the id of the new row', async () => {
     const { replace } = await import('../replace');
+    const { readImages } = await import('@db/__tests__/support/image-fixtures');
     await seedOldImage();
 
     const newId = await replace(OLD_ID, { filePath: '/pics/new.png' });
@@ -68,6 +46,7 @@ describe('replace', () => {
 
   it('keeps the old image and deletes no file when the new extension is unsupported', async () => {
     const { replace } = await import('../replace');
+    const { readImages } = await import('@db/__tests__/support/image-fixtures');
     await seedOldImage();
 
     await expect(
@@ -80,6 +59,7 @@ describe('replace', () => {
 
   it('keeps the old image and deletes no file when the new file cannot be saved', async () => {
     const { replace } = await import('../replace');
+    const { readImages } = await import('@db/__tests__/support/image-fixtures');
     await seedOldImage();
     invoke.mockImplementation(() => Promise.reject(new Error('disk full')));
 
@@ -93,11 +73,13 @@ describe('replace', () => {
 
   it('rejects with the deletion error and keeps the new row when the old file cannot be deleted', async () => {
     const { replace } = await import('../replace');
+    const { answerImageCommand, readImages } =
+      await import('@db/__tests__/support/image-fixtures');
     await seedOldImage();
     invoke.mockImplementation((command) =>
       command === 'delete_image'
         ? Promise.reject(new Error('delete failed'))
-        : answerCommand(command),
+        : answerImageCommand(command),
     );
 
     await expect(

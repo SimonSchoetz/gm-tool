@@ -51,6 +51,25 @@ describe('registry', () => {
     }
   });
 
+  it('accepts null in the zodSchema field of every column a synced table leaves nullable', async () => {
+    const db = await openMigratedDatabase();
+
+    for (const table of SYNCED_TABLES) {
+      const migratedColumns = await db.select<
+        { name: string; notnull: number; pk: number }[]
+      >(`PRAGMA table_info(${table.name})`);
+      const nullableColumns = migratedColumns.filter(
+        (column) => column.notnull === 0 && column.pk === 0,
+      );
+      for (const column of nullableColumns) {
+        expect(
+          table.zodSchema.partial().safeParse({ [column.name]: null }).success,
+          `${table.name}.${column.name}`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it('places every synced table after each synced table it references', async () => {
     const db = await openMigratedDatabase();
 

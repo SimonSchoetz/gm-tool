@@ -54,13 +54,9 @@ describe('update', () => {
   it('clears description and image_id when they are set to null', async () => {
     const { create } = await import('../create');
     const { update } = await import('../update');
-    const { getDatabase } = await import('@db/database');
+    const { seedImage } = await import('@db/__tests__/support/image-fixtures');
     const id = await create();
-    const db = await getDatabase();
-    await db.execute(
-      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
-      ['image-1', 'png', T1],
-    );
+    await seedImage('image-1', 'png', T1);
     await update(id, { description: 'to clear', image_id: 'image-1' });
     expect(await readAdventure(id)).toMatchObject({
       description: 'to clear',

@@ -15,20 +15,6 @@ const invoke = vi.hoisted(() =>
 );
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-const answerCommand = (command: string): Promise<unknown> => {
-  switch (command) {
-    case 'save_image':
-      return Promise.resolve(1234);
-    case 'read_image_bytes':
-      return Promise.resolve('aW1hZ2U=');
-    case 'save_image_bytes':
-    case 'delete_image':
-      return Promise.resolve(undefined);
-    default:
-      return Promise.reject(new Error(`Unexpected command: ${command}`));
-  }
-};
-
 const T1 = '2026-01-10T09:00:00.000Z';
 const T2 = '2026-01-11T09:00:00.000Z';
 const SOURCE_ID = 'source-image';
@@ -53,9 +39,11 @@ const seedSourceImage = async () => {
 };
 
 describe('duplicate', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules();
-    invoke.mockImplementation(answerCommand);
+    const { answerImageCommand } =
+      await import('@db/__tests__/support/image-fixtures');
+    invoke.mockImplementation(answerImageCommand);
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(T1));
   });

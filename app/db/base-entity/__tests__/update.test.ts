@@ -43,13 +43,9 @@ describe('update', () => {
 
   it('clears description and image_id when they are set to null', async () => {
     const { update } = await import('../update');
-    const { getDatabase } = await import('@db/database');
+    const { seedImage } = await import('@db/__tests__/support/image-fixtures');
     const id = await createNpc();
-    const db = await getDatabase();
-    await db.execute(
-      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
-      ['image-1', 'png', '2026-01-10T09:00:00.000Z'],
-    );
+    await seedImage('image-1', 'png', '2026-01-10T09:00:00.000Z');
     await update(id, { description: 'to clear', image_id: 'image-1' });
     expect(await readBaseEntity(id)).toMatchObject({
       description: 'to clear',

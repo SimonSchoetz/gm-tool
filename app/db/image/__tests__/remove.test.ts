@@ -14,38 +14,27 @@ const invoke = vi.hoisted(() =>
 );
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-const answerCommand = (command: string): Promise<unknown> => {
-  switch (command) {
-    case 'save_image':
-      return Promise.resolve(1234);
-    case 'read_image_bytes':
-      return Promise.resolve('aW1hZ2U=');
-    case 'save_image_bytes':
-    case 'delete_image':
-      return Promise.resolve(undefined);
-    default:
-      return Promise.reject(new Error(`Unexpected command: ${command}`));
-  }
-};
+const SEEDED_AT = '2026-01-10T09:00:00.000Z';
 
 describe('remove', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules();
-    invoke.mockImplementation(answerCommand);
+    const { answerImageCommand } =
+      await import('@db/__tests__/support/image-fixtures');
+    invoke.mockImplementation(answerImageCommand);
   });
 
-  it('deletes the row and its file, and clears the image of the adventure and base entity that referenced it', async () => {
+  it('deletes only its own row and file, and clears the image of the adventure and base entity that referenced it', async () => {
     const { remove } = await import('../remove');
     const { create: createAdventure, update: updateAdventure } =
       await import('@db/adventure');
     const { create: createBaseEntity, update: updateBaseEntity } =
       await import('@db/base-entity');
     const { getDatabase } = await import('@db/database');
+    const { seedImage } = await import('@db/__tests__/support/image-fixtures');
     const db = await getDatabase();
-    await db.execute(
-      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
-      ['image-1', 'png', '2026-01-10T09:00:00.000Z'],
-    );
+    await seedImage('image-1', 'png', SEEDED_AT);
+    await seedImage('image-2', 'png', SEEDED_AT);
     const adventureId = await createAdventure();
     const baseEntityId = await createBaseEntity('npcs', adventureId);
     await updateAdventure(adventureId, { image_id: 'image-1' });
@@ -53,7 +42,9 @@ describe('remove', () => {
 
     await remove('image-1');
 
-    expect(await db.select<unknown[]>('SELECT id FROM images')).toEqual([]);
+    expect(await db.select<unknown[]>('SELECT id FROM images')).toEqual([
+      { id: 'image-2' },
+    ]);
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith('delete_image', {
       id: 'image-1',
@@ -69,9 +60,13 @@ describe('remove', () => {
 
   it('deletes nothing and deletes no file for an id with no image', async () => {
     const { remove } = await import('../remove');
+    const { seedImage, readImages } =
+      await import('@db/__tests__/support/image-fixtures');
+    await seedImage('image-1', 'png', SEEDED_AT);
 
     await remove('missing-image');
 
+    expect((await readImages()).map((image) => image.id)).toEqual(['image-1']);
     expect(invoke).not.toHaveBeenCalled();
   });
 });

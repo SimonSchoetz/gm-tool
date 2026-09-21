@@ -1,6 +1,5 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { Image } from '../types';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -15,32 +14,14 @@ const invoke = vi.hoisted(() =>
 );
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-const answerCommand = (command: string): Promise<unknown> => {
-  switch (command) {
-    case 'save_image':
-      return Promise.resolve(1234);
-    case 'read_image_bytes':
-      return Promise.resolve('aW1hZ2U=');
-    case 'save_image_bytes':
-    case 'delete_image':
-      return Promise.resolve(undefined);
-    default:
-      return Promise.reject(new Error(`Unexpected command: ${command}`));
-  }
-};
-
 const CREATED_AT = '2026-01-10T09:00:00.000Z';
 
-const readImages = async () => {
-  const { getDatabase } = await import('@db/database');
-  const db = await getDatabase();
-  return db.select<Image[]>('SELECT * FROM images');
-};
-
 describe('create', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules();
-    invoke.mockImplementation(answerCommand);
+    const { answerImageCommand } =
+      await import('@db/__tests__/support/image-fixtures');
+    invoke.mockImplementation(answerImageCommand);
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(CREATED_AT));
   });
@@ -51,6 +32,7 @@ describe('create', () => {
 
   it('stores an upper-case extension in lower case with the file name and the saved size, and saves the file under the id of its row', async () => {
     const { create } = await import('../create');
+    const { readImages } = await import('@db/__tests__/support/image-fixtures');
 
     const id = await create({ filePath: '/pics/Photo.JPG' });
 
@@ -77,6 +59,7 @@ describe('create', () => {
 
   it('rejects an unsupported extension before saving any file and stores no row', async () => {
     const { create } = await import('../create');
+    const { readImages } = await import('@db/__tests__/support/image-fixtures');
 
     await expect(create({ filePath: '/docs/notes.pdf' })).rejects.toThrow(
       'Unsupported file extension: pdf',
@@ -88,6 +71,7 @@ describe('create', () => {
 
   it('stores no row when the file cannot be saved', async () => {
     const { create } = await import('../create');
+    const { readImages } = await import('@db/__tests__/support/image-fixtures');
     invoke.mockImplementation(() => Promise.reject(new Error('disk full')));
 
     await expect(create({ filePath: '/pics/Photo.png' })).rejects.toThrow(

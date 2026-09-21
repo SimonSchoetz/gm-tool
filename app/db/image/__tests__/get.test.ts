@@ -16,16 +16,12 @@ describe('get', () => {
 
   it('returns the image whose id is passed when several are stored, and null for an id with no image', async () => {
     const { get } = await import('../get');
-    const { getDatabase } = await import('@db/database');
-    const db = await getDatabase();
+    const { seedImage } = await import('@db/__tests__/support/image-fixtures');
     for (const [id, extension] of [
       ['first-image', 'png'],
       ['second-image', 'webp'],
     ]) {
-      await db.execute(
-        'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
-        [id, extension, SEEDED_AT],
-      );
+      await seedImage(id, extension, SEEDED_AT);
     }
 
     expect(await get('second-image')).toEqual({

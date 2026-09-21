@@ -30,13 +30,9 @@ const seedSourceEntity = async () => {
   const { create } = await import('../create');
   const { update } = await import('../update');
   const { setPinnedOrder } = await import('@db/pinned-order');
-  const { getDatabase } = await import('@db/database');
-  const db = await getDatabase();
+  const { seedImage } = await import('@db/__tests__/support/image-fixtures');
   for (const imageId of [SOURCE_IMAGE_ID, COPY_IMAGE_ID]) {
-    await db.execute(
-      'INSERT INTO images (id, file_extension, created_at, updated_at) VALUES ($1, $2, $3, $3)',
-      [imageId, 'png', T1],
-    );
+    await seedImage(imageId, 'png', T1);
   }
   const adventureId = await createAdventure();
   const sourceId = await create('npcs', adventureId);
