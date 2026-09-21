@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Session, UpdateSessionInput } from '@db/session';
 import * as service from '@services/sessionService';
 import { sessionKeys } from './sessionKeys';
 import { sessionQueryOptions } from './sessionQueryOptions';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
+import { mergeScopedEdit } from '../mergeScopedEdit';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -27,32 +27,30 @@ export const useSession = (
   );
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) =>
-      service.updateSession(id, data),
-    onSuccess: (_result, { id }) => {
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      adventureId: string;
+      data: UpdateSessionInput;
+    }) => service.updateSession(id, data),
+    onSuccess: (_result, { id, adventureId: scheduledAdventureId }) => {
       void queryClient.invalidateQueries({
         queryKey: sessionKeys.detail(id),
       });
       void queryClient.invalidateQueries({
-        queryKey: sessionKeys.list(adventureId),
+        queryKey: sessionKeys.list(scheduledAdventureId),
       });
     },
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<UpdateSessionInput>(
-      (pending, patch) => ({ ...pending, ...patch }),
-      (id, data) => {
-        updateMutation.mutate({ id, data });
-      },
-    ),
-  );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
+  const saveQueue = useAutosaveQueue<{
+    adventureId: string;
+    data: UpdateSessionInput;
+  }>(mergeScopedEdit, (id, { adventureId: scheduledAdventureId, data }) => {
+    updateMutation.mutate({ id, adventureId: scheduledAdventureId, data });
+  });
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteSession(sessionId),
@@ -84,7 +82,7 @@ export const useSession = (
       },
     );
 
-    saveQueue.schedule(sessionId, data);
+    saveQueue.schedule(sessionId, { adventureId, data });
   };
 
   const deleteSession = async (): Promise<void> => {

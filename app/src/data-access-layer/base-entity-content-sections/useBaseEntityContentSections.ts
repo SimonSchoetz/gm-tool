@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   BaseEntityContentSection,
@@ -8,7 +7,7 @@ import type { BaseEntityContentSectionType } from '@domain';
 import * as service from '@services/baseEntityContentSectionService';
 import { baseEntityContentSectionKeys } from './baseEntityContentSectionKeys';
 import { baseEntityContentSectionListQueryOptions } from './baseEntityContentSectionQueryOptions';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseBaseEntityContentSectionsReturn = {
@@ -49,20 +48,12 @@ export const useBaseEntityContentSections = (
     }) => service.updateSection(id, data),
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<UpdateBaseEntityContentSectionInput>(
-      (pending, patch) => ({ ...pending, ...patch }),
-      (id, data) => {
-        updateMutation.mutate({ id, data });
-      },
-    ),
+  const saveQueue = useAutosaveQueue<UpdateBaseEntityContentSectionInput>(
+    mergeUpdate,
+    (id, data) => {
+      updateMutation.mutate({ id, data });
+    },
   );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
 
   const createMutation = useMutation({
     mutationFn: ({

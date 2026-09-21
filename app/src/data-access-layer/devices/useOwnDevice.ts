@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { DeviceData } from '@db/_system';
 import * as devicesService from '@services/devicesService';
 import { deviceKeys } from './deviceKeys';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
 
 type UseOwnDeviceReturn = {
   ownDevice: DeviceData | null;
@@ -26,20 +25,12 @@ export const useOwnDevice = (): UseOwnDeviceReturn => {
     },
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<string>(
-      (_pending, name) => name,
-      (_key, name) => {
-        renameMutation.mutate(name);
-      },
-    ),
+  const saveQueue = useAutosaveQueue<string>(
+    (_pending, name) => name,
+    (_key, name) => {
+      renameMutation.mutate(name);
+    },
   );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
 
   const renameOwnDevice = (name: string) => {
     queryClient.setQueryData<DeviceData | null>(deviceKeys.own(), (old) =>

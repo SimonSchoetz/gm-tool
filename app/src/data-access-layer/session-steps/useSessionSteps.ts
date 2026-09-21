@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { SessionStep, UpdateSessionStepInput } from '@db/session-step';
 import * as service from '@services/sessionStepService';
 import { sessionStepKeys } from './sessionStepKeys';
 import { sessionStepListQueryOptions } from './sessionStepQueryOptions';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseSessionStepsReturn = {
@@ -29,20 +28,12 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
       service.updateStep(id, data),
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<UpdateSessionStepInput>(
-      (pending, patch) => ({ ...pending, ...patch }),
-      (id, data) => {
-        updateMutation.mutate({ id, data });
-      },
-    ),
+  const saveQueue = useAutosaveQueue<UpdateSessionStepInput>(
+    mergeUpdate,
+    (id, data) => {
+      updateMutation.mutate({ id, data });
+    },
   );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
 
   const createMutation = useMutation({
     mutationFn: (name?: string) => service.createCustomStep(sessionId, name),

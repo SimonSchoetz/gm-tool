@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Adventure } from '@db/adventure';
 import * as service from '@services/adventureService';
 import type { UpdateAdventureData } from '@services/adventureService';
 import { adventureKeys } from './adventureKeys';
 import { adventureQueryOptions } from './adventureQueryOptions';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
 import { mergeUpdate } from '../mergeUpdate';
 
 type UseAdventureReturn = {
@@ -34,20 +33,12 @@ export const useAdventure = (adventureId: string): UseAdventureReturn => {
     },
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<UpdateAdventureData>(
-      (pending, patch) => ({ ...pending, ...patch }),
-      (id, data) => {
-        updateMutation.mutate({ id, data });
-      },
-    ),
+  const saveQueue = useAutosaveQueue<UpdateAdventureData>(
+    mergeUpdate,
+    (id, data) => {
+      updateMutation.mutate({ id, data });
+    },
   );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteAdventure(adventureId),

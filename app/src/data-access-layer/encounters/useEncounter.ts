@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Encounter, UpdateEncounterInput } from '@db/encounter';
 import * as service from '@services/encounterService';
 import { encounterKeys } from './encounterKeys';
 import { encounterQueryOptions } from './encounterQueryOptions';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
+import { mergeScopedEdit } from '../mergeScopedEdit';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -27,32 +27,30 @@ export const useEncounter = (
   );
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateEncounterInput }) =>
-      service.updateEncounter(id, data),
-    onSuccess: (_result, { id }) => {
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      adventureId: string;
+      data: UpdateEncounterInput;
+    }) => service.updateEncounter(id, data),
+    onSuccess: (_result, { id, adventureId: scheduledAdventureId }) => {
       void queryClient.invalidateQueries({
         queryKey: encounterKeys.detail(id),
       });
       void queryClient.invalidateQueries({
-        queryKey: encounterKeys.list(adventureId),
+        queryKey: encounterKeys.list(scheduledAdventureId),
       });
     },
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<UpdateEncounterInput>(
-      (pending, patch) => ({ ...pending, ...patch }),
-      (id, data) => {
-        updateMutation.mutate({ id, data });
-      },
-    ),
-  );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
+  const saveQueue = useAutosaveQueue<{
+    adventureId: string;
+    data: UpdateEncounterInput;
+  }>(mergeScopedEdit, (id, { adventureId: scheduledAdventureId, data }) => {
+    updateMutation.mutate({ id, adventureId: scheduledAdventureId, data });
+  });
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteEncounter(encounterId),
@@ -79,7 +77,7 @@ export const useEncounter = (
       },
     );
 
-    saveQueue.schedule(encounterId, data);
+    saveQueue.schedule(encounterId, { adventureId, data });
   };
 
   const deleteEncounter = async (): Promise<void> => {

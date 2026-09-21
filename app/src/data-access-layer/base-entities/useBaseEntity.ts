@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityType } from '@domain/entities';
@@ -6,7 +5,8 @@ import * as service from '@services/baseEntityService';
 import type { UpdateBaseEntityData } from '@services/baseEntityService';
 import { baseEntityKeys } from './baseEntityKeys';
 import { baseEntityQueryOptions } from './baseEntityQueryOptions';
-import { createAutosaveQueue } from '../createAutosaveQueue';
+import { useAutosaveQueue } from '../useAutosaveQueue';
+import { mergeScopedEdit } from '../mergeScopedEdit';
 import { mergeUpdate } from '../mergeUpdate';
 import { useDuplicateMutation } from '../useDuplicateMutation';
 
@@ -37,44 +37,39 @@ export const useBaseEntity = (
       data,
     }: {
       entityType: BaseEntityType;
+      adventureId: string;
       id: string;
       data: UpdateBaseEntityData;
     }) => service.updateBaseEntity(scheduledType, id, data),
-    onSuccess: (_result, { entityType: scheduledType, id }) => {
+    onSuccess: (
+      _result,
+      { entityType: scheduledType, adventureId: scheduledAdventureId, id },
+    ) => {
       void queryClient.invalidateQueries({
         queryKey: baseEntityKeys.detail(scheduledType, id),
       });
       void queryClient.invalidateQueries({
-        queryKey: baseEntityKeys.list(scheduledType, adventureId),
+        queryKey: baseEntityKeys.list(scheduledType, scheduledAdventureId),
       });
     },
   });
 
-  const [saveQueue] = useState(() =>
-    createAutosaveQueue<{
-      entityType: BaseEntityType;
-      data: UpdateBaseEntityData;
-    }>(
-      (pending, patch) => ({
-        entityType: patch.entityType,
-        data: { ...pending.data, ...patch.data },
-      }),
-      // `entityType` travels in the pending patch, taken from the most recent `schedule` for that id, and is passed through `mutate()` because it selects the error label and both invalidated keys.
-      (id, pending) => {
-        updateMutation.mutate({
-          entityType: pending.entityType,
-          id,
-          data: pending.data,
-        });
-      },
-    ),
+  const saveQueue = useAutosaveQueue<{
+    entityType: BaseEntityType;
+    adventureId: string;
+    data: UpdateBaseEntityData;
+  }>(
+    mergeScopedEdit,
+    // `entityType` and `adventureId` travel in the pending edit, taken from the most recent `schedule` for that id, and go through `mutate()` because `entityType` selects the error label and both invalidated keys and `adventureId` selects the invalidated list key.
+    (id, pending) => {
+      updateMutation.mutate({
+        entityType: pending.entityType,
+        adventureId: pending.adventureId,
+        id,
+        data: pending.data,
+      });
+    },
   );
-
-  useEffect(() => {
-    return () => {
-      saveQueue.flushAll();
-    };
-  }, [saveQueue]);
 
   const deleteMutation = useMutation({
     mutationFn: () => service.deleteBaseEntity(entityType, baseEntityId),
@@ -114,7 +109,7 @@ export const useBaseEntity = (
       },
     );
 
-    saveQueue.schedule(baseEntityId, { entityType, data });
+    saveQueue.schedule(baseEntityId, { entityType, adventureId, data });
   };
 
   const deleteBaseEntity = async (): Promise<void> => {

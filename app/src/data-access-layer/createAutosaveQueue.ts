@@ -1,6 +1,6 @@
 export const AUTOSAVE_DELAY_MS = 500;
 
-type AutosaveQueue<Patch> = {
+export type AutosaveQueue<Patch> = {
   schedule: (key: string, patch: Patch) => void;
   flushAll: () => void;
 };
@@ -13,9 +13,8 @@ type Entry<Patch> = {
 /**
  * Debounces saves per key: the last edit before the user stops typing is written once, `AUTOSAVE_DELAY_MS` after it.
  * - It keeps one pending patch and one timer per key, so edits to different entities never merge or hold back each other's save.
- * - `write` receives the key the edit was scheduled under, and a hook passes it through `mutate()`'s call-time variables — the deferred-dispatch carve-out in `.claude/rules/src-data-access-layer.md` — because the hook may already show another entity when the timer fires.
- * - A hook holds the queue in `useState`'s lazy initializer, which runs once per hook instance and gives the queue a non-null type; `useMemo` would have to list the hook's mutation object (`updateMutation`, or `renameMutation` in `useOwnDevice`) in its dependencies, and `useMutation` returns a new object on every render, so the queue would be rebuilt — and flushed by the unmount effect — on every render.
- * - A hook calls `flushAll()` from an unmount effect so edits made just before leaving a screen are saved, and a save flushed there that fails is not reported, because the component that would surface the error is gone.
+ * - `write` receives the key the edit was scheduled under, and a hook whose mutation is keyed by an entity id passes it through `mutate()`'s call-time variables — the deferred-dispatch carve-out in `.claude/rules/src-data-access-layer.md` — because the hook may already show another entity when the timer fires.
+ * - Hooks hold the queue through `useAutosaveQueue` (`useAutosaveQueue.ts`), which creates it once per hook instance and flushes it on unmount.
  */
 export const createAutosaveQueue = <Patch>(
   merge: (pending: Patch, patch: Patch) => Patch,
