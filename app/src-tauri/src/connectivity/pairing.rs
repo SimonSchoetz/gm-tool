@@ -11,9 +11,9 @@ use super::connections::{drain_frames, maybe_dial_trusted_peer, write_frame};
 use super::{
     ALPN_PAIRING, ConnectionRole, ConnectivityState, EVENT_PAIRING_CANDIDATE,
     EVENT_PAIRING_CANDIDATE_LOST, EVENT_PAIRING_CODE_REQUESTED, EVENT_PAIRING_FAILED,
-    EVENT_PAIRING_SUCCEEDED, PairingCandidateLostPayload, PairingCandidatePayload,
-    PairingCodeRequestedPayload, PairingFailedPayload, PairingSucceededPayload,
-    is_preferred_direction, parse_endpoint_id,
+    EVENT_PAIRING_SUCCEEDED, PEER_CLOSE_TIMEOUT, PairingCandidateLostPayload,
+    PairingCandidatePayload, PairingCodeRequestedPayload, PairingFailedPayload,
+    PairingSucceededPayload, is_preferred_direction, parse_endpoint_id,
 };
 
 const MAX_CODE_FAILURES: u8 = 3;
@@ -61,7 +61,7 @@ pub(crate) enum CodeSubmitOutcome {
     LimitReached,
 }
 
-/// Decides one code submitted to this device. The limit is checked before the code is compared, so a device over the limit cannot succeed with a correct guess, and a wrong code from any device counts toward the same limit.
+/// Decides one code submitted to this device and applies the outcome to the session and the trusted set: a wrong code increments `code_failures`, an accepted code or a reached limit removes the candidate from `candidates` and `probing`, and an accepted code inserts the peer into `trusted`. The limit is checked before the code is compared, so a device over the limit cannot succeed with a correct guess, and a wrong code from any device counts toward the same limit.
 pub(crate) fn evaluate_code_submit(
     session: &mut PairingSession,
     trusted: &mut HashSet<EndpointId>,
@@ -304,7 +304,7 @@ pub(crate) async fn run_pairing_connection(
     }
 
     let (frame_sender, mut frame_receiver) = channel::<PairingFrame>(8);
-    // Moved into the session's candidate entry when the peer's hello arrives; the entry then holds the only sender, so dropping the session or replacing the entry closes the channel and ends this task.
+    // Moved into the session's candidate entry when the peer's hello arrives; the entry is its only long-lived holder, since `request_pairing_code` and `submit_pairing_code` clone it only while they use it, so dropping the session or replacing the entry closes the channel and ends this task; a clone held by `submit_pairing_code` ends at the same moment, because the entry also holds that call's pending verdict sender, whose drop makes `verdict_receiver.recv()` return `None`.
     let mut sender_to_register = Some(frame_sender);
     let mut candidate_name: Option<String> = None;
     let mut succeeded = false;
@@ -443,7 +443,7 @@ pub(crate) async fn run_pairing_connection(
 
     // The verifier sends the accept verdict on this connection, then the submitter reads it and closes first. Hold the connection open until the submitter closes (bounded by a timeout) so a local close does not truncate the verdict frame in flight — otherwise the submitter reports a spurious "connection closed before a verdict arrived" and never persists the peer.
     if succeeded && sent_accept_verdict {
-        let _ = tokio::time::timeout(Duration::from_secs(5), connection.closed()).await;
+        let _ = tokio::time::timeout(PEER_CLOSE_TIMEOUT, connection.closed()).await;
     }
 
     connection.close(0u32.into(), b"pairing closed");

@@ -4,6 +4,7 @@ mod pairing;
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+use std::time::Duration;
 
 use iroh::endpoint::Connection;
 use iroh::{Endpoint, EndpointAddr, EndpointId};
@@ -26,6 +27,8 @@ pub(crate) const EVENT_PAIRING_CANDIDATE_LOST: &str = "connectivity-pairing-cand
 pub(crate) const EVENT_PAIRING_CODE_REQUESTED: &str = "connectivity-pairing-code-requested";
 pub(crate) const EVENT_PAIRING_SUCCEEDED: &str = "connectivity-pairing-succeeded";
 pub(crate) const EVENT_PAIRING_FAILED: &str = "connectivity-pairing-failed";
+
+pub(crate) const PEER_CLOSE_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

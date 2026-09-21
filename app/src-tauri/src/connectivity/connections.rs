@@ -17,8 +17,8 @@ use super::identity::load_or_create_secret_key;
 use super::{
     ALPN_MAIN, ALPN_PAIRING, ActiveConnection, ConnectionRole, ConnectivityState,
     EVENT_MESSAGE_RECEIVED, EVENT_PEER_CONNECTED, EVENT_PEER_DISCONNECTED, MessageReceivedPayload,
-    PeerConnectedPayload, PeerDisconnectedPayload, TrustedPeer, is_preferred_direction, pairing,
-    parse_endpoint_id,
+    PEER_CLOSE_TIMEOUT, PeerConnectedPayload, PeerDisconnectedPayload, TrustedPeer,
+    is_preferred_direction, pairing, parse_endpoint_id,
 };
 
 // Fails the build if the vendored iroh-mdns-address-lookup patch is no longer in effect. Upstream does not define this constant, and without the patch mDNS joins the multicast group on a single OS-chosen interface — routinely a VPN or Hyper-V/WSL adapter rather than the LAN — which breaks peer discovery with no error on any layer.
@@ -287,7 +287,7 @@ pub(crate) async fn run_main_connection(
 
     // The entry was removed after every queued frame (such as an `unpair` envelope sent just before `remove_trusted_peer`) was written, and the streams have just been dropped, which finishes the send stream, so the peer reads end-of-stream and closes. Waiting for that close keeps a local close from discarding the last frame in flight — the same bounded wait the pairing verifier uses.
     if channel_closed {
-        let _ = tokio::time::timeout(Duration::from_secs(5), connection.closed()).await;
+        let _ = tokio::time::timeout(PEER_CLOSE_TIMEOUT, connection.closed()).await;
     }
 
     connection.close(0u32.into(), b"closed");
