@@ -7,6 +7,13 @@
 
 `DatabaseSync` from `node:sqlite` works with no `--experimental-sqlite` flag but still prints an experimental warning. Foreign key enforcement is on for a fresh in-memory database without any `PRAGMA`, matching sqlx's default, and its engine version differs from any SQLite a native dependency bundles.
 
+## `node:sqlite` needs no `--experimental-sqlite` flag from Node v22.13.0 on the 22.x line and from v23.4.0 on later lines
+
+**Verified at:** https://nodejs.org/api/sqlite.html, fetched 2026-09-21
+**Citation:** [spec-writer_6: https://nodejs.org/api/sqlite.html — History entry "v23.4.0, v22.13.0: SQLite is no longer behind `--experimental-sqlite` but still experimental"]
+
+Node 22.x releases before 22.13.0 and 23.x releases before 23.4.0 do not load `node:sqlite` without the flag, so the semver range `^22.13.0 || >=23.4.0` is exactly the set of versions that load it without one. The module became a release candidate (stability 1.2) in v25.7.0.
+
 ## `node:sqlite` binds positional arguments to `?NNN` parameters by number, not by occurrence order
 
 **Verified at:** Node v22.23.2 (SQLite 3.51.3), run 2026-09-19
