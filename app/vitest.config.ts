@@ -17,7 +17,8 @@ export default defineConfig({
         'db/**/*.ts',
         'util/**/*.ts',
       ],
-      exclude: ['**/__tests__/**'],
+      // Type declarations and the generated route tree carry no statements of their own, so counting them would only deflate the report.
+      exclude: ['**/__tests__/**', '**/*.d.ts', 'src/routeTree.gen.ts'],
     },
   },
   resolve: {
