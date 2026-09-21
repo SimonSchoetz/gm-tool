@@ -23,3 +23,17 @@ In React 19 `ref` is an ordinary prop on function components, and the DOM elemen
 **Citation:** [spec-writer_29: app/node_modules/typescript/lib/lib.dom.d.ts, `interface HTMLInputElement` — `selectionEnd: number | null;` and `selectionStart: number | null;`; `setSelectionRange(start: number | null, end: number | null, direction?: SelectionDirection): void;`; `setRangeText(replacement: string, start: number, end: number, selectionMode?: SelectionMode): void;`]
 
 `selectionStart`/`selectionEnd` are nullable on `HTMLInputElement` — they read `null` for input types that do not support text selection. Any caret arithmetic reading them must narrow before use; under `tseslint.configs.strictTypeChecked` an unnarrowed read is a type error, not a warning. `setSelectionRange` accepts nullable arguments, takes an optional `SelectionDirection`, and returns `void`. `setRangeText` also exists and combines range replacement with selection placement, but it mutates the DOM node's value directly and is therefore unsuitable for a React controlled input, whose next render overwrites the DOM value from state.
+
+## React may throw away a `useMemo` cached value; that should be fine if `useMemo` is relied on solely as a performance optimization, and otherwise a state variable or a ref may be more appropriate
+
+**Verified at:** <https://react.dev/reference/react/useMemo>, fetched 2026-09-21
+**Citation:** [head-of-instructions_36: https://react.dev/reference/react/useMemo — fetched 2026-09-21 — read, Usage > Skipping expensive recalculations: "You should only rely on `useMemo` as a performance optimization"; Caveats: "React will not throw away the cached value unless there is a specific reason to do that", "This should be fine if you rely on `useMemo` solely as a performance optimization. Otherwise, a state variable or a ref may be more appropriate."]
+
+React keeps a memoized value unless it has a specific reason to throw the cache away: in development when the component's file is edited, in development and production when the component suspends during its initial mount, and possibly for more reasons in future. The page says relying on `useMemo` solely as a performance optimization should be fine, and that otherwise a state variable or a ref may be more appropriate.
+
+## React calls a `useState` initializer function twice in development Strict Mode and ignores the result of one call, and says the initializer should be pure
+
+**Verified at:** <https://react.dev/reference/react/useState>, fetched 2026-09-21
+**Citation:** [head-of-instructions_37: https://react.dev/reference/react/useState — fetched 2026-09-21 — read, Usage > Avoiding recreating the initial state: "If you pass a function to `useState`, React will only call it during initialization", "React saves the initial state once and ignores it on the next renders"; Parameters (`useState(initialState)`): "It should be pure, should take no arguments, and should return a value of any type"; Caveats (`useState(initialState)`): "In Strict Mode, React will call your initializer function twice in order to help you find accidental impurities", "The result from one of the calls will be ignored"]
+
+If a function is passed to `useState`, React calls it only during initialization; the initial state is saved once and ignored on later renders. In Strict Mode it calls the initializer function twice in development, to help find accidental impurities, and ignores the result of one call; the page says the initializer should be pure.

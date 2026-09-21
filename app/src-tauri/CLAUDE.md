@@ -237,7 +237,7 @@ Starts advertising this device for pairing and probes already-known peers retroa
 - `app_handle: AppHandle`
 - `state: State<'_, ConnectivityState>`
 
-**Returns:** `Result<String, String>`
+**Returns:** `Result<String, String>` — the session's 6-digit pairing code, generated when the session opens and returned unchanged to every later caller while it stays open
 
 **Behavior:** delegates to `connectivity::enter_pairing_mode`.
 
@@ -264,7 +264,7 @@ Submits a pairing code as the requesting side.
 
 ### request_pairing_code
 
-Requests the other side generate and display a pairing code (a random 6-digit code via `rand::random_range`).
+Asks the other side to display its pairing code.
 
 **Arguments:**
 - `state: State<'_, ConnectivityState>`

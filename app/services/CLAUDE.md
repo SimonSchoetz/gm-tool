@@ -26,7 +26,7 @@ throw typed domain errors. They have no React dependencies and no UI logic.
 
 ## Testing
 
-A service function that adds logic beyond delegating to `@db/<domain>` calls and wrapping failures in a typed domain error — a branch, a computed value such as the next `sort_order`, or a multi-step composition — must have a test in `services/__tests__/` named after its service file, mocking the `@db/<domain>` modules it calls. A pure delegate-and-wrap function needs none. The obligation applies when such a function is added or its logic changes.
+A service function that adds logic beyond delegating to `@db/<domain>` calls and wrapping failures in a typed domain error — a branch, a computed value such as the next `sort_order`, or a multi-step composition — must have a test in `services/__tests__/` named after its service file, mocking the `@db/<domain>` modules it calls. This departs from the real-collaborator clause of the shared rules file's Best Practices & Code Quality rule beginning "A test earns its place by the regression it catches": the test's subject is the service's own branching and composition, and the SQL those modules run is tested against a real database under `db/`. A pure delegate-and-wrap function needs none. The obligation applies when such a function is added or its logic changes.
 
 ## What Does NOT Belong Here
 

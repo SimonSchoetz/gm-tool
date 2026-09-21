@@ -67,7 +67,7 @@ Never open a response with a positive affirmation directed at the user or a team
 - **Separation-of-concerns example:**
   - ❌ BAD: Centralizing column resize state in `SortableList` and passing it down because it "keeps things in one place"
   - ✅ GOOD: `SortingTableHeader` owns resize state; `SortableListItem` owns its render logic based on layout config — likewise, a shared value that seems to belong in a parent instead comes from `TableConfigProvider` directly
-- **DRY per layer:** Before composing lower-layer primitives at the current layer, inspect the lower layer first — if a composed operation already exists there, delegating to it is the DRY choice (e.g. `imageService.replaceImage` calls `imageDb.replace()` because the DB layer already composes remove + create internally). Compose sibling functions at the current layer only when no equivalent composed operation exists below.
+- **DRY per layer:** Before composing lower-layer primitives at the current layer, inspect the lower layer first — if a composed operation already exists there, delegating to it is the DRY choice (e.g. `imageService.replaceImage` calls `imageDb.replace()` because the DB layer already offers image replacement as one operation). Compose sibling functions at the current layer only when no equivalent composed operation exists below.
 - **Re-derive types, trace procedure:**
   1. Trace every field in props types to a value set at a call site. If no caller sets it, remove it.
   2. Trace every field in internal types to a place where it is read. If defined but never accessed, remove it — unless another CLAUDE.md rule mandates its presence regardless of consumption, in which case retain it and make the non-consumption explicit at the call site (underscore-prefixed alias + comment naming the mandating rule).
@@ -95,7 +95,7 @@ The verification obligation stated in the shared rules file's Epistemological Di
   | `lint` | `npx eslint .` | `app/` | every check | always |
   | `format-check` | `prettier --check .` | `app/` | every check | always |
   | `test` | `npx vitest run` | `app/` | full-suite-only | always |
-  | `rust-lint` | `cargo clippy -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
+  | `rust-lint` | `cargo clippy --all-targets -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-test` | `cargo test` | `app/src-tauri/` | full-suite-only | when `app/src-tauri/` is touched |
 

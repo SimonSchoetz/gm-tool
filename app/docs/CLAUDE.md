@@ -19,7 +19,7 @@ The Rust backend depends on neither Domain nor Database — it is ordered here b
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
-**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components); the risk category that bullet excludes from the exemption is interaction behavior tied to the browser's native default action. The required scope — which files must have tests — is `ComponentName/helper/` and `/src/util/`, stated in full with its two exceptions in `.claude/rules/src-unit-tests.md` — Testing Policy.
+**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components); the risk category that bullet excludes from the exemption is interaction behavior tied to the browser's native default action. The required scope — which files must have tests — is stated in full, with its two exceptions, in `.claude/rules/src-unit-tests.md` — Testing Policy.
 
 **Barrel instructions require explicit validation.** Before writing any barrel instruction (including "no change needed"), read the actual barrel file and verify every export against the barrel conventions in `app/CLAUDE.md` — Directory Structure. Existing `export *` is not evidence that it is correct. A spec that instructs "no change needed" for a barrel that violates the explicit-exports rule is a spec defect.
 

@@ -47,7 +47,7 @@ Two directory types exist — distinguish them before adding or deleting a barre
 
 ## Testing
 
-When two or more tests call a function that owns or reaches module-level singleton state (e.g. through `getDatabase()`), the test file resets the module registry between tests: `vi.resetModules()` in `beforeEach` plus a dynamic `await import('../moduleName')` of the module under test inside each test body, never a static top-level import — a static import captures the singleton at load time, so an instance cached by one test leaks into the next. This applies in every layer (`src/`, `services/`, `domain/`, `db/`) except db domain CRUD test files, where `.claude/rules/db-unit-tests.md` — Module registry reset makes a static top-level import the default and names the cases that require the stricter pattern; a spec or change that leaves the existing test scaffolding unchanged for such a function, or keeps the static imports where the stricter pattern applies, is wrong. That rule also holds the `plugin-sql` mock specifics for db tests.
+When two or more tests call a function that owns or reaches module-level singleton state (e.g. through `getDatabase()`), the test file resets the module registry between tests: `vi.resetModules()` in `beforeEach` plus a dynamic `await import('../moduleName')` of the module under test inside each test body, never a static top-level import — a static import captures the singleton at load time, so an instance cached by one test leaks into the next. This applies in every layer (`src/`, `services/`, `domain/`, `db/`); a spec or change that leaves the existing test scaffolding unchanged for such a function, or keeps the static imports, is wrong.
 
 ## Convention Discovery
 
