@@ -1,7 +1,7 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import PopUpContainer from '../../components/PopUpContainer/PopUpContainer';
-import { DeleteDialog } from '../../components/DeleteDialog/DeleteDialog';
+import PopUpContainer from '@/components/PopUpContainer/PopUpContainer';
+import { DeleteDialog } from '@/components/DeleteDialog/DeleteDialog';
 import type { FCProps } from '@/types';
 import { DeleteDialogContext } from './DeleteDialogContext';
 

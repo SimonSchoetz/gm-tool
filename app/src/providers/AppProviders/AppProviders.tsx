@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { FCProps } from '@/types';
 import { DeleteDialogProvider } from '../DeleteDialogProvider';
-import { PinnedPopupsProvider } from '../PinnedPopupsProvider';
+import { PinnedPopupsProvider } from '../PinnedPopupsProvider/PinnedPopupsProvider';
 
 type Props = { children: ReactNode };
 
