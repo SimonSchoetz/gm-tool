@@ -2,11 +2,13 @@
 
 ## Closed Beta Ready
 
+- Fix (UX): When I highlight text in text editor and hover over a mention badge, a pop up might interrupt the highlighting -> while highlighting, the pop up should be supressed
 - Fix (UX): Text editor height in summary fields
 - Fix (UI): Placeholder on checkbox list item is a single-char straight line, overflowing all contents below
 - Fix (UX Toggle enter behavior): 
   - Trying to add a mention badge with hitting enter in toggle heading not working -> hitting enter adds new line instead. Hitting enter when mention badge pop up is open should add the badge. 
   - When Toggle is collapsed: Hitting enter at the end of the line of the toggle header should create a new node below and focus the new node
+  - copy/pasting toggle sections has weird behavior, e.g. might add lines above the toggle header into the header. Then, it can't be deleted. When trying to delete the first line, it deletes the whole toggle (because its the first char of the first line). When I try to delete the second line, it doesn't work
 - Fix (UX Toggle header backspace behavior): Toggle header: when at beginning of new line in toggle header and you hit backspace, the toggle header is deleted entirely even though it is not empty
 - Encounter:
   - Feature (Stat Block): Summary field of PC, NPC, Foes and Items get tabs to switch between RP and Stat Block view.
