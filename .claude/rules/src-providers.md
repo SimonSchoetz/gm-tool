@@ -8,7 +8,7 @@ Conventions for any file under `src/providers/`. Hook-hygiene rules, including t
 
 ## providers/
 
-`providers/` is app-level UI infrastructure — React Context providers that wrap the app root and expose hooks. Data infrastructure (e.g. `TanstackQueryClientProvider`) stays in `data-access-layer/`. It is a grouping folder: its `index.ts` uses explicit named exports, and each provider lives in its own module directory with a required `index.ts` barrel.
+`providers/` is app-level UI infrastructure — React Context providers that wrap the app root and expose hooks. Data infrastructure (e.g. `TanstackQueryClientProvider`) stays in `data-access-layer/`. `providers/` has no `index.ts`: each provider lives in its own module directory, which has an `index.ts` only when it holds more than its one source file (`app/src/CLAUDE.md` — Barrel Files), and is imported as `@/providers/<Module>` or `@/providers/<Module>/<Module>`.
 
 **Context value types contain only what external consumers call through the hook.** A function called exclusively inside the provider's own module belongs in local scope, not on the `ContextValue` type — placing provider-internal functions there widens the public interface beyond what consumers need and obscures which operations are genuinely external.
 

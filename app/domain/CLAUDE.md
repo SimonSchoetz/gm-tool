@@ -25,7 +25,7 @@ TypeScript types, and validation rules.
 
 `domain/` is a technical vocabulary layer, not a product-entity registry. The right question is never "is this a domain entity?" — it is "does this table need typed errors, domain types, or validators?" The answer is always yes.
 
-Each module has its own directory (`index.ts` barrel required). `domain/index.ts` is the grouping barrel. See [app/CLAUDE.md](../CLAUDE.md) for the general barrel rule. **Exception to the grouping barrel's `export *` ban:** both `@domain` and `@domain/<subdomain>` are sanctioned external import paths (see Imports below), so a subdomain's own barrel is already its curated public-API statement, and `domain/index.ts` may use `export * from './<subdomain>'` for it instead of hand-copying its name list — a second hand-maintained copy of identical names adds no curation value.
+Each module has its own directory (`index.ts` barrel required). `domain/index.ts` is the grouping barrel. See [app/CLAUDE.md](../CLAUDE.md) for the general barrel rule. **Exception to the grouping barrel's `export *` ban:** both `@domain` and `@domain/<subdomain>` are sanctioned external import paths (see Imports below), so a subdomain's own barrel is already its curated public-API statement, and `domain/index.ts` may use `export * from './<subdomain>'` for it instead of hand-copying its name list — a second hand-maintained copy of identical names adds no curation value. `app/eslint.config.js` encodes the same exception as the `passThroughDirs` option of `local/no-import-past-index`; change the sanctioned import paths in both places, or the lint keeps enforcing the old rule.
 
 ## Imports
 

@@ -6,20 +6,17 @@
 src/
 ├── assets/
 ├── components/ # UI — see `.claude/rules/src-components.md`
-│   └── index.ts
 ├── hooks/ # reusable React hooks
-│   ├── index.ts
 │   ├── simpleHook.ts # flat file when no helpers needed
-│   └── complexHook/helper/ # directory + helper/ pattern when helpers are needed — mirrors the ComponentName/helper/ + __tests__/ layout in `.claude/rules/src-components.md` — Component Library
+│   └── complexHook/ # `index.ts` + `helper/` when helpers are needed
 ├── providers/ # app-level UI infrastructure providers — see `.claude/rules/src-providers.md`
-│   └── index.ts
 ├── data-access-layer/ # domain data hooks (TanStack Query) — see `.claude/rules/src-data-access-layer.md`
+│   └── index.ts
 ├── routes/ # Tanstack router — route files own data resolution via a `loader` — see `.claude/rules/src-routes.md`
 ├── screens/ # see `.claude/rules/src-screens.md`
 │   └── index.ts
 ├── styles/ # global/reset CSS + variables/ (design tokens) — see `.claude/rules/src-css.md`
 ├── types/ # see Types Directory below
-│   └── index.ts
 ├── util/ # see Util vs. Helper Placement below
 ├── App.css
 ├── App.tsx
@@ -32,14 +29,11 @@ Conventions for `src/` are split by artifact kind across `.claude/rules/`, each 
 
 ### Barrel Files
 
-`app/CLAUDE.md` — Directory Structure (all TypeScript layers) defines module directory vs. grouping folder. In `src/`, grouping folders are `components/`, `providers/`, `data-access-layer/`, `util/`, `hooks/`, `screens/`, `types/`, and **any function-grouping subdirectory nested inside a module directory, at any depth and regardless of its name** — it organizes sibling files by function and owns no domain itself (e.g. `ComponentName/components/`, `ComponentName/helper/`, or a feature's `nodes/`/`plugins/`) — the barrel-and-named-exports rule applies identically regardless of depth. External consumers always import from exactly one level: `@/components`, `@/data-access-layer`, `@/util`, etc. — never deeper. Within-module imports use the module directory barrel via relative path (`./SortableListItem`, not `@/components/SortableList/SortableListItem`). Exceptions with no barrel: `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only), `assets/`. Before resolving any import as a within-module barrel import, check first whether source and target are siblings inside the same grouping folder — if so, the sibling-import ban in `app/CLAUDE.md` — Directory Structure (all TypeScript layers) takes precedence and requires a direct relative path instead of the barrel.
+In `src/`, two layer roots keep an `index.ts`, because each leaves files out of it: `data-access-layer/` and `screens/` (`screens/index.ts` re-exports the screen modules but not `screens.constants.ts` or `components/`) — import them as `@/data-access-layer` and `@/screens`. `components/`, `hooks/`, `providers/`, `types/` and `util/` have none — import what is below them: `@/components/<Module>`, `@/hooks/<Module>` and `@/providers/<Module>` each resolve to the module's `index.ts`, or as `@/<root>/<Module>/<Module>` when the module is a single file with no `index.ts`; `hooks/`, `types/` and `util/` also hold flat files (`@/hooks/<file>`, `@/types/<file>`, `@/util/<file>`). A specifier uses the `@/` alias when its target lies in a different direct child of `src/` than the importer, and a relative path when both lie in the same one; a file directly in `src/` (such as `App.tsx`) lies in no direct child, so it uses `@/` for a target inside one and a relative path for a sibling file in `src/`, and the generated `routeTree.gen.ts` is outside this rule. Below the layer roots that hold TypeScript modules (`components/`, `data-access-layer/`, `hooks/`, `providers/`, `screens/`, `util/`), every folder that is not a function-grouping folder (the names are listed in `app/CLAUDE.md` — Directory Structure (all TypeScript layers); in `src/` for example `ComponentName/components/`, `ComponentName/helper/`, a feature's `nodes/`/`plugins/`, `screens/components/`) is a module directory. In `src/`, "hides something" is decided by this test, not case by case: a module directory has an `index.ts` exactly when it contains anything besides one main source file, its stylesheet and `__tests__/`. `routes/` (managed by TanStack Router file conventions), `styles/` (CSS only) and `assets/` have no `index.ts`, and neither does any folder below them.
 
-- `@db` is an explicit exception: no grouping barrel exists at the db root. See `app/db/CLAUDE.md` — Naming for the authoritative import depth rule.
+- `@db` has no `index.ts` at the db root: import `@db/<domainName>` (each table's own `index.ts`).
 - In **module directory barrels**, `export *` is permitted when the file has a single, obvious public concern (one component + its types) with no internals to leak. Use explicit named exports when a file exports multiple distinct things or has implementation details that should stay private. The trigger: if you would have to think about whether a new export should be public, use explicit exports.
-  - ✅ GOOD: `data-access-layer/base-entities/index.ts` — module directory, barrel required
-  - ✅ GOOD: `export { useBaseEntities, useBaseEntity } from './base-entities'` in a grouping barrel — explicit named exports only, never `export *`
-  - ❌ BAD: missing `data-access-layer/index.ts` — grouping barrels are unconditionally required, not optional
-  - ❌ BAD: `export * from './baseEntityKeys'` in `base-entities/index.ts` — accidentally leaks internal query key factories; if `baseEntityKeys` is public API, name it explicitly
+  - ❌ BAD: `export * from './baseEntityKeys'` in `data-access-layer/base-entities/index.ts` — accidentally leaks internal query key factories; if `baseEntityKeys` is public API, name it explicitly
 
 ### Coding Style
 
@@ -106,6 +100,7 @@ What goes inside a `.css` file — the scope of `styles/`, class naming, the des
 - The `HtmlProps` alias and similar React/HTML element type helpers
 - `FCProps<T>` and similar generic prop wrappers
 - Any type that is infrastructure (framework-level) rather than domain-level
+- Ambient `*.d.ts` augmentation files (e.g. `historyState.d.ts`) — `tsc` loads them through the compiled file set, so they are never imported
 
 **What does NOT belong in `types/`:**
 
@@ -115,10 +110,6 @@ What goes inside a `.css` file — the scope of `styles/`, class naming, the des
 - Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file.
   - ❌ `SessionScreen.types.ts` alongside `SessionScreen.tsx` — same directory does not satisfy this rule; the type must be in `SessionScreen.tsx` itself
   - ✅ `HtmlProps` in `types/` — imported across dozens of unrelated components
-
-**Barrel requirement:** `types/` is a grouping folder. It requires a barrel (`types/index.ts`) with explicit named exports. External consumers import from `@/types`.
-
-**Ambient module augmentation files (`*.d.ts` with no runtime `import`/`export`, e.g. `types/historyState.d.ts`) are exempt from the barrel requirement above.** `tsc` loads them automatically via the compiled file set, not via import — routing through `types/index.ts` would import a file with no runtime exports. They live directly in `types/` and are never re-exported.
 
 ## State Management & Error Handling
 
