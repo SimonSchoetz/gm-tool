@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { imageTable } from '../image/schema';
-import { adventureTable } from '../adventure/schema';
-import { sessionTable } from '../session/schema';
-import { baseEntityTable } from '../base-entity/schema';
-import { baseEntityContentSectionTable } from '../base-entity-content-section/schema';
-import { encounterTable } from '../encounter/schema';
-import { sessionStepTable } from '../session-step/schema';
-import { tableConfigTable } from '../table-config/schema';
+import { imageTable } from '../image';
+import { adventureTable } from '../adventure';
+import { sessionTable } from '../session';
+import { baseEntityTable } from '../base-entity';
+import { baseEntityContentSectionTable } from '../base-entity-content-section';
+import { encounterTable } from '../encounter';
+import { sessionStepTable } from '../session-step';
+import { tableConfigTable } from '../table-config';
 
 type SyncedTable = {
   name: string;

@@ -4,4 +4,5 @@ export { get } from './get';
 export { getAll } from './get-all';
 export { update } from './update';
 export { remove } from './remove';
+export { encounterTable } from './schema';
 export type { Encounter, UpdateEncounterInput } from './types';

@@ -1,4 +1,4 @@
-import { PersistedSortState } from '@db/table-config/layout-schema';
+import { PersistedSortState } from '@db/table-config';
 import { useMemo } from 'react';
 
 // export type SortDirection = SortDire;

@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { TableConfig, UpdateTableConfigInput } from '@db/table-config';
-import type { SortDirection } from '@db/table-config/layout-schema';
+import type {
+  SortDirection,
+  TableConfig,
+  UpdateTableConfigInput,
+} from '@db/table-config';
 import * as service from '@services/tableConfigService';
 import { tableConfigKeys } from './tableConfigKeys';
 
 type UseTableConfigReturn = {
-  config: TableConfig | undefined;
+  config: TableConfig | null;
   loading: boolean;
   updateTableConfig: (data: UpdateTableConfigInput) => Promise<void>;
   updateColumnWidths: (widths: Record<string, number>) => Promise<void>;
@@ -63,7 +66,7 @@ export const useTableConfig = (tableId: string): UseTableConfigReturn => {
   };
 
   return {
-    config,
+    config: config ?? null,
     loading,
     updateTableConfig,
     updateColumnWidths,
