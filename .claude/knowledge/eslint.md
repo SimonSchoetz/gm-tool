@@ -58,3 +58,45 @@ The memo is therefore keyed on `updateMutation`, which `useMutation` rebuilds on
 **Citation:** [implement_1: ran `npx eslint .` from `app/` with `const firstUpsertDone = Promise.withResolvers<void>();` in `services/__tests__/syncService.test.ts` — observed `error  void is only valid as a return type or generic type argument  @typescript-eslint/no-invalid-void-type` on that type argument; with `Promise.withResolvers<null>()` and `resolve(null)` the run reported no problems]
 
 Although the message names generic type arguments as allowed, this config flags `void` in the type argument of a `Promise.withResolvers` call. A deferred used only as a signal, whose value is never read, therefore takes a non-`void` type argument such as `null` and is resolved with that value.
+
+## `eslint-plugin-import-x` 4.17.1 declares ESLint 10 in its peer range and exports the plugin both as the default export and as the named export `importX`
+
+**Verified at:** eslint-plugin-import-x 4.17.1
+**Citation:** [architect_2: ran `npm view eslint-plugin-import-x version peerDependencies` — observed `4.17.1`, peers `eslint: '^8.57.0 || ^9.0.0 || ^10.0.0'`, `@typescript-eslint/utils: '^8.56.0'`, `eslint-import-resolver-node: '*'`] [spec-writer_1: https://unpkg.com/eslint-plugin-import-x@4.17.1/lib/index.d.ts]
+
+The declarations contain `export default plugin` and `export { …, plugin as importX, … }`, and also export `createNodeResolver`. The plugin object carries `meta`, `rules`, `configs` and `flatConfigs`.
+
+## `import-x/no-cycle` ignores TypeScript type-only imports and is documented as computationally expensive, with `maxDepth` and `ignoreExternal` to limit its cost
+
+**Verified at:** https://github.com/un-ts/eslint-plugin-import-x/blob/master/docs/rules/no-cycle.md, 2026-09-30 (default-branch docs; the latest release that day was 4.17.1)
+**Citation:** [architect_3: https://github.com/un-ts/eslint-plugin-import-x/blob/master/docs/rules/no-cycle.md] [architect_2: ran `npm view eslint-plugin-import-x version` — observed `4.17.1`]
+
+The docs state that the rule "ensures that there is no resolvable path back to this module via its dependencies", that it ignores type-only imports in Flow and TypeScript, and that it is "comparatively computationally expensive". `maxDepth` limits the depth checked, and `ignoreExternal: true` stops it from expanding into external modules.
+
+## `eslint-import-resolver-typescript` 4.4.5 provides `createTypeScriptImportResolver` for the `import-x/resolver-next` setting, and it resolves tsconfig `paths`
+
+**Verified at:** https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md, 2026-09-30 (default-branch README; the latest release that day was 4.4.5)
+**Citation:** [spec-writer_2: https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md] [spec-writer_3: ran `npm view eslint-import-resolver-typescript version` — observed `4.4.5`]
+
+The README's import-x example passes it as `settings: { 'import-x/resolver-next': [createTypeScriptImportResolver({ … })] }` and lists "Use `paths` defined in `tsconfig.json`" among its features. Without a `project` option it uses "`<root>/tsconfig.json` or `<root>/jsconfig.json` by default"; `project` accepts a folder path, a glob, or an array of either.
+
+## A `no-restricted-imports` glob that flags a relative reach into another module's `components/` folder also flags a module's own imports of the same textual shape
+
+**Verified at:** eslint 10.10.0
+**Citation:** [spec-writer_4: ran `npx eslint --rule '{"no-restricted-imports":["error",{"patterns":[{"group":["@/components/*/*","**/components/*/*"]}]}]}'` from `app/` on disposable probe files — observed errors on `'../components/GlassPanel/GlassPanel'` and `'@/components/GlassPanel/GlassPanel'` in `src/screens/`, and on the same-module import `'../components/AvatarCell/AvatarCell'` inside `src/components/SortableList/components/SortableListItem/helper/`] [architect_4: https://eslint.org/docs/latest/rules/no-restricted-imports]
+
+The probe files were deleted after the run. A `**/`-prefixed `group` glob does flag relative specifiers, but in the probe it flagged the owning module's own import exactly as it flagged a cross-module one. The docs also state that a negation pattern cannot re-include a subdirectory of a parent directory that is already excluded.
+
+## An ESLint 10 rule `context` exposes `filename`, `physicalFilename`, `cwd`, `sourceCode` and `options`, and `sourceCode.parserServices` defaults to `{}`
+
+**Verified at:** eslint 10.10.0 (@eslint/core 1.2.1)
+**Citation:** [spec-writer_5: `app/node_modules/.pnpm/eslint@10.10.0_jiti@2.7.0_supports-color@7.2.0/node_modules/@eslint/core/dist/cjs/types.d.cts:246` `cwd: string`, `:250` `filename: string`, `:254` `physicalFilename: string`, `:258` `sourceCode`, `:274` `options`; the `@eslint/core` version is `1.2.1` in that directory's `package.json`] [spec-writer_6: `app/node_modules/eslint/lib/languages/js/source-code/source-code.js:356` — `this.parserServices = parserServices || {};`]
+
+`context.filename` is typed `string`. When a parser supplies no services, `parserServices` is the empty object, so `parserServices.program` is absent; under typescript-eslint without type information, `program` is present but `null` (see the next entry).
+
+## With type information, typescript-eslint parser services carry `program: ts.Program`; without it, `program` is `null`
+
+**Verified at:** @typescript-eslint/typescript-estree 8.70.0
+**Citation:** [spec-writer_7: `app/node_modules/.pnpm/@typescript-eslint+typescript-estree@8.70.0_supports-color@7.2.0_typescript@6.0.3/node_modules/@typescript-eslint/typescript-estree/dist/parser-options.d.ts:205-216`]
+
+Both are the declared interfaces `ParserServicesWithTypeInformation` and `ParserServicesWithoutTypeInformation`; these are type-level facts, not observed behavior.

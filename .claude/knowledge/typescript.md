@@ -21,3 +21,10 @@ A canonical subset list can be declared first and the superset built from it (`c
 **Citation:** [spec-writer_4: ran `npx tsc --noEmit` from `app/` with a disposable function taking `config: { kind: 'static'; label: string } | { kind: 'npcs' | 'foes' | 'sessions' }`, returning early on `config.kind === 'static'`, then `switch (config.kind) { case 'npcs': case 'foes': return takesBase(config.kind); case 'sessions': ... }` where `takesBase` accepts only `'npcs' | 'foes'` — observed exit code 0, 0 errors]
 
 Inside `case 'a': case 'b':` the expression `config.kind` is narrowed to `'a' | 'b'` and is assignable to a parameter typed with exactly that union; empty case labels that fall through to a shared body do not trip `noFallthroughCasesInSwitch`.
+
+## `ts.resolveModuleName` is typed to return `resolvedModule: ResolvedModuleFull | undefined`, with an optional `isExternalLibraryImport` documented as true for a file from `node_modules`
+
+**Verified at:** typescript 6.0.3
+**Citation:** [spec-writer_8: `app/node_modules/typescript/lib/typescript.d.ts:9340` — `function resolveModuleName(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, …): ResolvedModuleWithFailedLookupLocations`; `:7346-7348` — `readonly resolvedModule: ResolvedModuleFull | undefined`; `:7288-7298` — `resolvedFileName: string`, `isExternalLibraryImport?: boolean`]
+
+The declaration's doc comments describe `resolvedFileName` as the "path of the file the module was resolved to" and `isExternalLibraryImport` as "true if `resolvedFileName` comes from `node_modules`". The `| undefined` in the type means callers must guard `resolvedModule` before reading it. These are type-level facts, not observed behavior.
