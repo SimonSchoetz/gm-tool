@@ -6,7 +6,8 @@ import {
   ADVENTURE_PREVIEW_HEIGHT,
   PREVIEW_WIDTH,
 } from '../../../screens.constants';
-import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
+import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
+import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 
 export const AdventureScreenSidebar = () => {
   const router = useRouter();

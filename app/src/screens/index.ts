@@ -1,9 +1,9 @@
-export { AdventuresScreen } from './adventures/AdventuresScreen';
-export { AdventureScreen } from './adventure/AdventureScreen';
+export { AdventuresScreen } from './adventures';
+export { AdventureScreen } from './adventure';
 export { SessionsScreen } from './sessions/SessionsScreen';
-export { SessionScreen } from './session/SessionScreen';
+export { SessionScreen } from './session';
 export { EncountersScreen } from './encounters/EncountersScreen';
-export { EncounterScreen } from './encounter/EncounterScreen';
+export { EncounterScreen } from './encounter';
 export { BaseEntitiesScreen } from './base-entities/BaseEntitiesScreen';
-export { BaseEntityScreen } from './base-entity/BaseEntityScreen';
-export { SettingsScreen } from './settings/SettingsScreen';
+export { BaseEntityScreen } from './base-entity';
+export { SettingsScreen } from './settings';

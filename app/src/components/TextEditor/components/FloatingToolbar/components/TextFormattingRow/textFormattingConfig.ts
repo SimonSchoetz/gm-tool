@@ -1,6 +1,8 @@
 import * as Icon from 'lucide-react';
 import { ComponentProps } from 'react';
-import { TextFormatBtn, HeadingBtn, ListBtn } from './components';
+import { TextFormatBtn } from './components/TextFormatBtn/TextFormatBtn';
+import { HeadingBtn } from './components/HeadingBtn/HeadingBtn';
+import { ListBtn } from './components/ListBtn/ListBtn';
 
 /**
  * Styles must be added in TextEditor.tsx

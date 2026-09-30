@@ -1,6 +1,6 @@
 import { Application, Color, Graphics, RenderTexture } from 'pixi.js';
 import { getPositionOnPath } from './getPositionOnPath';
-import type { Beam } from '../types';
+import type { Beam } from '../types/beam.type';
 
 type TickBeamsArgs = {
   beams: Beam[];

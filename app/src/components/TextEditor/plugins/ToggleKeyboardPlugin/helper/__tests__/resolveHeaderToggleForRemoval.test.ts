@@ -9,12 +9,11 @@ import {
   $setSelection,
   createEditor,
 } from 'lexical';
+import { $createToggleNode, ToggleNode } from '../../../../nodes/ToggleNode';
 import {
-  $createToggleNode,
   $createToggleBodyNode,
-  ToggleNode,
   ToggleBodyNode,
-} from '../../../../nodes';
+} from '../../../../nodes/ToggleBodyNode';
 import { resolveHeaderToggleForRemoval } from '../resolveHeaderToggleForRemoval';
 
 const makeEditor = () => createEditor({ nodes: [ToggleNode, ToggleBodyNode] });

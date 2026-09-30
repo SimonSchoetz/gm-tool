@@ -10,7 +10,9 @@ import {
 import { useOwnDevice } from '@/data-access-layer';
 import { H2 } from '../H2/H2';
 import { Section } from '../Section/Section';
-import { OwnDevice, PairDeviceDialog, PairedDevices } from './components';
+import { OwnDevice } from './components/OwnDevice/OwnDevice';
+import { PairDeviceDialog } from './components/PairDeviceDialog';
+import { PairedDevices } from './components/PairedDevices';
 import './DevicesSection.css';
 
 export const DevicesSection = () => {

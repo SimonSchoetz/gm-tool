@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { AvatarCell } from '../components';
+import { AvatarCell } from '../components/AvatarCell/AvatarCell';
 import { formatDateValue } from './formatDateValue';
 
 const DATE_KEYS = new Set(['created_at', 'updated_at']);

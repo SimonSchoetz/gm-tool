@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { spawnBeam } from '../spawnBeam';
-import type { Beam } from '../../types';
-import type { Grid } from '../../types';
+import type { Beam } from '../../types/beam.type';
+import type { Grid } from '../../types/grid.type';
 
 vi.mock('../generateZigzagPath', () => ({
   generateZigzagPath: vi.fn(() => [

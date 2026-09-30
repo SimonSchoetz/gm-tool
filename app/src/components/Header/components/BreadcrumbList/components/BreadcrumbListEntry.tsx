@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { JSX } from 'react/jsx-runtime';
 import { ChevronRightIcon } from 'lucide-react';
 import { FCProps } from '@/types';
-import type { BreadcrumbConfig } from '../../../helper';
+import type { BreadcrumbConfig } from '../../../helper/buildBreadcrumbs';
 import { BreadcrumbListItem } from './BreadcrumbListItem';
 import { AdventureCrumb } from './AdventureCrumb';
 import { SessionCrumb } from './SessionCrumb';

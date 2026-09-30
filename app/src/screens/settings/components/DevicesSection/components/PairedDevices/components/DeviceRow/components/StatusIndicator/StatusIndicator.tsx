@@ -1,7 +1,7 @@
 import type { FCProps } from '@/types';
 import './StatusIndicator.css';
 import { GlobeCheckIcon, GlobeLockIcon, GlobeOffIcon } from 'lucide-react';
-import type { PeerStatus } from '../../helper';
+import type { PeerStatus } from '../../helper/derivePeerStatus';
 
 type Props = {
   status: PeerStatus;

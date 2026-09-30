@@ -5,7 +5,7 @@ import {
   COMMAND_PRIORITY_LOW,
   $getSelection,
 } from 'lexical';
-import { $isMentionNode } from '../../nodes';
+import { $isMentionNode } from '../../nodes/MentionNode';
 
 export const MentionFormatPlugin = () => {
   const [editor] = useLexicalComposerContext();

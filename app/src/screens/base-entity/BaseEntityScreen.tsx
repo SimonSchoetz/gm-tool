@@ -6,12 +6,10 @@ import {
 import { useParams } from '@tanstack/react-router';
 import { entityTypeLabel, type BaseEntityType } from '@domain';
 import { FCProps } from '@/types';
-import { BaseEntitySidebar } from './components';
-import {
-  ScreensNameInput,
-  ScreensTextEditorLayout,
-  ScreensSummary,
-} from '../components';
+import { BaseEntitySidebar } from './components/BaseEntitySidebar/BaseEntitySidebar';
+import { ScreensNameInput } from '../components/ScreensNameInput/ScreensNameInput';
+import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
+import { ScreensSummary } from '../components/ScreensSummary/ScreensSummary';
 
 type Props = { entityType: BaseEntityType };
 

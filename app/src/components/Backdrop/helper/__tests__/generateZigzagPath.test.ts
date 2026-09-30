@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateZigzagPath } from '../generateZigzagPath';
-import type { Grid } from '../../types';
+import type { Grid } from '../../types/grid.type';
 
 const makeGridRef = (grid: Grid): { current: Grid } => ({ current: grid });
 

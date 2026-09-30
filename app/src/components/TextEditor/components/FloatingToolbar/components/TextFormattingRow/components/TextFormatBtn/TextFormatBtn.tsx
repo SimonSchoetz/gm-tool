@@ -14,7 +14,7 @@ import './TextFormatBtn.css';
 
 import { useCallback, useEffect, useState } from 'react';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
-import { $isMentionNode } from '../../../../../../nodes';
+import { $isMentionNode } from '../../../../../../nodes/MentionNode';
 
 type TextFormatBtnProps = {
   label: string;

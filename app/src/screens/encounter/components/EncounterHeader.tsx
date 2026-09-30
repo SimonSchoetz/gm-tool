@@ -1,6 +1,6 @@
 import { useParams } from '@tanstack/react-router';
 import { useEncounter } from '@/data-access-layer';
-import { ScreensNameInput } from '../../components';
+import { ScreensNameInput } from '../../components/ScreensNameInput/ScreensNameInput';
 
 export const EncounterHeader = () => {
   const { adventureId, encounterId } = useParams({

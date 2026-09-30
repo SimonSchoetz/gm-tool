@@ -5,10 +5,11 @@ import { cn } from '@/util';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { SearchInput } from '../SearchInput/SearchInput';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
-import { HorizontalDivider } from '../HorizontalDivider';
+import { HorizontalDivider } from '../HorizontalDivider/HorizontalDivider';
 import './SortableList.css';
-import { SortableListItem, SortingTableHeader } from './components';
-import { partitionPinnedItems } from './helper';
+import { SortableListItem } from './components/SortableListItem';
+import { SortingTableHeader } from './components/SortingTableHeader/SortingTableHeader';
+import { partitionPinnedItems } from './helper/partitionPinnedItems';
 
 type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   tableConfigId: string;

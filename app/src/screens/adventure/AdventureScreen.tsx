@@ -1,8 +1,9 @@
 import { LoadingIcon, TextEditor } from '@/components';
 import { useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
-import { AdventureScreenHeader, AdventureScreenSidebar } from './components';
-import { ScreensTextEditorLayout } from '../components';
+import { AdventureScreenHeader } from './components/AdventureScreenHeader';
+import { AdventureScreenSidebar } from './components/AdventureScreenSidebar/AdventureScreenSidebar';
+import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
 
 export const AdventureScreen = () => {
   const { adventureId } = useParams({

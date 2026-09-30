@@ -1,0 +1,1 @@
+export { SlashCommandPlugin } from './SlashCommandPlugin';

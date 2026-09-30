@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { parseSearchTerms, allTermsMatchItem } from './helper';
+import { parseSearchTerms } from './helper/parseSearchTerms';
+import { allTermsMatchItem } from './helper/allTermsMatchItem';
 
 type FilterConfig<T> = {
   searchableColumns: (keyof T & string)[];

@@ -6,11 +6,9 @@ import { buildEntityPath } from '@domain';
 import { useMentionEntityData } from '@/data-access-layer';
 import { useDraggable } from '@/hooks';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import {
-  MentionPopupHeader,
-  MentionPopupContent,
-  DeletedMentionContent,
-} from './components';
+import { MentionPopupHeader } from './components/MentionPopupHeader/MentionPopupHeader';
+import { MentionPopupContent } from './components/MentionPopupContent';
+import { DeletedMentionContent } from './components/DeletedMentionContent/DeletedMentionContent';
 import { FCProps } from '@/types';
 import './MentionPopup.css';
 

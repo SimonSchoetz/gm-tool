@@ -1,1 +1,0 @@
-export { getShortenedDeviceId } from './getShortenedDeviceId';

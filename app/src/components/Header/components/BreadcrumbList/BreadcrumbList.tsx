@@ -1,7 +1,7 @@
 import { AnyRouteMatch, useMatches } from '@tanstack/react-router';
 import { FCProps, HtmlProps } from '@/types';
-import { buildBreadcrumbs } from '../../helper';
-import { BreadcrumbListEntry } from './components';
+import { buildBreadcrumbs } from '../../helper/buildBreadcrumbs';
+import { BreadcrumbListEntry } from './components/BreadcrumbListEntry';
 import './BreadcrumbList.css';
 
 type BreadcrumbListProps = HtmlProps<'nav'>;

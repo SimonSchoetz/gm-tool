@@ -1,0 +1,1 @@
+export { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';

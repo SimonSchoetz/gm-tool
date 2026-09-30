@@ -1,0 +1,1 @@
+export { HoloImg } from './HoloImg';

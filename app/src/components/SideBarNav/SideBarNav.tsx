@@ -1,7 +1,7 @@
 import { FCProps, HtmlProps } from '@/types';
 import './SideBarNav.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { ScreenNavBtn } from './components';
+import { ScreenNavBtn } from './components/ScreenNavBtn/ScreenNavBtn';
 import { useRouterState } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
 import { cn } from '@/util';

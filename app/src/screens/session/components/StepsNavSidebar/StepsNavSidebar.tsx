@@ -1,14 +1,13 @@
 import { Button } from '@/components';
 import './StepsNavSidebar.css';
-import {
-  ToggleSessionViewBtn,
-  SessionStepsNav,
-  DeleteSessionBtn,
-} from './components';
+import { ToggleSessionViewBtn } from './components/ToggleSessionViewBtn/ToggleSessionViewBtn';
+import { SessionStepsNav } from './components/SessionStepsNav';
+import { DeleteSessionBtn } from './components/DeleteSessionBtn/DeleteSessionBtn';
 import { FCProps, HtmlProps } from '@/types';
 import { useSession } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
+import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
+import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 
 type Props = {
   areTooltipsVisible: boolean;

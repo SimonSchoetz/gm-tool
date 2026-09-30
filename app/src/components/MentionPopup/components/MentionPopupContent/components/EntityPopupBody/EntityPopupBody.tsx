@@ -1,6 +1,6 @@
 import { FCProps } from '@/types';
 import { ImageById } from '../../../../../ImageById/ImageById';
-import { TextEditor } from '../../../../../TextEditor/TextEditor';
+import { TextEditor } from '../../../../../TextEditor';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import './EntityPopupBody.css';
 

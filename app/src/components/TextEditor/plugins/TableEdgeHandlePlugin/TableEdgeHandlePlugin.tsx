@@ -7,8 +7,9 @@ import {
   TableCellHeaderStates,
 } from '@lexical/table';
 import { AnchoredPopup } from '../../../AnchoredPopup';
-import { PopupSurface } from '../../../PopupSurface';
-import { TableHandleMenu, TableEdgeHint } from './components';
+import { PopupSurface } from '../../../PopupSurface/PopupSurface';
+import { TableHandleMenu } from './components/TableHandleMenu';
+import { TableEdgeHint } from './components/TableEdgeHint';
 import { PopupState } from './types';
 
 export type HintDirection = 'top' | 'left';

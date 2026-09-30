@@ -8,7 +8,9 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HeadingNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
-import { MentionNode, ToggleNode, ToggleBodyNode } from './nodes';
+import { MentionNode } from './nodes/MentionNode';
+import { ToggleNode } from './nodes/ToggleNode';
+import { ToggleBodyNode } from './nodes/ToggleBodyNode';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -20,24 +22,22 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LinkNode } from '@lexical/link';
 import { TableNode, TableRowNode, TableCellNode } from '@lexical/table';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import { FloatingToolbar } from './components';
-import {
-  BlockDragHandlePlugin,
-  MentionTypeaheadPlugin,
-  CheckboxReadOnlyPlugin,
-  EmbeddedLinkPlugin,
-  EmptyNodeHintPlugin,
-  ExternalValueSyncPlugin,
-  MentionFormatPlugin,
-  SlashCommandPlugin,
-  TableCellBackgroundGuardPlugin,
-  TableEdgeHandlePlugin,
-  ToggleGutterPlugin,
-  ToggleHeaderGuardPlugin,
-  ToggleKeyboardPlugin,
-} from './plugins';
+import { FloatingToolbar } from './components/FloatingToolbar';
+import { BlockDragHandlePlugin } from './plugins/BlockDragHandlePlugin';
+import { MentionTypeaheadPlugin } from './plugins/MentionTypeaheadPlugin';
+import { CheckboxReadOnlyPlugin } from './plugins/CheckboxReadOnlyPlugin';
+import { EmbeddedLinkPlugin } from './plugins/EmbeddedLinkPlugin/EmbeddedLinkPlugin';
+import { EmptyNodeHintPlugin } from './plugins/EmptyNodeHintPlugin/EmptyNodeHintPlugin';
+import { ExternalValueSyncPlugin } from './plugins/ExternalValueSyncPlugin';
+import { MentionFormatPlugin } from './plugins/MentionFormatPlugin/MentionFormatPlugin';
+import { SlashCommandPlugin } from './plugins/SlashCommandPlugin';
+import { TableCellBackgroundGuardPlugin } from './plugins/TableCellBackgroundGuardPlugin/TableCellBackgroundGuardPlugin';
+import { TableEdgeHandlePlugin } from './plugins/TableEdgeHandlePlugin';
+import { ToggleGutterPlugin } from './plugins/ToggleGutterPlugin/ToggleGutterPlugin';
+import { ToggleHeaderGuardPlugin } from './plugins/ToggleHeaderGuardPlugin';
+import { ToggleKeyboardPlugin } from './plugins/ToggleKeyboardPlugin';
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
-import { parseSafeEditorState } from './helper';
+import { parseSafeEditorState } from './helper/parseSafeEditorState';
 import { EXTERNAL_SYNC_TAG } from './TextEditor.constants';
 import { TYPOGRAPHIC_TRANSFORMERS } from './typographicTransformers';
 import { cn } from '@/util';

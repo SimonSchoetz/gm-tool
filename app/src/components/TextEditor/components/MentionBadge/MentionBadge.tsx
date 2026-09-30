@@ -11,7 +11,7 @@ import {
   usePrefetchMentionEntity,
 } from '@/data-access-layer';
 import type { PopupPlacement } from '../../../MentionPopup';
-import { buildMentionTextDecoration } from './helper';
+import { buildMentionTextDecoration } from './helper/buildMentionTextDecoration';
 import './MentionBadge.css';
 
 type Props = {

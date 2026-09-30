@@ -15,8 +15,8 @@ import {
   COMMAND_PRIORITY_LOW,
   mergeRegister,
 } from 'lexical';
-import { $isToggleNode } from '../../../../../../nodes';
-import { resolveTopLevelBlock } from '../../../../../../helper';
+import { $isToggleNode } from '../../../../../../nodes/ToggleNode';
+import { resolveTopLevelBlock } from '../../../../../../helper/resolveTopLevelBlock';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 import './ListBtn.css';
 

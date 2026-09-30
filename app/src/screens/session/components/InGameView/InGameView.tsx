@@ -1,7 +1,7 @@
 import { useSession, useSessionSteps } from '@/data-access-layer';
 import { GlassPanel, LoadingIcon, TextEditor } from '@/components';
 import { useParams } from '@tanstack/react-router';
-import { InGameStepSection } from './components';
+import { InGameStepSection } from './components/InGameStepSection';
 import './InGameView.css';
 
 export const InGameView = () => {

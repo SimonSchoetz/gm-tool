@@ -2,7 +2,7 @@ import { ImageById } from '../../../../../../ImageById/ImageById';
 import { FCProps } from '@/types';
 import { useState } from 'react';
 import './IpfoBgImg.css';
-import { FrameState } from '../helper';
+import { FrameState } from '../helper/clampFrame';
 import { IPFO_FRAME_BORDER_WIDTH } from '../ImagePreviewFramingOverlay.constants';
 
 type Props = {

@@ -6,13 +6,14 @@ import {
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $getSelection, $isRangeSelection, TextNode } from 'lexical';
 import { AnchoredPopup } from '../../../AnchoredPopup';
-import { PopupSurface } from '../../../PopupSurface';
-import { getSelectionRangeRect, resolveTopLevelBlock } from '../../helper';
+import { PopupSurface } from '../../../PopupSurface/PopupSurface';
+import { getSelectionRangeRect } from '../../helper/getSelectionRangeRect';
+import { resolveTopLevelBlock } from '../../helper/resolveTopLevelBlock';
 import {
   SLASH_COMMAND_OPTIONS,
   SlashCommandOption,
 } from './slashCommandOptions';
-import { SlashCommandOptionList } from './components';
+import { SlashCommandOptionList } from './components/SlashCommandOptionList/SlashCommandOptionList';
 
 export const SlashCommandPlugin = () => {
   const [editor] = useLexicalComposerContext();

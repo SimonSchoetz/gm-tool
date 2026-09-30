@@ -8,13 +8,13 @@ import { TextNode } from 'lexical';
 import { useParams } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@services/mentionSearchService';
-import { MentionNode } from '../../nodes';
+import { MentionNode } from '../../nodes/MentionNode';
 import './MentionTypeaheadPlugin.css';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { AnchoredPopup } from '../../../AnchoredPopup';
-import { getSelectionRangeRect } from '../../helper';
+import { getSelectionRangeRect } from '../../helper/getSelectionRangeRect';
 import { MentionMenuOption } from './mentionMenuOption';
-import { MentionOptionList } from './components';
+import { MentionOptionList } from './components/MentionOptionList/MentionOptionList';
 
 export const MentionTypeaheadPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -29,7 +29,7 @@ export const MentionTypeaheadPlugin = () => {
     (matchingString: string | null) => {
       if (matchingString === null) {
         setOptions([]);
-        return null;
+        return;
       }
       const generation = ++queryGenerationRef.current;
       mentionSearchService

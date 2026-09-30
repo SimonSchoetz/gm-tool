@@ -2,7 +2,7 @@ import { SyncedInput } from '@/components';
 import { useAdventure } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import './AdventureScreenHeader.css';
-import { AdventureStats } from './components';
+import { AdventureStats } from './components/AdventureStats/AdventureStats';
 
 export const AdventureScreenHeader = () => {
   const { adventureId } = useParams({

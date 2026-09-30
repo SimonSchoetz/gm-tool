@@ -1,7 +1,7 @@
 import './PairedDevices.css';
 import { usePairedDevices } from '@/data-access-layer';
 import { LoadingIcon } from '@/components';
-import { DeviceRow } from './components';
+import { DeviceRow } from './components/DeviceRow';
 import { H3 } from '../../../H3/H3';
 
 export const PairedDevices = () => {

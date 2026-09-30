@@ -1,6 +1,6 @@
 import { RangeSelection } from 'lexical';
-import { $isToggleNode, ToggleNode } from '../../../nodes';
-import { resolveTopLevelBlock } from '../../../helper';
+import { $isToggleNode, ToggleNode } from '../../../nodes/ToggleNode';
+import { resolveTopLevelBlock } from '../../../helper/resolveTopLevelBlock';
 
 export const resolveHeaderToggleForRemoval = (
   selection: RangeSelection,

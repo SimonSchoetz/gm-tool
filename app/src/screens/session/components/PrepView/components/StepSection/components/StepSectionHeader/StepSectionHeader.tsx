@@ -5,7 +5,8 @@ import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
 import { FCProps } from '@/types';
 import { CircleQuestionMarkIcon, Trash2Icon } from 'lucide-react';
-import { StepSectionHeaderTitle, StepSectionHeaderMoveBtn } from './components';
+import { StepSectionHeaderTitle } from './components/StepSectionHeaderTitle/StepSectionHeaderTitle';
+import { StepSectionHeaderMoveBtn } from './components/StepSectionHeaderMoveBtn/StepSectionHeaderMoveBtn';
 import { useDeleteDialog } from '@/providers';
 
 type Props = {

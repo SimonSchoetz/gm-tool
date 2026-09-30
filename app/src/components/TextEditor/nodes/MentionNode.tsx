@@ -9,7 +9,7 @@ import {
   TextFormatType,
 } from 'lexical';
 import { JSX } from 'react';
-import { MentionBadge } from '../components';
+import { MentionBadge } from '../components/MentionBadge';
 
 export type SerializedMentionNode = SerializedLexicalNode & {
   entityId: string;

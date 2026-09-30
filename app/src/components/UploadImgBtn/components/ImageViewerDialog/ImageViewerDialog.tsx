@@ -4,10 +4,8 @@ import { filePicker } from '@/util';
 import { useDeleteDialog } from '@/providers';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ImageById } from '../../../ImageById/ImageById';
-import {
-  ImageViewerDialogHeader,
-  ImagePreviewFramingOverlay,
-} from './components';
+import { ImageViewerDialogHeader } from './components/ImageViewerDialogHeader';
+import { ImagePreviewFramingOverlay } from './components/ImagePreviewFramingOverlay';
 import './ImageViewerDialog.css';
 
 type Props = {

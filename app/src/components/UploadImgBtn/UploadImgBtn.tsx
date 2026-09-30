@@ -2,12 +2,12 @@ import { filePicker } from '@/util';
 import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
-import { HoloImg } from '../HoloImg/HoloImg';
+import { HoloImg } from '../HoloImg';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import PopUpContainer from '../PopUpContainer/PopUpContainer';
-import { ImageViewerDialog } from './components';
+import { ImageViewerDialog } from './components/ImageViewerDialog';
 import './UploadImgBtn.css';
-import { LoadingIcon } from '../LoadingIcon';
+import { LoadingIcon } from '../LoadingIcon/LoadingIcon';
 
 type Props = {
   image_id?: string | null;
@@ -29,13 +29,13 @@ export const UploadImgBtn = ({
   const [popupState, setPopupState] = useState<'open' | 'closed'>('closed');
 
   const handleClick = async () => {
-    if (isLoading) return null;
+    if (isLoading) return;
     setIsLoading(true);
 
     try {
       const filePath = await filePicker('image');
       if (filePath === null) {
-        return null;
+        return;
       } else {
         uploadFn(filePath);
       }

@@ -1,1 +1,0 @@
-export { SortingTableHeader } from './SortingTableHeader';

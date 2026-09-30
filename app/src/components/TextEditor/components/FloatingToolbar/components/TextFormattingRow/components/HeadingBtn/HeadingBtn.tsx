@@ -22,7 +22,7 @@ import {
   mergeRegister,
 } from 'lexical';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
-import { resolveTopLevelBlock } from '../../../../../../helper';
+import { resolveTopLevelBlock } from '../../../../../../helper/resolveTopLevelBlock';
 
 /**
  * Might need revision regarding 'paragraph' when implementing node type of list

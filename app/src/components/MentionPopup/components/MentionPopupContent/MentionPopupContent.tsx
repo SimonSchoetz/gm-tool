@@ -1,11 +1,9 @@
 import { FCProps } from '@/types';
 import type { MentionEntityType } from '@domain/mentions';
 import { isBaseEntityType, type BaseEntityType } from '@domain/entities';
-import {
-  BaseEntityPopupContent,
-  SessionPopupContent,
-  EncounterPopupContent,
-} from './components';
+import { BaseEntityPopupContent } from './components/BaseEntityPopupContent/BaseEntityPopupContent';
+import { SessionPopupContent } from './components/SessionPopupContent/SessionPopupContent';
+import { EncounterPopupContent } from './components/EncounterPopupContent/EncounterPopupContent';
 
 type Props = {
   entityId: string;

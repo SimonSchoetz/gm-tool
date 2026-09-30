@@ -1,16 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggableBlockPlugin';
-import {
-  BlockDragHandle,
-  BlockDropHighlight,
-  BlockDropIndicator,
-} from './components';
-import {
-  getDragOverTargetElement,
-  getTargetCalculateHeight,
-  isOnMenu,
-} from './helper';
+import { BlockDragHandle } from './components/BlockDragHandle/BlockDragHandle';
+import { BlockDropHighlight } from './components/BlockDropHighlight/BlockDropHighlight';
+import { BlockDropIndicator } from './components/BlockDropIndicator/BlockDropIndicator';
+import { getDragOverTargetElement } from './helper/getDragOverTargetElement';
+import { getTargetCalculateHeight } from './helper/getTargetCalculateHeight';
+import { isOnMenu } from './helper/isOnMenu';
 import { FCProps } from '@/types';
 
 type Props = {

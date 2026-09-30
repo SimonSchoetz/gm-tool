@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { FCProps } from '@/types';
-import { hexToRgb, rgbToHex } from './helper';
+import { hexToRgb } from './helper/hexToRgb';
+import { rgbToHex } from './helper/rgbToHex';
 import './ColorInput.css';
 
 type Props = {

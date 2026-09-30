@@ -1,1 +1,0 @@
-export { buildMentionTextDecoration } from './buildMentionTextDecoration';

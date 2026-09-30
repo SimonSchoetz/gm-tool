@@ -5,7 +5,7 @@ import {
   TABLE_HINT_THICKNESS,
   TABLE_HINT_WIDTH,
 } from '../../tableEdgeHandlePlugin.constants';
-import { calculateHintPosition } from './helper';
+import { calculateHintPosition } from './helper/calculateHintPosition';
 import './TableEdgeHint.css';
 import { EllipsisIcon, EllipsisVerticalIcon } from 'lucide-react';
 

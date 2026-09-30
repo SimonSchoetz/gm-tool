@@ -2,7 +2,8 @@ import { useRouter, useParams } from '@tanstack/react-router';
 import { Button } from '@/components';
 import { useEncounter } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
-import { ScreensDuplicateBtn, ScreensSidebar } from '../../components';
+import { ScreensDuplicateBtn } from '../../components/ScreensDuplicateBtn';
+import { ScreensSidebar } from '../../components/ScreensSidebar/ScreensSidebar';
 
 export const EncounterSidebar = () => {
   const router = useRouter();

@@ -1,0 +1,1 @@
+export { BaseEntityScreen } from './BaseEntityScreen';

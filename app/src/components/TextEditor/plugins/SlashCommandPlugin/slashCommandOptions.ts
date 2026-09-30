@@ -27,12 +27,9 @@ import {
   TableIcon,
   ChevronRightIcon,
 } from 'lucide-react';
-import {
-  $createToggleNode,
-  $createToggleBodyNode,
-  $isToggleNode,
-} from '../../nodes';
-import { resolveTopLevelBlock } from '../../helper';
+import { $createToggleNode, $isToggleNode } from '../../nodes/ToggleNode';
+import { $createToggleBodyNode } from '../../nodes/ToggleBodyNode';
+import { resolveTopLevelBlock } from '../../helper/resolveTopLevelBlock';
 
 export class SlashCommandOption extends MenuOption {
   label: string;

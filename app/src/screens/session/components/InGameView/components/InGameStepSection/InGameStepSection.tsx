@@ -3,7 +3,7 @@ import { useSessionSteps } from '@/data-access-layer';
 import type { SessionStep } from '@db/session-step';
 import './InGameStepSection.css';
 import { useParams } from '@tanstack/react-router';
-import { InGameStepSectionTitle } from './components';
+import { InGameStepSectionTitle } from './components/InGameStepSectionTitle/InGameStepSectionTitle';
 
 type InGameStepSectionProps = {
   step: SessionStep;

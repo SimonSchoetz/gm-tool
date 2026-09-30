@@ -1,7 +1,7 @@
 import { HtmlProps, FCProps } from '@/types';
 import './HoloImgTitle.css';
 import { cn } from '@/util';
-import { type TiltFX } from '../../hooks';
+import { type TiltFX } from '../../hooks/useTiltFX';
 import { type CSSProperties } from 'react';
 
 type Props = HtmlProps<'div'> & {

@@ -4,8 +4,9 @@ import { cn } from '@/util';
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
-import { useTiltFX } from './hooks';
-import { HoloFX, HoloImgTitle } from './components';
+import { useTiltFX } from './hooks/useTiltFX';
+import { HoloFX } from './components/HoloFX/HoloFX';
+import { HoloImgTitle } from './components/HoloImgTitle/HoloImgTitle';
 
 type Props = {
   image_id: string | null;

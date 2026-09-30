@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNearestNodeFromDOMNode } from 'lexical';
-import { $isToggleNode } from '../../nodes';
+import { $isToggleNode } from '../../nodes/ToggleNode';
 import { TOGGLE_GUTTER_CLASS } from '../../TextEditor.constants';
 
 export const ToggleGutterPlugin = (): null => {

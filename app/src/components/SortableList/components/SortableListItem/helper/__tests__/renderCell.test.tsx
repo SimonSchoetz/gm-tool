@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { renderCell } from '../renderCell';
 
-vi.mock('../../components', () => ({
+vi.mock('../../components/AvatarCell/AvatarCell', () => ({
   AvatarCell: ({ imageId }: { imageId: string | null | undefined }) => (
     <div data-testid='avatar-cell' data-image-id={imageId ?? ''} />
   ),

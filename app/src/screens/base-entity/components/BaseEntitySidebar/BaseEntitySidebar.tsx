@@ -9,7 +9,8 @@ import {
 import { FCProps } from '@/types';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
-import { ScreensDuplicateBtn, ScreensSidebar } from '../../../components';
+import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
+import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 
 type Props = { entityType: BaseEntityType };
 

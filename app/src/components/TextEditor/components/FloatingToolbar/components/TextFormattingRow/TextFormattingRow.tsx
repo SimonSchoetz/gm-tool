@@ -1,4 +1,7 @@
-import { Divider, HeadingBtn, ListBtn, TextFormatBtn } from './components';
+import { Divider } from './components/Divider/Divider';
+import { HeadingBtn } from './components/HeadingBtn/HeadingBtn';
+import { ListBtn } from './components/ListBtn/ListBtn';
+import { TextFormatBtn } from './components/TextFormatBtn/TextFormatBtn';
 import { headingBtns, listBtns, textFormatBtns } from './textFormattingConfig';
 import './TextFormattingRow.css';
 

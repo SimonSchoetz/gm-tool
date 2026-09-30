@@ -20,7 +20,7 @@ export { useTableConfig, useTableConfigs } from './table-config';
 export { tableConfigListQueryOptions } from './table-config';
 export { useMentionEntityData } from './mentions';
 export { usePrefetchMentionEntity } from './mentions';
-export { useSetPinnedOrder } from './pinned-order';
+export { useSetPinnedOrder } from './pinned-order/useSetPinnedOrder';
 export { useSessionSteps } from './session-steps';
 export { sessionStepListQueryOptions } from './session-steps';
 export { useSetting } from './settings';

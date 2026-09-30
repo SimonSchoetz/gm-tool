@@ -1,10 +1,8 @@
 import { entityTypeLabel, type EntityType } from '@domain';
 import { FCProps } from '@/types';
-import {
-  BaseEntityDuplicateBtn,
-  SessionDuplicateBtn,
-  EncounterDuplicateBtn,
-} from './components';
+import { BaseEntityDuplicateBtn } from './components/BaseEntityDuplicateBtn';
+import { SessionDuplicateBtn } from './components/SessionDuplicateBtn';
+import { EncounterDuplicateBtn } from './components/EncounterDuplicateBtn';
 
 type Props = { entityType: EntityType };
 

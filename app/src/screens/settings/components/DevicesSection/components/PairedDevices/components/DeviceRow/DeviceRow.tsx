@@ -8,10 +8,10 @@ import {
 } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers';
 import type { FCProps } from '@/types';
-import { StatusIndicator } from './components';
+import { StatusIndicator } from './components/StatusIndicator/StatusIndicator';
 import './DeviceRow.css';
-import { getShortenedDeviceId } from '../../../../helper';
-import { derivePeerStatus } from './helper';
+import { getShortenedDeviceId } from '../../../../helper/getShortenedDeviceId';
+import { derivePeerStatus } from './helper/derivePeerStatus';
 
 type Props = {
   device: PairedDevice;

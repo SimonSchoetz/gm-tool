@@ -4,9 +4,10 @@ import { FCProps } from '@/types';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
-import { buildGridTemplate, isItemPinned } from '../../helper';
-import { renderCell } from './helper';
-import { RowActionsMenu } from './components';
+import { buildGridTemplate } from '../../helper/buildGridTemplate';
+import { isItemPinned } from '../../helper/isItemPinned';
+import { renderCell } from './helper/renderCell';
+import { RowActionsMenu } from './components/RowActionsMenu/RowActionsMenu';
 import { cn } from '@/util';
 
 type Props = {

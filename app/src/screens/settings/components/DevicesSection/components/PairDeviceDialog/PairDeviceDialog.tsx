@@ -3,7 +3,7 @@ import { Button, GlassPanel, Input, LoadingIcon } from '@/components';
 import { usePairing } from '@/data-access-layer';
 import type { FCProps } from '@/types';
 import './PairDeviceDialog.css';
-import { PDDCandidatesList } from './components';
+import { PDDCandidatesList } from './components/PDDCandidatesList/PDDCandidatesList';
 import { H2 } from '../../../H2/H2';
 
 type Props = {

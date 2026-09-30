@@ -3,10 +3,11 @@ import type { CSSProperties } from 'react';
 import { FCProps } from '@/types';
 import { useImage, useUpdateImageFrame } from '@/data-access-layer';
 import { ImageById } from '../../../../../ImageById/ImageById';
-import { clampFrame, computePanDelta } from './helper';
-import type { FrameState } from './helper';
+import { clampFrame } from './helper/clampFrame';
+import { computePanDelta } from './helper/computePanDelta';
+import type { FrameState } from './helper/clampFrame';
 import './ImagePreviewFramingOverlay.css';
-import { IpfoBgImg } from './components';
+import { IpfoBgImg } from './components/IpfoBgImg';
 import { IPFO_FRAME_BORDER_WIDTH } from './ImagePreviewFramingOverlay.constants';
 
 const MAX_ZOOM = 5;

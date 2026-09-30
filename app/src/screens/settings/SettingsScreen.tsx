@@ -1,9 +1,7 @@
 import { GlassPanel } from '@/components';
-import {
-  ListConfigSection,
-  AppearanceSection,
-  DevicesSection,
-} from './components';
+import { ListConfigSection } from './components/ListConfigSection';
+import { AppearanceSection } from './components/AppearanceSection/AppearanceSection';
+import { DevicesSection } from './components/DevicesSection';
 import './SettingsScreen.css';
 
 export const SettingsScreen = () => (

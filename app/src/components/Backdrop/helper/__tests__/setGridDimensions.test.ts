@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { setGridDimensions } from '../setGridDimensions';
-import type { Grid } from '../../types';
+import type { Grid } from '../../types/grid.type';
 
 const makeGridRef = (): { current: Grid } => ({ current: null });
 

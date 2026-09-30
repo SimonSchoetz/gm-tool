@@ -3,7 +3,7 @@ import { FCProps, HtmlProps } from '@/types';
 
 import { useRouter } from '@tanstack/react-router';
 import './FwBwNav.css';
-import { ClickableIcon } from '@/components/ClickableIcon';
+import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
 import { useEffect, useRef, useState } from 'react';
 type Props = HtmlProps<'div'>;
 

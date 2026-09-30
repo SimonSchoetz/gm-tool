@@ -1,10 +1,11 @@
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
-import { LinkBtn, LinkInput } from './components';
+import { LinkBtn } from './components/LinkBtn/LinkBtn';
+import { LinkInput } from './components/LinkInput/LinkInput';
 import './LinkRow.css';
 import { useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { getSelectionLinkUrl } from './helper';
+import { getSelectionLinkUrl } from './helper/getSelectionLinkUrl';
 
 export const LinkRow = () => {
   const [editor] = useLexicalComposerContext();

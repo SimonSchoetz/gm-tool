@@ -1,5 +1,5 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { StepSection } from './components';
+import { StepSection } from './components/StepSection';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';
 import './PrepView.css';

@@ -17,8 +17,8 @@ import {
   $deleteTableRowAtSelection,
   $deleteTableColumnAtSelection,
 } from '@lexical/table';
-import { runTableCellMutation } from './helper';
-import { MenuOptionRow } from '../../../../../MenuOptionRow';
+import { runTableCellMutation } from './helper/runTableCellMutation';
+import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 type Props = {

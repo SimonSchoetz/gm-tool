@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { Graphics } from 'pixi.js';
 import type { Application, RenderTexture } from 'pixi.js';
 import { tickBeams } from '../tickBeams';
-import type { Beam } from '../../types';
+import type { Beam } from '../../types/beam.type';
 
 const makeApp = (): Application =>
   ({ renderer: { render: vi.fn() } }) as unknown as Application;

@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { useSession, useSessionSteps } from '@/data-access-layer';
-import {
-  SessionHeader,
-  PrepView,
-  InGameView,
-  StepsNavSidebar,
-} from './components';
+import { SessionHeader } from './components/SessionHeader';
+import { PrepView } from './components/PrepView';
+import { InGameView } from './components/InGameView';
+import { StepsNavSidebar } from './components/StepsNavSidebar';
 import './SessionScreen.css';
 import { GlassPanel, LoadingIcon } from '@/components';
 import { PREVIEW_WIDTH } from '../screens.constants';

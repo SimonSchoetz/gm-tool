@@ -10,9 +10,10 @@ import {
   KEY_ENTER_COMMAND,
   mergeRegister,
 } from 'lexical';
-import { $isToggleBodyNode, $isToggleNode } from '../../nodes';
-import { resolveTopLevelBlock } from '../../helper';
-import { resolveHeaderToggleForRemoval } from './helper';
+import { $isToggleBodyNode } from '../../nodes/ToggleBodyNode';
+import { $isToggleNode } from '../../nodes/ToggleNode';
+import { resolveTopLevelBlock } from '../../helper/resolveTopLevelBlock';
+import { resolveHeaderToggleForRemoval } from './helper/resolveHeaderToggleForRemoval';
 
 export const ToggleKeyboardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();

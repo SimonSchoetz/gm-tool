@@ -2,7 +2,7 @@ import { FCProps } from '@/types';
 import './PDDCandidatesList.css';
 import { PairingCandidatePayload } from '@domain';
 import { ActionContainer } from '@/components';
-import { getShortenedDeviceId } from '../../../../helper';
+import { getShortenedDeviceId } from '../../../../helper/getShortenedDeviceId';
 
 type Props = {
   candidates: PairingCandidatePayload[];

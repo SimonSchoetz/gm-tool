@@ -1,7 +1,7 @@
 import { FCProps } from '@/types';
 import { cn } from '@/util';
 import './HoloFX.css';
-import { type TiltFX } from '../../hooks';
+import { type TiltFX } from '../../hooks/useTiltFX';
 import { type CSSProperties } from 'react';
 
 type Props = {

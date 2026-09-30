@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import { applyTypographicRuleAtCaret } from './helper';
+import { applyTypographicRuleAtCaret } from './helper/applyTypographicRuleAtCaret';
 
 type TypographicInput = {
   inputRef: React.RefObject<HTMLInputElement | null>;

@@ -7,8 +7,8 @@ import {
   $isRangeSelection,
 } from 'lexical';
 import { $isHeadingNode } from '@lexical/rich-text';
-import { ToggleNode } from '../../nodes';
-import { collectContentNodes } from './helper';
+import { ToggleNode } from '../../nodes/ToggleNode';
+import { collectContentNodes } from './helper/collectContentNodes';
 
 export const ToggleHeaderGuardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();

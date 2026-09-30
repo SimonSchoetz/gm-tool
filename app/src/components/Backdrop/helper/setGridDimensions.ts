@@ -1,5 +1,5 @@
 import { RefObject } from 'react';
-import { Grid } from '../types';
+import { Grid } from '../types/grid.type';
 
 export const setGridDimensions = (gridRef: RefObject<Grid>) => {
   const squareSize = 120;

@@ -1,8 +1,8 @@
 import { RefObject } from 'react';
 import { getCumulativeLengths } from './getCumulativeLengths';
 import { generateZigzagPath } from './generateZigzagPath';
-import type { Beam } from '../types';
-import type { Grid } from '../types';
+import type { Beam } from '../types/beam.type';
+import type { Grid } from '../types/grid.type';
 
 const BEAM_SPEED = 0.8;
 

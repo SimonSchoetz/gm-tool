@@ -1,1 +1,0 @@
-export { applyTypographicRuleAtCaret } from './applyTypographicRuleAtCaret';

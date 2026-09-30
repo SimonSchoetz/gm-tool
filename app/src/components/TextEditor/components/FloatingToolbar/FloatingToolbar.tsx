@@ -2,10 +2,11 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useState, useEffect, useRef } from 'react';
 
 import './FloatingToolbar.css';
-import { LinkRow, TextFormattingRow } from './components';
+import { LinkRow } from './components/LinkRow';
+import { TextFormattingRow } from './components/TextFormattingRow';
 
 import { AnchoredPopup } from '../../../AnchoredPopup';
-import { getSelectionRangeRect } from '../../helper';
+import { getSelectionRangeRect } from '../../helper/getSelectionRangeRect';
 
 export const FloatingToolbar = () => {
   const [editor] = useLexicalComposerContext();

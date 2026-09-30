@@ -1,6 +1,6 @@
 import { useTableConfigs } from '@/data-access-layer';
 import { LoadingIcon } from '@/components';
-import { ListConfigRow } from './components';
+import { ListConfigRow } from './components/ListConfigRow/ListConfigRow';
 
 import './ListConfigSection.css';
 import { H2 } from '../H2/H2';

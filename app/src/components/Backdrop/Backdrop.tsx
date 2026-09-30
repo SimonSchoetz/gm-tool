@@ -9,15 +9,14 @@ import {
 } from 'pixi.js';
 import { useEffect, useRef } from 'react';
 import { useSetting } from '@/data-access-layer';
-import {
-  buildCompositeColor,
-  createGridTileTexture,
-  getColor,
-  setGridDimensions,
-  spawnBeam,
-  tickBeams,
-} from './helper';
-import type { Beam, Grid } from './types';
+import { buildCompositeColor } from './helper/buildCompositeColor';
+import { createGridTileTexture } from './helper/createGridTileTexture';
+import { getColor } from './helper/getColor';
+import { setGridDimensions } from './helper/setGridDimensions';
+import { spawnBeam } from './helper/spawnBeam';
+import { tickBeams } from './helper/tickBeams';
+import type { Beam } from './types/beam.type';
+import type { Grid } from './types/grid.type';
 import './Backdrop.css';
 
 const AMOUNT_BEAMS = 5;

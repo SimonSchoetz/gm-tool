@@ -1,0 +1,1 @@
+export { BlockDragHandlePlugin } from './BlockDragHandlePlugin';

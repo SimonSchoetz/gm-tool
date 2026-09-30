@@ -16,7 +16,7 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import { GlassPanel, NewItemBtn } from '@/components';
 import { useSession, useSessionSteps } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { SortableStepItem } from './components';
+import { SortableStepItem } from './components/SortableStepItem';
 import './SessionStepsNav.css';
 
 export const SessionStepsNav = () => {

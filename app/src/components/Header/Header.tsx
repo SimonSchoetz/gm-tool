@@ -1,7 +1,10 @@
 import { FCProps, HtmlProps } from '@/types';
 import './Header.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { BreadcrumbList, FwBwNav, SettingsBtn, Updater } from './components';
+import { BreadcrumbList } from './components/BreadcrumbList';
+import { FwBwNav } from './components/FwBwNav/FwBwNav';
+import { SettingsBtn } from './components/SettingsBtn/SettingsBtn';
+import { Updater } from './components/Updater/Updater';
 
 type HeaderProps = HtmlProps<'header'>;
 

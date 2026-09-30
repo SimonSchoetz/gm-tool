@@ -1,0 +1,1 @@
+export { ToggleHeaderGuardPlugin } from './ToggleHeaderGuardPlugin';

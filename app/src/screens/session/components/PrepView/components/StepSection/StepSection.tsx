@@ -1,6 +1,7 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { TextEditor, GlassPanel, HorizontalDivider } from '@/components';
-import { StepSectionHeader, TooltipPanel } from './components';
+import { StepSectionHeader } from './components/StepSectionHeader';
+import { TooltipPanel } from './components/TooltipPanel/TooltipPanel';
 import './StepSection.css';
 import { FCProps } from '@/types';
 import { useParams } from '@tanstack/react-router';

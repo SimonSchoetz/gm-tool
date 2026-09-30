@@ -4,7 +4,7 @@ import {
   useBaseEntityContentSections,
 } from '@/data-access-layer';
 import type { BaseEntityType } from '@domain/entities';
-import { EntityPopupBody } from '../EntityPopupBody';
+import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
 
 type Props = {
   entityType: BaseEntityType;
