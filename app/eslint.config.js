@@ -32,6 +32,7 @@ export default defineConfig(
       },
       'import-x': importX,
     },
+    // `import-x/no-cycle` fails silently rather than erroring when these settings break: it reports no cycle through `.ts`/`.tsx` files once `import-x/extensions` or `import-x/parsers` stops listing those extensions, and none through a `paths` alias once the resolver's `project` tsconfig carries a `references` entry (`.claude/knowledge/eslint.md`); `eslint-rules/__tests__/no-cycle-canary.test.js` fails in either case.
     settings: {
       'import-x/extensions': ['.ts', '.tsx', '.js'],
       'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
