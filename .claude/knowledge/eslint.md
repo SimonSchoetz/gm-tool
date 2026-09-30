@@ -100,3 +100,38 @@ The probe files were deleted after the run. A `**/`-prefixed `group` glob does f
 **Citation:** [spec-writer_7: `app/node_modules/.pnpm/@typescript-eslint+typescript-estree@8.70.0_supports-color@7.2.0_typescript@6.0.3/node_modules/@typescript-eslint/typescript-estree/dist/parser-options.d.ts:205-216`]
 
 Both are the declared interfaces `ParserServicesWithTypeInformation` and `ParserServicesWithoutTypeInformation`; these are type-level facts, not observed behavior.
+
+## `unrs-resolver`'s postinstall, a native dependency of `eslint-import-resolver-typescript`, does nothing when the platform binding is installed; it only falls back to an `npm install` of the binding when that optional dependency is missing
+
+**Verified at:** eslint-import-resolver-typescript 4.4.5, unrs-resolver 1.12.2, napi-postinstall 0.3.4
+**Citation:** [claude_2: `app/node_modules/.pnpm/unrs-resolver@1.12.2/node_modules/unrs-resolver/postinstall.js` — `require("napi-postinstall")`, then calls its `checkAndPreparePackage`; `app/node_modules/.pnpm/napi-postinstall@0.3.4/node_modules/napi-postinstall/lib/index.js:175-230` — for each native target it `require.resolve`s the `@unrs/resolver-binding-<target>` package and `break`s on success, and only on failure calls `installUsingNPM`] [implement_5: `app/node_modules/.pnpm/eslint-import-resolver-typescript@4.4.5_eslint-plugin-import-x@4.17.1_@typescript-eslin_0b9adefa2acb2051aa1ace9a126a731d/node_modules/eslint-import-resolver-typescript/package.json:63` — `"unrs-resolver": "^1.7.11"`; `app/node_modules/.pnpm/unrs-resolver@1.12.2/node_modules/unrs-resolver/package.json:65` — the `@unrs/resolver-binding-<target>` packages under `optionalDependencies`] [implement_6: ran `ls app/node_modules/.pnpm` after `pnpm add` on macOS arm64 — observed only `@unrs+resolver-binding-darwin-arm64@1.12.2` among the bindings; with `unrs-resolver: false` under `allowBuilds` in `app/pnpm-workspace.yaml`, ran `pnpm install` from `app/` — observed exit code 0, then `npx eslint .` resolved every import through the resolver with no `import-x/no-unresolved` report]
+
+The platform binding is installed as an optional dependency, so denying the script through pnpm's `allowBuilds` setting (`.claude/knowledge/pnpm.md`) removes only that network fallback.
+
+## `createTypeScriptImportResolver` passes `references: 'auto'` to `unrs-resolver` for every tsconfig, and its declared option types admit no other value
+
+**Verified at:** eslint-import-resolver-typescript 4.4.5, unrs-resolver 1.12.2
+**Citation:** [implement_1: `app/node_modules/.pnpm/eslint-import-resolver-typescript@4.4.5_eslint-plugin-import-x@4.17.1_@typescript-eslin_0b9adefa2acb2051aa1ace9a126a731d/node_modules/eslint-import-resolver-typescript/lib/index.js:81-89` — before building each `ResolverFactory` it sets `tsconfig: { references: 'auto', ...options.tsconfig, configFile: tsconfigPath }`; `app/node_modules/.pnpm/eslint-import-resolver-typescript@4.4.5_eslint-plugin-import-x@4.17.1_@typescript-eslin_0b9adefa2acb2051aa1ace9a126a731d/node_modules/eslint-import-resolver-typescript/lib/normalize-options.js:70` — `{ references: references ?? 'auto', configFile }`, where `references` is read from the `tsconfig` option; `app/node_modules/.pnpm/eslint-import-resolver-typescript@4.4.5_eslint-plugin-import-x@4.17.1_@typescript-eslin_0b9adefa2acb2051aa1ace9a126a731d/node_modules/eslint-import-resolver-typescript/lib/types.d.ts:2` — the resolver's options type extends `unrs-resolver`'s `NapiResolveOptions`; `app/node_modules/.pnpm/unrs-resolver@1.12.2/node_modules/unrs-resolver/index.d.ts:89` — `NapiResolveOptions.tsconfig?: 'auto' | TsconfigOptions`; `app/node_modules/.pnpm/unrs-resolver@1.12.2/node_modules/unrs-resolver/index.d.ts:297-311` — `TsconfigOptions.references?: 'auto'`]
+
+In the object `index.js` builds, `references` can be overridden only by the spread of `options.tsconfig`, and `tsconfig.references` admits only `'auto'` or unset, which becomes `'auto'`.
+
+## With `createTypeScriptImportResolver`, a tsconfig whose `references` entry names a second config failed to resolve each tested `paths` alias, while an `extends`-only copy of it resolved them
+
+**Verified at:** eslint-import-resolver-typescript 4.4.5, unrs-resolver 1.12.2, eslint-plugin-import-x 4.17.1, eslint 10.10.0
+**Citation:** [implement_2: ran `npx eslint --rule '{"import-x/no-unresolved":"warn"}' src/components/TextEditor/components/MentionBadge/MentionBadge.tsx` from `app/`, with `project` set to `app/tsconfig.json` (which declares `@/*`, `@domain` and other `paths` and has `"references": [{ "path": "./tsconfig.node.json" }]`) — observed `Unable to resolve path to module` on `@/providers`, `@/types`, `@/util`, `@domain` and `@/data-access-layer`; with `project` set to a file in `app/` beside `tsconfig.json`, holding only `{ "extends": "./tsconfig.json" }`, which inherits `paths` but not `references`, the same run reported no problems]
+
+Why `references` suppresses `paths` was not established, only that it did with this layout. Pointing the resolver's `project` at an `extends`-only tsconfig is the workaround the observation supports.
+
+## `eslint-plugin-import-x` ignores a dependency whose extension is neither in `import-x/extensions` (default `.js`, `.mjs`, `.cjs`) nor in any `import-x/parsers` list
+
+**Verified at:** eslint-plugin-import-x 4.17.1
+**Citation:** [implement_3: `app/node_modules/.pnpm/eslint-plugin-import-x@4.17.1_@typescript-eslint+utils@8.70.0_eslint@10.10.0_jiti@2.7.0_e509997355fcdabbf0346b63c207d135/node_modules/eslint-plugin-import-x/lib/utils/ignore.js:14-27` — `getFileExtensions` builds the valid set from `settings['import-x/extensions'] || ['.js', '.mjs', '.cjs']` and adds every extension listed under `settings['import-x/parsers']`; `:28-31` — `ignore()` returns `true` when `hasValidExtension` fails; `app/node_modules/.pnpm/eslint-plugin-import-x@4.17.1_@typescript-eslint+utils@8.70.0_eslint@10.10.0_jiti@2.7.0_e509997355fcdabbf0346b63c207d135/node_modules/eslint-plugin-import-x/lib/config/flat/typescript.js` — the `typescript` preset's `settings` set `'import-x/extensions'` to `.ts`, `.tsx`, `.cts`, `.mts`, `.js`, `.jsx`, `.cjs`, `.mjs` and `'import-x/parsers'` to `{ '@typescript-eslint/parser': ['.ts', '.tsx', '.cts', '.mts'] }`; `app/node_modules/.pnpm/eslint-plugin-import-x@4.17.1_@typescript-eslint+utils@8.70.0_eslint@10.10.0_jiti@2.7.0_e509997355fcdabbf0346b63c207d135/node_modules/eslint-plugin-import-x/lib/index.js:137` — that file is exposed as `flatConfigs.typescript`]
+
+A config that registers the plugin without the `flatConfigs.typescript` preset and sets neither setting has only `.js`, `.mjs` and `.cjs` as valid dependency extensions.
+
+## `import-x/no-cycle` reported no cycle through `.ts` or `.tsx` files until `import-x/extensions` and `import-x/parsers` listed those extensions
+
+**Verified at:** eslint-plugin-import-x 4.17.1
+**Citation:** [implement_4: ran `npx eslint .` from `app/` with `import-x/no-cycle` enabled, on this repository's `app/` source at commit 245a4168, which has import cycles through `.ts` and `.tsx` barrel files, with `createTypeScriptImportResolver` as `import-x/resolver-next` and its `project` pointed at a file beside `app/tsconfig.json` holding only `{ "extends": "./tsconfig.json" }`, so every `paths` alias resolved — observed no `import-x/no-cycle` warning with neither setting, and a warning on each cycle member with `'import-x/extensions': ['.ts', '.tsx', '.js']` and `'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] }`]
+
+Only "neither setting" and "both settings" were run; either setting alone was not tested.

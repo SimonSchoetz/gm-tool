@@ -1,0 +1,2 @@
+// Read only by eslint-import-resolver-typescript in eslint.config.js. That resolver always follows `references`, and with the `references` entry in tsconfig.json it applies none of the `paths` aliases; `extends` inherits `paths` but not `references`.
+{ "extends": "./tsconfig.json" }

@@ -1,3 +1,4 @@
-# Intentionally empty. Its presence stops pnpm from treating the root
-# pnpm-workspace.yaml (one directory up) as this project's workspace root —
-# without it, `pnpm install` here silently no-ops against the wrong lockfile.
+# Its presence stops pnpm from treating the root pnpm-workspace.yaml (one directory up) as this project's workspace root; without it, `pnpm install` here silently no-ops against the wrong lockfile.
+allowBuilds:
+  # The postinstall only downloads a native binding when pnpm failed to install the platform's optional binding package, so it has nothing to do here.
+  unrs-resolver: false

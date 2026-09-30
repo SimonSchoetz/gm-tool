@@ -1,9 +1,13 @@
 // @ts-check
+import path from 'node:path';
 import eslint from '@eslint/js';
 import { defineConfig } from 'eslint/config';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import { importX } from 'eslint-plugin-import-x';
 import reactHooks from 'eslint-plugin-react-hooks';
 import { reactRefresh } from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
+import noImportPastIndex from './eslint-rules/no-import-past-index.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
 
 export default defineConfig(
@@ -20,7 +24,22 @@ export default defineConfig(
       },
     },
     plugins: {
-      local: { rules: { 'no-wrapped-line-comments': noWrappedLineComments } },
+      local: {
+        rules: {
+          'no-import-past-index': noImportPastIndex,
+          'no-wrapped-line-comments': noWrappedLineComments,
+        },
+      },
+      'import-x': importX,
+    },
+    settings: {
+      'import-x/extensions': ['.ts', '.tsx', '.js'],
+      'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          project: path.resolve(import.meta.dirname, 'tsconfig.eslint.json'),
+        }),
+      ],
     },
     rules: {
       '@typescript-eslint/no-unused-vars': [
@@ -40,12 +59,17 @@ export default defineConfig(
         },
       ],
       'local/no-wrapped-line-comments': 'warn',
+      'local/no-import-past-index': [
+        'warn',
+        { passThroughDirs: [path.resolve(import.meta.dirname, 'domain')] },
+      ],
+      'import-x/no-cycle': ['warn', { ignoreExternal: true }],
     },
   },
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite(),
   {
-    files: ['*.js', '*.mjs', '*.cjs', 'eslint-rules/*.js'],
+    files: ['*.js', '*.mjs', '*.cjs', 'eslint-rules/**/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
