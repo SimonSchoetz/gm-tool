@@ -60,10 +60,10 @@ export default defineConfig(
       ],
       'local/no-wrapped-line-comments': 'warn',
       'local/no-import-past-index': [
-        'warn',
+        'error',
         { passThroughDirs: [path.resolve(import.meta.dirname, 'domain')] },
       ],
-      'import-x/no-cycle': ['warn', { ignoreExternal: true }],
+      'import-x/no-cycle': ['error', { ignoreExternal: true }],
     },
   },
   reactHooks.configs.flat.recommended,
