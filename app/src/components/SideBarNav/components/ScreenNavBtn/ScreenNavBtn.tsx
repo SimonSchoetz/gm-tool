@@ -1,6 +1,6 @@
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
-import type { FCProps } from '@/types';
-import { cn } from '@/util';
+import type { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { Link, useMatch } from '@tanstack/react-router';
 import '../NavButton.css';
 import './ScreenNavBtn.css';

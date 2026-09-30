@@ -2,7 +2,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import PopUpContainer from '@/components/PopUpContainer/PopUpContainer';
 import { DeleteDialog } from '@/components/DeleteDialog/DeleteDialog';
-import type { FCProps } from '@/types';
+import type { FCProps } from '@/types/fcProps.type';
 import { DeleteDialogContext } from './DeleteDialogContext';
 
 type Props = { children: ReactNode };

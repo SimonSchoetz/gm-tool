@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import './ClickableIcon.css';
 

@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { CheckIcon } from 'lucide-react';
 import { useRef } from 'react';
 import { ClickableIcon } from '../../../../../../../ClickableIcon/ClickableIcon';

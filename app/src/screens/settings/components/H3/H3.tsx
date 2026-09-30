@@ -1,4 +1,5 @@
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 
 import './H3.css';
 

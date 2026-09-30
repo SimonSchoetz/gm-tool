@@ -1,5 +1,5 @@
 import { entityTypeLabel, type EntityType } from '@domain';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { BaseEntityDuplicateBtn } from './components/BaseEntityDuplicateBtn';
 import { SessionDuplicateBtn } from './components/SessionDuplicateBtn';
 import { EncounterDuplicateBtn } from './components/EncounterDuplicateBtn';

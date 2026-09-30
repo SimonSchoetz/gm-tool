@@ -1,5 +1,5 @@
 import { TextMatchTransformer } from '@lexical/markdown';
-import { TYPOGRAPHIC_RULES } from '@/util';
+import { TYPOGRAPHIC_RULES } from '@/util/typographicRules';
 
 export const TYPOGRAPHIC_TRANSFORMERS: TextMatchTransformer[] =
   TYPOGRAPHIC_RULES.map((rule) => ({

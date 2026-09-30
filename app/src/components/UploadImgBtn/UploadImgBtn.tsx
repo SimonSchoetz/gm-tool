@@ -1,4 +1,4 @@
-import { filePicker } from '@/util';
+import { filePicker } from '@/util/filePicker';
 import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { ActionContainer } from '../ActionContainer/ActionContainer';

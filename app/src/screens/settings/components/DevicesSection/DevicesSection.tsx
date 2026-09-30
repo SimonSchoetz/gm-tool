@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Button,
-  GlassPanel,
-  HorizontalDivider,
-  LoadingIcon,
-  PopUpContainer,
-} from '@/components';
+import { Button } from '@/components/Button/Button';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { HorizontalDivider } from '@/components/HorizontalDivider/HorizontalDivider';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import PopUpContainer from '@/components/PopUpContainer/PopUpContainer';
 import { useOwnDevice } from '@/data-access-layer';
 import { H2 } from '../H2/H2';
 import { Section } from '../Section/Section';

@@ -1,12 +1,13 @@
-import { UploadImgBtn, Button } from '@/components';
+import { UploadImgBtn } from '@/components/UploadImgBtn';
+import { Button } from '@/components/Button/Button';
 import { useBaseEntity } from '@/data-access-layer';
-import { useDeleteDialog } from '@/providers';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import {
   buildBaseEntityListPath,
   entityTypeLabel,
   type BaseEntityType,
 } from '@domain';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';

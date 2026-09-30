@@ -1,6 +1,6 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './ScreensTextEditorLayout.css';
-import { GlassPanel } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { ComponentProps, JSX } from 'react';
 import { PREVIEW_WIDTH } from '../../screens.constants';
 

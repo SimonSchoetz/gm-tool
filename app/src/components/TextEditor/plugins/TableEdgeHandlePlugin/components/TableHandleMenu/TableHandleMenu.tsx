@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import {
   Table2Icon,
   ArrowUpFromLineIcon,

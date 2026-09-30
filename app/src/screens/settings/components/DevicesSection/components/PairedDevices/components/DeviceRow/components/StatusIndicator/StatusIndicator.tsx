@@ -1,4 +1,4 @@
-import type { FCProps } from '@/types';
+import type { FCProps } from '@/types/fcProps.type';
 import './StatusIndicator.css';
 import { GlobeCheckIcon, GlobeLockIcon, GlobeOffIcon } from 'lucide-react';
 import type { PeerStatus } from '../../helper/derivePeerStatus';

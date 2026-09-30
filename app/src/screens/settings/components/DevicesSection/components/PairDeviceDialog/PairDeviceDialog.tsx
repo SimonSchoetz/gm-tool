@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Button, GlassPanel, Input, LoadingIcon } from '@/components';
+import { Button } from '@/components/Button/Button';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { Input } from '@/components/Input/Input';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { usePairing } from '@/data-access-layer';
-import type { FCProps } from '@/types';
+import type { FCProps } from '@/types/fcProps.type';
 import './PairDeviceDialog.css';
 import { PDDCandidatesList } from './components/PDDCandidatesList/PDDCandidatesList';
 import { H2 } from '../../../H2/H2';

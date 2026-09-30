@@ -1,5 +1,5 @@
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
 import './ImagePlaceholderFrame.css';
 import { CSSProperties } from 'react';

@@ -2,8 +2,8 @@ import { useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import type { TextFormatType } from 'lexical';
 import { usePinnedPopups } from '@/providers/PinnedPopupsContext';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { buildEntityPath } from '@domain';
 import {
   useMentionEntityData,

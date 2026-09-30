@@ -7,7 +7,7 @@ import { BlockDropIndicator } from './components/BlockDropIndicator/BlockDropInd
 import { getDragOverTargetElement } from './helper/getDragOverTargetElement';
 import { getTargetCalculateHeight } from './helper/getTargetCalculateHeight';
 import { isOnMenu } from './helper/isOnMenu';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 
 type Props = {
   anchorElem: HTMLElement;

@@ -1,5 +1,6 @@
-import { FCProps } from '@/types';
-import { useSyncedInputValue, useTypographicInput } from '@/hooks';
+import { FCProps } from '@/types/fcProps.type';
+import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
+import { useTypographicInput } from '@/hooks/useTypographicInput';
 import { Input } from '../Input/Input';
 
 type Props = {

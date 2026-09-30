@@ -1,13 +1,14 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { Checkbox, ClickableIcon } from '@/components';
+import { Checkbox } from '@/components/Checkbox/Checkbox';
+import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
 import { LAZY_DM_STEPS } from '@domain';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { CircleQuestionMarkIcon, Trash2Icon } from 'lucide-react';
 import { StepSectionHeaderTitle } from './components/StepSectionHeaderTitle/StepSectionHeaderTitle';
 import { StepSectionHeaderMoveBtn } from './components/StepSectionHeaderMoveBtn/StepSectionHeaderMoveBtn';
-import { useDeleteDialog } from '@/providers';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 
 type Props = {
   stepId: string;

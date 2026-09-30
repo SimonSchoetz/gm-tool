@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getSelection, $isRangeSelection, RangeSelection } from 'lexical';
 import {

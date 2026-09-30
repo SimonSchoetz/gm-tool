@@ -11,7 +11,7 @@ import '@fontsource/ibm-plex-sans/700.css';
 import '@fontsource/ibm-plex-sans/700-italic.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
-import { RouteErrorFallback } from '@/components';
+import { RouteErrorFallback } from '@/components/RouteErrorFallback/RouteErrorFallback';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';

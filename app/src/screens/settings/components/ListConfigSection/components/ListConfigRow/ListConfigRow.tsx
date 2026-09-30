@@ -1,6 +1,7 @@
-import type { FCProps } from '@/types';
+import type { FCProps } from '@/types/fcProps.type';
 import { useTableConfig } from '@/data-access-layer';
-import { ColorInput, GlassPanel } from '@/components';
+import { ColorInput } from '@/components/ColorInput';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import './ListConfigRow.css';
 import { EnableButton } from '../../../EnableButton/EnableButton';
 

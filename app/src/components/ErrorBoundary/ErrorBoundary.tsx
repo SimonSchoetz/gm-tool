@@ -1,25 +1,6 @@
-import { FunctionComponent, ReactNode } from 'react';
-import {
-  FallbackProps,
-  ErrorBoundary as ReactErrorBoundary,
-} from 'react-error-boundary';
-import { getErrorDisplayInfo } from '@/util';
-import { ErrorFallbackView } from '../ErrorFallbackView/ErrorFallbackView';
-
-const ErrorFallback: FunctionComponent<FallbackProps> = ({
-  error,
-  resetErrorBoundary,
-}) => {
-  const { message, stack } = getErrorDisplayInfo(error);
-
-  return (
-    <ErrorFallbackView
-      errorMessage={message}
-      errorStack={stack}
-      onReset={resetErrorBoundary}
-    />
-  );
-};
+import { ReactNode } from 'react';
+import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
+import { ErrorFallback } from './components/ErrorFallback/ErrorFallback';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -48,5 +29,3 @@ export const ErrorBoundary = ({ children, onReset }: ErrorBoundaryProps) => {
     </ReactErrorBoundary>
   );
 };
-
-export default ErrorBoundary;

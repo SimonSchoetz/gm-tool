@@ -1,7 +1,7 @@
 import { ActionContainer } from '../../../../../ActionContainer/ActionContainer';
 import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { LucideIcon } from 'lucide-react';
 import './BaseBtn.css';
 

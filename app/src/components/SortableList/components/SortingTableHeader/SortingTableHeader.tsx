@@ -3,7 +3,7 @@ import { ChevronUpIcon } from 'lucide-react';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
 import './SortingTableHeader.css';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import { buildGridTemplate } from '../../helper/buildGridTemplate';
 import { DEFAULT_COLUMN_WIDTH } from '../../SortableList.constants';
 

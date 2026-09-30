@@ -1,5 +1,7 @@
 import { useSession, useSessionSteps } from '@/data-access-layer';
-import { GlassPanel, LoadingIcon, TextEditor } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { TextEditor } from '@/components/TextEditor';
 import { useParams } from '@tanstack/react-router';
 import { InGameStepSection } from './components/InGameStepSection';
 import './InGameView.css';

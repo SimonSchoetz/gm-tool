@@ -1,6 +1,8 @@
 import { useParams } from '@tanstack/react-router';
 import { useEncounter } from '@/data-access-layer';
-import { GlassPanel, LoadingIcon, TextEditor } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { TextEditor } from '@/components/TextEditor';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterSidebar } from './components/EncounterSidebar';
 import './EncounterScreen.css';

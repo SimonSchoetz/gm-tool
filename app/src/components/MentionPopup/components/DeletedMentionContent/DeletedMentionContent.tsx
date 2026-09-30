@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { entityTypeLabel } from '@domain';
 import './DeletedMentionContent.css';
 

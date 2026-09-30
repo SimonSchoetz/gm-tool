@@ -13,7 +13,8 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { GlassPanel, NewItemBtn } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { NewItemBtn } from '@/components/NewItemBtn/NewItemBtn';
 import { useSession, useSessionSteps } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { SortableStepItem } from './components/SortableStepItem';

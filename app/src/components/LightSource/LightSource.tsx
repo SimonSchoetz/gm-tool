@@ -1,6 +1,6 @@
-import { HtmlProps } from '@/types';
+import { HtmlProps } from '@/types/htmlProps.type';
 import './LightSource.css';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
 type LightSourceProps = {
   intensity: 'bright' | 'dim' | 'off';

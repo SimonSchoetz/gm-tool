@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { hexToRgb } from './helper/hexToRgb';
 import { rgbToHex } from './helper/rgbToHex';
 import './ColorInput.css';

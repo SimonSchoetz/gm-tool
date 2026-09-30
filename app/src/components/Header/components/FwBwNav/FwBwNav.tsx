@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 
 import { useRouter } from '@tanstack/react-router';
 import './FwBwNav.css';

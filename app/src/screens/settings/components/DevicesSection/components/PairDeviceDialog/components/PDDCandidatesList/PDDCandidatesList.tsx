@@ -1,7 +1,7 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './PDDCandidatesList.css';
 import { PairingCandidatePayload } from '@domain';
-import { ActionContainer } from '@/components';
+import { ActionContainer } from '@/components/ActionContainer/ActionContainer';
 import { getShortenedDeviceId } from '../../../../helper/getShortenedDeviceId';
 
 type Props = {

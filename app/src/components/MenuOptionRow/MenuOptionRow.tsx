@@ -1,8 +1,8 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { LucideIcon } from 'lucide-react';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import './MenuOptionRow.css';
 
 type Props = {

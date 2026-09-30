@@ -1,6 +1,6 @@
-import { ActionContainer } from '@/components';
+import { ActionContainer } from '@/components/ActionContainer/ActionContainer';
 import { useSessionSteps } from '@/data-access-layer';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { useParams } from '@tanstack/react-router';
 import { ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 import './StepSectionHeaderMoveBtn.css';

@@ -1,6 +1,6 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import './PopupSurface.css';
 
 type Props = React.ComponentProps<typeof GlassPanel>;

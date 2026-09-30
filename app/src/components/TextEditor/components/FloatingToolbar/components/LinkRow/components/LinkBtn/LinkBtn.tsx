@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { LinkIcon } from 'lucide-react';
 import { BaseBtn } from '../../../BaseBtn/BaseBtn';
 import './LinkBtn.css';

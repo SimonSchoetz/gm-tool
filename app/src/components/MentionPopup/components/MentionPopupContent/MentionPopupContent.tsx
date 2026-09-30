@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import type { MentionEntityType } from '@domain/mentions';
 import { isBaseEntityType, type BaseEntityType } from '@domain/entities';
 import { BaseEntityPopupContent } from './components/BaseEntityPopupContent/BaseEntityPopupContent';

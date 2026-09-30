@@ -6,7 +6,8 @@ import { PrepView } from './components/PrepView';
 import { InGameView } from './components/InGameView';
 import { StepsNavSidebar } from './components/StepsNavSidebar';
 import './SessionScreen.css';
-import { GlassPanel, LoadingIcon } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { PREVIEW_WIDTH } from '../screens.constants';
 
 export const SessionScreen = () => {

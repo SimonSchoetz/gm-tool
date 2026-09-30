@@ -1,6 +1,6 @@
-import { FCProps } from '@/types';
-import { SyncedInput } from '@/components';
-import { useFocusNameInputOnArrival } from '@/hooks';
+import { FCProps } from '@/types/fcProps.type';
+import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
+import { useFocusNameInputOnArrival } from '@/hooks/useFocusNameInputOnArrival';
 import { ComponentProps } from 'react';
 import './ScreensNameInput.css';
 

@@ -1,7 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router';
 import { buildEntityPath, type BaseEntityType } from '@domain';
 import { useBaseEntity } from '@/data-access-layer';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 
 type Props = { entityType: BaseEntityType };
 

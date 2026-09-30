@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { Input } from '../Input/Input';
 import { ClickableIcon } from '../ClickableIcon/ClickableIcon';
-import { useTypographicInput } from '@/hooks';
-import { FCProps } from '@/types';
+import { useTypographicInput } from '@/hooks/useTypographicInput';
+import { FCProps } from '@/types/fcProps.type';
 import './SearchInput.css';
 
 type Props = {

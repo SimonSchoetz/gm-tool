@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { defineTable } from '../util';
-import { FileTypes } from '@/types';
+import { FileTypes } from '@/types/fileTypes.type';
 
 const fileExtensions: FileTypes['image'] = [
   'jpg',

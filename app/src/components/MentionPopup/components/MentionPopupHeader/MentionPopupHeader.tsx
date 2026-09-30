@@ -1,6 +1,6 @@
 import React from 'react';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
 import './MentionPopupHeader.css';

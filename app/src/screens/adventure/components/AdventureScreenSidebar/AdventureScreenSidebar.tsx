@@ -1,6 +1,7 @@
-import { UploadImgBtn, Button } from '@/components';
+import { UploadImgBtn } from '@/components/UploadImgBtn';
+import { Button } from '@/components/Button/Button';
 import { useAdventure } from '@/data-access-layer';
-import { useDeleteDialog } from '@/providers';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { useRouter, useParams } from '@tanstack/react-router';
 import {
   ADVENTURE_PREVIEW_HEIGHT,

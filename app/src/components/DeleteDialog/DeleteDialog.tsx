@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { Input } from '../Input/Input';
-import { useTypographicInput } from '@/hooks';
-import { FCProps } from '@/types';
+import { useTypographicInput } from '@/hooks/useTypographicInput';
+import { FCProps } from '@/types/fcProps.type';
 import './DeleteDialog.css';
 import { Button } from '../Button/Button';
 

@@ -1,4 +1,4 @@
-import { SyncedInput } from '@/components';
+import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
 import { useOwnDevice } from '@/data-access-layer';
 import './OwnDevice.css';
 import { H3 } from '../../../H3/H3';

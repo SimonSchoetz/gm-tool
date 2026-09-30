@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { queryClient } from './queryClient';
 
 export const TanstackQueryClientProvider: FCProps<{

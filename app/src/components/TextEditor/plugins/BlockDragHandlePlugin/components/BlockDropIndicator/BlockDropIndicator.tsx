@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './BlockDropIndicator.css';
 import { SquareArrowRightEnterIcon } from 'lucide-react';
 

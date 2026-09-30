@@ -1,8 +1,8 @@
 import type { SessionStep } from '@db/session-step';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { ActionContainer } from '@/components';
-import { cn } from '@/util';
+import { ActionContainer } from '@/components/ActionContainer/ActionContainer';
+import { cn } from '@/util/className';
 import './SortableStepItem.css';
 import { LAZY_DM_STEPS } from '@domain';
 

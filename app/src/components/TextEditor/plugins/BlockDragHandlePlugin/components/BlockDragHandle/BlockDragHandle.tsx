@@ -1,7 +1,7 @@
 import { EllipsisVerticalIcon } from 'lucide-react';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './BlockDragHandle.css';
-import { GlassPanel } from '@/components';
+import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
 
 type Props = {
   ref: React.Ref<HTMLDivElement>;

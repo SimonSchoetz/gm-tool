@@ -1,4 +1,4 @@
-import { FileTypes } from '@/types';
+import { FileTypes } from '@/types/fileTypes.type';
 import { open } from '@tauri-apps/plugin-dialog';
 
 const fileTypes: FileTypes = {

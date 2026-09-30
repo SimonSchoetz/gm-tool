@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import './LabeledToggleButton.css';

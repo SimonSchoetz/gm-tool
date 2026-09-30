@@ -1,10 +1,11 @@
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 import './SideBarNav.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { ScreenNavBtn } from './components/ScreenNavBtn/ScreenNavBtn';
 import { useRouterState } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
 type Props = HtmlProps<'aside'>;
 

@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from 'react';
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 import './TextEditor.css';
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -40,7 +41,7 @@ import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper/parseSafeEditorState';
 import { EXTERNAL_SYNC_TAG } from './TextEditor.constants';
 import { TYPOGRAPHIC_TRANSFORMERS } from './typographicTransformers';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
 type Props = {
   value: string;

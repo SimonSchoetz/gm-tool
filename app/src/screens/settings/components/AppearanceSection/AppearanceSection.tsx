@@ -1,4 +1,4 @@
-import { GlassPanel } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { useSetting } from '@/data-access-layer';
 import { H2 } from '../H2/H2';
 import { Section } from '../Section/Section';

@@ -1,13 +1,13 @@
 import { UnlinkIcon } from 'lucide-react';
 import type { PairedDevice } from '@db/paired-device';
-import { ClickableIcon } from '@/components';
+import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
 import {
   useConnectedPeers,
   usePairedDevices,
   usePeerSyncCompat,
 } from '@/data-access-layer';
-import { useDeleteDialog } from '@/providers';
-import type { FCProps } from '@/types';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
+import type { FCProps } from '@/types/fcProps.type';
 import { StatusIndicator } from './components/StatusIndicator/StatusIndicator';
 import './DeviceRow.css';
 import { getShortenedDeviceId } from '../../../../helper/getShortenedDeviceId';

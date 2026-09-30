@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { useSession } from '@/data-access-layer';
 import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
 

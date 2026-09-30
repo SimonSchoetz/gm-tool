@@ -1,5 +1,6 @@
 import { useUpdater } from '@/data-access-layer';
-import { ActionContainer, LoadingIcon } from '@/components';
+import { ActionContainer } from '../../../ActionContainer/ActionContainer';
+import { LoadingIcon } from '../../../LoadingIcon/LoadingIcon';
 import './Updater.css';
 import { useEffect, useState } from 'react';
 

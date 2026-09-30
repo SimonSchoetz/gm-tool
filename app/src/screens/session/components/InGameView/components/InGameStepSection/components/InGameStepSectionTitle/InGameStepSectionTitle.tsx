@@ -1,5 +1,5 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { LAZY_DM_STEPS } from '@domain';
 import { useParams } from '@tanstack/react-router';
 import './InGameStepSectionTitle.css';

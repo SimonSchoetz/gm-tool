@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { calculateHorizontalClampOffset } from './helper/calculateHorizontalClampOffset';
 import { calculateVerticalPlacement } from './helper/calculateVerticalPlacement';
 import './AnchoredPopup.css';

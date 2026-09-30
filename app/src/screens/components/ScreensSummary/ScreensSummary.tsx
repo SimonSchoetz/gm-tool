@@ -1,7 +1,7 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './ScreensSummary.css';
 import { ComponentProps } from 'react';
-import { GlassPanel } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 
 type Props = ComponentProps<typeof GlassPanel>;
 

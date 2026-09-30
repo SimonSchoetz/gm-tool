@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './LoadingIcon.css';
 
 type Props = {

@@ -1,6 +1,6 @@
-import { Button } from '@/components';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { Button } from '@/components/Button/Button';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import './EnableButton.css';
 
 type Props = { isEnabled: boolean } & Omit<

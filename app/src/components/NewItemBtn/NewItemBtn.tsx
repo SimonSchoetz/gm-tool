@@ -1,9 +1,9 @@
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import './NewItemBtn.css';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { CSSProperties, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
 

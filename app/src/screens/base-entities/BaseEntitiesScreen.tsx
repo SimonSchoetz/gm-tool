@@ -1,6 +1,7 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useBaseEntities, useTableConfigs } from '@/data-access-layer';
-import { LoadingIcon, SortableList } from '@/components';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { SortableList } from '@/components/SortableList';
 import type { BaseEntity } from '@db/base-entity';
 import {
   buildEntityPath,
@@ -8,7 +9,7 @@ import {
   type BaseEntityType,
 } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 
 type Props = { entityType: BaseEntityType };
 

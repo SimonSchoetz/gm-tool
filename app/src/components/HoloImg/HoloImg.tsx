@@ -1,6 +1,7 @@
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 import { useRef, type CSSProperties } from 'react';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import { ImageById } from '../ImageById/ImageById';
 import './HoloImg.css';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';

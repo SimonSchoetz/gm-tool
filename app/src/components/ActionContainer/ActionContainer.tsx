@@ -1,7 +1,7 @@
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
 import './ActionContainer.css';
-import { HtmlProps } from '@/types';
+import { HtmlProps } from '@/types/htmlProps.type';
 
 type ActionContainerProps = {
   label: string;

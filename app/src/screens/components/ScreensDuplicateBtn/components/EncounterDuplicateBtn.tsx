@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { buildEntityPath } from '@domain';
-import { Button } from '@/components';
+import { Button } from '@/components/Button/Button';
 import { useEncounter } from '@/data-access-layer';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 
 type Props = { label: string };
 

@@ -1,8 +1,11 @@
 import { useSession } from '@/data-access-layer';
 import './SessionHeader.css';
-import { SyncedInput, DateInput } from '@/components';
-import { FCProps, HtmlProps } from '@/types';
-import { useSyncedInputValue, useFocusNameInputOnArrival } from '@/hooks';
+import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
+import { DateInput } from '@/components/DateInput/DateInput';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
+import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
+import { useFocusNameInputOnArrival } from '@/hooks/useFocusNameInputOnArrival';
 import { useParams } from '@tanstack/react-router';
 
 export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {

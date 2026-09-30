@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './ErrorFallbackView.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { Button } from '../Button/Button';

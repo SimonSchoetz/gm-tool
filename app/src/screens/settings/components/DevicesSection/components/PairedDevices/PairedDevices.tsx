@@ -1,6 +1,6 @@
 import './PairedDevices.css';
 import { usePairedDevices } from '@/data-access-layer';
-import { LoadingIcon } from '@/components';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { DeviceRow } from './components/DeviceRow';
 import { H3 } from '../../../H3/H3';
 

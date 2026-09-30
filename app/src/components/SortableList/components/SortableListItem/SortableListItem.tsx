@@ -1,6 +1,6 @@
 import './SortableListItem.css';
 import { useMemo } from 'react';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
@@ -8,7 +8,7 @@ import { buildGridTemplate } from '../../helper/buildGridTemplate';
 import { isItemPinned } from '../../helper/isItemPinned';
 import { renderCell } from './helper/renderCell';
 import { RowActionsMenu } from './components/RowActionsMenu/RowActionsMenu';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 
 type Props = {
   tableConfigId: string;

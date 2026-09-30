@@ -1,4 +1,5 @@
-import { LoadingIcon, TextEditor } from '@/components';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { TextEditor } from '@/components/TextEditor';
 import { useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
 import { AdventureScreenHeader } from './components/AdventureScreenHeader';

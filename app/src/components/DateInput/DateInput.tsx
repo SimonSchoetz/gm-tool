@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/util';
-import { FCProps, HtmlProps } from '@/types';
+import { cn } from '@/util/className';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 import { ClickableIcon } from '../ClickableIcon/ClickableIcon';
 import './DateInput.css';
 

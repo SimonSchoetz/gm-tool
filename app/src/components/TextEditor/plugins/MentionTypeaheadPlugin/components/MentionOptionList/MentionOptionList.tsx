@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { FCProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { entityTypeLabel } from '@domain';
 import { MentionMenuOption } from '../../mentionMenuOption';
 import './MentionOptionList.css';

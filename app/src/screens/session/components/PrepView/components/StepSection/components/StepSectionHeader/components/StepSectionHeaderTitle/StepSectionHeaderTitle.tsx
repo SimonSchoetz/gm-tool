@@ -1,7 +1,7 @@
-import { SyncedInput } from '@/components';
+import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
 import { useSessionSteps } from '@/data-access-layer';
 import { LAZY_DM_STEPS } from '@domain';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { useParams } from '@tanstack/react-router';
 import './StepSectionHeaderTitle.css';
 

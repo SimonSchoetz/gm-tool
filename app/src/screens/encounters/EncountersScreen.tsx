@@ -1,6 +1,7 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useEncounters, useTableConfigs } from '@/data-access-layer';
-import { LoadingIcon, SortableList } from '@/components';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { SortableList } from '@/components/SortableList';
 import type { Encounter } from '@db/encounter';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';

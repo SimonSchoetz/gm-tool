@@ -1,6 +1,7 @@
 import { useImage } from '@/data-access-layer';
-import { FCProps, HtmlProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
+import { cn } from '@/util/className';
 import './ImageById.css';
 
 type Props = {

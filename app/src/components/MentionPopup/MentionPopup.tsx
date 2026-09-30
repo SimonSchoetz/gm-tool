@@ -1,15 +1,15 @@
 import { useState, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import { buildEntityPath } from '@domain';
 import { useMentionEntityData } from '@/data-access-layer';
-import { useDraggable } from '@/hooks';
+import { useDraggable } from '@/hooks/useDraggable';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { MentionPopupHeader } from './components/MentionPopupHeader/MentionPopupHeader';
 import { MentionPopupContent } from './components/MentionPopupContent';
 import { DeletedMentionContent } from './components/DeletedMentionContent/DeletedMentionContent';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './MentionPopup.css';
 
 export type PopupPosition = { x: number; y: number };

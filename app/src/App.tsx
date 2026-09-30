@@ -1,16 +1,14 @@
 import { Suspense } from 'react';
 import { Outlet } from '@tanstack/react-router';
-import {
-  Backdrop,
-  LightSource,
-  SideBarNav,
-  Header,
-  ErrorBoundary,
-  GlassPanel,
-  LoadingIcon,
-} from './components';
+import { Backdrop } from '@/components/Backdrop';
+import LightSource from '@/components/LightSource/LightSource';
+import { SideBarNav } from '@/components/SideBarNav';
+import { Header } from '@/components/Header';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useConnectivityLifecycle } from '@/data-access-layer';
-import { AppProviders } from '@/providers';
+import { AppProviders } from '@/providers/AppProviders/AppProviders';
 import './App.css';
 
 const AppContent = () => {

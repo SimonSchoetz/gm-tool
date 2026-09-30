@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import './SettingsBtn.css';
 import { SettingsIcon } from 'lucide-react';
 import { Link, useMatch } from '@tanstack/react-router';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { FCProps } from '@/types';
-import { filePicker } from '@/util';
-import { useDeleteDialog } from '@/providers';
+import { FCProps } from '@/types/fcProps.type';
+import { filePicker } from '@/util/filePicker';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ImageById } from '../../../ImageById/ImageById';
 import { ImageViewerDialogHeader } from './components/ImageViewerDialogHeader';

@@ -1,4 +1,4 @@
-import { TYPOGRAPHIC_RULES } from '@/util';
+import { TYPOGRAPHIC_RULES } from '@/util/typographicRules';
 
 type TypographicSubstitution = {
   value: string;

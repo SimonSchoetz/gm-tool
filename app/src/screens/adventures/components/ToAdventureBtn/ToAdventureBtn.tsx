@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import './ToAdventureBtn.css';
 
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 
-import { HoloImg } from '@/components';
+import { HoloImg } from '@/components/HoloImg';
 import { Adventure } from '@db/adventure';
 import { buildEntityPath } from '@domain';
 import {

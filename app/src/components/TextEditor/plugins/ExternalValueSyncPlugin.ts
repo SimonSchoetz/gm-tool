@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $createParagraphNode, $getRoot } from 'lexical';
-import type { FCProps } from '@/types';
+import type { FCProps } from '@/types/fcProps.type';
 import { parseSafeEditorState } from '../helper/parseSafeEditorState';
 import { EXTERNAL_SYNC_TAG } from '../TextEditor.constants';
 

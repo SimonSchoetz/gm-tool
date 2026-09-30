@@ -1,6 +1,7 @@
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useSessions, useTableConfigs } from '@/data-access-layer';
-import { LoadingIcon, SortableList } from '@/components';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { SortableList } from '@/components/SortableList';
 import type { Session } from '@db/session';
 import { buildEntityPath } from '@domain';
 

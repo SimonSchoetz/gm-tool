@@ -1,4 +1,4 @@
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';

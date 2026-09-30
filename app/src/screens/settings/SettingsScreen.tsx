@@ -1,4 +1,4 @@
-import { GlassPanel } from '@/components';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { ListConfigSection } from './components/ListConfigSection';
 import { AppearanceSection } from './components/AppearanceSection/AppearanceSection';
 import { DevicesSection } from './components/DevicesSection';

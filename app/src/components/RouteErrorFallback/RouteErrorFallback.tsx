@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
 import { ErrorComponentProps } from '@tanstack/react-router';
-import { getErrorDisplayInfo } from '@/util';
+import { getErrorDisplayInfo } from '@/util/getErrorDisplayInfo';
 import { ErrorFallbackView } from '../ErrorFallbackView/ErrorFallbackView';
 
 export const RouteErrorFallback: FunctionComponent<ErrorComponentProps> = ({

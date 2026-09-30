@@ -1,11 +1,12 @@
-import { LoadingIcon, TextEditor } from '@/components';
+import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
+import { TextEditor } from '@/components/TextEditor';
 import {
   useBaseEntity,
   useBaseEntityContentSections,
 } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { entityTypeLabel, type BaseEntityType } from '@domain';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { BaseEntitySidebar } from './components/BaseEntitySidebar/BaseEntitySidebar';
 import { ScreensNameInput } from '../components/ScreensNameInput/ScreensNameInput';
 import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';

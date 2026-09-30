@@ -1,5 +1,6 @@
-import { FCProps, HtmlProps } from '@/types';
-import { cn } from '@/util';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
+import { cn } from '@/util/className';
 import './HorizontalDivider.css';
 
 export const HorizontalDivider: FCProps<HtmlProps<'hr'>> = ({

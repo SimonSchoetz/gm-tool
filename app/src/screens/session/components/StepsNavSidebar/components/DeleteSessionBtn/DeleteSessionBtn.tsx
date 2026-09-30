@@ -1,6 +1,6 @@
-import { Button } from '@/components';
+import { Button } from '@/components/Button/Button';
 import { useSession } from '@/data-access-layer';
-import { useDeleteDialog } from '@/providers';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { useRouter, useParams } from '@tanstack/react-router';
 
 export const DeleteSessionBtn = () => {

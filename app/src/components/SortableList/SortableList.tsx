@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSortable, useListFilter } from '@/hooks';
+import { useSortable } from '@/hooks/useSortable';
+import { useListFilter } from '@/hooks/useListFilter';
 import { useTableConfig } from '@/data-access-layer';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { SearchInput } from '../SearchInput/SearchInput';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';

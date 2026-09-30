@@ -5,7 +5,7 @@ import {
   PinOffIcon,
   LucideIcon,
 } from 'lucide-react';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { useTableConfig, useSetPinnedOrder } from '@/data-access-layer';
 import { AnchoredPopup } from '../../../../../AnchoredPopup';
 import { PopupSurface } from '../../../../../PopupSurface/PopupSurface';

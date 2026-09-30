@@ -1,7 +1,8 @@
 import { CSSProperties } from 'react';
-import { FCProps, HtmlProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
+import { HtmlProps } from '@/types/htmlProps.type';
 import './ScreensSidebar.css';
-import { cn } from '@/util';
+import { cn } from '@/util/className';
 import { PREVIEW_WIDTH } from '../../screens.constants';
 
 type Props = HtmlProps<'aside'>;

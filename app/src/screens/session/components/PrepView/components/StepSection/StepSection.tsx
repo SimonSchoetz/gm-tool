@@ -1,9 +1,11 @@
 import { useSessionSteps } from '@/data-access-layer';
-import { TextEditor, GlassPanel, HorizontalDivider } from '@/components';
+import { TextEditor } from '@/components/TextEditor';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
+import { HorizontalDivider } from '@/components/HorizontalDivider/HorizontalDivider';
 import { StepSectionHeader } from './components/StepSectionHeader';
 import { TooltipPanel } from './components/TooltipPanel/TooltipPanel';
 import './StepSection.css';
-import { FCProps } from '@/types';
+import { FCProps } from '@/types/fcProps.type';
 import { useParams } from '@tanstack/react-router';
 import { LAZY_DM_STEPS } from '@domain';
 

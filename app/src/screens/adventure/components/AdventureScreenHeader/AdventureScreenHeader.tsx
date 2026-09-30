@@ -1,4 +1,4 @@
-import { SyncedInput } from '@/components';
+import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
 import { useAdventure } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import './AdventureScreenHeader.css';
