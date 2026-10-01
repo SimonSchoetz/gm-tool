@@ -132,6 +132,7 @@ export const TextEditor: FCProps<Props> = ({
   return (
     <div className={cn('text-editor-container', className)}>
       {/* key={textEditorId} forces a full remount when the caller renders a different entity's field at the same call site (e.g. TanStack Router reusing a screen component across /foe/$foeId param changes) — without it, ExternalValueSyncPlugin's focus-skip guard (correctly there to protect active typing during a same-entity peer sync) can also skip adopting the new entity's value, since a click on an in-text mention link doesn't necessarily blur the contentEditable, leaving the previous entity's content in place and then saving it over the newly-navigated entity on the next selection-driven change. */}
+      {/* eslint-disable-next-line @typescript-eslint/no-deprecated -- LexicalExtensionComposer takes only extension, children and contentEditable, has no initialConfig, and re-creates the editor (losing all state) unless its extension argument is stable; the initialConfig below carries the per-instance namespace, editorState and editable, so moving to it would mean re-expressing those through defineExtension and abandoning the deliberate key={textEditorId} remount described above. */}
       <LexicalComposer
         key={textEditorId}
         initialConfig={initialConfig}
