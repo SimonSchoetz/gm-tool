@@ -1,2 +1,4 @@
 allowBuilds:
   simple-git-hooks: true
+# Pinned rather than inherited: pnpm applies a 1440-minute (24-hour) minimum release age by default, which is what keeps a freshly published version out of the lockfile until malicious releases have had time to be caught and pulled. Stating it here keeps the policy in force if that default ever changes, and makes it visible to anyone reading this file. Raising it delays legitimate upstream fixes by the same amount.
+minimumReleaseAge: 1440
