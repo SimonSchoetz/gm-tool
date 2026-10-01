@@ -37,8 +37,8 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           package-json-file: app/package.json
-          # Pinned rather than floating on node@lts: the local toolchain and the whole check suite are verified on the 22 line, and `lts` tracks whichever line is Active LTS at build time (today 24), so it can move CI onto an unverified major without a commit. Keep in step with `.nvmrc` at the repository root.
-          runtime: node@22
+          # Pinned rather than floating on node@lts, which tracks whichever line is Active LTS at build time and so can move CI across a major without a commit. Keep in step with `.nvmrc` at the repository root. jsdom requires 24.15.0 or newer, which `engines.node` in app/package.json does not yet state.
+          runtime: node@24
           install: false
 
       - uses: dtolnay/rust-toolchain@stable
