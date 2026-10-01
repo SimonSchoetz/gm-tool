@@ -24,7 +24,7 @@
     "prettier-fix": "cd app && npx prettier --write ."
   },
   "devDependencies": {
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.6.3",
     "simple-git-hooks": "latest"
   },
   "simple-git-hooks": {
