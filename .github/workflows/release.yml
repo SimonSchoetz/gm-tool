@@ -37,7 +37,8 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           package-json-file: app/package.json
-          runtime: node@lts
+          # Pinned rather than floating on node@lts: the local toolchain and the whole check suite are verified on the 22 line, and `lts` tracks whichever line is Active LTS at build time (today 24), so it can move CI onto an unverified major without a commit. Keep in step with `.nvmrc` at the repository root.
+          runtime: node@22
           install: false
 
       - uses: dtolnay/rust-toolchain@stable
