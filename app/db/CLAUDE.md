@@ -2,7 +2,7 @@
 
 ## Structure
 
-`db/` holds `_migrations/` (migration runner and migration files); `_system/` (infrastructure key-value store: `schema.ts` for each key's value-shape schemas and derived types, one typed accessor per key such as `versioning.ts` and `device.ts` as the public API, and `get.ts` / `update.ts` as raw SQL utilities that stay internal and are not exported from the barrel); `database.ts` (init and the migration runner call); `util/` (the `defineTable` schema builder); and one `domainName/` directory per table (schema, types, CRUD, index).
+`db/` holds `_migrations/` (migration runner and migration files); `_system/` (infrastructure key-value store: `schema.ts` for each key's value-shape schemas and derived types, one typed accessor per key such as `versioning.ts` and `device.ts` as the public API, and `get.ts` / `update.ts` as raw SQL utilities that stay internal and are not exported from the barrel); `database.ts` (init and the migration runner call); `util/` (the `defineTable` schema builder); and one `domainName/` directory per table (schema, types, CRUD, index). A table that `db/_sync/registry.ts` syncs also exports its `<name>Table` definition from its `index.ts`, and the registry imports it from there, never from `schema.ts`, which `local/no-import-past-index` would reject.
 
 **Schema source of truth:** Each domain's `schema.ts` defines the table via `defineTable()` — read it directly rather than maintaining a separate schema list.
 
