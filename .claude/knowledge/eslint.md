@@ -73,12 +73,12 @@ The declarations contain `export default plugin` and `export { …, plugin as im
 
 The docs state that the rule "ensures that there is no resolvable path back to this module via its dependencies", that it ignores type-only imports in Flow and TypeScript, and that it is "comparatively computationally expensive". `maxDepth` limits the depth checked, and `ignoreExternal: true` stops it from expanding into external modules.
 
-## `eslint-import-resolver-typescript` 4.4.5 provides `createTypeScriptImportResolver` for the `import-x/resolver-next` setting, and it resolves tsconfig `paths`
+## `eslint-import-resolver-typescript` 4.4.5 provides `createTypeScriptImportResolver` for the `import-x/resolver-next` setting, and its README lists using tsconfig `paths` among its features
 
 **Verified at:** https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md, 2026-09-30 (default-branch README; the latest release that day was 4.4.5)
 **Citation:** [spec-writer_2: https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md] [spec-writer_3: ran `npm view eslint-import-resolver-typescript version` — observed `4.4.5`]
 
-The README's import-x example passes it as `settings: { 'import-x/resolver-next': [createTypeScriptImportResolver({ … })] }` and lists "Use `paths` defined in `tsconfig.json`" among its features. Without a `project` option it uses "`<root>/tsconfig.json` or `<root>/jsconfig.json` by default"; `project` accepts a folder path, a glob, or an array of either.
+The README's import-x example passes it as `settings: { 'import-x/resolver-next': [createTypeScriptImportResolver({ … })] }` and lists "Use `paths` defined in `tsconfig.json`" among its features. Without a `project` option it uses "`<root>/tsconfig.json` or `<root>/jsconfig.json` by default"; `project` accepts a folder path, a glob, or an array of either. Whether `paths` aliases resolve under a tsconfig with a `references` entry was observed in this repository and is recorded in the entry headed "With `createTypeScriptImportResolver`, a tsconfig whose `references` entry names a second config failed to resolve each tested `paths` alias, …".
 
 ## A `no-restricted-imports` glob that flags a relative reach into another module's `components/` folder also flags a module's own imports of the same textual shape
 
