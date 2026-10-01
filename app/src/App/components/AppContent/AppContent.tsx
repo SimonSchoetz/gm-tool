@@ -9,9 +9,9 @@ import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useConnectivityLifecycle } from '@/data-access-layer';
 import { AppProviders } from '@/providers/AppProviders/AppProviders';
-import './App.css';
+import './AppContent.css';
 
-const AppContent = () => {
+export const AppContent = () => {
   // Only call site, ever — a second mount would double-subscribe the event listeners.
   useConnectivityLifecycle();
 
@@ -20,10 +20,10 @@ const AppContent = () => {
       <Backdrop />
       <LightSource intensity='bright' />
 
-      <main className='app'>
+      <main className='app-content'>
         <Header />
 
-        <div className='screens-container'>
+        <div className='app-content-screens'>
           <SideBarNav />
 
           <ErrorBoundary>
@@ -42,9 +42,3 @@ const AppContent = () => {
     </AppProviders>
   );
 };
-
-export const App = () => (
-  <ErrorBoundary>
-    <AppContent />
-  </ErrorBoundary>
-);

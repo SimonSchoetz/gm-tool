@@ -1,4 +1,4 @@
-.app {
+.app-content {
   height: 100vh;
   width: 100vw;
   padding: var(--spacing-sm);
@@ -7,7 +7,7 @@
   gap: var(--spacing-sm);
 }
 
-.screens-container {
+.app-content-screens {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--spacing-sm);
