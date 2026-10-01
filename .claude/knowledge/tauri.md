@@ -112,3 +112,31 @@ A nullable column read through `select()` arrives in JavaScript as `null`, never
 **Citation:** [harness-probe_2: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:1-13 — `QueryResult { rowsAffected: number; lastInsertId?: number }`] [harness-probe_6: same file:88 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`] [harness-probe_7: same file:107 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`]
 
 A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module.
+
+## The Tauri CLI compares `tauri` against `@tauri-apps/api` and each `tauri-plugin-<n>` crate against `@tauri-apps/plugin-<n>`, and a differing major or minor makes `tauri build` fail while `tauri dev` only logs it
+
+**Verified at:** @tauri-apps/cli 2.12.0, with 2.11.4 checked for the same gate — 2026-10-01
+**Citation:** [research-tauri-js-2.12_1: the published `tauri-cli` crate source at 2.12.0, obtained from crates.io and read locally — `src/info/plugins.rs:34-41` — the `mismatched()` filter comparing major and minor only; `:145-168` — `check_mismatched_packages` returning `Err`; `:45-62` — the compared sets, crate names `tauri` plus `tauri-plugin-*` against npm names `@tauri-apps/api` plus `@tauri-apps/plugin-*`; `src/build.rs:157-164` — that `Err` treated as fatal unless `--ignore-version-mismatches` is passed] [research-tauri-js-2.12_3: tauri-cli 2.12.0 `src/dev.rs:142-147` — the same check on a spawned thread calling only `log::error!`, with no `--ignore-version-mismatches` option there] [research-tauri-js-2.12_4: tauri-cli 2.11.4 `src/info/plugins.rs:141,163` and `src/build.rs:150-151`, `src/dev.rs:143` — the same gate and error string, so it did not arrive in 2.12]
+
+Because the filter compares only major and minor, a patch-level gap between a package and its crate passes the gate, and `@tauri-apps/cli` is not itself among the compared pairs. The `tauri info` command prints both sides of every pair, which surfaces a mismatch without running a build [dependency-update_16: ran `npx tauri info` from `app/` — observed a `Plugins` section pairing each `tauri-plugin-<n>` crate line with its `@tauri-apps/plugin-<n>` line, and a `Packages` section listing `tauri`, `tauri-build`, `wry`, `tao`, `@tauri-apps/api` and `@tauri-apps/cli`].
+
+## tauri 2.12.0 drops Windows 7 support, raises its MSRV to Rust 1.90 and migrates to edition 2024
+
+**Verified at:** tauri 2.12.0 changelog — fetched 2026-10-01
+**Citation:** [research-rust-deps_6: <https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri/CHANGELOG.md> — the 2.12.0 breaking-change list recording the Windows 7 drop per microsoft/windows-rs#3808 and the `windows` crate moving to 0.62, `webview2-com` to 0.39, `tray-icon` to 0.25 and `muda` to 0.20] [research-rust-deps_18: the same file — `**MSRV:** Set to Rust 1.90` and `**Edition 2024:** Codebase migrated to Rust Edition 2024`, with `Update MSRV to 1.90 to match tauri` also appearing in the tauri-plugin-sql 2.5.0, dialog 2.8.1, opener 2.7.0 and updater 2.13.1 changelogs]
+
+The same release replaces the Windows webview and windowing crates, so a Windows build after it exercises substantially new code.
+
+## tauri-plugin-updater 2.12.0 removed `allowDowngrades` from its `check` command as a breaking change and reads it from plugin configuration instead, defaulting to `false`
+
+**Verified at:** tauri-plugin-updater 2.12.0 changelog — fetched 2026-10-01
+**Citation:** [dependency-update_15: <https://raw.githubusercontent.com/tauri-apps/plugins-workspace/v2/plugins/updater/CHANGELOG.md> — the 2.12.0 entry marked a breaking change, stating that `allowDowngrades` was removed from the `check` command and is now read from plugin configuration, that previously any code running in the webview could pass `allowDowngrades: true` to `plugin:updater|check`, and that the flag is now an application-level setting defaulting to `false`] [research-rust-deps_9: the same entry read from `tauri-plugin-updater-2.13.1/CHANGELOG.md` in the local cargo registry]
+
+What changed is the `plugin:updater|check` IPC command reachable from the webview. The configuration key's exact location within `tauri.conf.json` was not established.
+
+## tauri-plugin-updater lists `system-proxy` among its default features in both 2.11.0 and 2.13.1
+
+**Verified at:** tauri-plugin-updater 2.11.0 and 2.13.1 — 2026-10-01
+**Citation:** [research-rust-deps_10: compared the `[features]` sections of `tauri-plugin-updater-2.11.0/Cargo.toml` and `-2.13.1/Cargo.toml` in the local cargo registry — observed `default = ["rustls-tls", "system-proxy", "zip"]` in both, alongside the 2.11.0 changelog entry `Added system-proxy (enabled by default) feature flag to control reqwest/system-proxy feature`]
+
+The feature controls `reqwest`'s own `system-proxy` feature. The releases between those two were not read, so this says only that the default is the same at both ends.

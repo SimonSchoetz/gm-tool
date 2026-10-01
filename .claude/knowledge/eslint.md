@@ -68,14 +68,14 @@ The declarations contain `export default plugin` and `export { …, plugin as im
 
 ## `import-x/no-cycle` ignores TypeScript type-only imports and is documented as computationally expensive, with `maxDepth` and `ignoreExternal` to limit its cost
 
-**Verified at:** https://github.com/un-ts/eslint-plugin-import-x/blob/master/docs/rules/no-cycle.md, 2026-09-30 (default-branch docs; the latest release that day was 4.17.1)
+**Verified at:** <https://github.com/un-ts/eslint-plugin-import-x/blob/master/docs/rules/no-cycle.md>, 2026-09-30 (default-branch docs; the latest release that day was 4.17.1)
 **Citation:** [architect_3: https://github.com/un-ts/eslint-plugin-import-x/blob/master/docs/rules/no-cycle.md] [architect_2: ran `npm view eslint-plugin-import-x version` — observed `4.17.1`]
 
 The docs state that the rule "ensures that there is no resolvable path back to this module via its dependencies", that it ignores type-only imports in Flow and TypeScript, and that it is "comparatively computationally expensive". `maxDepth` limits the depth checked, and `ignoreExternal: true` stops it from expanding into external modules.
 
 ## `eslint-import-resolver-typescript` 4.4.5 provides `createTypeScriptImportResolver` for the `import-x/resolver-next` setting, and its README lists using tsconfig `paths` among its features
 
-**Verified at:** https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md, 2026-09-30 (default-branch README; the latest release that day was 4.4.5)
+**Verified at:** <https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md>, 2026-09-30 (default-branch README; the latest release that day was 4.4.5)
 **Citation:** [spec-writer_2: https://github.com/import-js/eslint-import-resolver-typescript/blob/master/README.md] [spec-writer_3: ran `npm view eslint-import-resolver-typescript version` — observed `4.4.5`]
 
 The README's import-x example passes it as `settings: { 'import-x/resolver-next': [createTypeScriptImportResolver({ … })] }` and lists "Use `paths` defined in `tsconfig.json`" among its features. Without a `project` option it uses "`<root>/tsconfig.json` or `<root>/jsconfig.json` by default"; `project` accepts a folder path, a glob, or an array of either. Whether `paths` aliases resolve under a tsconfig with a `references` entry was observed in this repository and is recorded in the entry headed "With `createTypeScriptImportResolver`, a tsconfig whose `references` entry names a second config failed to resolve each tested `paths` alias, …".
@@ -135,3 +135,24 @@ A config that registers the plugin without the `flatConfigs.typescript` preset a
 **Citation:** [implement_4: ran `npx eslint .` from `app/` with `import-x/no-cycle` enabled, on this repository's `app/` source at commit 245a4168, which has import cycles through `.ts` and `.tsx` barrel files, with `createTypeScriptImportResolver` as `import-x/resolver-next` and its `project` pointed at a file beside `app/tsconfig.json` holding only `{ "extends": "./tsconfig.json" }`, so every `paths` alias resolved — observed no `import-x/no-cycle` warning with neither setting, and a warning on each cycle member with `'import-x/extensions': ['.ts', '.tsx', '.js']` and `'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] }`]
 
 Only "neither setting" and "both settings" were run; either setting alone was not tested.
+
+## typescript-eslint 8.71.0 throws `typescript-eslint does not support TS 7.0.` from a `versionMajor >= 7` guard that runs as the module loads, and the same error message appears in its parser and eslint-plugin packages
+
+**Verified at:** typescript-eslint 8.71.0, @typescript-eslint/parser 8.71.0, @typescript-eslint/eslint-plugin 8.71.0 — 2026-10-01
+**Citation:** [dependency-update_9: app/node_modules/typescript-eslint/dist/index.js:42-52 — reads `const [versionMajor, _versionMinor] = ts.versionMajorMinor` followed by `if (versionMajor >= 7) { … throw new Error('typescript-eslint does not support TS 7.0.'); }` at module top level; ran `grep -c "does not support TS 7"` over the installed `@typescript-eslint/parser` and `@typescript-eslint/eslint-plugin` `dist/index.js` — observed 2 matches in each, which locates the message in both but was not read far enough to confirm the surrounding condition is identical]
+
+The comparison is `>= 7`, so it covers TypeScript 7.1 and later as well as 7.0. It runs when the module is imported rather than per linted file, so loading a config that imports typescript-eslint is enough to trigger it.
+
+## typescript-eslint declared `typescript: ">=4.8.4 <6.1.0"` at its latest 8.71.0 and at its 8.71.1-alpha.2 canary, with no 9.x published
+
+**Verified at:** typescript-eslint registry state — 2026-10-01
+**Citation:** [dependency-update_10: ran `pnpm view typescript-eslint@8.71.0 peerDependencies --json` from `app/` — observed `{"eslint":"^8.57.0 || ^9.0.0 || ^10.0.0","typescript":">=4.8.4 <6.1.0"}`] [research-typescript-7_3: ran `pnpm view typescript-eslint dist-tags` — observed `{canary: 8.71.1-alpha.2, rc-v8: 8.0.0-alpha.62, latest: 8.71.0}`] [research-typescript-7_4: ran `pnpm view typescript-eslint@8.71.1-alpha.2 peerDependencies` — observed the same `typescript` range] [research-typescript-7_5: ran `pnpm view typescript-eslint versions --json` reduced to leading major versions 8 and 9 — observed only 8, with the 8 match serving as the positive control]
+
+This records registry state on that date, not a permanent property. Re-run `pnpm view typescript-eslint peerDependencies` before concluding that TypeScript 7 is still unsupported.
+
+## `@typescript-eslint/typescript-estree` checks the loaded compiler's `ts.version` against `SUPPORTED_TYPESCRIPT_VERSIONS = '>=4.8.4 <6.1.0'`, and its unsupported-version path throws on `behavior === 'error'`, returns silently on `'ignore'`, and otherwise logs a warning
+
+**Verified at:** @typescript-eslint/typescript-estree 8.71.0 — 2026-10-01
+**Citation:** [dependency-update_11: app/node_modules/.pnpm/@typescript-eslint+typescript-estree@8.71.0_supports-color@7.2.0_typescript@6.0.3/node_modules/@typescript-eslint/typescript-estree/dist/parseSettings/warnAboutTSVersion.js:47,53-55,74-82 — reads `exports.SUPPORTED_TYPESCRIPT_VERSIONS = '>=4.8.4 <6.1.0'`, `const ACTIVE_TYPESCRIPT_VERSION = ts.version;` with `semver.satisfies(ACTIVE_TYPESCRIPT_VERSION, …)`, and `handleUnsupportedTSVersion(parseSettings, behavior, passedLoggerFn)` returning early when the version satisfies the range or `behavior === 'ignore'`, throwing a built message when `behavior === 'error'`, and otherwise falling through to a logged warning; same package `dist/parser-options.d.ts:74` — reads `onUnsupportedTypeScriptVersion?: 'error' | 'ignore' | 'warn';`]
+
+The check reads the compiler actually loaded, so it reports on the compiler in use rather than on any declared range. `onUnsupportedTypeScriptVersion` is optional in the declared type, and which value the parser passes when a config omits it was not traced here. This package is a transitive dependency with no top-level `node_modules/@typescript-eslint/typescript-estree` path, and the `.pnpm` directory name above embeds the TypeScript version it was installed against, so that path changes when TypeScript moves.

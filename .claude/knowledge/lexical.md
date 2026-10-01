@@ -230,3 +230,31 @@ A parsed state whose root has no children therefore throws synchronously when ap
 **Citation:** [review-decision_10: app/node_modules/lexical/dist/Lexical.dev.js:14421-14433 — `registerNodeTransform` calls `markNodesWithTypesAsDirty(this, registeredNodes.map(node => node.klass.getType()))` after registering the listener; :15243-15254 — `markNodesWithTypesAsDirty` collects the cached node map of each type from the current editor state]
 
 A transform registered after content already exists is not limited to nodes created later: every node of that type in the current state is transformed on the next update, including a replacement class registered via `replaceWithKlass`.
+
+## `LexicalComposer` carries no `@deprecated` tag at @lexical/react 0.46.0 and carries one at 0.52.0, naming `LexicalExtensionComposer` as its replacement
+
+**Verified at:** @lexical/react 0.52.0 against 0.46.0 — 2026-10-01
+**Citation:** [dependency-update_12: ran `grep -c "@deprecated"` over `@lexical/react/dist/LexicalComposer.d.ts` in the installed 0.52.0 and in a throwaway 0.46.0 install made for the comparison — observed 1 and 0; re-derivable by installing @lexical/react@0.46.0 outside the repository; ran `npx eslint .` from `app/` under 0.52.0 — observed a `@typescript-eslint/no-deprecated` report whose message names `LexicalExtensionComposer` from `@lexical/react/LexicalExtensionComposer` as the successor, states that `LexicalComposer` cannot accept extensions, and calls the migration "usually a two-line change"]
+
+Which release between 0.47 and 0.51 introduced the tag was not checked.
+
+## `LexicalExtensionComposerProps` declares only `extension`, `children` and `contentEditable`, and its documentation warns that an unstable `extension` argument re-creates the editor and loses all state
+
+**Verified at:** @lexical/react 0.52.0 — 2026-10-01
+**Citation:** [dependency-update_13: app/node_modules/@lexical/react/dist/LexicalExtensionComposer.d.ts — reads `export interface LexicalExtensionComposerProps { extension: AnyLexicalExtensionArgument; children?: React.ReactNode; contentEditable?: ReactConfig['contentEditable']; }`, the doc line `Make sure that your extension argument is stable (e.g. using module scope or useMemo) so that you are not re-creating the editor on every render!`, and an `Incorrect usage with unstable extension` example annotated `This argument is not stable, the editor is re-created every render and all state is lost!`]
+
+There is no `initialConfig` prop, so a component that configures its editor through one has to supply that configuration as the `extension` argument instead, where the stability warning applies to it.
+
+## Lexical 0.52 derives `formatText`'s toggle direction from `selection.format`, where 0.46 derived it from the first selected text node's format flags
+
+**Verified at:** lexical 0.52.0 against 0.46.0 — 2026-10-01
+**Citation:** [research-lexical-0.52-verify_31: diff of the `formatText` body in lexical 0.46's `src/LexicalSelection.ts` against the 0.52.0 source — observed 0.46 deriving the target across roughly 140 lines from `firstNode.getFormatFlags(formatType, alignWithFormat)`, and 0.52 delegating in one line to `$formatText`, which derives from `selection.format`]
+
+What a mixed-format selection now does therefore depends on `selection.format` rather than on the first selected node, and `$formatText`'s own derivation was not read. The user-visible consequence was not observed in either version and needs a hands-on check before being relied on.
+
+## The `lexical` package at 0.52.0 does not expose `./package.json` through its `exports` map
+
+**Verified at:** lexical 0.52.0 — 2026-10-01
+**Citation:** [dependency-update_14: ran `node -e "require('lexical/package.json')"` with lexical 0.52.0 installed under `app/` — observed `Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './package.json' is not defined by "exports"`]
+
+Reading its version needs the file path `app/node_modules/lexical/package.json` rather than module resolution. The `@lexical/*` packages were not checked.
