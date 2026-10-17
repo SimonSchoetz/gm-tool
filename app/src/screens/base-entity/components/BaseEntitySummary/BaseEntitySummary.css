@@ -1,0 +1,15 @@
+.base-entity-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--border-thin);
+  border-radius: var(--radius-lg);
+  max-width: var(--summary-max-width);
+}
+
+.base-entity-summary-content {
+  display: flex;
+  max-height: var(--summary-content-height);
+  overflow-y: auto;
+  margin: var(--spacing-sm);
+  margin-left: 0;
+}

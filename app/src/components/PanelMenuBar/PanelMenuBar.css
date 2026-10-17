@@ -1,0 +1,29 @@
+.panel-menu-bar {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--font-size-lg) + 2 * var(--spacing-sm));
+  color: var(--color-primary);
+  background-color: var(--color-bg-muted);
+  border-radius: inherit;
+}
+
+.panel-menu-bar:hover {
+  color: var(--color-fg);
+  background-color: transparent;
+}
+
+.panel-menu-bar-title {
+  flex: 1;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  padding: 0 var(--spacing-xs);
+}
+
+.panel-menu-bar-actions {
+  display: flex;
+}
+
+.panel-menu-bar-actions > * {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-xs);
+}

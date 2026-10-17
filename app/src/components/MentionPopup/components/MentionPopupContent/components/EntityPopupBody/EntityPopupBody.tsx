@@ -2,6 +2,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor';
 import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
+import { PanelBody } from '../../../../../PanelBody/PanelBody';
 import './EntityPopupBody.css';
 
 type Props = {
@@ -15,7 +16,7 @@ export const EntityPopupBody: FCProps<Props> = ({
   imageId,
   textEditorId,
 }) => (
-  <div className='entity-popup-body'>
+  <PanelBody className='entity-popup-body'>
     {imageId !== null && (
       <ImagePlaceholderFrame
         className='entity-popup-body--image'
@@ -37,5 +38,5 @@ export const EntityPopupBody: FCProps<Props> = ({
         />
       </div>
     )}
-  </div>
+  </PanelBody>
 );

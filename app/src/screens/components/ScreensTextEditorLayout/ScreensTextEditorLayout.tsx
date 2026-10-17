@@ -7,7 +7,7 @@ import { PREVIEW_WIDTH } from '../../screens.constants';
 type Props = {
   header: JSX.Element;
   sideBar: JSX.Element;
-  bodyHeader?: JSX.Element | null;
+  bodyHeader?: JSX.Element;
   body: JSX.Element;
 };
 

@@ -2,9 +2,6 @@
   display: flex;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm);
-  background-color: var(--color-bg-muted);
-  /*height: calc(var(--summary-content-height) + 2 * var(--spacing-md));*/
-  border-radius: inherit;
 }
 
 .entity-popup-body--image {
@@ -15,8 +12,4 @@
   max-height: var(--summary-content-height);
   max-width: var(--summary-max-width);
   overflow-y: auto;
-}
-
-.entity-popup-summary-body--content {
-  display: flex;
 }

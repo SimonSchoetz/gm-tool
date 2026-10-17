@@ -1,16 +1,13 @@
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { TextEditor } from '@/components/TextEditor';
-import {
-  useBaseEntity,
-  useBaseEntityContentSections,
-} from '@/data-access-layer';
+import { useBaseEntity } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { entityTypeLabel, type BaseEntityType } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
 import { BaseEntitySidebar } from './components/BaseEntitySidebar/BaseEntitySidebar';
+import { BaseEntitySummary } from './components/BaseEntitySummary/BaseEntitySummary';
 import { ScreensNameInput } from '../components/ScreensNameInput/ScreensNameInput';
 import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
-import { ScreensSummary } from '../components/ScreensSummary/ScreensSummary';
 
 type Props = { entityType: BaseEntityType };
 
@@ -22,14 +19,9 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
     params.baseEntityId ?? '',
     params.adventureId ?? '',
   );
-  const {
-    summarySection,
-    updateSection,
-    loading: sectionsLoading,
-  } = useBaseEntityContentSections(params.baseEntityId ?? '');
   const label = entityTypeLabel(entityType);
 
-  if (loading || sectionsLoading || !baseEntity) {
+  if (loading || !baseEntity) {
     return (
       <div className='content-center'>
         <LoadingIcon />
@@ -49,20 +41,7 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
         />
       }
       sideBar={<BaseEntitySidebar entityType={entityType} />}
-      bodyHeader={
-        summarySection ? (
-          <ScreensSummary>
-            <TextEditor
-              placeholder={`${label} Summary`}
-              value={summarySection.content ?? ''}
-              textEditorId={`${entityType}_${baseEntity.id}_summary`}
-              onChange={(content) => {
-                updateSection(summarySection.id, { content });
-              }}
-            />
-          </ScreensSummary>
-        ) : null
-      }
+      bodyHeader={<BaseEntitySummary entityType={entityType} />}
       body={
         <TextEditor
           value={baseEntity.description ?? ''}

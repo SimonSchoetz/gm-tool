@@ -3,6 +3,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
 import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
+import { PanelMenuBar } from '../../../PanelMenuBar/PanelMenuBar';
 import './MentionPopupHeader.css';
 
 type DraggableProps = {
@@ -28,40 +29,38 @@ export const MentionPopupHeader: FCProps<Props> = ({
   onRemove,
   onNavigate,
 }) => (
-  <div className='mention-popup-header'>
-    <div
-      {...(isPinned ? draggableProps : {})}
-      className={cn(
-        'clip-text',
-        'mention-popup-name',
-        isPinned && 'mention-popup-name--pinned',
-      )}
-    >
-      {isPinned && <>⠿</>} {name}
-    </div>
-    <div className='mention-popup-menu-bar'>
+  <PanelMenuBar
+    title={
+      <>
+        {isPinned && <>⠿</>} {name}
+      </>
+    }
+    titleProps={{
+      ...(isPinned ? draggableProps : {}),
+      className: cn(isPinned && 'mention-popup-name--pinned'),
+    }}
+  >
+    <ClickableIcon
+      icon={<ExternalLinkIcon />}
+      onClick={onNavigate}
+      label='Navigate to entity'
+      title='Navigate'
+    />
+    {!isPinned ? (
       <ClickableIcon
-        icon={<ExternalLinkIcon />}
-        onClick={onNavigate}
-        label='Navigate to entity'
-        title='Navigate'
+        icon={<PinIcon />}
+        onClick={onPin}
+        label='Pin popup'
+        title='Pin'
       />
-      {!isPinned ? (
-        <ClickableIcon
-          icon={<PinIcon />}
-          onClick={onPin}
-          label='Pin popup'
-          title='Pin'
-        />
-      ) : (
-        <ClickableIcon
-          icon={<XIcon />}
-          onClick={onRemove}
-          label='Close popup'
-          title='Close'
-          variant='danger'
-        />
-      )}
-    </div>
-  </div>
+    ) : (
+      <ClickableIcon
+        icon={<XIcon />}
+        onClick={onRemove}
+        label='Close popup'
+        title='Close'
+        variant='danger'
+      />
+    )}
+  </PanelMenuBar>
 );

@@ -1,36 +1,7 @@
-.mention-popup-header {
-  display: flex;
-  align-items: center;
-  color: var(--color-primary);
-  background-color: var(--color-bg-muted);
-  border-radius: inherit;
-}
-
-.mention-popup-header:hover {
-  color: var(--color-fg);
-  background-color: transparent;
-}
-
 .mention-popup-name--pinned {
   cursor: grab;
 }
 
 .mention-popup-name--pinned:active {
   cursor: grabbing;
-}
-
-.mention-popup-name {
-  flex: 1;
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
-  padding: 0 var(--spacing-xs);
-}
-
-.mention-popup-menu-bar {
-  display: flex;
-}
-
-.mention-popup-menu-bar > * {
-  display: flex;
-  padding: var(--spacing-sm) var(--spacing-xs);
 }
