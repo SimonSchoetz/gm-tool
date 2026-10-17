@@ -1,5 +1,4 @@
 .adventure-title-input {
-  margin-top: var(--spacing-sm);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-medium);
 }

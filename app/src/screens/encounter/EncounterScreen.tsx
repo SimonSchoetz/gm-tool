@@ -1,12 +1,10 @@
 import { useParams } from '@tanstack/react-router';
 import { useEncounter } from '@/data-access-layer';
-import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { TextEditor } from '@/components/TextEditor';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterSidebar } from './components/EncounterSidebar';
-import './EncounterScreen.css';
-import { PREVIEW_WIDTH } from '../screens.constants';
+import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
 
 export const EncounterScreen = () => {
   const { adventureId, encounterId } = useParams({
@@ -27,19 +25,10 @@ export const EncounterScreen = () => {
   }
 
   return (
-    <GlassPanel
-      className='encounter-screen'
-      style={
-        {
-          '--encounter-screen-sidebar-width': `${PREVIEW_WIDTH}px`,
-        } as React.CSSProperties
-      }
-    >
-      <EncounterHeader />
-
-      <div className='encounter-screen--body'>
-        <EncounterSidebar />
-
+    <ScreensTextEditorLayout
+      header={<EncounterHeader />}
+      sideBar={<EncounterSidebar />}
+      body={
         <TextEditor
           value={encounter.description ?? ''}
           textEditorId={`ENCOUNTER_${encounter.id}_description`}
@@ -47,7 +36,7 @@ export const EncounterScreen = () => {
             updateEncounter({ description });
           }}
         />
-      </div>
-    </GlassPanel>
+      }
+    />
   );
 };

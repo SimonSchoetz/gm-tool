@@ -2,7 +2,6 @@
   display: flex;
   list-style-type: none;
   gap: var(--spacing-xs) var(--spacing-xl);
-  margin-bottom: var(--spacing-md);
   flex-wrap: wrap;
 }
 .adventure-stats li {

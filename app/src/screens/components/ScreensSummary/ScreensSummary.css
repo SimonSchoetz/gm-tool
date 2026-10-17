@@ -3,6 +3,7 @@
   padding: calc(var(--spacing-md) - var(--spacing-xs));
   padding-left: 0;
   width: fit-content;
+  margin-left: var(--spacing-md);
 }
 
 .screens-summary--content {

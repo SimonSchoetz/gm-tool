@@ -1,18 +1,20 @@
 import { FCProps } from '@/types/fcProps.type';
 import './ScreensTextEditorLayout.css';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
-import { ComponentProps, JSX } from 'react';
+import { JSX } from 'react';
 import { PREVIEW_WIDTH } from '../../screens.constants';
 
-type Props = ComponentProps<typeof GlassPanel> & {
-  sideBar: JSX.Element | null;
-  header: JSX.Element | null;
+type Props = {
+  header: JSX.Element;
+  sideBar: JSX.Element;
+  bodyHeader?: JSX.Element | null;
   body: JSX.Element;
 };
 
 export const ScreensTextEditorLayout: FCProps<Props> = ({
   header,
   sideBar,
+  bodyHeader,
   body,
 }) => {
   return (
@@ -24,11 +26,14 @@ export const ScreensTextEditorLayout: FCProps<Props> = ({
       }
       className='screens-text-editor-layout'
     >
-      {sideBar}
+      <header className='screens-text-editor-layout--header'>{header}</header>
 
-      <div className='screens-text-editor-layout--edit-area'>
-        <div className='screens-text-editor-layout--header'>{header}</div>
-        <div className='screens-text-editor-layout--body'>{body}</div>
+      <div className='screens-text-editor-layout--main'>
+        {sideBar}
+        <div className='screens-text-editor-layout--body'>
+          {bodyHeader}
+          <div className='screens-text-editor-layout--body-scroll'>{body}</div>
+        </div>
       </div>
     </GlassPanel>
   );
