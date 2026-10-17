@@ -27,3 +27,10 @@ The 24-hour window the run reported matches the documented default of 1440 minut
 **Citation:** [dependency-update_8: ran `pnpm up @tauri-apps/api@2.12.1 @tauri-apps/cli@2.12.1 @tauri-apps/plugin-dialog@2.8.1 @tauri-apps/plugin-sql@2.5.0 @tauri-apps/plugin-opener@2.7.0` from `app/`, where the first three had been published roughly 10 to 14 hours earlier and the last two 1.6 and 4.5 days earlier — observed the install succeed and a `minimumReleaseAgeExclude:` block appear in `app/pnpm-workspace.yaml` holding 14 exact `name@version` entries covering the three recent packages plus every `@tauri-apps/cli-*` platform binary, and neither of the two older ones; ran the same command with 2.12.0 and 2.8.0 substituted for 2.12.1 and 2.8.1 — observed the install succeed with no such block written]
 
 The written entries name exact versions and carry no expiry, so they stay in the file after those versions age past the window; nothing was observed pruning them. Asking instead for a version already older than the window installed it with no block written.
+
+## pnpm 12.4.2 ignores a project's own `engines.node`: an unsatisfiable range still installs, under `install` and `add`, with the `--engine-strict` flag and with `engine-strict=true` in `.npmrc`
+
+**Verified at:** pnpm 12.4.2 on Node v24.21.0 — 2026-10-17
+**Citation:** [dependency-update_18: set `engines.node` to the unsatisfiable `">=99.0.0"` in a throwaway copy of this repository's `app/` manifest, then from that directory on Node v24.21.0 ran `pnpm --version` — observed `12.4.2` — followed by `pnpm install --frozen-lockfile`, the same command with `--engine-strict`, a plain `pnpm install`, and `pnpm add -D is-odd@3.0.1` with `engine-strict=true` written to a local `.npmrc` — observed exit 0 from every one and no output line matching engine, unsupported or ERR_]
+
+The unsatisfiable range is the control: a field being read at all would have failed on it.
