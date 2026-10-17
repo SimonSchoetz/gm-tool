@@ -17,6 +17,7 @@ export const NewItemBtn: FCProps<Props> = ({
   className,
   onClick,
   suppressAnimation,
+  style,
   ...props
 }) => {
   const [hideBtn, setHideBtn] = useState(false);
@@ -43,6 +44,7 @@ export const NewItemBtn: FCProps<Props> = ({
       style={
         {
           '--ni-btn-animation-duration': `${ANIMATION_DURATION}ms`,
+          ...style,
         } as CSSProperties
       }
       {...props}

@@ -10,9 +10,14 @@
   justify-content: center;
 }
 
-.image-viewer-dialog-img {
-  max-width: 100%;
+/* Compound selector: ties with .image-by-id (width/height 100%, object-fit cover) otherwise, and the winner would depend on stylesheet load order. */
+.image-viewer-dialog .image-viewer-dialog-img {
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  max-width: calc(100vw - var(--spacing-xl) - 2 * var(--border-thin));
   max-height: calc(
-    var(--dialog-max-height) - var(--rt-image-viewer-dialog-header-h, 0px)
+    100vh - var(--spacing-xl) - 2 * var(--border-thin) -
+      var(--rt-image-viewer-dialog-header-h, 0px)
   );
 }

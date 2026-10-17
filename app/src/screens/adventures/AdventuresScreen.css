@@ -7,7 +7,7 @@
   overflow-y: auto;
 }
 
-.new-adventure-btn {
+.adventure-list-container .new-adventure-btn {
   width: var(--adventure-preview-width);
   height: var(--adventure-preview-height);
 }
