@@ -1,10 +1,10 @@
-import { useContext, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
 import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
 import { PanelMenuBar } from '../../../PanelMenuBar/PanelMenuBar';
-import { MentionPopupHeaderContext } from '../../MentionPopupHeaderContext';
+import { useMentionPopupHeader } from '../../hooks/useMentionPopupHeader';
 import './MentionPopupHeader.css';
 
 type Props = {
@@ -13,22 +13,17 @@ type Props = {
 };
 
 export const MentionPopupHeader: FCProps<Props> = ({
-  leading,
+  leading = null,
   titleSuffix,
 }) => {
-  const header = useContext(MentionPopupHeaderContext);
-  if (header === null) {
-    throw new Error(
-      'MentionPopupHeader must be rendered inside a MentionPopup',
-    );
-  }
+  const header = useMentionPopupHeader();
 
   return (
     <PanelMenuBar
       leading={leading}
       title={
         <>
-          {header.isPinned && leading === undefined && <>⠿</>} {header.name}
+          {header.isPinned && leading === null && <>⠿</>} {header.name}
           {titleSuffix}
         </>
       }

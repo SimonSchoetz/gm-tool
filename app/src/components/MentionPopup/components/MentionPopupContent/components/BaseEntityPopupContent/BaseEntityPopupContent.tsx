@@ -38,7 +38,7 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
         titleSuffix: ` | ${selected.name ?? ''}`,
         leading: isNavAvailable ? (
           <ContentSectionNavToggle isOpen={isNavVisible} onToggle={toggleNav} />
-        ) : undefined,
+        ) : null,
       }
     : {};
 

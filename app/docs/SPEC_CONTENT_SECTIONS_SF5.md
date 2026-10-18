@@ -19,6 +19,7 @@ A base entity's mention popup shows the entity's top content section, labels its
 - `Deleted:` none
 - `New:`
   - `app/src/components/MentionPopup/MentionPopupHeaderContext.ts`
+  - `app/src/components/MentionPopup/hooks/useMentionPopupHeader.ts`
 - `Moved:` none
 - `Draft:` none
 
@@ -38,9 +39,10 @@ This is the first React context under `src/components/`; every part of it is sta
 
 - **Placement:** the `MentionPopup` module's own folder, beside `MentionPopup.tsx`. It is a neutral file both its provider and its reader import, so `MentionPopupHeader` never imports from the module's main component file (`.claude/rules/src-components.md` — Component Library, the type-back-from-parent rule).
 - **Exports:**
-  - `export type MentionPopupHeaderContextValue = { name: string; isPinned: boolean; draggableProps: ReturnType<typeof useDraggable>['draggableProps']; onPin: () => void; onRemove: () => void; onNavigate: () => void; };` — `useDraggable` comes from a type-only import, `import type { useDraggable } from '@/hooks/useDraggable';`.
+  - `type MentionPopupHeaderContextValue = { name: string; isPinned: boolean; draggableProps: ReturnType<typeof useDraggable>['draggableProps']; onPin: () => void; onRemove: () => void; onNavigate: () => void; };` — `useDraggable` comes from a type-only import, `import type { useDraggable } from '@/hooks/useDraggable';`. The type is module-private: the reader hook below infers it, so nothing imports it.
   - `export const MentionPopupHeaderContext = createContext<MentionPopupHeaderContextValue | null>(null);` — `createContext` requires a default value (`.claude/knowledge/react.md`).
-- **Who imports it:** `MentionPopup.tsx` (provides it) and `MentionPopupHeader.tsx` (reads it) only. It is not exported from `MentionPopup/index.ts`, and nothing outside `app/src/components/MentionPopup/` imports it.
+- **Reader hook:** `app/src/components/MentionPopup/hooks/useMentionPopupHeader.ts` exports `useMentionPopupHeader`, which reads the context and throws `useMentionPopupHeader must be called within a MentionPopup` when it is `null` — the shape of `useDeleteDialog` and `usePinnedPopups`. It sits in the module's own `hooks/` function-grouping folder, so that folder has no `index.ts`, and it has no unit test (neither existing reader hook has one). It returns the value with an inferred type.
+- **Who imports it:** `MentionPopup.tsx` imports the context to provide it, and `useMentionPopupHeader.ts` imports it to read it; `MentionPopupHeader.tsx` reads it only through the hook. It is not exported from `MentionPopup/index.ts`, and nothing outside `app/src/components/MentionPopup/` imports it.
 - **Value:** only what `MentionPopupHeader` reads (`.claude/rules/src-providers.md` — "Context value types contain only what external consumers call through the hook").
 
 ### `MentionPopup.tsx` — Modified
@@ -57,12 +59,12 @@ This is the first React context under `src/components/`; every part of it is sta
 
 - **Purpose:** unchanged — the menu bar of every mention popup: name, pin/close, navigate and drag.
 - **UI / Visual:** unchanged, apart from an optional element left of the name and an optional suffix after it.
-- **Props** (case 3, `FCProps<Props>`): `leading?: ReactNode`, `titleSuffix?: string`. The six behavior props and the local `DraggableProps` type go away; the type now comes from `useDraggable`'s return type in the context file instead of a hand-copied duplicate.
-- **Behavior:** `const header = useContext(MentionPopupHeaderContext);` and, when it is `null`, `throw new Error('MentionPopupHeader must be rendered inside a MentionPopup');` — an internal invariant, so a bare `Error` (`app/CLAUDE.md` — TypeScript Coding Style). Then render as today from `header`'s fields, with three changes:
-  - the title is `<>{header.isPinned && leading === undefined && <>⠿</>} {header.name}{titleSuffix}</>` — the ⠿ glyph shows only when pinned and no `leading` element is given
+- **Props** (case 3, `FCProps<Props>`): `leading?: ReactNode` (defaulting to `null` in the destructuring, so an omitted prop and an explicit `null` both mean "no leading element"), `titleSuffix?: string`. The six behavior props and the local `DraggableProps` type go away; the type now comes from `useDraggable`'s return type in the context file instead of a hand-copied duplicate.
+- **Behavior:** `const header = useMentionPopupHeader();`. Then render as today from `header`'s fields, with three changes:
+  - the title is `<>{header.isPinned && leading === null && <>⠿</>} {header.name}{titleSuffix}</>` — the ⠿ glyph shows only when pinned and no `leading` element is given
   - `PanelMenuBar` receives `leading={leading}` (Sub-feature 4)
   - `titleProps` still spread the drag handlers when pinned, so a pinned popup with a burger is dragged by its title
-- **Imports:** `useContext` and the `ReactNode` type from `react` replace the default `React` import, which only the removed `DraggableProps` type used; `MentionPopupHeaderContext` from `'../../MentionPopupHeaderContext'`.
+- **Imports:** the `ReactNode` type from `react` replaces the default `React` import, which only the removed `DraggableProps` type used; `useMentionPopupHeader` from `'../../hooks/useMentionPopupHeader'`.
 
 ### `MentionPopupContent.tsx` — Modified
 
@@ -81,7 +83,7 @@ This is the first React context under `src/components/`; every part of it is sta
 - **Behavior:**
   - Hooks, all before any return: `useBaseEntity(entityType, entityId, adventureId ?? '')` → `baseEntity`, `loading`; `useBaseEntityContentSections(entityId)` → `sections`, `loading: sectionsLoading`; `useListNavigation(sections)` (Sub-feature 4) → `selected`, `isNavAvailable`, `isNavVisible`, `select`, `toggleNav`.
   - While `loading || sectionsLoading || !baseEntity`: `return <MentionPopupHeader />;`.
-  - Header slots — `const headerSlots: React.ComponentProps<typeof MentionPopupHeader>` is `{}` when `selected` is `null`, else ``{ titleSuffix: ` | ${selected.name ?? ''}`, leading: isNavAvailable ? <ContentSectionNavToggle isOpen={isNavVisible} onToggle={toggleNav} /> : undefined }``. `leading` is typed `ReactNode`, which includes `undefined`, so the explicit `undefined` passes `exactOptionalPropertyTypes`; `titleSuffix` is only ever a string. Render `<MentionPopupHeader {...headerSlots} />`.
+  - Header slots — `const headerSlots: React.ComponentProps<typeof MentionPopupHeader>` is `{}` when `selected` is `null`, else ``{ titleSuffix: ` | ${selected.name ?? ''}`, leading: isNavAvailable ? <ContentSectionNavToggle isOpen={isNavVisible} onToggle={toggleNav} /> : null }``. `null` means no leading element; `titleSuffix` is only ever a string. Render `<MentionPopupHeader {...headerSlots} />`.
   - Body: while `isNavVisible`, `<ContentSectionNav baseEntityId={entityId} activeId={selected?.id ?? null} onSelect={select} newItem={null} newItemRef={null} />` (no new-item button in the popup). Comment, as a `//` line directly above it inside the conditional expression (it is an operand there, not a JSX child, so the braced form does not apply): `Rendered inline in place of EntityPopupBody, never through AnchoredPopup's portal: an unpinned MentionPopup removes itself on mouse leave.` Otherwise `<EntityPopupBody summary={selected?.content ?? null} imageId={baseEntity.image_id} textEditorId={…} />`, where `textEditorId` is ``selected ? `content-section-popup-${selected.id}` : `${entityType}-popup-${entityId}` `` — the section id remounts the read-only editor on a switch, as on the screen, and the fallback is today's value. Comment, as a `//` line directly above the `textEditorId` attribute (a `{/* … */}` comment between attributes does not compile, `.claude/knowledge/typescript.md`): `The section id makes EntityPopupBody's TextEditor remount on a section switch instead of showing the previous section.` A section whose content is `null` shows the image only, as a `null` summary does today.
 - **Imports:** `MentionPopupHeader` from `'../../../MentionPopupHeader/MentionPopupHeader'`; `ContentSectionNav` from `'../../../../../ContentSectionNav/ContentSectionNav'` and `ContentSectionNavToggle` from `'../../../../../ContentSectionNavToggle/ContentSectionNavToggle'` (same direct child of `src/`, so relative, as `EntityPopupBody.tsx` imports `'../../../../../ImageById/ImageById'` from the same depth); `useListNavigation` from `@/hooks/useListNavigation`.
 - **UI / Visual:** the header and one body element, no new stylesheet — the nav's own `content-section-nav` class caps its height at `--summary-content-height`, the height the popup body already uses.

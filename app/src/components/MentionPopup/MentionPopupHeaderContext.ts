@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import type { useDraggable } from '@/hooks/useDraggable';
 
-export type MentionPopupHeaderContextValue = {
+type MentionPopupHeaderContextValue = {
   name: string;
   isPinned: boolean;
   draggableProps: ReturnType<typeof useDraggable>['draggableProps'];

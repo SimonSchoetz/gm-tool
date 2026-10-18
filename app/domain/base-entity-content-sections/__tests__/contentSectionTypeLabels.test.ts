@@ -1,15 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  contentSectionLabel,
-  contentSectionTypeLabel,
-} from '../contentSectionTypeLabels';
-
-describe('contentSectionTypeLabel', () => {
-  it('returns the label for each content section type', () => {
-    expect(contentSectionTypeLabel('text')).toBe('Text');
-    expect(contentSectionTypeLabel('5e-stat-block')).toBe('5e Stat Block');
-  });
-});
+import { contentSectionLabel } from '../contentSectionTypeLabels';
 
 describe('contentSectionLabel', () => {
   it("returns the section's name when it has one", () => {

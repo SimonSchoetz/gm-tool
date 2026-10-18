@@ -5,8 +5,7 @@ export const getIdAfterRemoval = (
   const index = ids.indexOf(removedId);
   if (index === -1) return null;
 
-  const nextId = ids.at(index + 1);
-  if (nextId !== undefined) return nextId;
-
-  return index > 0 ? (ids.at(index - 1) ?? null) : null;
+  if (index + 1 < ids.length) return ids[index + 1];
+  if (index > 0) return ids[index - 1];
+  return null;
 };

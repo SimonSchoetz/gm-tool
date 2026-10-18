@@ -58,7 +58,6 @@ Add `export { contentSectionTypeLabel, contentSectionLabel } from './contentSect
 
 ### Test — `app/domain/base-entity-content-sections/__tests__/contentSectionTypeLabels.test.ts` — New
 
-- `returns the label for each content section type` — `contentSectionTypeLabel('text')` is `'Text'` and `contentSectionTypeLabel('5e-stat-block')` is `'5e Stat Block'`. Catches a missing or swapped mapping, which would name new sections wrongly.
 - `returns the section's name when it has one` — `contentSectionLabel('Goblin stats', '5e-stat-block')` is `'Goblin stats'`. Catches the type label overriding a name the GM set.
 - `falls back to the type label for an empty name` — `contentSectionLabel('', 'text')` is `'Text'`. Catches a `??`-only fallback that would leave a cleared section blank in the nav.
 - `falls back to the type label for a missing name` — `contentSectionLabel(null, '5e-stat-block')` is `'5e Stat Block'`. Catches `null` not falling back.
