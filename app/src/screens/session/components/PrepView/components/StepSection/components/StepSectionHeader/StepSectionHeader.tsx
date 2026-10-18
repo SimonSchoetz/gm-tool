@@ -25,7 +25,7 @@ export const StepSectionHeader: FCProps<Props> = ({
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { steps, updateStep, deleteStep } = useSessionSteps(sessionId);
-  const step = steps.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId) ?? null;
   const { openDeleteDialog } = useDeleteDialog();
 
   if (!step) return;

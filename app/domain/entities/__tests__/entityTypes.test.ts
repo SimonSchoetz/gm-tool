@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ENTITY_TYPES, isBaseEntityType } from '../entityTypes';
+import { ENTITY_TYPES, isBaseEntityType, isEntityType } from '../entityTypes';
 
 describe('isBaseEntityType', () => {
   it.each(['npcs', 'foes', 'pcs', 'factions', 'locations', 'items'])(
@@ -15,6 +15,19 @@ describe('isBaseEntityType', () => {
       expect(isBaseEntityType(value)).toBe(false);
     },
   );
+});
+
+describe('isEntityType', () => {
+  it.each(['npcs', 'sessions', 'encounters', 'adventures'])(
+    'returns true for %s, a base or non-base entity type',
+    (value) => {
+      expect(isEntityType(value)).toBe(true);
+    },
+  );
+
+  it.each(['stories', 'npc', ''])('returns false for %j', (value) => {
+    expect(isEntityType(value)).toBe(false);
+  });
 });
 
 describe('ENTITY_TYPES', () => {

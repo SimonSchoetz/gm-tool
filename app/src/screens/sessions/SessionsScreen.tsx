@@ -14,9 +14,8 @@ export const SessionsScreen = () => {
   const { sessions, loading, createSession } = useSessions(adventureId);
   const { tableConfigs, loading: configsLoading } = useTableConfigs();
 
-  const sessionsTableConfig = tableConfigs.find(
-    (c) => c.table_name === 'sessions',
-  );
+  const sessionsTableConfig =
+    tableConfigs.find((c) => c.table_name === 'sessions') ?? null;
 
   const handleSessionCreation = async () => {
     const newSessionId = await createSession();

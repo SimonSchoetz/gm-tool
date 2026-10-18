@@ -15,7 +15,7 @@ export const InGameStepSection: FCProps<Props> = ({ stepId }) => {
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { steps, updateStep } = useSessionSteps(sessionId);
-  const step = steps.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId) ?? null;
 
   if (!step) return;
 

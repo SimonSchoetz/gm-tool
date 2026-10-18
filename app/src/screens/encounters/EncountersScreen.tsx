@@ -19,9 +19,8 @@ export const EncountersScreen = () => {
   } = useEncounters(adventureId);
   const { tableConfigs, loading: configsLoading } = useTableConfigs();
 
-  const encountersTableConfig = tableConfigs.find(
-    (c) => c.table_name === 'encounters',
-  );
+  const encountersTableConfig =
+    tableConfigs.find((c) => c.table_name === 'encounters') ?? null;
 
   const handleEncounterCreation = async () => {
     const newEncounterId = await createEncounter();

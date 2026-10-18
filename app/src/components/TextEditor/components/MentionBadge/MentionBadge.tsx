@@ -42,7 +42,8 @@ export const MentionBadge: FCProps<Props> = ({
     entityType,
   );
 
-  const tableConfig = tableConfigs.find((c) => c.table_name === entityType);
+  const tableConfig =
+    tableConfigs.find((c) => c.table_name === entityType) ?? null;
   const resolvedColor = tableConfig?.color ?? null;
   const resolvedName = !loading && liveName !== null ? liveName : displayName;
 

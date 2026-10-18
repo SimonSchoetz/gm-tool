@@ -10,7 +10,6 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  arrayMove,
 } from '@dnd-kit/sortable';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { Ref } from 'react';
@@ -18,6 +17,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
 import { ReorderableNavListItem } from './components/ReorderableNavListItem/ReorderableNavListItem';
+import { reorderIds } from './helper/reorderIds';
 import './ReorderableNavList.css';
 
 type Props = {
@@ -48,10 +48,13 @@ export const ReorderableNavList: FCProps<Props> = ({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = items.findIndex((item) => item.id === active.id);
-    const newIndex = items.findIndex((item) => item.id === over.id);
-    const reordered = arrayMove(items, oldIndex, newIndex);
-    onReorder(reordered.map((item) => item.id));
+    onReorder(
+      reorderIds(
+        items.map((item) => item.id),
+        String(active.id),
+        String(over.id),
+      ),
+    );
   };
 
   return (
