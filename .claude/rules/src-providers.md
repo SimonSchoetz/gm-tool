@@ -15,3 +15,5 @@ Conventions for any file under `src/providers/`. Hook-hygiene rules, including t
 **Context value types contain only what external consumers call through the hook.** A function called only by the provider component itself belongs in local scope there, not on the `ContextValue` type — placing provider-internal functions there widens the public interface beyond what consumers need and obscures which operations are genuinely external.
 
 A component rendered exclusively by a provider does not belong in that provider's module directory — see the provider-modules exception under Sub-component ownership in `.claude/rules/src-components.md` — Component Library.
+
+A context whose Provider is rendered by one component for its own subtree is not a provider module and does not go in `providers/` — see `.claude/rules/src-components.md` — Context scoped to one component.
