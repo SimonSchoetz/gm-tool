@@ -67,7 +67,7 @@ Every base entity type is a row of `base_entities`, discriminated by `entity_typ
 
 `app/db/CLAUDE.md` bans `.optional()` on any `zodSchema` field, and the ban applies unconditionally. `db/base-entity/schema.ts` uses `.nullable()` alone on every nullable column, including `image_id` — no field on this table is grandfathered.
 
-A base entity's summary lives in `base_entity_content_sections` (one `'text'` section, the first by `sort_order`), keyed by `base_entity_id`. A new base entity type needs no registration there.
+A base entity's summary lives in its content sections: ordered (`sort_order`) rows of `base_entity_content_sections`, each typed `'text'` or `'5e-stat-block'`, keyed by `base_entity_id` — a base entity can have several of them. A new base entity type needs no registration there.
 
 ## Implementation Notes
 
