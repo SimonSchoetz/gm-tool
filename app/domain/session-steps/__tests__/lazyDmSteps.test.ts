@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { findLazyDmStep } from '../lazyDmSteps';
+import { LAZY_DM_STEPS, findLazyDmStep } from '../lazyDmSteps';
 
 describe('findLazyDmStep', () => {
-  it('returns the definition for a known key', () => {
-    expect(findLazyDmStep('strong_start')?.name).toBe('Strong Start');
+  it.each(LAZY_DM_STEPS)('returns the definition whose key is $key', (step) => {
+    expect(findLazyDmStep(step.key)).toBe(step);
   });
 
   it('returns null for a null key', () => {

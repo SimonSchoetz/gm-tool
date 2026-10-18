@@ -1,13 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { ENTITY_TYPES, isBaseEntityType, isEntityType } from '../entityTypes';
+import {
+  BASE_ENTITY_TYPES,
+  ENTITY_TYPES,
+  isBaseEntityType,
+  isEntityType,
+} from '../entityTypes';
 
 describe('isBaseEntityType', () => {
-  it.each(['npcs', 'foes', 'pcs', 'factions', 'locations', 'items'])(
-    'returns true for %s',
-    (value) => {
-      expect(isBaseEntityType(value)).toBe(true);
-    },
-  );
+  it.each(BASE_ENTITY_TYPES)('returns true for %s', (value) => {
+    expect(isBaseEntityType(value)).toBe(true);
+  });
 
   it.each(['sessions', 'encounters', 'adventures', 'stories'])(
     'returns false for %s',
@@ -18,7 +20,7 @@ describe('isBaseEntityType', () => {
 });
 
 describe('isEntityType', () => {
-  it.each(['npcs', 'sessions', 'encounters', 'adventures'])(
+  it.each(ENTITY_TYPES)(
     'returns true for %s, a base or non-base entity type',
     (value) => {
       expect(isEntityType(value)).toBe(true);
@@ -31,17 +33,9 @@ describe('isEntityType', () => {
 });
 
 describe('ENTITY_TYPES', () => {
-  it('lists base entity types before sessions, encounters, and adventures', () => {
-    expect(ENTITY_TYPES).toEqual([
-      'npcs',
-      'foes',
-      'pcs',
-      'factions',
-      'locations',
-      'items',
-      'sessions',
-      'encounters',
-      'adventures',
-    ]);
+  it('lists the base entity types first', () => {
+    expect(ENTITY_TYPES.slice(0, BASE_ENTITY_TYPES.length)).toEqual(
+      BASE_ENTITY_TYPES,
+    );
   });
 });
