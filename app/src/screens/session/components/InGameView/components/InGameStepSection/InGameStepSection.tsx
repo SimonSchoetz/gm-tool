@@ -1,22 +1,26 @@
 import { TextEditor } from '@/components/TextEditor';
 import { useSessionSteps } from '@/data-access-layer';
-import type { SessionStep } from '@db/session-step';
+import { FCProps } from '@/types/fcProps.type';
 import './InGameStepSection.css';
 import { useParams } from '@tanstack/react-router';
 import { InGameStepSectionTitle } from './components/InGameStepSectionTitle/InGameStepSectionTitle';
+import { stepSectionElementId } from '../../../../helper/stepSectionElementId';
 
-type InGameStepSectionProps = {
-  step: SessionStep;
+type Props = {
+  stepId: string;
 };
 
-export const InGameStepSection = ({ step }: InGameStepSectionProps) => {
+export const InGameStepSection: FCProps<Props> = ({ stepId }) => {
   const { sessionId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
   });
-  const { updateStep } = useSessionSteps(sessionId);
+  const { steps, updateStep } = useSessionSteps(sessionId);
+  const step = steps.find((s) => s.id === stepId);
+
+  if (!step) return;
 
   return (
-    <div id={`step-section-${step.id}`} className='in-game-step-section'>
+    <div id={stepSectionElementId(step.id)} className='in-game-step-section'>
       <InGameStepSectionTitle stepId={step.id} />
       <TextEditor
         textEditorId={`in-game-step-${step.id}`}

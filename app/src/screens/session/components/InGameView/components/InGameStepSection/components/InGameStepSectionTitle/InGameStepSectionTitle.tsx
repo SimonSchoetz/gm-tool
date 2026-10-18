@@ -1,6 +1,6 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import { LAZY_DM_STEPS } from '@domain';
+import { findLazyDmStep } from '@domain';
 import { useParams } from '@tanstack/react-router';
 import './InGameStepSectionTitle.css';
 
@@ -22,9 +22,7 @@ export const InGameStepSectionTitle: FCProps<Props> = ({ stepId }) => {
   }
 
   if (step.default_step_key) {
-    const definition = LAZY_DM_STEPS.find(
-      (s) => s.key === step.default_step_key,
-    );
+    const definition = findLazyDmStep(step.default_step_key);
     if (definition) {
       return <h2 className='in-game-step-section-title'>{definition.name}</h2>;
     }

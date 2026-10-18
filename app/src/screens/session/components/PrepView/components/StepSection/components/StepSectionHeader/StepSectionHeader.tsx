@@ -1,7 +1,7 @@
 import { useSessionSteps } from '@/data-access-layer';
 import { Checkbox } from '@/components/Checkbox/Checkbox';
 import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
-import { LAZY_DM_STEPS } from '@domain';
+import { sessionStepName } from '@domain';
 import './StepSectionHeader.css';
 import { useParams } from '@tanstack/react-router';
 import { FCProps } from '@/types/fcProps.type';
@@ -30,8 +30,7 @@ export const StepSectionHeader: FCProps<Props> = ({
 
   if (!step) return;
 
-  const lazyStep = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
-  const stepName = step.name ?? lazyStep?.name ?? 'Untitled Step';
+  const stepName = sessionStepName(step.name, step.default_step_key);
 
   return (
     <div className='step-section-header'>
