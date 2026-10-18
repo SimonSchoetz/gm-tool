@@ -35,7 +35,7 @@ export const InGameView = () => {
           onChange={(summary) => {
             updateSession({ summary });
           }}
-          placeholder='Ingame notes and session summmary...'
+          placeholder='Ingame notes and session summary...'
         />
       </GlassPanel>
 

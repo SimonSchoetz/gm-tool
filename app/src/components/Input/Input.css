@@ -2,7 +2,7 @@
   width: 100%;
   font-size: var(--font-size-base);
   font-family: inherit;
-  color: var(--color-fb);
+  color: inherit;
   border: none;
   border-bottom: 1px solid transparent;
   background-color: transparent;
