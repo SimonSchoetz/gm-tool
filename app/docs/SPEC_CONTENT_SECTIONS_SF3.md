@@ -28,8 +28,9 @@ Extract the session steps nav's sortable list into the generic `src/components/R
   - `activeId: string | null` — the item shown as current
   - `onSelect: (id: string) => void`
   - `onReorder: (orderedIds: string[]) => void`
-  - `newItem: { label: string; onClick: () => void; ref: Ref<HTMLButtonElement> } | null` — `null` renders no new-item button. `Ref<T>` already includes `null` (`.claude/knowledge/react.md`), so a caller with no anchor passes `ref: null`.
-- **Behavior:** the sensors (`PointerSensor`; `KeyboardSensor` with `sortableKeyboardCoordinates`) and `handleDragEnd` move unchanged from `SessionStepsNav.tsx`, with `steps` → `items` and `bulkReorder(reordered.map((s) => s.id))` → `onReorder(reordered.map((item) => item.id))`. Each item renders `ReorderableNavListItem` with `id`, `label`, `onSelect` and `variant={item.id === activeId ? 'active' : item.isChecked ? 'checked' : null}` — the JSX prop gives the literals their union type. When `newItem` is set, render `NewItemBtn` after the `DndContext` with `ref={newItem.ref}`, `className='reorderable-nav-list-new-item-btn'`, `label={newItem.label}`, `suppressAnimation` and `onClick={newItem.onClick}`. `NewItemBtn` spreads its remaining props onto `ActionContainer`, which spreads them onto its `<button>`, so the ref reaches the button.
+  - `newItem: { label: string; onClick: () => void } | null` — `null` renders no new-item button.
+  - `newItemRef: Ref<HTMLButtonElement>` — the new-item button's ref, a prop of its own because a ref nested in `newItem` makes `react-hooks/refs` report every read of `newItem` (`.claude/knowledge/eslint.md`). `Ref<T>` already includes `null` (`.claude/knowledge/react.md`), so a caller with no anchor passes `newItemRef={null}`.
+- **Behavior:** the sensors (`PointerSensor`; `KeyboardSensor` with `sortableKeyboardCoordinates`) and `handleDragEnd` move unchanged from `SessionStepsNav.tsx`, with `steps` → `items` and `bulkReorder(reordered.map((s) => s.id))` → `onReorder(reordered.map((item) => item.id))`. Each item renders `ReorderableNavListItem` with `id`, `label`, `onSelect` and `variant={item.id === activeId ? 'active' : item.isChecked ? 'checked' : null}` — the JSX prop gives the literals their union type. When `newItem` is set, render `NewItemBtn` after the `DndContext` with `ref={newItemRef}`, `className='reorderable-nav-list-new-item-btn'`, `label={newItem.label}`, `suppressAnimation` and `onClick={newItem.onClick}`. `NewItemBtn` spreads its remaining props onto `ActionContainer`, which spreads them onto its `<button>`, so the ref reaches the button.
 - **UI / Visual:** `GlassPanel` with `className='reorderable-nav-list'` and `intensity='off'` as the root, as `SessionStepsNav` renders it today; styles from the moved `ReorderableNavList.css`, imported as `import './ReorderableNavList.css'`. Imports are relative inside `src/components/`: `../GlassPanel/GlassPanel`, `../NewItemBtn/NewItemBtn`, `./components/ReorderableNavListItem/ReorderableNavListItem`; `Ref` is a type import from `react`.
 
 ### `ReorderableNavListItem` — `…/components/ReorderableNavListItem/ReorderableNavListItem.tsx` — Moved
@@ -72,7 +73,8 @@ Class renames only (Files affected). The values move as they are. `border-radius
   - `activeId={null}`
   - `onSelect` — scrolls `document.getElementById(stepSectionElementId(stepId))` into view with `{ behavior: 'smooth', block: 'start' }`, the call `SortableStepItem` makes today
   - `onReorder={bulkReorder}`
-  - `newItem` — `{ label: 'Add step', onClick: () => { void createStep(); }, ref: null }` when `session?.active_view === 'prep'`, else `null`
+  - `newItem` — `{ label: 'Add step', onClick: () => { void createStep(); } }` when `session?.active_view === 'prep'`, else `null`
+  - `newItemRef={null}`
   - Its `DndContext`, `SortableContext`, sensors, `handleDragEnd`, `GlassPanel`, `NewItemBtn`, `SortableStepItem` and stylesheet imports go away.
 - **Imports:** `ReorderableNavList` from `@/components/ReorderableNavList`; `sessionStepName` from `@domain` (Sub-feature 1); `stepSectionElementId` from `'../../../../helper/stepSectionElementId'` (Sub-feature 1).
 - **UI / Visual:** identical to today.

@@ -142,7 +142,8 @@ Add `.panel-menu-bar-leading` to the selector of the `.panel-menu-bar-actions` r
   - `activeId: string | null`
   - `onSelect: (id: string) => void`
   - `newItem: React.ComponentProps<typeof ReorderableNavList>['newItem']`
-- **Behavior:** calls `useBaseEntityContentSections(baseEntityId)` for `sections` and `bulkReorder` (Key Architectural Decisions — `ContentSectionNav` and `ContentSectionNavToggle`). It passes the following to `ReorderableNavList`, along with `activeId`, `onSelect`, `onReorder={bulkReorder}` and `newItem`:
+  - `newItemRef: React.ComponentProps<typeof ReorderableNavList>['newItemRef']`
+- **Behavior:** calls `useBaseEntityContentSections(baseEntityId)` for `sections` and `bulkReorder` (Key Architectural Decisions — `ContentSectionNav` and `ContentSectionNavToggle`). It passes the following to `ReorderableNavList`, along with `activeId`, `onSelect`, `onReorder={bulkReorder}`, `newItem` and `newItemRef`:
   - `items={sections.map((section) => ({ id: section.id, label: contentSectionLabel(section.name, section.type), isChecked: false }))}`
 - **UI / Visual:** root `<PanelBody className='content-section-nav'>` wrapping the list. Stylesheet: `.content-section-nav { max-height: var(--summary-content-height); overflow-y: auto; padding: var(--spacing-sm); }`. The folder holds only the component and its stylesheet, so it has no `index.ts`.
 - **Imports:**
@@ -183,7 +184,7 @@ Add `.panel-menu-bar-leading` to the selector of the `.panel-menu-bar-actions` r
     - `oneClickConfirm: true`, as `StepSectionHeader` does
     - `onDeletionConfirm` — computes `getIdAfterRemoval(sections.map((s) => s.id), section.id)`, calls `select` with it when it is not `null`, then calls `void deleteSection(section.id)` (Key Architectural Decisions — Deleting the shown section selects its neighbour first)
   - **Body:**
-    - `isNavVisible` — `<ContentSectionNav baseEntityId={baseEntityId} activeId={selected?.id ?? null} onSelect={select} newItem={{ label: 'Add section', onClick: () => { setTypeMenuAnchor('nav'); }, ref: newItemButtonRef }} />`
+    - `isNavVisible` — `<ContentSectionNav baseEntityId={baseEntityId} activeId={selected?.id ?? null} onSelect={select} newItem={{ label: 'Add section', onClick: () => { setTypeMenuAnchor('nav'); } }} newItemRef={newItemButtonRef} />`
     - otherwise, with `selected` — the existing `PanelBody` / `base-entity-content-section-panel-content` wrapper around a `TextEditor` with ``textEditorId={`content-section-${selected.id}`}``, `value={selected.content ?? ''}`, `placeholder='Start typing or use / for commands'` and `onChange={(content) => { updateSection(selected.id, { content }); }}`. Comment, as a `{/* … */}` line directly above that `TextEditor` (the form `TextEditor.tsx` uses above its own keyed element): `Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content.`
   - **Type menu:** while `typeMenuAnchor` is not `null`, render `<ContentSectionTypeMenu>` with:
     - `getAnchorRect={() => (typeMenuAnchor === 'nav' ? newItemButtonRef : addButtonRef).current?.getBoundingClientRect() ?? null}` — the callback form `RowActionsMenu` uses, so no ref is read during the panel's render

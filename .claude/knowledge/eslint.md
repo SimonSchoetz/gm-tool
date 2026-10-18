@@ -163,3 +163,10 @@ The check reads the compiler actually loaded, so it reports on the compiler in u
 **Citation:** [spec-writer_1: app/node_modules/typescript-eslint/dist/index.js:133 — `strictTypeChecked: raw_plugin_1.default.flatConfigs['flat/strict-type-checked']`] [spec-writer_2: app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.71.0_@typescript-eslint+parser@8.71.0_eslint@10.11.0_694f5ce9f86d10130f7c448aabb61df1/node_modules/@typescript-eslint/eslint-plugin/dist/configs/flat/strict-type-checked.js:50,61 — `'@typescript-eslint/no-misused-promises': 'error'`, `'@typescript-eslint/no-unnecessary-condition': 'error'`]
 
 A configuration that includes `tseslint.configs.strictTypeChecked` and no later override of these two rules has both set to `error`.
+
+## `react-hooks/refs` reports every read of a props object once one of its properties is rendered as a JSX `ref` attribute, whatever the property is named, and passes when the ref arrives as its own prop
+
+**Verified at:** eslint-plugin-react-hooks 7.1.1
+**Citation:** [implement_1: ran npx eslint src/components/ReorderableNavList on a `newItem: { label; onClick; ref }` prop rendered as `ref={newItem.ref}` — observed four react-hooks/refs errors on `newItem &&`, `newItem.ref`, `newItem.label` and `newItem.onClick`; the same file with the field renamed `anchor` — observed the same four errors; the same file with `newItem: { label; onClick }` plus a separate prop `newItemRef` rendered `ref={newItemRef}` — observed exit 0] [implement_2: app/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.development.js:43904-43912 — a JSX attribute named `ref` forces its value to the `BuiltInUseRefId` object type when `enableTreatRefLikeIdentifiersAsRefs` is set]
+
+The type inference keys on the JSX attribute name, not on the property name, so renaming the field does not help. Why the parent object's other properties are reported as well was not traced, so the observed rule is: pass a ref to a component as its own top-level prop, never as a field of an object prop.
