@@ -1,6 +1,7 @@
 import { FCProps } from '@/types/fcProps.type';
 import type { MentionEntityType } from '@domain/mentions';
 import { isBaseEntityType, type BaseEntityType } from '@domain/entities';
+import { MentionPopupHeader } from '../MentionPopupHeader/MentionPopupHeader';
 import { BaseEntityPopupContent } from './components/BaseEntityPopupContent/BaseEntityPopupContent';
 import { SessionPopupContent } from './components/SessionPopupContent/SessionPopupContent';
 import { EncounterPopupContent } from './components/EncounterPopupContent/EncounterPopupContent';
@@ -45,7 +46,12 @@ export const MentionPopupContent: FCProps<Props> = ({
     );
 
   const PopupContent = popupContentByType[entityType];
-  if (!PopupContent) return;
+  if (!PopupContent) return <MentionPopupHeader />;
 
-  return <PopupContent entityId={entityId} adventureId={adventureId} />;
+  return (
+    <>
+      <MentionPopupHeader />
+      <PopupContent entityId={entityId} adventureId={adventureId} />
+    </>
+  );
 };

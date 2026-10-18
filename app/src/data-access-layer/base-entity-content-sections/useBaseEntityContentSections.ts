@@ -12,7 +12,6 @@ import { mergeUpdate } from '../mergeUpdate';
 
 type UseBaseEntityContentSectionsReturn = {
   sections: BaseEntityContentSection[];
-  summarySection: BaseEntityContentSection | null;
   loading: boolean;
   createSection: (
     type: BaseEntityContentSectionType,
@@ -34,9 +33,6 @@ export const useBaseEntityContentSections = (
   const { data: sections = [], isPending: loading } = useQuery(
     baseEntityContentSectionListQueryOptions(baseEntityId),
   );
-
-  const summarySection =
-    sections.find((section) => section.type === 'text') ?? null;
 
   const updateMutation = useMutation({
     mutationFn: ({
@@ -135,7 +131,6 @@ export const useBaseEntityContentSections = (
 
   return {
     sections,
-    summarySection,
     loading,
     createSection,
     updateSection,
