@@ -13,10 +13,12 @@ const getSectionsByBaseEntityId = vi.hoisted(() =>
   vi.fn<typeof service.getSectionsByBaseEntityId>(),
 );
 const updateSection = vi.hoisted(() => vi.fn<typeof service.updateSection>());
+const createSection = vi.hoisted(() => vi.fn<typeof service.createSection>());
 
 vi.mock('@services/baseEntityContentSectionService', () => ({
   getSectionsByBaseEntityId,
   updateSection,
+  createSection,
 }));
 
 const sectionRow = (baseEntityId: string): BaseEntityContentSection => ({
@@ -98,5 +100,47 @@ describe('useBaseEntityContentSections', () => {
       content: 'kept',
       name: 'n',
     });
+  });
+
+  it('createSection resolves only after the section list refetch settles', async () => {
+    const { result } = await renderSections();
+    createSection.mockResolvedValue('section-2');
+    let resolveRefetch: (sections: BaseEntityContentSection[]) => void = () => {
+      return;
+    };
+    getSectionsByBaseEntityId.mockImplementationOnce(
+      () =>
+        new Promise<BaseEntityContentSection[]>((resolve) => {
+          resolveRefetch = resolve;
+        }),
+    );
+    let hasResolved = false;
+
+    act(() => {
+      void result.current.createSection('text', 'Text').then(() => {
+        hasResolved = true;
+      });
+    });
+    await settle(0);
+
+    expect(hasResolved).toBe(false);
+    expect(createSection).toHaveBeenCalledWith('entity-1', 'text', 'Text');
+
+    resolveRefetch([
+      sectionRow('entity-1'),
+      {
+        ...sectionRow('entity-1'),
+        id: 'section-2',
+        name: 'Text',
+        sort_order: 1,
+      },
+    ]);
+    await settle(0);
+
+    expect(hasResolved).toBe(true);
+    expect(result.current.sections.map((section) => section.id)).toEqual([
+      'section-1',
+      'section-2',
+    ]);
   });
 });

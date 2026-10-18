@@ -221,7 +221,7 @@ After creating these files, run `pnpm run build:frontend` once from `app/` — s
 
 ## Detail Screen Composition
 
-`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the header slot renders the rich-text editor for the entity's summary content section (`summarySection` from `useBaseEntityContentSections`) inside `ScreensSummary`, and passes `null` when the entity has no `'text'` section, and the body slot renders the name input followed by the description editor. This is the reference implementation for that composition pattern.
+`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the header slot renders `ScreensNameInput` for the entity's name, the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the body-header slot renders `BaseEntityContentSectionPanel` keyed by the entity's id — the entity's content sections, one shown at a time, with a menu bar to add, rename, switch between and delete them — and the body slot renders the description editor. This is the reference implementation for that composition pattern.
 
 **`screens/session/` and `screens/encounter/` are deliberate exceptions** to this composition — each for its own reason, and neither is a template to copy:
 

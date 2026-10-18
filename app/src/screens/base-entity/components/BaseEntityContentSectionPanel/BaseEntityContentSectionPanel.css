@@ -1,4 +1,4 @@
-.base-entity-summary {
+.base-entity-content-section-panel {
   display: flex;
   flex-direction: column;
   gap: var(--border-thin);
@@ -6,10 +6,15 @@
   max-width: var(--summary-max-width);
 }
 
-.base-entity-summary-content {
+.base-entity-content-section-panel-content {
   display: flex;
   max-height: var(--summary-content-height);
   overflow-y: auto;
   margin: var(--spacing-sm);
   margin-left: 0;
+}
+
+.base-entity-content-section-panel-name-input {
+  font-size: inherit;
+  font-weight: inherit;
 }

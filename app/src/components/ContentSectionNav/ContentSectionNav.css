@@ -1,0 +1,5 @@
+.content-section-nav {
+  max-height: var(--summary-content-height);
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+}

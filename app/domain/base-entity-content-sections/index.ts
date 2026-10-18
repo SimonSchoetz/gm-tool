@@ -1,5 +1,9 @@
 export { BASE_ENTITY_CONTENT_SECTION_TYPES } from './contentSectionTypes';
 export type { BaseEntityContentSectionType } from './contentSectionTypes';
+export {
+  contentSectionTypeLabel,
+  contentSectionLabel,
+} from './contentSectionTypeLabels';
 export type { BaseEntityContentSectionLoadError } from './errors';
 export { baseEntityContentSectionLoadError } from './errors';
 export type { BaseEntityContentSectionCreateError } from './errors';

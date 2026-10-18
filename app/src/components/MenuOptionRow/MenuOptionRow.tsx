@@ -6,7 +6,7 @@ import { cn } from '@/util/className';
 import './MenuOptionRow.css';
 
 type Props = {
-  Icon: LucideIcon;
+  Icon?: LucideIcon;
   isActive?: boolean;
   isSelected?: boolean;
 } & React.ComponentProps<typeof ActionContainer>;
@@ -31,12 +31,14 @@ export const MenuOptionRow: FCProps<Props> = ({
       )}
       {...props}
     >
-      <GlassPanel
-        intensity={isActive ? 'bright' : 'dim'}
-        className='menu-option-row-icon'
-      >
-        <Icon />
-      </GlassPanel>
+      {Icon && (
+        <GlassPanel
+          intensity={isActive ? 'bright' : 'dim'}
+          className='menu-option-row-icon'
+        >
+          <Icon />
+        </GlassPanel>
+      )}
       <span>{label}</span>
     </ActionContainer>
   );

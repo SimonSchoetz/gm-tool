@@ -19,10 +19,12 @@
   padding: 0 var(--spacing-xs);
 }
 
+.panel-menu-bar-leading,
 .panel-menu-bar-actions {
   display: flex;
 }
 
+.panel-menu-bar-leading > *,
 .panel-menu-bar-actions > * {
   display: flex;
   padding: var(--spacing-sm) var(--spacing-xs);
