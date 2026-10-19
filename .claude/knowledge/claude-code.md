@@ -223,3 +223,52 @@ Per A's relay text, the probe session's send at 14:09:18Z was followed by A's ow
 **Citation:** [claude_10: ran `ps -axo pid,command | grep -i '[c]laude'` from a desktop-app session — observed every process whose command path lies under `Library/Application Support/Claude/claude-code/` at `claude-code/2.1.299/4fa9694b7975/claude.app/Contents/MacOS/claude`, and one process at `/Users/simonschoetz/.local/bin/claude`] [claude_11: ran `which claude && claude --version` in the same session — observed `/Users/simonschoetz/.local/bin/claude` and `2.1.287 (Claude Code)`] [claude_12: ran `ps -o command= -p $PPID` from that session's Bash tool — observed the session's own parent process at `/Users/simonschoetz/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claude.app/Contents/MacOS/claude`]
 
 From the Bash tool, `ps -o command= -p $PPID` prints the current session's own binary path, and the version in that path is the one a `Verified at` line for a desktop-app observation records.
+
+## A user message carrying the text that a `mcp__ccd_turn__wrap_up` action had offered as a reply button — the box that tool draws under a session's last message — opened a turn in which `mcp__ccd_session__start_session` with initiation `user_asked` succeeded, in a session itself started on another session's brief
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
+**Citation:** [tech-lead_1: the session `local_d4be0398-6414-4ce7-b7b4-7e0a9ab3db9c`, started by another session on a brief, ended a turn with a `mcp__ccd_turn__wrap_up` call whose action had the message "Start the P1 probe session now, on my word."; that text then arrived in the session as a plain user turn, with no cross-session wrapper, and on that turn `mcp__ccd_session__start_session` (initiation `user_asked`, context `fresh`, `use_worktree: false`, cwd, title, name, prompt, background) at 17:00:24Z returned "Started session … (session_id: local_b3ce4779-d262-4788-88a6-8843a225fdf2, name: probe-date-utils-impl)"]
+
+Whether the text was sent by the button or typed, and whether an AskUserQuestion button answer has the same effect, was not observed.
+
+## `SendMessage` with `notify_when_idle: true` and `to` set to a desktop session's `local_` id returned "Nothing was subscribed", while the same call with `to` set to the title `ListAgents` shows for that session subscribed; delivery of a message by the same `local_` id succeeded
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
+**Citation:** [tech-lead_2: ran `SendMessage` with `to` `local_b3ce4779-d262-4788-88a6-8843a225fdf2`, `notify_when_idle: true` and no message, about 30 s after that session started at 17:00:24Z — observed `{"success":false,"message":"Nothing was subscribed: notify_when_idle is only supported for Claude sessions on this machine in this release (not teammates, subagents, Remote Control or cloud sessions)."}`] [tech-lead_3: ran the same call about a minute later with `to` `Implement: probe date utils`, that session's title in `ListAgents` without the bracketed ref — observed `{"success":true,"message":"Subscribed — you will get one notice here when \"Implement: probe date utils\" is next idle (or exits) …"}`, and later a `[Cross-session idle notice]` turn quoting the session's last turn] [tech-lead_9: ran `SendMessage` with `to` `local_b3ce4779-d262-4788-88a6-8843a225fdf2` and a message at 17:05Z — observed "Message delivered to session local_b3ce4779-d262-4788-88a6-8843a225fdf2 (\"Implement: probe date utils\"); its turn has started on it. (delivery: delivered …)"]
+
+Whether the id form would be accepted on a later subscription call was not observed.
+
+## `ListAgents` listed a session started with `name: probe-date-utils-impl` under its title, as `Implement: probe date utils [33d877]`, 26 seconds after the start, with no row carrying that `name`
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
+**Citation:** [tech-lead_4: ran `ListAgents` 26 s after `start_session` returned `name: probe-date-utils-impl` — observed the row "Implement: probe date utils [33d877] · interactive · idle · Claude Desktop session · started 26s ago" and no row carrying `probe-date-utils-impl`]
+
+The bracketed `[33d877]` is the ref `ListAgents` appends to a row; the entry above shows the title accepted as `to` without it.
+
+## A session started by another session sent `SendMessage` to its starter's `local_` id while the starter was mid-turn; the sender reported the message queued, and the starter received it as a `<cross-session-message from="<sender id>" name="<sender title>">` turn after its own turn ended
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
+**Citation:** [tech-lead_5: the transcript of `local_b3ce4779-d262-4788-88a6-8843a225fdf2`, read with `mcp__ccd_session_mgmt__list_events` — "sent `ready [T0]: probe-date-utils-impl is ready` to the lead session. The message is queued there"; its starter `local_d4be0398-6414-4ce7-b7b4-7e0a9ab3db9c` observed the turn `<cross-session-message from="local_b3ce4779-d262-4788-88a6-8843a225fdf2" name="Implement: probe date utils">` with that first line after its own turn ended, about four minutes after the start at 17:00:24Z]
+
+Whether the message would have arrived sooner had the starter been idle was not observed.
+
+## The Skill tool refused a skill whose frontmatter has `disable-model-invocation: true` when the model called it, with text beginning "Skill <name> cannot be used with Skill tool due to disable-model-invocation. Ask the user to run /<name> themselves"
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
+**Citation:** [tech-lead_6: ran `mcp__ccd_session_mgmt__search_session_transcripts` with the query "cannot be used with Skill tool due to disable-model-invocation" — observed a hit in `local_b3ce4779-d262-4788-88a6-8843a225fdf2`, a session started on another session's brief, whose snippet reads "…ll gimbal:implement cannot be used with Skill tool due to disable-model-invocation. Ask the user to run /gimbal:implement themselves — it cannot be invoked via th…", and a hit in another session at 17:10Z the same day with the same text for `gimbal:setup`] [tech-lead_6b: that session's own `escalation` report to its starter quoted the result in full: "Skill gimbal:implement cannot be used with Skill tool due to disable-model-invocation. Ask the user to run /gimbal:implement themselves — it cannot be invoked via the Skill tool. Do not replicate this skill's workflow by other means — it is reserved for explicit user invocation."] [tech-lead_7: ran `git log -S'disable-model-invocation: true' --format='%h %cs'` in the setup repository for `claude/gimbal/skills/setup/SKILL.md` and for `claude/gimbal/skills/implement/SKILL.md` — observed one commit each, `f0db03e 2026-09-11`, so both files carried the flag throughout 2026-10-19 until it was removed from implement at commit time of this entry]
+
+The entry above beginning "A session brief whose first line was `/gimbal:setup --check`" records the same tool loading `gimbal:setup` the same day at the same version; that brief's first line carried the skill's slash command, while the refused session's inputs — its brief and two messages from its starter — carried none, and whether that is the difference was not observed.
+
+## In auto mode, the Claude Code auto mode classifier denied one `SendMessage` whose first line was a slash command and whose body asked the receiving session to retry a refused Skill call, with the reason "[Auto-Mode Bypass]"
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab, auto mode — 2026-10-19
+**Citation:** [tech-lead_8: ran `SendMessage` to `local_b3ce4779-d262-4788-88a6-8843a225fdf2` with a message whose first line was `/gimbal:implement <spec path>` and whose body asked that session to retry the Skill call it had reported refused — observed "Permission for this action was denied by the Claude Code auto mode classifier. Reason: [Auto-Mode Bypass]."; a message to the same session without a slash line, telling it to hold, was delivered a minute later]
+
+Which part of the denied message triggered the denial — the slash line, the retry request, or both — was not isolated.
+
+## Removing `disable-model-invocation: true` from an installed skill's frontmatter mid-session made the skill appear in the session's available-skills listing on the next turn, without a restart
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
+**Citation:** [tech-lead_10: edited `/Users/simonschoetz/dev/setup/claude/gimbal/skills/implement/SKILL.md` (installed through the symlink `~/.claude/skills/gimbal`) to drop its `disable-model-invocation: true` line at about 17:40Z — observed, in the next turn of the editing session, a harness notice "The following skills are available for use with the Skill tool: - gimbal:implement: Implement a spec file, …", a skill the listing had not shown before]
+
+Whether the Skill tool then accepts a call for that skill was not observed in that session.
