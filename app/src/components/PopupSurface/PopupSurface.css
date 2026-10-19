@@ -1,5 +1,5 @@
 .popup-surface {
-  background: var(--color-surface);
+  background-color: var(--color-surface);
   width: max-content;
   max-width: 250px; /* one-off */
   border-radius: var(--radius-md);

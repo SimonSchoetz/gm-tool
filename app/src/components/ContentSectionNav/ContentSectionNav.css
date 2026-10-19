@@ -1,5 +1,6 @@
 .content-section-nav {
-  max-height: var(--summary-content-height);
   overflow-y: auto;
-  padding: var(--spacing-sm);
+  /*padding: var(--spacing-sm);*/
+  background-color: rgb(var(--color-surface-rgb), 0.5);
+  border-radius: var(--radius-xl);
 }
