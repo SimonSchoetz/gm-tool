@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const BASIC_STAT_BLOCK_HP_LABEL = 'HP';
+
 const hpSchema = z.int().nullable();
 
 export const basicStatBlockContentSchema = z.object({

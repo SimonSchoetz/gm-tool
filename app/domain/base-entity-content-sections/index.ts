@@ -6,6 +6,7 @@ export {
 } from './contentSectionTypeLabels';
 export { assertValidContentSectionContent } from './contentSectionContentSchemas';
 export {
+  BASIC_STAT_BLOCK_HP_LABEL,
   parseBasicStatBlockContent,
   patchBasicStatBlockContent,
   parseBasicStatBlockHpInput,
