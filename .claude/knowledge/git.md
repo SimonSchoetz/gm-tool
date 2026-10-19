@@ -1,0 +1,15 @@
+# Git
+
+## In a linked worktree under `extensions.worktreeConfig`, a `core.hooksPath` set only in that worktree's `.git/worktrees/<id>/config.worktree` is listed by `git config --show-origin --get-all core.hooksPath` run there and not by `git config --local core.hooksPath`, which reads only `.git/config`
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
+**Citation:** [claude_5: ran `man -M "$(git --man-path)" -P cat git-config` — observed under `--local` "For reading options: read only from the repository .git/config rather than from all available files", and under `--worktree` "Similar to --local except that $GIT_DIR/config.worktree is read from or written to if extensions.worktreeConfig is enabled"] [claude_10: ran `git config --show-origin --get-all core.hooksPath` from the linked worktree `/Users/simonschoetz/dev/gm-tool/.claude/worktrees/clever-payne-354010` — observed one line whose origin is `file:/Users/simonschoetz/dev/gm-tool/.git/worktrees/clever-payne-354010/config.worktree`] [claude_11: ran `git config --local core.hooksPath` from the same worktree — observed no output and exit code 1] [claude_12: `/Users/simonschoetz/dev/gm-tool/.git/config:14-15` — `[extensions]` `worktreeConfig = true`] [claude_13: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+The same two commands run from the main checkout were not probed.
+
+## `git -c core.hooksPath=<absolute dir>` made a `git commit` run that directory's `pre-commit` and a `git push` run its `pre-push`, in a linked worktree whose configured `core.hooksPath` names another directory
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
+**Citation:** [claude_14: ran `git -c core.hooksPath=/Users/simonschoetz/dev/gm-tool/.git/hooks commit -q -m "scratch: must be blocked"` from the linked worktree `/Users/simonschoetz/dev/gm-tool/.claude/worktrees/clever-payne-354010`, whose `config.worktree` sets `core.hooksPath` to `/Users/simonschoetz/dev/gm-tool/.husky`, with `app/src/zz-scratch.ts` containing `export const broken: number = 'not a number';` staged — observed the `pre-commit` script of `/Users/simonschoetz/dev/gm-tool/.git/hooks` run (its `tsc` step printed `error TS2322` for that line), the command exit non-zero and `HEAD` unchanged] [claude_15: ran `git init -q --bare <scratch dir>/demo-remote.git` and then `git -c core.hooksPath=/Users/simonschoetz/dev/gm-tool/.git/hooks push <scratch dir>/demo-remote.git HEAD:refs/heads/demo` from the same worktree — observed the `pre-push` script of that directory run `vitest` (`Test Files  145 passed`) before `* [new branch]  HEAD -> demo` appeared] [claude_16: ran `git config --show-origin --get-all core.hooksPath` from the same worktree after both commands — observed the same single line from `config.worktree` as before them] [claude_13: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+The worktree's configured `core.hooksPath` was unchanged afterwards; whether the configured directory's hooks also ran was not observed.
