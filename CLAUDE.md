@@ -71,7 +71,7 @@ Never open a response with a positive affirmation directed at the user or a team
 - **Re-derive types, trace procedure:**
   1. Trace every field in props types to a value set at a call site. If no caller sets it, remove it.
   2. Trace every field in internal types to a place where it is read. If defined but never accessed, remove it — unless another CLAUDE.md rule mandates its presence regardless of consumption, in which case retain it and make the non-consumption explicit at the call site (underscore-prefixed alias + comment naming the mandating rule).
-  3. Trace every exported symbol to at least one import or call site. If nothing imports or calls it, remove it.
+  3. Trace every exported symbol to at least one import or call site. If nothing imports or calls it, remove it. The `lint` row's `local/no-unused-exports` does this for every export except those under `app/src-tauri/` and in the files `app/eslint.config.js` turns that rule off or relaxes it for; trace those by hand.
 - **Migration-file exception:** A migration file intentionally freezing a copy of a literal or logic it must never share with a live source is not a missed extraction — see `app/db/CLAUDE.md` — Migrations for the scope and required comment convention.
 - **Active check on touched files** — extends the shared rule Best Practices & Code Quality, "When editing a file for an unrelated task, fix convention violations": in this repository, noticing means an active check of the file's current state against every applicable convention, not only violations seen while editing the task's own lines. Fix them in the same edit pass; a violation large enough to obscure the task goes in a dedicated preceding `chore(<branch>):` commit.
 
@@ -99,7 +99,7 @@ The verification obligation stated in the shared rules file's Epistemological Di
   | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-test` | `cargo test` | `app/src-tauri/` | full-suite-only | when `app/src-tauri/` is touched |
 
-  `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs twice per session: at the start (baseline) and after the final review cycle, before committing.
+  `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs at the start of a session (baseline). After the final review cycle, before committing, the full suite runs again without the rows a git hook runs, which leaves the `app/src-tauri/` rows: the `simple-git-hooks` block of the `package.json` beside this file runs `type-check`, `lint` and `format-check` on every commit and `test` on every push. For `test`, this departs from Tool Use Discipline, "Run the project's own check suite": it runs at push, not before each commit.
 
   **Build Command:** `pnpm run build:frontend`, from `app/`.
 
