@@ -1,16 +1,11 @@
 # Claude Code
 
-## In the desktop app's Code tab, spawned agents are one-shot: no `SendMessage` tool is exposed and `ListAgents` does not list them
+## In the desktop app's Code tab at Claude Code 2.1.287 with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` set, `SendMessage` loads through `ToolSearch select:SendMessage`
 
-**Verified at:** Claude desktop app, Code tab, session tool roster — 2026-09-04
-**Citation:** [refine-claude_1: `ToolSearch select:SendMessage` → "No matching deferred tools found", checked before and after spawning an agent; the Agent tool's own result text still says "use SendMessage with `to: '<id>'`"; `ListAgents` returned only peer sessions, not the spawned agent]
+**Verified at:** Claude Code 2.1.287, Claude desktop app Code tab — 2026-10-19
+**Citation:** [claude_5: ran `ToolSearch select:SendMessage` in a Code-tab session — observed the tool's definition returned and the tool callable] [claude_9: ran `jq '.env' ~/.claude/settings.json` and `env | grep AGENT_TEAMS` in the same Code-tab session as claude_5 — observed `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` set to `1` in both]
 
-The Agent tool result advertises `SendMessage` for continuing a spawned agent, but the tool is absent from both the loaded and the deferred tool lists in this environment, and a completed agent is not addressable afterwards. A protocol that needs resumable teammates must re-spawn with prior output as context. Re-check at session start; the same absence was observed on 2026-09-04 in the preceding cycle's session.
-
-**Verified at:** Claude Code CLI, gm-tool session — 2026-09-11
-**Citation:** [refine-claude_1 (CLI): `SendMessage` was present via `ToolSearch select:SendMessage`; an agent spawned with `name: "head-of-instructions"` was pinged twice in separate `SendMessage({to: "head-of-instructions", ...})` calls across two turns, and replied distinctly to each ("Acknowledged — this is head-of-instructions, standing by" to the first, "Confirmed — received second ping, still standing by" to the second) — a `ListAgents` was not needed since the name alone resolved the send]
-
-In the CLI, `SendMessage` is exposed and a spawned agent stays addressable by its retained `name` across turns, tracking message-by-message state rather than just re-echoing. The one-shot limitation above is Code-tab-specific, not general to Claude Code.
+Whether `SendMessage` loads in a Code-tab session without that variable was not observed.
 
 ## A subagent starts with its agent file, the CLAUDE.md hierarchy, a git-status snapshot, and any skills named in its `skills` field; every other file must be read with a tool
 
@@ -87,7 +82,7 @@ Rules discovery is not a launch-time snapshot, unlike plugin discovery, where a 
 **Verified at:** <https://code.claude.com/docs/en/agent-teams> — 2026-09-10 (page states it describes agent teams as of v2.1.178); behavior observed at Claude Code 2.1.268
 **Citation:** [refine-claude_1: <https://code.claude.com/docs/en/agent-teams> — "Enable agent teams" section] [refine-claude_5: ran npm ls -g --depth=0 and claude --version — observed @anthropic-ai/claude-code@2.1.268; behavioral outcome user-reported, not independently observed by this role]
 
-The env var alone is insufficient. The documentation states: "Spawning teammates also requires an interactive session. In non-interactive mode with the `-p` flag, including Agent SDK sessions, Claude doesn't spawn teammates, and a subagent that Claude named runs as an ordinary subagent even with agent teams enabled." Consequence: in an Agent SDK or non-interactive session, calling the Agent tool with a `name` produces an ordinary subagent rather than a teammate, 
+The env var alone is insufficient. The documentation states: "Spawning teammates also requires an interactive session. In non-interactive mode with the `-p` flag, including Agent SDK sessions, Claude doesn't spawn teammates, and a subagent that Claude named runs as an ordinary subagent even with agent teams enabled." Consequence: in an Agent SDK or non-interactive session, calling the Agent tool with a `name` produces an ordinary subagent rather than a teammate.
 
 ## `SendMessage` is the documented replacement for the Agent tool's removed `resume` parameter, and is gated behind agent teams
 
@@ -123,3 +118,17 @@ A skill whose body names no argument placeholder (`$ARGUMENTS`, `$1`, a named ar
 **Citation:** [claude_17: `/Users/simonschoetz/.local/share/claude/versions/2.1.287`, the minified `async function TAe(e,n)` at byte offset 186954933 — resolves the git directory of the repository root `e` (following a `commondir` file when one exists), reads `hooksPath` from the `core` section of that directory's `config` with its own file parser, and when the value is set computes an absolute form of it and, when that differs from the value read, runs `git config core.hooksPath <absolute form>` with `n` as working directory, logging `Configured worktree to use hooks from main repository: <path>` on success; an unset value or one already absolute runs no `git config`]
 
 The routine reads the config file directly, so a `core.hooksPath` from global or system git config is not copied; the call it runs names no scope flag, so which config file the worktree value lands in is not stated by the source.
+
+## `mcp__ccd_session_mgmt__list_sessions` listed desktop-app sessions with `isRunning: false`, two of them absent from `ListAgents`, each with `sessionId`, title, folder, last activity and, for a worktree session, branch
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_7: ran `mcp__ccd_session_mgmt__list_sessions` with limit 40 from a Code-tab session — observed 25 rows including "I: Content section" and "PF: Content section" (last activity 2026-10-19T06:42Z and 2026-10-18T15:05Z), each with `sessionId`, `title`, `cwd`, `isRunning: false`, `lastActivityAt` and, for worktree sessions, `branch`; ran `ListAgents` in the same session — observed three peer rows, all sessions started that day, and neither of those two]
+
+The `sessionId` field of such a row is what the entry below passed to `mcp__ccd_session_mgmt__send_message`.
+
+## `mcp__ccd_session_mgmt__send_message` to a session listed with `isRunning: false` and absent from `ListAgents`, asking it to reply by the same tool, reported `delivery: delivered` and "its turn has started on it", and that session's reply arrived in the sender as a `<cross-session-message from="<session id>">` turn
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_8: ran `mcp__ccd_session_mgmt__send_message` with the `sessionId` value of the `list_sessions` row for "I: Content section" (`local_68f18432-…`, `isRunning: false`), which `ListAgents` had not listed moments before, carrying a request to reply by the same tool — observed the result "Message delivered to session … its turn has started on it. (delivery: delivered; message_id: …)", and later a turn in the sending session wrapped as `<cross-session-message from="local_68f18432-…" name="I: Content section">` whose text named the branch it had implemented and stated that its context still held the review-loop findings]
+
+Whether that session's process had exited before the send was not observed.
