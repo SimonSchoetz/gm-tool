@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 import { z } from 'zod';
 
 // Frozen copy of what db/base-entity-content-section/schema.ts's createTableSQL produced when this migration was frozen, for the same reason the trigger SQL below is frozen — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
@@ -126,7 +127,7 @@ const up = async (db: Database): Promise<void> => {
   }
 };
 
-export const addBaseEntityContentSectionsMigration = {
+export const addBaseEntityContentSectionsMigration: Migration = {
   id: '1789743068849',
   up,
 };

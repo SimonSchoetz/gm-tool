@@ -1,4 +1,4 @@
-export type ErrorDisplayInfo = { message: string; stack: string | null };
+type ErrorDisplayInfo = { message: string; stack: string | null };
 
 export const getErrorDisplayInfo = (error: unknown): ErrorDisplayInfo => {
   const isError = error instanceof Error;

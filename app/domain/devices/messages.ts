@@ -18,7 +18,7 @@ export const deviceMessageEnvelopeSchema = z.discriminatedUnion('type', [
   z.object({ v: z.number(), type: z.literal('unpair'), payload: z.object({}) }),
 ]);
 
-export type DeviceMessageEnvelope = z.infer<typeof deviceMessageEnvelopeSchema>;
+type DeviceMessageEnvelope = z.infer<typeof deviceMessageEnvelopeSchema>;
 
 export const buildHelloEnvelope = (
   name: string | null,

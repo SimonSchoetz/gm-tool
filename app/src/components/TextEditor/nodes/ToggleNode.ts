@@ -19,7 +19,7 @@ import { $isHeadingNode } from '@lexical/rich-text';
 import { TOGGLE_GUTTER_CLASS } from '../TextEditor.constants';
 import { $createToggleBodyNode } from './ToggleBodyNode';
 
-export type SerializedToggleNode = Spread<
+type SerializedToggleNode = Spread<
   { collapsed: boolean },
   SerializedElementNode
 >;

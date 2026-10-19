@@ -7,7 +7,5 @@ export type {
   TableConfig,
   CreateTableConfigInput,
   UpdateTableConfigInput,
-  TypedTableLayout,
-  TypedCreateTableConfigInput,
 } from './types';
 export type { PersistedSortState, SortDirection } from './layout-schema';

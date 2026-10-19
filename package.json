@@ -28,6 +28,8 @@
     "simple-git-hooks": "latest"
   },
   "simple-git-hooks": {
-    "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2"
+    "pre-commit": "cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .",
+    "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2",
+    "pre-push": "cd app && npx vitest run"
   }
 }

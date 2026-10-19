@@ -1,8 +1,6 @@
 import { PersistedSortState } from '@db/table-config';
 import { useMemo } from 'react';
 
-// export type SortDirection = SortDire;
-
 export type SortState<T> = Omit<PersistedSortState, 'column'> & {
   column: keyof T & string;
 };

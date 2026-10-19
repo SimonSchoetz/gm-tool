@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 import { ensureColumn } from '../util';
 
 const PINNED_ORDER_TABLES = [
@@ -22,7 +23,7 @@ const up = async (db: Database): Promise<void> => {
   }
 };
 
-export const addPinnedOrderMigration = {
+export const addPinnedOrderMigration: Migration = {
   id: '1786002768594',
   up,
 };

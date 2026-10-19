@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 
 const up = async (db: Database): Promise<void> => {
   // Defensive dedup before the unique index: a migration that inserts into table_config with a fresh id per retry (see seed_table_config.ts / add_encounters.ts) could have left duplicate rows for the same table_name on an install that hit a partial migration failure before this fix landed. Keeps the earliest row per table_name, tie-broken by id.
@@ -21,7 +22,7 @@ const up = async (db: Database): Promise<void> => {
   `);
 };
 
-export const addTableConfigUniqueIndexMigration = {
+export const addTableConfigUniqueIndexMigration: Migration = {
   id: '1787825905519',
   up,
 };

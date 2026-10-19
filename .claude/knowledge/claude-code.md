@@ -116,3 +116,10 @@ Cross-session messaging (`SendMessage`/`ListAgents` between separate sessions on
 **Citation:** [refine-claude_2: skills page, "Pass arguments to skills" — "If you invoke a skill with arguments but no placeholder in the skill's content receives one, Claude Code appends `ARGUMENTS: <your input>` to the end of the skill content so Claude still sees what you typed."]
 
 A skill whose body names no argument placeholder (`$ARGUMENTS`, `$1`, a named argument) therefore still receives what the user typed after the command name, as that appended line.
+
+## Claude Code 2.1.287's binary holds a routine that, given a main repository root and a worktree path, reads `core.hooksPath` from the main repository's own git `config` file and runs `git config core.hooksPath <that value made absolute>` in the worktree only when the value is set and not absolute
+
+**Verified at:** Claude Code 2.1.287 — 2026-10-19
+**Citation:** [claude_17: `/Users/simonschoetz/.local/share/claude/versions/2.1.287`, the minified `async function TAe(e,n)` at byte offset 186954933 — resolves the git directory of the repository root `e` (following a `commondir` file when one exists), reads `hooksPath` from the `core` section of that directory's `config` with its own file parser, and when the value is set computes an absolute form of it and, when that differs from the value read, runs `git config core.hooksPath <absolute form>` with `n` as working directory, logging `Configured worktree to use hooks from main repository: <path>` on success; an unset value or one already absolute runs no `git config`]
+
+The routine reads the config file directly, so a `core.hooksPath` from global or system git config is not copied; the call it runs names no scope flag, so which config file the worktree value lands in is not stated by the source.
