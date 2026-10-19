@@ -21,7 +21,7 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   const adventureId = adventureIdMatch?.[1];
 
   const getTableColor = (tableName: string): string => {
-    const table = tableConfigs.find((t) => t.table_name === tableName);
+    const table = tableConfigs.find((t) => t.table_name === tableName) ?? null;
     return table?.color ?? '';
   };
 

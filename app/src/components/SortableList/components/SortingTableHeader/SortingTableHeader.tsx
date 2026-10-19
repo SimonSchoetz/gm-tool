@@ -85,7 +85,7 @@ export const SortingTableHeader = ({
   };
 
   const handleResizeStart = (columnKey: string, startX: number) => {
-    const col = columns.find((c) => c.key === columnKey);
+    const col = columns.find((c) => c.key === columnKey) ?? null;
     if (col?.resizable === false) return;
 
     const startWidth = activeWidths[columnKey] ?? MIN_COLUMN_WIDTH;
@@ -95,7 +95,7 @@ export const SortingTableHeader = ({
       setActiveWidths((current) => {
         const resizableWidths: Record<string, number> = {};
         for (const key of columnKeysRef.current) {
-          const colDef = columns.find((c) => c.key === key);
+          const colDef = columns.find((c) => c.key === key) ?? null;
           if (colDef?.resizable !== false) {
             resizableWidths[key] = current[key] ?? DEFAULT_COLUMN_WIDTH;
           }

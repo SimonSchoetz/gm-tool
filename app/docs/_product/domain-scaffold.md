@@ -1,15 +1,10 @@
 # Domain Scaffold
 
-Reference document for adding a new base entity type to the shared base-entity stack. Hand
-to `/write-specs` along with the new type's identifiers to generate a concrete,
-/implement-ready spec.
+Reference document for adding a new base entity type to the shared base-entity stack. Hand to `/write-specs` along with the new type's identifiers to generate a concrete, /implement-ready spec.
 
-This document does not scaffold new standalone domains (a domain with its own db, domain,
-service, and DAL stack — e.g. Sessions, Encounters, Adventures). Those remain out of its
-scope; it covers only adding one more entry to `BASE_ENTITY_TYPES`.
+This document does not scaffold new standalone domains (a domain with its own db, domain, service, and DAL stack — e.g. Sessions, Encounters, Adventures). Those remain out of its scope; it covers only adding one more entry to `BASE_ENTITY_TYPES`.
 
-This document is long-lived. Update it when core infrastructure changes (new layers,
-changed conventions, new ambient systems). Do not delete it when specs are implemented.
+This document is long-lived. Update it when core infrastructure changes (new layers, changed conventions, new ambient systems). Do not delete it when specs are implemented.
 
 ## Usage
 
@@ -24,14 +19,11 @@ Customizations:
 - scope: ['adventure' or 'global', default 'adventure']"
 ```
 
-/write-specs will verify all paths and imports against the current codebase before writing.
-All identifiers are derived from the naming conventions below — supply only the
-customizations above.
+/write-specs will verify all paths and imports against the current codebase before writing. All identifiers are derived from the naming conventions below — supply only the customizations above.
 
 ## Naming Conventions
 
-Given a singular/plural pair (example: `Foe` / `Foes`), the per-type values a new base
-entity type supplies:
+Given a singular/plural pair (example: `Foe` / `Foes`), the per-type values a new base entity type supplies:
 
 | Identifier | Rule | Example |
 | --- | --- | --- |
@@ -59,8 +51,7 @@ Every base entity type shares these modules — nothing per-type is created for 
 
 ## Shared Columns
 
-Every base entity type is a row of `base_entities`, discriminated by `entity_type`. Do not
-add or remove a column without explicit user instruction.
+Every base entity type is a row of `base_entities`, discriminated by `entity_type`. Do not add or remove a column without explicit user instruction.
 
 | Column | SQL type | Nullable | Zod | Notes |
 | --- | --- | --- | --- | --- |
@@ -74,54 +65,31 @@ add or remove a column without explicit user instruction.
 | `created_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set in `create.ts` |
 | `updated_at` | `TEXT` NOT NULL | No | `z.string()` | ISO 8601 UTC, set by `buildUpdateQuery` |
 
-`app/db/CLAUDE.md` bans `.optional()` on any `zodSchema` field, and the ban applies
-unconditionally. `db/base-entity/schema.ts` uses `.nullable()` alone on every nullable
-column, including `image_id` — no field on this table is grandfathered.
+`app/db/CLAUDE.md` bans `.optional()` on any `zodSchema` field, and the ban applies unconditionally. `db/base-entity/schema.ts` uses `.nullable()` alone on every nullable column, including `image_id` — no field on this table is grandfathered.
 
-A base entity's summary lives in `base_entity_content_sections` (one `'text'` section, the
-first by `sort_order`), keyed by `base_entity_id`. A new base entity type needs no
-registration there.
+A base entity's summary lives in its content sections: ordered (`sort_order`) rows of `base_entity_content_sections`, each typed `'text'` or `'5e-stat-block'`, keyed by `base_entity_id` — a base entity can have several of them. A new base entity type needs no registration there.
 
 ## Implementation Notes
 
-**Validate reference implementations before replicating.** Before using any file as a
-pattern reference, verify it against current CLAUDE.md conventions. Convention changes
-retroactively invalidate previously correct code — a stale reference propagates violations
-to every new registration that copies it. When a violation is found during this check, fix
-it before using the file as a template.
+**Validate reference implementations before replicating.** Before using any file as a pattern reference, verify it against current CLAUDE.md conventions. Convention changes retroactively invalidate previously correct code — a stale reference propagates violations to every new registration that copies it. When a violation is found during this check, fix it before using the file as a template.
 
-**`routeTree.gen.ts` is gitignored and does not need manual editing.** After creating the
-new route files, run `pnpm run build:frontend` once from `app/`. The `tanstackRouter`
-plugin registered in `vite.config.ts` rewrites `src/routeTree.gen.ts` from the route files
-during the build, which is what makes the new route ids available to `tsc --noEmit`,
-`useParams({ strict: false })`, and typed `<Link to=... />`. The file stays gitignored and
-is never committed.
+**`routeTree.gen.ts` is gitignored and does not need manual editing.** After creating the new route files, run `pnpm run build:frontend` once from `app/`. The `tanstackRouter` plugin registered in `vite.config.ts` rewrites `src/routeTree.gen.ts` from the route files during the build, which is what makes the new route ids available to `tsc --noEmit`, `useParams({ strict: false })`, and typed `<Link to=... />`. The file stays gitignored and is never committed.
 
 ## Layer Patterns
 
-Registering a new base entity type touches every layer in `app/docs/CLAUDE.md`'s Layered
-breakdown order. No layer gains a new per-type file or directory — every change below is an
-entry added to an existing shared table, map, or switch.
+Registering a new base entity type touches every layer in `app/docs/CLAUDE.md`'s Layered breakdown order. No layer gains a new per-type file or directory — every change below is an entry added to an existing shared table, map, or switch.
 
 ### Domain
 
-- Add the plural to `BASE_ENTITY_TYPES` (`domain/entities/entityTypes.ts`). `ENTITY_TYPES`
-  is built from it, so no separate registration is needed there.
-- Add an entry to `ENTITY_SEGMENT` (`domain/entities/buildEntityPath.ts`) — the route's
-  singular path segment.
-- Add an entry to `ENTITY_TYPE_LABELS` (`domain/entities/entityTypeLabels.ts`) — the
-  display label shown by `entityTypeLabel`.
-- Add an entry to `BASE_ENTITY_SEARCH_HINTS` (`domain/entities/baseEntitySearchHints.ts`) —
-  the one type-specific word the list screen's search placeholder shows.
-- Add the corresponding assertion to each accessor's test file
-  (`entityTypes.test.ts`, `buildEntityPath.test.ts` if it asserts per-type segments,
-  `baseEntitySearchHints.test.ts`).
+- Add the plural to `BASE_ENTITY_TYPES` (`domain/entities/entityTypes.ts`). `ENTITY_TYPES` is built from it, so no separate registration is needed there.
+- Add an entry to `ENTITY_SEGMENT` (`domain/entities/buildEntityPath.ts`) — the route's singular path segment.
+- Add an entry to `ENTITY_TYPE_LABELS` (`domain/entities/entityTypeLabels.ts`) — the display label shown by `entityTypeLabel`.
+- Add an entry to `BASE_ENTITY_SEARCH_HINTS` (`domain/entities/baseEntitySearchHints.ts`) — the one type-specific word the list screen's search placeholder shows.
+- Add the corresponding assertion to each accessor's test file (`entityTypes.test.ts`, `buildEntityPath.test.ts` if it asserts per-type segments, `baseEntitySearchHints.test.ts`).
 
 ### Database
 
-- Add a migration that inserts only the new type's `table_config` row — no table and no
-  triggers, since `base_entities` and its sync triggers already exist. Follow the
-  `WHERE NOT EXISTS` form in `db/_migrations/1780099200000_seed_table_config.ts`:
+- Add a migration that inserts only the new type's `table_config` row — no table and no triggers, since `base_entities` and its sync triggers already exist. Follow the `WHERE NOT EXISTS` form in `db/_migrations/1780099200000_seed_table_config.ts`:
 
   ```ts
   import type Database from '@tauri-apps/plugin-sql';
@@ -179,10 +147,7 @@ entry added to an existing shared table, map, or switch.
   };
   ```
 
-  Add the migration to the `migrations` array in `db/_migrations/index.ts`, as the last
-  element — `migrationHead` is read as `migrations[migrations.length - 1].id` and must
-  remain the highest id. No change to `db/_sync/registry.ts` — the new type shares
-  `base_entities`'s existing `syncedTable` entry.
+  Add the migration to the `migrations` array in `db/_migrations/index.ts`, as the last element — `migrationHead` is read as `migrations[migrations.length - 1].id` and must remain the highest id. No change to `db/_sync/registry.ts` — the new type shares `base_entities`'s existing `syncedTable` entry.
 
 ### Services
 
@@ -190,34 +155,17 @@ Needs no change — `services/baseEntityService.ts` already accepts any `BaseEnt
 
 ### Data Access Layer
 
-- Add a `prefetchBaseEntity('[plural]')` entry to
-  `data-access-layer/mentions/mentionPrefetchByType.ts`'s map — `tsc` rejects the map
-  literal until every `BaseEntityType` member (and every other `MentionEntityType` member)
-  has an entry, so this is required, not optional.
+- Add a `prefetchBaseEntity('[plural]')` entry to `data-access-layer/mentions/mentionPrefetchByType.ts`'s map — `tsc` rejects the map literal until every `BaseEntityType` member (and every other `MentionEntityType` member) has an entry, so this is required, not optional.
 
 ### Frontend
 
-- The two route files, in the shapes `src/routes/adventure.$adventureId.[plural].tsx` and
-  `src/routes/adventure.$adventureId.[singular].$baseEntityId.tsx` — see the List Route and
-  Detail Route shapes under Routes below.
-- Two cases in `src/components/Header/helper/buildBreadcrumbs.ts`'s switch (list and
-  detail), and their assertions in `buildBreadcrumbs.test.ts`.
-- One label added to the existing grouped case in
-  `screens/components/ScreensDuplicateBtn/ScreensDuplicateBtn.tsx`'s switch and in
-  `src/components/Header/components/BreadcrumbList/components/BreadcrumbListEntry.tsx`'s
-  switch — both already dispatch every base entity type through one shared body, so adding
-  a type means adding its case label to the existing `case 'npcs': case 'pcs': ...` group,
-  not writing a new branch.
-- One `ScreenNavBtn` entry in `src/components/SideBarNav/SideBarNav.tsx`'s adventure-scoped
-  button group.
-- One `useBaseEntities('[plural]', adventureId)` call and one `statsMap` entry in
-  `AdventureStats.tsx`.
+- The two route files, in the shapes `src/routes/adventure.$adventureId.[plural].tsx` and `src/routes/adventure.$adventureId.[singular].$baseEntityId.tsx` — see the List Route and Detail Route shapes under Routes below.
+- Two cases in `src/components/Header/helper/buildBreadcrumbs.ts`'s switch (list and detail), and their assertions in `buildBreadcrumbs.test.ts`.
+- One label added to the existing grouped case in `screens/components/ScreensDuplicateBtn/ScreensDuplicateBtn.tsx`'s switch and in `src/components/Header/components/BreadcrumbList/components/BreadcrumbListEntry.tsx`'s switch — both already dispatch every base entity type through one shared body, so adding a type means adding its case label to the existing `case 'npcs': case 'pcs': ...` group, not writing a new branch.
+- One `ScreenNavBtn` entry in `src/components/SideBarNav/SideBarNav.tsx`'s adventure-scoped button group.
+- One `useBaseEntities('[plural]', adventureId)` call and one `statsMap` entry in `AdventureStats.tsx`.
 
-**Needs no change** — `MentionPopupContent.tsx` (dispatches every base entity type through
-`isBaseEntityType`), `BaseEntitiesScreen`, `BaseEntityScreen`, `BaseEntitySidebar`,
-`BaseEntityPopupContent`, `BaseEntityDuplicateBtn`, `BaseEntityCrumb`,
-`services/baseEntityService.ts`, and every `db/base-entity/` CRUD file — all already accept
-any `BaseEntityType` as their first argument or prop.
+**Needs no change** — `MentionPopupContent.tsx` (dispatches every base entity type through `isBaseEntityType`), `BaseEntitiesScreen`, `BaseEntityScreen`, `BaseEntitySidebar`, `BaseEntityPopupContent`, `BaseEntityDuplicateBtn`, `BaseEntityCrumb`, `services/baseEntityService.ts`, and every `db/base-entity/` CRUD file — all already accept any `BaseEntityType` as their first argument or prop.
 
 ### Routes
 
@@ -244,8 +192,7 @@ export const Route = createFileRoute('/adventure/$adventureId/npcs')({
 });
 ```
 
-**Detail route** (`adventure.$adventureId.[singular].$baseEntityId.tsx`, shown for
-`'npcs'`):
+**Detail route** (`adventure.$adventureId.[singular].$baseEntityId.tsx`, shown for `'npcs'`):
 
 ```tsx
 import { createFileRoute } from '@tanstack/react-router';
@@ -268,35 +215,18 @@ export const Route = createFileRoute(
 });
 ```
 
-The inline `component` arrow is route configuration, not an inline sub-component — it
-supplies the static `entityType` prop the route file alone knows, since `entityType` is not
-a URL param.
+The inline `component` arrow is route configuration, not an inline sub-component — it supplies the static `entityType` prop the route file alone knows, since `entityType` is not a URL param.
 
-After creating these files, run `pnpm run build:frontend` once from `app/` — see
-Implementation Notes above.
+After creating these files, run `pnpm run build:frontend` once from `app/` — see Implementation Notes above.
 
 ## Detail Screen Composition
 
-`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the sidebar
-slot renders `<BaseEntitySidebar entityType={entityType} />`, the header slot renders the
-rich-text editor for the entity's summary content section (`summarySection` from
-`useBaseEntityContentSections`) inside `ScreensSummary`, and passes `null` when the entity
-has no `'text'` section, and the body slot renders the name input followed by the
-description editor. This is the reference implementation for that composition pattern.
+`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the header slot renders `ScreensNameInput` for the entity's name, the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the body-header slot renders `BaseEntityContentSectionPanel` keyed by the entity's id — the entity's content sections, one shown at a time, with a menu bar to add, rename, switch between and delete them — and the body slot renders the description editor. This is the reference implementation for that composition pattern.
 
-**`screens/session/` and `screens/encounter/` are deliberate exceptions** to this
-composition — each for its own reason, and neither is a template to copy:
+**`screens/session/` and `screens/encounter/` are deliberate exceptions** to this composition — each for its own reason, and neither is a template to copy:
 
-- `screens/session/`: its hand-rolled `SessionHeader` re-implements what `ScreensNameInput`
-  now provides, and its custom `SessionScreen.css` layout predates the shared components
-  below. This shape must not be copied.
-- `screens/encounter/`: `EncounterScreen` bypasses `ScreensTextEditorLayout` because
-  Encounter has no summary field — its custom `EncounterScreen.css` (GlassPanel root,
-  header above a body grid) is a deliberately minimal base for a future encounter-specific
-  screen. Unlike `SessionHeader`, `EncounterHeader` composes the shared `ScreensNameInput`
-  rather than hand-rolling it — only the screen-level layout deviates, not the header's
-  internals. Do not copy this shape either; it's justified by Encounter's specific lack of
-  a summary field, not a new default pattern.
+- `screens/session/`: its hand-rolled `SessionHeader` re-implements what `ScreensNameInput` now provides, and its custom `SessionScreen.css` layout predates the shared components below. This shape must not be copied.
+- `screens/encounter/`: `EncounterScreen` bypasses `ScreensTextEditorLayout` because Encounter has no summary field — its custom `EncounterScreen.css` (GlassPanel root, header above a body grid) is a deliberately minimal base for a future encounter-specific screen. Unlike `SessionHeader`, `EncounterHeader` composes the shared `ScreensNameInput` rather than hand-rolling it — only the screen-level layout deviates, not the header's internals. Do not copy this shape either; it's justified by Encounter's specific lack of a summary field, not a new default pattern.
 
 ## Customization Points
 

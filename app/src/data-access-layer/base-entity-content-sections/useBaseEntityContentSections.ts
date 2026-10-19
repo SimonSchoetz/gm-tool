@@ -12,7 +12,6 @@ import { mergeUpdate } from '../mergeUpdate';
 
 type UseBaseEntityContentSectionsReturn = {
   sections: BaseEntityContentSection[];
-  summarySection: BaseEntityContentSection | null;
   loading: boolean;
   createSection: (
     type: BaseEntityContentSectionType,
@@ -34,9 +33,6 @@ export const useBaseEntityContentSections = (
   const { data: sections = [], isPending: loading } = useQuery(
     baseEntityContentSectionListQueryOptions(baseEntityId),
   );
-
-  const summarySection =
-    sections.find((section) => section.type === 'text') ?? null;
 
   const updateMutation = useMutation({
     mutationFn: ({
@@ -63,11 +59,11 @@ export const useBaseEntityContentSections = (
       type: BaseEntityContentSectionType;
       name?: string;
     }) => service.createSection(baseEntityId, type, name),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
+    // Returned rather than voided: a caller selects the id createSection resolves with right away, so the refetched list must already hold that section.
+    onSuccess: () =>
+      queryClient.invalidateQueries({
         queryKey: baseEntityContentSectionKeys.list(baseEntityId),
-      });
-    },
+      }),
   });
 
   const bulkReorderMutation = useMutation({
@@ -135,7 +131,6 @@ export const useBaseEntityContentSections = (
 
   return {
     sections,
-    summarySection,
     loading,
     createSection,
     updateSection,

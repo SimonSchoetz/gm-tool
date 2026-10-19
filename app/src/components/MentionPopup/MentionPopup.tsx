@@ -7,6 +7,7 @@ import { useMentionEntityData } from '@/data-access-layer';
 import { useDraggable } from '@/hooks/useDraggable';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { MentionPopupHeader } from './components/MentionPopupHeader/MentionPopupHeader';
+import { MentionPopupHeaderContext } from './MentionPopupHeaderContext';
 import { MentionPopupContent } from './components/MentionPopupContent';
 import { DeletedMentionContent } from './components/DeletedMentionContent/DeletedMentionContent';
 import { FCProps } from '@/types/fcProps.type';
@@ -110,17 +111,24 @@ export const MentionPopup: FCProps<Props> = ({
       {deleted ? (
         <DeletedMentionContent entityType={entityType} />
       ) : (
-        <>
-          <MentionPopupHeader
-            name={name}
-            isPinned={isPinned}
-            draggableProps={draggableProps}
-            onPin={handlePin}
-            onRemove={onRemove}
-            onNavigate={handleNavigate}
-          />
+        <MentionPopupHeaderContext.Provider
+          value={{
+            name,
+            isPinned,
+            zIndex: zIndex ?? null,
+            draggableProps,
+            onPin: handlePin,
+            onRemove,
+            onNavigate: handleNavigate,
+          }}
+        >
           <ErrorBoundary
-            fallback={<DeletedMentionContent entityType={entityType} />}
+            fallback={
+              <>
+                <MentionPopupHeader />
+                <DeletedMentionContent entityType={entityType} />
+              </>
+            }
           >
             <MentionPopupContent
               entityId={entityId}
@@ -128,7 +136,7 @@ export const MentionPopup: FCProps<Props> = ({
               adventureId={adventureId}
             />
           </ErrorBoundary>
-        </>
+        </MentionPopupHeaderContext.Provider>
       )}
     </GlassPanel>
   );

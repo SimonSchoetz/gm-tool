@@ -2,8 +2,8 @@
 
 ## `noUncheckedIndexedAccess` is not included in `strict: true` and widens array/record index types to `T | undefined`
 
-**Verified at:** typescript ~5.9.0
-**Citation:** [spec-writer_1: TypeScript handbook https://www.typescriptlang.org/tsconfig#noUncheckedIndexedAccess]
+**Verified at:** typescript 6.0.3
+**Citation:** [spec-writer_1: TypeScript handbook https://www.typescriptlang.org/tsconfig#noUncheckedIndexedAccess] [spec-writer_2: ran app/node_modules/.bin/tsc (`tsc -v` — Version 6.0.3) -p on a scratch tsconfig with `"strict": true` and no `noUncheckedIndexedAccess`, compiling `const first: string = items[0]` for `items: string[]` — observed exit 0; with `"noUncheckedIndexedAccess": true` added — observed TS2322 `Type 'string | undefined' is not assignable to type 'string'`]
 
 When `noUncheckedIndexedAccess` is enabled, indexing an array (`arr[i]`) or a record (`obj[key]`) returns `T | undefined` rather than `T`. This flag is not part of the `strict` bundle — `"strict": true` alone does not enable it. Code that relies on a row-presence guard must use `if (rows.length === 0)` rather than optional-chaining (`rows[0]?.field`) combined with `=== undefined`, because the latter silently passes type-checking even when the guard intent is row-absence, not field-nullability. Any spec code example that indexes into an array or record must account for the `| undefined` widening when this flag is active.
 
@@ -28,3 +28,10 @@ Inside `case 'a': case 'b':` the expression `config.kind` is narrowed to `'a' | 
 **Citation:** [spec-writer_8: `app/node_modules/typescript/lib/typescript.d.ts:9340` — `function resolveModuleName(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, …): ResolvedModuleWithFailedLookupLocations`; `:7346-7348` — `readonly resolvedModule: ResolvedModuleFull | undefined`; `:7288-7298` — `resolvedFileName: string`, `isExternalLibraryImport?: boolean`]
 
 The declaration's doc comments describe `resolvedFileName` as the "path of the file the module was resolved to" and `isExternalLibraryImport` as "true if `resolvedFileName` comes from `node_modules`". The `| undefined` in the type means callers must guard `resolvedModule` before reading it. These are type-level facts, not observed behavior.
+
+## Under `tsc` with `"jsx": "preserve"`, a `//` line comment between JSX attributes compiles, while a `{/* … */}` comment there is a syntax error
+
+**Verified at:** typescript 6.0.3
+**Citation:** [spec-writer_1: ran app/node_modules/.bin/tsc (`tsc -v` — Version 6.0.3) -p on a scratch tsconfig (`"jsx": "preserve"`, `"strict": true`) compiling a `.tsx` file whose `<div>` has `a='1'`, then a `// comment` on its own line, then `b='2'` — observed exit 0; the same element with `{/* … */}` between the attributes — observed TS1005 `'...' expected`]
+
+Inside a JSX opening tag, a `//` line comment can sit on its own line between attributes. The braced `{/* … */}` form is not valid there.

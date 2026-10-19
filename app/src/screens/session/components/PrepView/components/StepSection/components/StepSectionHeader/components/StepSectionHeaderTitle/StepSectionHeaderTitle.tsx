@@ -1,6 +1,6 @@
 import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
 import { useSessionSteps } from '@/data-access-layer';
-import { LAZY_DM_STEPS } from '@domain';
+import { findLazyDmStep } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
 import { useParams } from '@tanstack/react-router';
 import './StepSectionHeaderTitle.css';
@@ -14,14 +14,12 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { steps, updateStep } = useSessionSteps(sessionId);
-  const step = steps.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId) ?? null;
 
   if (!step) return;
 
   if (step.default_step_key) {
-    const definition = LAZY_DM_STEPS.find(
-      (s) => s.key === step.default_step_key,
-    );
+    const definition = findLazyDmStep(step.default_step_key);
     if (!definition) return;
     return (
       <label className='step-name' htmlFor={`step-checkbox-${step.id}`}>

@@ -67,3 +67,8 @@ export const LAZY_DM_STEPS: LazyDmStepDefinition[] = [
     placeholder: 'What potential rewards await the players?',
   },
 ];
+
+export const findLazyDmStep = (
+  key: LazyDmStepKey | null,
+): LazyDmStepDefinition | null =>
+  LAZY_DM_STEPS.find((step) => step.key === key) ?? null;

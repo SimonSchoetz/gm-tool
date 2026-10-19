@@ -1,22 +1,22 @@
-.steps-sidebar-nav {
+.reorderable-nav-list {
   border-radius: var(--radius-xl);
 }
 
-.steps-sidebar-nav:hover {
+.reorderable-nav-list:hover {
   box-shadow: var(--box-shadow-active);
 }
 
-.new-step-section-btn:hover {
+.reorderable-nav-list-new-item-btn:hover {
   transition: background-color var(--transition-fast);
   background-color: var(--color-bg-hover);
 }
 
-.new-step-section-btn,
-.new-step-section-btn > * {
+.reorderable-nav-list-new-item-btn,
+.reorderable-nav-list-new-item-btn > * {
   border-radius: 0;
   box-shadow: none;
 }
 
-.new-step-section-btn > * > * {
+.reorderable-nav-list-new-item-btn > * > * {
   font-size: var(--font-size-2xl);
 }

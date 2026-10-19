@@ -7,7 +7,8 @@ import { TooltipPanel } from './components/TooltipPanel/TooltipPanel';
 import './StepSection.css';
 import { FCProps } from '@/types/fcProps.type';
 import { useParams } from '@tanstack/react-router';
-import { LAZY_DM_STEPS } from '@domain';
+import { findLazyDmStep } from '@domain';
+import { stepSectionElementId } from '../../../../helper/stepSectionElementId';
 
 type Props = {
   stepId: string;
@@ -24,14 +25,14 @@ export const StepSection: FCProps<Props> = ({
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { steps, updateStep } = useSessionSteps(sessionId);
-  const step = steps.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId) ?? null;
 
   if (!step) return;
 
   return (
     <GlassPanel
       intensity='bright'
-      id={`step-section-${stepId}`}
+      id={stepSectionElementId(stepId)}
       className='step-section'
     >
       <div className='step-section--header-section'>
@@ -52,10 +53,7 @@ export const StepSection: FCProps<Props> = ({
         className='step-section--editor'
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
-        placeholder={
-          LAZY_DM_STEPS.find((s) => s.key === step.default_step_key)
-            ?.placeholder ?? ''
-        }
+        placeholder={findLazyDmStep(step.default_step_key)?.placeholder ?? ''}
         onChange={(content) => {
           updateStep(step.id, { content });
         }}

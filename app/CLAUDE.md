@@ -20,7 +20,7 @@ Conventions that apply across `app/` — TypeScript conventions for all TypeScri
 
 - **This rule governs domain errors — errors a caller or the Error Boundary is expected to catch, narrow by `name`, or handle differently based on type.** A bare `throw new Error(...)` for an internal, should-never-happen invariant — a defensive assertion with no caller expected to catch or narrow it by type, such as a DOM-shape invariant inside a low-level framework node override — does not define an error type and is not required to use the factory pattern. When it is unclear whether a thrown error might need caller-side narrowing later, surface the ambiguity rather than deciding unilaterally.
 
-- Never use `undefined` as a value in business logic — not as a return type, not as a local variable initializer, and not in a union type for a local variable that represents domain state. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in domain code signals a missing initialization decision.
+- Never use `undefined` as a value in any TypeScript layer: never write it (as a return type, a local variable initializer, a member of a union type for a local variable that represents domain state, or an argument or assigned value) and never branch on it (`=== undefined`, `!== undefined`) except to test an optional prop for being omitted. Use `null` for "no value yet" and explicit error types for error states. `undefined` is a language default — its presence in code signals a missing initialization decision. Exempt: (1) a prop or parameter declared optional with `?:` (a caller may omit it), consumed as delivered — destructured and used, rendered, tested for truthiness (`buttonStyle && …`), or compared with `undefined` to tell an omitted prop from a falsy value (`zIndex !== undefined`); (2) `undefined` written where the receiving declared type already admits it: a third-party call's argument, a DOM attribute (`onMouseDown={isResizable ? handler : undefined}`) or a style-object property (`display: show ? undefined : 'none'`). Separately, a built-in returning `T | undefined` (`.at()`, `.find()`) is normalised with `?? null` where its result is received, before it is stored, returned or passed on.
 
 - **In any function typed `void` — whether annotated explicitly or inferred from a `void` return-type slot in a containing type — use a bare `return;` for early exits. Never use `return null;` as an early exit in a void context.** `return null;` implies a return value exists and misleads readers into looking for a consumer; bare `return;` correctly signals "stop here, nothing is returned."
 
@@ -41,9 +41,8 @@ A folder's boundary is its `index.ts`. `local/no-import-past-index` (`app/eslint
 
 ## File Organization
 
-**1 concern → 1 file**: A concern is defined by domain ownership, not operation type or access shape. Everything that belongs to the same domain entity belongs in the same file or module — splitting by singular/plural query, or by read/write, fragments cohesion without benefit.
+**1 concern → 1 file**: A concern is defined by domain ownership, not operation type or access shape. Everything that belongs to the same domain entity belongs in the same file or module — splitting by singular/plural query, or by read/write, fragments cohesion without benefit. The one exception is a `db/` CRUD operation, which is one file named for its function (`app/db/CLAUDE.md` — Naming).
 
-- ✅ GOOD: `create.ts`, `get.ts`, `remove.ts` at the DB layer — each is an independent public operation on a different concern (creation vs. retrieval vs. deletion)
 - ✅ GOOD: `allTermsMatchItem.ts` containing private `getSearchableText` and `termMatchesItem` — they exist only to support `allTermsMatchItem`
 
 ## Testing

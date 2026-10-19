@@ -33,3 +33,7 @@ External consumers import via `@domain` (barrel) or `@domain/<subdomain>`:
 
 - `import { sessionCreateError } from '@domain'`
 - `import { adventureNotFoundError } from '@domain/adventures'`
+
+## Testing
+
+A function in `domain/` that adds logic beyond building or declaring a value — a branch, a fallback for an unrecognised input, validation (a type guard included: its test asserts an input it accepts and one it rejects), or a computed value — must have a test in its module's `__tests__/` directory, named after its source file (`<module>/__tests__/<sourceFile>.test.ts` for `<module>/<sourceFile>.ts`). This covers an accessor over a module-private lookup table when it adds validation or a fallback (`entityTypeLabel`, `buildEntityPath`): the test pins the accessor's own branch — the fallback value or the thrown error — and not the table's values, which the accessor only passes through (the shared rules file's Writing Tests, the rule beginning "A test earns its place by the regression it catches"). An error factory, even where it interpolates its message, and an accessor that only returns the table value need none. The obligation applies when such a function is added or its logic changes.

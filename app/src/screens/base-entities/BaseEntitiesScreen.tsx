@@ -25,9 +25,8 @@ export const BaseEntitiesScreen: FCProps<Props> = ({ entityType }) => {
   } = useBaseEntities(entityType, adventureId);
   const { tableConfigs, loading: configsLoading } = useTableConfigs();
 
-  const baseEntitiesTableConfig = tableConfigs.find(
-    (c) => c.table_name === entityType,
-  );
+  const baseEntitiesTableConfig =
+    tableConfigs.find((c) => c.table_name === entityType) ?? null;
 
   const handleBaseEntityCreation = async () => {
     const newBaseEntityId = await createBaseEntity();

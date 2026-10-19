@@ -5,7 +5,7 @@ import { useParams } from '@tanstack/react-router';
 import { entityTypeLabel, type BaseEntityType } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
 import { BaseEntitySidebar } from './components/BaseEntitySidebar/BaseEntitySidebar';
-import { BaseEntitySummary } from './components/BaseEntitySummary/BaseEntitySummary';
+import { BaseEntityContentSectionPanel } from './components/BaseEntityContentSectionPanel';
 import { ScreensNameInput } from '../components/ScreensNameInput/ScreensNameInput';
 import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
 
@@ -41,7 +41,10 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
         />
       }
       sideBar={<BaseEntitySidebar entityType={entityType} />}
-      bodyHeader={<BaseEntitySummary entityType={entityType} />}
+      bodyHeader={
+        // Keyed by entity id, so the shown section and an open nav reset when the router reuses this screen for another entity.
+        <BaseEntityContentSectionPanel key={baseEntity.id} />
+      }
       body={
         <TextEditor
           value={baseEntity.description ?? ''}

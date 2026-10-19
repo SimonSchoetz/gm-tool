@@ -12,13 +12,15 @@ const EDGE_PADDING = 12;
 type Props = {
   getAnchorRect: () => DOMRect | null;
   children: ReactNode;
-  onClickOutside?: () => void;
+  onClickOutside?: (event: MouseEvent) => void;
+  zIndex?: number | null;
 };
 
 export const AnchoredPopup: FCProps<Props> = ({
   getAnchorRect,
   children,
   onClickOutside,
+  zIndex,
 }) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
@@ -31,7 +33,7 @@ export const AnchoredPopup: FCProps<Props> = ({
         popupRef.current &&
         !popupRef.current.contains(event.target as Node)
       ) {
-        onClickOutside();
+        onClickOutside(event);
       }
     };
     document.addEventListener('mousedown', handleMouseDown);
@@ -83,6 +85,7 @@ export const AnchoredPopup: FCProps<Props> = ({
       style={{
         top: placement === 'below' ? rect.bottom : rect.top,
         left: rect.left + rect.width / 2 + horizontalOffset,
+        zIndex: zIndex ?? undefined,
       }}
     >
       {children}

@@ -91,7 +91,7 @@ export const applyUpsert = async (
   row: Record<string, unknown>,
   force: boolean,
 ): Promise<ApplyResult> => {
-  const entry = SYNCED_TABLES.find((table) => table.name === tableName);
+  const entry = SYNCED_TABLES.find((table) => table.name === tableName) ?? null;
   if (!entry) return 'skipped';
 
   const { id, updated_at: updatedAt } = row;

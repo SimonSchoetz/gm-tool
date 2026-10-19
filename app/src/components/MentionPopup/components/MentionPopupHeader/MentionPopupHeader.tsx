@@ -1,66 +1,59 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
 import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
 import { PanelMenuBar } from '../../../PanelMenuBar/PanelMenuBar';
+import { useMentionPopupHeader } from '../../hooks/useMentionPopupHeader';
 import './MentionPopupHeader.css';
 
-type DraggableProps = {
-  onPointerDown: (e: React.PointerEvent) => void;
-  onPointerMove: (e: React.PointerEvent) => void;
-  onPointerUp: (e: React.PointerEvent) => void;
-};
-
 type Props = {
-  name: string;
-  isPinned: boolean;
-  draggableProps: DraggableProps;
-  onPin: () => void;
-  onRemove: () => void;
-  onNavigate: () => void;
+  leading?: ReactNode;
+  titleSuffix?: string;
 };
 
 export const MentionPopupHeader: FCProps<Props> = ({
-  name,
-  isPinned,
-  draggableProps,
-  onPin,
-  onRemove,
-  onNavigate,
-}) => (
-  <PanelMenuBar
-    title={
-      <>
-        {isPinned && <>⠿</>} {name}
-      </>
-    }
-    titleProps={{
-      ...(isPinned ? draggableProps : {}),
-      className: cn(isPinned && 'mention-popup-name--pinned'),
-    }}
-  >
-    <ClickableIcon
-      icon={<ExternalLinkIcon />}
-      onClick={onNavigate}
-      label='Navigate to entity'
-      title='Navigate'
-    />
-    {!isPinned ? (
+  leading = null,
+  titleSuffix,
+}) => {
+  const header = useMentionPopupHeader();
+
+  return (
+    <PanelMenuBar
+      leading={leading}
+      title={
+        <>
+          {header.isPinned && leading === null && <>⠿</>} {header.name}
+          {titleSuffix}
+        </>
+      }
+      titleProps={{
+        ...(header.isPinned ? header.draggableProps : {}),
+        className: cn(header.isPinned && 'mention-popup-name--pinned'),
+      }}
+    >
       <ClickableIcon
-        icon={<PinIcon />}
-        onClick={onPin}
-        label='Pin popup'
-        title='Pin'
+        icon={<ExternalLinkIcon />}
+        onClick={header.onNavigate}
+        label='Navigate to entity'
+        title='Navigate'
       />
-    ) : (
-      <ClickableIcon
-        icon={<XIcon />}
-        onClick={onRemove}
-        label='Close popup'
-        title='Close'
-        variant='danger'
-      />
-    )}
-  </PanelMenuBar>
-);
+      {!header.isPinned ? (
+        <ClickableIcon
+          icon={<PinIcon />}
+          onClick={header.onPin}
+          label='Pin popup'
+          title='Pin'
+        />
+      ) : (
+        <ClickableIcon
+          icon={<XIcon />}
+          onClick={header.onRemove}
+          label='Close popup'
+          title='Close'
+          variant='danger'
+        />
+      )}
+    </PanelMenuBar>
+  );
+};

@@ -41,7 +41,7 @@ export const InGameView = () => {
 
       <div className='in-game-view--steps'>
         {steps.map((step) => (
-          <InGameStepSection key={step.id} step={step} />
+          <InGameStepSection key={step.id} stepId={step.id} />
         ))}
       </div>
     </div>

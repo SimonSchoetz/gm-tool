@@ -1,10 +1,9 @@
 import { Button } from '@/components/Button/Button';
 import './StepsNavSidebar.css';
 import { ToggleSessionViewBtn } from './components/ToggleSessionViewBtn/ToggleSessionViewBtn';
-import { SessionStepsNav } from './components/SessionStepsNav';
+import { SessionStepsNav } from './components/SessionStepsNav/SessionStepsNav';
 import { DeleteSessionBtn } from './components/DeleteSessionBtn/DeleteSessionBtn';
 import { FCProps } from '@/types/fcProps.type';
-import { HtmlProps } from '@/types/htmlProps.type';
 import { useSession } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
@@ -13,7 +12,7 @@ import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSideba
 type Props = {
   areTooltipsVisible: boolean;
   onToggleAllTooltips: () => void;
-} & HtmlProps<'aside'>;
+} & Omit<React.ComponentProps<typeof ScreensSidebar>, 'className'>;
 
 export const StepsNavSidebar: FCProps<Props> = ({
   areTooltipsVisible,
@@ -34,7 +33,6 @@ export const StepsNavSidebar: FCProps<Props> = ({
       {session?.active_view === 'prep' && (
         <>
           <Button
-            className='toggle-all-tooltips-btn'
             onClick={onToggleAllTooltips}
             label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
           />

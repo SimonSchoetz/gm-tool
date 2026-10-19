@@ -1,29 +1,33 @@
-.steps-nav-item {
+.reorderable-nav-list-item {
   display: flex;
   align-items: center;
   color: var(--color-primary);
   width: 100%;
 }
 
-.steps-nav-item--checked {
+.reorderable-nav-list-item--checked {
   color: var(--color-success);
 }
 
-.steps-nav-item:hover {
+.reorderable-nav-list-item--active {
   color: var(--color-fg);
 }
 
-.steps-nav-item:hover .steps-nav-drag-handle {
+.reorderable-nav-list-item:hover {
+  color: var(--color-fg);
+}
+
+.reorderable-nav-list-item:hover .reorderable-nav-list-item-drag-handle {
   transition: background-color var(--transition-fast);
   background-color: var(--color-primary-hover);
 }
 
-.steps-nav-item:hover .steps-nav-item-label {
+.reorderable-nav-list-item:hover .reorderable-nav-list-item-label {
   transition: background-color var(--transition-fast);
   background-color: var(--color-bg-hover);
 }
 
-.steps-nav-drag-handle {
+.reorderable-nav-list-item-drag-handle {
   cursor: grab;
   font-size: var(--font-size-base);
   user-select: none;
@@ -32,11 +36,11 @@
   transition: background-color var(--transition-fast);
 }
 
-.steps-nav-drag-handle:active {
+.reorderable-nav-list-item-drag-handle:active {
   cursor: grabbing;
 }
 
-.steps-nav-item-label {
+.reorderable-nav-list-item-label {
   padding: var(--spacing-xs);
   padding-left: var(--spacing-sm);
   text-align: left;

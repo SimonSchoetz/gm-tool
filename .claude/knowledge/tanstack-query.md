@@ -50,3 +50,17 @@ A hook dependency on the whole mutation object (`[updateMutation]`) changes on e
 **Citation:** [spec-writer_37: app/node_modules/.pnpm/@tanstack+query-core@5.103.1/node_modules/@tanstack/query-core/build/modern/hydration-Cq7QYAzB.d.ts:2478 — `type MutationFunction<TData = unknown, TVariables = unknown> = (variables: TVariables, context: MutationFunctionContext) => Promise<TData>`]
 
 A function passed directly as `mutationFn` receives the mutation's variables and TanStack's context object as arguments, so a test of a hook that forwards a caller's function as `mutationFn` cannot assert a call with no arguments.
+
+## `mutateAsync` resolves only after the hook-level `onSuccess` has settled, so a hook-level `onSuccess` that returns a promise holds it back
+
+**Verified at:** @tanstack/react-query 5.104.0 (`@tanstack/query-core` 5.104.0)
+**Citation:** [architect_1: app/node_modules/.pnpm/@tanstack+query-core@5.104.0/node_modules/@tanstack/query-core/src/mutation.ts:349-375 — `execute` awaits `this.#mutationCache.config.onSuccess`, then `this.options.onSuccess` (line 357), then both `onSettled` callbacks, before `this.#dispatch({ type: 'success', data })` and `return data`] [architect_2: app/node_modules/.pnpm/@tanstack+query-core@5.104.0/node_modules/@tanstack/query-core/src/mutationObserver.ts:214-219 — `mutate()` builds the mutation from `this.options` and returns `execute(variables)`; :76 binds `this.mutate`; :235 puts `mutate: this.mutate` on the observer result] [spec-writer_1: app/node_modules/@tanstack/react-query/src/useMutation.ts:244 — `return { ...result, mutate, mutateAsync: result.mutate }`]
+
+`useMutation`'s `mutateAsync` is the observer's `mutate`, which builds the mutation from the observer's options and returns its `execute` promise. `execute` returns the data only after the hook-level `onSuccess` (the one passed to `useMutation`) has settled, so a hook-level `onSuccess` that returns a promise delays `mutateAsync` until that promise settles.
+
+## `invalidateQueries` returns its refetch's promise, which settles once every matching query it refetches has settled and does not reject on a refetch failure by default
+
+**Verified at:** @tanstack/query-core 5.104.0
+**Citation:** [architect_1: app/node_modules/.pnpm/@tanstack+query-core@5.104.0/node_modules/@tanstack/query-core/src/queryClient.ts:469-530 — `invalidateQueries` returns `Promise.resolve()` when `filters?.refetchType === 'none'` (line 478), else `this.refetchQueries({ ...filters, type: filters?.refetchType ?? filters?.type ?? 'active' }, options)`; `refetchQueries`' doc comment says disabled or static ("only have observers with a static `staleTime`") queries are never refetched, it filters out `query.isDisabled()` and `query.isStatic()`, attaches `.catch(noop)` unless `fetchOptions.throwOnError` (built from its second, `options` argument), and returns `Promise.all(promises).then(noop)`]
+
+Unless `refetchType` is `'none'`, `invalidateQueries` refetches the matching queries of type `'active'` by default, skipping disabled and static ones, and returns that refetch's promise. A refetch failure does not reject it unless `throwOnError: true` is passed in its second (`options`) argument.
