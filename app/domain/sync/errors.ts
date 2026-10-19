@@ -24,3 +24,14 @@ export const syncPushError = (cause?: unknown): SyncPushError => {
   error.name = 'SyncPushError';
   return error;
 };
+
+type SyncChangeRecordError = Error & { name: 'SyncChangeRecordError' };
+export const syncChangeRecordError = (
+  cause?: unknown,
+): SyncChangeRecordError => {
+  const error = new Error(
+    `Malformed sync change record: ${String(cause)}`,
+  ) as SyncChangeRecordError;
+  error.name = 'SyncChangeRecordError';
+  return error;
+};

@@ -1,4 +1,9 @@
-export { syncHandshakeError, syncApplyError, syncPushError } from './errors';
+export {
+  syncHandshakeError,
+  syncApplyError,
+  syncPushError,
+  syncChangeRecordError,
+} from './errors';
 export type { SyncChange } from './messages';
 export {
   SYNC_PROTOCOL_VERSION,
