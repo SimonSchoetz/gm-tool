@@ -41,7 +41,7 @@ const attachParents = (node, parent) => {
 
 /**
  * @param {string} code
- * @returns {AstNode[]} every `.at()`, `.find()` or `.pop()` call in `code`, in source order
+ * @returns {AstNode[]} every call `lookupMethodOf` names in `code`, in source order
  */
 const lookupCallsIn = (code) => {
   const { ast } = /** @type {{ ast: AstNode }} */ (
@@ -86,15 +86,19 @@ const escapesIn = (code) =>
   lookupCallsIn(code).map((call) => classifyEscape(findValueCarrier(call)));
 
 describe('lookupMethodOf', () => {
-  it('names a direct .at(), .find() or .pop() call', () => {
+  it('names a direct .at(), .find(), .findLast(), .pop(), .shift() or .get() call', () => {
     expect(
-      lookupCallsIn('arr.at(-1); arr.find(f); arr.pop();').map(lookupMethodOf),
-    ).toEqual(['at', 'find', 'pop']);
+      lookupCallsIn(
+        'arr.at(-1); arr.find(f); arr.findLast(f); arr.pop(); arr.shift(); map.get(k);',
+      ).map(lookupMethodOf),
+    ).toEqual(['at', 'find', 'findLast', 'pop', 'shift', 'get']);
   });
 
   it('ignores other methods, computed access and bare calls', () => {
     expect(
-      lookupCallsIn("arr.findLast(f); arr['find'](f); find(f); arr.find;"),
+      lookupCallsIn(
+        "arr.findIndex(f); arr.unshift(x); map.has(k); arr['find'](f); get(k); arr.get;",
+      ),
     ).toEqual([]);
   });
 });

@@ -28,8 +28,8 @@
     "simple-git-hooks": "latest"
   },
   "simple-git-hooks": {
-    "pre-commit": "cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .",
-    "pre-merge-commit": "cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .",
+    "pre-commit": "git diff --cached --name-only --no-renames | grep -q '^app/' || exit 0; cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .",
+    "pre-merge-commit": "git diff --cached --name-only --no-renames | grep -q '^app/' || exit 0; cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .",
     "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2",
     "pre-push": "cd app && npx vitest run"
   }

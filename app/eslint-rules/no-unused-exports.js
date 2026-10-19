@@ -266,30 +266,24 @@ const declaredIdentifiersOf = (declaration) => {
   return declaration.id?.type === 'Identifier' ? [declaration.id] : [];
 };
 
-const TYPE_DECLARATIONS = new Set([
-  'TSTypeAliasDeclaration',
-  'TSInterfaceDeclaration',
-]);
-
 /**
  * @param {AstNode} program the file's ESTree `Program` node
  * @param {(localName: string) => boolean} isImportBinding whether a module-scope name is bound by an import declaration
- * @returns {{ name: string, node: AstNode, isType: boolean }[]} every export the file declares itself, with `isType` for a type alias, an interface or an `export type { … }` specifier; re-exports (`export … from` and `export { importedName }`) are left out, since the symbol they forward is reported in its own file
+ * @returns {{ name: string, node: AstNode }[]} every export the file declares itself; re-exports (`export … from` and `export { importedName }`) are left out, since the symbol they forward is reported in its own file
  */
 export const localExportsOf = (program, isImportBinding) => {
-  /** @type {{ name: string, node: AstNode, isType: boolean }[]} */
+  /** @type {{ name: string, node: AstNode }[]} */
   const exports = [];
   for (const statement of program.body) {
     if (statement.type === 'ExportDefaultDeclaration') {
-      exports.push({ name: 'default', node: statement, isType: false });
+      exports.push({ name: 'default', node: statement });
     } else if (
       statement.type === 'ExportNamedDeclaration' &&
       !statement.source
     ) {
       if (statement.declaration) {
-        const isType = TYPE_DECLARATIONS.has(statement.declaration.type);
         for (const identifier of declaredIdentifiersOf(statement.declaration)) {
-          exports.push({ name: identifier.name, node: identifier, isType });
+          exports.push({ name: identifier.name, node: identifier });
         }
       }
       for (const specifier of statement.specifiers) {
@@ -306,8 +300,6 @@ export const localExportsOf = (program, isImportBinding) => {
               ? exported.name
               : String(exported.value),
           node: exported,
-          isType:
-            statement.exportKind === 'type' || specifier.exportKind === 'type',
         });
       }
     }
@@ -367,15 +359,7 @@ export default {
       description:
         'Disallow exporting a symbol that no file in the TypeScript program imports, directly or through a barrel.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          ignoreTypeExports: { type: 'boolean' },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: [],
     messages: {
       unusedExport:
         "'{{name}}' is exported but imported nowhere. Drop the export keyword, or the symbol itself when nothing in this file uses it either.",
@@ -388,10 +372,6 @@ export default {
     if (!program || filename.endsWith('.d.ts')) {
       return {};
     }
-    /** @type {{ ignoreTypeExports?: boolean }} */
-    const options = context.options[0] ?? {};
-    const ignoreTypeExports = options.ignoreTypeExports ?? false;
-
     return {
       Program: (node) => {
         const index = usageIndexOf(program);
@@ -405,13 +385,10 @@ export default {
             ?.defs.some((definition) => definition.type === 'ImportBinding') ??
           false;
 
-        for (const { name, node: exportNode, isType } of localExportsOf(
+        for (const { name, node: exportNode } of localExportsOf(
           node,
           isImportBinding,
         )) {
-          if (ignoreTypeExports && isType) {
-            continue;
-          }
           if (!isExportUsed(filename, name, index)) {
             context.report({
               node:

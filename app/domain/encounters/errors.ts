@@ -1,4 +1,4 @@
-export type EncounterNotFoundError = Error & { name: 'EncounterNotFoundError' };
+type EncounterNotFoundError = Error & { name: 'EncounterNotFoundError' };
 export const encounterNotFoundError = (id: string): EncounterNotFoundError => {
   const error = new Error(
     `Encounter with id ${id} not found`,
@@ -7,7 +7,7 @@ export const encounterNotFoundError = (id: string): EncounterNotFoundError => {
   return error;
 };
 
-export type EncounterLoadError = Error & { name: 'EncounterLoadError' };
+type EncounterLoadError = Error & { name: 'EncounterLoadError' };
 export const encounterLoadError = (cause?: unknown): EncounterLoadError => {
   const error = new Error(
     `Failed to load Encounters: ${String(cause)}`,
@@ -16,7 +16,7 @@ export const encounterLoadError = (cause?: unknown): EncounterLoadError => {
   return error;
 };
 
-export type EncounterCreateError = Error & { name: 'EncounterCreateError' };
+type EncounterCreateError = Error & { name: 'EncounterCreateError' };
 export const encounterCreateError = (cause?: unknown): EncounterCreateError => {
   const error = new Error(
     `Failed to create Encounter: ${String(cause)}`,
@@ -25,7 +25,7 @@ export const encounterCreateError = (cause?: unknown): EncounterCreateError => {
   return error;
 };
 
-export type EncounterUpdateError = Error & { name: 'EncounterUpdateError' };
+type EncounterUpdateError = Error & { name: 'EncounterUpdateError' };
 export const encounterUpdateError = (
   id: string,
   cause?: unknown,
@@ -37,7 +37,7 @@ export const encounterUpdateError = (
   return error;
 };
 
-export type EncounterDeleteError = Error & { name: 'EncounterDeleteError' };
+type EncounterDeleteError = Error & { name: 'EncounterDeleteError' };
 export const encounterDeleteError = (
   id: string,
   cause?: unknown,
@@ -49,7 +49,7 @@ export const encounterDeleteError = (
   return error;
 };
 
-export type EncounterDuplicateError = Error & {
+type EncounterDuplicateError = Error & {
   name: 'EncounterDuplicateError';
 };
 export const encounterDuplicateError = (

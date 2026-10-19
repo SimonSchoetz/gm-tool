@@ -1,9 +1,4 @@
-export type {
-  UpdateCheckError,
-  UpdateCheckErrorReason,
-  UpdateDownloadError,
-  UpdateInstallAndRelaunchError,
-} from './errors';
+export type { UpdateCheckError, UpdateCheckErrorReason } from './errors';
 export {
   updateCheckError,
   updateDownloadError,

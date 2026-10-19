@@ -120,7 +120,7 @@ export const useSessionSteps = (sessionId: string): UseSessionStepsReturn => {
         const idToStep = new Map(old.map((s) => [s.id, s]));
         return orderedStepIds
           .map((id, index) => {
-            const step = idToStep.get(id);
+            const step = idToStep.get(id) ?? null;
             return step ? { ...step, sort_order: index } : null;
           })
           .filter((s): s is SessionStep => s !== null);

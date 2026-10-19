@@ -95,18 +95,6 @@ export default defineConfig(
     },
   },
   {
-    // Nothing in the TypeScript program imports these: index.html loads main.tsx, and each route file's `Route` is imported by TanStack Router's generated routeTree.gen.ts, which is gitignored and absent until the first build.
-    files: ['src/main.tsx', 'src/routes/**'],
-    rules: { 'local/no-unused-exports': 'off' },
-  },
-  {
-    // Each domain's errors.ts exports every error type beside its factory as the layer's vocabulary (app/domain/CLAUDE.md — What Belongs Here, with the pattern in app/CLAUDE.md — TypeScript Coding Style), whether or not a consumer narrows on it yet; the factories stay covered.
-    files: ['domain/**/errors.ts'],
-    rules: {
-      'local/no-unused-exports': ['error', { ignoreTypeExports: true }],
-    },
-  },
-  {
     // app/CLAUDE.md's `undefined` ban covers business logic, and a test helper returning `rows.at(0)` is none.
     files: ['**/__tests__/**'],
     rules: { 'local/no-unnormalized-lookup-result': 'off' },

@@ -120,7 +120,7 @@ export const useBaseEntityContentSections = (
         const idToSection = new Map(old.map((s) => [s.id, s]));
         return orderedSectionIds
           .map((id, index) => {
-            const section = idToSection.get(id);
+            const section = idToSection.get(id) ?? null;
             return section ? { ...section, sort_order: index } : null;
           })
           .filter((s): s is BaseEntityContentSection => s !== null);

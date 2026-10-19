@@ -17,7 +17,8 @@
     "web": "vite",
     "preview": "vite preview",
     "test": "npx vitest run && npx tsc --noEmit && npx eslint . && npx prettier --check .",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "prepare": "tsr generate"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -53,6 +54,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tanstack/router-cli": "1.167.39",
     "@tanstack/router-plugin": "^1.168.41",
     "@tauri-apps/cli": "^2.12.0",
     "@testing-library/jest-dom": "^7.0.1",

@@ -111,3 +111,10 @@ A column named `type`, `content`, or `checked` needs no quoting in `CREATE TABLE
 **Citation:** [sync-behavior_22: compiled the libsqlite3-sys 0.30.1 amalgamation and ran node:sqlite, each with a parent table, a child whose FK has `ON DELETE SET NULL`, and logging triggers on both — observed `ent-update:e1:NULL` logged before `img-delete:i1` and the child's `updated_at` unchanged]
 
 A change-tracking UPDATE trigger on the child records a change for every row the action nulls, while the row's own `updated_at` stays at its old value.
+
+## A non-numeric TEXT value written to an INTEGER-affinity column of a table without `STRICT` is stored as TEXT
+
+**Verified at:** sqlite.org current docs, fetched 2026-10-19; SQLite 3.53.4 (node:sqlite, Node 24.21.0), run 2026-10-19
+**Citation:** [harness-follow-ups_1: https://www.sqlite.org/datatype3.html — Section 3, "If the TEXT value is not a well-formed integer or real literal, then the value is stored as TEXT", and INTEGER affinity "behaves the same as a column with NUMERIC affinity"] [harness-follow-ups_2: ran node:sqlite with `CREATE TABLE t (deleted INTEGER NOT NULL DEFAULT 0, label TEXT)` and inserted `('yes', 5)` — observed `deleted: 'yes'` with `typeof(deleted)` `text`]
+
+A `NOT NULL` INTEGER column therefore accepts `'yes'` and reads it back as a JS string, which is how a test can seed a row that fails a `z.number()` field without any schema change.

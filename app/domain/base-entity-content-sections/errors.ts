@@ -1,4 +1,4 @@
-export type BaseEntityContentSectionLoadError = Error & {
+type BaseEntityContentSectionLoadError = Error & {
   name: 'BaseEntityContentSectionLoadError';
 };
 export const baseEntityContentSectionLoadError = (
@@ -11,7 +11,7 @@ export const baseEntityContentSectionLoadError = (
   return error;
 };
 
-export type BaseEntityContentSectionCreateError = Error & {
+type BaseEntityContentSectionCreateError = Error & {
   name: 'BaseEntityContentSectionCreateError';
 };
 export const baseEntityContentSectionCreateError = (
@@ -24,7 +24,7 @@ export const baseEntityContentSectionCreateError = (
   return error;
 };
 
-export type BaseEntityContentSectionUpdateError = Error & {
+type BaseEntityContentSectionUpdateError = Error & {
   name: 'BaseEntityContentSectionUpdateError';
 };
 export const baseEntityContentSectionUpdateError = (
@@ -38,7 +38,7 @@ export const baseEntityContentSectionUpdateError = (
   return error;
 };
 
-export type BaseEntityContentSectionDeleteError = Error & {
+type BaseEntityContentSectionDeleteError = Error & {
   name: 'BaseEntityContentSectionDeleteError';
 };
 export const baseEntityContentSectionDeleteError = (
@@ -52,7 +52,7 @@ export const baseEntityContentSectionDeleteError = (
   return error;
 };
 
-export type BaseEntityContentSectionReorderError = Error & {
+type BaseEntityContentSectionReorderError = Error & {
   name: 'BaseEntityContentSectionReorderError';
 };
 export const baseEntityContentSectionReorderError = (

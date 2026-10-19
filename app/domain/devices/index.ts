@@ -1,12 +1,6 @@
 export type {
   ConnectivityInitError,
-  DeviceCreateError,
-  DeviceDeleteError,
-  DeviceMessageError,
-  DevicesLoadError,
-  DeviceUpdateError,
   PairingConfirmError,
-  PairingModeError,
   PairingRequestError,
 } from './errors';
 export {

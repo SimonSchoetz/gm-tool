@@ -17,7 +17,7 @@ export const updateCheckError = (
   return error;
 };
 
-export type UpdateDownloadError = Error & { name: 'UpdateDownloadError' };
+type UpdateDownloadError = Error & { name: 'UpdateDownloadError' };
 export const updateDownloadError = (cause?: unknown): UpdateDownloadError => {
   const error = new Error(
     `Failed to download update: ${String(cause)}`,
@@ -26,7 +26,7 @@ export const updateDownloadError = (cause?: unknown): UpdateDownloadError => {
   return error;
 };
 
-export type UpdateInstallAndRelaunchError = Error & {
+type UpdateInstallAndRelaunchError = Error & {
   name: 'UpdateInstallAndRelaunchError';
 };
 export const updateInstallAndRelaunchError = (
