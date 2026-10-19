@@ -132,3 +132,45 @@ The `sessionId` field of such a row is what the entry below passed to `mcp__ccd_
 **Citation:** [claude_8: ran `mcp__ccd_session_mgmt__send_message` with the `sessionId` value of the `list_sessions` row for "I: Content section" (`local_68f18432-…`, `isRunning: false`), which `ListAgents` had not listed moments before, carrying a request to reply by the same tool — observed the result "Message delivered to session … its turn has started on it. (delivery: delivered; message_id: …)", and later a turn in the sending session wrapped as `<cross-session-message from="local_68f18432-…" name="I: Content section">` whose text named the branch it had implemented and stated that its context still held the review-loop findings]
 
 Whether that session's process had exited before the send was not observed.
+
+## `mcp__ccd_session_mgmt__get_session` called with `"self"` returned the calling session's own `sessionId` in the form `local_<uuid>`, together with an `isArchived` boolean
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_1: ran `mcp__ccd_session_mgmt__get_session` with `session_id` `"self"` from a Code-tab session — observed `"sessionId": "local_55280101-…"`, `"isArchived": false`, `"isRunning": true`, plus title, cwd, `parentSessionId` and model]
+
+A session can therefore learn its own id without listing sessions.
+
+## `mcp__ccd_session_mgmt__send_message` reports `delivered` when the target's turn has started, `queued` when it waits behind the target's current work, and an error otherwise
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_2: the tool's own description, loaded through `ToolSearch select:mcp__ccd_session_mgmt__send_message` — "\"delivered\" means that session's turn has started on your message; \"queued\" means it is waiting behind that session's current work … anything else is an error saying why it was not delivered"]
+
+The same description says the message arrives in the target as a user turn labelled "From {this session's title}", and that `SendMessage` with the target's `local_…` id is the preferred tool.
+
+## `mcp__ccd_session_mgmt__get_usage` reported the context window of a session listed with `isRunning: false`
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_3: ran `mcp__ccd_session_mgmt__get_usage` with the `sessionId` of a session that `list_sessions` showed with `isRunning: false` and last activity 06:56Z — observed `"status": "ok"`, `"tokensUsed": 521183` of a 1,000,000 window, Messages 434,966 tokens] [claude_7: the tool's own description, loaded through `ToolSearch select:mcp__ccd_session_mgmt__get_usage` — context is "read from the session's own process, so an idle, starting or archived session reports it unavailable"]
+
+The description predicts `unavailable` for an idle session, but this one listed with `isRunning: false` reported its context, so a context reading is worth attempting before a session is woken.
+
+## A session holding 521,183 context tokens, messaged with `send_message` while idle, replied in 22 seconds and grew by about 10,000 tokens
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_4: sent a one-line question to the idle session "Lean gimbal: cap refine…" at 13:32:18Z (`delivery: delivered`) — observed its `<cross-session-message>` reply in the sender by 13:32:40Z, `get_usage` on it before 521,183 and after 531,254 tokens, and the account's 5-hour plan usage at 8% both before and after]
+
+The plan meter's whole-percent resolution did not register one such wake-up; how many input tokens it billed, and how many of them were served from cache, was not observed.
+
+## A cross-session reply arrives as its own turn while a background Bash command of the session awaiting it is still running, and that command's exit later starts a further turn
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_5: started two `run_in_background` Bash commands (`sleep 900`, `sleep 300`), sent a `send_message` and ended the turn — observed the reply turn at 13:32:40Z with `pgrep` showing both `sleep` processes alive, and at the 300-second sleep's exit (13:37:18Z) a `<task-notification>` turn with status `completed`]
+
+A background `sleep` therefore serves as a deadline timer for collecting cross-session replies without blocking them.
+
+## `TaskStop` on a running background Bash command ended it as `[killed]` and started no turn in the following four and a half minutes
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [claude_6: ran `TaskStop` on the running `sleep 900` command at 13:32:48Z — observed "Successfully stopped task", the `sleep 900` process gone from `pgrep`, the command's output file ending `[killed]`, and no turn in the session until the other background command's exit notification at 13:37:18Z]
+
+Whether the stopped command would start a turn later than that window was not observed.
