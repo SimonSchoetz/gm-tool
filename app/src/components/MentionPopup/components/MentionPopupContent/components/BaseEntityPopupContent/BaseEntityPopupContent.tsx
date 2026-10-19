@@ -6,11 +6,13 @@ import {
 } from '@/data-access-layer';
 import { useListNavigation } from '@/hooks/useListNavigation';
 import type { BaseEntityType } from '@domain/entities';
+import { BASIC_STAT_BLOCK_HP_LABEL, parseBasicStatBlockContent } from '@domain';
 import { ContentSectionNav } from '../../../../../ContentSectionNav/ContentSectionNav';
 import { ContentSectionNavToggle } from '../../../../../ContentSectionNavToggle/ContentSectionNavToggle';
 import { useMentionPopupHeader } from '../../../../hooks/useMentionPopupHeader';
 import { MentionPopupHeader } from '../../../MentionPopupHeader/MentionPopupHeader';
 import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
+import './BaseEntityPopupContent.css';
 
 type Props = {
   entityType: BaseEntityType;
@@ -56,11 +58,32 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
       }
     : {};
 
+  const statBlock =
+    selected?.type === 'basic-stat-block'
+      ? parseBasicStatBlockContent(selected.content)
+      : null;
+  const summarySlots: Pick<
+    React.ComponentProps<typeof EntityPopupBody>,
+    'summary' | 'summaryHeader'
+  > = statBlock !== null
+    ? {
+        summary: statBlock.textEditor,
+        summaryHeader: (
+          <div className='base-entity-popup-content-hp'>
+            <span className='base-entity-popup-content-hp-label'>
+              {BASIC_STAT_BLOCK_HP_LABEL}
+            </span>
+            {statBlock.basicStatBlock.hp}
+          </div>
+        ),
+      }
+    : { summary: selected?.content ?? null };
+
   return (
     <>
       <MentionPopupHeader {...headerSlots} />
       <EntityPopupBody
-        summary={selected?.content ?? null}
+        {...summarySlots}
         imageId={baseEntity.image_id}
         // The section id makes EntityPopupBody's TextEditor remount on a section switch instead of showing the previous section.
         textEditorId={

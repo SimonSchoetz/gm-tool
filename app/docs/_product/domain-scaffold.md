@@ -67,7 +67,15 @@ Every base entity type is a row of `base_entities`, discriminated by `entity_typ
 
 `app/db/CLAUDE.md` bans `.optional()` on any `zodSchema` field, and the ban applies unconditionally. `db/base-entity/schema.ts` uses `.nullable()` alone on every nullable column, including `image_id` — no field on this table is grandfathered.
 
-A base entity's summary lives in its content sections: ordered (`sort_order`) rows of `base_entity_content_sections`, each typed `'text'` or `'5e-stat-block'`, keyed by `base_entity_id` — a base entity can have several of them. A new base entity type needs no registration there.
+A base entity's summary lives in its content sections: ordered (`sort_order`) rows of `base_entity_content_sections`, each typed `'text'`, `'basic-stat-block'` or `'5e-stat-block'`, keyed by `base_entity_id` — a base entity can have several of them. A new base entity type needs no registration there.
+
+Adding a content-section type registers it in:
+
+1. `BASE_ENTITY_CONTENT_SECTION_TYPES` (`domain/base-entity-content-sections/contentSectionTypes.ts`), whose order is the type menu's order.
+2. `CONTENT_SECTION_TYPE_LABELS` (`contentSectionTypeLabels.ts`).
+3. The content-schema table in `contentSectionContentSchemas.ts`: a schema that `db/base-entity-content-section/update.ts` checks on every content write, or `null` for content stored unvalidated.
+4. A body branch in `BaseEntityContentSectionPanel.tsx` and a popup branch in `BaseEntityPopupContent.tsx`, when the type's body is not the plain text editor.
+5. A bump of `SYNC_PROTOCOL_VERSION` (`domain/sync/messages.ts`), because an older build's sync schema rejects the new type and skips its rows.
 
 ## Implementation Notes
 
