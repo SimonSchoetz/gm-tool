@@ -5,8 +5,6 @@
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
 **Citation:** [claude_5: ran `man -M "$(git --man-path)" -P cat git-config` — observed under `--local` "For reading options: read only from the repository .git/config rather than from all available files", and under `--worktree` "Similar to --local except that $GIT_DIR/config.worktree is read from or written to if extensions.worktreeConfig is enabled"] [claude_10: ran `git config --show-origin --get-all core.hooksPath` from the linked worktree `/Users/simonschoetz/dev/gm-tool/.claude/worktrees/clever-payne-354010` — observed one line whose origin is `file:/Users/simonschoetz/dev/gm-tool/.git/worktrees/clever-payne-354010/config.worktree`] [claude_11: ran `git config --local core.hooksPath` from the same worktree — observed no output and exit code 1] [claude_12: `/Users/simonschoetz/dev/gm-tool/.git/config:14-15` — `[extensions]` `worktreeConfig = true`] [claude_13: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
-The same two commands run from the main checkout were not probed.
-
 ## `git -c core.hooksPath=<absolute dir>` made a `git commit` run that directory's `pre-commit` and a `git push` run its `pre-push`, in a linked worktree whose configured `core.hooksPath` names another directory
 
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
@@ -26,4 +24,16 @@ The command prints the directory and says nothing about which hook files it hold
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
 **Citation:** [claude_20: ran `git hook run pre-commit` in the linked worktree `/Users/simonschoetz/dev/gm-tool/.claude/worktrees/clever-payne-354010` while its `config.worktree` set `core.hooksPath` to `/Users/simonschoetz/dev/gm-tool/.husky`, a directory holding no `pre-commit` file — observed `error: cannot find a hook named pre-commit` and exit code 1; ran it there again after `git config --worktree --unset core.hooksPath`, when `git rev-parse --git-path hooks` printed `/Users/simonschoetz/dev/gm-tool/.git/hooks` and that directory held `pre-commit` — observed that script run its type-check, lint and format steps and exit 0] [claude_13: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
-The command is not a dry run: the hook's steps execute.
+## `git merge --no-ff` ran `.git/hooks/pre-merge-commit` and not `.git/hooks/pre-commit` for the merge commit it created
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
+**Citation:** [claude_1: ran `git merge --no-ff -q -m merge side` in a scratch repository made with `git init`, holding one base commit and one commit on `side`, whose `.git/hooks` held an executable `pre-merge-commit` printing `PRE-MERGE-COMMIT HOOK RAN` and an executable `pre-commit` printing `PRE-COMMIT HOOK RAN` — observed only `PRE-MERGE-COMMIT HOOK RAN`] [claude_2: ran `git merge --no-ff -m "Merge branch 'feat/content-sections' into main" feat/content-sections` in `/Users/simonschoetz/dev/gm-tool` while `.git/hooks` held `pre-commit`, whose `prettier --check` step prints `Checking formatting...`, and no `pre-merge-commit` — observed no hook output and merge commit `616efec9` created] [claude_3: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+Whether `git merge --squash` or `git rebase` runs either hook, and whether a `core.hooksPath` set in a linked worktree changes which directory's hook runs, was not probed.
+
+## A merge that stopped on conflicts and was finished with `git commit` ran `.git/hooks/pre-commit`
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
+**Citation:** [claude_4: after `git merge claude/clever-payne-354010` in `/Users/simonschoetz/dev/gm-tool` stopped on conflicts, ran `git commit -q -m …` there while `.git/hooks` held `pre-commit`, whose `prettier --check` step prints `Checking formatting...`, and no `pre-merge-commit` — observed `Checking formatting...` printed before merge commit `36516392` was created] [claude_3: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+Whether `pre-merge-commit`, when installed, also runs for a merge commit made this way was not probed.
