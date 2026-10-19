@@ -1,4 +1,4 @@
-export type DevicesLoadError = Error & { name: 'DevicesLoadError' };
+type DevicesLoadError = Error & { name: 'DevicesLoadError' };
 export const devicesLoadError = (cause?: unknown): DevicesLoadError => {
   const error = new Error(
     `Failed to load devices: ${String(cause)}`,
@@ -7,7 +7,7 @@ export const devicesLoadError = (cause?: unknown): DevicesLoadError => {
   return error;
 };
 
-export type DeviceCreateError = Error & { name: 'DeviceCreateError' };
+type DeviceCreateError = Error & { name: 'DeviceCreateError' };
 export const deviceCreateError = (cause?: unknown): DeviceCreateError => {
   const error = new Error(
     `Failed to persist paired device: ${String(cause)}`,
@@ -16,7 +16,7 @@ export const deviceCreateError = (cause?: unknown): DeviceCreateError => {
   return error;
 };
 
-export type DeviceUpdateError = Error & { name: 'DeviceUpdateError' };
+type DeviceUpdateError = Error & { name: 'DeviceUpdateError' };
 export const deviceUpdateError = (cause?: unknown): DeviceUpdateError => {
   const error = new Error(
     `Failed to update device: ${String(cause)}`,
@@ -25,7 +25,7 @@ export const deviceUpdateError = (cause?: unknown): DeviceUpdateError => {
   return error;
 };
 
-export type DeviceDeleteError = Error & { name: 'DeviceDeleteError' };
+type DeviceDeleteError = Error & { name: 'DeviceDeleteError' };
 export const deviceDeleteError = (cause?: unknown): DeviceDeleteError => {
   const error = new Error(
     `Failed to forget device: ${String(cause)}`,
@@ -45,7 +45,7 @@ export const connectivityInitError = (
   return error;
 };
 
-export type PairingModeError = Error & { name: 'PairingModeError' };
+type PairingModeError = Error & { name: 'PairingModeError' };
 export const pairingModeError = (cause?: unknown): PairingModeError => {
   const error = new Error(
     `Failed to enter or exit pairing mode: ${String(cause)}`,
@@ -72,7 +72,7 @@ export const pairingRequestError = (cause?: unknown): PairingRequestError => {
   return error;
 };
 
-export type DeviceMessageError = Error & { name: 'DeviceMessageError' };
+type DeviceMessageError = Error & { name: 'DeviceMessageError' };
 export const deviceMessageError = (cause?: unknown): DeviceMessageError => {
   const error = new Error(
     `Failed to send device message: ${String(cause)}`,

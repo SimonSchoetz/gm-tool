@@ -1,4 +1,4 @@
-export type EntityTypeError = Error & { name: 'EntityTypeError' };
+type EntityTypeError = Error & { name: 'EntityTypeError' };
 export const entityTypeError = (entityType: string): EntityTypeError => {
   const error = new Error(
     `Unknown entity type: "${entityType}"`,

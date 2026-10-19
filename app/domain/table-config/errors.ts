@@ -1,4 +1,4 @@
-export type TableConfigNotFoundError = Error & {
+type TableConfigNotFoundError = Error & {
   name: 'TableConfigNotFoundError';
 };
 export const tableConfigNotFoundError = (
@@ -11,7 +11,7 @@ export const tableConfigNotFoundError = (
   return error;
 };
 
-export type TableConfigLoadError = Error & { name: 'TableConfigLoadError' };
+type TableConfigLoadError = Error & { name: 'TableConfigLoadError' };
 export const tableConfigLoadError = (cause?: unknown): TableConfigLoadError => {
   const error = new Error(
     `Failed to load table configs: ${String(cause)}`,
@@ -20,7 +20,7 @@ export const tableConfigLoadError = (cause?: unknown): TableConfigLoadError => {
   return error;
 };
 
-export type TableConfigUpdateError = Error & { name: 'TableConfigUpdateError' };
+type TableConfigUpdateError = Error & { name: 'TableConfigUpdateError' };
 export const tableConfigUpdateError = (
   id: string,
   cause?: unknown,

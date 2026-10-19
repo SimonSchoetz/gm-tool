@@ -1,4 +1,4 @@
-export type AdventureNotFoundError = Error & { name: 'AdventureNotFoundError' };
+type AdventureNotFoundError = Error & { name: 'AdventureNotFoundError' };
 export const adventureNotFoundError = (id: string): AdventureNotFoundError => {
   const error = new Error(
     `Adventure with id ${id} not found`,
@@ -7,7 +7,7 @@ export const adventureNotFoundError = (id: string): AdventureNotFoundError => {
   return error;
 };
 
-export type AdventureLoadError = Error & { name: 'AdventureLoadError' };
+type AdventureLoadError = Error & { name: 'AdventureLoadError' };
 export const adventureLoadError = (cause?: unknown): AdventureLoadError => {
   const error = new Error(
     `Failed to load adventures: ${String(cause)}`,
@@ -16,7 +16,7 @@ export const adventureLoadError = (cause?: unknown): AdventureLoadError => {
   return error;
 };
 
-export type AdventureCreateError = Error & { name: 'AdventureCreateError' };
+type AdventureCreateError = Error & { name: 'AdventureCreateError' };
 export const adventureCreateError = (cause?: unknown): AdventureCreateError => {
   const error = new Error(
     `Failed to create adventure: ${String(cause)}`,
@@ -25,7 +25,7 @@ export const adventureCreateError = (cause?: unknown): AdventureCreateError => {
   return error;
 };
 
-export type AdventureUpdateError = Error & { name: 'AdventureUpdateError' };
+type AdventureUpdateError = Error & { name: 'AdventureUpdateError' };
 export const adventureUpdateError = (
   id: string,
   cause?: unknown,
@@ -37,7 +37,7 @@ export const adventureUpdateError = (
   return error;
 };
 
-export type AdventureDeleteError = Error & { name: 'AdventureDeleteError' };
+type AdventureDeleteError = Error & { name: 'AdventureDeleteError' };
 export const adventureDeleteError = (
   id: string,
   cause?: unknown,

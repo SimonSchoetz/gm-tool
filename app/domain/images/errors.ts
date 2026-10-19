@@ -1,4 +1,4 @@
-export type ImageNotFoundError = Error & { name: 'ImageNotFoundError' };
+type ImageNotFoundError = Error & { name: 'ImageNotFoundError' };
 export const imageNotFoundError = (id: string): ImageNotFoundError => {
   const error = new Error(
     `Image with id ${id} not found`,
@@ -7,7 +7,7 @@ export const imageNotFoundError = (id: string): ImageNotFoundError => {
   return error;
 };
 
-export type ImageLoadError = Error & { name: 'ImageLoadError' };
+type ImageLoadError = Error & { name: 'ImageLoadError' };
 export const imageLoadError = (cause?: unknown): ImageLoadError => {
   const error = new Error(
     `Failed to load Image: ${String(cause)}`,
@@ -16,7 +16,7 @@ export const imageLoadError = (cause?: unknown): ImageLoadError => {
   return error;
 };
 
-export type ImageCreateError = Error & { name: 'ImageCreateError' };
+type ImageCreateError = Error & { name: 'ImageCreateError' };
 export const imageCreateError = (cause?: unknown): ImageCreateError => {
   const error = new Error(
     `Failed to create Image: ${String(cause)}`,
@@ -25,7 +25,7 @@ export const imageCreateError = (cause?: unknown): ImageCreateError => {
   return error;
 };
 
-export type ImageDeleteError = Error & { name: 'ImageDeleteError' };
+type ImageDeleteError = Error & { name: 'ImageDeleteError' };
 export const imageDeleteError = (
   id: string,
   cause?: unknown,
@@ -37,7 +37,7 @@ export const imageDeleteError = (
   return error;
 };
 
-export type ImageReplaceError = Error & { name: 'ImageReplaceError' };
+type ImageReplaceError = Error & { name: 'ImageReplaceError' };
 export const imageReplaceError = (
   id: string,
   cause?: unknown,
@@ -49,7 +49,7 @@ export const imageReplaceError = (
   return error;
 };
 
-export type ImageDuplicateError = Error & { name: 'ImageDuplicateError' };
+type ImageDuplicateError = Error & { name: 'ImageDuplicateError' };
 export const imageDuplicateError = (
   id: string,
   cause?: unknown,
@@ -61,7 +61,7 @@ export const imageDuplicateError = (
   return error;
 };
 
-export type ImageUrlLoadError = Error & { name: 'ImageUrlLoadError' };
+type ImageUrlLoadError = Error & { name: 'ImageUrlLoadError' };
 export const imageUrlLoadError = (
   id: string,
   cause?: unknown,
@@ -73,7 +73,7 @@ export const imageUrlLoadError = (
   return error;
 };
 
-export type ImageUpdateFrameError = Error & { name: 'ImageUpdateFrameError' };
+type ImageUpdateFrameError = Error & { name: 'ImageUpdateFrameError' };
 export const imageUpdateFrameError = (
   cause?: unknown,
 ): ImageUpdateFrameError => {

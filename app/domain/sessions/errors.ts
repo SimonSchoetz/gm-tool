@@ -1,4 +1,4 @@
-export type SessionNotFoundError = Error & { name: 'SessionNotFoundError' };
+type SessionNotFoundError = Error & { name: 'SessionNotFoundError' };
 export const sessionNotFoundError = (id: string): SessionNotFoundError => {
   const error = new Error(
     `Session with id ${id} not found`,
@@ -7,7 +7,7 @@ export const sessionNotFoundError = (id: string): SessionNotFoundError => {
   return error;
 };
 
-export type SessionLoadError = Error & { name: 'SessionLoadError' };
+type SessionLoadError = Error & { name: 'SessionLoadError' };
 export const sessionLoadError = (cause?: unknown): SessionLoadError => {
   const error = new Error(
     `Failed to load sessions: ${String(cause)}`,
@@ -16,7 +16,7 @@ export const sessionLoadError = (cause?: unknown): SessionLoadError => {
   return error;
 };
 
-export type SessionCreateError = Error & { name: 'SessionCreateError' };
+type SessionCreateError = Error & { name: 'SessionCreateError' };
 export const sessionCreateError = (cause?: unknown): SessionCreateError => {
   const error = new Error(
     `Failed to create session: ${String(cause)}`,
@@ -25,7 +25,7 @@ export const sessionCreateError = (cause?: unknown): SessionCreateError => {
   return error;
 };
 
-export type SessionUpdateError = Error & { name: 'SessionUpdateError' };
+type SessionUpdateError = Error & { name: 'SessionUpdateError' };
 export const sessionUpdateError = (
   id: string,
   cause?: unknown,
@@ -37,7 +37,7 @@ export const sessionUpdateError = (
   return error;
 };
 
-export type SessionDuplicateError = Error & { name: 'SessionDuplicateError' };
+type SessionDuplicateError = Error & { name: 'SessionDuplicateError' };
 export const sessionDuplicateError = (
   id: string,
   cause?: unknown,
@@ -49,7 +49,7 @@ export const sessionDuplicateError = (
   return error;
 };
 
-export type SessionDeleteError = Error & { name: 'SessionDeleteError' };
+type SessionDeleteError = Error & { name: 'SessionDeleteError' };
 export const sessionDeleteError = (
   id: string,
   cause?: unknown,

@@ -1,4 +1,4 @@
-export type SessionStepLoadError = Error & { name: 'SessionStepLoadError' };
+type SessionStepLoadError = Error & { name: 'SessionStepLoadError' };
 export const sessionStepLoadError = (cause?: unknown): SessionStepLoadError => {
   const error = new Error(
     `Failed to load session steps: ${String(cause)}`,
@@ -7,7 +7,7 @@ export const sessionStepLoadError = (cause?: unknown): SessionStepLoadError => {
   return error;
 };
 
-export type SessionStepCreateError = Error & { name: 'SessionStepCreateError' };
+type SessionStepCreateError = Error & { name: 'SessionStepCreateError' };
 export const sessionStepCreateError = (
   cause?: unknown,
 ): SessionStepCreateError => {
@@ -18,7 +18,7 @@ export const sessionStepCreateError = (
   return error;
 };
 
-export type SessionStepUpdateError = Error & { name: 'SessionStepUpdateError' };
+type SessionStepUpdateError = Error & { name: 'SessionStepUpdateError' };
 export const sessionStepUpdateError = (
   id: string,
   cause?: unknown,
@@ -30,7 +30,7 @@ export const sessionStepUpdateError = (
   return error;
 };
 
-export type SessionStepDeleteError = Error & { name: 'SessionStepDeleteError' };
+type SessionStepDeleteError = Error & { name: 'SessionStepDeleteError' };
 export const sessionStepDeleteError = (
   id: string,
   cause?: unknown,
@@ -42,7 +42,7 @@ export const sessionStepDeleteError = (
   return error;
 };
 
-export type SessionStepReorderError = Error & {
+type SessionStepReorderError = Error & {
   name: 'SessionStepReorderError';
 };
 export const sessionStepReorderError = (

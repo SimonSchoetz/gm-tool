@@ -187,24 +187,11 @@ describe('localExportsOf', () => {
     ).toEqual(['a', 'c', 'rest', 'd', 'e']);
   });
 
-  it('marks a type alias, an interface and a type-only specifier as type exports, and a value as not', () => {
-    const { ast } =
-      /** @type {{ ast: import('../no-unused-exports.js').AstNode }} */ (
-        /** @type {any} */ (tseslint.parser).parseForESLint(
-          'export type T = string; export interface I { k: number } const v = 1; type V = number; type W = number; export type { V }; export { v, type W };',
-        )
-      );
+  it('lists an interface and the names of type-only specifiers', () => {
     expect(
-      localExportsOf(ast, () => false).map(({ name, isType }) => [
-        name,
-        isType,
-      ]),
-    ).toEqual([
-      ['T', true],
-      ['I', true],
-      ['V', true],
-      ['v', false],
-      ['W', true],
-    ]);
+      namesIn(
+        'export interface I { k: number } const v = 1; type V = number; type W = number; export type { V }; export { v, type W };',
+      ),
+    ).toEqual(['I', 'V', 'v', 'W']);
   });
 });

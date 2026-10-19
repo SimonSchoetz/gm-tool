@@ -1,6 +1,6 @@
 import { entityTypeLabel, type BaseEntityType } from '../entities';
 
-export type BaseEntityNotFoundError = Error & {
+type BaseEntityNotFoundError = Error & {
   name: 'BaseEntityNotFoundError';
 };
 export const baseEntityNotFoundError = (
@@ -15,7 +15,7 @@ export const baseEntityNotFoundError = (
   return error;
 };
 
-export type BaseEntityLoadError = Error & { name: 'BaseEntityLoadError' };
+type BaseEntityLoadError = Error & { name: 'BaseEntityLoadError' };
 export const baseEntityLoadError = (
   entityType: BaseEntityType,
   cause?: unknown,
@@ -28,7 +28,7 @@ export const baseEntityLoadError = (
   return error;
 };
 
-export type BaseEntityCreateError = Error & { name: 'BaseEntityCreateError' };
+type BaseEntityCreateError = Error & { name: 'BaseEntityCreateError' };
 export const baseEntityCreateError = (
   entityType: BaseEntityType,
   cause?: unknown,
@@ -41,7 +41,7 @@ export const baseEntityCreateError = (
   return error;
 };
 
-export type BaseEntityUpdateError = Error & { name: 'BaseEntityUpdateError' };
+type BaseEntityUpdateError = Error & { name: 'BaseEntityUpdateError' };
 export const baseEntityUpdateError = (
   entityType: BaseEntityType,
   id: string,
@@ -55,7 +55,7 @@ export const baseEntityUpdateError = (
   return error;
 };
 
-export type BaseEntityDeleteError = Error & { name: 'BaseEntityDeleteError' };
+type BaseEntityDeleteError = Error & { name: 'BaseEntityDeleteError' };
 export const baseEntityDeleteError = (
   entityType: BaseEntityType,
   id: string,
@@ -69,7 +69,7 @@ export const baseEntityDeleteError = (
   return error;
 };
 
-export type BaseEntityDuplicateError = Error & {
+type BaseEntityDuplicateError = Error & {
   name: 'BaseEntityDuplicateError';
 };
 export const baseEntityDuplicateError = (
