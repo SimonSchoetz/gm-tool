@@ -6,6 +6,7 @@ type ListNavigation<T> = {
   isNavVisible: boolean;
   select: (id: string) => void;
   toggleNav: () => void;
+  closeNav: () => void;
 };
 
 export const useListNavigation = <T extends { id: string }>(
@@ -28,5 +29,16 @@ export const useListNavigation = <T extends { id: string }>(
     setIsNavOpen((isOpen) => !isOpen);
   };
 
-  return { selected, isNavAvailable, isNavVisible, select, toggleNav };
+  const closeNav = () => {
+    setIsNavOpen(false);
+  };
+
+  return {
+    selected,
+    isNavAvailable,
+    isNavVisible,
+    select,
+    toggleNav,
+    closeNav,
+  };
 };

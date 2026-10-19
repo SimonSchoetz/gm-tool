@@ -115,6 +115,7 @@ export const MentionPopup: FCProps<Props> = ({
           value={{
             name,
             isPinned,
+            zIndex: zIndex ?? null,
             draggableProps,
             onPin: handlePin,
             onRemove,

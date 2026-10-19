@@ -90,6 +90,23 @@ describe('useListNavigation', () => {
     expect(result.current.isNavVisible).toBe(false);
   });
 
+  it('closes the nav on closeNav and leaves it closed when called again', () => {
+    const { result } = renderNavigation(TWO_ITEMS);
+    act(() => {
+      result.current.toggleNav();
+    });
+
+    act(() => {
+      result.current.closeNav();
+    });
+    expect(result.current.isNavVisible).toBe(false);
+
+    act(() => {
+      result.current.closeNav();
+    });
+    expect(result.current.isNavVisible).toBe(false);
+  });
+
   it('closes the nav when an item is selected', () => {
     const { result } = renderNavigation(TWO_ITEMS);
     act(() => {

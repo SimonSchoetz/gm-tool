@@ -8,7 +8,7 @@ Behavior, by number of sections:
 | --- | --- | --- | --- | --- |
 | 0 | "+" | read-only "Content Section" | — | none |
 | 1 | "+" | name input | trash | shown section's editor |
-| more than 1 | burger | name input | trash | shown section's editor, or the nav while it is open |
+| more than 1 | burger | name input | trash | shown section's editor; the burger opens the nav as a popup |
 
 ## Files affected
 
@@ -19,6 +19,7 @@ Behavior, by number of sections:
   - `app/src/components/PanelMenuBar/PanelMenuBar.tsx` — `leading` slot
   - `app/src/components/PanelMenuBar/PanelMenuBar.css` — style the `leading` container like the actions container
   - `app/src/components/MenuOptionRow/MenuOptionRow.tsx` — optional `Icon`
+  - `app/src/components/AnchoredPopup/AnchoredPopup.tsx` — `onClickOutside` receives the mousedown event; optional `zIndex`
   - `app/src/screens/base-entity/BaseEntityScreen.tsx` — render `BaseEntityContentSectionPanel`, keyed by the entity's id
   - `app/docs/_product/domain-scaffold.md` — rewrite the first paragraph of "Detail Screen Composition"
 - `Deleted:` none
@@ -95,12 +96,13 @@ Generic hook for a list where one item is shown at a time and a nav lets the use
   - `isNavVisible: boolean`
   - `select: (id: string) => void`
   - `toggleNav: () => void`
+  - `closeNav: () => void`
 - State: `selectedId` (`useState<string | null>(null)`) and `isNavOpen` (`useState(false)`).
 - Derived each render:
   - `selected` — the item whose `id` is `selectedId`, else the first item, else `null`
   - `isNavAvailable` — `items.length > 1`
   - `isNavVisible` — `isNavOpen && isNavAvailable`
-- `select(id)` stores `id` and closes the nav. `toggleNav()` flips `isNavOpen`.
+- `select(id)` stores `id` and closes the nav. `toggleNav()` flips `isNavOpen`. `closeNav()` sets it to `false`.
 - Toolchain: `tsconfig.json` has no `noUncheckedIndexedAccess`, so `items[0]` is typed `T`, and `items[0] ?? null` would trip `@typescript-eslint/no-unnecessary-condition`. Use `items.at(0)`, typed `T | undefined` (`.claude/knowledge/typescript.md`; `.claude/knowledge/eslint.md`).
 - When the list shrinks to one item, `isNavVisible` turns `false` through `isNavAvailable`; every create and choose path calls `select`, which also closes the nav.
 
@@ -114,6 +116,7 @@ Test — `app/src/hooks/__tests__/useListNavigation.test.ts`. It uses `renderHoo
 - `offers navigation only with more than one item` — `isNavAvailable` is `false` for `[{ id: 'a' }]` and `true` for two items. Catches an off-by-one that would show the burger with a single section.
 - `shows the nav only while it is open and available` — with two items, `toggleNav()` makes `isNavVisible` `true`; rerender with one item and it is `false`. Catches a nav left visible with one section.
 - `closes the nav on a second toggle` — with two items, `toggleNav()` twice leaves `isNavVisible` `false`. Catches a toggle that only opens.
+- `closes the nav on closeNav and leaves it closed when called again` — `toggleNav()`, then `closeNav()` twice: `isNavVisible` is `false` after each call. Catches a `closeNav` that toggles, which would reopen the nav on a second outside click.
 - `closes the nav when an item is selected` — `toggleNav()`, then `select('b')`: `isNavVisible` is `false`. Catches the nav staying over the body after a choice.
 
 ### `PanelMenuBar.tsx` — Modified
@@ -133,29 +136,38 @@ Add `.panel-menu-bar-leading` to the selector of the `.panel-menu-bar-actions` r
 - **UI / Visual:** without `Icon`, the row is its label alone; with one, unchanged.
 - **Behavior:** `Icon: LucideIcon` → `Icon?: LucideIcon`. Render the `menu-option-row-icon` `GlassPanel` only when `Icon` is set. `RowActionsMenu`, `TableHandleMenu` and `SlashCommandOptionList` all pass one, so they are unchanged.
 
+### `AnchoredPopup.tsx` — Modified
+
+- **Purpose:** unchanged — a popup portaled to `document.body` and anchored to a rect.
+- **Behavior:** the `onClickOutside` prop's type becomes `(event: MouseEvent) => void` and the handler passes the mousedown event on, so the nav can ignore the burger's own mousedown; existing callers pass `() => …` and need no change. A new `zIndex?: number | null` prop becomes the popup's inline `zIndex` (`zIndex ?? undefined`), for a popup opened from a pinned `MentionPopup`, whose inline z-index counts up from the `--most-front` the stylesheet gives.
+- **UI / Visual:** unchanged without `zIndex`.
+
 ### `ContentSectionNav` — `app/src/components/ContentSectionNav/ContentSectionNav.tsx` (+ `.css`) — New
 
-- **Purpose:** a base entity's content sections as a `ReorderableNavList`, shared by the entity screen panel and the mention popup.
+- **Purpose:** a base entity's content sections as a `ReorderableNavList` inside an `AnchoredPopup` anchored to the burger, shared by the entity screen panel and the mention popup.
 - **Props** (case 3, `FCProps<Props>`):
   - `baseEntityId: string`
   - `activeId: string | null`
+  - `anchorRef: RefObject<HTMLButtonElement | null>` — the burger the popup anchors to
+  - `popupZIndex: number | null` — the z-index the popup takes, `null` for the default
   - `onSelect: (id: string) => void`
+  - `onClose: () => void`
   - `newItem: React.ComponentProps<typeof ReorderableNavList>['newItem']`
   - `newItemRef: React.ComponentProps<typeof ReorderableNavList>['newItemRef']`
 - **Behavior:** calls `useBaseEntityContentSections(baseEntityId)` for `sections` and `bulkReorder` (Key Architectural Decisions — `ContentSectionNav` and `ContentSectionNavToggle`). It passes the following to `ReorderableNavList`, along with `activeId`, `onSelect`, `onReorder={bulkReorder}`, `newItem` and `newItemRef`:
   - `items={sections.map((section) => ({ id: section.id, label: contentSectionLabel(section.name, section.type), isChecked: false }))}`
-- **UI / Visual:** root `<PanelBody className='content-section-nav'>` wrapping the list. Stylesheet: `.content-section-nav { max-height: var(--summary-content-height); overflow-y: auto; padding: var(--spacing-sm); }`. The folder holds only the component and its stylesheet, so it has no `index.ts`.
+- **UI / Visual:** root `<AnchoredPopup getAnchorRect={…} zIndex={popupZIndex} onClickOutside={…}>` wrapping `<PopupSurface className='content-section-nav'>` and the list. `getAnchorRect` returns `anchorRef.current?.getBoundingClientRect() ?? null`; `onClickOutside` returns when the mousedown target is inside `anchorRef.current` (the burger's click toggles the nav) and otherwise calls `onClose`, with a `//` comment saying so. Stylesheet: `.content-section-nav { max-height: var(--summary-content-height); overflow-y: auto; padding: var(--spacing-sm); }`. The folder holds only the component and its stylesheet, so it has no `index.ts`.
 - **Imports:**
-  - `../ReorderableNavList` and `../PanelBody/PanelBody`, relative because they are in the same direct child of `src/`
+  - `../AnchoredPopup`, `../PopupSurface/PopupSurface` and `../ReorderableNavList`, relative because they are in the same direct child of `src/`
   - `useBaseEntityContentSections` from `@/data-access-layer`
   - `contentSectionLabel` from `@domain`
 
 ### `ContentSectionNavToggle` — `app/src/components/ContentSectionNavToggle/ContentSectionNavToggle.tsx` — New
 
 - **Purpose:** the burger that opens and closes a content section nav, identical on the screen and in the popup.
-- **Props** (case 3): `isOpen: boolean`, `onToggle: () => void`.
+- **Props** (case 3): `isOpen: boolean`, `onToggle: () => void`, `ref: Ref<HTMLButtonElement>` — the burger's button, which the nav popup anchors to.
 - **Behavior:** clicking calls `onToggle`; `isOpen` shows the icon as active.
-- **UI / Visual:** `<ClickableIcon icon={<MenuIcon />} isActive={isOpen} onClick={onToggle} label='Toggle content sections' title='Content sections' />`, with `ClickableIcon` from `../ClickableIcon/ClickableIcon` and `MenuIcon` from `lucide-react` (`.claude/knowledge/lucide-react.md`). There's no stylesheet and no `index.ts`.
+- **UI / Visual:** `<ClickableIcon ref={ref} icon={<MenuIcon />} isActive={isOpen} onClick={onToggle} label='Toggle content sections' title='Content sections' />`, with `ClickableIcon` from `../ClickableIcon/ClickableIcon` and `MenuIcon` from `lucide-react` (`.claude/knowledge/lucide-react.md`). There's no stylesheet and no `index.ts`.
 
 ### `BaseEntityContentSectionPanel` — Moved, then rewritten
 
@@ -164,14 +176,14 @@ Add `.panel-menu-bar-leading` to the selector of the `.panel-menu-bar-actions` r
 - **State and data:**
   - `baseEntityId` — from `useParams({ strict: false })`, as today
   - `useBaseEntityContentSections(baseEntityId)` — `sections`, `loading`, `createSection`, `updateSection`, `deleteSection`
-  - `useListNavigation(sections)` — `selected`, `isNavAvailable`, `isNavVisible`, `select`, `toggleNav`
+  - `useListNavigation(sections)` — `selected`, `isNavAvailable`, `isNavVisible`, `select`, `toggleNav`, `closeNav`
   - `useDeleteDialog()` from `@/providers/DeleteDialogProvider` — `openDeleteDialog`
-  - `addButtonRef` and `newItemButtonRef` — both `useRef<HTMLButtonElement | null>(null)`
+  - `addButtonRef`, `burgerRef` and `newItemButtonRef` — each `useRef<HTMLButtonElement | null>(null)`
   - `typeMenuAnchor` — `useState<'menu-bar' | 'nav' | null>(null)`
   - Every hook above runs before the `loading` check; while `loading`, return nothing (`return;`), as today.
 - **Behavior:**
   - **Menu bar `leading`:**
-    - `isNavAvailable` — `<ContentSectionNavToggle isOpen={isNavVisible} onToggle={toggleNav} />`
+    - `isNavAvailable` — `<ContentSectionNavToggle ref={burgerRef} isOpen={isNavVisible} onToggle={toggleNav} />`
     - otherwise — a `ClickableIcon` with `ref={addButtonRef}`, `PlusIcon`, `label='Add content section'`, `title='Add section'` and `onClick={() => { setTypeMenuAnchor('menu-bar'); }}`
   - **Menu bar title:**
     - with `selected` — `<SyncedInput key={selected.id} className='base-entity-content-section-panel-name-input' initValue={selected.name ?? ''} placeholder={contentSectionTypeLabel(selected.type)} onCommit={(name) => { updateSection(selected.id, { name }); }} />` (`.claude/rules/src-components.md` — Controlled inputs that drive auto-save mutations). A cleared input saves `''`.
@@ -183,8 +195,8 @@ Add `.panel-menu-bar-leading` to the selector of the `.panel-menu-bar-actions` r
     - `oneClickConfirm: true`, as `StepSectionHeader` does
     - `onDeletionConfirm` — computes `getIdAfterRemoval(sections.map((s) => s.id), section.id)`, calls `select` with it when it is not `null`, then calls `void deleteSection(section.id)` (Key Architectural Decisions — Deleting the shown section selects its neighbour first)
   - **Body:**
-    - `isNavVisible` — `<ContentSectionNav baseEntityId={baseEntityId} activeId={selected?.id ?? null} onSelect={select} newItem={{ label: 'Add section', onClick: () => { setTypeMenuAnchor('nav'); } }} newItemRef={newItemButtonRef} />`
-    - otherwise, with `selected` — the existing `PanelBody` / `base-entity-content-section-panel-content` wrapper around a `TextEditor` with ``textEditorId={`content-section-${selected.id}`}``, `value={selected.content ?? ''}`, `placeholder='Start typing or use / for commands'` and `onChange={(content) => { updateSection(selected.id, { content }); }}`. Comment, as a `{/* … */}` line directly above that `TextEditor` (the form `TextEditor.tsx` uses above its own keyed element): `Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content.`
+    - with `selected` — the existing `PanelBody` / `base-entity-content-section-panel-content` wrapper around a `TextEditor` with ``textEditorId={`content-section-${selected.id}`}``, `value={selected.content ?? ''}`, `placeholder='Start typing or use / for commands'` and `onChange={(content) => { updateSection(selected.id, { content }); }}`. Comment, as a `{/* … */}` line directly above that `TextEditor` (the form `TextEditor.tsx` uses above its own keyed element): `Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content.`
+    - `isNavVisible` — `<ContentSectionNav baseEntityId={baseEntityId} activeId={selected?.id ?? null} anchorRef={burgerRef} popupZIndex={null} onSelect={select} onClose={…} newItem={{ label: 'Add section', onClick: () => { setTypeMenuAnchor('nav'); } }} newItemRef={newItemButtonRef} />` rendered after the editor, so the editor stays visible. `onClose` calls `closeNav()` only while `typeMenuAnchor` is `null`, with a `//` comment saying the type picker anchors to a button inside the popup, so a click in the picker must not close the popup under it.
   - **Type menu:** while `typeMenuAnchor` is not `null`, render `<ContentSectionTypeMenu>` with:
     - `getAnchorRect={() => (typeMenuAnchor === 'nav' ? newItemButtonRef : addButtonRef).current?.getBoundingClientRect() ?? null}` — the callback form `RowActionsMenu` uses, so no ref is read during the panel's render
     - `onSelect={(type) => { void handleCreate(type); }}`
@@ -264,7 +276,7 @@ Human-tester hand-off (`pnpm run dev` only):
 
 - **0 sections:** an entity shows "Content Section" with a "+". Choosing "5e Stat Block" creates and shows a section named "5e Stat Block", and the "+" stays.
 - **Second section:** adding a second section shows it, and the "+" becomes a burger.
-- **Burger nav:** the burger opens the nav in place of the editor, with the current section in the foreground colour. Dragging by ⠿ reorders, and after a reload the top section is shown. Clicking an item shows it. "Add section" in the nav opens the type picker next to that button.
+- **Burger nav:** the burger opens the nav as a popup next to it while the editor stays visible, with the current section in the foreground colour. A click outside the popup, or on the burger again, closes it. Dragging by ⠿ reorders, and after a reload the top section is shown. Clicking an item shows it. "Add section" in the nav opens the type picker next to that button.
 - **Rename:** clearing a name leaves the input empty with the type as placeholder, while the nav shows the type label.
 - **Delete:** deleting the third of five shows the old fourth, deleting the last shows the one above it, and deleting down to one turns the burger back into "+".
 - **Switching entities:** going to another entity resets to its top section.

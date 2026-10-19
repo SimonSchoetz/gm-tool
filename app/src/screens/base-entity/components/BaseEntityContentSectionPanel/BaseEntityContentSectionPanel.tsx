@@ -28,10 +28,17 @@ export const BaseEntityContentSectionPanel = () => {
 
   const { sections, loading, createSection, updateSection, deleteSection } =
     useBaseEntityContentSections(baseEntityId);
-  const { selected, isNavAvailable, isNavVisible, select, toggleNav } =
-    useListNavigation(sections);
+  const {
+    selected,
+    isNavAvailable,
+    isNavVisible,
+    select,
+    toggleNav,
+    closeNav,
+  } = useListNavigation(sections);
   const { openDeleteDialog } = useDeleteDialog();
   const addButtonRef = useRef<HTMLButtonElement | null>(null);
+  const burgerRef = useRef<HTMLButtonElement | null>(null);
   const newItemButtonRef = useRef<HTMLButtonElement | null>(null);
   const [typeMenuAnchor, setTypeMenuAnchor] = useState<
     'menu-bar' | 'nav' | null
@@ -69,6 +76,7 @@ export const BaseEntityContentSectionPanel = () => {
         leading={
           isNavAvailable ? (
             <ContentSectionNavToggle
+              ref={burgerRef}
               isOpen={isNavVisible}
               onToggle={toggleNav}
             />
@@ -114,11 +122,33 @@ export const BaseEntityContentSectionPanel = () => {
         )}
       </PanelMenuBar>
 
-      {isNavVisible ? (
+      {selected && (
+        <PanelBody>
+          <div className='base-entity-content-section-panel-content'>
+            {/* Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content. */}
+            <TextEditor
+              textEditorId={`content-section-${selected.id}`}
+              value={selected.content ?? ''}
+              placeholder='Start typing or use / for commands'
+              onChange={(content) => {
+                updateSection(selected.id, { content });
+              }}
+            />
+          </div>
+        </PanelBody>
+      )}
+
+      {isNavVisible && (
         <ContentSectionNav
           baseEntityId={baseEntityId}
           activeId={selected?.id ?? null}
+          anchorRef={burgerRef}
+          popupZIndex={null}
           onSelect={select}
+          onClose={() => {
+            // The type picker anchors to a button inside this popup, so a click in the picker must not close the popup under it.
+            if (typeMenuAnchor === null) closeNav();
+          }}
           newItem={{
             label: 'Add section',
             onClick: () => {
@@ -127,22 +157,6 @@ export const BaseEntityContentSectionPanel = () => {
           }}
           newItemRef={newItemButtonRef}
         />
-      ) : (
-        selected && (
-          <PanelBody>
-            <div className='base-entity-content-section-panel-content'>
-              {/* Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content. */}
-              <TextEditor
-                textEditorId={`content-section-${selected.id}`}
-                value={selected.content ?? ''}
-                placeholder='Start typing or use / for commands'
-                onChange={(content) => {
-                  updateSection(selected.id, { content });
-                }}
-              />
-            </div>
-          </PanelBody>
-        )
       )}
 
       {typeMenuAnchor !== null && (

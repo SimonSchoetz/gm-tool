@@ -4,6 +4,7 @@ import type { useDraggable } from '@/hooks/useDraggable';
 type MentionPopupHeaderContextValue = {
   name: string;
   isPinned: boolean;
+  zIndex: number | null;
   draggableProps: ReturnType<typeof useDraggable>['draggableProps'];
   onPin: () => void;
   onRemove: () => void;
