@@ -47,8 +47,8 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
         // best-effort, mirrors sendHello
       });
 
-      const existingTimer = timers.get(endpointId);
-      if (existingTimer !== undefined) {
+      const existingTimer = timers.get(endpointId) ?? null;
+      if (existingTimer !== null) {
         clearTimeout(existingTimer);
       }
       const timer = setTimeout(() => {
@@ -84,9 +84,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
         (event) => {
           const { endpointId } = event.payload;
           queryClient.setQueryData<string[]>(deviceKeys.connected(), (old) =>
-            old === undefined || old.includes(endpointId)
-              ? old
-              : [...old, endpointId],
+            !old || old.includes(endpointId) ? old : [...old, endpointId],
           );
           void devicesService.sendHello(endpointId).catch(() => {
             // best-effort: the peer may drop between connect and hello; it will re-announce on its own next connect
@@ -102,15 +100,15 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
             old?.filter((id) => id !== endpointId),
           );
 
-          const timer = timers.get(endpointId);
-          if (timer !== undefined) {
+          const timer = timers.get(endpointId) ?? null;
+          if (timer !== null) {
             clearTimeout(timer);
             timers.delete(endpointId);
           }
           queryClient.setQueryData<PeerCompatMap>(
             deviceKeys.syncCompat(),
             (old) => {
-              if (old === undefined) return old;
+              if (!old) return old;
               const { [endpointId]: _removed, ...rest } = old;
               return rest;
             },
@@ -139,8 +137,8 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
                 .handleSyncMessage(endpointId, envelope)
                 .then((outcome) => {
                   if (outcome.kind === 'compat') {
-                    const timer = timers.get(endpointId);
-                    if (timer !== undefined) {
+                    const timer = timers.get(endpointId) ?? null;
+                    if (timer !== null) {
                       clearTimeout(timer);
                       timers.delete(endpointId);
                     }

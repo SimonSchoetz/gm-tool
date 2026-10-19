@@ -23,10 +23,12 @@ const serviceTestPath = path.join(
   'writesUndefined.test.ts',
 );
 const lookupPath = path.join(srcCanaryDir, 'lookups.ts');
+const addedLookupPath = path.join(srcCanaryDir, 'addedLookups.ts');
 
 const useContextSource = `import { createContext, useContext } from 'react';\n\nconst CanaryContext = createContext<number | null>(null);\n\nexport const readCanary = (): number | null => useContext(CanaryContext);\n`;
 const writesUndefinedSource = `export const value = (flag: boolean): string | null =>\n  flag ? 'set' : null;\nexport const sentinel = undefined;\n`;
 const lookupSource = `type Finder = { find: (key: string) => string };\n\nexport const fromArray = (items: string[]): string | undefined =>\n  items.find((item) => item === 'a');\n\nexport const fromFinder = (finder: Finder): string => finder.find('a');\n`;
+const addedLookupSource = `type Getter = { get: (key: string) => string };\n\nexport const lastMatch = (items: string[]): string | undefined =>\n  items.findLast((item) => item === 'a');\nexport const firstItem = (items: string[]): string | undefined =>\n  items.shift();\nexport const fromMap = (map: Map<string, string>): string | undefined =>\n  map.get('a');\nexport const fromParams = (params: URLSearchParams): string | null =>\n  params.get('a');\nexport const fromGetter = (getter: Getter): string => getter.get('a');\n`;
 
 /** @type {Map<string, import('eslint').Linter.LintMessage[]>} */
 const messagesByPath = new Map();
@@ -41,6 +43,7 @@ beforeAll(async () => {
   fs.writeFileSync(serviceUndefinedPath, writesUndefinedSource);
   fs.writeFileSync(serviceTestPath, writesUndefinedSource);
   fs.writeFileSync(lookupPath, lookupSource);
+  fs.writeFileSync(addedLookupPath, addedLookupSource);
 
   const eslint = new ESLint({ cwd: appDir });
   const results = await eslint.lintFiles([srcCanaryDir, servicesCanaryDir]);
@@ -93,5 +96,11 @@ describe('local/no-unnormalized-lookup-result under the project eslint.config.js
     expect(
       linesReportedBy(lookupPath, 'local/no-unnormalized-lookup-result'),
     ).toEqual([4]);
+  });
+
+  it('reports returned .findLast(), .shift() and Map .get() results and passes a .get() typed to return string | null or string', () => {
+    expect(
+      linesReportedBy(addedLookupPath, 'local/no-unnormalized-lookup-result'),
+    ).toEqual([4, 6, 8]);
   });
 });

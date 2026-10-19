@@ -6,11 +6,18 @@ import ts from 'typescript';
  * @typedef {{ type: string, parent?: AstNode | null } & Record<string, any>} AstNode
  */
 
-const LOOKUP_METHODS = new Set(['at', 'find', 'pop']);
+const LOOKUP_METHODS = new Set([
+  'at',
+  'find',
+  'findLast',
+  'pop',
+  'shift',
+  'get',
+]);
 
 /**
  * @param {AstNode} node
- * @returns {string | null} the method name when `node` is a direct `.at()`, `.find()` or `.pop()` call, else `null`
+ * @returns {string | null} the method name when `node` is a direct `.at()`, `.find()`, `.findLast()`, `.pop()`, `.shift()` or `.get()` call, else `null`
  */
 export const lookupMethodOf = (node) => {
   if (node.type !== 'CallExpression') {
@@ -108,7 +115,7 @@ export default {
     type: 'problem',
     docs: {
       description:
-        'Disallow storing, returning or passing a possibly-undefined `.at()`, `.find()` or `.pop()` result without normalising it with `??` first.',
+        'Disallow storing, returning or passing a possibly-undefined `.at()`, `.find()`, `.findLast()`, `.pop()`, `.shift()` or `.get()` result without normalising it with `??` first.',
     },
     schema: [],
     messages: {

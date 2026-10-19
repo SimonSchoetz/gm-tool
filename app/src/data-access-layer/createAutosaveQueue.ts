@@ -24,7 +24,7 @@ export const createAutosaveQueue = <Patch>(
 
   const startTimer = (key: string) =>
     setTimeout(() => {
-      const entry = entries.get(key);
+      const entry = entries.get(key) ?? null;
       if (!entry) return;
       entries.delete(key);
       write(key, entry.pending);
@@ -32,7 +32,7 @@ export const createAutosaveQueue = <Patch>(
 
   // An existing entry is updated in place, so a flush that is still iterating its snapshot sees a patch scheduled for a key it has not written yet.
   const schedule = (key: string, patch: Patch): void => {
-    const existing = entries.get(key);
+    const existing = entries.get(key) ?? null;
     if (existing) {
       clearTimeout(existing.timer);
       existing.pending = merge(existing.pending, patch);
