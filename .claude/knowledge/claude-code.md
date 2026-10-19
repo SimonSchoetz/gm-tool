@@ -1,8 +1,8 @@
 # Claude Code
 
-## In the desktop app's Code tab at Claude Code 2.1.287 with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` set, `SendMessage` loads through `ToolSearch select:SendMessage`
+## In the desktop app's Code tab at Claude Code 2.1.299 with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` set, `SendMessage` loads through `ToolSearch select:SendMessage`
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app Code tab — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app Code tab — 2026-10-19
 **Citation:** [claude_5: ran `ToolSearch select:SendMessage` in a Code-tab session — observed the tool's definition returned and the tool callable] [claude_9: ran `jq '.env' ~/.claude/settings.json` and `env | grep AGENT_TEAMS` in the same Code-tab session as claude_5 — observed `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` set to `1` in both]
 
 Whether `SendMessage` loads in a Code-tab session without that variable was not observed.
@@ -51,8 +51,8 @@ The trigger is reading a file in a subdirectory, and every `CLAUDE.md` on that f
 
 ## A path-scoped rule lives in the repo-root `.claude/rules/` and loads when Claude uses the Read, Write or Edit tool on a file matching its `paths` glob, which no `CLAUDE.md` placement can express
 
-**Verified at:** <https://code.claude.com/docs/en/memory> (re-read with `claude --version` reporting 2.1.287) — 2026-10-18; <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
-**Citation:** [refine-claude_17: memory page, Path-specific rules — "Rules can be scoped to specific files using YAML frontmatter with the `paths` field. These conditional rules only apply when Claude is working with files matching the specified patterns"; "Path-scoped rules trigger when Claude reads files matching the pattern, not on every tool use"; pattern table rows `**/*.ts`, `src/**/*`, `*.md`, `src/components/*.tsx`; brace expansion supported under a budget of 1,000 expanded patterns and 4 MiB per rule, patterns exceeding it used unexpanded and matching nothing; large-codebases page, "Choose between per-directory CLAUDE.md and path-scoped rules" table — per-directory `CLAUDE.md` "Inside the directory, alongside its code" loading "At launch when started from that directory, or on demand when Claude reads a file there", path-scoped rule "Central `.claude/` at the repo root" loading "When Claude works with a file matching the rule's `paths:` glob", used when "the same rule applies to many scattered paths"] [refine-claude_26: in a session launched at the repository root, Read on `app/src/App.css` loaded `app/CLAUDE.md`, `app/src/CLAUDE.md` and `.claude/rules/src-css.md`, and none of the other six rule files in that directory] [refine-claude_1: ran `claude --version` — observed 2.1.287; memory page, Path-specific rules, <https://code.claude.com/docs/en/memory> fetched 2026-10-18 — "A path-scoped rule loads when Claude uses the Read, Write, or Edit tool on a matching file. It also loads when Claude views a matching file with a Bash command that counts as a read, such as `cat` or `head` on a single file."]
+**Verified at:** <https://code.claude.com/docs/en/memory> — 2026-10-18; <https://code.claude.com/docs/en/large-codebases> — 2026-09-10
+**Citation:** [refine-claude_17: memory page, Path-specific rules — "Rules can be scoped to specific files using YAML frontmatter with the `paths` field. These conditional rules only apply when Claude is working with files matching the specified patterns"; "Path-scoped rules trigger when Claude reads files matching the pattern, not on every tool use"; pattern table rows `**/*.ts`, `src/**/*`, `*.md`, `src/components/*.tsx`; brace expansion supported under a budget of 1,000 expanded patterns and 4 MiB per rule, patterns exceeding it used unexpanded and matching nothing; large-codebases page, "Choose between per-directory CLAUDE.md and path-scoped rules" table — per-directory `CLAUDE.md` "Inside the directory, alongside its code" loading "At launch when started from that directory, or on demand when Claude reads a file there", path-scoped rule "Central `.claude/` at the repo root" loading "When Claude works with a file matching the rule's `paths:` glob", used when "the same rule applies to many scattered paths"] [refine-claude_26: in a session launched at the repository root, Read on `app/src/App.css` loaded `app/CLAUDE.md`, `app/src/CLAUDE.md` and `.claude/rules/src-css.md`, and none of the other six rule files in that directory]
 
 The two mechanisms are not interchangeable: a `paths` glob selects by extension, filename pattern, or a directory name at any depth, so it can carve a cross-cutting set (`**/*.css`, `**/__tests__/**`) that no directory boundary expresses, and unlike a subdirectory `CLAUDE.md` it is not cumulative with any ancestor file. The documentation names path-scoped rules as the remedy for an oversized `CLAUDE.md` twice — "If your instructions are growing large, use path-scoped rules so instructions load only when Claude works with matching files", and again under "My CLAUDE.md is too large" — and directs a multi-step procedure or content that "only matters for one part of the codebase" to a skill or a path-scoped rule rather than to `CLAUDE.md`. A Bash command that counts as a read of a single matching file, such as `cat` or `head`, loads the rule too.
 
@@ -112,107 +112,114 @@ Cross-session messaging (`SendMessage`/`ListAgents` between separate sessions on
 
 A skill whose body names no argument placeholder (`$ARGUMENTS`, `$1`, a named argument) therefore still receives what the user typed after the command name, as that appended line.
 
-## Claude Code 2.1.287's binary holds a routine that, given a main repository root and a worktree path, reads `core.hooksPath` from the main repository's own git `config` file and runs `git config core.hooksPath <that value made absolute>` in the worktree only when the value is set and not absolute
+## The CLI binary at `~/.local/share/claude/versions/2.1.287` holds a routine that, given a main repository root and a worktree path, reads `core.hooksPath` from the main repository's own git `config` file and runs `git config core.hooksPath <that value made absolute>` in the worktree only when the value is set and not absolute
 
-**Verified at:** Claude Code 2.1.287 — 2026-10-19
+**Verified at:** Claude Code 2.1.287, the CLI binary at `~/.local/share/claude/versions/2.1.287` — 2026-10-19
 **Citation:** [claude_17: `/Users/simonschoetz/.local/share/claude/versions/2.1.287`, the minified `async function TAe(e,n)` at byte offset 186954933 — resolves the git directory of the repository root `e` (following a `commondir` file when one exists), reads `hooksPath` from the `core` section of that directory's `config` with its own file parser, and when the value is set computes an absolute form of it and, when that differs from the value read, runs `git config core.hooksPath <absolute form>` with `n` as working directory, logging `Configured worktree to use hooks from main repository: <path>` on success; an unset value or one already absolute runs no `git config`]
 
-The routine reads the config file directly, so a `core.hooksPath` from global or system git config is not copied; the call it runs names no scope flag, so which config file the worktree value lands in is not stated by the source.
+The routine reads the config file directly, so a `core.hooksPath` from global or system git config is not copied; the call it runs names no scope flag, so which config file the worktree value lands in is not stated by the source. The desktop app's bundled 2.1.299 binary was not read.
 
 ## `mcp__ccd_session_mgmt__list_sessions` listed desktop-app sessions with `isRunning: false`, two of them absent from `ListAgents`, each with `sessionId`, title, folder, last activity and, for a worktree session, branch
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_7: ran `mcp__ccd_session_mgmt__list_sessions` with limit 40 from a Code-tab session — observed 25 rows including "I: Content section" and "PF: Content section" (last activity 2026-10-19T06:42Z and 2026-10-18T15:05Z), each with `sessionId`, `title`, `cwd`, `isRunning: false`, `lastActivityAt` and, for worktree sessions, `branch`; ran `ListAgents` in the same session — observed three peer rows, all sessions started that day, and neither of those two]
 
 The `sessionId` field of such a row is what the entry below passed to `mcp__ccd_session_mgmt__send_message`.
 
 ## `mcp__ccd_session_mgmt__send_message` to a session listed with `isRunning: false` and absent from `ListAgents`, asking it to reply by the same tool, reported `delivery: delivered` and "its turn has started on it", and that session's reply arrived in the sender as a `<cross-session-message from="<session id>">` turn
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_8: ran `mcp__ccd_session_mgmt__send_message` with the `sessionId` value of the `list_sessions` row for "I: Content section" (`local_68f18432-…`, `isRunning: false`), which `ListAgents` had not listed moments before, carrying a request to reply by the same tool — observed the result "Message delivered to session … its turn has started on it. (delivery: delivered; message_id: …)", and later a turn in the sending session wrapped as `<cross-session-message from="local_68f18432-…" name="I: Content section">` whose text named the branch it had implemented and stated that its context still held the review-loop findings]
 
 Whether that session's process had exited before the send was not observed.
 
 ## `mcp__ccd_session_mgmt__get_session` called with `"self"` returned the calling session's own `sessionId` in the form `local_<uuid>`, together with an `isArchived` boolean
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_1: ran `mcp__ccd_session_mgmt__get_session` with `session_id` `"self"` from a Code-tab session — observed `"sessionId": "local_55280101-…"`, `"isArchived": false`, `"isRunning": true`, plus title, cwd, `parentSessionId` and model]
 
 A session can therefore learn its own id without listing sessions.
 
 ## `mcp__ccd_session_mgmt__send_message` reports `delivered` when the target's turn has started, `queued` when it waits behind the target's current work, and an error otherwise
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_2: the tool's own description, loaded through `ToolSearch select:mcp__ccd_session_mgmt__send_message` — "\"delivered\" means that session's turn has started on your message; \"queued\" means it is waiting behind that session's current work … anything else is an error saying why it was not delivered"]
 
 The same description says the message arrives in the target as a user turn labelled "From {this session's title}", and that `SendMessage` with the target's `local_…` id is the preferred tool.
 
 ## `mcp__ccd_session_mgmt__get_usage` reported the context window of a session listed with `isRunning: false`
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_3: ran `mcp__ccd_session_mgmt__get_usage` with the `sessionId` of a session that `list_sessions` showed with `isRunning: false` and last activity 06:56Z — observed `"status": "ok"`, `"tokensUsed": 521183` of a 1,000,000 window, Messages 434,966 tokens] [claude_7: the tool's own description, loaded through `ToolSearch select:mcp__ccd_session_mgmt__get_usage` — context is "read from the session's own process, so an idle, starting or archived session reports it unavailable"]
 
 The description predicts `unavailable` for an idle session, but this one listed with `isRunning: false` reported its context, so a context reading is worth attempting before a session is woken.
 
 ## A session holding 521,183 context tokens, messaged with `send_message` while idle, replied in 22 seconds and grew by about 10,000 tokens
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_4: sent a one-line question to the idle session "Lean gimbal: cap refine…" at 13:32:18Z (`delivery: delivered`) — observed its `<cross-session-message>` reply in the sender by 13:32:40Z, `get_usage` on it before 521,183 and after 531,254 tokens, and the account's 5-hour plan usage at 8% both before and after]
 
 The plan meter's whole-percent resolution did not register one such wake-up; how many input tokens it billed, and how many of them were served from cache, was not observed.
 
 ## A cross-session reply arrives as its own turn while a background Bash command of the session awaiting it is still running, and that command's exit later starts a further turn
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_5: started two `run_in_background` Bash commands (`sleep 900`, `sleep 300`), sent a `send_message` and ended the turn — observed the reply turn at 13:32:40Z with `pgrep` showing both `sleep` processes alive, and at the 300-second sleep's exit (13:37:18Z) a `<task-notification>` turn with status `completed`]
 
 A background `sleep` therefore serves as a deadline timer for collecting cross-session replies without blocking them.
 
 ## `TaskStop` on a running background Bash command ended it as `[killed]` and started no turn in the following four and a half minutes
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [claude_6: ran `TaskStop` on the running `sleep 900` command at 13:32:48Z — observed "Successfully stopped task", the `sleep 900` process gone from `pgrep`, the command's output file ending `[killed]`, and no turn in the session until the other background command's exit notification at 13:37:18Z]
 
 Whether the stopped command would start a turn later than that window was not observed.
 
 ## A session started by another session and running on that session's brief is refused `mcp__ccd_session__start_session` with initiation `user_asked`; the error directs it to propose with `own_initiative` or to "start it once the user asks you here"
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
-**Citation:** [probe_1: ran `mcp__ccd_session__start_session` twice in one message (initiation `user_asked`, context `fresh`, `use_worktree: false`, title, name, prompt and background each) at 13:53:57Z from a session whose only input so far was the brief of the session that started it — observed both calls fail with "Start sessions only on the user's own words to you here; this turn runs an automated event, another session's message, or the task another session gave you. Propose the session instead (initiation \"own_initiative\"), or start it once the user asks you here."] [probe_2: ran `claude --version` — observed `2.1.287 (Claude Code)`]
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
+**Citation:** [probe_1: ran `mcp__ccd_session__start_session` twice in one message (initiation `user_asked`, context `fresh`, `use_worktree: false`, title, name, prompt and background each) at 13:53:57Z from a session whose only input so far was the brief of the session that started it — observed both calls fail with "Start sessions only on the user's own words to you here; this turn runs an automated event, another session's message, or the task another session gave you. Propose the session instead (initiation \"own_initiative\"), or start it once the user asks you here."]
 
 The error names the origin of the current turn as the reason, in its own words: "this turn runs an automated event, another session's message, or the task another session gave you".
 
 ## A user message typed into a session started by another session, asking it to start two sessions, was followed by `mcp__ccd_session__start_session` with initiation `user_asked` succeeding there on that turn
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [probe_3: after the user typed "Go ahead and start the two probe sessions yourself now, on my word" directly into the session that another session had started, ran the same two `user_asked` calls that had been refused on the starting session's brief, at 13:56:42Z–13:56:53Z — observed "Started session … (session_id: local_59e83898-8f16-44dd-99e7-35ce87a0e473, name: probe-skill-brief)" and "Started session … (session_id: local_995b22cd-c688-4108-81a0-0fefbe54ff2a, name: probe-agent-brief)"]
 
 Whether a user message that does not ask for a start has the same effect, and whether the effect outlasts that turn, was not observed.
 
 ## A session brief whose first line was `/gimbal:setup --check` was reported by the started session as arriving as plain text with `gimbal:setup` absent from its skill listing, yet its `Skill` call with name `gimbal:setup` and args `--check` returned the skill content with the line "argument received: `--check`"
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [probe_4: started session `local_59e83898-8f16-44dd-99e7-35ce87a0e473` at 13:56:53Z with a `fresh` brief whose first line was `/gimbal:setup --check` — observed its `send_message` reply before 13:58:04Z: "The slash command on the first line arrived as plain text (no command expansion in my context, and gimbal:setup was absent from the skill list I was given), but calling the Skill tool with the name `gimbal:setup` and args `--check` succeeded and loaded the skill, whose first heading is `# Setup`"] [probe_5: ran `mcp__ccd_session_mgmt__list_events` on that session — observed an assistant `(called Skill)` followed by a user turn "Base directory for this skill: /Users/simonschoetz/.claude/skills/gimbal/skills/setup" and the full Setup skill text with "argument received: `--check`"]
 
 The session reported after loading the skill and did not run the `--check` process itself; whether a brief can make it run the loaded skill to completion was not observed.
 
 ## A session started by another session, asked by a message from a third session to call `mcp__ccd_session__start_session` with initiation `user_asked`, is refused with the same "only on the user's own words" error
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [probe_6: sent a `SendMessage` at 13:58:36Z to the idle session `local_59e83898-8f16-44dd-99e7-35ce87a0e473` asking it to call `start_session` (initiation `user_asked`, context `fresh`, `use_worktree: false`, title, name, background, prompt) once and quote the result — observed its reply turn within two minutes: "was refused; its result text verbatim: \"Start sessions only on the user's own words to you here; this turn runs an automated event, another session's message, or the task another session gave you. Propose the session instead (initiation \"own_initiative\"), or start it once the user asks you here.\" No card proposed, no retry."]
 
 Together with the entry on a session running on another session's brief above: in the observed cases, a session acting on a brief or on another session's message was refused `user_asked`, and the one acting on a start request the user typed was not.
 
 ## A `fresh` session brief that names `~/.claude/skills/gimbal/agents/architect.md` by path and says to apply its full process made the started session read that file, run the architect process on a one-line story, and reply with the verdict's first heading as the file's Output Format defines it
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [probe_7: started session `local_995b22cd-c688-4108-81a0-0fefbe54ff2a` at 13:56:53Z with that brief and the story "a button on the session screen that copies the session's title to the clipboard" — observed its `send_message` reply "### Decision Reconstructed" as its own turn in the probe session, read at 14:08:24Z] [probe_8: ran `grep -n 'Decision Reconstructed' ~/.claude/skills/gimbal/agents/architect.md` — found at line 47] [probe_9: ran `mcp__ccd_session_mgmt__search_session_transcripts` with query "it is to stress-test them" — observed a hit for that session whose snippet continues "## Context You Work With - The user will bring a decision", the architect file's own body, so the file was read into its transcript]
 
 Wall clock from the start at 13:56:53Z to the reply being read at 14:08:24Z was about 11.5 minutes.
 
 ## A three-session round trip, in which the probe session messaged session A and A reported asking session B one question and relaying B's answer, completed in under one minute, growing A by about 6,800 context tokens, B by about 1,900 and the probe session by about 5,200, with the 5-hour plan meter unchanged at whole-percent resolution
 
-**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
 **Citation:** [probe_10: sent a request to ask session B what the first heading of its verdict was and to relay the answer, to session A, then idle, (`local_59e83898-8f16-44dd-99e7-35ce87a0e473`) at 14:09:18Z (`delivery: delivered`) — observed A's relay turn in the probe session before 14:10:17Z reading "Probe 3 relay: sent 14:09:29Z, reply arrived 14:10:03Z, answer: The first heading of the verdict I produced was \"### Decision Reconstructed\""] [probe_11: ran `mcp__ccd_session_mgmt__get_usage` on A (`local_59e83898-8f16-44dd-99e7-35ce87a0e473`), B (`local_995b22cd-c688-4108-81a0-0fefbe54ff2a`) and the probe session itself before the send and after the relay — observed A 106,333 → 113,123, B 207,541 → 209,424, the probe session 163,088 → 168,242 context tokens, and the 5-hour window at 14% both times]
 
 Per A's relay text, the probe session's send at 14:09:18Z was followed by A's own send at 14:09:29Z, B's reply reached A at 14:10:03Z, and A's relay was in the probe session before 14:10:17Z; the probe session's growth includes its own usage reads between the two readings.
+
+## Claude desktop app sessions on this machine ran a bundled Claude Code binary under `~/Library/Application Support/Claude/claude-code/2.1.299/`, while `claude --version` on the PATH reported 2.1.287
+
+**Verified at:** Claude Code 2.1.299 (the desktop app's bundled runtime), Claude desktop app — 2026-10-19
+**Citation:** [claude_10: ran `ps -axo pid,command | grep -i '[c]laude'` from a desktop-app session — observed every process whose command path lies under `Library/Application Support/Claude/claude-code/` at `claude-code/2.1.299/4fa9694b7975/claude.app/Contents/MacOS/claude`, and one process at `/Users/simonschoetz/.local/bin/claude`] [claude_11: ran `which claude && claude --version` in the same session — observed `/Users/simonschoetz/.local/bin/claude` and `2.1.287 (Claude Code)`] [claude_12: ran `ps -o command= -p $PPID` from that session's Bash tool — observed the session's own parent process at `/Users/simonschoetz/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claude.app/Contents/MacOS/claude`]
+
+From the Bash tool, `ps -o command= -p $PPID` prints the current session's own binary path, and the version in that path is the one a `Verified at` line for a desktop-app observation records.
