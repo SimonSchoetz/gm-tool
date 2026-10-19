@@ -1,15 +1,12 @@
 # Domain
 
-Application vocabulary layer. Owns business concepts shared between the service
-layer and the frontend: error factory functions and types, domain-specific
-TypeScript types, and validation rules.
+Application vocabulary layer. Owns business concepts shared between the service layer and the frontend: error factory functions, domain-specific TypeScript types, and validation rules.
 
-`domain/` has no runtime dependencies on `services/`, `data-access-layer/`, or
-`db/` — it is the vocabulary layer that everything else imports from.
+`domain/` has no runtime dependencies on `services/`, `data-access-layer/`, or `db/` — it is the vocabulary layer that everything else imports from.
 
 ## What Belongs Here
 
-- Error factory functions and their types (see factory function pattern in [app/CLAUDE.md](../CLAUDE.md))
+- Error factory functions and their error types, exported as the factory function pattern in [app/CLAUDE.md](../CLAUDE.md) states
 - Domain-specific TypeScript types not derived from the db schema
 - Validation rules that express business constraints
 - Constant lookup tables keyed by a domain type defined in this layer (e.g. a `Record<EntityType, string>` mapping entity types to route segments or display labels), and the accessor functions built on them — a lookup table is typically kept module-private with only a typed accessor exported (e.g. `buildEntityPath`, `entityTypeLabel`), and the accessor belongs here on the same basis as the table it wraps, even when it adds validation or a fallback default around the raw lookup. Current consumer count does not determine placement here; a table or accessor keyed by a domain/ type belongs in domain/ even when only the frontend currently reads it, because a future service-layer consumer would otherwise force a relocation. **Exception:** when the table's value is itself a DB column default, placement is governed by `app/db/CLAUDE.md` — Default Placement Hierarchy instead, regardless of the table's key type.
@@ -18,8 +15,7 @@ TypeScript types, and validation rules.
 
 - Types that are purely re-exports of db types — import directly from `@db/<domain>`
 - Business operations or CRUD logic — those belong in `app/services/`
-- React-specific types (props, ref types) — those belong in `app/src/types/` or
-  co-located with their component
+- React-specific types (props, ref types) — those belong in `app/src/types/` or co-located with their component
 
 ## Structure
 
