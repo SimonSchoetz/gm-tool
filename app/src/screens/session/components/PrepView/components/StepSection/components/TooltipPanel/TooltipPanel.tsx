@@ -7,7 +7,7 @@ type Props = {
 };
 
 export const TooltipPanel: FCProps<Props> = ({ stepKey }) => {
-  const definition = LAZY_DM_STEPS.find((s) => s.key === stepKey);
+  const definition = LAZY_DM_STEPS.find((s) => s.key === stepKey) ?? null;
   if (!definition) return;
   return <div className='step-tooltip-panel'>{definition.tooltip}</div>;
 };

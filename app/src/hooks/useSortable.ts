@@ -1,9 +1,7 @@
 import { PersistedSortState } from '@db/table-config';
 import { useMemo } from 'react';
 
-// export type SortDirection = SortDire;
-
-export type SortState<T> = Omit<PersistedSortState, 'column'> & {
+type SortState<T> = Omit<PersistedSortState, 'column'> & {
   column: keyof T & string;
 };
 
@@ -40,7 +38,8 @@ export const useSortable = <T>(
 ): T[] => {
   return useMemo(() => {
     const { sortState, columns } = config;
-    const columnConfig = columns.find((c) => c.key === sortState.column);
+    const columnConfig =
+      columns.find((c) => c.key === sortState.column) ?? null;
     const compareFn =
       columnConfig?.compareFn ??
       ((a: T, b: T) => defaultCompare(a, b, sortState.column));

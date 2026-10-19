@@ -20,7 +20,6 @@ export {
   pairingModeError,
   pairingRequestError,
 } from './errors';
-export type { DeviceMessageEnvelope } from './messages';
 export {
   buildHelloEnvelope,
   buildNameUpdateEnvelope,

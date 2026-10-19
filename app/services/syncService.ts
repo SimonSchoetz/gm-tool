@@ -27,7 +27,7 @@ const FILE_CHUNK_SOURCE_BYTES = 256 * 1024;
 // 4-char-aligned so every chunk (except possibly the last) is an independently decodable base64 substring representing exactly N source bytes.
 const CHARS_PER_FILE_CHUNK = Math.floor(FILE_CHUNK_SOURCE_BYTES / 3) * 4;
 
-let applyQueue: Promise<void> = Promise.resolve();
+let applyQueue: Promise<null> = Promise.resolve(null);
 const lastPushedSeq = new Map<string, number>();
 const incomingFiles = new Map<
   string,
@@ -37,8 +37,8 @@ const incomingFiles = new Map<
 const runExclusive = <T>(fn: () => Promise<T>): Promise<T> => {
   const result = applyQueue.then(fn);
   applyQueue = result.then(
-    () => undefined,
-    () => undefined,
+    () => null,
+    () => null,
   );
   return result;
 };

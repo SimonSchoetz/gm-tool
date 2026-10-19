@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 import { generateId, generateDbTimestamps } from '../util';
 
 const configs = [
@@ -193,7 +194,7 @@ const up = async (db: Database): Promise<void> => {
   }
 };
 
-export const seedTableConfigMigration = {
+export const seedTableConfigMigration: Migration = {
   id: '1780099200000',
   up,
 };

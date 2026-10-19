@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 
 // Frozen copies of what each db/<domain>/schema.ts's createTableSQL produced when this migration was frozen — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
 const CREATE_IMAGES_SQL = `
@@ -102,7 +103,7 @@ const up = async (db: Database): Promise<void> => {
   await db.execute(CREATE_TABLE_CONFIG_SQL);
 };
 
-export const initialSchemaMigration = {
+export const initialSchemaMigration: Migration = {
   id: '1779321600000',
   up,
 };

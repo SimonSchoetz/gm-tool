@@ -1,6 +1,6 @@
 import z from 'zod';
 import { tableConfigTable } from './schema';
-import type { LayoutColumn, SortDirection, TableLayout } from './layout-schema';
+import type { TableLayout } from './layout-schema';
 
 export type TableConfigRow = z.infer<typeof tableConfigTable.zodSchema>;
 
@@ -20,16 +20,3 @@ export type UpdateTableConfigInput = Omit<
   z.infer<typeof tableConfigTable.updateSchema>,
   'layout'
 > & { layout?: TableLayout };
-
-export type TypedTableLayout<T> = {
-  searchable_columns: (keyof T & string)[];
-  columns: (Omit<LayoutColumn, 'key'> & { key: keyof T & string })[];
-  sort_state: { column: keyof T & string; direction: SortDirection };
-};
-
-export type TypedCreateTableConfigInput<T> = Omit<
-  CreateTableConfigInput,
-  'layout'
-> & {
-  layout: TypedTableLayout<T>;
-};

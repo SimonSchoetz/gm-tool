@@ -62,7 +62,7 @@ export const syncMessageSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
-export type SyncMessage = z.infer<typeof syncMessageSchema>;
+type SyncMessage = z.infer<typeof syncMessageSchema>;
 
 export const buildSyncHelloMessage = (
   migrationHead: string,

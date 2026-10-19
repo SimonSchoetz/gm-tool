@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const layoutColumnSchema = z.object({
+const layoutColumnSchema = z.object({
   key: z.string(),
   label: z.string(),
   sortable: z.boolean().optional(),
@@ -19,7 +19,6 @@ export const tableLayoutSchema = z.object({
   sort_state: persistedSortStateSchema,
 });
 
-export type LayoutColumn = z.infer<typeof layoutColumnSchema>;
 export type TableLayout = z.infer<typeof tableLayoutSchema>;
 export type PersistedSortState = z.infer<typeof persistedSortStateSchema>;
 export type SortDirection = 'asc' | 'desc';

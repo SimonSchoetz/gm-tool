@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 
 // FK dependency order: parents before children. Frozen migration-local copy of db/_sync/registry.ts — see app/db/CLAUDE.md — Migrations for why.
 const SYNCED_TABLE_NAMES = [
@@ -38,7 +39,7 @@ const up = async (db: Database): Promise<void> => {
   }
 };
 
-export const backfillSyncChangesMigration = {
+export const backfillSyncChangesMigration: Migration = {
   id: '1784896762609',
   up,
 };

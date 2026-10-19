@@ -55,7 +55,7 @@ export const searchMentions = async (
   }
 };
 
-export type MentionEntityData = {
+type MentionEntityData = {
   name: string | null;
   deleted: boolean;
 };

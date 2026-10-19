@@ -15,18 +15,18 @@ export const update = async (
   assertValidId(id, 'table config');
   assertHasUpdateFields(data);
 
-  let layoutString: string | undefined;
+  const serializedLayout: { layout?: string } = {};
   if (data.layout !== undefined) {
     const layoutResult = tableLayoutSchema.safeParse(data.layout);
     if (!layoutResult.success) {
       throw new Error(`Invalid layout: ${layoutResult.error.message}`);
     }
-    layoutString = JSON.stringify(layoutResult.data);
+    serializedLayout.layout = JSON.stringify(layoutResult.data);
   }
 
   const validated = tableConfigTable.updateSchema.parse({
     ...data,
-    layout: layoutString,
+    ...serializedLayout,
   });
 
   const db = await getDatabase();

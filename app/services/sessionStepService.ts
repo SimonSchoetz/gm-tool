@@ -1,9 +1,5 @@
 import * as sessionStepDb from '@db/session-step';
-import type {
-  SessionStep,
-  CreateSessionStepInput,
-  UpdateSessionStepInput,
-} from '@db/session-step';
+import type { SessionStep, UpdateSessionStepInput } from '@db/session-step';
 import {
   sessionStepLoadError,
   sessionStepCreateError,
@@ -19,16 +15,6 @@ export const getStepsBySessionId = async (
     return await sessionStepDb.getAllBySession(sessionId);
   } catch (err) {
     throw sessionStepLoadError(err);
-  }
-};
-
-export const createStep = async (
-  data: CreateSessionStepInput,
-): Promise<string> => {
-  try {
-    return await sessionStepDb.create(data);
-  } catch (err) {
-    throw sessionStepCreateError(err);
   }
 };
 

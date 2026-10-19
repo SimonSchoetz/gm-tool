@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 
 const up = async (db: Database): Promise<void> => {
   await db.execute(`
@@ -13,7 +14,7 @@ const up = async (db: Database): Promise<void> => {
   );
 };
 
-export const addSettingsTableMigration = {
+export const addSettingsTableMigration: Migration = {
   id: '1782657640641',
   up,
 };

@@ -1,4 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
+import type { Migration } from './index';
 import { generateId, generateDbTimestamps } from '../util';
 
 // Frozen copy of what db/encounter/schema.ts's createTableSQL produced when this migration was frozen, for the same reason the trigger SQL below is frozen — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
@@ -86,7 +87,7 @@ const up = async (db: Database): Promise<void> => {
   );
 };
 
-export const addEncountersMigration = {
+export const addEncountersMigration: Migration = {
   id: '1786186021664',
   up,
 };

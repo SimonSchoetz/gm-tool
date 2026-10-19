@@ -13,7 +13,7 @@ export const InGameStepSectionTitle: FCProps<Props> = ({ stepId }) => {
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { steps } = useSessionSteps(sessionId);
-  const step = steps.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId) ?? null;
 
   if (!step) return;
 
@@ -22,9 +22,8 @@ export const InGameStepSectionTitle: FCProps<Props> = ({ stepId }) => {
   }
 
   if (step.default_step_key) {
-    const definition = LAZY_DM_STEPS.find(
-      (s) => s.key === step.default_step_key,
-    );
+    const definition =
+      LAZY_DM_STEPS.find((s) => s.key === step.default_step_key) ?? null;
     if (definition) {
       return <h2 className='in-game-step-section-title'>{definition.name}</h2>;
     }

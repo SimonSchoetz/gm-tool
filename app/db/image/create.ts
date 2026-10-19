@@ -10,7 +10,7 @@ export const create = async ({
     throw new Error('filePath must be a string');
   }
 
-  const extension = filePath.split('.').pop()?.toLowerCase();
+  const extension = filePath.split('.').pop()?.toLowerCase() ?? null;
 
   if (
     !extension ||

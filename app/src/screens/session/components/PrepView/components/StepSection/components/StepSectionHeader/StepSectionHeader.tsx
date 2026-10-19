@@ -25,12 +25,13 @@ export const StepSectionHeader: FCProps<Props> = ({
     from: '/adventure/$adventureId/session/$sessionId',
   });
   const { steps, updateStep, deleteStep } = useSessionSteps(sessionId);
-  const step = steps.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId) ?? null;
   const { openDeleteDialog } = useDeleteDialog();
 
   if (!step) return;
 
-  const lazyStep = LAZY_DM_STEPS.find((s) => s.key === step.default_step_key);
+  const lazyStep =
+    LAZY_DM_STEPS.find((s) => s.key === step.default_step_key) ?? null;
   const stepName = step.name ?? lazyStep?.name ?? 'Untitled Step';
 
   return (

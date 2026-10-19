@@ -11,7 +11,7 @@ import {
 import { JSX } from 'react';
 import { MentionBadge } from '../components/MentionBadge';
 
-export type SerializedMentionNode = SerializedLexicalNode & {
+type SerializedMentionNode = SerializedLexicalNode & {
   entityId: string;
   entityType: string;
   displayName: string;
