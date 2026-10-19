@@ -37,3 +37,17 @@ Whether `git merge --squash` or `git rebase` runs either hook, and whether a `co
 **Citation:** [claude_4: after `git merge claude/clever-payne-354010` in `/Users/simonschoetz/dev/gm-tool` stopped on conflicts, ran `git commit -q -m …` there while `.git/hooks` held `pre-commit`, whose `prettier --check` step prints `Checking formatting...`, and no `pre-merge-commit` — observed `Checking formatting...` printed before merge commit `36516392` was created] [claude_3: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
 Whether `pre-merge-commit`, when installed, also runs for a merge commit made this way was not probed.
+
+## Inside `pre-commit`, `git diff --cached --name-only` listed the files `git commit -a` and `git commit <path>` were about to commit although they were never staged; inside `pre-merge-commit` for a conflict-free `git merge --no-ff`, it listed the paths the merged branch brought in and not those only the current branch had changed
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
+**Citation:** [harness-follow-ups_3: in a scratch repository made with `git init`, holding `app/a.txt` and `docs/d.txt`, whose `pre-commit` and `pre-merge-commit` hooks printed `git diff --cached --name-only` — observed `docs/d.txt` for a commit with only that file staged; `app/a.txt` for `git commit -qam c3` and for `git commit -qm c4 app/a.txt`, each run with `app/a.txt` modified and unstaged; for `git merge --no-ff -q -m merge side`, where `side` added `app/b.txt` and `main` had meanwhile changed only `docs/d.txt`, `app/b.txt` and not `docs/d.txt` in `pre-merge-commit`] [harness-follow-ups_4: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+What it lists for `git commit --amend`, and in `pre-commit` for a merge finished with `git commit` after conflicts, was not probed.
+
+## With `diff.renames` unset, `git diff --cached --name-only` listed a staged `git mv` of an unchanged file only under its new path; with `--no-renames` it listed the old path and the new one
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
+**Citation:** [harness-follow-ups_5: in a scratch repository made with `git init`, where `git config --show-origin --get-all diff.renames` printed nothing, after `git mv app/a.txt docs/a.txt` with no content change, a `pre-commit` hook printing both commands — observed `docs/a.txt` for `git diff --cached --name-only` and `app/a.txt docs/a.txt` for `git diff --cached --name-only --no-renames`] [harness-follow-ups_4: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+A path filter on the first form misses a file moved out of the filtered directory.
