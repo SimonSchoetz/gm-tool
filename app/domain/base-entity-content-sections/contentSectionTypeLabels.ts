@@ -5,6 +5,7 @@ const CONTENT_SECTION_TYPE_LABELS: Record<
   string
 > = {
   text: 'Text',
+  'basic-stat-block': 'Basic Stat Block',
   '5e-stat-block': '5e Stat Block',
 };
 

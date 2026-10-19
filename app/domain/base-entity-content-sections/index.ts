@@ -4,6 +4,12 @@ export {
   contentSectionTypeLabel,
   contentSectionLabel,
 } from './contentSectionTypeLabels';
+export { assertValidContentSectionContent } from './contentSectionContentSchemas';
+export {
+  parseBasicStatBlockContent,
+  patchBasicStatBlockContent,
+  parseBasicStatBlockHpInput,
+} from './basicStatBlockContent';
 export { baseEntityContentSectionLoadError } from './errors';
 export { baseEntityContentSectionCreateError } from './errors';
 export { baseEntityContentSectionUpdateError } from './errors';
