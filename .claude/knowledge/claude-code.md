@@ -174,3 +174,45 @@ A background `sleep` therefore serves as a deadline timer for collecting cross-s
 **Citation:** [claude_6: ran `TaskStop` on the running `sleep 900` command at 13:32:48Z — observed "Successfully stopped task", the `sleep 900` process gone from `pgrep`, the command's output file ending `[killed]`, and no turn in the session until the other background command's exit notification at 13:37:18Z]
 
 Whether the stopped command would start a turn later than that window was not observed.
+
+## A session started by another session and running on that session's brief is refused `mcp__ccd_session__start_session` with initiation `user_asked`; the error directs it to propose with `own_initiative` or to "start it once the user asks you here"
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [probe_1: ran `mcp__ccd_session__start_session` twice in one message (initiation `user_asked`, context `fresh`, `use_worktree: false`, title, name, prompt and background each) at 13:53:57Z from a session whose only input so far was the brief of the session that started it — observed both calls fail with "Start sessions only on the user's own words to you here; this turn runs an automated event, another session's message, or the task another session gave you. Propose the session instead (initiation \"own_initiative\"), or start it once the user asks you here."] [probe_2: ran `claude --version` — observed `2.1.287 (Claude Code)`]
+
+The error names the origin of the current turn as the reason, in its own words: "this turn runs an automated event, another session's message, or the task another session gave you".
+
+## A user message typed into a session started by another session, asking it to start two sessions, was followed by `mcp__ccd_session__start_session` with initiation `user_asked` succeeding there on that turn
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [probe_3: after the user typed "Go ahead and start the two probe sessions yourself now, on my word" directly into the session that another session had started, ran the same two `user_asked` calls that had been refused on the starting session's brief, at 13:56:42Z–13:56:53Z — observed "Started session … (session_id: local_59e83898-8f16-44dd-99e7-35ce87a0e473, name: probe-skill-brief)" and "Started session … (session_id: local_995b22cd-c688-4108-81a0-0fefbe54ff2a, name: probe-agent-brief)"]
+
+Whether a user message that does not ask for a start has the same effect, and whether the effect outlasts that turn, was not observed.
+
+## A session brief whose first line was `/gimbal:setup --check` was reported by the started session as arriving as plain text with `gimbal:setup` absent from its skill listing, yet its `Skill` call with name `gimbal:setup` and args `--check` returned the skill content with the line "argument received: `--check`"
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [probe_4: started session `local_59e83898-8f16-44dd-99e7-35ce87a0e473` at 13:56:53Z with a `fresh` brief whose first line was `/gimbal:setup --check` — observed its `send_message` reply before 13:58:04Z: "The slash command on the first line arrived as plain text (no command expansion in my context, and gimbal:setup was absent from the skill list I was given), but calling the Skill tool with the name `gimbal:setup` and args `--check` succeeded and loaded the skill, whose first heading is `# Setup`"] [probe_5: ran `mcp__ccd_session_mgmt__list_events` on that session — observed an assistant `(called Skill)` followed by a user turn "Base directory for this skill: /Users/simonschoetz/.claude/skills/gimbal/skills/setup" and the full Setup skill text with "argument received: `--check`"]
+
+The session reported after loading the skill and did not run the `--check` process itself; whether a brief can make it run the loaded skill to completion was not observed.
+
+## A session started by another session, asked by a message from a third session to call `mcp__ccd_session__start_session` with initiation `user_asked`, is refused with the same "only on the user's own words" error
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [probe_6: sent a `SendMessage` at 13:58:36Z to the idle session `local_59e83898-8f16-44dd-99e7-35ce87a0e473` asking it to call `start_session` (initiation `user_asked`, context `fresh`, `use_worktree: false`, title, name, background, prompt) once and quote the result — observed its reply turn within two minutes: "was refused; its result text verbatim: \"Start sessions only on the user's own words to you here; this turn runs an automated event, another session's message, or the task another session gave you. Propose the session instead (initiation \"own_initiative\"), or start it once the user asks you here.\" No card proposed, no retry."]
+
+Together with the entry on a session running on another session's brief above: in the observed cases, a session acting on a brief or on another session's message was refused `user_asked`, and the one acting on a start request the user typed was not.
+
+## A `fresh` session brief that names `~/.claude/skills/gimbal/agents/architect.md` by path and says to apply its full process made the started session read that file, run the architect process on a one-line story, and reply with the verdict's first heading as the file's Output Format defines it
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [probe_7: started session `local_995b22cd-c688-4108-81a0-0fefbe54ff2a` at 13:56:53Z with that brief and the story "a button on the session screen that copies the session's title to the clipboard" — observed its `send_message` reply "### Decision Reconstructed" as its own turn in the probe session, read at 14:08:24Z] [probe_8: ran `grep -n 'Decision Reconstructed' ~/.claude/skills/gimbal/agents/architect.md` — found at line 47] [probe_9: ran `mcp__ccd_session_mgmt__search_session_transcripts` with query "it is to stress-test them" — observed a hit for that session whose snippet continues "## Context You Work With - The user will bring a decision", the architect file's own body, so the file was read into its transcript]
+
+Wall clock from the start at 13:56:53Z to the reply being read at 14:08:24Z was about 11.5 minutes.
+
+## A three-session round trip, in which the probe session messaged session A and A reported asking session B one question and relaying B's answer, completed in under one minute, growing A by about 6,800 context tokens, B by about 1,900 and the probe session by about 5,200, with the 5-hour plan meter unchanged at whole-percent resolution
+
+**Verified at:** Claude Code 2.1.287, Claude desktop app — 2026-10-19
+**Citation:** [probe_10: sent a request to ask session B what the first heading of its verdict was and to relay the answer, to session A, then idle, (`local_59e83898-8f16-44dd-99e7-35ce87a0e473`) at 14:09:18Z (`delivery: delivered`) — observed A's relay turn in the probe session before 14:10:17Z reading "Probe 3 relay: sent 14:09:29Z, reply arrived 14:10:03Z, answer: The first heading of the verdict I produced was \"### Decision Reconstructed\""] [probe_11: ran `mcp__ccd_session_mgmt__get_usage` on A (`local_59e83898-8f16-44dd-99e7-35ce87a0e473`), B (`local_995b22cd-c688-4108-81a0-0fefbe54ff2a`) and the probe session itself before the send and after the relay — observed A 106,333 → 113,123, B 207,541 → 209,424, the probe session 163,088 → 168,242 context tokens, and the 5-hour window at 14% both times]
+
+Per A's relay text, the probe session's send at 14:09:18Z was followed by A's own send at 14:09:29Z, B's reply reached A at 14:10:03Z, and A's relay was in the probe session before 14:10:17Z; the probe session's growth includes its own usage reads between the two readings.
