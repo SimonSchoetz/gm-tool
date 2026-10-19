@@ -47,10 +47,31 @@ A component can link to a runtime-built path (e.g. the string `buildEntityPath` 
 
 ## `vite build` regenerates `src/routeTree.gen.ts` from the route files
 
-**Verified at:** `@tanstack/router-plugin` 1.168.19 (devDependency in `app/package.json`), registered as `tanstackRouter({ target: 'react', autoCodeSplitting: true })` in `app/vite.config.ts`
-**Citation:** [spec-writer_1: ran `npx vite build` from `app/` after adding a scratch route file `src/routes/adventure.$adventureId.scratchprobe.tsx` — `src/routeTree.gen.ts` gained 13 `scratchprobe` occurrences; after deleting the scratch file and re-running, 0 remained]
+**Verified at:** `@tanstack/router-plugin` 1.168.19 for the added-route check, 1.168.41 for the generation check — 2026-10-19
+**Citation:** [spec-writer_1: ran `npx vite build` from `app/` after adding a scratch route file `src/routes/adventure.$adventureId.scratchprobe.tsx` — `src/routeTree.gen.ts` gained 13 `scratchprobe` occurrences; after deleting the scratch file and re-running, 0 remained] [harness-follow-ups_6: ran `pnpm run build:frontend` from `app/` in a checkout holding no `src/routeTree.gen.ts`, where `npx tsc --noEmit` had exited 2 with `TS2345` on each `createFileRoute` argument — observed the file written and `npx tsc --noEmit` exit 0 afterwards] [harness-follow-ups_14: `app/node_modules/@tanstack/router-plugin/package.json` at 1.168.41 — no `bin` field]
 
-The plugin rewrites `src/routeTree.gen.ts` during the Vite build, so a newly added route file needs no manual editing of the generated tree — running `npm run build:frontend` (which is `vite build`) is sufficient to make `npx tsc --noEmit` see the new route ids. The package installs no CLI binary (`app/node_modules/.bin` contains no router generator), so the Vite build is the only regeneration entry point that does not require the Tauri dev environment. The file is gitignored (`app/.gitignore:30`) and the regeneration writes nothing else into the working tree.
+The plugin rewrites `src/routeTree.gen.ts` during the Vite build, so a newly added route file needs no manual editing of the generated tree — running `pnpm run build:frontend` is sufficient to make `npx tsc --noEmit` see the new route ids. The plugin package declares no `bin`; `tsr generate` from `@tanstack/router-cli`, in the entry below, generates the file without Vite.
+
+## `tsr generate` from `@tanstack/router-cli` 1.167.39 wrote the same `src/routeTree.gen.ts` as the router plugin's Vite build configured with `target: 'react', autoCodeSplitting: true`, with no `tsr.config.json` present and both on `@tanstack/router-generator` 1.167.39
+
+**Verified at:** `@tanstack/router-cli` 1.167.39 and `@tanstack/router-plugin` 1.168.41 — 2026-10-19
+**Citation:** [harness-follow-ups_7: https://tanstack.com/router/latest/docs/framework/react/installation/with-router-cli — `tsr generate` "Generates the routes for a project based on the provided configuration", read from an optional `tsr.config.json` in the project root, with defaults `./src/routes` and `./src/routeTree.gen.ts`] [harness-follow-ups_8: `app/node_modules/@tanstack/router-plugin/package.json` — `"@tanstack/router-generator": "1.167.39"`; ran `pnpm view @tanstack/router-cli@1.167.39 dependencies` — observed `"@tanstack/router-generator": "1.167.39"`, and for 1.167.40 through 1.167.45 a generator pin equal to the CLI's own version] [harness-follow-ups_9: ran `pnpm add -D --save-exact @tanstack/router-cli@1.167.39` in `app/` — observed `+ @tanstack/router-cli 1.167.39` and one `@tanstack+router-generator@1.167.39` directory under `node_modules/.pnpm`; copied the tree `pnpm run build:frontend` had written, deleted it, ran `npx tsr generate` from `app/` — observed exit 0 and `cmp` reporting the new file identical to the copy]
+
+Each CLI release from 1.167.39 through 1.167.45 pins the generator of its own version number, so the CLI version that matches the plugin is the one equal to the generator version the plugin pins.
+
+## `tsr generate` from `@tanstack/router-cli` 1.167.39 prints a Node circular-dependency warning raised in `@tanstack/router-core` 1.171.33's CommonJS build and still exits 0
+
+**Verified at:** `@tanstack/router-cli` 1.167.39, `@tanstack/router-core` 1.171.33, Node v24.21.0 — 2026-10-19
+**Citation:** [harness-follow-ups_15: ran `node --trace-warnings node_modules/@tanstack/router-cli/bin/tsr.cjs generate` from `app/` — observed "Warning: Accessing non-existent property 'replaceRouteChunk' of module exports inside circular dependency" with its stack at `@tanstack/router-core@1.171.33/.../dist/cjs/router.cjs:835:64`, and `npx tsr generate` exiting 0 with the same warning]
+
+The stack places it in a dependency's CommonJS build, while the CLI loads its modules.
+
+## TanStack Router's FAQ and the router plugin's bundled skill both say to commit `routeTree.gen.ts` as runtime source rather than treat it as a build artifact
+
+**Verified at:** tanstack.com docs, fetched 2026-10-19; `@tanstack/router-plugin` 1.168.41
+**Citation:** [harness-follow-ups_10: https://tanstack.com/router/latest/docs/framework/react/faq — "Should I commit my `routeTree.gen.ts` file into git?" answered "Yes!", calling it "essentially part of your application's runtime, not a build artifact", and "You should commit this file into git so that other developers can use it to build your application."] [harness-follow-ups_11: `app/node_modules/@tanstack/router-plugin/skills/router-plugin/SKILL.md:184` — "Commit `routeTree.gen.ts`; it is generated source used by the application at runtime."]
+
+The FAQ's stated reason is that other developers need the file to build the application.
 
 ## `defaultPreload: 'intent'` fires only on `<Link>` hover/touchstart, not on imperative `navigate()`
 

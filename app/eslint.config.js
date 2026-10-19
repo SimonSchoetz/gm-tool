@@ -95,11 +95,6 @@ export default defineConfig(
     },
   },
   {
-    // Nothing in the TypeScript program imports these: index.html loads main.tsx, and each route file's `Route` is imported by TanStack Router's generated routeTree.gen.ts, which is gitignored and absent until the first build.
-    files: ['src/main.tsx', 'src/routes/**'],
-    rules: { 'local/no-unused-exports': 'off' },
-  },
-  {
     // app/CLAUDE.md's `undefined` ban covers business logic, and a test helper returning `rows.at(0)` is none.
     files: ['**/__tests__/**'],
     rules: { 'local/no-unnormalized-lookup-result': 'off' },

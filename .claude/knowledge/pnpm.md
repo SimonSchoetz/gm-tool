@@ -34,3 +34,10 @@ The written entries name exact versions and carry no expiry, so they stay in the
 **Citation:** [dependency-update_18: set `engines.node` to the unsatisfiable `">=99.0.0"` in a throwaway copy of this repository's `app/` manifest, then from that directory on Node v24.21.0 ran `pnpm --version` — observed `12.4.2` — followed by `pnpm install --frozen-lockfile`, the same command with `--engine-strict`, a plain `pnpm install`, and `pnpm add -D is-odd@3.0.1` with `engine-strict=true` written to a local `.npmrc` — observed exit 0 from every one and no output line matching engine, unsupported or ERR_]
 
 The unsatisfiable range is the control: a field being read at all would have failed on it.
+
+## pnpm 12.4.2 ran the project's own `prepare` script under `pnpm install --frozen-lockfile` into a missing `node_modules`, and did not run it under `pnpm install --frozen-lockfile` or `pnpm install` when `node_modules` was already up to date
+
+**Verified at:** pnpm 12.4.2 on Node v24.21.0 — 2026-10-19
+**Citation:** [harness-follow-ups_12: https://pnpm.io/cli/install — `--ignore-scripts` "Do not execute any scripts defined in the project `package.json` and its dependencies"] [harness-follow-ups_13: ran `pnpm install --frozen-lockfile` in `app/` of a fresh `git clone` whose manifest held `"prepare": "tsr generate"` and which had no `node_modules` — observed `Done in 1.5s using pnpm v12.4.2` and `src/routeTree.gen.ts` written, a file nothing else in that clone produces; in a checkout whose `node_modules` was current, deleted that file and ran `pnpm install --frozen-lockfile` and then `pnpm install` — observed "Lockfile is up to date, resolution step is skipped" and "Already up to date", and the file not written; ran `node --version` — observed `v24.21.0`]
+
+Whether `preinstall`, `postinstall` or dependency build scripts follow the same pattern was not probed.
