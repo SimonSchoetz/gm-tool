@@ -73,7 +73,7 @@ Adding a content-section type registers it in:
 
 1. `BASE_ENTITY_CONTENT_SECTION_TYPES` (`domain/base-entity-content-sections/contentSectionTypes.ts`), whose order is the type menu's order.
 2. `CONTENT_SECTION_TYPE_LABELS` (`contentSectionTypeLabels.ts`).
-3. The content-schema table in `contentSectionContentSchemas.ts`: a schema that `db/base-entity-content-section/update.ts` checks on every content write, or `null` for content stored unvalidated.
+3. The content-schema table in `contentSectionContentSchemas.ts`: a schema that `db/base-entity-content-section/update.ts` checks on every local content write, or `null` for content stored unvalidated. A synced row was written by its peer's `update.ts` on the same `SYNC_PROTOCOL_VERSION`; inbound sync checks content only as a string.
 4. A body branch in `BaseEntityContentSectionPanel.tsx` and a popup branch in `BaseEntityPopupContent.tsx`, when the type's body is not the plain text editor.
 5. A bump of `SYNC_PROTOCOL_VERSION` (`domain/sync/messages.ts`), because an older build's sync schema rejects the new type and skips its rows.
 

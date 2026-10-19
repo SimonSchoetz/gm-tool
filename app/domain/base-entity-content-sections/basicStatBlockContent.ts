@@ -15,7 +15,7 @@ type BasicStatBlockContent = z.infer<typeof basicStatBlockContentSchema>;
 type BasicStatBlockHpInput =
   { valid: true; hp: number | null } | { valid: false };
 
-// Lets the SyntaxError or ZodError propagate instead of using an error factory: every write is validated, so stored content failing the schema is a should-never-happen invariant.
+// Lets the SyntaxError or ZodError propagate instead of using an error factory: db update.ts validates every local content write and a synced row was written by its peer's update.ts on the same SYNC_PROTOCOL_VERSION (inbound sync checks content only as a string), so stored content failing the schema is a should-never-happen invariant.
 export const parseBasicStatBlockContent = (
   content: string | null,
 ): BasicStatBlockContent => {
