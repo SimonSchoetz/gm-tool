@@ -74,3 +74,7 @@ Conventions for `app/src/` are additionally carried by path-scoped rules under `
 ## library-lookup
 
 `app/CLAUDE.md — Third-Party Libraries`
+
+## docs-directory
+
+`app/docs/`
