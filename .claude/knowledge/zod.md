@@ -34,3 +34,17 @@
 **Citation:** [spec-writer_5: app/node_modules/zod/v4/core/schemas.d.ts:694 — `export type $ZodLooseShape = Record<string, any>`; app/node_modules/zod/v4/classic/schemas.d.ts:490 — `shape: Shape;` on `ZodObject`]
 
 A bare `z.ZodObject` defaults its `Shape` parameter to `$ZodLooseShape`, which is `Record<string, any>`, so `schema.shape[key]` is typed `any`. Methods declared on the object itself, such as `partial()` and `safeParse()`, keep their declared types.
+
+## `z.number()` rejects `NaN` and `±Infinity`
+
+**Verified at:** zod 4.6.5, read 2026-10-19
+**Citation:** [spec-writer_1: app/node_modules/zod/v4/core/schemas.js:642 — `$ZodNumber` accepts its input only when `typeof input === "number" && !Number.isNaN(input) && Number.isFinite(input)`]
+
+A `z.number()` schema fails on `NaN` (for example `Number('abc')`) and on `Infinity` (for example `Number('1e999')`), so a caller that converts text with `Number()` and validates the result needs no separate `NaN` or finiteness check.
+
+## `z.int()` accepts only safe integers, and `z.number().int()` is its legacy, identical form
+
+**Verified at:** zod 4.6.5, read 2026-10-19
+**Citation:** [spec-writer_2: app/node_modules/zod/v4/classic/schemas.d.ts:346-349 — `int()` documented "Consider `z.int()` instead. This API is considered *legacy*"; `safe()` "@deprecated This is now identical to `.int()`. Only numbers in the safe integer range are accepted."; :373-377 — `interface ZodInt extends ZodNumberFormat<"safeint">`, `export declare function int(...): ZodInt`; app/node_modules/zod/v4/core/checks.js:93, 121 — the number-format check rejects `!Number.isInteger(input)`, then `!Number.isSafeInteger(input)`]
+
+`z.int()` (exported on the `z` namespace) rejects any non-integer such as `1.5` and any integer outside `Number.MIN_SAFE_INTEGER`…`Number.MAX_SAFE_INTEGER`, negatives inside that range included as valid. Its inferred type is `number`.
