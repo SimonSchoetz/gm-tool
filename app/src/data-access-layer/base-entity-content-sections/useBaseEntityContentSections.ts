@@ -21,6 +21,10 @@ type UseBaseEntityContentSectionsReturn = {
     sectionId: string,
     data: UpdateBaseEntityContentSectionInput,
   ) => void;
+  updateSectionContent: (
+    sectionId: string,
+    compose: (current: string | null) => string,
+  ) => void;
   deleteSection: (sectionId: string) => Promise<void>;
   bulkReorder: (orderedSectionIds: string[]) => void;
 };
@@ -102,6 +106,21 @@ export const useBaseEntityContentSections = (
     saveQueue.schedule(sectionId, data);
   };
 
+  // Reads the cache, not `sections`: a component re-renders with a `setQueryData` write only a task later, so composing from rendered content could write an older value back over a newer one.
+  const updateSectionContent = (
+    sectionId: string,
+    compose: (current: string | null) => string,
+  ): void => {
+    const section =
+      queryClient
+        .getQueryData<BaseEntityContentSection[]>(
+          baseEntityContentSectionKeys.list(baseEntityId),
+        )
+        ?.find((cached) => cached.id === sectionId) ?? null;
+    if (section === null) return;
+    updateSection(sectionId, { content: compose(section.content) });
+  };
+
   const createSection = async (
     type: BaseEntityContentSectionType,
     name?: string,
@@ -134,6 +153,7 @@ export const useBaseEntityContentSections = (
     loading,
     createSection,
     updateSection,
+    updateSectionContent,
     deleteSection,
     bulkReorder,
   };
