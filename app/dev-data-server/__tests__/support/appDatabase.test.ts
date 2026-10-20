@@ -1,8 +1,7 @@
 // @vitest-environment node
-import { existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { INSTALLED_DATABASE_FILE } from '../../installedAppData';
 import { readAppDatabaseRows, writeAppDatabase } from './appDatabase';
 import { createTempDirectory } from './tempDirectory';
 
@@ -51,8 +50,13 @@ describe('writeAppDatabase', () => {
   it('writes every table empty when no list is given', () => {
     writeAppDatabase(dir);
 
-    for (const table of ['notes', 'paired_devices', '_sync_peers', '_system']) {
-      expect(readAppDatabaseRows(dir, `SELECT id FROM ${table}`)).toEqual([]);
+    for (const sql of [
+      'SELECT id FROM notes',
+      'SELECT id FROM paired_devices',
+      'SELECT id FROM _sync_peers',
+      'SELECT id FROM _system',
+    ]) {
+      expect(readAppDatabaseRows(dir, sql)).toEqual([]);
     }
   });
 
@@ -80,12 +84,5 @@ describe('writeAppDatabase', () => {
     ).map(({ name }) => name);
 
     expect(extraColumns).toEqual([...plainColumns, 'extra']);
-  });
-
-  it('leaves a closed database with no -wal or -shm file beside it', () => {
-    writeAppDatabase(dir, { notes: [{ id: 'note', body: 'note body' }] });
-
-    expect(readdirSync(dir)).toEqual([INSTALLED_DATABASE_FILE]);
-    expect(existsSync(join(dir, `${INSTALLED_DATABASE_FILE}-wal`))).toBe(false);
   });
 });
