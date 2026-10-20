@@ -35,7 +35,11 @@ export const migrations: Migration[] = [
 // Equals the applied migration head after init; read here (not from the DB) to avoid an import cycle through database.ts.
 export const migrationHead: string = migrations[migrations.length - 1].id;
 
-export const runMigrations = async (db: Database): Promise<void> => {
+// `beforeFirstPending` runs once, before the first pending migration, with the highest id in the ledger (`null` for an empty ledger); it is skipped when nothing is pending, and a rejection stops the run before any migration.
+export const runMigrations = async (
+  db: Database,
+  beforeFirstPending: (ledgerHead: string | null) => Promise<void>,
+): Promise<void> => {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS _migrations (
       id TEXT PRIMARY KEY,
@@ -44,13 +48,16 @@ export const runMigrations = async (db: Database): Promise<void> => {
   `);
 
   const applied = await db.select<{ id: string }[]>(
-    'SELECT id FROM _migrations',
+    'SELECT id FROM _migrations ORDER BY id',
   );
   const appliedIds = new Set(applied.map((r) => r.id));
 
   const pending = migrations
     .filter((m) => !appliedIds.has(m.id))
     .sort((a, b) => a.id.localeCompare(b.id));
+  if (pending.length === 0) return;
+
+  await beforeFirstPending(applied.map((r) => r.id).at(-1) ?? null);
 
   // No BEGIN/COMMIT wrapper: tauri-plugin-sql checks out an arbitrary pooled connection per db.execute() call, so raw-SQL BEGIN/COMMIT sent across separate calls is not atomic (see app/db/CLAUDE.md — Migrations, and .claude/knowledge/tauri.md + sqlite.md for the verified mechanism). Every migration.up() must therefore be independently safe to resume after a partial failure.
   for (const migration of pending) {

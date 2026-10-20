@@ -2,8 +2,10 @@
 import { describe, it, expect } from 'vitest';
 import {
   applyMigrationsBefore,
+  applyRecordedMigrationsBefore,
   openTestDatabase,
 } from '@db/__tests__/support/sqlite-test-database';
+import { migrations } from '@db/_migrations';
 
 const MULTI_STATEMENT_ERROR =
   'Multi-statement SQL is not supported by prepare():';
@@ -109,5 +111,29 @@ describe('applyMigrationsBefore', () => {
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('base_entity_content_sections', '_migrations')",
     );
     expect(laterTables).toEqual([]);
+  });
+});
+
+describe('applyRecordedMigrationsBefore', () => {
+  it('records each migration before the given id at the given time, the given one and later ones not at all', async () => {
+    const db = openTestDatabase();
+    const boundaryIndex = migrations.findIndex(
+      (migration) => migration.id === '1789304154994',
+    );
+    const appliedAt = '2026-01-01T00:00:00.000Z';
+
+    const recordedIds = await applyRecordedMigrationsBefore(
+      db,
+      migrations[boundaryIndex].id,
+      appliedAt,
+    );
+
+    const expectedIds = migrations
+      .slice(0, boundaryIndex)
+      .map((migration) => migration.id);
+    expect(recordedIds).toEqual(expectedIds);
+    expect(
+      await db.select('SELECT id, applied_at FROM _migrations ORDER BY rowid'),
+    ).toEqual(expectedIds.map((id) => ({ id, applied_at: appliedAt })));
   });
 });

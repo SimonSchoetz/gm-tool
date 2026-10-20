@@ -1,5 +1,8 @@
 import Database from '@tauri-apps/plugin-sql';
 import { runMigrations } from './_migrations';
+import { backupDatabase } from './database-backup';
+
+const DATABASE_FILE = 'gm_tool.db';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;
@@ -25,9 +28,11 @@ export const initDatabase = async () => {
         );
       }
       console.log('Attempting to load database...');
-      const database = await Database.load('sqlite:gm_tool.db');
+      const database = await Database.load(`sqlite:${DATABASE_FILE}`);
       console.log('Database loaded successfully');
-      await runMigrations(database);
+      await runMigrations(database, (ledgerHead) =>
+        backupDatabase(database, DATABASE_FILE, ledgerHead),
+      );
 
       db = database;
       return database;

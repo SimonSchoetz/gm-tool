@@ -3,10 +3,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 const load = vi.hoisted(() => vi.fn());
 vi.mock('@tauri-apps/plugin-sql', () => ({ default: { load } }));
+const invoke = vi.hoisted(() => vi.fn());
+vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
 describe('initDatabase', () => {
   beforeEach(async () => {
     vi.resetModules();
+    invoke.mockReset();
     const { openTestDatabase } =
       await import('@db/__tests__/support/sqlite-test-database');
     load.mockImplementation(() => Promise.resolve(openTestDatabase()));
@@ -60,5 +63,37 @@ describe('initDatabase', () => {
 
     expect(laterDatabase).not.toBe(failingDatabase);
     expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  it('asks for a backup of gm_tool.db at the ledger head the database had before its pending migrations ran', async () => {
+    const { openTestDatabase, applyRecordedMigrationsBefore } =
+      await import('@db/__tests__/support/sqlite-test-database');
+    const database = openTestDatabase();
+    const recordedIds = await applyRecordedMigrationsBefore(
+      database,
+      '1789304154994',
+      '2026-01-01T00:00:00.000Z',
+    );
+    load.mockImplementationOnce(() => Promise.resolve(database));
+    let ledgerAtBackup: string[] = [];
+    invoke.mockImplementation(async () => {
+      const rows = await database.select<{ id: string }[]>(
+        'SELECT id FROM _migrations ORDER BY id',
+      );
+      ledgerAtBackup = rows.map((row) => row.id);
+      return null;
+    });
+    const { initDatabase } = await import('@db/database');
+
+    await initDatabase();
+
+    expect(load).toHaveBeenCalledWith('sqlite:gm_tool.db');
+    expect(invoke.mock.calls).toEqual([
+      [
+        'prepare_database_backup',
+        { databaseFile: 'gm_tool.db', ledgerHead: recordedIds.at(-1) },
+      ],
+    ]);
+    expect(ledgerAtBackup).toEqual(recordedIds);
   });
 });

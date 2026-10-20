@@ -3,9 +3,10 @@ mod connectivity;
 
 use commands::{
     PendingInstallState, check_update, delete_image, download_update, enter_pairing_mode,
-    exit_pairing_mode, get_connected_peers, get_image_url, image_file_exists, init_connectivity,
-    install_and_relaunch, read_image_bytes, remove_trusted_peer, request_pairing_code, save_image,
-    save_image_bytes, send_message, submit_pairing_code, update_own_name,
+    exit_pairing_mode, finish_database_backup, get_connected_peers, get_image_url,
+    image_file_exists, init_connectivity, install_and_relaunch, prepare_database_backup,
+    prune_database_backups, read_image_bytes, remove_trusted_peer, request_pairing_code,
+    save_image, save_image_bytes, send_message, submit_pairing_code, update_own_name,
 };
 use connectivity::ConnectivityState;
 use tauri::{Manager, RunEvent};
@@ -25,11 +26,14 @@ pub fn run() {
             download_update,
             enter_pairing_mode,
             exit_pairing_mode,
+            finish_database_backup,
             get_connected_peers,
             get_image_url,
             image_file_exists,
             init_connectivity,
             install_and_relaunch,
+            prepare_database_backup,
+            prune_database_backups,
             read_image_bytes,
             remove_trusted_peer,
             request_pairing_code,
