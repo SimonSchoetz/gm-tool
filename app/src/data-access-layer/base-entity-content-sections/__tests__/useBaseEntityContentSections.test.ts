@@ -102,6 +102,36 @@ describe('useBaseEntityContentSections', () => {
     });
   });
 
+  it("builds a second content write on the first one's result instead of the rendered content", async () => {
+    const { result } = await renderSections();
+
+    act(() => {
+      result.current.updateSectionContent(
+        'section-1',
+        (current) => `${current ?? ''}a`,
+      );
+      result.current.updateSectionContent(
+        'section-1',
+        (current) => `${current ?? ''}b`,
+      );
+    });
+    await settle(AUTOSAVE_DELAY_MS);
+
+    expect(updateSection).toHaveBeenCalledTimes(1);
+    expect(updateSection).toHaveBeenCalledWith('section-1', { content: 'ab' });
+  });
+
+  it('saves nothing for a section absent from the cached list', async () => {
+    const { result } = await renderSections();
+
+    act(() => {
+      result.current.updateSectionContent('section-2', () => 'content');
+    });
+    await settle(AUTOSAVE_DELAY_MS);
+
+    expect(updateSection).not.toHaveBeenCalled();
+  });
+
   it('createSection resolves only after the section list refetch settles', async () => {
     const { result } = await renderSections();
     createSection.mockResolvedValue('section-2');

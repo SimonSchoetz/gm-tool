@@ -18,8 +18,10 @@ import {
   contentSectionTypeLabel,
   type BaseEntityContentSectionType,
 } from '@domain';
+import { BasicStatBlockSectionBody } from './components/BasicStatBlockSectionBody';
 import { ContentSectionTypeMenu } from './components/ContentSectionTypeMenu/ContentSectionTypeMenu';
 import { getIdAfterRemoval } from './helper/getIdAfterRemoval';
+import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from './BaseEntityContentSectionPanel.constants';
 import './BaseEntityContentSectionPanel.css';
 
 export const BaseEntityContentSectionPanel = () => {
@@ -125,15 +127,23 @@ export const BaseEntityContentSectionPanel = () => {
       {selected && (
         <PanelBody>
           <div className='base-entity-content-section-panel-content'>
-            {/* Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content. */}
-            <TextEditor
-              textEditorId={`content-section-${selected.id}`}
-              value={selected.content ?? ''}
-              placeholder='Start typing or use / for commands'
-              onChange={(content) => {
-                updateSection(selected.id, { content });
-              }}
-            />
+            {selected.type === 'basic-stat-block' ? (
+              // Keyed by section id, so switching between two stat-block sections remounts the body and resets its HP field.
+              <BasicStatBlockSectionBody
+                key={selected.id}
+                sectionId={selected.id}
+              />
+            ) : (
+              // Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content.
+              <TextEditor
+                textEditorId={`content-section-${selected.id}`}
+                value={selected.content ?? ''}
+                placeholder={CONTENT_SECTION_EDITOR_PLACEHOLDER}
+                onChange={(content) => {
+                  updateSection(selected.id, { content });
+                }}
+              />
+            )}
           </div>
         </PanelBody>
       )}

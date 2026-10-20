@@ -258,3 +258,10 @@ What a mixed-format selection now does therefore depends on `selection.format` r
 **Citation:** [dependency-update_14: ran `node -e "require('lexical/package.json')"` with lexical 0.52.0 installed under `app/` — observed `Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './package.json' is not defined by "exports"`]
 
 Reading its version needs the file path `app/node_modules/lexical/package.json` rather than module resolution. The `@lexical/*` packages were not checked.
+
+## `OnChangePlugin`'s `ignoreSelectionChange` defaults to `false`, so a selection-only update calls `onChange`
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [architect_12: @lexical/react 0.52.0 dist/LexicalOnChangePlugin.dev.js:46, 59-62 — `ignoreSelectionChange = false` in the props destructuring; the update listener returns early on a selection-only change only when `ignoreSelectionChange` is true]
+
+Without `ignoreSelectionChange`, merely placing the caret in an editor — clicking into it — fires the plugin's `onChange` with the full editor state, even though no content changed.

@@ -7,7 +7,6 @@
 
 When `noUncheckedIndexedAccess` is enabled, indexing an array (`arr[i]`) or a record (`obj[key]`) returns `T | undefined` rather than `T`. This flag is not part of the `strict` bundle — `"strict": true` alone does not enable it. Code that relies on a row-presence guard must use `if (rows.length === 0)` rather than optional-chaining (`rows[0]?.field`) combined with `=== undefined`, because the latter silently passes type-checking even when the guard intent is row-absence, not field-nullability. Any spec code example that indexes into an array or record must account for the `| undefined` widening when this flag is active.
 
-
 ## Spreading an `as const` tuple into another `as const` array literal yields a tuple whose element union includes every spread member
 
 **Verified at:** typescript ~6.0.3, app/tsconfig.json compiler options
@@ -35,3 +34,10 @@ The declaration's doc comments describe `resolvedFileName` as the "path of the f
 **Citation:** [spec-writer_1: ran app/node_modules/.bin/tsc (`tsc -v` — Version 6.0.3) -p on a scratch tsconfig (`"jsx": "preserve"`, `"strict": true`) compiling a `.tsx` file whose `<div>` has `a='1'`, then a `// comment` on its own line, then `b='2'` — observed exit 0; the same element with `{/* … */}` between the attributes — observed TS1005 `'...' expected`]
 
 Inside a JSX opening tag, a `//` line comment can sit on its own line between attributes. The braced `{/* … */}` form is not valid there.
+
+## `ValidityState.badInput` is declared in TypeScript's DOM lib as `readonly badInput: boolean`
+
+**Verified at:** typescript 6.0.3 lib.dom.d.ts, loaded via `"lib": ["ESNext", "DOM", "DOM.Iterable"]` in app/tsconfig.json:5
+**Citation:** [spec-writer_6: app/node_modules/typescript/lib/lib.dom.d.ts:37711 — `interface ValidityState { … readonly badInput: boolean; … }`]
+
+An input element's `validity.badInput` is typed and readable without a cast, so code can tell an empty field from unconvertible text the browser reports as `value === ''`.

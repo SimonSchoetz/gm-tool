@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { ImageById } from '../../../../../ImageById/ImageById';
 import { TextEditor } from '../../../../../TextEditor';
@@ -7,12 +8,14 @@ import './EntityPopupBody.css';
 
 type Props = {
   summary: string | null;
+  summaryHeader?: ReactNode;
   imageId: string | null;
   textEditorId: string;
 };
 
 export const EntityPopupBody: FCProps<Props> = ({
   summary,
+  summaryHeader,
   imageId,
   textEditorId,
 }) => (
@@ -30,6 +33,7 @@ export const EntityPopupBody: FCProps<Props> = ({
     )}
     {summary !== null && (
       <div className='entity-popup-body--summary'>
+        {summaryHeader}
         <TextEditor
           value={summary}
           textEditorId={textEditorId}

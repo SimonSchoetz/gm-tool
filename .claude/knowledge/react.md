@@ -58,3 +58,10 @@ Calling `createContext<T>()` with no argument does not type-check.
 **Citation:** [spec-writer_1: app/node_modules/@types/react/index.d.ts:678-679 — `interface Context<T> extends Provider<T> { Provider: Provider<T>; ...`]
 
 `Provider<T>` is the type of both the context object and its `Provider` property.
+
+## react-dom writes a controlled number input's DOM `value` only when it differs loosely from the bound value
+
+**Verified at:** react-dom 19.3.0
+**Citation:** [spec-writer_5: app/node_modules/react-dom/cjs/react-dom-client.development.js:1850-1853 — in `updateInput`, for `"number" === type`: `if ((0 === value && "" === element.value) || element.value != value) element.value = "" + getToStringValue(value);`]
+
+A controlled `<input type='number'>` bound to `''` while it shows unconvertible text (its DOM `value` is then `''`) is left alone on re-render, so the typed text stays visible. The same check means that setting the bound value to `''` cannot clear such text from the field: React writes nothing because the DOM `value` already reads `''`.
