@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '@platform';
 import { generateId, buildDuplicateQuery, assertValidId } from '../util';
 import { getDatabase } from '../database';
 import { get } from './get';

@@ -41,3 +41,10 @@ Inside a JSX opening tag, a `//` line comment can sit on its own line between at
 **Citation:** [spec-writer_6: app/node_modules/typescript/lib/lib.dom.d.ts:37711 — `interface ValidityState { … readonly badInput: boolean; … }`]
 
 An input element's `validity.badInput` is typed and readable without a cast, so code can tell an empty field from unconvertible text the browser reports as `value === ''`.
+
+## A file reachable only through a `references` entry is absent from the file list of `tsc --noEmit -p <config>` without `--build`
+
+**Verified at:** typescript 6.0.3, run 2026-10-20
+**Citation:** [architect_24: ran `npx tsc --noEmit --listFilesOnly -p tsconfig.json | grep vite.config` from `app/`, where `vite.config.ts` was reachable only through the `tsconfig.node.json` named in `references` — not found] [implement_3: ran `npx tsc --noEmit --listFilesOnly -p tsconfig.json | grep -c vite.config.ts` from `app/` at 88bc6ddd, where `tsconfig.json`'s `include` names `vite.config.ts` — observed 1]
+
+Such a file is outside the type-check unless the root config's `include` names it, as the second run shows, or the check runs with `--build`.

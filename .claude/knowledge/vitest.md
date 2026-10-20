@@ -118,3 +118,24 @@ The async variant also runs timers set while promises resolve during the advance
 **Citation:** [instruction-pass_23: ran `npx vitest run` from `app/` on `app/src/components/UploadImgBtn/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/__tests__/ImagePreviewFramingOverlay.test.tsx` as of 2bb99ae1, which renders the overlay under `TanstackQueryClientProvider` with a mocked `@services/imageService`, dispatches `fireEvent.wheel`, then runs `await act(() => vi.runOnlyPendingTimersAsync())` — observed it pass, the mocked `updateImageFrame` called once with the zoomed frame, and a scratch copy without that `runOnlyPendingTimersAsync` line fail with `expected "vi.fn()" to be called 1 times, but got 0 times`] [instruction-pass_24: app/node_modules/vitest/dist/index.d.ts:442-446 — `runOnlyPendingTimersAsync` "will asynchronously call every timer that was initiated after `vi.useFakeTimers` call, even asynchronous ones. It will not fire any timer that was initiated during its call."]
 
 It fires every timer already pending when it is called and none that starts during the call, so a test waits out a deferred save without knowing its delay.
+
+## A `vi.mock` factory's missing export throws `No "<name>" export is defined on the "<module>" mock` when the export is read, not when the mocked module is imported
+
+**Verified at:** vitest 5.0.2, run 2026-10-20
+**Citation:** [spec-writer_1: ran a scratch `// @vitest-environment node` test under `npx vitest run` from `app/` with `vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn(() => Promise.resolve('ok')) }))` and a module importing `{ invoke, Channel }` from that package — observed the module loading and its `invoke` wrapper resolving `'ok'`, an arrow calling `new Channel(…)` throwing `[vitest] No "Channel" export is defined on the "@tauri-apps/api/core" mock. Did you forget to return it from "vi.mock"?`, and a dynamic import of a second module that reads `Channel` in a module-level object literal rejecting with that same error]
+
+A module that imports several names from a partially mocked package loads as long as every read of a name the factory left out is deferred into a function body; a shorthand property, a default argument or any other module-level read of such a name fails the importing module's load with that error.
+
+## Vitest 5.0.2's `toThrow` matches a string argument as a substring of the thrown message and tests a RegExp argument against the whole message
+
+**Verified at:** vitest 5.0.2, chai 6.2.2, read 2026-10-20
+**Citation:** [code-reviewer_2: `app/node_modules/.pnpm/vitest@5.0.2_*/node_modules/vitest/dist/chunks/index.DGdajAO2.js:2288` — `def(["toThrow", "toThrowError"])` passes a string, undefined or RegExp argument to `this.throws(expected)`; `app/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:80-81` — a string matcher passes on `comparisonString.indexOf(errMatcher) !== -1`] [implement_7: the same chai file :77-79 — `comparisonString` is the thrown error's `message`, and a RegExp matcher passes on `errMatcher.test(comparisonString)`]
+
+`rejects.toThrow('x')` passes for any message containing `x`, so two branches whose messages contain the same text are not told apart by it; an anchored RegExp such as `/^x$/` or `/ is x$/` pins the message or its tail.
+
+## Vitest 5.0.2's `toThrow` with an `Error` instance compares the thrown error's name, message and enumerable own properties, and its `cause` only when the expected error's `cause` is defined
+
+**Verified at:** vitest 5.0.2, read 2026-10-20
+**Citation:** [implement_4: `app/node_modules/.pnpm/vitest@5.0.2_*/node_modules/vitest/dist/chunks/index.DGdajAO2.js:2316` and `:2323` — an `Error` instance or another object is compared with `equals(thrown, expected, [...customTesters, iterableEquality])`] [code-reviewer_7: the same chunk :1330-1341, `isErrorEqual` — `a.name === b.name && a.message === b.message`, then `if (typeof b.cause !== "undefined") result &&= eq(a.cause, b.cause, …)`, then `eq({ ...a }, { ...b }, …)` over the enumerable properties]
+
+`toThrow(new Error('x'))` pins the exact message without caring what `cause` the thrown error carries, and pins `cause` too once the expected error is given one.

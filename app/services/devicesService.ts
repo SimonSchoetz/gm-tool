@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '@platform';
 import * as pairedDeviceDb from '@db/paired-device';
 import type { PairedDevice } from '@db/paired-device';
 import * as systemDb from '@db/_system';

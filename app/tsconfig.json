@@ -23,7 +23,8 @@
       "@util/*": ["./util/*"],
       "@services/*": ["./services/*"],
       "@domain": ["./domain/index.ts"],
-      "@domain/*": ["./domain/*"]
+      "@domain/*": ["./domain/*"],
+      "@platform": ["./platform/index.ts"]
     },
 
     /* Linting */
@@ -34,6 +35,15 @@
     "erasableSyntaxOnly": true,
     "exactOptionalPropertyTypes": true
   },
-  "include": ["src", "db", "util", "services", "domain"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src",
+    "db",
+    "util",
+    "services",
+    "domain",
+    "platform",
+    "dev-data-server",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
 }

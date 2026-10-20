@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { listen } from '@tauri-apps/api/event';
+import { listen } from '@platform';
 import {
   CONNECTIVITY_EVENTS,
   type PairingCandidateLostPayload,

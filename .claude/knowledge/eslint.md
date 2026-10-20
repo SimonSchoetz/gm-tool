@@ -184,3 +184,24 @@ The type inference keys on the JSX attribute name, not on the property name, so 
 **Citation:** [claude_2: `app/node_modules/typescript-eslint/dist/index.js:55` — `require("@typescript-eslint/eslint-plugin/use-at-your-own-risk/raw-plugin")`, and `:60` — `exports.parser = raw_plugin_1.default.parser`; `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.71.0_@typescript-eslint+parser@8.71.0_eslint@10.11.0_694f5ce9f86d10130f7c448aabb61df1/node_modules/@typescript-eslint/eslint-plugin/dist/raw-plugin.js:38` — `require("@typescript-eslint/parser")`, and `:66-68` — the exported `parser` object's `parseForESLint: parserBase.parseForESLint`] [claude_3: `app/node_modules/.pnpm/@typescript-eslint+parser@8.71.0_eslint@10.11.0_jiti@2.7.0_supports-color@7.2.0__supports-color@7.2.0_typescript@6.0.3/node_modules/@typescript-eslint/parser/dist/parser.d.ts:14-18` — `interface ParseForESLintResult` with `ast`, `scopeManager`, `services`, `visitorKeys`, and `:21` — `parseForESLint(code: string | ts.SourceFile, parserOptions?: ParserOptions | null): ParseForESLintResult`; `app/node_modules/typescript-eslint/dist/index.d.ts:5` — `export declare const parser: CompatibleParser;`, and `app/node_modules/typescript-eslint/dist/compatibility-types.d.ts:1-6` — `CompatibleParser` declares only `parseForESLint(text: string): { ast: unknown; scopeManager: unknown }`]
 
 The `CompatibleParser` type under which `typescript-eslint` declares the export hides the options parameter and the `services` and `visitorKeys` members.
+
+## typescript-eslint 8.71.0's `strictTypeChecked` sets `@typescript-eslint/only-throw-error` and `@typescript-eslint/prefer-promise-reject-errors` to `error` with their defaults, under which a thrown `unknown` passes and a rejection with an `unknown` is reported
+
+**Verified at:** typescript-eslint 8.71.0, read 2026-10-20
+**Citation:** [spec-writer_4: app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.71.0_@typescript-eslint+parser@8.71.0_eslint@10.11.0_694f5ce9f86d10130f7c448aabb61df1/node_modules/@typescript-eslint/eslint-plugin/dist/configs/flat/strict-type-checked.js:87,91-92 — `'@typescript-eslint/only-throw-error': 'error'`, `'prefer-promise-reject-errors': 'off'`, `'@typescript-eslint/prefer-promise-reject-errors': 'error'`] [spec-writer_5: the same package's dist/rules/only-throw-error.js:84-86 — defaults `allowRethrowing: true`, `allowThrowingAny: true`, `allowThrowingUnknown: true`; dist/rules/prefer-promise-reject-errors.js:47-48 — defaults `allowThrowingAny: false`, `allowThrowingUnknown: false`]
+
+Under this project's config a `throw` of a value typed `string` is reported in any function, a `throw` of a value typed `unknown` is not, and `Promise.reject(value)` or `reject(value)` inside a `new Promise` executor is reported unless `value` is an `Error`, whatever its declared type.
+
+## typescript-eslint 8.71.0's `no-restricted-imports` accepts `allowTypeImports` on `paths` and `patterns` entries and visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration` and `TSImportEqualsDeclaration` but not `ImportExpression`; ESLint 10.11.0's core rule visits the first three
+
+**Verified at:** typescript-eslint 8.71.0, eslint 10.11.0, read 2026-10-20
+**Citation:** [architect_9: `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.71.0_*/node_modules/@typescript-eslint/eslint-plugin/dist/rules/no-restricted-imports.js:23-24,169,181,208-237` — `allowTypeImports` on `paths` and `patterns`; visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration`, `TSImportEqualsDeclaration`, not `ImportExpression`] [architect_11: `app/node_modules/.pnpm/eslint@10.11.0*/node_modules/eslint/lib/rules/no-restricted-imports.js:858-864`]
+
+A dynamic `import()` of a restricted module passes both rules, and a `vi.mock('<module>', …)` call is not an import declaration either; a type-only import of a restricted module passes the extension rule when its entry sets `allowTypeImports`.
+
+## `eslint-plugin-import-x` 4.17.1's `no-restricted-paths` resolves a zone's `except` entries against that zone's `from` path, each of which must stay inside `from`
+
+**Verified at:** eslint-plugin-import-x 4.17.1, read 2026-10-20
+**Citation:** [code-reviewer_4: `app/node_modules/.pnpm/eslint-plugin-import-x@4.17.1_*/node_modules/eslint-plugin-import-x/lib/rules/no-restricted-paths.js:142` — `absoluteExceptionPaths = zoneExcept.map(exceptionPath => path.resolve(absoluteFrom, exceptionPath))`] [implement_9: the same file :139-146 — `isPathRestricted` tests `containsPath(absoluteImportPath, absoluteFrom)`, every exception must satisfy `isValidExceptionPath(absoluteFrom, …)`, and an import inside an exception path is not reported]
+
+A zone `{ from: './dev-data-server', except: ['./protocol.ts'] }` exempts `dev-data-server/protocol.ts`, written relative to the zone's folder rather than to `basePath`.

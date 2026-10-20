@@ -1,14 +1,6 @@
 import { z } from 'zod';
+import { IMAGE_FILE_EXTENSIONS } from '@domain';
 import { defineTable } from '../util';
-import { FileTypes } from '@/types/fileTypes.type';
-
-const fileExtensions: FileTypes['image'] = [
-  'jpg',
-  'jpeg',
-  'png',
-  'webp',
-  'gif',
-];
 
 export const imageTable = defineTable({
   name: 'images',
@@ -21,7 +13,7 @@ export const imageTable = defineTable({
     file_extension: {
       type: 'TEXT',
       notNull: true,
-      zod: z.enum(fileExtensions),
+      zod: z.enum(IMAGE_FILE_EXTENSIONS),
     },
     original_filename: {
       type: 'TEXT',

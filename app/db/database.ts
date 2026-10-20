@@ -1,4 +1,5 @@
-import Database from '@tauri-apps/plugin-sql';
+import type Database from '@tauri-apps/plugin-sql';
+import { loadDatabase } from '@platform';
 import { runMigrations } from './_migrations';
 import { backupDatabase } from './database-backup';
 
@@ -18,17 +19,8 @@ export const initDatabase = async () => {
 
   initializingPromise = (async () => {
     try {
-      if (
-        import.meta.env.DEV &&
-        !import.meta.env.TEST &&
-        !('__TAURI_INTERNALS__' in window)
-      ) {
-        throw new Error(
-          'No Tauri IPC bridge found — the database is unreachable from `pnpm web`. Run `pnpm dev` instead to reach the database.',
-        );
-      }
       console.log('Attempting to load database...');
-      const database = await Database.load(`sqlite:${DATABASE_FILE}`);
+      const database = await loadDatabase(DATABASE_FILE);
       console.log('Database loaded successfully');
       await runMigrations(database, (ledgerHead) =>
         backupDatabase(database, DATABASE_FILE, ledgerHead),

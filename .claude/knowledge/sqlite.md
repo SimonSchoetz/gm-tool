@@ -150,5 +150,26 @@ The probe's call is the one tauri-plugin-sql 2.5.0 makes for `db.execute('VACUUM
 
 ## A `VACUUM INTO` interrupted by an unplanned shutdown or power loss can leave an incomplete, corrupt output file
 
-**Verified at:** https://www.sqlite.org/lang_vacuum.html — 2026-10-20
+**Verified at:** <https://www.sqlite.org/lang_vacuum.html> — 2026-10-20
 **Citation:** [migration-backup_12: https://www.sqlite.org/lang_vacuum.html — "if the VACUUM INTO command is interrupted by an unplanned shutdown or power loss, then the generated output database might be incomplete and corrupt"]
+
+## A WAL database's `-wal` and `-shm` files exist while any connection holds it open, are checkpointed and deleted when the last connection closes, can be left behind by a crash or `SQLITE_FCNTL_PERSIST_WAL`, and must be copied along with the main file
+
+**Verified at:** <https://www.sqlite.org/wal.html>, 2026-10-20
+**Citation:** [architect_16: <https://www.sqlite.org/wal.html> — sections 4, 5 and 6] [code-reviewer_3: ran a scratch node probe under Node v24.21.0 that copied a WAL database together with its -wal and -shm with no live connection, opened it with `DatabaseSync`, ran `VACUUM INTO` a second path and closed — observed the listing `[gm_tool.db, -shm, -wal]` before and `[gm_tool.db]` after, and the main file's bytes changed] [implement_8: ran `npx vitest run dev-data-server/__tests__/installedAppData.test.ts` from `app/` — observed the case "copies the rows of a database left with its -wal and -shm files and, as the only connection, checkpoints them into the source on close" passing: the copy and the source both hold the row the -wal carried, and the source directory holds the main file alone afterwards]
+
+A `-wal` file beside a database whose app is closed means the last connection did not checkpoint, so a copy of the main file alone misses the committed rows still in the WAL; the presence of the file is the signal to copy through SQLite rather than by file. A connection opened only to copy counts as a connection: when it is the only one, its close checkpoints the WAL into the main file and removes the two side files.
+
+## A read-only open of a WAL database needs the `-shm` and `-wal` files to exist, or a writable directory, or the `immutable` query parameter
+
+**Verified at:** <https://www.sqlite.org/wal.html>, 2026-10-20
+**Citation:** [architect_16: <https://www.sqlite.org/wal.html> — sections 4, 5 and 6]
+
+Opening a WAL database read-only in a directory the process cannot write to fails unless the two side files already exist or the open declares the file immutable.
+
+## `VACUUM INTO` writes a consistent snapshot of the database into a target that must not exist or must be an empty file, leaves the original unchanged, and is documented as an alternative to the backup API
+
+**Verified at:** <https://www.sqlite.org/lang_vacuum.html>, 2026-10-20; node:sqlite under Node v24.21.0 (SQLite 3.53.4), run 2026-10-20
+**Citation:** [architect_17: <https://www.sqlite.org/lang_vacuum.html>] [spec-writer_39: ran a scratch `node` probe in a temp directory: a `DatabaseSync` writer set `PRAGMA journal_mode = WAL`, created a table and inserted one row and stayed open; a second `DatabaseSync` on the same file ran `prepare('VACUUM INTO ?').run(<copy path>)` and closed — observed the directory holding `gm_tool.db`, `gm_tool.db-shm` and `gm_tool.db-wal` before and after the copy, the copy opened read-only holding the inserted row, and the `-wal` and `-shm` files gone once the writer closed] [implement_2: ran `npx vitest run dev-data-server/__tests__/installedAppData.test.ts` from `app/` at 88bc6ddd — observed the case "copies the committed rows a WAL writer still holds open" passing: a second connection's `VACUUM INTO` copy held both rows while the writer stayed open, with the source main file's bytes and the directory listing unchanged]
+
+A copy taken with `VACUUM INTO` through a second connection to the source is complete even while another connection holds the source open in WAL mode with uncheckpointed rows, and the source's main file and directory are left as they were until the last connection closes.

@@ -1,4 +1,5 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '@platform';
+import { isImageFileExtension } from '@domain';
 import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
 import { getDatabase } from '../database';
 import type { CreateImageInput } from './types';
@@ -12,10 +13,7 @@ export const create = async ({
 
   const extension = filePath.split('.').pop()?.toLowerCase() ?? null;
 
-  if (
-    !extension ||
-    !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)
-  ) {
+  if (!extension || !isImageFileExtension(extension)) {
     throw new Error(`Unsupported file extension: ${extension}`);
   }
 

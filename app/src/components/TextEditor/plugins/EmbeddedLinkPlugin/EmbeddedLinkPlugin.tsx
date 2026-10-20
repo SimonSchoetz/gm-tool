@@ -15,7 +15,7 @@ import {
   $isLinkNode,
   TOGGLE_LINK_COMMAND,
 } from '@lexical/link';
-import { openUrl } from '@tauri-apps/plugin-opener';
+import { openUrl } from '@platform';
 import { ExternalLinkIcon } from 'lucide-react';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';

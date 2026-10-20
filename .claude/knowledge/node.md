@@ -1,15 +1,15 @@
 # Node.js
 
-## `node:sqlite` loads without a flag on Node 22.23.2, bundles SQLite 3.51.3, and enables foreign keys by default
+## `node:sqlite` loads without a flag on Node v24.21.0, bundles SQLite 3.53.4, and enables foreign keys by default
 
-**Verified at:** Node v22.23.2, run 2026-09-19
-**Citation:** [review-decision_1: ran `node -e` with `new DatabaseSync(':memory:')` — observed `sqlite_version()` 3.51.3, `PRAGMA foreign_keys` 1, and an `ExperimentalWarning` on stderr]
+**Verified at:** Node v24.21.0, run 2026-10-20
+**Citation:** [implement_1: ran `node -e` with `new DatabaseSync(':memory:')` under `node -v` v24.21.0 — observed `sqlite_version()` 3.53.4, `PRAGMA foreign_keys` 1, and nothing on stderr]
 
-`DatabaseSync` from `node:sqlite` works with no `--experimental-sqlite` flag but still prints an experimental warning. Foreign key enforcement is on for a fresh in-memory database without any `PRAGMA`, matching sqlx's default, and its engine version differs from any SQLite a native dependency bundles.
+`DatabaseSync` from `node:sqlite` works with no `--experimental-sqlite` flag and, on this Node line, without the experimental warning earlier lines printed. Foreign key enforcement is on for a fresh in-memory database without any `PRAGMA`, matching sqlx's default, and its engine version differs from any SQLite a native dependency bundles.
 
 ## `node:sqlite` needs no `--experimental-sqlite` flag from Node v22.13.0 on the 22.x line and from v23.4.0 on later lines
 
-**Verified at:** https://nodejs.org/api/sqlite.html, fetched 2026-09-21
+**Verified at:** <https://nodejs.org/api/sqlite.html>, fetched 2026-09-21
 **Citation:** [spec-writer_6: https://nodejs.org/api/sqlite.html — History entry "v23.4.0, v22.13.0: SQLite is no longer behind `--experimental-sqlite` but still experimental"]
 
 Node 22.x releases before 22.13.0 and 23.x releases before 23.4.0 do not load `node:sqlite` without the flag, so the semver range `^22.13.0 || >=23.4.0` is exactly the set of versions that load it without one. The module became a release candidate (stability 1.2) in v25.7.0.
@@ -34,3 +34,10 @@ Every statement after the first `;` is dropped without an error, unlike sqlx, wh
 **Citation:** [harness-probe_35: ran a scratch probe reading rows through `DatabaseSync.prepare().all()` — observed `Object.getPrototypeOf(row) === null`] [harness-probe_37: same probe — observed Vitest `toEqual` against a plain literal passing, `toStrictEqual` failing, and template-string coercion throwing]
 
 Code that treats a row like an ordinary object works, but a strict equality assertion or string coercion behaves differently from a plain-object row; copying with `{ ...row }` restores `Object.prototype`.
+
+## `@types/node` 26.6.3 declares `node:sqlite`'s `DatabaseSync(path, options?)` with `readOnly` (default `false`), `enableForeignKeyConstraints` (default `true`) and `open` (default `true`), `StatementSync.run(...params)` returning `{ changes, lastInsertRowid }` as `number | bigint`, and a module-level `backup(sourceDb, path, options?): Promise<number>`
+
+**Verified at:** @types/node 26.6.3, read 2026-10-20
+**Citation:** [spec-writer_7: app/node_modules/@types/node/sqlite.d.ts:5-38 — `DatabaseSyncOptions` with `open`, `enableForeignKeyConstraints` and `readOnly` and their documented defaults; :262 — `constructor(path: PathLike, options?: DatabaseSyncOptions)`; :831-843 — `StatementResultingChanges { changes: number | bigint; lastInsertRowid: number | bigint }`; :870,902,933 — `StatementSync.all(...)`, `.get(...)` returning `Record<string, SQLOutputValue> | undefined`, `.run(...)`; :1050 — `function backup(sourceDb: DatabaseSync, path: PathLike, options?: BackupOptions): Promise<number>`]
+
+A file-backed database opens read-write with foreign keys on by default; `run()`'s counts need `Number(…)` before they meet a `number`-typed contract, and `get()` can return `undefined`.

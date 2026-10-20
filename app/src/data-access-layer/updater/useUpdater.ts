@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Channel } from '@tauri-apps/api/core';
+import { createIpcChannel, getVersion } from '@platform';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import * as updaterService from '@services/updaterService';
 import type { DownloadProgressEvent, UpdateCheckError } from '@domain';
 import { updaterKeys } from './updaterKeys';
-import { getVersion } from '@tauri-apps/api/app';
 
 type UseUpdater = {
   currentVersion: string | null;
@@ -49,7 +48,7 @@ export const useUpdater = (): UseUpdater => {
     mutationFn: async () => {
       setDownloaded(0);
       setTotal(null);
-      const channel = new Channel<DownloadProgressEvent>((event) => {
+      const channel = createIpcChannel<DownloadProgressEvent>((event) => {
         setDownloaded((prev) => prev + event.data.chunkLength);
         if (event.data.contentLength !== null) {
           setTotal(event.data.contentLength);

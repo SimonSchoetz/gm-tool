@@ -108,10 +108,17 @@ A nullable column read through `select()` arrives in JavaScript as `null`, never
 
 ## `@tauri-apps/plugin-sql`'s `execute` resolves `{ rowsAffected, lastInsertId? }` and `select<T>` resolves the rows
 
-**Verified at:** @tauri-apps/plugin-sql 2.4.1
-**Citation:** [harness-probe_2: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:1-13 — `QueryResult { rowsAffected: number; lastInsertId?: number }`] [harness-probe_6: same file:88 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`] [harness-probe_7: same file:107 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`]
+**Verified at:** @tauri-apps/plugin-sql 2.5.0, read 2026-10-20
+**Citation:** [implement_5: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:4-16 — `QueryResult { rowsAffected: number; lastInsertId?: number }`; :65 — `static load(path: string): Promise<Database>`; :126 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`; :152 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`]
 
 A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module.
+
+## `@tauri-apps/plugin-sql` 2.5.0's `select<T>` returns the `plugin:sql|select` IPC result as the caller-named `T` without checking it
+
+**Verified at:** @tauri-apps/plugin-sql 2.5.0, read 2026-10-20
+**Citation:** [implement_6: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:161-167 — `async select(query, bindValues)` awaits `invoke('plugin:sql|select', …)` and returns the result unchanged; :125-134 — `execute` likewise returns `{ lastInsertId, rowsAffected }` from the `plugin:sql|execute` result]
+
+A stand-in for `select` may return its rows cast to `T` the same way; nothing in the package validates the rows against the type argument.
 
 ## The Tauri CLI compares `tauri` against `@tauri-apps/api` and each `tauri-plugin-<n>` crate against `@tauri-apps/plugin-<n>`, and a differing major or minor makes `tauri build` fail while `tauri dev` only logs it
 
@@ -168,3 +175,17 @@ Observed with the default dev profile and feature set; a `--release` build or ot
 **Citation:** [instruction-pass_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-macros-2.7.1/src/command/wrapper.rs:51 — `argument_case: ArgumentCase::Camel` as the default; :62-76 — `rename_all` accepts only `"snake_case"` or `"camelCase"`; :500-505 — `key = key.to_lower_camel_case()` under `ArgumentCase::Camel` and `key = key.to_snake_case()` under `ArgumentCase::Snake`] [instruction-pass_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.0/src/ipc/command.rs:74-80 — `CommandArg` for any `Deserialize` type calls `Self::deserialize(command)`; :109-114 — the value is `v.get(self.key)`, else the error `missing required key`; :84-93 and :174-179 — every other `deserialize_*`, `deserialize_struct` included, is passed to the retrieved `serde_json::Value`'s own deserializer; :146-157 — `deserialize_option` calls `visitor.visit_none()` when the key is absent]
 
 Under the default, a snake_case key for a multi-word argument such as `database_file` is never matched: a required argument then fails with `missing required key`, and an `Option` argument silently receives `None`. The value under the key goes to `serde_json::Value`'s own deserializer, so the fields of a struct argument follow that struct's serde attributes, such as `#[serde(rename_all = "camelCase")]`, not the macro's conversion.
+
+## `@tauri-apps/api` 2.12.0's `core`, `event` and `app` modules, `@tauri-apps/plugin-dialog` 2.8.0 and `@tauri-apps/plugin-opener` 2.7.0 import under Vitest's node environment with no `window` and no bridge
+
+**Verified at:** @tauri-apps/api 2.12.0, @tauri-apps/plugin-dialog 2.8.0, @tauri-apps/plugin-opener 2.7.0, vitest 5.0.2, run 2026-10-20
+**Citation:** [spec-writer_2: ran a scratch `// @vitest-environment node` test under `npx vitest run` from `app/` that dynamically imports `@tauri-apps/api/core`, `@tauri-apps/api/event`, `@tauri-apps/api/app`, `@tauri-apps/plugin-dialog` and `@tauri-apps/plugin-opener` — observed every import resolving, with `invoke`, `listen`, `getVersion`, `open` and `openUrl` each typed `function`] [spec-writer_3: same run, a module importing from all five packages while `vi.mock('@tauri-apps/api/core', () => ({ invoke }))` was in force — observed it loading and its `invoke` wrapper resolving]
+
+None of the five modules touches `window.__TAURI_INTERNALS__` while it loads, so a test that mocks only `@tauri-apps/api/core` can import a module that wraps all five without mocking the other four; the bridge is reached only when one of their functions is called.
+
+## tauri-plugin-opener 2.7.0's `opener:default` permission set grants `allow-open-url`, `allow-reveal-item-in-dir` and `allow-default-urls`, whose scope is `mailto:*`, `tel:*`, `http://*` and `https://*`
+
+**Verified at:** tauri-plugin-opener 2.7.0, read 2026-10-20
+**Citation:** [code-reviewer_5: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-opener-2.7.0/permissions/default.toml — `opener:default` is `allow-open-url`, `allow-reveal-item-in-dir` and `allow-default-urls`; permissions/allow-default-urls.toml — scope `mailto:*`, `tel:*`, `http://*`, `https://*`; app/src-tauri/capabilities/default.json:10 — the app grants `"opener:default"`]
+
+With only the default permission granted, `openUrl` from `@tauri-apps/plugin-opener` opens URLs of those four schemes and refuses any other, so a second implementation of the same operation matches it by allowing exactly that set.

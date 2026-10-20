@@ -1,28 +1,17 @@
-// Stands in for `@tauri-apps/plugin-sql`'s `Database`, which `db/database.ts` loads, with an in-memory SQLite that behaves like the app's sqlx connection and is built by the app's own migrations; importers must run under `// @vitest-environment node`, because `node:sqlite` exists only in Node. How a db test wires it in is in `.claude/rules/db-unit-tests.md`.
-import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
-import type { QueryResult } from '@tauri-apps/plugin-sql';
+// Wraps `openSqliteDatabase(':memory:')` from `app/dev-data-server/sqliteDatabase.ts` — the stand-in for `@tauri-apps/plugin-sql`'s `Database` that `db/database.ts` loads, over an in-memory SQLite built by the app's own migrations — with a call counter and an injected failure; importers must run under `// @vitest-environment node`, because `node:sqlite` exists only in Node. How a db test wires it in is in `.claude/rules/db-unit-tests.md`.
+import {
+  openSqliteDatabase,
+  type SqliteDatabase,
+} from '../../../dev-data-server/sqliteDatabase';
 import { migrations } from '@db/_migrations';
 
-// `path` makes a `TestDatabase` assignable to plugin-sql's `Database`, so tests pass it to `up(db)`, `runMigrations(db, skipBackup)` and `ensureColumn(db, …)` with no cast.
-export type TestDatabase = {
-  path: string;
-  execute: (query: string, bindValues?: unknown[]) => Promise<QueryResult>;
-  select: <T>(query: string, bindValues?: unknown[]) => Promise<T>;
-  close: () => Promise<boolean>;
+export type TestDatabase = SqliteDatabase & {
   callCount: () => number;
   failOnCall: (callNumber: number) => void;
 };
 
-// Anything the body throws — an SQLite error, the statement guard, an injected failure — surfaces as a rejected promise, as with plugin-sql.
-const settle = <T>(body: () => T): Promise<T> =>
-  new Promise((resolve) => {
-    resolve(body());
-  });
-
 export const openTestDatabase = (): TestDatabase => {
-  const database = new DatabaseSync(':memory:');
-  // Explicit rather than relying on node:sqlite's default, so the harness keeps the foreign-key enforcement sqlx gives the app's connection.
-  database.exec('PRAGMA foreign_keys = ON');
+  const base = openSqliteDatabase(':memory:');
 
   let calls = 0;
   let failingCall: number | null = null;
@@ -35,54 +24,17 @@ export const openTestDatabase = (): TestDatabase => {
     }
   };
 
-  // plugin-sql types bind values as `unknown[]`; the values db code passes are strings, numbers and `null`, which `SQLInputValue` covers.
-  const toSqlValues = (bindValues?: unknown[]) =>
-    (bindValues ?? []) as SQLInputValue[];
-
-  // `prepare()` silently compiles only the first statement, so a query that still holds a `;` after one trailing one is trimmed is refused instead of losing its tail. `$N` becomes `?N`, which binds by number the way sqlx does.
-  const prepare = (query: string) => {
-    const statement = query.trimEnd().replace(/;$/, '');
-    if (statement.includes(';')) {
-      throw new Error(
-        `Multi-statement SQL is not supported by prepare(): ${query}`,
-      );
-    }
-    return database.prepare(statement.replace(/\$(\d+)/g, '?$1'));
-  };
-
   return {
-    path: ':memory:',
-    execute: (query, bindValues) =>
-      settle(() => {
-        startCall();
-        const values = toSqlValues(bindValues);
-        if (values.length === 0) {
-          database.exec(query);
-          const { rowsAffected, lastInsertId } = database
-            .prepare(
-              'SELECT changes() AS rowsAffected, last_insert_rowid() AS lastInsertId',
-            )
-            .get() as { rowsAffected: number; lastInsertId: number };
-          return { rowsAffected, lastInsertId };
-        }
-        const result = prepare(query).run(...values);
-        return {
-          rowsAffected: Number(result.changes),
-          lastInsertId: Number(result.lastInsertRowid),
-        };
-      }),
-    select: <T>(query: string, bindValues?: unknown[]) =>
-      settle(() => {
-        startCall();
-        const rows = prepare(query).all(...toSqlValues(bindValues));
-        // Rows are copied into plain objects, because node:sqlite returns them with a null prototype. plugin-sql's `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it (app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:117-124), and the adapter does the same.
-        return rows.map((row) => ({ ...row })) as T;
-      }),
-    close: () =>
-      settle(() => {
-        database.close();
-        return true;
-      }),
+    ...base,
+    // Each guard is `async` so an injected failure thrown by `startCall` surfaces as a rejection, as an SQLite error does through the adapter.
+    execute: async (query, bindValues) => {
+      startCall();
+      return base.execute(query, bindValues);
+    },
+    select: async <T>(query: string, bindValues?: unknown[]) => {
+      startCall();
+      return base.select<T>(query, bindValues);
+    },
     callCount: () => calls,
     failOnCall: (callNumber) => {
       failingCall = callNumber;
