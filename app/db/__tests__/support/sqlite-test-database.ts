@@ -3,7 +3,7 @@ import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import type { QueryResult } from '@tauri-apps/plugin-sql';
 import { migrations } from '@db/_migrations';
 
-// `path` makes a `TestDatabase` assignable to plugin-sql's `Database`, so tests pass it to `up(db)`, `runMigrations(db)` and `ensureColumn(db, …)` with no cast.
+// `path` makes a `TestDatabase` assignable to plugin-sql's `Database`, so tests pass it to `up(db)`, `runMigrations(db, skipBackup)` and `ensureColumn(db, …)` with no cast.
 export type TestDatabase = {
   path: string;
   execute: (query: string, bindValues?: unknown[]) => Promise<QueryResult>;
