@@ -17,6 +17,7 @@ src-tauri/src/
     ├── mod.rs          # Re-exports every command for registration
     ├── images/
     ├── updater/
+    ├── database_backup/  # Backup file names and pruning for the copy taken before migrations — see Database Backup Commands below
     └── connectivity/     # Thin wrappers delegating to `connectivity/` — see Connectivity Commands below
 ```
 
@@ -111,6 +112,8 @@ let app_data_dir = app_handle
     .map_err(|e| format!("Failed to get app data directory: {}", e))?;
 ```
 
+Code that reaches the database file resolves the app config directory instead, where tauri-plugin-sql opens it, through `commands::database_backup::database_dir`.
+
 ### File Operations
 
 ```rust
@@ -175,6 +178,30 @@ Deletes an image file from the filesystem.
 
 **Behavior:** Returns success even if file doesn't exist (already gone)
 
+### image_file_exists
+
+Reports whether `images/{id}.{extension}` exists in the app data directory.
+
+**Arguments:** `id: String`, `extension: String`
+
+**Returns:** `Result<bool, String>`
+
+### read_image_bytes
+
+Reads `images/{id}.{extension}` from the app data directory.
+
+**Arguments:** `id: String`, `extension: String`
+
+**Returns:** `Result<String, String>` — the file's contents, base64-encoded; `Err` when the file is missing or unreadable
+
+### save_image_bytes
+
+Writes base64-encoded bytes to `images/{id}.{extension}` in the app data directory, creating `images/` if needed and overwriting an existing file.
+
+**Arguments:** `id: String`, `extension: String`, `data_base64: String`
+
+**Returns:** `Result<(), String>`
+
 ## Updater Commands
 
 The updater uses a two-phase flow: `download_update` fetches and stores the binary in `PendingInstallState`; `install_and_relaunch` consumes it and restarts the app. Both commands require `PendingInstallState` to be registered in `lib.rs` via `.manage(PendingInstallState::new(None))`.
@@ -210,6 +237,22 @@ Installs the previously downloaded update and restarts the application.
 **Returns:** `Result<(), String>` — errors with `"No downloaded update available"` if `download_update` was not called first; otherwise does not return (`app.restart()` is diverging).
 
 **Behavior:** Takes the pending install out of state (leaving `None`), calls `update.install(bytes)`, then calls `app.restart()`. Calling this without a prior successful `download_update` is an error.
+
+## Database Backup Commands
+
+Before pending migrations run, `backupDatabase` (`app/db/database-backup.ts`) copies the database with `VACUUM INTO` through tauri-plugin-sql, calling these three commands in order; they own the backup file names and the pruning, which need filesystem access the webview lacks. Each takes `database_file: String`, a bare file name (ASCII letters, digits, `_`, `-`, `.`, no leading `.`), and `ledger_head: String`, the highest migration id in the `_migrations` ledger (digits fitting a `u64`), returns `Err` for any other value, and works in the directory `database_dir` returns (see Common Patterns). A finished backup is named `<database_file>.bak-<ledger_head>`.
+
+### prepare_database_backup
+
+**Returns:** `Result<Option<String>, String>` — the staging path `<database_file>.bak-<ledger_head>.partial` for `VACUUM INTO` to write to, after deleting a staging file an interrupted attempt left; `None` when the finished backup for that ledger head already exists, which is then kept and no copy is taken.
+
+### finish_database_backup
+
+**Returns:** `Result<(), String>` — renames the staging copy to its backup name; `Err` when there is no staging copy.
+
+### prune_database_backups
+
+**Returns:** `Result<(), String>` — deletes finished backups of `database_file` until three remain: the one at `ledger_head` and the two others with the highest ledger heads. Staging files and every other file are left alone. The frontend logs a failure and runs the migrations anyway.
 
 ## Connectivity Commands
 
@@ -315,11 +358,11 @@ Asks the other side to display its pairing code.
 
 ## Testing
 
-Pure functions and state-machine logic that can run without networking — frame parsing, key encoding, id validation at the peer trust boundary, pairing verdict handling — are unit-tested with `#[cfg(test)]` modules colocated with the code they test. Networking glue (`connectivity/` state and I/O, `commands/connectivity/` wrappers) is not unit-tested; see Structure and Connectivity Commands above for the logic/I/O boundary.
+Pure functions and state-machine logic that can run without networking — frame parsing, key encoding, id validation at the peer trust boundary, pairing verdict handling — are unit-tested with `#[cfg(test)]` modules colocated with the code they test. Networking glue (`connectivity/` state and I/O, `commands/connectivity/` wrappers) is not unit-tested; see Structure and Connectivity Commands above for the logic/I/O boundary. Filesystem logic takes its directory as a parameter, as `prepare_in(dir, …)` does for `prepare_database_backup`, and is unit-tested against a real directory: `commands::database_backup::test_dir::TestDir` creates a fresh one under the system temp directory and deletes it when dropped.
 
 ## Dependencies
 
-Every dependency's purpose is documented inline in `Cargo.toml` as a trailing `# <purpose>` comment on its own line — not duplicated here, since a hand-maintained copy of the list drifts the moment a dependency is added or removed without a matching CLAUDE.md edit (as happened twice: the original connectivity crates, and now `base64`). When adding a new dependency, add its purpose comment in the same commit. Read `Cargo.toml` directly for the current list.
+Every dependency's purpose is documented inline in `Cargo.toml` as a trailing `# <purpose>` comment on its own line — not duplicated here, since a hand-maintained copy of the list drifts the moment a dependency is added or removed without a matching CLAUDE.md edit. When adding a new dependency, add its purpose comment in the same commit. Read `Cargo.toml` directly for the current list.
 
 ## Third-Party Libraries
 
