@@ -4,7 +4,7 @@ paths: ["app/src/**/__tests__/**", "src/**/__tests__/**", "app/src/**/helper/**"
 
 # Unit tests under `src/`
 
-Which files must not have unit tests at all is decided before a `__tests__/` path exists to read — the Forbidden rule is in `app/src/CLAUDE.md` — Testing Policy.
+Whether a React component has a test at all is decided in `app/src/CLAUDE.md` — Testing Policy, before a `__tests__/` path exists to read.
 
 ## Testing Policy
 
@@ -14,3 +14,14 @@ Which files must not have unit tests at all is decided before a `__tests__/` pat
   - ❌ BAD: `expect(buildGridTemplate(['a', 'b'], { a: 80 })).toBe('80px minmax(250px, 1fr)')` — `250` copies `DEFAULT_COLUMN_WIDTH`'s current value (`app/src/components/SortableList/helper/__tests__/buildGridTemplate.test.ts`)
   - ✅ GOOD: `` expect(buildGridTemplate(['a', 'b'], { a: 80 })).toBe(`80px minmax(${DEFAULT_COLUMN_WIDTH}px, 1fr)`) `` — imports the constant `buildGridTemplate.ts` itself reads from `SortableList/SortableList.constants.ts`
   - Does not apply to helpers whose output isn't derived from a tunable constant (e.g. string-formatting) — a hardcoded literal expectation there is correct.
+
+## Component tests
+
+A React component has a test only for an acceptance criterion of its feature — an outcome the user must be able to observe — that the component's own event handling alone decides (`app/src/CLAUDE.md` — Testing Policy). `app/src/components/UploadImgBtn/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/__tests__/ImagePreviewFramingOverlay.test.tsx` is an example, for a `wheel` interaction.
+
+- **File and name**: `ComponentName/__tests__/ComponentName.test.tsx`, mirroring the component's file name. One test per criterion, named for the outcome the criterion requires.
+- **Render** with `render` from `@testing-library/react`. When the component, or anything it renders, reads a query: pass `{ wrapper: TanstackQueryClientProvider }`, call `queryClient.clear()` in `beforeEach` — both from `@/data-access-layer`, the app's own client, so each test starts from an empty cache — and mock the `@services/*` module the data-access-layer hooks call with `vi.hoisted` spies, as that example does. Data the app has cached before the component mounts (the screen loaded it) is put in the cache before `render`, through those mocks: `await queryClient.query(imageQueryOptions(id))`, `imageQueryOptions` standing for the options `@/data-access-layer` exports for the module the component reads. `data-access-layer/__tests__/support/renderHookWithQueryClient.ts` serves only tests inside that layer: `local/no-import-past-index` lets a file outside `data-access-layer/` import only its `index.ts`.
+- **Find elements as the user does**: by role and accessible name, label or visible text (`screen.getByRole('img', { name: 'Framing preview' })`), never by class name, test id or component name.
+- **Dispatch the interaction** with `@testing-library/user-event` (`const user = userEvent.setup()`): its click moves focus to the clicked element, and leaves it where it was when a `mousedown` handler calls `preventDefault()`. An event user-event has no method for, such as `wheel`, goes through `fireEvent` from `@testing-library/react`.
+- **Assert only what the user sees or what gets saved**: text, value, focus or accessible state (`toHaveTextContent`, `toHaveValue`, `toHaveFocus`, the jest-dom matchers `app/src/__tests__/setup.ts` registers), and for a save the arguments the mocked service received. A default action the test environment does not carry out, such as the page scroll on `wheel`, is asserted through `fireEvent`'s return value: `false` when a handler called `preventDefault()`. Never assert markup structure, class names, inline styles, which child components render, or a snapshot.
+- **Timers**: when the outcome waits on a timer, such as the data-access layer's deferred save, call `vi.useFakeTimers()` in `beforeEach` — `vi.useFakeTimers({ shouldAdvanceTime: true })` when the test dispatches through user-event, whose calls never resolve under plain fake timers — and `vi.useRealTimers()` in `afterEach`. After the interaction, `await act(() => vi.runOnlyPendingTimersAsync())`, with `act` from `@testing-library/react`, fires the pending timer without the test knowing its delay.
