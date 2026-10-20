@@ -29,7 +29,7 @@ jobs:
           git fetch origin main
           git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
 
-      # A run can restore only caches saved under its own tag or on main, and no workflow runs on main, so the pnpm and cargo caches below speed up only a re-run under the same tag.
+      # No run for a different tag can restore a cache saved under this one, and no workflow runs on main, whose caches every tag could restore, so the pnpm and cargo caches below can help only a later run under the same tag.
       - uses: pnpm/setup@v2
         with:
           package-json-file: app/package.json
@@ -45,7 +45,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: app/src-tauri -> target
-          # Saved when a check fails too, so re-pushing the same tag after the fix starts warm.
+          # Saved when a check fails too, so a failed check still leaves a cache for a later run under the same tag.
           cache-on-failure: true
 
       - name: Install frontend dependencies
