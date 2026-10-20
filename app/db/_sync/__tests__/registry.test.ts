@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   openTestDatabase,
+  skipBackup,
   type TestDatabase,
 } from '@db/__tests__/support/sqlite-test-database';
 import { runMigrations } from '@db/_migrations';
@@ -9,7 +10,7 @@ import { SYNCED_TABLES, SYNCED_TABLE_NAMES } from '../registry';
 
 const openMigratedDatabase = async (): Promise<TestDatabase> => {
   const db = openTestDatabase();
-  await runMigrations(db);
+  await runMigrations(db, skipBackup);
   return db;
 };
 

@@ -51,3 +51,8 @@ What it lists for `git commit --amend`, and in `pre-commit` for a merge finished
 **Citation:** [harness-follow-ups_5: in a scratch repository made with `git init`, where `git config --show-origin --get-all diff.renames` printed nothing, after `git mv app/a.txt docs/a.txt` with no content change, a `pre-commit` hook printing both commands — observed `docs/a.txt` for `git diff --cached --name-only` and `app/a.txt docs/a.txt` for `git diff --cached --name-only --no-renames`] [harness-follow-ups_4: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
 A path filter on the first form misses a file moved out of the filtered directory.
+
+## In a non-bare repository, git runs a hook with the root of the working tree as its working directory, a linked worktree's root included, except `pre-receive`, `update`, `post-receive`, `post-update` and `push-to-checkout`, which run in `$GIT_DIR`
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-20
+**Citation:** [migration-backup_15: ran `man -M "$(git --man-path)" -P cat githooks` — observed "Before Git invokes a hook, it changes its working directory to either $GIT_DIR in a bare repository or the root of the working tree in a non-bare repository. An exception are hooks triggered during a push (pre-receive, update, post-receive, post-update, push-to-checkout) which are always executed in $GIT_DIR."] [migration-backup_16: in a scratch repository made with `git init` plus a linked worktree made with `git worktree add`, whose main `.git/hooks/pre-commit` wrote `pwd` to a file, ran `git commit` from the worktree's subdirectory `sub/deeper` — observed the linked worktree's root] [migration-backup_17: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]

@@ -90,6 +90,9 @@ export const openTestDatabase = (): TestDatabase => {
   };
 };
 
+// The `beforeFirstPending` step `runMigrations` requires, backing nothing up, for tests whose subject is not the backup.
+export const skipBackup = (): Promise<void> => Promise.resolve();
+
 // Runs every migration that sorts before `migrationId` and writes no `_migrations` ledger rows, so a migration test can seed data in the schema that existed just before the migration under test. The string comparison is correct because the ids are same-length `Date.now()` timestamps kept in ascending array order.
 export const applyMigrationsBefore = async (
   db: TestDatabase,
@@ -100,4 +103,26 @@ export const applyMigrationsBefore = async (
       await migration.up(db);
     }
   }
+};
+
+// Leaves the database as an app version that predates `migrationId` left it: `applyMigrationsBefore`, plus a `_migrations` ledger recording each of those migrations at `appliedAt`, so `runMigrations` finds `migrationId` and every later migration pending. Returns the recorded ids in ascending order.
+export const applyRecordedMigrationsBefore = async (
+  db: TestDatabase,
+  migrationId: string,
+  appliedAt: string,
+): Promise<string[]> => {
+  await applyMigrationsBefore(db, migrationId);
+  await db.execute(
+    'CREATE TABLE _migrations (id TEXT PRIMARY KEY, applied_at TEXT NOT NULL)',
+  );
+  const recordedIds = migrations
+    .map((migration) => migration.id)
+    .filter((id) => id < migrationId);
+  for (const id of recordedIds) {
+    await db.execute(
+      'INSERT INTO _migrations (id, applied_at) VALUES ($1, $2)',
+      [id, appliedAt],
+    );
+  }
+  return recordedIds;
 };

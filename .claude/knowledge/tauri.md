@@ -140,3 +140,17 @@ What changed is the `plugin:updater|check` IPC command reachable from the webvie
 **Citation:** [research-rust-deps_10: compared the `[features]` sections of `tauri-plugin-updater-2.11.0/Cargo.toml` and `-2.13.1/Cargo.toml` in the local cargo registry — observed `default = ["rustls-tls", "system-proxy", "zip"]` in both, alongside the 2.11.0 changelog entry `Added system-proxy (enabled by default) feature flag to control reqwest/system-proxy feature`]
 
 The feature controls `reqwest`'s own `system-proxy` feature. The releases between those two were not read, so this says only that the default is the same at both ends.
+
+## tauri-plugin-sql 2.5.0 opens a `sqlite:<file>` database at `<app config dir>/<file>`, creating the directory, and the database through sqlx, when either is missing
+
+**Verified at:** tauri-plugin-sql 2.5.0 (Cargo.lock) — 2026-10-20
+**Citation:** [migration-backup_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-sql-2.5.0/src/wrapper.rs:88-101 — `_app.path().app_config_dir()`, `create_dir_all(&app_path)`, `path_mapper(app_path, conn_url)`, then `Sqlite::create_database(conn_url)` when `Sqlite::database_exists` is false, then `Pool::connect(conn_url)`; :327-347 — `path_mapper` pushes the text after the `sqlite:` prefix onto the app config path; :11,21 — `MigrateDatabase`, `Pool` and `Sqlite` are imported from `sqlx`]
+
+A Rust command that needs the database file's location resolves the same directory with `app_handle.path().app_config_dir()`, the call the plugin itself makes.
+
+## Tauri 2.12.0's `app_config_dir()` is the `dirs` crate's `config_dir()` joined with the bundle identifier, which on macOS is `~/Library/Application Support/<identifier>`, unless the `app > appDirectoriesOverride` config overrides it
+
+**Verified at:** tauri 2.12.0, dirs 7.0.0 (Cargo.lock) — 2026-10-20
+**Citation:** [migration-backup_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.0/src/path/desktop.rs:237-245 — `app_config_dir` returns `dirs::config_dir()` joined with `self.0.config().identifier`, unless the `app > appDirectoriesOverride` config overrides it] [migration-backup_18: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.0/Cargo.toml:156-157 — `[dependencies.dirs]` `version = "7"`; `app/src-tauri/Cargo.lock` holds one `dirs` package, `version = "7.0.0"`] [migration-backup_3: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-7.0.0/src/mac.rs:7,10 — `config_dir()` is `app_support_dir()`, the home directory joined with `Library/Application Support`]
+
+The identifier is the one in the configuration the build ran with, so a build whose `--config` overrides it (the entry beginning "The Tauri CLI --config flag") gets a directory of its own.
