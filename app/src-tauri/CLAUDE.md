@@ -100,6 +100,7 @@ Only the type alias (`PendingInstallState`) is re-exported from the module barre
 - Use snake_case for functions and variables
 - Use descriptive names that match the frontend API
 - Command names should be action-oriented (e.g., `save_image`, `delete_image`)
+- Command arguments are listed in Rust's snake_case throughout this file, but `#[tauri::command]` reads an argument from the `invoke` payload under its name in lowerCamelCase, so a TypeScript caller passes `prepare_database_backup`'s `database_file` and `ledger_head` as `invoke('prepare_database_backup', { databaseFile, ledgerHead })` (`app/db/database-backup.ts`). Only the argument name is converted: the fields of a struct argument follow the struct's own serde attributes, which is why `TrustedPeer` carries `#[serde(rename_all = "camelCase")]` for `init_connectivity`'s `trusted_peers`. Both facts are recorded in `.claude/knowledge/tauri.md`, the entry beginning "A `#[tauri::command]` argument is read".
 
 ## Common Patterns
 
