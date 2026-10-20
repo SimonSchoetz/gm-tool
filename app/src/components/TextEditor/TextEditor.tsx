@@ -39,7 +39,10 @@ import { ToggleHeaderGuardPlugin } from './plugins/ToggleHeaderGuardPlugin';
 import { ToggleKeyboardPlugin } from './plugins/ToggleKeyboardPlugin';
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper/parseSafeEditorState';
-import { EXTERNAL_SYNC_TAG } from './TextEditor.constants';
+import {
+  EXTERNAL_SYNC_TAG,
+  TEXT_EDITOR_GUTTER_WIDTH,
+} from './TextEditor.constants';
 import { TYPOGRAPHIC_TRANSFORMERS } from './typographicTransformers';
 import { cn } from '@/util/className';
 
@@ -144,7 +147,7 @@ export const TextEditor: FCProps<Props> = ({
             {
               '--text-editor-gutter-width': readOnly
                 ? '0'
-                : 'var(--spacing-md)',
+                : TEXT_EDITOR_GUTTER_WIDTH,
             } as CSSProperties
           }
           ref={setAnchorElem}
