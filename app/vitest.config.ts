@@ -16,6 +16,8 @@ export default defineConfig({
         'domain/**/*.ts',
         'db/**/*.ts',
         'util/**/*.ts',
+        'platform/**/*.ts',
+        'dev-data-server/**/*.ts',
       ],
       // Type declarations and the generated route tree carry no statements of their own, so counting them would only deflate the report.
       exclude: ['**/__tests__/**', '**/*.d.ts', 'src/routeTree.gen.ts'],
@@ -23,11 +25,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@db': path.resolve(__dirname, './db'),
-      '@util': path.resolve(__dirname, './util'),
-      '@services': path.resolve(__dirname, './services'),
-      '@domain': path.resolve(__dirname, './domain'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@db': path.resolve(import.meta.dirname, './db'),
+      '@util': path.resolve(import.meta.dirname, './util'),
+      '@services': path.resolve(import.meta.dirname, './services'),
+      '@domain': path.resolve(import.meta.dirname, './domain'),
+      '@platform': path.resolve(import.meta.dirname, './platform'),
     },
   },
 });

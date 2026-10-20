@@ -24,6 +24,7 @@ export default defineConfig(async () => ({
       '@util': path.resolve(import.meta.dirname, './util'),
       '@services': path.resolve(import.meta.dirname, './services'),
       '@domain': path.resolve(import.meta.dirname, './domain'),
+      '@platform': path.resolve(import.meta.dirname, './platform'),
     },
     dedupe: ['react', 'react-dom'],
   },
@@ -41,13 +42,7 @@ export default defineConfig(async () => ({
     port: 1420,
     strictPort: true,
     host: host || false,
-    hmr: host
-      ? {
-          protocol: 'ws',
-          host,
-          port: 1421,
-        }
-      : undefined,
+    ...(host ? { hmr: { protocol: 'ws', host, port: 1421 } } : {}),
     watch: {
       // 3. tell Vite to ignore watching `src-tauri`
       ignored: ['**/src-tauri/**'],

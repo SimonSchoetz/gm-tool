@@ -150,5 +150,26 @@ The probe's call is the one tauri-plugin-sql 2.5.0 makes for `db.execute('VACUUM
 
 ## A `VACUUM INTO` interrupted by an unplanned shutdown or power loss can leave an incomplete, corrupt output file
 
-**Verified at:** https://www.sqlite.org/lang_vacuum.html — 2026-10-20
+**Verified at:** <https://www.sqlite.org/lang_vacuum.html> — 2026-10-20
 **Citation:** [migration-backup_12: https://www.sqlite.org/lang_vacuum.html — "if the VACUUM INTO command is interrupted by an unplanned shutdown or power loss, then the generated output database might be incomplete and corrupt"]
+
+## A WAL database's `-wal` and `-shm` files exist while any connection holds it open, are checkpointed and deleted when the last connection closes, can be left behind by a crash or `SQLITE_FCNTL_PERSIST_WAL`, and must be copied along with the main file
+
+**Verified at:** <https://www.sqlite.org/wal.html>, 2026-10-20
+**Citation:** [architect_16: <https://www.sqlite.org/wal.html> — sections 4, 5 and 6]
+
+A `-wal` file beside a database whose app is closed means the last connection did not checkpoint, so a copy of the main file alone misses the committed rows still in the WAL; the presence of the file is the signal to copy through SQLite rather than by file.
+
+## A read-only open of a WAL database needs the `-shm` and `-wal` files to exist, or a writable directory, or the `immutable` query parameter
+
+**Verified at:** <https://www.sqlite.org/wal.html>, 2026-10-20
+**Citation:** [architect_16: <https://www.sqlite.org/wal.html> — sections 4, 5 and 6]
+
+Opening a WAL database read-only in a directory the process cannot write to fails unless the two side files already exist or the open declares the file immutable.
+
+## `VACUUM INTO` writes a consistent snapshot of the database into a target that must not exist or must be an empty file, leaves the original unchanged, and is documented as an alternative to the backup API
+
+**Verified at:** <https://www.sqlite.org/lang_vacuum.html>, 2026-10-20
+**Citation:** [architect_17: <https://www.sqlite.org/lang_vacuum.html>]
+
+A copy taken with `VACUUM INTO` through a connection that opened the source is complete even while another connection holds the source open in WAL mode, and the source's files are left as they were.

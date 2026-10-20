@@ -69,7 +69,7 @@ export default defineConfig(
       'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
-          project: path.resolve(import.meta.dirname, 'tsconfig.eslint.json'),
+          project: path.resolve(import.meta.dirname, 'tsconfig.json'),
         }),
       ],
     },
@@ -130,7 +130,14 @@ export default defineConfig(
   },
   {
     // The non-UI layers, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
-    files: ['db/**/*.ts', 'domain/**/*.ts', 'services/**/*.ts', 'util/**/*.ts'],
+    files: [
+      'db/**/*.ts',
+      'domain/**/*.ts',
+      'services/**/*.ts',
+      'util/**/*.ts',
+      'platform/**/*.ts',
+      'dev-data-server/**/*.ts',
+    ],
     ignores: ['**/__tests__/**'],
     rules: {
       'no-restricted-syntax': ['error', asConstOverEnum, ...writtenUndefined],

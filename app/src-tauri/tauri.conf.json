@@ -4,7 +4,7 @@
   "version": "0.14.1",
   "identifier": "com.gm-tool",
   "build": {
-    "beforeDevCommand": "pnpm run web",
+    "beforeDevCommand": "pnpm run dev:frontend",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm run build:frontend",
     "frontendDist": "../dist"
