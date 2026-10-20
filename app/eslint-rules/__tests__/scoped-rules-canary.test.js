@@ -11,6 +11,7 @@ const appDir = path.resolve(import.meta.dirname, '../..');
 const canaryDirName = `__scoped-rules-canary-${String(process.pid)}__`;
 const srcCanaryDir = path.join(appDir, 'src', canaryDirName);
 const servicesCanaryDir = path.join(appDir, 'services', canaryDirName);
+const platformCanaryDir = path.join(appDir, 'platform', canaryDirName);
 
 const componentPath = path.join(srcCanaryDir, 'CanaryComponent.tsx');
 const readerHookPath = path.join(srcCanaryDir, 'useCanaryContext.ts');
@@ -24,11 +25,16 @@ const serviceTestPath = path.join(
 );
 const lookupPath = path.join(srcCanaryDir, 'lookups.ts');
 const addedLookupPath = path.join(srcCanaryDir, 'addedLookups.ts');
+const srcTauriImportPath = path.join(srcCanaryDir, 'importsTauri.ts');
+const platformTauriImportPath = path.join(platformCanaryDir, 'importsTauri.ts');
+const srcTauriTypeImportPath = path.join(srcCanaryDir, 'importsTauriType.ts');
 
 const useContextSource = `import { createContext, useContext } from 'react';\n\nconst CanaryContext = createContext<number | null>(null);\n\nexport const readCanary = (): number | null => useContext(CanaryContext);\n`;
 const writesUndefinedSource = `export const value = (flag: boolean): string | null =>\n  flag ? 'set' : null;\nexport const sentinel = undefined;\n`;
 const lookupSource = `type Finder = { find: (key: string) => string };\n\nexport const fromArray = (items: string[]): string | undefined =>\n  items.find((item) => item === 'a');\n\nexport const fromFinder = (finder: Finder): string => finder.find('a');\n`;
 const addedLookupSource = `type Getter = { get: (key: string) => string };\n\nexport const lastMatch = (items: string[]): string | undefined =>\n  items.findLast((item) => item === 'a');\nexport const firstItem = (items: string[]): string | undefined =>\n  items.shift();\nexport const fromMap = (map: Map<string, string>): string | undefined =>\n  map.get('a');\nexport const fromParams = (params: URLSearchParams): string | null =>\n  params.get('a');\nexport const fromGetter = (getter: Getter): string => getter.get('a');\n`;
+const tauriImportSource = `import { invoke } from '@tauri-apps/api/core';\n\nexport const callsTauri = (): Promise<unknown> => invoke('ping');\n`;
+const tauriTypeImportSource = `import type { InvokeArgs } from '@tauri-apps/api/core';\n\nexport const describesArgs = (args: InvokeArgs): InvokeArgs => args;\n`;
 
 /** @type {Map<string, import('eslint').Linter.LintMessage[]>} */
 const messagesByPath = new Map();
@@ -36,6 +42,7 @@ const messagesByPath = new Map();
 beforeAll(async () => {
   fs.mkdirSync(path.join(srcCanaryDir, 'hooks'), { recursive: true });
   fs.mkdirSync(path.join(servicesCanaryDir, '__tests__'), { recursive: true });
+  fs.mkdirSync(platformCanaryDir, { recursive: true });
   fs.writeFileSync(componentPath, useContextSource);
   fs.writeFileSync(readerHookPath, useContextSource);
   fs.writeFileSync(hooksFolderPath, useContextSource);
@@ -44,9 +51,16 @@ beforeAll(async () => {
   fs.writeFileSync(serviceTestPath, writesUndefinedSource);
   fs.writeFileSync(lookupPath, lookupSource);
   fs.writeFileSync(addedLookupPath, addedLookupSource);
+  fs.writeFileSync(srcTauriImportPath, tauriImportSource);
+  fs.writeFileSync(platformTauriImportPath, tauriImportSource);
+  fs.writeFileSync(srcTauriTypeImportPath, tauriTypeImportSource);
 
   const eslint = new ESLint({ cwd: appDir });
-  const results = await eslint.lintFiles([srcCanaryDir, servicesCanaryDir]);
+  const results = await eslint.lintFiles([
+    srcCanaryDir,
+    servicesCanaryDir,
+    platformCanaryDir,
+  ]);
   for (const result of results) {
     messagesByPath.set(result.filePath, result.messages);
   }
@@ -55,6 +69,7 @@ beforeAll(async () => {
 afterAll(() => {
   fs.rmSync(srcCanaryDir, { recursive: true, force: true });
   fs.rmSync(servicesCanaryDir, { recursive: true, force: true });
+  fs.rmSync(platformCanaryDir, { recursive: true, force: true });
 });
 
 /** @param {string} filePath @param {string} ruleId */
@@ -102,5 +117,34 @@ describe('local/no-unnormalized-lookup-result under the project eslint.config.js
     expect(
       linesReportedBy(addedLookupPath, 'local/no-unnormalized-lookup-result'),
     ).toEqual([4, 6, 8]);
+  });
+});
+
+describe('the Tauri import restriction under the project eslint.config.js', () => {
+  it('reports a runtime @tauri-apps import under src/ on its import line', () => {
+    expect(
+      linesReportedBy(
+        srcTauriImportPath,
+        '@typescript-eslint/no-restricted-imports',
+      ),
+    ).toEqual([1]);
+  });
+
+  it('does not report the same runtime import under platform/', () => {
+    expect(
+      linesReportedBy(
+        platformTauriImportPath,
+        '@typescript-eslint/no-restricted-imports',
+      ),
+    ).toEqual([]);
+  });
+
+  it('does not report a type-only @tauri-apps import under src/', () => {
+    expect(
+      linesReportedBy(
+        srcTauriTypeImportPath,
+        '@typescript-eslint/no-restricted-imports',
+      ),
+    ).toEqual([]);
   });
 });

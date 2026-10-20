@@ -143,6 +143,26 @@ export default defineConfig(
       'no-restricted-syntax': ['error', asConstOverEnum, ...writtenUndefined],
     },
   },
+  {
+    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/*; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['platform/**'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@tauri-apps/*'],
+              allowTypeImports: true,
+              message:
+                'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
+            },
+          ],
+        },
+      ],
+    },
+  },
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite(),
   {
