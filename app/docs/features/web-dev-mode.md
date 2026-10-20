@@ -76,10 +76,10 @@ Where the user waits: at server start, for the copy (a 1.3 MB database and 24 MB
 
 None in the open-questions register.
 
-Not yet registered, each from the implementer's handoff; the lead takes them to the user:
+Not yet registered, each from the implementer's handoff; the first two were decided after the hand test, the third is open:
 
-- In web mode the pairing code is answered by the server but never shown: the pairing dialog shows it only after a peer requests it, and no peer exists in web mode. The settings rule above depends on it.
-- The unreachable-server rule above cannot be observed by stopping the server and reloading: the server is Vite's own process, so a reload then fails at the connection and no page can show the Error Boundary; the message is reached only when a page is served without the server behind it.
+- In web mode the pairing code is answered by the server but never shown: the pairing dialog shows it only after a peer requests it, and no peer exists in web mode. The settings rule above depends on it. Decided by Simon Schötz, 2026-10-20: the rule stands as narrowed to pairing mode opening without error; showing the code in web mode waits until a pairing test setup exists.
+- The unreachable-server rule above cannot be observed by stopping the server and reloading: the server is Vite's own process, so a reload then fails at the connection and no page can show the Error Boundary; the message is reached only when a page is served without the server behind it. Decided by Simon Schötz, 2026-10-20: no hand test; the unit test on the message path is the check.
 - The editor's "Open in browser" does not catch a refused link, so a web-mode scheme rejection, and the Tauri opener's own scope rejection, surface as an unhandled rejection. The link rules above depend on it.
 
 ## Where to look
