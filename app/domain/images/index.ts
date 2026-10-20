@@ -6,3 +6,5 @@ export { imageReplaceError } from './errors';
 export { imageDuplicateError } from './errors';
 export { imageUrlLoadError } from './errors';
 export { imageUpdateFrameError } from './errors';
+export { IMAGE_FILE_EXTENSIONS } from './imageFileExtensions';
+export { isImageFileExtension } from './imageFileExtensions';

@@ -12,7 +12,7 @@ What landed: the in-range npm drift in both pnpm projects — `app/` and the rep
 
 TypeScript 7 was evaluated and deliberately not taken — see Owner decisions.
 
-Everything below that touches data needs `pnpm run dev` from `app/`, not `pnpm run web`.
+Items that need the native file dialog, sync between devices, the updater or the backup need `pnpm run dev` from `app/`; everything else below runs in web mode too (`pnpm run web` from `app/`), which serves a migrated copy of the installed release app's data and never writes the real files.
 
 ## 1. Build gate — run this first
 
