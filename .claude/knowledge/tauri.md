@@ -140,3 +140,10 @@ What changed is the `plugin:updater|check` IPC command reachable from the webvie
 **Citation:** [research-rust-deps_10: compared the `[features]` sections of `tauri-plugin-updater-2.11.0/Cargo.toml` and `-2.13.1/Cargo.toml` in the local cargo registry — observed `default = ["rustls-tls", "system-proxy", "zip"]` in both, alongside the 2.11.0 changelog entry `Added system-proxy (enabled by default) feature flag to control reqwest/system-proxy feature`]
 
 The feature controls `reqwest`'s own `system-proxy` feature. The releases between those two were not read, so this says only that the default is the same at both ends.
+
+## A Tauri 2.12 crate's `cargo clippy --all-targets` and `cargo test` builds do not need the `build.frontendDist` directory to exist
+
+**Verified at:** tauri 2.12.0, tauri-build 2.7.1 (Cargo.lock) — 2026-10-20
+**Citation:** [release-check_9: on macOS arm64, in a fresh git worktree of this repository at commit `0c10f7f4`, whose `tauri.conf.json` sets `frontendDist` to `../dist`, with no `app/dist` and no `app/src-tauri/target`, ran `cargo clippy --all-targets -- -D warnings` and `cargo test` from `app/src-tauri/` — observed exit 0 from both, every test binary reporting `test result: ok`, and `ls app/dist` reporting `No such file or directory` afterwards]
+
+Observed with the default dev profile and feature set; a `--release` build or other features were not tried.
