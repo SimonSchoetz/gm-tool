@@ -154,3 +154,10 @@ A Rust command that needs the database file's location resolves the same directo
 **Citation:** [migration-backup_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.0/src/path/desktop.rs:237-245 — `app_config_dir` returns `dirs::config_dir()` joined with `self.0.config().identifier`, unless the `app > appDirectoriesOverride` config overrides it] [migration-backup_18: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.0/Cargo.toml:156-157 — `[dependencies.dirs]` `version = "7"`; `app/src-tauri/Cargo.lock` holds one `dirs` package, `version = "7.0.0"`] [migration-backup_3: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dirs-7.0.0/src/mac.rs:7,10 — `config_dir()` is `app_support_dir()`, the home directory joined with `Library/Application Support`]
 
 The identifier is the one in the configuration the build ran with, so a build whose `--config` overrides it (the entry beginning "The Tauri CLI --config flag") gets a directory of its own.
+
+## A Tauri 2.12 crate's `cargo clippy --all-targets` and `cargo test` builds do not need the `build.frontendDist` directory to exist
+
+**Verified at:** tauri 2.12.0, tauri-build 2.7.1 (Cargo.lock) — 2026-10-20
+**Citation:** [release-check_9: on macOS arm64, in a fresh git worktree of this repository at commit `0c10f7f4`, whose `tauri.conf.json` sets `frontendDist` to `../dist`, with no `app/dist` and no `app/src-tauri/target`, ran `cargo clippy --all-targets -- -D warnings` and `cargo test` from `app/src-tauri/` — observed exit 0 from both, every test binary reporting `test result: ok`, and `ls app/dist` reporting `No such file or directory` afterwards]
+
+Observed with the default dev profile and feature set; a `--release` build or other features were not tried.

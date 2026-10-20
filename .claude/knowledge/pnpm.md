@@ -41,3 +41,10 @@ The unsatisfiable range is the control: a field being read at all would have fai
 **Citation:** [harness-follow-ups_12: https://pnpm.io/cli/install — `--ignore-scripts` "Do not execute any scripts defined in the project `package.json` and its dependencies"] [harness-follow-ups_13: ran `pnpm install --frozen-lockfile` in `app/` of a fresh `git clone` whose manifest held `"prepare": "tsr generate"` and which had no `node_modules` — observed `Done in 1.5s using pnpm v12.4.2` and `src/routeTree.gen.ts` written, a file nothing else in that clone produces; in a checkout whose `node_modules` was current, deleted that file and ran `pnpm install --frozen-lockfile` and then `pnpm install` — observed "Lockfile is up to date, resolution step is skipped" and "Already up to date", and the file not written; ran `node --version` — observed `v24.21.0`]
 
 Whether `preinstall`, `postinstall` or dependency build scripts follow the same pattern was not probed.
+
+## pnpm 12.4.2's `pnpm runtime set node 24 -g` links only `node` into the global bin directory, not `npm` or `npx`
+
+**Verified at:** pnpm 12.4.2 on macOS arm64, installing Node 24.22.0 — 2026-10-20
+**Citation:** [release-check_7: with `PNPM_HOME` and `XDG_DATA_HOME` pointed at an empty scratch directory and `$PNPM_HOME/bin` first on `PATH`, ran `pnpm runtime set node 24 -g` on macOS arm64 — observed `+ node 24.22.0` and `Done in 2.7s using pnpm v12.4.2`; `ls -la $PNPM_HOME/bin` listed `node` and the dotfile `.pnpm-shim-v1-node-target`, no `npm` or `npx`; `command -v npx npm` resolved both outside `$PNPM_HOME`]
+
+A step that calls `npx` or `npm` after a global `pnpm runtime set` gets them from another Node installation on `PATH`, if there is one.
