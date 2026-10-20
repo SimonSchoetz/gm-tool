@@ -44,9 +44,10 @@ export const writeAppDatabase = (
     db.prepare('INSERT INTO _system (id, value) VALUES (?, ?)').run(id, value);
   }
   if (!omitPairedDevices) {
-    const extraColumn = pairedDevicesExtraColumn ? ', extra TEXT' : '';
     db.exec(
-      `CREATE TABLE paired_devices (id TEXT PRIMARY KEY, name TEXT, created_at TEXT, updated_at TEXT${extraColumn})`,
+      pairedDevicesExtraColumn
+        ? 'CREATE TABLE paired_devices (id TEXT PRIMARY KEY, name TEXT, created_at TEXT, updated_at TEXT, extra TEXT)'
+        : 'CREATE TABLE paired_devices (id TEXT PRIMARY KEY, name TEXT, created_at TEXT, updated_at TEXT)',
     );
     for (const { id, name } of pairedDevices) {
       db.prepare(

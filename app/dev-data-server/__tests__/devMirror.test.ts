@@ -162,6 +162,10 @@ describe('mirrorInstalledData', () => {
         pairedDevices: [{ id: 'dev-device', name: 'Dev phone' }],
         pairedDevicesExtraColumn: devExtra,
       });
+      const columnsSql = "SELECT name FROM pragma_table_info('paired_devices')";
+      expect(readAppDatabaseRows(devDir, columnsSql)).not.toEqual(
+        readAppDatabaseRows(releaseDir, columnsSql),
+      );
 
       mirror();
 
@@ -170,6 +174,26 @@ describe('mirrorInstalledData', () => {
       ).toEqual([{ id: 'dev-device', name: 'Dev phone' }]);
     },
   );
+
+  it('mirrors without error, carries the other preserved sets and holds no paired device when the dev database lacks the table', () => {
+    writeAppDatabase(releaseDir, {
+      pairedDevices: [{ id: 'release-device', name: 'Release phone' }],
+    });
+    mkdirSync(devDir);
+    writeAppDatabase(devDir, {
+      omitPairedDevices: true,
+      syncPeers: [{ id: 'dev-peer', lastReceivedSeq: 9 }],
+    });
+
+    mirror();
+
+    expect(
+      readAppDatabaseRows(devDir, 'SELECT id FROM paired_devices'),
+    ).toEqual([]);
+    expect(readAppDatabaseRows(devDir, 'SELECT id FROM _sync_peers')).toEqual([
+      { id: 'dev-peer' },
+    ]);
+  });
 
   it('leaves the release directory as it was and the dev connectivity key and database backups in place', () => {
     writeAppDatabase(releaseDir, { notes: [{ id: 'one', body: 'release' }] });
@@ -254,7 +278,7 @@ describe('mirrorInstalledData', () => {
     expect(
       readAppDatabaseRows(devDir, 'SELECT id FROM paired_devices'),
     ).toEqual([{ id: 'dev-device' }]);
-    expect(listing(devDir).sort()).toEqual([
+    expect(listing(devDir)).toEqual([
       INSTALLED_DATABASE_FILE,
       'images',
       'images/dev.png',

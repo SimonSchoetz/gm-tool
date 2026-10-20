@@ -12,18 +12,41 @@ import {
 
 type MirrorOutcome = 'mirrored' | 'no-installed-data';
 
-type PreservedSet = { table: string; where: string; params: string[] };
+type PreservedSet = {
+  table: string;
+  deleteStagedRows: string;
+  copyDevRows: (columns: string) => string;
+  params: string[];
+};
 
-// The dev app's own identity: its paired devices, their sync cursors and its device row. Every other table follows the release data.
+const DEV_SCHEMA = 'dev';
+
+// The dev app's own identity: its paired devices, their sync cursors and its device row. Every other table follows the release data. Each set carries fixed statements, so only the quoted column list, which skews between schemas, is built into SQL.
 const PRESERVED_SETS: readonly PreservedSet[] = [
-  { table: 'paired_devices', where: '1 = 1', params: [] },
-  { table: '_sync_peers', where: '1 = 1', params: [] },
-  { table: '_system', where: 'id = ?', params: [DEVICE_SYSTEM_KEY] },
+  {
+    table: 'paired_devices',
+    deleteStagedRows: 'DELETE FROM main.paired_devices',
+    copyDevRows: (columns) =>
+      `INSERT INTO main.paired_devices (${columns}) SELECT ${columns} FROM ${DEV_SCHEMA}.paired_devices`,
+    params: [],
+  },
+  {
+    table: '_sync_peers',
+    deleteStagedRows: 'DELETE FROM main._sync_peers',
+    copyDevRows: (columns) =>
+      `INSERT INTO main._sync_peers (${columns}) SELECT ${columns} FROM ${DEV_SCHEMA}._sync_peers`,
+    params: [],
+  },
+  {
+    table: '_system',
+    deleteStagedRows: 'DELETE FROM main._system WHERE id = ?',
+    copyDevRows: (columns) =>
+      `INSERT INTO main._system (${columns}) SELECT ${columns} FROM ${DEV_SCHEMA}._system WHERE id = ?`,
+    params: [DEVICE_SYSTEM_KEY],
+  },
 ];
 
 const STAGING_DIR_NAME = '.mirror-staging';
-
-const DEV_SCHEMA = 'dev';
 
 const quoteIdentifier = (name: string): string =>
   `"${name.replaceAll('"', '""')}"`;
@@ -38,22 +61,13 @@ const columnNames = (
     .all(table, schema)
     .flatMap(({ name }) => (typeof name === 'string' ? [name] : []));
 
-const deleteStagedRows = (db: DatabaseSync, set: PreservedSet): void => {
-  db.prepare(
-    `DELETE FROM main.${quoteIdentifier(set.table)} WHERE ${set.where}`,
-  ).run(...set.params);
-};
-
 const copyDevRows = (db: DatabaseSync, set: PreservedSet): void => {
   const devColumns = columnNames(db, set.table, DEV_SCHEMA);
   const columns = columnNames(db, set.table, 'main')
     .filter((column) => devColumns.includes(column))
     .map(quoteIdentifier)
     .join(', ');
-  const table = quoteIdentifier(set.table);
-  db.prepare(
-    `INSERT INTO main.${table} (${columns}) SELECT ${columns} FROM ${DEV_SCHEMA}.${table} WHERE ${set.where}`,
-  ).run(...set.params);
+  db.prepare(set.copyDevRows(columns)).run(...set.params);
 };
 
 const keepDevIdentity = (stagedPath: string, devPath: string): void => {
@@ -66,7 +80,7 @@ const keepDevIdentity = (stagedPath: string, devPath: string): void => {
         );
       }
       // Deleted whether or not the old dev database has the table: it can lack one, and the release rows must still not survive into the dev app.
-      deleteStagedRows(db, set);
+      db.prepare(set.deleteStagedRows).run(...set.params);
     }
     if (existsSync(devPath)) {
       db.prepare(`ATTACH DATABASE ? AS ${DEV_SCHEMA}`).run(devPath);

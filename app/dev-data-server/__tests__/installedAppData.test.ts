@@ -119,6 +119,7 @@ describe('copyDatabase', () => {
     expect(readdirSync(sourceDir).sort()).toEqual(sourceListing);
     writer.close();
   });
+
   it('copies the rows of a database left with its -wal and -shm files and, as the only connection, checkpoints them into the source on close', async () => {
     // A writer in another directory leaves a committed row in its -wal; copying its three files while it is open makes `sourceDir` look like an app that crashed or persisted its WAL.
     const writerDir = join(temp.dir, 'writer');
