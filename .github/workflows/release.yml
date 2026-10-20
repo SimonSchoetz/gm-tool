@@ -5,8 +5,78 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
+env:
+  # Pinned rather than floating on node@lts, which tracks whichever line is Active LTS at build time and so can move CI across a major without a commit. Keep in step with `.nvmrc` at the repository root. jsdom requires 24.15.0 or newer, the floor `engines.node` in app/package.json states.
+  NODE_RUNTIME: node@24
+
 jobs:
+  # Runs every row of the Check Commands table in the root CLAUDE.md before any release build, so a release never ships code those checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table.
+  check:
+    permissions:
+      contents: read
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag is on main
+        shell: bash
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
+
+      # A run can restore only caches saved under its own tag or on main, and no workflow runs on main, so the pnpm and cargo caches below speed up only a re-run under the same tag.
+      - uses: pnpm/setup@v2
+        with:
+          package-json-file: app/package.json
+          runtime: ${{ env.NODE_RUNTIME }}
+          install: false
+          cache: true
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri -> target
+          # Saved when a check fails too, so re-pushing the same tag after the fix starts warm.
+          cache-on-failure: true
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: type-check
+        run: npx tsc --noEmit
+
+      - name: lint
+        run: npx eslint .
+
+      - name: format-check
+        run: npx prettier --check .
+
+      - name: test
+        run: npx vitest run
+
+      - name: rust-lint
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: app/src-tauri
+
+      - name: rust-format-check
+        run: cargo fmt --check
+        working-directory: app/src-tauri
+
+      - name: rust-test
+        run: cargo test
+        working-directory: app/src-tauri
+
   release:
+    needs: check
     permissions:
       contents: write
     env:
@@ -25,20 +95,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Verify tag is on main
-        shell: bash
-        run: |
-          git fetch origin main
-          git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
 
       - uses: pnpm/setup@v2
         with:
           package-json-file: app/package.json
-          # Pinned rather than floating on node@lts, which tracks whichever line is Active LTS at build time and so can move CI across a major without a commit. Keep in step with `.nvmrc` at the repository root. jsdom requires 24.15.0 or newer, which `engines.node` in app/package.json does not yet state.
-          runtime: node@24
+          runtime: ${{ env.NODE_RUNTIME }}
           install: false
 
       - uses: dtolnay/rust-toolchain@stable
