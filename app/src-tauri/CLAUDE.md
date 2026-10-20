@@ -179,7 +179,7 @@ Deletes an image file from the filesystem.
 
 **Behavior:** Returns success even if file doesn't exist (already gone)
 
-### image_file_exists
+### check_image_file_exists
 
 Reports whether `images/{id}.{extension}` exists in the app data directory.
 

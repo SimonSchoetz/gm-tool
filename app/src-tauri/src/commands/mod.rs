@@ -11,6 +11,7 @@ pub use database_backup::{
     finish_database_backup, prepare_database_backup, prune_database_backups,
 };
 pub use images::{
-    delete_image, get_image_url, image_file_exists, read_image_bytes, save_image, save_image_bytes,
+    check_image_file_exists, delete_image, get_image_url, read_image_bytes, save_image,
+    save_image_bytes,
 };
 pub use updater::{PendingInstallState, check_update, download_update, install_and_relaunch};
