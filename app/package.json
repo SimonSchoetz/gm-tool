@@ -10,7 +10,7 @@
     "node": "^24.15.0"
   },
   "scripts": {
-    "dev": "tauri dev --config src-tauri/tauri.dev.conf.json",
+    "dev": "node dev-data-server/runDevMirror.ts && tauri dev --config src-tauri/tauri.dev.conf.json",
     "build": "tauri build",
     "tauri": "tauri",
     "build:frontend": "vite build",

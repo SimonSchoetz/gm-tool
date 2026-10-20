@@ -14,6 +14,7 @@ import {
   assertInstalledAppData,
   copyDatabase,
   copyImages,
+  hasInstalledAppData,
   INSTALLED_DATABASE_FILE,
   resolveInstalledAppDataDir,
 } from '../installedAppData';
@@ -51,6 +52,15 @@ describe('resolveInstalledAppDataDir', () => {
     expect(() =>
       resolveInstalledAppDataDir('linux', '/home/gm', 'com.app'),
     ).toThrow('Library/Application Support/com.app');
+  });
+});
+
+describe('hasInstalledAppData', () => {
+  it('is false for a directory without the database file and true once it exists', () => {
+    expect(hasInstalledAppData(sourceDir)).toBe(false);
+
+    writeFileSync(join(sourceDir, INSTALLED_DATABASE_FILE), '');
+    expect(hasInstalledAppData(sourceDir)).toBe(true);
   });
 });
 

@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
+import { DEVICE_SYSTEM_KEY } from './installedAppData';
 import { DEV_DATA_SERVER_PREFIX, DEV_DATA_SERVER_ROUTES } from './protocol';
 import {
   isFixturePath,
@@ -27,8 +28,6 @@ export type CommandContext = {
 export const WEB_MODE_PAIRING_CODE = '123456';
 // The shape of a device id (domain/devices/identity.ts) that no real endpoint has, for a copy whose _system table holds no device row yet.
 const WEB_MODE_DEVICE_ID = '0'.repeat(64);
-// Mirrors the `_system` key `db/_system/device.ts` passes to `get`, which cannot be imported here: it reaches `@platform` through `db/database.ts`, an alias Vite's config bundle does not resolve.
-const DEVICE_SYSTEM_KEY = 'device';
 
 const deviceValueSchema = z.object({ id: z.string() });
 
