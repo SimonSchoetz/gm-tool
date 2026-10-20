@@ -80,9 +80,10 @@ Extraction out of the component file is triggered by either of two independent c
 
 ### Testing Policy
 
-- **Forbidden**: React components — files whose exported function returns JSX — must not have unit tests. Components change shape frequently; testing helpers and the data layer gives sufficient logic-level coverage at lower cost — but not interaction behavior tied to the browser's native default action (e.g. `preventDefault()` in a keyboard/pointer handler), which needs a live DOM event dispatch no helper or data-layer test provides.
+- **Forbidden**: React components — files whose exported function returns JSX — have no unit tests, except as the Required bullet below demands. Components change shape often, and tests of their helpers, their hooks and the data layer cover their logic at lower cost.
+- **Required — an acceptance criterion only the component decides**: a component has one test for each acceptance criterion of its feature that its own event handling alone decides, such as whether a handler calls `preventDefault()`. An acceptance criterion is an outcome the user must be able to observe, as the feature's spec, or the story or request it was built from, states it. The test asserts what the user sees, or what gets saved, after an interaction dispatched as a DOM event — never markup structure, class names, which child components render, or a snapshot — so a change of shape that keeps the behaviour keeps the test passing. A criterion whose outcome depends on layout, which jsdom (the test environment) does not compute, gets no test. File placement, rendering, dispatch and assertions: `.claude/rules/src-unit-tests.md` — Component tests.
 
-Which files under `src/` do require unit tests, and how a geometry or layout helper's test must assert, are in `.claude/rules/src-unit-tests.md` — Testing Policy, which loads when a `__tests__/`, `helper/`, `util/` or `hooks/` path under `src/` is read. Test obligations for the other TypeScript layers are in `app/db/CLAUDE.md` — Testing, `app/services/CLAUDE.md` — Testing and `app/domain/CLAUDE.md` — Testing.
+Which other files under `src/` require unit tests, and how a geometry or layout helper's test must assert, are in `.claude/rules/src-unit-tests.md` — Testing Policy, which loads when a `__tests__/`, `helper/`, `util/` or `hooks/` path under `src/` is read. Test obligations for the other TypeScript layers are in `app/db/CLAUDE.md` — Testing, `app/services/CLAUDE.md` — Testing and `app/domain/CLAUDE.md` — Testing.
 
 ### Styles
 
