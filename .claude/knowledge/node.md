@@ -41,3 +41,38 @@ Code that treats a row like an ordinary object works, but a strict equality asse
 **Citation:** [spec-writer_7: app/node_modules/@types/node/sqlite.d.ts:5-38 — `DatabaseSyncOptions` with `open`, `enableForeignKeyConstraints` and `readOnly` and their documented defaults; :262 — `constructor(path: PathLike, options?: DatabaseSyncOptions)`; :831-843 — `StatementResultingChanges { changes: number | bigint; lastInsertRowid: number | bigint }`; :870,902,933 — `StatementSync.all(...)`, `.get(...)` returning `Record<string, SQLOutputValue> | undefined`, `.run(...)`; :1050 — `function backup(sourceDb: DatabaseSync, path: PathLike, options?: BackupOptions): Promise<number>`]
 
 A file-backed database opens read-write with foreign keys on by default; `run()`'s counts need `Number(…)` before they meet a `number`-typed contract, and `get()` can return `undefined`.
+
+## A `.ts` file run directly as `node <file>.ts` on Node v24.21.0 imports sibling files by explicit `.ts` extension, `node:sqlite` and bare packages, and sets `import.meta.dirname` to its own directory
+
+**Verified at:** Node v24.21.0, run 2026-10-20
+**Citation:** [spec-writer_1: ran `node dev-data-server/scratchMirrorEntry.ts` and `node dev-data-server/scratchZod.ts` from `app/` — observed a relative `import … from './scratchMirrorLib.ts'`, `node:sqlite` and `import { z } from 'zod'` all resolving, `import.meta.dirname` resolving a `../src-tauri/tauri.dev.conf.json` read, `process.exitCode = 3` giving exit status 3, and nothing on stderr]
+
+Type stripping needs no flag on this Node line and prints no warning.
+
+## A `.ts` file run directly as `node <file>.ts` on Node v24.21.0 fails with `ERR_MODULE_NOT_FOUND` on a relative import written without its `.ts` extension
+
+**Verified at:** Node v24.21.0, run 2026-10-20
+**Citation:** [spec-writer_8: ran `node dev-data-server/scratchA.ts` from `app/`, where `scratchA.ts` held `import { a } from './scratchB'` and `scratchB.ts` existed — observed `ERR_MODULE_NOT_FOUND: Cannot find module '…/dev-data-server/scratchB' imported from …/scratchA.ts` and exit status 1]
+
+Vite's config bundler and Vitest resolve the same extensionless specifier, so the two import styles coexist in one folder only when the Node-run files carry the extension.
+
+## `os.homedir()` returns the value of the `HOME` environment variable on macOS when it is set
+
+**Verified at:** Node v24.21.0, run 2026-10-20
+**Citation:** [spec-writer_2: ran `HOME=/tmp/fakehome node dev-data-server/scratchHome.ts` from `app/` — observed `/tmp/fakehome` printed by `console.log(homedir())`]
+
+A child process started with `HOME` set to a temporary directory therefore resolves every `homedir()`-based path under that directory.
+
+## On a `node:sqlite` `DatabaseSync`, `ATTACH DATABASE ? AS dev` with the path bound reads a WAL database whose `-wal` file was never checkpointed
+
+**Verified at:** Node v24.21.0, run 2026-10-20
+**Citation:** [spec-writer_3: ran `node dev-data-server/scratchMirrorEntry.ts` from `app/` — observed a copied `devcopy.db` plus `devcopy.db-wal` (no `-shm`) attached, an `INSERT INTO main.paired_devices (…) SELECT … FROM dev.paired_devices` carrying both WAL-held rows, and `devcopy.db-wal` gone from the directory after `DETACH DATABASE dev` and `close()`]
+
+The attach recovers the dev database's `-wal` rows into the read. The attached file's `-wal` was removed once the connection closed.
+
+## In `node:sqlite`, `SELECT name FROM pragma_table_info(?, ?)` with the table and the schema name bound lists the columns of that table in `main` or in an attached database
+
+**Verified at:** Node v24.21.0, run 2026-10-20
+**Citation:** [spec-writer_9: ran `node dev-data-server/scratchMirrorEntry.ts` from `app/` — observed `pragma_table_info('paired_devices', 'main')` and `('paired_devices', 'dev')` returning each side's column names, whose intersection was `id,name,created_at,updated_at` while the dev side held an extra column]
+
+The result rows carry a `name` field per column.

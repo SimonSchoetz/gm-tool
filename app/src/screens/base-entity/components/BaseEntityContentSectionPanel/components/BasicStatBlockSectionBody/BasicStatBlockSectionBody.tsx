@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { useBaseEntityContentSections } from '@/data-access-layer';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { Input } from '@/components/Input/Input';
-import { TextEditor } from '@/components/TextEditor';
+import { TEXT_EDITOR_GUTTER_WIDTH, TextEditor } from '@/components/TextEditor';
 import { FCProps } from '@/types/fcProps.type';
 import {
   BASIC_STAT_BLOCK_HP_LABEL,
@@ -40,13 +41,20 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
   if (section === null) return;
 
   return (
-    <div className='basic-stat-block-section-body'>
+    <div
+      className='basic-stat-block-section-body'
+      style={
+        {
+          '--basic-stat-block-section-body-gutter-width':
+            TEXT_EDITOR_GUTTER_WIDTH,
+        } as CSSProperties
+      }
+    >
       <label className='basic-stat-block-section-body-hp'>
-        <span className='basic-stat-block-section-body-hp-label'>
-          {BASIC_STAT_BLOCK_HP_LABEL}
-        </span>
+        <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
         {/* [DEFERRED-VIOLATION: .claude/rules/src-components.md, Controlled inputs that drive auto-save mutations, Case 1 — SyncedInput takes no onBlur and hands onCommit only the value string, so it can neither gate a save on validity.badInput nor revert an unsaveable value on blur] */}
         <Input
+          className='basic-stat-block-section-body-hp-input'
           // Remounted on every revert: React rewrites a number input's text only when its DOM value differs from the bound value, and unconvertible text already reads `''`, so a revert to an empty HP would otherwise leave `-` or `1.` on screen.
           key={hpInputRevision}
           type='number'

@@ -139,3 +139,10 @@ A module that imports several names from a partially mocked package loads as lon
 **Citation:** [implement_4: `app/node_modules/.pnpm/vitest@5.0.2_*/node_modules/vitest/dist/chunks/index.DGdajAO2.js:2316` and `:2323` — an `Error` instance or another object is compared with `equals(thrown, expected, [...customTesters, iterableEquality])`] [code-reviewer_7: the same chunk :1330-1341, `isErrorEqual` — `a.name === b.name && a.message === b.message`, then `if (typeof b.cause !== "undefined") result &&= eq(a.cause, b.cause, …)`, then `eq({ ...a }, { ...b }, …)` over the enumerable properties]
 
 `toThrow(new Error('x'))` pins the exact message without caring what `cause` the thrown error carries, and pins `cause` too once the expected error is given one.
+
+## Under Vitest 5.0.2 in the node environment, `import.meta.dirname` in a test file is that file's directory, and a `spawnSync(process.execPath, [<file>.ts], { env })` child inherits the given `HOME`
+
+**Verified at:** Vitest 5.0.2, run 2026-10-20
+**Citation:** [spec-writer_5: ran `npx vitest run dev-data-server/__tests__/scratch.test.ts` from `app/` — observed one passing test that spawned `dev-data-server/scratchEntry.ts` found through `join(import.meta.dirname, '..', 'scratchEntry.ts')` with `HOME=/tmp/fakehome` and asserted exit status 1, stdout `home=/tmp/fakehome` and the stderr text, with `npx tsc --noEmit` and `npx eslint` on both files reporting nothing]
+
+A test can therefore run a Node entry script as a child process against a temporary home directory and read its exit status and output.

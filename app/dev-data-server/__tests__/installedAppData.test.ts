@@ -14,6 +14,7 @@ import {
   assertInstalledAppData,
   copyDatabase,
   copyImages,
+  hasInstalledAppData,
   INSTALLED_DATABASE_FILE,
   resolveInstalledAppDataDir,
 } from '../installedAppData';
@@ -51,6 +52,15 @@ describe('resolveInstalledAppDataDir', () => {
     expect(() =>
       resolveInstalledAppDataDir('linux', '/home/gm', 'com.app'),
     ).toThrow('Library/Application Support/com.app');
+  });
+});
+
+describe('hasInstalledAppData', () => {
+  it('is false for a directory without the database file and true once it exists', () => {
+    expect(hasInstalledAppData(sourceDir)).toBe(false);
+
+    writeFileSync(join(sourceDir, INSTALLED_DATABASE_FILE), '');
+    expect(hasInstalledAppData(sourceDir)).toBe(true);
   });
 });
 
@@ -109,6 +119,7 @@ describe('copyDatabase', () => {
     expect(readdirSync(sourceDir).sort()).toEqual(sourceListing);
     writer.close();
   });
+
   it('copies the rows of a database left with its -wal and -shm files and, as the only connection, checkpoints them into the source on close', async () => {
     // A writer in another directory leaves a committed row in its -wal; copying its three files while it is open makes `sourceDir` look like an app that crashed or persisted its WAL.
     const writerDir = join(temp.dir, 'writer');

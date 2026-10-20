@@ -1,10 +1,7 @@
 .base-entity-popup-content-hp {
   display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
   font-size: var(--font-size-base);
   margin-bottom: var(--spacing-xs);
-}
-
-.base-entity-popup-content-hp-label {
-  color: var(--color-fg-muted);
 }

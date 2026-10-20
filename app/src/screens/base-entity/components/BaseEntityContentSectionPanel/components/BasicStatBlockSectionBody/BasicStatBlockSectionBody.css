@@ -9,8 +9,16 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  padding-left: var(--basic-stat-block-section-body-gutter-width);
 }
 
-.basic-stat-block-section-body-hp-label {
-  color: var(--color-fg-muted);
+/* The field stays type='number' because readSaveableHp reads badInput and the browser's own ArrowUp and ArrowDown stepping depends on it, so the arrows are hidden in CSS only; a text input would break both. */
+.basic-stat-block-section-body-hp-input {
+  appearance: textfield;
+}
+
+.basic-stat-block-section-body-hp-input::-webkit-inner-spin-button,
+.basic-stat-block-section-body-hp-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

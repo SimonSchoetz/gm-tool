@@ -70,9 +70,7 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
         summary: statBlock.textEditor,
         summaryHeader: (
           <div className='base-entity-popup-content-hp'>
-            <span className='base-entity-popup-content-hp-label'>
-              {BASIC_STAT_BLOCK_HP_LABEL}
-            </span>
+            <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
             {statBlock.basicStatBlock.hp}
           </div>
         ),

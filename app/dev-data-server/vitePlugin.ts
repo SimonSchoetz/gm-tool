@@ -1,5 +1,5 @@
 // Node host — imported by vite.config.ts and bundled into Vite's config by its loader, which is why it imports ../db/_migrations and this folder's files by relative path: the bundle resolves no path alias.
-import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
@@ -13,20 +13,13 @@ import {
   INSTALLED_DATABASE_FILE,
   resolveInstalledAppDataDir,
 } from './installedAppData';
+import { readRepositoryJson, tauriConfigSchema } from './repositoryJson';
 import { createRequestHandler } from './requestHandler';
 import { openSqliteDatabase } from './sqliteDatabase';
 
 const packageJsonSchema = z.object({ version: z.string() });
-const tauriConfigSchema = z.object({ identifier: z.string() });
 
 const TEMP_DIR_NAME = 'gm-tool-web-mode';
-
-const readRepositoryJson = <T>(relativePath: string, schema: z.ZodType<T>): T =>
-  schema.parse(
-    JSON.parse(
-      readFileSync(resolve(import.meta.dirname, relativePath), 'utf8'),
-    ),
-  );
 
 export const devDataServer = (): Plugin => {
   let active = false;
