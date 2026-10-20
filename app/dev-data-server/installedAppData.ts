@@ -31,7 +31,7 @@ export const copyDatabase = (sourceDir: string, targetDir: string): void => {
   const sourcePath = join(sourceDir, INSTALLED_DATABASE_FILE);
   const targetPath = join(targetDir, INSTALLED_DATABASE_FILE);
   if (existsSync(`${sourcePath}-wal`)) {
-    // A -wal file beside the database holds committed rows the main file lacks until a checkpoint, so the copy goes through SQLite's VACUUM INTO, which writes a consistent single-file snapshot and leaves the source as it is.
+    // A -wal file beside the database holds committed rows the main file lacks until a checkpoint, so the copy goes through SQLite's VACUUM INTO, which writes a consistent single-file snapshot of both; the source's rows are untouched, and when no other connection holds it open, closing this one checkpoints the -wal into the main file and removes it, the one change web mode makes to the installed files.
     const source = new DatabaseSync(sourcePath);
     source.prepare('VACUUM INTO ?').run(targetPath);
     source.close();

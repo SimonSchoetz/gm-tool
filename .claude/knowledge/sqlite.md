@@ -156,9 +156,9 @@ The probe's call is the one tauri-plugin-sql 2.5.0 makes for `db.execute('VACUUM
 ## A WAL database's `-wal` and `-shm` files exist while any connection holds it open, are checkpointed and deleted when the last connection closes, can be left behind by a crash or `SQLITE_FCNTL_PERSIST_WAL`, and must be copied along with the main file
 
 **Verified at:** <https://www.sqlite.org/wal.html>, 2026-10-20
-**Citation:** [architect_16: <https://www.sqlite.org/wal.html> — sections 4, 5 and 6]
+**Citation:** [architect_16: <https://www.sqlite.org/wal.html> — sections 4, 5 and 6] [code-reviewer_3: ran a scratch node probe under Node v24.21.0 that copied a WAL database together with its -wal and -shm with no live connection, opened it with `DatabaseSync`, ran `VACUUM INTO` a second path and closed — observed the listing `[gm_tool.db, -shm, -wal]` before and `[gm_tool.db]` after, and the main file's bytes changed] [implement_8: ran `npx vitest run dev-data-server/__tests__/installedAppData.test.ts` from `app/` — observed the case "copies the rows of a database left with its -wal and -shm files and, as the only connection, checkpoints them into the source on close" passing: the copy and the source both hold the row the -wal carried, and the source directory holds the main file alone afterwards]
 
-A `-wal` file beside a database whose app is closed means the last connection did not checkpoint, so a copy of the main file alone misses the committed rows still in the WAL; the presence of the file is the signal to copy through SQLite rather than by file.
+A `-wal` file beside a database whose app is closed means the last connection did not checkpoint, so a copy of the main file alone misses the committed rows still in the WAL; the presence of the file is the signal to copy through SQLite rather than by file. A connection opened only to copy counts as a connection: when it is the only one, its close checkpoints the WAL into the main file and removes the two side files.
 
 ## A read-only open of a WAL database needs the `-shm` and `-wal` files to exist, or a writable directory, or the `immutable` query parameter
 

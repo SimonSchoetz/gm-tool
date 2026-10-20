@@ -21,6 +21,13 @@ const tauriConfigSchema = z.object({ identifier: z.string() });
 
 const TEMP_DIR_NAME = 'gm-tool-web-mode';
 
+const readRepositoryJson = <T>(relativePath: string, schema: z.ZodType<T>): T =>
+  schema.parse(
+    JSON.parse(
+      readFileSync(resolve(import.meta.dirname, relativePath), 'utf8'),
+    ),
+  );
+
 export const devDataServer = (): Plugin => {
   let active = false;
   return {
@@ -40,13 +47,9 @@ export const devDataServer = (): Plugin => {
     async configureServer(server) {
       if (!active) return;
       // The release app's identifier, not tauri.dev.conf.json's: web mode reads the data of the installed release app.
-      const { identifier } = tauriConfigSchema.parse(
-        JSON.parse(
-          readFileSync(
-            resolve(import.meta.dirname, '../src-tauri/tauri.conf.json'),
-            'utf8',
-          ),
-        ),
+      const { identifier } = readRepositoryJson(
+        '../src-tauri/tauri.conf.json',
+        tauriConfigSchema,
       );
       const sourceDir = resolveInstalledAppDataDir(
         process.platform,
@@ -62,10 +65,9 @@ export const devDataServer = (): Plugin => {
       const db = openSqliteDatabase(join(tempDir, INSTALLED_DATABASE_FILE));
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
       await runMigrations(db, () => Promise.resolve());
-      const { version } = packageJsonSchema.parse(
-        JSON.parse(
-          readFileSync(resolve(import.meta.dirname, '../package.json'), 'utf8'),
-        ),
+      const { version } = readRepositoryJson(
+        '../package.json',
+        packageJsonSchema,
       );
       const fixturesDir = resolve(import.meta.dirname, 'fixtures/images');
       const fixturePaths = readdirSync(fixturesDir).map((name) =>

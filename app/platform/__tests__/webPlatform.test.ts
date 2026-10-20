@@ -161,38 +161,35 @@ describe('webPlatform.getVersion', () => {
 });
 
 describe('webPlatform.openUrl', () => {
-  it('opens an http, https, mailto or tel URL in a new tab without a reference back to the app', async () => {
-    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+  it.each([
+    'http://example.test/',
+    'https://example.test/page',
+    'mailto:gm@example.test',
+    'tel:+15550100',
+  ])(
+    'opens %s in a new tab without a reference back to the app',
+    async (url) => {
+      const open = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-    await webPlatform.openUrl('https://example.test/page');
-    await webPlatform.openUrl('mailto:gm@example.test');
+      await webPlatform.openUrl(url);
 
-    expect(open).toHaveBeenNthCalledWith(
-      1,
-      'https://example.test/page',
-      '_blank',
-      'noopener',
-    );
-    expect(open).toHaveBeenNthCalledWith(
-      2,
-      'mailto:gm@example.test',
-      '_blank',
-      'noopener',
-    );
-    open.mockRestore();
-  });
+      expect(open).toHaveBeenCalledWith(url, '_blank', 'noopener');
+      open.mockRestore();
+    },
+  );
 
   it('rejects a URL of any other scheme, naming the scheme, and opens nothing', async () => {
     const open = vi.spyOn(window, 'open').mockImplementation(() => null);
 
+    // Anchored to the end: the message also echoes the URL, which contains the scheme text.
     await expect(webPlatform.openUrl('javascript:alert(1)')).rejects.toThrow(
-      /javascript:/,
+      /is javascript:$/,
     );
     await expect(webPlatform.openUrl('file:///etc/hosts')).rejects.toThrow(
-      /file:/,
+      /is file:$/,
     );
     await expect(webPlatform.openUrl('not a url')).rejects.toThrow(
-      /is not a URL/,
+      /"not a url" is not a URL$/,
     );
 
     expect(open).not.toHaveBeenCalled();

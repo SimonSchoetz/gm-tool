@@ -1,4 +1,4 @@
-// Node host — imported by vitePlugin.ts and commands.ts: the pure checks every request to the dev data server passes before it reaches the database, the images or a command.
+// Node host — imported by requestHandler.ts and commands.ts: the pure checks every request to the dev data server passes before it reaches the database, the images or a command.
 import type { Readable } from 'node:stream';
 // Relative rather than `@domain`: Vite's config bundle, which loads this file, resolves no path alias.
 import { IMAGE_FILE_EXTENSIONS } from '../domain/images';

@@ -198,3 +198,10 @@ Under this project's config a `throw` of a value typed `string` is reported in a
 **Citation:** [architect_9: `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.71.0_*/node_modules/@typescript-eslint/eslint-plugin/dist/rules/no-restricted-imports.js:23-24,169,181,208-237` — `allowTypeImports` on `paths` and `patterns`; visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration`, `TSImportEqualsDeclaration`, not `ImportExpression`] [architect_11: `app/node_modules/.pnpm/eslint@10.11.0*/node_modules/eslint/lib/rules/no-restricted-imports.js:858-864`]
 
 A dynamic `import()` of a restricted module passes both rules, and a `vi.mock('<module>', …)` call is not an import declaration either; a type-only import of a restricted module passes the extension rule when its entry sets `allowTypeImports`.
+
+## `eslint-plugin-import-x` 4.17.1's `no-restricted-paths` resolves a zone's `except` entries against that zone's `from` path, each of which must stay inside `from`
+
+**Verified at:** eslint-plugin-import-x 4.17.1, read 2026-10-20
+**Citation:** [code-reviewer_4: `app/node_modules/.pnpm/eslint-plugin-import-x@4.17.1_*/node_modules/eslint-plugin-import-x/lib/rules/no-restricted-paths.js:142` — `absoluteExceptionPaths = zoneExcept.map(exceptionPath => path.resolve(absoluteFrom, exceptionPath))`] [implement_9: the same file :139-146 — `isPathRestricted` tests `containsPath(absoluteImportPath, absoluteFrom)`, every exception must satisfy `isValidExceptionPath(absoluteFrom, …)`, and an import inside an exception path is not reported]
+
+A zone `{ from: './dev-data-server', except: ['./protocol.ts'] }` exempts `dev-data-server/protocol.ts`, written relative to the zone's folder rather than to `basePath`.

@@ -1,5 +1,6 @@
 // @vitest-environment node
 import {
+  copyFileSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -107,6 +108,32 @@ describe('copyDatabase', () => {
     expect(readFileSync(sourcePath)).toEqual(sourceBytes);
     expect(readdirSync(sourceDir).sort()).toEqual(sourceListing);
     writer.close();
+  });
+  it('copies the rows of a database left with its -wal and -shm files and, as the only connection, checkpoints them into the source on close', async () => {
+    // A writer in another directory leaves a committed row in its -wal; copying its three files while it is open makes `sourceDir` look like an app that crashed or persisted its WAL.
+    const writerDir = join(temp.dir, 'writer');
+    mkdirSync(writerDir);
+    const writer = new DatabaseSync(join(writerDir, INSTALLED_DATABASE_FILE));
+    writer.exec('PRAGMA journal_mode = WAL');
+    writer.exec("CREATE TABLE t (a TEXT); INSERT INTO t (a) VALUES ('in-wal')");
+    for (const suffix of ['', '-wal', '-shm']) {
+      copyFileSync(
+        join(writerDir, `${INSTALLED_DATABASE_FILE}${suffix}`),
+        join(sourceDir, `${INSTALLED_DATABASE_FILE}${suffix}`),
+      );
+    }
+    writer.close();
+    expect(readdirSync(sourceDir).sort()).toEqual([
+      INSTALLED_DATABASE_FILE,
+      `${INSTALLED_DATABASE_FILE}-shm`,
+      `${INSTALLED_DATABASE_FILE}-wal`,
+    ]);
+
+    copyDatabase(sourceDir, targetDir);
+
+    expect(await readRows(targetDir)).toEqual([{ a: 'in-wal' }]);
+    expect(readdirSync(sourceDir)).toEqual([INSTALLED_DATABASE_FILE]);
+    expect(await readRows(sourceDir)).toEqual([{ a: 'in-wal' }]);
   });
 });
 

@@ -129,7 +129,7 @@ export default defineConfig(
     },
   },
   {
-    // The non-UI layers and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
+    // The non-UI layers, the platform module and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
     files: [
       'db/**/*.ts',
       'domain/**/*.ts',

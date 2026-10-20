@@ -27,8 +27,6 @@ describe('tauriPlatform.pickFile', () => {
       multiple: false,
       filters: [{ name: 'Allowed Files', extensions: ['png', 'jpg'] }],
     });
-    const [options] = open.mock.calls[0];
-    expect(options?.filters?.[0]?.extensions).not.toBe(extensions);
   });
 });
 

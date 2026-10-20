@@ -1,4 +1,4 @@
-// Node host — imported by vitePlugin.ts: the server-side answer to every `invoke` the browser forwards in web mode, one case per Tauri command of app/src-tauri/src/lib.rs.
+// Node host — imported by requestHandler.ts: the server-side answer to every `invoke` the browser forwards in web mode, one case per Tauri command of app/src-tauri/src/lib.rs.
 import {
   copyFileSync,
   existsSync,

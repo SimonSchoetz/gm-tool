@@ -109,9 +109,16 @@ A nullable column read through `select()` arrives in JavaScript as `null`, never
 ## `@tauri-apps/plugin-sql`'s `execute` resolves `{ rowsAffected, lastInsertId? }` and `select<T>` resolves the rows
 
 **Verified at:** @tauri-apps/plugin-sql 2.5.0, read 2026-10-20
-**Citation:** [implement_5: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:4-16 — `QueryResult { rowsAffected: number; lastInsertId?: number }`; :65 — `static load(path: string): Promise<Database>`; :126 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`; :152 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`] [implement_6: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:125-134 — `execute` returns `{ lastInsertId, rowsAffected }` from the `plugin:sql|execute` result; :161-167 — `select` returns the `plugin:sql|select` result unchanged]
+**Citation:** [implement_5: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:4-16 — `QueryResult { rowsAffected: number; lastInsertId?: number }`; :65 — `static load(path: string): Promise<Database>`; :126 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`; :152 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`]
 
-A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module; `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it.
+A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module.
+
+## `@tauri-apps/plugin-sql` 2.5.0's `select<T>` returns the `plugin:sql|select` IPC result as the caller-named `T` without checking it
+
+**Verified at:** @tauri-apps/plugin-sql 2.5.0, read 2026-10-20
+**Citation:** [implement_6: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:161-167 — `async select(query, bindValues)` awaits `invoke('plugin:sql|select', …)` and returns the result unchanged; :125-134 — `execute` likewise returns `{ lastInsertId, rowsAffected }` from the `plugin:sql|execute` result]
+
+A stand-in for `select` may return its rows cast to `T` the same way; nothing in the package validates the rows against the type argument.
 
 ## The Tauri CLI compares `tauri` against `@tauri-apps/api` and each `tauri-plugin-<n>` crate against `@tauri-apps/plugin-<n>`, and a differing major or minor makes `tauri build` fail while `tauri dev` only logs it
 
@@ -175,3 +182,10 @@ Under the default, a snake_case key for a multi-word argument such as `database_
 **Citation:** [spec-writer_2: ran a scratch `// @vitest-environment node` test under `npx vitest run` from `app/` that dynamically imports `@tauri-apps/api/core`, `@tauri-apps/api/event`, `@tauri-apps/api/app`, `@tauri-apps/plugin-dialog` and `@tauri-apps/plugin-opener` — observed every import resolving, with `invoke`, `listen`, `getVersion`, `open` and `openUrl` each typed `function`] [spec-writer_3: same run, a module importing from all five packages while `vi.mock('@tauri-apps/api/core', () => ({ invoke }))` was in force — observed it loading and its `invoke` wrapper resolving]
 
 None of the five modules touches `window.__TAURI_INTERNALS__` while it loads, so a test that mocks only `@tauri-apps/api/core` can import a module that wraps all five without mocking the other four; the bridge is reached only when one of their functions is called.
+
+## tauri-plugin-opener 2.7.0's `opener:default` permission set grants `allow-open-url`, `allow-reveal-item-in-dir` and `allow-default-urls`, whose scope is `mailto:*`, `tel:*`, `http://*` and `https://*`
+
+**Verified at:** tauri-plugin-opener 2.7.0, read 2026-10-20
+**Citation:** [code-reviewer_5: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-opener-2.7.0/permissions/default.toml — `opener:default` is `allow-open-url`, `allow-reveal-item-in-dir` and `allow-default-urls`; permissions/allow-default-urls.toml — scope `mailto:*`, `tel:*`, `http://*`, `https://*`; app/src-tauri/capabilities/default.json:10 — the app grants `"opener:default"`]
+
+With only the default permission granted, `openUrl` from `@tauri-apps/plugin-opener` opens URLs of those four schemes and refuses any other, so a second implementation of the same operation matches it by allowing exactly that set.

@@ -16,6 +16,7 @@ import {
   type CommandContext,
 } from '../commands';
 import { DEV_DATA_SERVER_PREFIX, DEV_DATA_SERVER_ROUTES } from '../protocol';
+import { isRequestRejectionError } from '../requestGuard';
 import { openSqliteDatabase } from '../sqliteDatabase';
 import { createTempDirectory } from './support/tempDirectory';
 
@@ -68,17 +69,26 @@ describe('answerCommand', () => {
         { ...imageArgs('img1'), sourcePath: foreign },
         context,
       ),
-    ).rejects.toMatchObject({ name: 'RequestRejectionError', status: 400 });
+    ).rejects.toSatisfy(
+      (error: unknown) =>
+        isRequestRejectionError(error) && error.status === 400,
+    );
     expect(readdirSync(context.imagesDir)).toEqual([]);
   });
 
   it('rejects an id that would leave the images directory with status 400', async () => {
     await expect(
       answerCommand('check_image_file_exists', imageArgs('../x'), context),
-    ).rejects.toMatchObject({ name: 'RequestRejectionError', status: 400 });
+    ).rejects.toSatisfy(
+      (error: unknown) =>
+        isRequestRejectionError(error) && error.status === 400,
+    );
     await expect(
       answerCommand('delete_image', { id: 1, extension: 'png' }, context),
-    ).rejects.toMatchObject({ name: 'RequestRejectionError', status: 400 });
+    ).rejects.toSatisfy(
+      (error: unknown) =>
+        isRequestRejectionError(error) && error.status === 400,
+    );
   });
 
   it('get_image_url answers the images route for the file', async () => {

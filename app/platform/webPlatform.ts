@@ -106,7 +106,7 @@ export const webPlatform: Platform = {
     if (protocol === null || !OPENABLE_URL_PROTOCOLS.includes(protocol)) {
       return Promise.reject(
         new Error(
-          `Web mode opens http:, https:, mailto: and tel: URLs only; ${protocol === null ? `"${url}" is not a URL` : `the scheme of "${url}" is ${protocol}`}`,
+          `Web mode opens ${OPENABLE_URL_PROTOCOLS.join(', ')} URLs only; ${protocol === null ? `"${url}" is not a URL` : `the scheme of "${url}" is ${protocol}`}`,
         ),
       );
     }
