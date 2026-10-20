@@ -95,6 +95,10 @@ Registering a new base entity type touches every layer in `app/docs/CLAUDE.md`'s
 - Add an entry to `BASE_ENTITY_SEARCH_HINTS` (`domain/entities/baseEntitySearchHints.ts`) — the one type-specific word the list screen's search placeholder shows.
 - Add the corresponding assertion to each accessor's test file (`entityTypes.test.ts`, `buildEntityPath.test.ts` if it asserts per-type segments, `baseEntitySearchHints.test.ts`).
 
+### Platform
+
+Needs no change — `app/platform/` is the host boundary every layer reaches Tauri through, and a new base entity type adds no host operation.
+
 ### Database
 
 - Add a migration that inserts only the new type's `table_config` row — no table and no triggers, since `base_entities` and its sync triggers already exist. Follow the `WHERE NOT EXISTS` form in `db/_migrations/1780099200000_seed_table_config.ts`:

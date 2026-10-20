@@ -1,215 +1,51 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { IMAGE_FILE_EXTENSIONS } from '@domain';
+import type * as platform from '@platform';
 import { filePicker } from '../filePicker';
 
-// Mock the Tauri dialog module
-vi.mock('@tauri-apps/plugin-dialog', () => ({
-  open: vi.fn(),
-}));
+const pickFile = vi.hoisted(() => vi.fn<typeof platform.pickFile>());
 
-import { open } from '@tauri-apps/plugin-dialog';
+vi.mock('@platform', () => ({ pickFile }));
 
 describe('filePicker', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    pickFile.mockReset();
   });
 
-  describe('successful file selection', () => {
-    it('should return selected file path for image type', async () => {
-      const mockPath = '/path/to/image.jpg';
-      vi.mocked(open).mockResolvedValue(mockPath);
+  it('asks the platform for the image extensions and resolves the picked path', async () => {
+    pickFile.mockResolvedValue('/path/to/image.jpg');
 
-      const result = await filePicker('image');
+    await expect(filePicker('image')).resolves.toBe('/path/to/image.jpg');
 
-      expect(result).toBe(mockPath);
-      expect(open).toHaveBeenCalledWith({
-        multiple: false,
-        filters: [
-          {
-            name: 'Allowed Files',
-            extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-          },
-        ],
-      });
-    });
-
-    it('should return selected file path for document type', async () => {
-      const mockPath = '/path/to/document.pdf';
-      vi.mocked(open).mockResolvedValue(mockPath);
-
-      const result = await filePicker('document');
-
-      expect(result).toBe(mockPath);
-      expect(open).toHaveBeenCalledWith({
-        multiple: false,
-        filters: [
-          {
-            name: 'Allowed Files',
-            extensions: ['pdf', 'md'],
-          },
-        ],
-      });
-    });
-
-    it('should return null when user cancels selection', async () => {
-      vi.mocked(open).mockResolvedValue(null);
-
-      const result = await filePicker('image');
-
-      expect(result).toBe(null);
+    expect(pickFile).toHaveBeenCalledWith({
+      extensions: IMAGE_FILE_EXTENSIONS,
     });
   });
 
-  describe('file type filters', () => {
-    it('should use correct extensions for image type', async () => {
-      vi.mocked(open).mockResolvedValue('/path/to/file.png');
+  it('asks the platform for the document extensions', async () => {
+    pickFile.mockResolvedValue('/path/to/notes.md');
 
-      await filePicker('image');
+    await filePicker('document');
 
-      expect(open).toHaveBeenCalledWith(
-        expect.objectContaining({
-          filters: [
-            {
-              name: 'Allowed Files',
-              extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-            },
-          ],
-        }),
-      );
-    });
-
-    it('should use correct extensions for document type', async () => {
-      vi.mocked(open).mockResolvedValue('/path/to/file.pdf');
-
-      await filePicker('document');
-
-      expect(open).toHaveBeenCalledWith(
-        expect.objectContaining({
-          filters: [
-            {
-              name: 'Allowed Files',
-              extensions: ['pdf', 'md'],
-            },
-          ],
-        }),
-      );
-    });
-
-    it('should always set multiple to false', async () => {
-      vi.mocked(open).mockResolvedValue('/path/to/file.jpg');
-
-      await filePicker('image');
-
-      expect(open).toHaveBeenCalledWith(
-        expect.objectContaining({
-          multiple: false,
-        }),
-      );
-    });
+    expect(pickFile).toHaveBeenCalledWith({ extensions: ['pdf', 'md'] });
   });
 
-  describe('error handling', () => {
-    it('should throw Error when open() throws an Error', async () => {
-      const errorMessage = 'Failed to open dialog';
-      vi.mocked(open).mockRejectedValue(new Error(errorMessage));
+  it('resolves null when the pick is cancelled', async () => {
+    pickFile.mockResolvedValue(null);
 
-      await expect(filePicker('image')).rejects.toThrow(errorMessage);
-    });
-
-    it('should throw Error when open() throws a string', async () => {
-      const errorMessage = 'String error message';
-      vi.mocked(open).mockRejectedValue(errorMessage);
-
-      await expect(filePicker('image')).rejects.toThrow(errorMessage);
-    });
-
-    it('should throw Error with formatted message for unknown error types', async () => {
-      const unknownError = { code: 500, message: 'Unknown' };
-      vi.mocked(open).mockRejectedValue(unknownError);
-
-      await expect(filePicker('image')).rejects.toThrow(
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-        `Failed to open file picker: ${unknownError}`,
-      );
-    });
-
-    it('should throw Error when open() throws null', async () => {
-      vi.mocked(open).mockRejectedValue(null);
-
-      await expect(filePicker('image')).rejects.toThrow(
-        'Failed to open file picker: null',
-      );
-    });
-
-    it('should throw Error when open() throws undefined', async () => {
-      vi.mocked(open).mockRejectedValue(undefined);
-
-      await expect(filePicker('image')).rejects.toThrow(
-        'Failed to open file picker: undefined',
-      );
-    });
-
-    it('should throw Error when open() throws a number', async () => {
-      vi.mocked(open).mockRejectedValue(404);
-
-      await expect(filePicker('image')).rejects.toThrow(
-        'Failed to open file picker: 404',
-      );
-    });
+    await expect(filePicker('image')).resolves.toBeNull();
   });
 
-  describe('return value types', () => {
-    it('should return string when file is selected', async () => {
-      const mockPath = '/path/to/file.jpg';
-      vi.mocked(open).mockResolvedValue(mockPath);
+  it("rejects with an Error's own message, a thrown string as the message, and a formatted message for any other value", async () => {
+    pickFile.mockRejectedValueOnce(new Error('Dialog failed'));
+    await expect(filePicker('image')).rejects.toThrow('Dialog failed');
 
-      const result = await filePicker('image');
+    pickFile.mockRejectedValueOnce('Permission denied');
+    await expect(filePicker('image')).rejects.toThrow('Permission denied');
 
-      expect(typeof result).toBe('string');
-    });
-
-    it('should return null when no file is selected', async () => {
-      vi.mocked(open).mockResolvedValue(null);
-
-      const result = await filePicker('image');
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('edge cases', () => {
-    it('should handle empty string path', async () => {
-      vi.mocked(open).mockResolvedValue('');
-
-      const result = await filePicker('image');
-
-      expect(result).toBe('');
-    });
-
-    it('should handle paths with special characters', async () => {
-      const specialPath = '/path/to/my file (1) [test].jpg';
-      vi.mocked(open).mockResolvedValue(specialPath);
-
-      const result = await filePicker('image');
-
-      expect(result).toBe(specialPath);
-    });
-
-    it('should handle Windows-style paths', async () => {
-      const windowsPath = 'C:\\Users\\test\\Documents\\file.jpg';
-      vi.mocked(open).mockResolvedValue(windowsPath);
-
-      const result = await filePicker('image');
-
-      expect(result).toBe(windowsPath);
-    });
-
-    it('should handle network paths', async () => {
-      const networkPath = '\\\\server\\share\\file.jpg';
-      vi.mocked(open).mockResolvedValue(networkPath);
-
-      const result = await filePicker('image');
-
-      expect(result).toBe(networkPath);
-    });
+    pickFile.mockRejectedValueOnce(404);
+    await expect(filePicker('image')).rejects.toThrow(
+      'Failed to open file picker: 404',
+    );
   });
 });

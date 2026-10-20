@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { listen } from '@tauri-apps/api/event';
+import { listen } from '@platform';
 import {
   CONNECTIVITY_EVENTS,
   type ConnectivityInitError,
@@ -40,6 +40,7 @@ export const useConnectivityLifecycle = (): UseConnectivityLifecycleReturn => {
     retry: false,
   });
 
+  // `useCallback` because `startSyncHandshake` is read in the dependency arrays of the reconnect-bootstrap effect and the connectivity-events effect below.
   const startSyncHandshake = useCallback(
     (endpointId: string) => {
       const timers = helloTimersRef.current;

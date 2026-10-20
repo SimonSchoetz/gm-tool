@@ -1,18 +1,14 @@
-import { FileTypes } from '@/types/fileTypes.type';
-import { open } from '@tauri-apps/plugin-dialog';
+import { IMAGE_FILE_EXTENSIONS } from '@domain';
+import { pickFile } from '@platform';
 
-const fileTypes: FileTypes = {
-  image: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+const fileTypes = {
+  image: IMAGE_FILE_EXTENSIONS,
   document: ['pdf', 'md'],
-};
+} as const satisfies Record<string, readonly string[]>;
 
-export const filePicker = async (fileType: keyof FileTypes) => {
+export const filePicker = async (fileType: keyof typeof fileTypes) => {
   try {
-    const extensions = fileTypes[fileType];
-    const selected = await open({
-      multiple: false,
-      filters: [{ name: 'Allowed Files', extensions }],
-    });
+    const selected = await pickFile({ extensions: fileTypes[fileType] });
 
     return selected;
   } catch (err) {

@@ -1,4 +1,4 @@
-import { invoke, Channel } from '@tauri-apps/api/core';
+import { invoke, type IpcChannel } from '@platform';
 import {
   updateCheckError,
   updateDownloadError,
@@ -29,7 +29,7 @@ export const checkUpdate = async (): Promise<string | null> => {
 };
 
 export const downloadUpdate = async (
-  onProgress: Channel<DownloadProgressEvent>,
+  onProgress: IpcChannel<DownloadProgressEvent>,
 ): Promise<void> => {
   try {
     await invoke('download_update', { onEvent: onProgress });

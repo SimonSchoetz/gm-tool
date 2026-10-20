@@ -1,4 +1,4 @@
-import { invoke, convertFileSrc } from '@tauri-apps/api/core';
+import { invoke, convertFileSrc } from '@platform';
 import * as imageDb from '@db/image';
 import type { Image } from '@db/image';
 import {

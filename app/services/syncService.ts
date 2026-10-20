@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '@platform';
 import * as systemDb from '@db/_system';
 import * as syncDb from '@db/_sync';
 import * as migrationsDb from '@db/_migrations';
