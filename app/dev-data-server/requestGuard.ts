@@ -53,8 +53,10 @@ export const isFixturePath = (
 ): sourcePath is string =>
   typeof sourcePath === 'string' && fixturePaths.includes(sourcePath);
 
-export type RequestRejectionError = Error & {
-  name: 'RequestRejectionError';
+const REQUEST_REJECTION_ERROR_NAME = 'RequestRejectionError';
+
+type RequestRejectionError = Error & {
+  name: typeof REQUEST_REJECTION_ERROR_NAME;
   status: 400 | 403 | 413 | 415;
 };
 
@@ -63,7 +65,15 @@ export const requestRejectionError = (
   message: string,
 ): RequestRejectionError => {
   const error = new Error(message) as RequestRejectionError;
-  error.name = 'RequestRejectionError';
+  error.name = REQUEST_REJECTION_ERROR_NAME;
   error.status = status;
   return error;
 };
+
+export const isRequestRejectionError = (
+  value: unknown,
+): value is RequestRejectionError =>
+  typeof value === 'object' &&
+  value !== null &&
+  'name' in value &&
+  value.name === REQUEST_REJECTION_ERROR_NAME;

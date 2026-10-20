@@ -8,7 +8,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs';
-import { basename, extname, join } from 'node:path';
+import { join } from 'node:path';
 import { z } from 'zod';
 import { DEV_DATA_SERVER_PREFIX, DEV_DATA_SERVER_ROUTES } from './protocol';
 import {
@@ -31,26 +31,6 @@ const WEB_MODE_DEVICE_ID = '0'.repeat(64);
 const DEVICE_SYSTEM_KEY = 'device';
 
 const deviceValueSchema = z.object({ id: z.string() });
-
-export const createFixtureCycle = (
-  fixturePaths: readonly string[],
-): ((extensions: readonly string[]) => string | null) => {
-  const sorted = [...fixturePaths].sort((a, b) =>
-    basename(a).localeCompare(basename(b)),
-  );
-  let lastIndex = -1;
-  return (extensions) => {
-    for (let step = 1; step <= sorted.length; step++) {
-      const index = (lastIndex + step) % sorted.length;
-      const candidate = sorted[index];
-      if (extensions.includes(extname(candidate).slice(1).toLowerCase())) {
-        lastIndex = index;
-        return candidate;
-      }
-    }
-    return null;
-  };
-};
 
 const stringArgument = (
   args: Record<string, unknown>,

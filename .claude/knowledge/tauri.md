@@ -108,10 +108,10 @@ A nullable column read through `select()` arrives in JavaScript as `null`, never
 
 ## `@tauri-apps/plugin-sql`'s `execute` resolves `{ rowsAffected, lastInsertId? }` and `select<T>` resolves the rows
 
-**Verified at:** @tauri-apps/plugin-sql 2.4.1
-**Citation:** [harness-probe_2: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:1-13 — `QueryResult { rowsAffected: number; lastInsertId?: number }`] [harness-probe_6: same file:88 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`] [harness-probe_7: same file:107 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`]
+**Verified at:** @tauri-apps/plugin-sql 2.5.0, read 2026-10-20
+**Citation:** [implement_5: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.d.ts:4-16 — `QueryResult { rowsAffected: number; lastInsertId?: number }`; :65 — `static load(path: string): Promise<Database>`; :126 — `execute(query: string, bindValues?: unknown[]): Promise<QueryResult>`; :152 — `select<T>(query: string, bindValues?: unknown[]): Promise<T>`] [implement_6: app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:125-134 — `execute` returns `{ lastInsertId, rowsAffected }` from the `plugin:sql|execute` result; :161-167 — `select` returns the `plugin:sql|select` result unchanged]
 
-A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module.
+A stand-in used in tests needs only `execute` and `select` with these shapes, plus `load`, to satisfy the app's database module; `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it.
 
 ## The Tauri CLI compares `tauri` against `@tauri-apps/api` and each `tauri-plugin-<n>` crate against `@tauri-apps/plugin-<n>`, and a differing major or minor makes `tauri build` fail while `tauri dev` only logs it
 

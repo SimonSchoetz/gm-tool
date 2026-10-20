@@ -1,26 +1,21 @@
-// Node host — imported by vitePlugin.ts. 'com.gm-tool' and 'gm_tool.db' describe the installed release app — the identifier of app/src-tauri/tauri.conf.json and the file db/database.ts passes to plugin-sql — and are not imported from there because Vite's config bundle resolves no path alias and db/database.ts imports @platform.
+// Node host — imported by vitePlugin.ts. 'gm_tool.db' describes the installed release app — the file db/database.ts passes to plugin-sql — and is not imported from there because Vite's config bundle resolves no path alias and db/database.ts imports @platform; the app identifier comes from app/src-tauri/tauri.conf.json, which vitePlugin.ts reads.
 import { copyFileSync, cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-const INSTALLED_APP_IDENTIFIER = 'com.gm-tool';
 export const INSTALLED_DATABASE_FILE = 'gm_tool.db';
 
 export const resolveInstalledAppDataDir = (
   platform: NodeJS.Platform,
   homeDir: string,
+  identifier: string,
 ): string => {
   if (platform !== 'darwin') {
     throw new Error(
-      `The dev data server reads the installed app's data from ~/Library/Application Support/${INSTALLED_APP_IDENTIFIER}, which exists on macOS only; this platform is ${platform}.`,
+      `The dev data server reads the installed app's data from ~/Library/Application Support/${identifier}, which exists on macOS only; this platform is ${platform}.`,
     );
   }
-  return join(
-    homeDir,
-    'Library',
-    'Application Support',
-    INSTALLED_APP_IDENTIFIER,
-  );
+  return join(homeDir, 'Library', 'Application Support', identifier);
 };
 
 export const assertInstalledAppData = (dir: string): void => {

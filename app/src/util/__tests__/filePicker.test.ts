@@ -37,15 +37,16 @@ describe('filePicker', () => {
   });
 
   it("rejects with an Error's own message, a thrown string as the message, and a formatted message for any other value", async () => {
+    // Anchored: toThrow(string) matches a substring, which the fallback branch's "Failed to open file picker: …" message would also contain.
     pickFile.mockRejectedValueOnce(new Error('Dialog failed'));
-    await expect(filePicker('image')).rejects.toThrow('Dialog failed');
+    await expect(filePicker('image')).rejects.toThrow(/^Dialog failed$/);
 
     pickFile.mockRejectedValueOnce('Permission denied');
-    await expect(filePicker('image')).rejects.toThrow('Permission denied');
+    await expect(filePicker('image')).rejects.toThrow(/^Permission denied$/);
 
     pickFile.mockRejectedValueOnce(404);
     await expect(filePicker('image')).rejects.toThrow(
-      'Failed to open file picker: 404',
+      /^Failed to open file picker: 404$/,
     );
   });
 });

@@ -44,12 +44,12 @@ const readRows = async (dir: string): Promise<unknown> => {
 
 describe('resolveInstalledAppDataDir', () => {
   it('resolves the macOS data directory from the given home and refuses another platform naming that path', () => {
-    expect(resolveInstalledAppDataDir('darwin', '/Users/gm')).toBe(
-      '/Users/gm/Library/Application Support/com.gm-tool',
+    expect(resolveInstalledAppDataDir('darwin', '/Users/gm', 'com.app')).toBe(
+      '/Users/gm/Library/Application Support/com.app',
     );
-    expect(() => resolveInstalledAppDataDir('linux', '/home/gm')).toThrow(
-      'Library/Application Support/com.gm-tool',
-    );
+    expect(() =>
+      resolveInstalledAppDataDir('linux', '/home/gm', 'com.app'),
+    ).toThrow('Library/Application Support/com.app');
   });
 });
 

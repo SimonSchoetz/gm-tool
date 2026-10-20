@@ -125,3 +125,10 @@ It fires every timer already pending when it is called and none that starts duri
 **Citation:** [spec-writer_1: ran a scratch `// @vitest-environment node` test under `npx vitest run` from `app/` with `vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn(() => Promise.resolve('ok')) }))` and a module importing `{ invoke, Channel }` from that package — observed the module loading and its `invoke` wrapper resolving `'ok'`, an arrow calling `new Channel(…)` throwing `[vitest] No "Channel" export is defined on the "@tauri-apps/api/core" mock. Did you forget to return it from "vi.mock"?`, and a dynamic import of a second module that reads `Channel` in a module-level object literal rejecting with that same error]
 
 A module that imports several names from a partially mocked package loads as long as every read of a name the factory left out is deferred into a function body; a shorthand property, a default argument or any other module-level read of such a name fails the importing module's load with that error.
+
+## Vitest 5.0.2's `toThrow` matches a string argument as a substring of the thrown message, tests a RegExp against the message, and compares an `Error` instance or other object with `equals`
+
+**Verified at:** vitest 5.0.2, chai 6.2.2, read 2026-10-20
+**Citation:** [code-reviewer_2: `app/node_modules/.pnpm/vitest@5.0.2_*/node_modules/vitest/dist/chunks/index.DGdajAO2.js:2288` — `def(["toThrow", "toThrowError"])` passes a string, undefined or RegExp argument to `this.throws(expected)`; `app/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:80-81` — a string matcher passes on `comparisonString.indexOf(errMatcher) !== -1`] [implement_4: the same vitest chunk :2311 — a function argument asserts `thrown instanceof expected`; :2316 and :2323 — an `Error` instance or another object is compared with `equals(thrown, expected, [...customTesters, iterableEquality])`]
+
+`rejects.toThrow('x')` passes for any message containing `x`, so two branches whose messages contain the same text are not told apart by it; an anchored RegExp such as `/^x$/` pins the whole message, and an `Error` instance is compared as a whole object, `cause` included.

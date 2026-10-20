@@ -12,7 +12,7 @@ What landed: the in-range npm drift in both pnpm projects — `app/` and the rep
 
 TypeScript 7 was evaluated and deliberately not taken — see Owner decisions.
 
-Items that need the native file dialog, sync between devices, the updater or the backup need `pnpm run dev` from `app/`; everything else below runs in web mode too (`pnpm run web` from `app/`), which serves a migrated copy of the installed release app's data and never writes the real files.
+Items that need the native file dialog, sync between devices, the updater or the backup need `pnpm run dev` from `app/`; everything else below runs in web mode too (`pnpm run web` from `app/`), which serves a migrated copy of the installed release app's data and leaves the real files unchanged, except that opening a database the release app left with a `-wal` file beside it can recover that file in place.
 
 ## 1. Build gate — run this first
 

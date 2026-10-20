@@ -40,4 +40,4 @@ Code that treats a row like an ordinary object works, but a strict equality asse
 **Verified at:** @types/node 26.6.3, read 2026-10-20
 **Citation:** [spec-writer_7: app/node_modules/@types/node/sqlite.d.ts:5-38 — `DatabaseSyncOptions` with `open`, `enableForeignKeyConstraints` and `readOnly` and their documented defaults; :262 — `constructor(path: PathLike, options?: DatabaseSyncOptions)`; :831-843 — `StatementResultingChanges { changes: number | bigint; lastInsertRowid: number | bigint }`; :870,902,933 — `StatementSync.all(...)`, `.get(...)` returning `Record<string, SQLOutputValue> | undefined`, `.run(...)`; :1050 — `function backup(sourceDb: DatabaseSync, path: PathLike, options?: BackupOptions): Promise<number>`]
 
-A file-backed database opens read-write with foreign keys on by default; `run()`'s counts need `Number(…)` before they meet a `number`-typed contract, and `get()` can return `undefined`, which this project's lint requires normalising with `?? null`.
+A file-backed database opens read-write with foreign keys on by default; `run()`'s counts need `Number(…)` before they meet a `number`-typed contract, and `get()` can return `undefined`.

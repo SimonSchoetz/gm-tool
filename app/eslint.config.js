@@ -129,7 +129,7 @@ export default defineConfig(
     },
   },
   {
-    // The non-UI layers, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
+    // The non-UI layers and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
     files: [
       'db/**/*.ts',
       'domain/**/*.ts',
@@ -157,6 +157,32 @@ export default defineConfig(
               allowTypeImports: true,
               message:
                 'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. A second `@typescript-eslint/no-restricted-imports` block would replace the Tauri block's options for every file both match, so the boundary uses import-x's path rule.
+    files: ['**/*.{ts,tsx}'],
+    ignores: [
+      'dev-data-server/**',
+      'vite.config.ts',
+      'db/__tests__/support/sqlite-test-database.ts',
+    ],
+    rules: {
+      'import-x/no-restricted-paths': [
+        'error',
+        {
+          basePath: import.meta.dirname,
+          zones: [
+            {
+              target: '.',
+              from: './dev-data-server',
+              except: ['./protocol.ts'],
+              message:
+                'app/dev-data-server/ runs in Node inside Vite; app and browser code import only its protocol.ts.',
             },
           ],
         },

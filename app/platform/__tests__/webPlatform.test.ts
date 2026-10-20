@@ -142,25 +142,60 @@ describe('webPlatform.pickFile', () => {
 });
 
 describe('webPlatform.getVersion', () => {
+  it("rejects a non-2xx answer with the server's error string instead of an undefined version", async () => {
+    fetchSpy.mockResolvedValueOnce(
+      jsonResponse(403, { error: 'loopback only' }),
+    );
+
+    await expect(webPlatform.getVersion()).rejects.toThrow(/^loopback only$/);
+  });
+
   it('reads the version route', async () => {
     fetchSpy.mockResolvedValueOnce(jsonResponse(200, { version: '1.2.3' }));
 
     await expect(webPlatform.getVersion()).resolves.toBe('1.2.3');
-    expect(fetchSpy).toHaveBeenCalledWith(url(DEV_DATA_SERVER_ROUTES.version));
+    expect(fetchSpy).toHaveBeenCalledWith(url(DEV_DATA_SERVER_ROUTES.version), {
+      method: 'GET',
+    });
   });
 });
 
 describe('webPlatform.openUrl', () => {
-  it('opens the URL in a new tab without a reference back to the app', async () => {
+  it('opens an http, https, mailto or tel URL in a new tab without a reference back to the app', async () => {
     const open = vi.spyOn(window, 'open').mockImplementation(() => null);
 
     await webPlatform.openUrl('https://example.test/page');
+    await webPlatform.openUrl('mailto:gm@example.test');
 
-    expect(open).toHaveBeenCalledWith(
+    expect(open).toHaveBeenNthCalledWith(
+      1,
       'https://example.test/page',
       '_blank',
       'noopener',
     );
+    expect(open).toHaveBeenNthCalledWith(
+      2,
+      'mailto:gm@example.test',
+      '_blank',
+      'noopener',
+    );
+    open.mockRestore();
+  });
+
+  it('rejects a URL of any other scheme, naming the scheme, and opens nothing', async () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    await expect(webPlatform.openUrl('javascript:alert(1)')).rejects.toThrow(
+      /javascript:/,
+    );
+    await expect(webPlatform.openUrl('file:///etc/hosts')).rejects.toThrow(
+      /file:/,
+    );
+    await expect(webPlatform.openUrl('not a url')).rejects.toThrow(
+      /is not a URL/,
+    );
+
+    expect(open).not.toHaveBeenCalled();
     open.mockRestore();
   });
 });

@@ -15,18 +15,21 @@ import type { Platform } from './types';
 export const UNREACHABLE_DEV_DATA_SERVER_MESSAGE =
   "The dev data server is not reachable. Start the app with the `web` launch configuration or run `pnpm run web` from app/ to serve a copy of the installed app's data.";
 
-const postJson = async <T>(route: string, body: unknown): Promise<T> => {
-  const response = await fetch(`${DEV_DATA_SERVER_PREFIX}${route}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+const fetchJson = async <T>(route: string, init: RequestInit): Promise<T> => {
+  const response = await fetch(`${DEV_DATA_SERVER_PREFIX}${route}`, init);
   const parsed: unknown = await response.json();
   if (!response.ok) {
     throw new Error((parsed as ErrorResponse).error);
   }
   return parsed as T;
 };
+
+const postJson = <T>(route: string, body: unknown): Promise<T> =>
+  fetchJson<T>(route, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 
 // Vite's SPA fallback answers any unknown path with 200 and the app's HTML, so only the health route's own 204 proves the server is there.
 const isDevDataServerReachable = async (): Promise<boolean> => {
@@ -37,6 +40,21 @@ const isDevDataServerReachable = async (): Promise<boolean> => {
     return response.status === 204;
   } catch {
     return false;
+  }
+};
+
+const OPENABLE_URL_PROTOCOLS: readonly string[] = [
+  'http:',
+  'https:',
+  'mailto:',
+  'tel:',
+];
+
+const urlProtocol = (url: string): string | null => {
+  try {
+    return new URL(url).protocol;
+  } catch {
+    return null;
   }
 };
 
@@ -74,15 +92,24 @@ export const webPlatform: Platform = {
     }),
   createIpcChannel: <T>(onmessage: (message: T) => void) => ({ onmessage }),
   getVersion: async () => {
-    const response = await fetch(
-      `${DEV_DATA_SERVER_PREFIX}${DEV_DATA_SERVER_ROUTES.version}`,
+    const { version } = await fetchJson<VersionResponse>(
+      DEV_DATA_SERVER_ROUTES.version,
+      { method: 'GET' },
     );
-    const { version } = (await response.json()) as VersionResponse;
     return version;
   },
   // get_image_url already answers a URL the browser can fetch.
   convertFileSrc: (filePath) => filePath,
+  // The Tauri opener plugin's default scope, which the app grants: web mode opens the same URLs and nothing else, in a new tab rather than inside the app's page.
   openUrl: (url) => {
+    const protocol = urlProtocol(url);
+    if (protocol === null || !OPENABLE_URL_PROTOCOLS.includes(protocol)) {
+      return Promise.reject(
+        new Error(
+          `Web mode opens http:, https:, mailto: and tel: URLs only; ${protocol === null ? `"${url}" is not a URL` : `the scheme of "${url}" is ${protocol}`}`,
+        ),
+      );
+    }
     window.open(url, '_blank', 'noopener');
     return Promise.resolve();
   },

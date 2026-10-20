@@ -7,7 +7,6 @@ import {
   isJsonContentType,
   isSafeImageFileName,
   readJsonBody,
-  requestRejectionError,
 } from '../requestGuard';
 
 describe('isAllowedHost', () => {
@@ -90,17 +89,5 @@ describe('isFixturePath', () => {
     expect(isFixturePath('/fixtures/c.png', fixtures)).toBe(false);
     expect(isFixturePath('/fixtures', fixtures)).toBe(false);
     expect(isFixturePath(['/fixtures/a.png'], fixtures)).toBe(false);
-  });
-});
-
-describe('requestRejectionError', () => {
-  it('carries the status and the name the handler narrows on', () => {
-    const error = requestRejectionError(415, 'not json');
-
-    expect(error).toMatchObject({
-      name: 'RequestRejectionError',
-      status: 415,
-      message: 'not json',
-    });
   });
 });

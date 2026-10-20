@@ -66,7 +66,7 @@ export const openSqliteDatabase = (path: string): SqliteDatabase => {
     select: <T>(query: string, bindValues?: unknown[]) =>
       settle(() => {
         const rows = prepare(query).all(...toSqlValues(bindValues));
-        // Rows are copied into plain objects, because node:sqlite returns them with a null prototype. plugin-sql's `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it (app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:117-124), and the adapter does the same.
+        // Rows are copied into plain objects, because node:sqlite returns them with a null prototype. plugin-sql's `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it (app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:161-167), and the adapter does the same.
         return rows.map((row) => ({ ...row })) as T;
       }),
     close: () =>

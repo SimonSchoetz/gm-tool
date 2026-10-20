@@ -37,8 +37,8 @@ A middleware registered with `server.middlewares.use` inside the hook runs befor
 
 ## Vite documents `import.meta.env.*` as statically replaced at build time to make tree-shaking effective, and `--mode` as overriding a command's default mode
 
-**Verified at:** <https://vite.dev/guide/env-and-mode>, 2026-10-20
-**Citation:** [architect_7: <https://vite.dev/guide/env-and-mode> — `--mode` overrides the command's default mode; `DEV` is the opposite of `PROD`, tied to `NODE_ENV`; `import.meta.env.*` is "statically replaced at build time to make tree-shaking effective"]
+**Verified at:** <https://vite.dev/guide/env-and-mode>, 2026-10-20; vite 8.3.1, run 2026-10-20
+**Citation:** [architect_7: <https://vite.dev/guide/env-and-mode> — `--mode` overrides the command's default mode; `DEV` is the opposite of `PROD`, tied to `NODE_ENV`; `import.meta.env.*` is "statically replaced at build time to make tree-shaking effective"] [code-reviewer_1: ran `npx vite build --outDir <scratch> --emptyOutDir` from `app/` at 88bc6ddd, where `app/platform/index.ts` selects `webPlatform` under `import.meta.env.MODE === 'web'` — observed exit 0, neither `__dev-data` nor "dev data server is not reachable" in the output, and the control string `plugin:sql` present]
 
 A production build drops a branch guarded by `import.meta.env.MODE === '<mode>'` when the build's mode differs, and the same source selects the other branch under `vite --mode <mode>`.
 

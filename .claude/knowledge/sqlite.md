@@ -169,7 +169,7 @@ Opening a WAL database read-only in a directory the process cannot write to fail
 
 ## `VACUUM INTO` writes a consistent snapshot of the database into a target that must not exist or must be an empty file, leaves the original unchanged, and is documented as an alternative to the backup API
 
-**Verified at:** <https://www.sqlite.org/lang_vacuum.html>, 2026-10-20
-**Citation:** [architect_17: <https://www.sqlite.org/lang_vacuum.html>]
+**Verified at:** <https://www.sqlite.org/lang_vacuum.html>, 2026-10-20; node:sqlite under Node v24.21.0 (SQLite 3.53.4), run 2026-10-20
+**Citation:** [architect_17: <https://www.sqlite.org/lang_vacuum.html>] [spec-writer_39: ran a scratch `node` probe in a temp directory: a `DatabaseSync` writer set `PRAGMA journal_mode = WAL`, created a table and inserted one row and stayed open; a second `DatabaseSync` on the same file ran `prepare('VACUUM INTO ?').run(<copy path>)` and closed — observed the directory holding `gm_tool.db`, `gm_tool.db-shm` and `gm_tool.db-wal` before and after the copy, the copy opened read-only holding the inserted row, and the `-wal` and `-shm` files gone once the writer closed] [implement_2: ran `npx vitest run dev-data-server/__tests__/installedAppData.test.ts` from `app/` at 88bc6ddd — observed the case "copies the committed rows a WAL writer still holds open" passing: a second connection's `VACUUM INTO` copy held both rows while the writer stayed open, with the source main file's bytes and the directory listing unchanged]
 
-A copy taken with `VACUUM INTO` through a connection that opened the source is complete even while another connection holds the source open in WAL mode, and the source's files are left as they were.
+A copy taken with `VACUUM INTO` through a second connection to the source is complete even while another connection holds the source open in WAL mode with uncheckpointed rows, and the source's main file and directory are left as they were until the last connection closes.
