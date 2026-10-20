@@ -209,7 +209,7 @@ const applyBatch = async (
     const extension = change.row?.file_extension;
     if (typeof extension !== 'string') continue;
     try {
-      const exists = await invoke<boolean>('image_file_exists', {
+      const exists = await invoke<boolean>('check_image_file_exists', {
         id: change.rowId,
         extension,
       });

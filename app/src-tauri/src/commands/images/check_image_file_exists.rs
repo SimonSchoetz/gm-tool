@@ -13,7 +13,7 @@ use super::{VALID_EXTENSIONS, is_valid_image_id};
 /// * `Ok(bool)` indicating whether the file exists
 /// * `Err(String)` with error message on failure
 #[tauri::command]
-pub async fn image_file_exists(
+pub async fn check_image_file_exists(
     app_handle: tauri::AppHandle,
     id: String,
     extension: String,

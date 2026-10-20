@@ -69,7 +69,9 @@ const rawBatch = (changes: SyncChange[], maxSeq: number): string =>
   JSON.stringify(buildSyncBatchMessage(changes, maxSeq));
 
 const imageFileChecks = () =>
-  invoke.mock.calls.filter(([command]) => command === 'image_file_exists');
+  invoke.mock.calls.filter(
+    ([command]) => command === 'check_image_file_exists',
+  );
 
 const sentMessages = () =>
   invoke.mock.calls
@@ -233,7 +235,7 @@ describe('handleSyncMessage with a sync-batch message', () => {
         : Promise.resolve('applied'),
     );
     invoke.mockImplementation((command, args) =>
-      command === 'image_file_exists'
+      command === 'check_image_file_exists'
         ? Promise.resolve(args?.id === 'image-b')
         : Promise.resolve(undefined),
     );
@@ -246,8 +248,8 @@ describe('handleSyncMessage with a sync-batch message', () => {
     await handleSyncMessage(PEER_ID, rawBatch(changes, 3));
 
     expect(imageFileChecks()).toEqual([
-      ['image_file_exists', { id: 'image-a', extension: 'png' }],
-      ['image_file_exists', { id: 'image-b', extension: 'png' }],
+      ['check_image_file_exists', { id: 'image-a', extension: 'png' }],
+      ['check_image_file_exists', { id: 'image-b', extension: 'png' }],
     ]);
     expect(sentMessages()).toEqual([
       {
@@ -260,7 +262,7 @@ describe('handleSyncMessage with a sync-batch message', () => {
   it('still resolves as applied and keeps the watermark when a file request fails', async () => {
     const { handleSyncMessage } = await import('../syncService');
     invoke.mockImplementation((command, args) =>
-      command === 'image_file_exists' && args?.id === 'image-b'
+      command === 'check_image_file_exists' && args?.id === 'image-b'
         ? Promise.resolve(false)
         : Promise.reject(new Error('peer unreachable')),
     );
@@ -275,8 +277,8 @@ describe('handleSyncMessage with a sync-batch message', () => {
 
     expect(setPeerWatermark).toHaveBeenCalledWith(PEER_ID, 5);
     expect(imageFileChecks()).toEqual([
-      ['image_file_exists', { id: 'image-a', extension: 'png' }],
-      ['image_file_exists', { id: 'image-b', extension: 'png' }],
+      ['check_image_file_exists', { id: 'image-a', extension: 'png' }],
+      ['check_image_file_exists', { id: 'image-b', extension: 'png' }],
     ]);
     expect(sentMessages()).toHaveLength(1);
   });

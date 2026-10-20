@@ -101,6 +101,8 @@ The verification obligation stated in the shared rules file's Epistemological Di
 
   `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs at the start of a session (baseline). After the final review cycle, no row is run by hand before committing, because the `simple-git-hooks` block of the `package.json` beside this file runs every row: `pre-commit` and `pre-merge-commit` run `type-check`, `lint` and `format-check` when a staged path is under `app/`, then `rust-lint` and `rust-format-check` when a staged path is under `app/src-tauri/`; `pre-push` runs `test`, then `rust-test`, on every push. A failing row rejects the commit or the push. For `test` and `rust-test`, this departs from Tool Use Discipline, "Run the project's own check suite": they run at push, not before each commit.
 
+  The `check` job in `.github/workflows/release.yml` runs every row of the table, regardless of its `Trigger`, before any release build, in steps named by the rows' keys with each row's invocation and working directory. A change to the table — a row added, removed, or given another invocation or working directory — needs the same change to that job's steps.
+
   **Build Command:** `pnpm run build:frontend`, from `app/`.
 
   **Package Manager:** `pnpm` — lockfile `pnpm-lock.yaml`, regenerated via `pnpm install`.
