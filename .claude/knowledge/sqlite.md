@@ -118,3 +118,37 @@ A change-tracking UPDATE trigger on the child records a change for every row the
 **Citation:** [harness-follow-ups_1: https://www.sqlite.org/datatype3.html — Section 3, "If the TEXT value is not a well-formed integer or real literal, then the value is stored as TEXT", and INTEGER affinity "behaves the same as a column with NUMERIC affinity"] [harness-follow-ups_2: ran node:sqlite with `CREATE TABLE t (deleted INTEGER NOT NULL DEFAULT 0, label TEXT)` and inserted `('yes', 5)` — observed `deleted: 'yes'` with `typeof(deleted)` `text`]
 
 A `NOT NULL` INTEGER column therefore accepts `'yes'` and reads it back as a JS string, which is how a test can seed a row that fails a `z.number()` field without any schema change.
+
+## sqlx 0.8.6's `Sqlite::create_database` creates the database in WAL mode while `CREATE_DB_WAL` holds its default `true`
+
+**Verified at:** sqlx-sqlite 0.8.6 (Cargo.lock) — 2026-10-20
+**Citation:** [migration-backup_4: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sqlx-sqlite-0.8.6/src/lib.rs:125 — `pub static CREATE_DB_WAL: AtomicBool = AtomicBool::new(true);`; src/migrate.rs:20-38 — `create_database` adds `journal_mode(SqliteJournalMode::Wal)` while `CREATE_DB_WAL` is set] [migration-backup_5: ran a scratch crate on sqlx 0.8.6 that made a database with `Sqlite::create_database` and queried `PRAGMA journal_mode` through `SqlitePool::connect` — observed `wal`]
+
+## A database that sqlx 0.8.6 created in WAL mode reported `wal` again when reopened with `SqlitePool::connect` after every connection to it had closed
+
+**Verified at:** sqlx 0.8.6, SQLite 3.46.0, tauri-plugin-sql 2.5.0 — 2026-10-20
+**Citation:** [migration-backup_19: ran a scratch crate on sqlx 0.8.6 that made a database with `Sqlite::create_database`, wrote to it through a `SqlitePool`, closed the pool, after which no `-wal` file remained, and connected again with `SqlitePool::connect` on the same URL — observed `PRAGMA journal_mode` = `wal`] [migration-backup_22: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sqlx-sqlite-0.8.6/src/options/mod.rs:177-181 — connect options leave the `journal_mode` pragma unset unless the caller requests one] [migration-backup_20: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-sql-2.5.0/src/commands.rs:19 — the `load` command calls `DbPool::connect`; src/wrapper.rs:101 — which connects with `Pool::connect(conn_url)`, passing no options beyond the URL] [migration-backup_21: ran `sqlite3 -readonly "$HOME/Library/Application Support/com.gm-tool.dev/gm_tool.db" "PRAGMA journal_mode"` on the database the app's dev build had created through tauri-plugin-sql — observed `wal`]
+
+tauri-plugin-sql reconnects that way on every `load`, so a database it created through `Sqlite::create_database` (`tauri.md`, the entry beginning "tauri-plugin-sql 2.5.0 opens a `sqlite:<file>` database") stays in WAL mode.
+
+## While a sqlx pool held a WAL database open after 500 inserts, a copy of the main file alone held no tables
+
+**Verified at:** sqlx 0.8.6, SQLite 3.46.0 — 2026-10-20
+**Citation:** [migration-backup_6: ran a scratch crate on sqlx 0.8.6 that made `gm_tool.db` with `Sqlite::create_database`, created a table and inserted 500 rows through an open `SqlitePool`, then, with the pool still open, copied only `gm_tool.db` into another directory and listed the tables in the copy's `sqlite_master` — observed an empty list, with the main file at 4096 bytes and `gm_tool.db-wal` at 2080632 bytes]
+
+## `VACUUM INTO $1`, with the target path bound as a string through sqlx on SQLite 3.46.0, wrote a complete single-file copy of a WAL database that a sqlx pool held open
+
+**Verified at:** sqlx 0.8.6, SQLite 3.46.0, tauri-plugin-sql 2.5.0, @tauri-apps/plugin-sql 2.5.0 — 2026-10-20
+**Citation:** [migration-backup_7: https://www.sqlite.org/lang_vacuum.html — "The filename in the INTO clause can be an arbitrary SQL expression that evaluates to a string", and the output "is a consistent snapshot of the original database"] [migration-backup_8: ran a scratch crate on sqlx 0.8.6 that made `gm_tool.db` with `Sqlite::create_database` and inserted 500 rows through an open `SqlitePool`, and, with the pool still open and `SELECT sqlite_version()` returning `3.46.0`, ran `sqlx::query("VACUUM INTO $1").bind(<path>).execute(&pool)` — observed `Ok`, then in the copy `count(*)` = 500, `PRAGMA journal_mode` = `delete` and `PRAGMA integrity_check` = `ok`, with no `-wal` file beside it] [migration-backup_9: `app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:125-130` — `execute(query, bindValues)` invokes `plugin:sql|execute` with `values: bindValues ?? []`; ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-sql-2.5.0/src/commands.rs:57-66 — the command hands `values: Vec<JsonValue>` to the pool wrapper's `execute`; src/wrapper.rs:164-176 — which binds a JSON string with `query.bind(value.as_str().unwrap().to_owned())` and runs `pool.execute(query)`]
+
+The probe's call is the one tauri-plugin-sql 2.5.0 makes for `db.execute('VACUUM INTO $1', [path])` with a string `path`.
+
+## `VACUUM INTO` fails with `output file already exists` on a target holding an earlier copy, accepts an empty file or a path where no file exists, and fails with `unable to open database` for a target in a missing directory
+
+**Verified at:** SQLite 3.46.0 (via sqlx 0.8.6) — 2026-10-20
+**Citation:** [migration-backup_10: https://www.sqlite.org/lang_vacuum.html — "The file named by the INTO clause must not previously exist, or else it must be an empty file, or the VACUUM INTO command will fail with an error."] [migration-backup_11: ran a scratch crate on sqlx 0.8.6 that ran `VACUUM INTO $1` through an open `SqlitePool` on a database it made with `Sqlite::create_database` — observed `SqliteError { code: 1, message: "output file already exists" }` for a target holding an earlier copy, `Ok` for an existing empty file and for a path where no file existed, and `code: 14` with `unable to open database: <path>` for a target in a missing directory]
+
+## A `VACUUM INTO` interrupted by an unplanned shutdown or power loss can leave an incomplete, corrupt output file
+
+**Verified at:** https://www.sqlite.org/lang_vacuum.html — 2026-10-20
+**Citation:** [migration-backup_12: https://www.sqlite.org/lang_vacuum.html — "if the VACUUM INTO command is interrupted by an unplanned shutdown or power loss, then the generated output database might be incomplete and corrupt"]
