@@ -34,3 +34,10 @@ Every statement after the first `;` is dropped without an error, unlike sqlx, wh
 **Citation:** [harness-probe_35: ran a scratch probe reading rows through `DatabaseSync.prepare().all()` — observed `Object.getPrototypeOf(row) === null`] [harness-probe_37: same probe — observed Vitest `toEqual` against a plain literal passing, `toStrictEqual` failing, and template-string coercion throwing]
 
 Code that treats a row like an ordinary object works, but a strict equality assertion or string coercion behaves differently from a plain-object row; copying with `{ ...row }` restores `Object.prototype`.
+
+## `@types/node` 26.6.3 declares `node:sqlite`'s `DatabaseSync(path, options?)` with `readOnly` (default `false`), `enableForeignKeyConstraints` (default `true`) and `open` (default `true`), `StatementSync.run(...params)` returning `{ changes, lastInsertRowid }` as `number | bigint`, and a module-level `backup(sourceDb, path, options?): Promise<number>`
+
+**Verified at:** @types/node 26.6.3, read 2026-10-20
+**Citation:** [spec-writer_7: app/node_modules/@types/node/sqlite.d.ts:5-38 — `DatabaseSyncOptions` with `open`, `enableForeignKeyConstraints` and `readOnly` and their documented defaults; :262 — `constructor(path: PathLike, options?: DatabaseSyncOptions)`; :831-843 — `StatementResultingChanges { changes: number | bigint; lastInsertRowid: number | bigint }`; :870,902,933 — `StatementSync.all(...)`, `.get(...)` returning `Record<string, SQLOutputValue> | undefined`, `.run(...)`; :1050 — `function backup(sourceDb: DatabaseSync, path: PathLike, options?: BackupOptions): Promise<number>`]
+
+A file-backed database opens read-write with foreign keys on by default; `run()`'s counts need `Number(…)` before they meet a `number`-typed contract, and `get()` can return `undefined`, which this project's lint requires normalising with `?? null`.
