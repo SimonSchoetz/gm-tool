@@ -83,3 +83,10 @@ The attach recovers the dev database's `-wal` rows into the read. The attached f
 **Citation:** [spec-writer_9: ran `node dev-data-server/scratchMirrorEntry.ts` from `app/` — observed `pragma_table_info('paired_devices', 'main')` and `('paired_devices', 'dev')` returning each side's column names, whose intersection was `id,name,created_at,updated_at` while the dev side held an extra column]
 
 The result rows carry a `name` field per column.
+
+## `os.tmpdir()` returns the value of the `TMPDIR` environment variable on macOS, read again on every call
+
+**Verified at:** Node v24.21.0, run 2026-10-21
+**Citation:** [instruction-pass_1: ran `node -e` printing `os.tmpdir()`, then setting `process.env.TMPDIR='/x/own'` and printing it again — observed the macOS default `/var/folders/…/T`, then `/x/own`]
+
+A test that sets `TMPDIR` to a directory of its own, as `vi.stubEnv('TMPDIR', …)` does, therefore moves every later `tmpdir()`-based path in the same process under that directory.
