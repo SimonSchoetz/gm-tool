@@ -6,9 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+- New Encounters domain: create, manage, and organize encounters for your sessions
+
+## [v0.15.0] - 2026-10-21
+
 ### Added
 
-- New Encounters domain: create, manage, and organize encounters for your sessions
+- Base entities (Foe, NPC, PC, Faction, Location, Item) now have content sections you can add, rename, reorder, switch, and delete on the entity screen, and switch in the entity's mention popup
+- Added a basic stat block content section with an HP field and a text editor; its HP shows in the mention popup
+- The content section navigation opens as a popup next to the burger, with a translucent surface and rounded corners
+- A base entity's summary shows as a popup-style content section panel
+- Adventure, base entity, and encounter screens share the session screen's header layout
+- The database is backed up automatically before pending migrations run
+
+### Changed
+
+- Autosaves are debounced per field and are flushed when you leave a screen
+- Updated the app's dependencies, including the Tauri stack and Lexical editor
+
+### Fixed
+
+- Images are replaced only after the new image is saved, so a failed replacement no longer loses the old one
+- Sync applies each deletion once and ignores updates older than a recorded deletion
+- Hardened the sync channel: stricter device pairing, validated peer data, and a restricted content security policy
 
 ## [v0.14.1] - 2026-08-29
 
