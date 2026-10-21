@@ -10,7 +10,7 @@ env:
   NODE_RUNTIME: node@24
 
 jobs:
-  # Runs every row of the Check Commands table in the root CLAUDE.md before any release build, so a release never ships code those checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table.
+  # Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, which finds no changed file to mutate on a tag that sits on main, before any release build, so a release never ships code those checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table.
   check:
     permissions:
       contents: read
