@@ -49,12 +49,6 @@ pnpm run web                # Vite only in browser — no database
 
 `pnpm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `pnpm run dev` can exercise them.
 
-### Code styles and convention
-
-#### Coding style
-
-- **Markdown files must comply with markdownlint rules in `.markdownlint.json` at the repo root.** Configured overrides: no line-length limit (MD013 off), blank-lines-around-lists not enforced (MD032 off), bold uses `**bold**` (MD050). All other defaults apply — code blocks declare a language (MD040), first line is H1 (MD041), blank lines around fences (MD031).
-
 ### Communication Style
 
 Never open a response with a positive affirmation directed at the user or a teammate's output. Phrases like "Good catch.", "Clean analysis.", "You're right.", "Good question." add no information and must be omitted. Start with the substance of the response.
@@ -94,12 +88,13 @@ The verification obligation stated in the shared rules file's Epistemological Di
   | `type-check` | `npx tsc --noEmit` | `app/` | every check | always |
   | `lint` | `npx eslint .` | `app/` | every check | always |
   | `format-check` | `npx prettier --check .` | `app/` | every check | always |
+  | `markdown-lint` | `pnpm run markdown-lint` | repository root | every check | when a `*.md` path is touched |
   | `test` | `npx vitest run` | `app/` | full-suite-only | always |
   | `rust-lint` | `cargo clippy --all-targets -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
   | `rust-test` | `cargo test` | `app/src-tauri/` | full-suite-only | when `app/src-tauri/` is touched |
 
-  `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs at the start of a session (baseline). After the final review cycle, no row is run by hand before committing, because the `simple-git-hooks` block of the `package.json` beside this file runs every row: `pre-commit` and `pre-merge-commit` run `type-check`, `lint` and `format-check` when a staged path is under `app/`, then `rust-lint` and `rust-format-check` when a staged path is under `app/src-tauri/`; `pre-push` runs `test`, then `rust-test`, on every push. A failing row rejects the commit or the push. For `test` and `rust-test`, this departs from Tool Use Discipline, "Run the project's own check suite": they run at push, not before each commit.
+  `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs at the start of a session (baseline). After the final review cycle, no row is run by hand before committing, because the `simple-git-hooks` block of the `package.json` beside this file runs every row: `pre-commit` and `pre-merge-commit` run `markdown-lint` when a staged path ends in `.md`, then `type-check`, `lint` and `format-check` when a staged path is under `app/`, then `rust-lint` and `rust-format-check` when a staged path is under `app/src-tauri/`; `pre-push` runs `test`, then `rust-test`, on every push. A failing row rejects the commit or the push. The hooks never see a path git excludes, such as `.claude/cycles/`, so a session that writes a markdown file there runs `markdown-lint` itself. For `test` and `rust-test`, this departs from Tool Use Discipline, "Run the project's own check suite": they run at push, not before each commit.
 
   The `check` job in `.github/workflows/release.yml` runs every row of the table, regardless of its `Trigger`, before any release build, in steps named by the rows' keys with each row's invocation and working directory. A change to the table — a row added, removed, or given another invocation or working directory — needs the same change to that job's steps.
 
