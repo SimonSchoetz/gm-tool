@@ -23,6 +23,7 @@ const toSqlValues = (bindValues?: unknown[]) =>
 export const openSqliteDatabase = (path: string): SqliteDatabase => {
   const database = new DatabaseSync(path);
   // Explicit rather than relying on node:sqlite's default, so the adapter keeps the foreign-key enforcement sqlx gives the app's connection.
+  // Stryker disable next-line StringLiteral,CallExpression: node:sqlite enables foreign keys by default at the Node version .nvmrc pins (.claude/knowledge/node.md), so no test there sees this statement's effect.
   database.exec('PRAGMA foreign_keys = ON');
 
   // `prepare()` silently compiles only the first statement, so a query that still holds a `;` after one trailing one is trimmed is refused instead of losing its tail. `$N` becomes `?N`, which binds by number the way sqlx does.
@@ -33,7 +34,7 @@ export const openSqliteDatabase = (path: string): SqliteDatabase => {
         `Multi-statement SQL is not supported by prepare(): ${query}`,
       );
     }
-    return database.prepare(statement.replace(/\$(\d+)/g, '?$1'));
+    return database.prepare(statement.replace(/\$(?=\d)/g, '?'));
   };
 
   return {
@@ -49,7 +50,9 @@ export const openSqliteDatabase = (path: string): SqliteDatabase => {
                 'SELECT changes() AS rowsAffected, last_insert_rowid() AS lastInsertId',
               )
               .get() ?? null;
+          // Stryker disable next-line ConditionalExpression,BlockStatement: a SELECT without FROM always yields one row, so this guard, there for get()'s `undefined` in the type, never fires; → true is pinned by this line's EqualityOperator mutant.
           if (counts === null) {
+            // Stryker disable next-line StringLiteral,CallExpression: unreachable, see the guard above.
             throw new Error('SELECT changes() returned no row');
           }
           return {
