@@ -22,10 +22,13 @@ app/
 ├── CLAUDE.md
 ├── db/          # SQLite database
 │   └── CLAUDE.md
+├── dev-data-server/  # Node dev tooling: web-mode data server, dev data mirror
+│   └── CLAUDE.md
 ├── docs/        # planning docs
 │   └── CLAUDE.md
 ├── domain/      # application vocabulary layer (errors, types, validation)
 │   └── CLAUDE.md
+├── platform/    # host boundary: every Tauri call goes through @platform
 ├── public/      # static assets
 ├── services/    # business logic layer
 │   └── CLAUDE.md

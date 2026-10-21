@@ -9,13 +9,14 @@ This directory contains specs and planning documents. Specs are temporary and wi
 **Layered breakdown** — layers in dependency order:
 
 1. Domain
-2. Database
-3. Rust backend
-4. Services
-5. Data Access Layer
-6. Frontend
+2. Platform
+3. Database
+4. Rust backend
+5. Services
+6. Data Access Layer
+7. Frontend
 
-The Rust backend depends on neither Domain nor Database — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller.
+The Rust backend depends on neither Domain nor Database — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller. Platform imports none of these layers and Database, Services, the Data Access Layer and the Frontend import it, so it is specified before them; `app/dev-data-server/` is development tooling outside this order.
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
