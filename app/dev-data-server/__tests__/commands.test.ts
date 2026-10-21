@@ -59,7 +59,7 @@ describe('answerCommand', () => {
     );
   });
 
-  it('save_image rejects a source outside the fixtures with status 400 and copies nothing', async () => {
+  it('save_image rejects a source outside the fixtures with status 400, naming sourcePath, and copies nothing', async () => {
     const foreign = join(temp.dir, 'foreign.png');
     writeFileSync(foreign, 'secret');
 
@@ -71,23 +71,29 @@ describe('answerCommand', () => {
       ),
     ).rejects.toSatisfy(
       (error: unknown) =>
-        isRequestRejectionError(error) && error.status === 400,
+        isRequestRejectionError(error) &&
+        error.status === 400 &&
+        error.message.startsWith('sourcePath '),
     );
     expect(readdirSync(context.imagesDir)).toEqual([]);
   });
 
-  it('rejects an id that would leave the images directory with status 400', async () => {
+  it('rejects an id that would leave the images directory, or is no string, with status 400 and a message naming it', async () => {
     await expect(
       answerCommand('check_image_file_exists', imageArgs('../x'), context),
     ).rejects.toSatisfy(
       (error: unknown) =>
-        isRequestRejectionError(error) && error.status === 400,
+        isRequestRejectionError(error) &&
+        error.status === 400 &&
+        error.message.endsWith(': ../x.png'),
     );
     await expect(
       answerCommand('delete_image', { id: 1, extension: 'png' }, context),
     ).rejects.toSatisfy(
       (error: unknown) =>
-        isRequestRejectionError(error) && error.status === 400,
+        isRequestRejectionError(error) &&
+        error.status === 400 &&
+        error.message.startsWith('id '),
     );
   });
 
@@ -168,7 +174,8 @@ describe('answerCommand', () => {
     );
   });
 
-  it('answers the connectivity and updater commands with their web-mode constants', async () => {
+  it('answers the connectivity and updater commands with their web-mode constants, the pairing code six digits like the ones the app issues', async () => {
+    expect(WEB_MODE_PAIRING_CODE).toMatch(/^\d{6}$/);
     await expect(
       answerCommand('get_connected_peers', {}, context),
     ).resolves.toEqual([]);
