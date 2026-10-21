@@ -1,5 +1,5 @@
 // Node host — imported by vite.config.ts and bundled into Vite's config by its loader, which is why it imports ../db/_migrations and this folder's files by relative path: the bundle resolves no path alias.
-import { mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
@@ -15,14 +15,17 @@ import {
 } from './installedAppData';
 import { readRepositoryJson, tauriConfigSchema } from './repositoryJson';
 import { createRequestHandler } from './requestHandler';
-import { openSqliteDatabase } from './sqliteDatabase';
+import { openSqliteDatabase, type SqliteDatabase } from './sqliteDatabase';
 
 const packageJsonSchema = z.object({ version: z.string() });
 
-const TEMP_DIR_NAME = 'gm-tool-web-mode';
+const TEMP_DIR_PREFIX = 'gm-tool-web-mode-';
 
 export const devDataServer = (): Plugin => {
   let active = false;
+  // Each server start copies the installed app's data into a directory of its own, so a second web server never empties the copy the first one serves; closeServer removes it on close and on restart.
+  let tempDir: string | null = null;
+  let db: SqliteDatabase | null = null;
   return {
     name: 'gm-tool-dev-data-server',
     configResolved(config) {
@@ -50,14 +53,16 @@ export const devDataServer = (): Plugin => {
         identifier,
       );
       assertInstalledAppData(sourceDir);
-      const tempDir = join(tmpdir(), TEMP_DIR_NAME);
-      rmSync(tempDir, { recursive: true, force: true });
-      mkdirSync(tempDir, { recursive: true });
-      copyDatabase(sourceDir, tempDir);
-      copyImages(sourceDir, tempDir);
-      const db = openSqliteDatabase(join(tempDir, INSTALLED_DATABASE_FILE));
+      const serverDir = mkdtempSync(join(tmpdir(), TEMP_DIR_PREFIX));
+      tempDir = serverDir;
+      copyDatabase(sourceDir, serverDir);
+      copyImages(sourceDir, serverDir);
+      const serverDb = openSqliteDatabase(
+        join(serverDir, INSTALLED_DATABASE_FILE),
+      );
+      db = serverDb;
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
-      await runMigrations(db, () => Promise.resolve());
+      await runMigrations(serverDb, () => Promise.resolve());
       const { version } = readRepositoryJson(
         '../package.json',
         packageJsonSchema,
@@ -68,13 +73,23 @@ export const devDataServer = (): Plugin => {
       );
       server.middlewares.use(
         createRequestHandler({
-          db,
-          imagesDir: join(tempDir, 'images'),
+          db: serverDb,
+          imagesDir: join(serverDir, 'images'),
           fixturePaths,
           nextFixture: createFixtureCycle(fixturePaths),
           version,
         }),
       );
+    },
+    async closeServer() {
+      if (db) {
+        await db.close();
+        db = null;
+      }
+      if (tempDir) {
+        rmSync(tempDir, { recursive: true, force: true });
+        tempDir = null;
+      }
     },
   };
 };

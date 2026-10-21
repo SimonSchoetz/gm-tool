@@ -1,7 +1,14 @@
 // @vitest-environment node
-import type { ResolvedConfig } from 'vite';
-import { describe, expect, it } from 'vitest';
+import { mkdirSync, readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import type { ResolvedConfig, ViteDevServer } from 'vite';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { INSTALLED_DATABASE_FILE } from '../installedAppData';
+import { readRepositoryJson, tauriConfigSchema } from '../repositoryJson';
 import { devDataServer } from '../vitePlugin';
+import { createTempDirectory } from './support/tempDirectory';
 
 describe('devDataServer configResolved', () => {
   const resolvedConfig = (
@@ -46,5 +53,75 @@ describe('devDataServer configResolved', () => {
     expect(() => {
       runConfigResolved(resolvedConfig('serve', 'development', true));
     }).not.toThrow();
+  });
+});
+
+describe('devDataServer temp directory', () => {
+  let home: ReturnType<typeof createTempDirectory>;
+
+  const webModeDirs = () =>
+    readdirSync(tmpdir()).filter((name) =>
+      name.startsWith('gm-tool-web-mode-'),
+    );
+
+  const startWebServer = async () => {
+    const plugin = devDataServer();
+    const configResolved = plugin.configResolved as unknown as (
+      config: ResolvedConfig,
+    ) => void;
+    configResolved({
+      command: 'serve',
+      mode: 'web',
+      server: { host: false },
+    } as unknown as ResolvedConfig);
+    const configureServer = plugin.configureServer as unknown as (
+      server: ViteDevServer,
+    ) => Promise<void>;
+    await configureServer({
+      middlewares: { use: vi.fn() },
+    } as unknown as ViteDevServer);
+    return plugin.closeServer as unknown as () => Promise<void>;
+  };
+
+  beforeEach(() => {
+    home = createTempDirectory();
+    const { identifier } = readRepositoryJson(
+      '../src-tauri/tauri.conf.json',
+      tauriConfigSchema,
+    );
+    const installedDir = join(
+      home.dir,
+      'Library',
+      'Application Support',
+      identifier,
+    );
+    mkdirSync(installedDir, { recursive: true });
+    new DatabaseSync(join(installedDir, INSTALLED_DATABASE_FILE)).close();
+    vi.stubEnv('HOME', home.dir);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    home.remove();
+  });
+
+  it('gives each server start its own copy, and closing one server removes only its copy', async () => {
+    const before = new Set(webModeDirs());
+
+    const closeFirst = await startWebServer();
+    const closeSecond = await startWebServer();
+    const started = webModeDirs().filter((name) => !before.has(name));
+    expect(started).toHaveLength(2);
+
+    await closeFirst();
+    const remaining = webModeDirs().filter((name) => !before.has(name));
+    expect(remaining).toHaveLength(1);
+    expect(started).toContain(remaining[0]);
+    expect(readdirSync(join(tmpdir(), remaining[0] ?? ''))).toContain(
+      INSTALLED_DATABASE_FILE,
+    );
+
+    await closeSecond();
+    expect(webModeDirs().filter((name) => !before.has(name))).toEqual([]);
   });
 });
