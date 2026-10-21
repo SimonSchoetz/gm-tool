@@ -22,6 +22,7 @@ export const buildCreateQuery = <
     values.push(value);
   });
 
+  // tableName is a literal at every caller, and the keys of data are the table's columns, typed by its row shape at each caller (app/db/CLAUDE.md — Conventions, "Values are always bound").
   const sql = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
   return { sql, values };
 };

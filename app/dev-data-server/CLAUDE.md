@@ -1,6 +1,6 @@
 # Dev data server
 
-`app/dev-data-server/` is Node code for development only: the Vite plugin that serves a copy of the installed app's data to web mode (`app/docs/features/web-dev-mode.md`), and the mirror step `pnpm run dev` runs before the Tauri app starts (`app/docs/features/dev-data-mirror.md`). It never reaches a release build.
+`app/dev-data-server/` is Node code for development only: the Vite plugin that serves a copy of the installed app's data to web mode (`app/docs/features/web-dev-mode.md`), and the mirror step `pnpm run dev` runs before the Tauri app starts (`app/docs/features/dev-data-mirror.md`). It never reaches a release build. `runDevMirror.ts` runs under `node` with no build step, so it relies on Node's type stripping at the Node 24 floor that `engines.node` in `app/package.json` declares and `.nvmrc` pins; there is no fallback for an older Node.
 
 ## Hosts
 
@@ -11,7 +11,11 @@
 ## Imports
 
 - A non-test file here imports its siblings and the rest of `app/` by relative path, never through a project alias (`@domain`, `@db`, `@/`), because Vite's config loader bundles these files and resolves no path alias. This departs from `app/domain/CLAUDE.md` — Imports, which sends external consumers through `@domain`.
-- A file that `node` runs directly (`runDevMirror.ts`, `devMirror.ts`) imports its relative modules with the `.ts` extension, which Node's type stripping requires. Every other file here, `protocol.ts` included, is loaded by Vite (its config loader or the browser bundle) or by Vitest, and imports without an extension.
+- A file `node` loads — `runDevMirror.ts`, which the `dev` script runs, and every module its relative imports reach, `app/domain/database/` included — imports its relative modules with the `.ts` extension, which Node's type stripping requires, so it reaches only modules that do the same. Every other file here is loaded by Vite (its config loader or the browser bundle) or by Vitest, and imports without an extension.
+
+## SQL
+
+SQL built here follows `app/db/CLAUDE.md` — Conventions, the rule beginning "Values are always bound", which governs every query in `app/`.
 
 ## Tests
 

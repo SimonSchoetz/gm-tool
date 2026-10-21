@@ -10,6 +10,7 @@ Application vocabulary layer. Owns business concepts shared between the service 
 - Domain-specific TypeScript types not derived from the db schema
 - Validation rules that express business constraints
 - Constant lookup tables keyed by a domain type defined in this layer (e.g. a `Record<EntityType, string>` mapping entity types to route segments or display labels), and the accessor functions built on them — a lookup table is typically kept module-private with only a typed accessor exported (e.g. `buildEntityPath`, `entityTypeLabel`), and the accessor belongs here on the same basis as the table it wraps, even when it adds validation or a fallback default around the raw lookup. Current consumer count does not determine placement here; a table or accessor keyed by a domain/ type belongs in domain/ even when only the frontend currently reads it, because a future service-layer consumer would otherwise force a relocation. **Exception:** when the table's value is itself a DB column default, placement is governed by `app/db/CLAUDE.md` — Default Placement Hierarchy instead, regardless of the table's key type.
+- A value or helper that is not generic and that files on both sides of a layer boundary consume, in the module of the area it belongs to: a `src/data-access-layer/` file and another `src/` file (`app/src/CLAUDE.md` — Util vs. Helper Placement, rung 5), or `db/` and `dev-data-server/` (the database file name and the `_system` device key in `database/`)
 
 ## What Does NOT Belong Here
 

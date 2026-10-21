@@ -45,6 +45,7 @@ export const applyDelete = async (
     if (local.updated_at >= deletedAt) return 'skipped';
 
     // Fires the delete trigger, which bumps the counter and stamps a fresh local deleted_at — overwrite it below with the origin value so LWW truth is preserved while the fresh seq still propagates onward.
+    // tableName passed the SYNCED_TABLE_NAMES check above, a fixed registry constant.
     await db.execute(`DELETE FROM ${tableName} WHERE id = $1`, [rowId]);
     await upsertTombstone(db, tableName, rowId, deletedAt, false);
     return 'applied';

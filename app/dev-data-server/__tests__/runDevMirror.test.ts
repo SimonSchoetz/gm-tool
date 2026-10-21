@@ -4,10 +4,8 @@ import type { SpawnSyncReturns } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  INSTALLED_DATABASE_FILE,
-  resolveInstalledAppDataDir,
-} from '../installedAppData';
+import { DATABASE_FILE } from '../../domain/database';
+import { resolveInstalledAppDataDir } from '../installedAppData';
 import { readRepositoryJson, tauriConfigSchema } from '../repositoryJson';
 import { readAppDatabaseRows, writeAppDatabase } from './support/appDatabase';
 import { createTempDirectory } from './support/tempDirectory';
@@ -65,7 +63,7 @@ describe.runIf(process.platform === 'darwin')('runDevMirror', () => {
     const result = runEntry();
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain(join(releaseDir, INSTALLED_DATABASE_FILE));
+    expect(result.stdout).toContain(join(releaseDir, DATABASE_FILE));
     expect(existsSync(devDir)).toBe(false);
   });
 

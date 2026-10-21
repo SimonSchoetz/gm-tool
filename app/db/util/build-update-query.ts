@@ -25,6 +25,7 @@ export const buildUpdateQuery = <T extends Record<string, unknown>>(
   values.push(updatedAt);
   values.push(id);
 
+  // tableName is a literal at every caller, and the keys of validated are the table's columns: it is the output of the table's updateSchema.parse (app/db/CLAUDE.md — Conventions, "Values are always bound").
   const sql = `UPDATE ${tableName} SET ${fields.join(', ')} WHERE id = $${paramIndex}`;
 
   return { sql, values };

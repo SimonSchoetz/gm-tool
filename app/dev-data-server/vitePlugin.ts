@@ -1,16 +1,16 @@
-// Node host — imported by vite.config.ts and bundled into Vite's config by its loader, which is why it imports ../db/_migrations and this folder's files by relative path: the bundle resolves no path alias.
+// Node host — bundled into Vite's config by its loader, which is why it imports ../db/_migrations and this folder's files by relative path: the bundle resolves no path alias.
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { z } from 'zod';
+import { DATABASE_FILE } from '../domain/database';
 import { runMigrations } from '../db/_migrations';
 import { createFixtureCycle } from './fixtureCycle';
 import {
   assertInstalledAppData,
   copyDatabase,
   copyImages,
-  INSTALLED_DATABASE_FILE,
   resolveInstalledAppDataDir,
 } from './installedAppData';
 import { readRepositoryJson, tauriConfigSchema } from './repositoryJson';
@@ -57,9 +57,7 @@ export const devDataServer = (): Plugin => {
       tempDir = serverDir;
       copyDatabase(sourceDir, serverDir);
       copyImages(sourceDir, serverDir);
-      const serverDb = openSqliteDatabase(
-        join(serverDir, INSTALLED_DATABASE_FILE),
-      );
+      const serverDb = openSqliteDatabase(join(serverDir, DATABASE_FILE));
       db = serverDb;
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
       await runMigrations(serverDb, () => Promise.resolve());

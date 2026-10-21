@@ -49,6 +49,13 @@ A file-backed database opens read-write with foreign keys on by default; `run()`
 
 Type stripping needs no flag on this Node line and prints no warning.
 
+## Node's type stripping is on by default from v23.6.0 and stable from v24.12.0
+
+**Verified at:** <https://nodejs.org/docs/latest-v24.x/api/typescript.html>, 2026-10-21
+**Citation:** [instruction-pass_1: https://nodejs.org/docs/latest-v24.x/api/typescript.html]
+
+The page's history table dates type stripping's addition to v22.6.0, its default-on switch to v23.6.0 and its stable status to v24.12.0.
+
 ## A `.ts` file run directly as `node <file>.ts` on Node v24.21.0 fails with `ERR_MODULE_NOT_FOUND` on a relative import written without its `.ts` extension
 
 **Verified at:** Node v24.21.0, run 2026-10-20

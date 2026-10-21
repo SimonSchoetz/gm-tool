@@ -10,12 +10,12 @@ import {
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { DATABASE_FILE } from '../../domain/database';
 import {
   assertInstalledAppData,
   copyDatabase,
   copyImages,
   hasInstalledAppData,
-  INSTALLED_DATABASE_FILE,
   resolveInstalledAppDataDir,
 } from '../installedAppData';
 import { openSqliteDatabase } from '../sqliteDatabase';
@@ -38,7 +38,7 @@ afterEach(() => {
 });
 
 const readRows = async (dir: string): Promise<unknown> => {
-  const db = openSqliteDatabase(join(dir, INSTALLED_DATABASE_FILE));
+  const db = openSqliteDatabase(join(dir, DATABASE_FILE));
   const rows = await db.select('SELECT a FROM t ORDER BY a');
   await db.close();
   return rows;
@@ -61,14 +61,14 @@ describe('hasInstalledAppData', () => {
   it('is false for a directory without the database file and true once it exists', () => {
     expect(hasInstalledAppData(sourceDir)).toBe(false);
 
-    writeFileSync(join(sourceDir, INSTALLED_DATABASE_FILE), '');
+    writeFileSync(join(sourceDir, DATABASE_FILE), '');
     expect(hasInstalledAppData(sourceDir)).toBe(true);
   });
 });
 
 describe('assertInstalledAppData', () => {
   it('throws naming the missing database path and passes once the file exists', () => {
-    const databasePath = join(sourceDir, INSTALLED_DATABASE_FILE);
+    const databasePath = join(sourceDir, DATABASE_FILE);
 
     expect(() => {
       assertInstalledAppData(sourceDir);
@@ -83,7 +83,7 @@ describe('assertInstalledAppData', () => {
 
 describe('copyDatabase', () => {
   it('copies a closed database byte for byte and leaves the source directory as it was', () => {
-    const sourcePath = join(sourceDir, INSTALLED_DATABASE_FILE);
+    const sourcePath = join(sourceDir, DATABASE_FILE);
     const source = new DatabaseSync(sourcePath);
     source.exec("CREATE TABLE t (a TEXT); INSERT INTO t (a) VALUES ('kept')");
     source.close();
@@ -92,16 +92,14 @@ describe('copyDatabase', () => {
 
     copyDatabase(sourceDir, targetDir);
 
-    expect(readFileSync(join(targetDir, INSTALLED_DATABASE_FILE))).toEqual(
-      sourceBytes,
-    );
+    expect(readFileSync(join(targetDir, DATABASE_FILE))).toEqual(sourceBytes);
     expect(readFileSync(sourcePath)).toEqual(sourceBytes);
     expect(readdirSync(sourceDir).sort()).toEqual(sourceListing);
-    expect(readdirSync(targetDir)).toEqual([INSTALLED_DATABASE_FILE]);
+    expect(readdirSync(targetDir)).toEqual([DATABASE_FILE]);
   });
 
   it('copies the committed rows a WAL writer still holds open, without changing the source main file or its directory', async () => {
-    const sourcePath = join(sourceDir, INSTALLED_DATABASE_FILE);
+    const sourcePath = join(sourceDir, DATABASE_FILE);
     const writer = new DatabaseSync(sourcePath);
     writer.exec('PRAGMA journal_mode = WAL');
     writer.exec(
@@ -126,26 +124,26 @@ describe('copyDatabase', () => {
     // A writer in another directory leaves a committed row in its -wal; copying its three files while it is open makes `sourceDir` look like an app that crashed or persisted its WAL.
     const writerDir = join(temp.dir, 'writer');
     mkdirSync(writerDir);
-    const writer = new DatabaseSync(join(writerDir, INSTALLED_DATABASE_FILE));
+    const writer = new DatabaseSync(join(writerDir, DATABASE_FILE));
     writer.exec('PRAGMA journal_mode = WAL');
     writer.exec("CREATE TABLE t (a TEXT); INSERT INTO t (a) VALUES ('in-wal')");
     for (const suffix of ['', '-wal', '-shm']) {
       copyFileSync(
-        join(writerDir, `${INSTALLED_DATABASE_FILE}${suffix}`),
-        join(sourceDir, `${INSTALLED_DATABASE_FILE}${suffix}`),
+        join(writerDir, `${DATABASE_FILE}${suffix}`),
+        join(sourceDir, `${DATABASE_FILE}${suffix}`),
       );
     }
     writer.close();
     expect(readdirSync(sourceDir).sort()).toEqual([
-      INSTALLED_DATABASE_FILE,
-      `${INSTALLED_DATABASE_FILE}-shm`,
-      `${INSTALLED_DATABASE_FILE}-wal`,
+      DATABASE_FILE,
+      `${DATABASE_FILE}-shm`,
+      `${DATABASE_FILE}-wal`,
     ]);
 
     copyDatabase(sourceDir, targetDir);
 
     expect(await readRows(targetDir)).toEqual([{ a: 'in-wal' }]);
-    expect(readdirSync(sourceDir)).toEqual([INSTALLED_DATABASE_FILE]);
+    expect(readdirSync(sourceDir)).toEqual([DATABASE_FILE]);
     expect(await readRows(sourceDir)).toEqual([{ a: 'in-wal' }]);
   });
 });

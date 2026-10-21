@@ -1,13 +1,12 @@
-// Node host — imported by runDevMirror.ts, which `node` runs directly as the first half of the `dev` script, so its relative imports carry the `.ts` extension Node's type stripping requires.
+// Node host — `node` loads it directly in the first half of the `dev` script, so its relative imports carry the `.ts` extension Node's type stripping requires.
 import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { DATABASE_FILE, DEVICE_SYSTEM_KEY } from '../domain/database/index.ts';
 import {
   copyDatabase,
   copyImages,
-  DEVICE_SYSTEM_KEY,
   hasInstalledAppData,
-  INSTALLED_DATABASE_FILE,
 } from './installedAppData.ts';
 
 type MirrorOutcome = 'mirrored' | 'no-installed-data';
@@ -21,7 +20,7 @@ type PreservedSet = {
 
 const DEV_SCHEMA = 'dev';
 
-// The dev app's own identity: its paired devices, their sync cursors and its device row. Every other table follows the release data. Each set carries fixed statements, so only the quoted column list, which skews between schemas, is built into SQL.
+// The dev app's own identity: its paired devices, their sync cursors and its device row. Every other table follows the release data. Each set carries fixed statements, so only the quoted column list, which skews between schemas and is read through pragma_table_info, and the module constant DEV_SCHEMA are built into SQL.
 const PRESERVED_SETS: readonly PreservedSet[] = [
   {
     table: 'paired_devices',
@@ -83,12 +82,14 @@ const keepDevIdentity = (stagedPath: string, devPath: string): void => {
       db.prepare(set.deleteStagedRows).run(...set.params);
     }
     if (existsSync(devPath)) {
+      // DEV_SCHEMA is a module constant; an attached schema's name cannot be bound.
       db.prepare(`ATTACH DATABASE ? AS ${DEV_SCHEMA}`).run(devPath);
       for (const set of PRESERVED_SETS) {
         if (columnNames(db, set.table, DEV_SCHEMA).length > 0) {
           copyDevRows(db, set);
         }
       }
+      // DEV_SCHEMA is a module constant, as at ATTACH above.
       db.exec(`DETACH DATABASE ${DEV_SCHEMA}`);
     }
   } finally {
@@ -120,22 +121,19 @@ export const mirrorInstalledData = ({
     copyDatabase(sourceDir, staging);
     copyImages(sourceDir, staging);
     keepDevIdentity(
-      join(staging, INSTALLED_DATABASE_FILE),
-      join(targetDir, INSTALLED_DATABASE_FILE),
+      join(staging, DATABASE_FILE),
+      join(targetDir, DATABASE_FILE),
     );
     // Removing gm_tool.db-wal and gm_tool.db-shm with the main file keeps a stale log from being replayed under the new database.
     for (const name of [
-      INSTALLED_DATABASE_FILE,
-      `${INSTALLED_DATABASE_FILE}-wal`,
-      `${INSTALLED_DATABASE_FILE}-shm`,
+      DATABASE_FILE,
+      `${DATABASE_FILE}-wal`,
+      `${DATABASE_FILE}-shm`,
       'images',
     ]) {
       rmSync(join(targetDir, name), { recursive: true, force: true });
     }
-    renameSync(
-      join(staging, INSTALLED_DATABASE_FILE),
-      join(targetDir, INSTALLED_DATABASE_FILE),
-    );
+    renameSync(join(staging, DATABASE_FILE), join(targetDir, DATABASE_FILE));
     renameSync(join(staging, 'images'), join(targetDir, 'images'));
   } finally {
     rmSync(staging, { recursive: true, force: true });

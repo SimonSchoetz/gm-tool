@@ -1,4 +1,4 @@
-// Node host — imported by requestHandler.ts: the server-side answer to every `invoke` the browser forwards in web mode, one case per Tauri command of app/src-tauri/src/lib.rs.
+// Node host: the server-side answer to every `invoke` the browser forwards in web mode, one case per Tauri command of app/src-tauri/src/lib.rs.
 import {
   copyFileSync,
   existsSync,
@@ -10,7 +10,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
-import { DEVICE_SYSTEM_KEY } from './installedAppData';
+import { DEVICE_SYSTEM_KEY } from '../domain/database';
 import { DEV_DATA_SERVER_PREFIX, DEV_DATA_SERVER_ROUTES } from './protocol';
 import {
   isFixturePath,

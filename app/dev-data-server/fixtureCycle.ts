@@ -1,4 +1,4 @@
-// Node host — imported by vitePlugin.ts: the fixture images the web-mode file dialog hands out, in file-name order, one per call.
+// Node host: the fixture images the web-mode file dialog hands out, in file-name order, one per call.
 import { basename, extname } from 'node:path';
 
 export const createFixtureCycle = (

@@ -53,7 +53,7 @@ A function that fails either condition stays local to its consumer in that modul
 
 4. **Consumers in more than one layer** — a generic helper imported by `db/` and `src/` alike lives in the app-root `util/` (`@util`), as `getDateTimeString` does; its test scope is in `.claude/rules/util-unit-tests.md`, which loads when a path under `app/util/` is read.
 
-A helper or value that is not generic and that both a data-access-layer file and a Frontend file consume has no home in this ladder: ask before placing it, and never put it in `/src/util/` (a data-access-layer file would import upward) or at the layer root (the layer's barrel is its only sanctioned import path from outside).
+5. **Not generic, and consumed by both a data-access-layer file and a Frontend file** — lives in `app/domain/`, the vocabulary layer both import from, in the module of the area it belongs to (imported through `@domain` or `@domain/<subdomain>`, `app/domain/CLAUDE.md` — Imports). Never in `/src/util/` (a data-access-layer file would import upward) or at the data-access-layer root (the layer's barrel is its only sanctioned import path from outside).
 
 **The same ladder governs a shared non-function value — a constant, config table, or static data module — once its consumers span more than one module directory.** Promote it by the rungs above from rung 2 on, naming the file for its domain content per Constants' Trigger 2 rather than `*.constants.ts` if the content isn't literally a constant.
 

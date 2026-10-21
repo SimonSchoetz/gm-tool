@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { ResolvedConfig, ViteDevServer } from 'vite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { INSTALLED_DATABASE_FILE } from '../installedAppData';
+import { DATABASE_FILE } from '../../domain/database';
 import { readRepositoryJson, tauriConfigSchema } from '../repositoryJson';
 import { devDataServer } from '../vitePlugin';
 import { createTempDirectory } from './support/tempDirectory';
@@ -96,7 +96,7 @@ describe('devDataServer temp directory', () => {
       identifier,
     );
     mkdirSync(installedDir, { recursive: true });
-    new DatabaseSync(join(installedDir, INSTALLED_DATABASE_FILE)).close();
+    new DatabaseSync(join(installedDir, DATABASE_FILE)).close();
     vi.stubEnv('HOME', home.dir);
   });
 
@@ -118,7 +118,7 @@ describe('devDataServer temp directory', () => {
     expect(remaining).toHaveLength(1);
     expect(started).toContain(remaining[0]);
     expect(readdirSync(join(tmpdir(), remaining[0] ?? ''))).toContain(
-      INSTALLED_DATABASE_FILE,
+      DATABASE_FILE,
     );
 
     await closeSecond();

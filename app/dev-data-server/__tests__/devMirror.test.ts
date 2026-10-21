@@ -10,11 +10,8 @@ import {
 import { basename, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { DATABASE_FILE, DEVICE_SYSTEM_KEY } from '../../domain/database';
 import { mirrorInstalledData } from '../devMirror';
-import {
-  DEVICE_SYSTEM_KEY,
-  INSTALLED_DATABASE_FILE,
-} from '../installedAppData';
 import { readAppDatabaseRows, writeAppDatabase } from './support/appDatabase';
 import { createTempDirectory } from './support/tempDirectory';
 
@@ -101,7 +98,7 @@ describe('mirrorInstalledData', () => {
         { id: 'versioning', value: 'dev versioning' },
       ],
     });
-    const writer = new DatabaseSync(join(writerDir, INSTALLED_DATABASE_FILE));
+    const writer = new DatabaseSync(join(writerDir, DATABASE_FILE));
     writer.exec('PRAGMA journal_mode = WAL');
     writer.exec(
       "INSERT INTO paired_devices (id, name, created_at, updated_at) VALUES ('dev-device-in-wal', 'Dev in wal', 't', 't')",
@@ -109,23 +106,17 @@ describe('mirrorInstalledData', () => {
     mkdirSync(devDir);
     for (const suffix of ['', '-wal', '-shm']) {
       copyFileSync(
-        join(writerDir, `${INSTALLED_DATABASE_FILE}${suffix}`),
-        join(devDir, `${INSTALLED_DATABASE_FILE}${suffix}`),
+        join(writerDir, `${DATABASE_FILE}${suffix}`),
+        join(devDir, `${DATABASE_FILE}${suffix}`),
       );
     }
     writer.close();
-    expect(existsSync(join(devDir, `${INSTALLED_DATABASE_FILE}-wal`))).toBe(
-      true,
-    );
+    expect(existsSync(join(devDir, `${DATABASE_FILE}-wal`))).toBe(true);
 
     mirror();
 
-    expect(existsSync(join(devDir, `${INSTALLED_DATABASE_FILE}-wal`))).toBe(
-      false,
-    );
-    expect(existsSync(join(devDir, `${INSTALLED_DATABASE_FILE}-shm`))).toBe(
-      false,
-    );
+    expect(existsSync(join(devDir, `${DATABASE_FILE}-wal`))).toBe(false);
+    expect(existsSync(join(devDir, `${DATABASE_FILE}-shm`))).toBe(false);
     expect(
       readAppDatabaseRows(devDir, 'SELECT id FROM paired_devices ORDER BY id'),
     ).toEqual([
@@ -199,20 +190,16 @@ describe('mirrorInstalledData', () => {
     writeAppDatabase(releaseDir, { notes: [{ id: 'one', body: 'release' }] });
     writeImage(releaseDir, 'release.png', 'release image');
     const releaseListing = listing(releaseDir);
-    const releaseBytes = readFileSync(
-      join(releaseDir, INSTALLED_DATABASE_FILE),
-    );
+    const releaseBytes = readFileSync(join(releaseDir, DATABASE_FILE));
     mkdirSync(join(devDir, 'connectivity'), { recursive: true });
     writeFileSync(join(devDir, 'connectivity', 'device.key'), 'dev key');
-    const backupName = `${INSTALLED_DATABASE_FILE}.bak-1`;
+    const backupName = `${DATABASE_FILE}.bak-1`;
     writeFileSync(join(devDir, backupName), 'dev backup');
 
     mirror();
 
     expect(listing(releaseDir)).toEqual(releaseListing);
-    expect(readFileSync(join(releaseDir, INSTALLED_DATABASE_FILE))).toEqual(
-      releaseBytes,
-    );
+    expect(readFileSync(join(releaseDir, DATABASE_FILE))).toEqual(releaseBytes);
     expect(
       readFileSync(join(devDir, 'connectivity', 'device.key'), 'utf8'),
     ).toBe('dev key');
@@ -227,23 +214,19 @@ describe('mirrorInstalledData', () => {
     writeAppDatabase(devDir, { notes: [{ id: 'dev', body: 'dev data' }] });
     writeImage(devDir, 'dev.png', 'dev image');
     const devListing = listing(devDir);
-    const devBytes = readFileSync(join(devDir, INSTALLED_DATABASE_FILE));
+    const devBytes = readFileSync(join(devDir, DATABASE_FILE));
 
     expect(mirror()).toBe('no-installed-data');
 
     expect(listing(devDir)).toEqual(devListing);
-    expect(readFileSync(join(devDir, INSTALLED_DATABASE_FILE))).toEqual(
-      devBytes,
-    );
+    expect(readFileSync(join(devDir, DATABASE_FILE))).toEqual(devBytes);
   });
 
   it('throws when the source and target directories are the same one, however spelled, and every file survives', () => {
     writeAppDatabase(releaseDir, { notes: [{ id: 'one', body: 'release' }] });
     writeImage(releaseDir, 'release.png', 'release image');
     const releaseListing = listing(releaseDir);
-    const releaseBytes = readFileSync(
-      join(releaseDir, INSTALLED_DATABASE_FILE),
-    );
+    const releaseBytes = readFileSync(join(releaseDir, DATABASE_FILE));
 
     expect(() =>
       mirrorInstalledData({
@@ -255,9 +238,7 @@ describe('mirrorInstalledData', () => {
     );
 
     expect(listing(releaseDir)).toEqual(releaseListing);
-    expect(readFileSync(join(releaseDir, INSTALLED_DATABASE_FILE))).toEqual(
-      releaseBytes,
-    );
+    expect(readFileSync(join(releaseDir, DATABASE_FILE))).toEqual(releaseBytes);
   });
 
   it('throws naming the table and leaves the old dev data readable, with no staging folder, when the release copy lacks a table the dev database has', () => {
@@ -283,7 +264,7 @@ describe('mirrorInstalledData', () => {
       readAppDatabaseRows(devDir, 'SELECT id FROM paired_devices'),
     ).toEqual([{ id: 'dev-device' }]);
     expect(listing(devDir)).toEqual([
-      INSTALLED_DATABASE_FILE,
+      DATABASE_FILE,
       'images',
       'images/dev.png',
     ]);
