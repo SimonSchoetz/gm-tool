@@ -47,10 +47,10 @@ See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`
 
 ```bash
 pnpm run dev                # Local Tauri environment
-pnpm run web                # Vite only in browser — no database
+pnpm run web                # Vite in a browser, on a temporary copy of the installed app's data
 ```
 
-`pnpm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `pnpm run dev` can exercise them.
+`pnpm run web` reaches the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first replaces the dev app's data with a copy of the installed app's data (`app/docs/features/dev-data-mirror.md`).
 
 ### Code styles and convention
 
