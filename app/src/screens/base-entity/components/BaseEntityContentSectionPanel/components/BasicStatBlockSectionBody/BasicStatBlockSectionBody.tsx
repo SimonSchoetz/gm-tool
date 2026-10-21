@@ -52,7 +52,6 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
     >
       <label className='basic-stat-block-section-body-hp'>
         <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
-        {/* [DEFERRED-VIOLATION: .claude/rules/src-components.md, Controlled inputs that drive auto-save mutations, Case 1 — SyncedInput takes no onBlur and hands onCommit only the value string, so it can neither gate a save on validity.badInput nor revert an unsaveable value on blur] */}
         <Input
           className='basic-stat-block-section-body-hp-input'
           // Remounted on every revert: React rewrites a number input's text only when its DOM value differs from the bound value, and unconvertible text already reads `''`, so a revert to an empty HP would otherwise leave `-` or `1.` on screen.
