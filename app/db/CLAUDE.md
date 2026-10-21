@@ -25,6 +25,7 @@ Follows the conventions in `app/CLAUDE.md` — File Organization and Directory S
   - ❌ BAD: `bio: z.string().nullable().optional()` on `zodSchema` — a nullable column's read value is `null`, never `undefined`
   - ✅ GOOD: `bio: z.string().nullable()` on `zodSchema`
   - **Grandfathered:** schema files already using `.optional()` on a `zodSchema` field as of this rule's landing — see Grandfathering below.
+- **Values are always bound; an identifier SQL cannot bind is interpolated only from a fixed source.** A table, column or schema name may be interpolated only when all three hold: it comes from a fixed constant — a registry such as `SYNCED_TABLES` or the entity types `isEntityType` checks, or a module literal — or from the schema itself through `pragma_table_info`; it has passed a guard first — a membership check against that registry (`mention-search.ts`, `_sync/apply-upsert.ts`) or a quoting function for a name read from the schema (`quoteIdentifier` in `app/dev-data-server/devMirror.ts`); and the interpolating site carries a one-line comment naming that source.
 
 ### Grandfathering
 

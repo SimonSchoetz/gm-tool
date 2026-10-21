@@ -58,5 +58,5 @@ Not yet registered: whether a paired peer's sync cursor for the dev device goes 
 
 ## Where to look
 
-- Dev data mirror: `devMirror` (the swap and the preserved sets), `runDevMirror` (the entry and its exit codes), `repositoryJson` (the identifier reader), `installedAppData` (the release copy functions); the `dev` script in `package.json`.
+- Dev data mirror: `devMirror` (the swap and the preserved sets), `runDevMirror` (the entry and its exit codes), `repositoryJson` (the identifier reader), `installedAppData` (the release copy functions), the domain module `database` (the database file name and the `_system` device key); the `dev` script in `package.json`.
 - Tests: `devMirror.test`, `runDevMirror.test`, `installedAppData.test`, with `appDatabase` and its own `appDatabase.test` as their shared fixture.
