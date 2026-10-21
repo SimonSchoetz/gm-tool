@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "command",
+  "commandRunner": {
+    "command": "npx vitest related --run --passWithNoTests --bail 1 --maxWorkers 1 $MUTATION_CHECK_FILES"
+  },
+  "coverageAnalysis": "off",
+  "reporters": ["progress", "json"],
+  "jsonReporter": { "fileName": "reports/mutation/mutation.json" },
+  "timeoutMS": 10000,
+  "cleanTempDir": "always"
+}

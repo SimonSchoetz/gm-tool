@@ -3,3 +3,5 @@ src/routeTree.gen.ts
 docs/
 coverage/
 pnpm-lock.yaml
+.stryker-tmp/
+reports/

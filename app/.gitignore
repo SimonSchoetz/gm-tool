@@ -28,3 +28,7 @@ dist-ssr
 
 # TanStack Router generated files
 src/routeTree.gen.ts
+
+# Stryker (mutation-check)
+.stryker-tmp/
+reports/
