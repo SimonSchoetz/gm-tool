@@ -56,7 +56,15 @@ const looseToThrowMatcher = [
 ];
 
 export default defineConfig(
-  { ignores: ['dist/**', 'src-tauri/**', 'coverage/**'] },
+  {
+    ignores: [
+      'dist/**',
+      'src-tauri/**',
+      'coverage/**',
+      '.stryker-tmp/**',
+      'reports/**',
+    ],
+  },
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,

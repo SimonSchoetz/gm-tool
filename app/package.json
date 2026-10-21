@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@stryker-mutator/core": "^10.0.0",
     "@tanstack/router-cli": "1.167.39",
     "@tanstack/router-plugin": "^1.168.41",
     "@tauri-apps/cli": "^2.12.0",
