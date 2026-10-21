@@ -51,7 +51,9 @@ describe('resolveInstalledAppDataDir', () => {
     );
     expect(() =>
       resolveInstalledAppDataDir('linux', '/home/gm', 'com.app'),
-    ).toThrow('Library/Application Support/com.app');
+    ).toThrow(
+      /^The dev data server reads the installed app's data from ~\/Library\/Application Support\/com\.app, which exists on macOS only; this platform is linux\.$/,
+    );
   });
 });
 

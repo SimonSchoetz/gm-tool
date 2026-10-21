@@ -15,7 +15,7 @@ describe('openTestDatabase', () => {
     await db.execute('CREATE TABLE t (x TEXT)');
     await expect(
       db.execute('INSERT INTO t (x) VALUES ($1)', ['a']),
-    ).rejects.toThrow('Injected failure');
+    ).rejects.toThrow(/^Injected failure$/);
     const rows = await db.select<{ x: string }[]>('SELECT x FROM t');
 
     expect(rows).toEqual([]);

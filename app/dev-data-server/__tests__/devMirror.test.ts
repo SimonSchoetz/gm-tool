@@ -250,7 +250,9 @@ describe('mirrorInstalledData', () => {
         sourceDir: releaseDir,
         targetDir: join(releaseDir, '..', basename(releaseDir)),
       }),
-    ).toThrow('is the installed app');
+    ).toThrow(
+      /^The dev data directory .+ is the installed app's data directory; refusing to replace it\.$/,
+    );
 
     expect(listing(releaseDir)).toEqual(releaseListing);
     expect(readFileSync(join(releaseDir, INSTALLED_DATABASE_FILE))).toEqual(
@@ -270,7 +272,9 @@ describe('mirrorInstalledData', () => {
     });
     writeImage(devDir, 'dev.png', 'dev image');
 
-    expect(mirror).toThrow('paired_devices');
+    expect(mirror).toThrow(
+      /^The installed app's database lacks the table paired_devices, so the dev app's own rows in it cannot be kept\.$/,
+    );
 
     expect(readAppDatabaseRows(devDir, 'SELECT id FROM notes')).toEqual([
       { id: 'dev' },

@@ -45,7 +45,7 @@ describe('getRowById', () => {
     const { getRowById } = await import('../get-row-by-id');
 
     await expect(getRowById('paired_devices', 'any-id')).rejects.toThrow(
-      /^Unknown synced table/,
+      /^Unknown synced table: paired_devices$/,
     );
   });
 });

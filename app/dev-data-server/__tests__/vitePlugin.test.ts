@@ -20,10 +20,14 @@ describe('devDataServer configResolved', () => {
   it('refuses to start in web mode on a server.host other than false or localhost', () => {
     expect(() => {
       runConfigResolved(resolvedConfig('serve', 'web', true));
-    }).toThrow('server.host must be false or');
+    }).toThrow(
+      /^The dev data server serves the installed app's data, so server\.host must be false or 'localhost'; it is true — remove --host or set it to localhost\.$/,
+    );
     expect(() => {
       runConfigResolved(resolvedConfig('serve', 'web', '0.0.0.0'));
-    }).toThrow('0.0.0.0');
+    }).toThrow(
+      /^The dev data server serves the installed app's data, so server\.host must be false or 'localhost'; it is 0\.0\.0\.0 — remove --host or set it to localhost\.$/,
+    );
   });
 
   it('accepts false and localhost in web mode', () => {

@@ -51,7 +51,7 @@ describe('replace', () => {
 
     await expect(
       replace(OLD_ID, { filePath: '/docs/notes.pdf' }),
-    ).rejects.toThrow('Unsupported file extension: pdf');
+    ).rejects.toThrow(/^Unsupported file extension: pdf$/);
 
     expect((await readImages()).map((image) => image.id)).toEqual([OLD_ID]);
     expect(commandsInvoked()).not.toContain('delete_image');
@@ -65,7 +65,7 @@ describe('replace', () => {
 
     await expect(
       replace(OLD_ID, { filePath: '/pics/new.png' }),
-    ).rejects.toThrow('disk full');
+    ).rejects.toThrow(/^disk full$/);
 
     expect((await readImages()).map((image) => image.id)).toEqual([OLD_ID]);
     expect(commandsInvoked()).not.toContain('delete_image');
@@ -84,7 +84,7 @@ describe('replace', () => {
 
     await expect(
       replace(OLD_ID, { filePath: '/pics/new.png' }),
-    ).rejects.toThrow('delete failed');
+    ).rejects.toThrow(/^delete failed$/);
 
     expect(
       (await readImages()).map((image) => image.original_filename),

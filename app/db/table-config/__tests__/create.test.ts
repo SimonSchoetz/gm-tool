@@ -59,7 +59,7 @@ describe('create', () => {
 
     await expect(
       create({ table_name: 'npcs', color: '1, 2, 3', layout }),
-    ).rejects.toThrow('UNIQUE constraint failed');
+    ).rejects.toThrow(/^UNIQUE constraint failed: table_config\.table_name$/);
   });
 
   it('rejects a layout with a null column width and stores no row', async () => {
@@ -74,7 +74,7 @@ describe('create', () => {
           columns: [{ key: 'name', label: 'Name', width: null }],
         },
       } as unknown as CreateTableConfigInput),
-    ).rejects.toThrow(/^Invalid layout/);
+    ).rejects.toThrow(/^Invalid layout: \[[\s\S]*\]$/);
 
     expect(await readConfigs('custom')).toEqual([]);
   });

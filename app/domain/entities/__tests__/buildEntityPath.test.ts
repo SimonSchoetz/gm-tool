@@ -20,7 +20,7 @@ describe('buildEntityPath', () => {
 
   it('throws for unknown entity types', () => {
     expect(() => buildEntityPath('stories', 'id-1', null)).toThrow(
-      'Unknown entity type: "stories"',
+      /^Unknown entity type: "stories"$/,
     );
   });
 });

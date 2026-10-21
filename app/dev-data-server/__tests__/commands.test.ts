@@ -201,7 +201,7 @@ describe('answerCommand', () => {
       );
     }
     await expect(answerCommand('no_such_command', {}, context)).rejects.toThrow(
-      'no_such_command',
+      /^Unknown command: no_such_command$/,
     );
   });
 });

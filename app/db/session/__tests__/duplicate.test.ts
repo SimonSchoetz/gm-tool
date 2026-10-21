@@ -88,7 +88,7 @@ describe('duplicate', () => {
     const { duplicate } = await import('../duplicate');
 
     await expect(duplicate('missing-session')).rejects.toThrow(
-      'Session not found: missing-session',
+      /^Session not found: missing-session$/,
     );
   });
 });

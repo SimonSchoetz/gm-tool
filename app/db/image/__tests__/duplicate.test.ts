@@ -98,7 +98,7 @@ describe('duplicate', () => {
     const { duplicate } = await import('../duplicate');
 
     await expect(duplicate('missing-image')).rejects.toThrow(
-      'Image not found: missing-image',
+      /^Image not found: missing-image$/,
     );
   });
 });

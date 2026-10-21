@@ -12,7 +12,7 @@ import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-re
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
 
-// `no-restricted-syntax` takes its whole selector list from the last config block that sets it, so the block below that adds selectors for some files repeats this one instead of inheriting it.
+// `no-restricted-syntax` takes its whole selector list from the last config block that sets it, so each block below that adds selectors for some files repeats this one instead of inheriting it.
 const asConstOverEnum = {
   selector: 'TSEnumDeclaration',
   message: 'Use "as const" objects instead of enums.',
@@ -36,6 +36,22 @@ const writtenUndefined = [
     selector: ':function > TSTypeAnnotation.returnType TSUndefinedKeyword',
     message:
       'A function in this layer never returns `undefined`; return `null` for "no value" (app/CLAUDE.md — TypeScript Coding Style).',
+  },
+];
+
+// A string, or a RegExp not anchored at its end, makes `toThrow` pass for any message that merely contains it, so a test keeps passing after the message it pins down changes.
+const looseToThrowMatcher = [
+  {
+    selector:
+      "CallExpression[callee.property.name='toThrow'] > Literal.arguments:first-child[value=type(string)]",
+    message:
+      'toThrow with a string matches any message containing it; pass a RegExp anchored with ^ and $ for the exact message.',
+  },
+  {
+    selector:
+      "CallExpression[callee.property.name='toThrow'] > Literal.arguments:first-child[regex][regex.pattern!=/\\$$/]",
+    message:
+      'toThrow with a RegExp not ending in $ matches any message continuing past it; anchor it with $ (and ^) for the exact message.',
   },
 ];
 
@@ -98,6 +114,16 @@ export default defineConfig(
     // app/CLAUDE.md's `undefined` ban covers business logic, and a test helper returning `rows.at(0)` is none.
     files: ['**/__tests__/**'],
     rules: { 'local/no-unnormalized-lookup-result': 'off' },
+  },
+  {
+    files: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        asConstOverEnum,
+        ...looseToThrowMatcher,
+      ],
+    },
   },
   {
     // A context is read through its own named `use*` hook file, so a component never holds the context object; those hook files and files under a hooks/ folder are the only places `useContext` is called.

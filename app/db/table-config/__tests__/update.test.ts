@@ -69,7 +69,7 @@ describe('update', () => {
           columns: [{ key: 'name', label: 'Name', width: null }],
         },
       } as unknown as UpdateTableConfigInput),
-    ).rejects.toThrow(/^Invalid layout/);
+    ).rejects.toThrow(/^Invalid layout: \[[\s\S]*\]$/);
     expect(JSON.parse((await readRow(id)).layout)).toEqual(newLayout);
   });
 });

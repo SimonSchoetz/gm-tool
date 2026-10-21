@@ -79,7 +79,7 @@ describe('create', () => {
 
     await expect(
       create({ base_entity_id: 'missing-entity', type: 'text', sort_order: 0 }),
-    ).rejects.toThrow('FOREIGN KEY constraint failed');
+    ).rejects.toThrow(/^FOREIGN KEY constraint failed$/);
 
     expect(await readSections()).toEqual([]);
   });

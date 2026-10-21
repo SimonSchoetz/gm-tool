@@ -58,7 +58,7 @@ describe('initDatabase', () => {
     load.mockImplementationOnce(() => Promise.resolve(failingDatabase));
     const { initDatabase, getDatabase } = await import('@db/database');
 
-    await expect(initDatabase()).rejects.toThrow('Injected failure');
+    await expect(initDatabase()).rejects.toThrow(/^Injected failure$/);
     const laterDatabase = await getDatabase();
 
     expect(laterDatabase).not.toBe(failingDatabase);

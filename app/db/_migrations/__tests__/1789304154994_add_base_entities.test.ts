@@ -173,7 +173,7 @@ describe('addBaseEntitiesMigration.up', () => {
       const db = await seedLegacyDatabase();
       db.failOnCall(db.callCount() + call);
       await expect(addBaseEntitiesMigration.up(db)).rejects.toThrow(
-        'Injected failure',
+        /^Injected failure$/,
       );
 
       await addBaseEntitiesMigration.up(db);

@@ -62,7 +62,7 @@ describe('create', () => {
     const { readImages } = await import('@db/__tests__/support/image-fixtures');
 
     await expect(create({ filePath: '/docs/notes.pdf' })).rejects.toThrow(
-      'Unsupported file extension: pdf',
+      /^Unsupported file extension: pdf$/,
     );
 
     expect(invoke).not.toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe('create', () => {
     invoke.mockImplementation(() => Promise.reject(new Error('disk full')));
 
     await expect(create({ filePath: '/pics/Photo.png' })).rejects.toThrow(
-      'disk full',
+      /^disk full$/,
     );
 
     expect(await readImages()).toEqual([]);
