@@ -68,6 +68,7 @@ const generateCreateTableSQL = (
   const columnDefs: string[] = [];
   const foreignKeys: string[] = [];
 
+  // The table name, column names, defaults and foreign-key targets built into this DDL are module literals: the defineTable call in each table's schema.ts.
   for (const [columnName, columnDef] of Object.entries(columns)) {
     const parts: string[] = [columnName, columnDef.type];
 

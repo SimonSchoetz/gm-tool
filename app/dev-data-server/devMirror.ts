@@ -20,7 +20,7 @@ type PreservedSet = {
 
 const DEV_SCHEMA = 'dev';
 
-// The dev app's own identity: its paired devices, their sync cursors and its device row. Every other table follows the release data. Each set carries fixed statements, so only the quoted column list, which skews between schemas, is built into SQL.
+// The dev app's own identity: its paired devices, their sync cursors and its device row. Every other table follows the release data. Each set carries fixed statements, so only the quoted column list, which skews between schemas and is read through pragma_table_info, and the module constant DEV_SCHEMA are built into SQL.
 const PRESERVED_SETS: readonly PreservedSet[] = [
   {
     table: 'paired_devices',
@@ -82,12 +82,14 @@ const keepDevIdentity = (stagedPath: string, devPath: string): void => {
       db.prepare(set.deleteStagedRows).run(...set.params);
     }
     if (existsSync(devPath)) {
+      // DEV_SCHEMA is a module constant; an attached schema's name cannot be bound.
       db.prepare(`ATTACH DATABASE ? AS ${DEV_SCHEMA}`).run(devPath);
       for (const set of PRESERVED_SETS) {
         if (columnNames(db, set.table, DEV_SCHEMA).length > 0) {
           copyDevRows(db, set);
         }
       }
+      // DEV_SCHEMA is a module constant, as at ATTACH above.
       db.exec(`DETACH DATABASE ${DEV_SCHEMA}`);
     }
   } finally {

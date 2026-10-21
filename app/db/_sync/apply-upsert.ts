@@ -40,7 +40,7 @@ const executeUpsert = async (
     .join(', ');
   const values = columns.map((column) => filtered[column]);
 
-  // tableName is interpolated directly because SQL does not support parameterized table names. It must only ever receive values from SYNCED_TABLES, which is a fixed registry constant — never from user input (mirrors mention-search.ts).
+  // tableName and the column names are interpolated directly because SQL does not support parameterized identifiers. Both come from SYNCED_TABLES, a fixed registry constant: applyUpsert looks tableName up in it and filters the columns to its entry's whitelist — never from user input (mirrors mention-search.ts).
   const sql = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders.join(', ')}) ON CONFLICT(id) DO UPDATE SET ${updateSet}`;
 
   try {
@@ -121,6 +121,7 @@ export const applyUpsert = async (
     return 'skipped';
   }
 
+  // tableName passed the SYNCED_TABLES lookup above, a fixed registry constant.
   const localRows = await db.select<{ updated_at: string }[]>(
     `SELECT updated_at FROM ${tableName} WHERE id = $1`,
     [id],
