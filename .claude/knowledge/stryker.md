@@ -53,3 +53,10 @@ Why the comment misses the block starting on the line below it was not establish
 **Citation:** [mutant-triage_3: ran `npx stryker run --mutate platform/webPlatform.ts` in `app/` — observed with the restore as the body's last line every later BlockStatement mutant of the file `Ignored`, and with the restore below `};` only the try and catch blocks' mutants `Ignored`]
 
 A restore that does not take effect fails silently: the mutants it should have reactivated show as `Ignored` in `reports/mutation/mutation.json`, not as an error.
+
+## Stryker's `concurrency` option defaults to the logical core count, minus one when there are more than four cores
+
+**Verified at:** `@stryker-mutator/core` 10.0.0, <https://stryker-mutator.io/docs/stryker-js/configuration/> — 2026-10-21
+**Citation:** [instruction-pass_2: `https://stryker-mutator.io/docs/stryker-js/configuration/` — default `cpuCoreCount <= 4? cpuCoreCount : cpuCoreCount - 1`, described as the concurrency of workers]
+
+With `app/stryker.config.json` setting no `concurrency`, a run on a multi-core machine tests several mutants at once, each in its own command run.
