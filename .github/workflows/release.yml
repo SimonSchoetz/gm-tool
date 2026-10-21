@@ -60,6 +60,14 @@ jobs:
       - name: format-check
         run: npx prettier --check .
 
+      - name: Install root dependencies
+        run: pnpm install
+        working-directory: .
+
+      - name: markdown-lint
+        run: pnpm run markdown-lint
+        working-directory: .
+
       - name: test
         run: npx vitest run
 
