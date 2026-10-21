@@ -5,8 +5,10 @@ import {
   isAllowedHost,
   isFixturePath,
   isJsonContentType,
+  isRequestRejectionError,
   isSafeImageFileName,
   readJsonBody,
+  requestRejectionError,
 } from '../requestGuard';
 
 describe('isAllowedHost', () => {
@@ -36,6 +38,10 @@ describe('isJsonContentType', () => {
     expect(isJsonContentType('Application/JSON')).toBe(true);
   });
 
+  it('accepts application/json followed by whitespace before its parameters', () => {
+    expect(isJsonContentType('application/json ; charset=utf-8')).toBe(true);
+  });
+
   it('rejects another media type and a missing header', () => {
     expect(isJsonContentType('text/plain')).toBe(false);
     expect(isJsonContentType()).toBe(false);
@@ -58,6 +64,12 @@ describe('readJsonBody', () => {
       ok: false,
       status: 413,
     });
+  });
+
+  it('parses a body delivered as string chunks', async () => {
+    await expect(
+      readJsonBody(Readable.from(['{"a":', '1}']), 7),
+    ).resolves.toEqual({ ok: true, body: { a: 1 } });
   });
 
   it('answers 400 for a body that is not JSON', async () => {
@@ -90,4 +102,20 @@ describe('isFixturePath', () => {
     expect(isFixturePath('/fixtures', fixtures)).toBe(false);
     expect(isFixturePath(['/fixtures/a.png'], fixtures)).toBe(false);
   });
+});
+
+describe('isRequestRejectionError', () => {
+  it('recognises a request rejection and no other error', () => {
+    expect(isRequestRejectionError(requestRejectionError(400, 'bad'))).toBe(
+      true,
+    );
+    expect(isRequestRejectionError(new Error('bad'))).toBe(false);
+  });
+
+  it.each([null, undefined, 'RequestRejectionError', 400])(
+    'answers false for the thrown non-object %s instead of throwing',
+    (value) => {
+      expect(isRequestRejectionError(value)).toBe(false);
+    },
+  );
 });

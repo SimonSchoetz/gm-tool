@@ -22,11 +22,13 @@ const packageJsonSchema = z.object({ version: z.string() });
 const TEMP_DIR_PREFIX = 'gm-tool-web-mode-';
 
 export const devDataServer = (): Plugin => {
+  // Stryker disable next-line BooleanLiteral: Vite calls configResolved, which sets `active`, before configureServer reads it, so the initial value is never read.
   let active = false;
   // Each server start copies the installed app's data into a directory of its own, so a second web server never empties the copy the first one serves; closeServer removes it on close and on restart.
   let tempDir: string | null = null;
   let db: SqliteDatabase | null = null;
   return {
+    // Stryker disable next-line StringLiteral: nothing in app/ looks the plugin up by name; Vite uses the name only to label the plugin in its log output.
     name: 'gm-tool-dev-data-server',
     configResolved(config) {
       active = config.command === 'serve' && config.mode === 'web';
@@ -60,6 +62,7 @@ export const devDataServer = (): Plugin => {
       const serverDb = openSqliteDatabase(join(serverDir, DATABASE_FILE));
       db = serverDb;
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
+      // Stryker disable next-line ArrowFunction: runMigrations awaits the callback's result, and awaiting `undefined` continues just as awaiting a resolved promise does.
       await runMigrations(serverDb, () => Promise.resolve());
       const { version } = readRepositoryJson(
         '../package.json',

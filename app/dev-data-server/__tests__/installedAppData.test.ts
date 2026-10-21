@@ -169,4 +169,12 @@ describe('copyImages', () => {
     expect(readdirSync(join(targetDir, 'images'))).toEqual([]);
     expect(existsSync(join(sourceDir, 'images'))).toBe(false);
   });
+
+  it('creates a missing target directory along with its empty images directory when the source has none', () => {
+    const missingTarget = join(targetDir, 'not-yet');
+
+    copyImages(sourceDir, missingTarget);
+
+    expect(readdirSync(join(missingTarget, 'images'))).toEqual([]);
+  });
 });

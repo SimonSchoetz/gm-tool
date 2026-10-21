@@ -33,6 +33,7 @@ const postJson = <T>(route: string, body: unknown): Promise<T> =>
 
 // Vite's SPA fallback answers any unknown path with 200 and the app's HTML, so only the health route's own 204 proves the server is there.
 const isDevDataServerReachable = async (): Promise<boolean> => {
+  // Stryker disable BlockStatement: an emptied catch returns `undefined`, which the caller's `!` treats exactly as `false`; an emptied try block answers unreachable, as the `=== 204` → false mutant does. A next-line comment above `catch` does not reach its block.
   try {
     const response = await fetch(
       `${DEV_DATA_SERVER_PREFIX}${DEV_DATA_SERVER_ROUTES.health}`,
@@ -42,6 +43,7 @@ const isDevDataServerReachable = async (): Promise<boolean> => {
     return false;
   }
 };
+// Stryker restore BlockStatement
 
 const OPENABLE_URL_PROTOCOLS: readonly string[] = [
   'http:',
@@ -103,6 +105,7 @@ export const webPlatform: Platform = {
   // The Tauri opener plugin's default scope, which the app grants: web mode opens the same URLs and nothing else, in a new tab rather than inside the app's page.
   openUrl: (url) => {
     const protocol = urlProtocol(url);
+    // Stryker disable next-line ConditionalExpression: → false on the null check leaves includes() to reject a null protocol, which it does, since the list holds only strings; opening every URL is pinned by this line's LogicalOperator mutant.
     if (protocol === null || !OPENABLE_URL_PROTOCOLS.includes(protocol)) {
       return Promise.reject(
         new Error(

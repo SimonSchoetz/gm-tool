@@ -45,6 +45,15 @@ describe('openSqliteDatabase', () => {
     expect(await db.select('SELECT a FROM t;')).toEqual([{ a: 'y' }]);
   });
 
+  it('accepts a trailing semicolon followed by whitespace', async () => {
+    const db = openSqliteDatabase(':memory:');
+    await db.execute('CREATE TABLE t (a TEXT)');
+
+    await db.execute('INSERT INTO t (a) VALUES ($1);\n  ', ['y']);
+
+    expect(await db.select('SELECT a FROM t')).toEqual([{ a: 'y' }]);
+  });
+
   it('runs every statement of a multi-statement string that has no bind values', async () => {
     const db = openSqliteDatabase(':memory:');
 
@@ -77,6 +86,16 @@ describe('openSqliteDatabase', () => {
     const rows = await db.select<object[]>('SELECT 1 AS x');
 
     expect(Object.getPrototypeOf(rows[0])).toBe(Object.prototype);
+  });
+
+  it('close resolves true and leaves the connection closed', async () => {
+    const db = openSqliteDatabase(':memory:');
+
+    await expect(db.close()).resolves.toBe(true);
+
+    await expect(db.select('SELECT 1')).rejects.toThrow(
+      /^database is not open$/,
+    );
   });
 
   describe('on a file path', () => {

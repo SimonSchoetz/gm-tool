@@ -33,6 +33,10 @@ afterEach(() => {
 });
 
 describe('webPlatform.loadDatabase', () => {
+  it('names in the unreachable message the command that serves the data', () => {
+    expect(UNREACHABLE_DEV_DATA_SERVER_MESSAGE).toContain('`pnpm run web`');
+  });
+
   it('rejects with the unreachable message when the health request fails', async () => {
     fetchSpy.mockRejectedValueOnce(new TypeError('Failed to fetch'));
 
@@ -58,7 +62,8 @@ describe('webPlatform.loadDatabase', () => {
       .mockResolvedValueOnce(
         jsonResponse(200, { rowsAffected: 1, lastInsertId: 7 }),
       )
-      .mockResolvedValueOnce(jsonResponse(200, [{ a: 'row' }]));
+      .mockResolvedValueOnce(jsonResponse(200, [{ a: 'row' }]))
+      .mockResolvedValueOnce(jsonResponse(200, [{ n: 1 }]));
     const db = await webPlatform.loadDatabase('gm_tool.db');
 
     await expect(db.execute('CREATE TABLE t (a TEXT)')).resolves.toEqual({
@@ -68,6 +73,7 @@ describe('webPlatform.loadDatabase', () => {
     await expect(
       db.select('SELECT a FROM t WHERE a = $1', ['row']),
     ).resolves.toEqual([{ a: 'row' }]);
+    await expect(db.select('SELECT 1 AS n')).resolves.toEqual([{ n: 1 }]);
 
     expect(db.path).toBe('gm_tool.db');
     expect(fetchSpy).toHaveBeenNthCalledWith(
@@ -79,6 +85,11 @@ describe('webPlatform.loadDatabase', () => {
       3,
       url(DEV_DATA_SERVER_ROUTES.sqlSelect),
       jsonPost({ query: 'SELECT a FROM t WHERE a = $1', bindValues: ['row'] }),
+    );
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      4,
+      url(DEV_DATA_SERVER_ROUTES.sqlSelect),
+      jsonPost({ query: 'SELECT 1 AS n', bindValues: [] }),
     );
     await expect(db.close()).resolves.toBe(true);
   });
@@ -183,7 +194,7 @@ describe('webPlatform.openUrl', () => {
 
     // Anchored to the end: the message also echoes the URL, which contains the scheme text.
     await expect(webPlatform.openUrl('javascript:alert(1)')).rejects.toThrow(
-      /is javascript:$/,
+      /^Web mode opens http:, https:, mailto:, tel: URLs only; .* is javascript:$/,
     );
     await expect(webPlatform.openUrl('file:///etc/hosts')).rejects.toThrow(
       /is file:$/,
@@ -194,5 +205,27 @@ describe('webPlatform.openUrl', () => {
 
     expect(open).not.toHaveBeenCalled();
     open.mockRestore();
+  });
+});
+
+describe('webPlatform event and file members', () => {
+  it('listen resolves an unlisten function that can be called', async () => {
+    const unlisten = await webPlatform.listen('sync-changed', vi.fn());
+
+    expect(() => {
+      unlisten();
+    }).not.toThrow();
+  });
+
+  it('createIpcChannel answers a channel delivering to the given handler', () => {
+    const onmessage = vi.fn();
+
+    expect(webPlatform.createIpcChannel(onmessage).onmessage).toBe(onmessage);
+  });
+
+  it('convertFileSrc answers the URL get_image_url gave, unchanged', () => {
+    const imageUrl = `${DEV_DATA_SERVER_PREFIX}${DEV_DATA_SERVER_ROUTES.images}img.png`;
+
+    expect(webPlatform.convertFileSrc(imageUrl)).toBe(imageUrl);
   });
 });
