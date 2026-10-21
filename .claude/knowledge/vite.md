@@ -55,3 +55,10 @@ A launch command can append `--mode` and `--port` to a package script that runs 
 **Citation:** [architect_34: <https://vite.dev/config/> — "By default, Vite uses Rolldown to bundle the config into a temporary file and load it"]
 
 The config and the local files it imports run as one bundle, not as the project's own module graph, so what that bundle can resolve is decided by Rolldown's loader and not by the project's `tsconfig.json`.
+
+## Vite 8.3.1's `closeServer` plugin hook runs once the dev server is torn down, with `reason` `'restart'` or `'close'`, and the CLI closes the server on `SIGTERM`
+
+**Verified at:** vite 8.3.1 — 2026-10-21
+**Citation:** [refine-1-follow-ups_5: `app/node_modules/vite/dist/node/index.d.ts:2265-2273` — "Run logic when the server is restarted or closed … The hooks are called after the server is torn down"] [refine-1-follow-ups_6: `app/node_modules/vite/dist/node/chunks/node.js:24675-24690` — `closeServer` closes the watcher, websocket, environments and HTTP server, then calls every plugin's `closeServer` hook with `{ reason }`; `:3081-3087` — `setupSIGTERMListener` registers `process.once("SIGTERM", …)` and, outside CI, `process.stdin.on("end", …)`]
+
+A plugin that holds a resource per server start, such as a temp directory or an open database, releases it there.

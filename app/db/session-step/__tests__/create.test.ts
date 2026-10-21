@@ -79,7 +79,7 @@ describe('create', () => {
 
     await expect(
       create({ session_id: 'missing-session', sort_order: 0 }),
-    ).rejects.toThrow('FOREIGN KEY constraint failed');
+    ).rejects.toThrow(/^FOREIGN KEY constraint failed$/);
 
     expect(await readSteps()).toEqual([]);
   });

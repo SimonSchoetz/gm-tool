@@ -6,14 +6,14 @@
 - Fix (UX): Text editor height in summary fields
 - Fix (UX): List item spacings (check list indentation is different to normal list)
 - Fix (UI): Placeholder on checkbox list item is a single-char straight line, overflowing all contents below
-- Fix (UX Toggle enter behavior): 
-  - Trying to add a mention badge with hitting enter in toggle heading not working -> hitting enter adds new line instead. Hitting enter when mention badge pop up is open should add the badge. 
+- Fix (UX Toggle enter behavior):
+  - Trying to add a mention badge with hitting enter in toggle heading not working -> hitting enter adds new line instead. Hitting enter when mention badge pop up is open should add the badge.
   - When Toggle is collapsed: Hitting enter at the end of the line of the toggle header should create a new node below and focus the new node
   - copy/pasting toggle sections has weird behavior, e.g. might add lines above the toggle header into the header. Then, it can't be deleted. When trying to delete the first line, it deletes the whole toggle (because its the first char of the first line). When I try to delete the second line, it doesn't work
 - Fix (UX Toggle header backspace behavior): Toggle header: when at beginning of new line in toggle header and you hit backspace, the toggle header is deleted entirely even though it is not empty
 - Encounter:
   - Feature (Stat Block): Summary field of PC, NPC, Foes and Items get tabs to switch between RP and Stat Block view.
-    - + icon that lets you add new tabs with different stat block views
+    - \+ icon that lets you add new tabs with different stat block views
   - sidebar element similar to session nav that represents the combatents in turn order that can be changed via drag-and-drop
   - header: images / placeholder of combatents mirroring order of sidebar
   - body:
@@ -31,10 +31,9 @@
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Additional Images. Coming after: other documents types. Moreover: Different tabs with e.g. a table of content based on headings
 - Fix (test strategy):
   - should earn their place.
-	- should cover the full (whatever full means and if this is feasible) outcome
-	- should cover error handling (should not throw or throw and what's the expected error message)
-	- example: 6d7a5df5 feat(adventure-stat-counts): refactor getDateTimeString.test to have useful tests
-
+    - should cover the full (whatever full means and if this is feasible) outcome
+    - should cover error handling (should not throw or throw and what's the expected error message)
+    - example: 6d7a5df5 feat(adventure-stat-counts): refactor getDateTimeString.test to have useful tests
 
 ### Done
 
@@ -44,31 +43,31 @@
 - Feature: New domain -> Encounter
 - Feature: replace Adventure dummy stats with actual ones
 - Feature: List items ins screens should be pinnable
-- Text Editor: arrow conversion '->' to '→' 
-- Feature (Fonts): 
+- Text Editor: arrow conversion '->' to '→'
+- Feature (Fonts):
   - Implement fonts (see `./epics/fonts.md`)
   - adjust all usages of fonts throughtout the app
 - Feature: detail screens should be duplicatable
 - Fix: Slash command pop up should highlight focused option when navigating with arrow keys
-- Fix (Mention Pop Up): 
+- Fix (Mention Pop Up):
   - click on embedded link opens within app instead of external browser
 - Fix (FTB): URL input breaks FTB when longer than input allows
 - Fix (Text Editor): placeholder on lists should move with indentation
 - Fix (Text Editor): tab on checkbox list item should not result in multiple "shadow" checkboxes
 - Feature (Text Editor): "Toggle section" (foldable sections)
 - Refactor (Mention Badge):
-    - should update when the reference changes
-    - should be copy/pasteable into different text editors
+  - should update when the reference changes
+  - should be copy/pasteable into different text editors
 - Chore: Replase all "loading..." ect. placeholder with loading icon
 - Feature(POC): peer-to-peer network to autosync between different devices
   - import with merging strategy
 - Tables
   - should be editable
-- Fix (Summary Pop Up): 
+- Fix (Summary Pop Up):
   - width should be same as in screens
 - Fix (Icons): Prevent icons from shrinking when space is limited
 - Feature (Text Editor): Tables
-- Feature (Text Editor): '/' command to open text formatter 
+- Feature (Text Editor): '/' command to open text formatter
 - Fix (Session Screen): Input field for step name should render
 - Fix (Session Screen): Highlightiing the step title should not open the toolbar
   - issue concerned all screens with multiple text editors
@@ -93,7 +92,6 @@
     - table config sorting
 - clarify: other code quality assurances next to typescript rules and eslint? Also: smth similar for rust?
 
-
 ## Open Beta Ready
 
 - Epic: Stable and secure build for mac and windows
@@ -107,7 +105,7 @@
 ## v1.0.0 Ready
 
 - Epic: Infrastructure to provide app downloads
-- Developer ID and notarized app 
+- Developer ID and notarized app
 - Licencing
 - Feature (Content): Onboarding
 - Feature (Content): Revise All existing texts like session step tooltips and templates

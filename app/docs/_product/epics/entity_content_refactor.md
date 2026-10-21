@@ -10,8 +10,6 @@ Most entity tables have a `summary` column. The content is edited in the entity'
 
 ## Goal
 
-
-
-## Database 
+## Database
 
 ##

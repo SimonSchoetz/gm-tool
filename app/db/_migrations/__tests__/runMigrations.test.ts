@@ -83,7 +83,7 @@ describe('runMigrations', () => {
     db.failOnCall(4);
 
     await expect(runMigrations(db, skipBackup)).rejects.toThrow(
-      'Injected failure',
+      /^Injected failure$/,
     );
 
     expect(await db.select<unknown[]>('SELECT id FROM _migrations')).toEqual(
@@ -141,7 +141,7 @@ describe('runMigrations', () => {
 
     await expect(
       runMigrations(db, () => Promise.reject(new Error('backup failed'))),
-    ).rejects.toThrow('backup failed');
+    ).rejects.toThrow(/^backup failed$/);
 
     expect((await readLedger(db)).map((row) => row.id)).toEqual(appliedIds);
     expect(await readTableNames(db)).toEqual(tablesBefore);

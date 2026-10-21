@@ -79,7 +79,7 @@ describe('duplicate', () => {
     const { duplicate } = await import('../duplicate');
 
     await expect(duplicate('missing-encounter')).rejects.toThrow(
-      'Encounter not found: missing-encounter',
+      /^Encounter not found: missing-encounter$/,
     );
   });
 });

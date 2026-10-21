@@ -68,7 +68,7 @@ describe('openSqliteDatabase', () => {
         'child-1',
         'missing-parent',
       ]),
-    ).rejects.toThrow('FOREIGN KEY constraint failed');
+    ).rejects.toThrow(/^FOREIGN KEY constraint failed$/);
   });
 
   it('returns rows as plain objects', async () => {

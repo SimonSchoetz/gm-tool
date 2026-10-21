@@ -214,7 +214,7 @@ describe('addBaseEntityContentSectionsMigration.up', () => {
       db.failOnCall(db.callCount() + call);
       await expect(
         addBaseEntityContentSectionsMigration.up(db),
-      ).rejects.toThrow('Injected failure');
+      ).rejects.toThrow(/^Injected failure$/);
 
       await addBaseEntityContentSectionsMigration.up(db);
 

@@ -32,6 +32,11 @@ const srcDevDataServerImportPath = path.join(
   srcCanaryDir,
   'importsDevDataServer.ts',
 );
+const srcToThrowTestPath = path.join(
+  srcCanaryDir,
+  '__tests__',
+  'toThrowMatchers.test.ts',
+);
 
 const useContextSource = `import { createContext, useContext } from 'react';\n\nconst CanaryContext = createContext<number | null>(null);\n\nexport const readCanary = (): number | null => useContext(CanaryContext);\n`;
 const writesUndefinedSource = `export const value = (flag: boolean): string | null =>\n  flag ? 'set' : null;\nexport const sentinel = undefined;\n`;
@@ -39,6 +44,7 @@ const lookupSource = `type Finder = { find: (key: string) => string };\n\nexport
 const addedLookupSource = `type Getter = { get: (key: string) => string };\n\nexport const lastMatch = (items: string[]): string | undefined =>\n  items.findLast((item) => item === 'a');\nexport const firstItem = (items: string[]): string | undefined =>\n  items.shift();\nexport const fromMap = (map: Map<string, string>): string | undefined =>\n  map.get('a');\nexport const fromParams = (params: URLSearchParams): string | null =>\n  params.get('a');\nexport const fromGetter = (getter: Getter): string => getter.get('a');\n`;
 const tauriImportSource = `import { invoke } from '@tauri-apps/api/core';\n\nexport const callsTauri = (): Promise<unknown> => invoke('ping');\n`;
 const tauriTypeImportSource = `import type { InvokeArgs } from '@tauri-apps/api/core';\n\nexport const describesArgs = (args: InvokeArgs): InvokeArgs => args;\n`;
+const toThrowMatchersSource = `import { expect } from 'vitest';\n\nconst fail = (): never => {\n  throw new Error('boom: disk full');\n};\n\nexpect(fail).toThrow('boom');\nexpect(fail).toThrow(/^boom/);\nexpect(fail).toThrow(/^boom: disk full$/);\nexpect(fail).toThrow();\nexpect(fail).not.toThrow(TypeError);\nexport enum Canary {\n  A,\n}\n`;
 const devDataServerImportSource = `import { devDataServer } from '../../dev-data-server/vitePlugin';\nimport { DEV_DATA_SERVER_PREFIX } from '../../dev-data-server/protocol';\n\nexport const devDataServerCanary = [devDataServer, DEV_DATA_SERVER_PREFIX];\n`;
 
 /** @type {Map<string, import('eslint').Linter.LintMessage[]>} */
@@ -46,6 +52,7 @@ const messagesByPath = new Map();
 
 beforeAll(async () => {
   fs.mkdirSync(path.join(srcCanaryDir, 'hooks'), { recursive: true });
+  fs.mkdirSync(path.join(srcCanaryDir, '__tests__'), { recursive: true });
   fs.mkdirSync(path.join(servicesCanaryDir, '__tests__'), { recursive: true });
   fs.mkdirSync(platformCanaryDir, { recursive: true });
   fs.writeFileSync(componentPath, useContextSource);
@@ -60,6 +67,7 @@ beforeAll(async () => {
   fs.writeFileSync(platformTauriImportPath, tauriImportSource);
   fs.writeFileSync(srcTauriTypeImportPath, tauriTypeImportSource);
   fs.writeFileSync(srcDevDataServerImportPath, devDataServerImportSource);
+  fs.writeFileSync(srcToThrowTestPath, toThrowMatchersSource);
 
   const eslint = new ESLint({ cwd: appDir });
   const results = await eslint.lintFiles([
@@ -163,5 +171,13 @@ describe('the dev data server boundary under the project eslint.config.js', () =
         'import-x/no-restricted-paths',
       ),
     ).toEqual([1]);
+  });
+});
+
+describe('the loose toThrow matcher selectors under the project eslint.config.js', () => {
+  it('report a string and a RegExp not ending in $ in a test file, pass an anchored RegExp, no argument and an error class, and keep the enum ban', () => {
+    expect(linesReportedBy(srcToThrowTestPath, 'no-restricted-syntax')).toEqual(
+      [7, 8, 12],
+    );
   });
 });

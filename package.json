@@ -21,15 +21,17 @@
     "lint": "cd app && npx eslint .",
     "build-local": "cd app && pnpm run tauri build -- --debug",
     "create-release": "node scripts/create-release.ts",
-    "prettier-fix": "cd app && npx prettier --write ."
+    "prettier-fix": "cd app && npx prettier --write .",
+    "markdown-lint": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#_archive\" \"#app/src-tauri/target\" \"#app/src-tauri/vendor\" \"#.claude/worktrees\" \"#.claude/cycles\""
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
+    "markdownlint-cli2": "0.23.3",
     "simple-git-hooks": "latest"
   },
   "simple-git-hooks": {
-    "pre-commit": "staged=$(git diff --cached --name-only --no-renames); printf '%s\\n' \"$staged\" | grep -q '^app/' || exit 0; (cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .) || exit 1; printf '%s\\n' \"$staged\" | grep -q '^app/src-tauri/' || exit 0; cd app/src-tauri && cargo clippy --all-targets -- -D warnings && cargo fmt --check",
-    "pre-merge-commit": "staged=$(git diff --cached --name-only --no-renames); printf '%s\\n' \"$staged\" | grep -q '^app/' || exit 0; (cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .) || exit 1; printf '%s\\n' \"$staged\" | grep -q '^app/src-tauri/' || exit 0; cd app/src-tauri && cargo clippy --all-targets -- -D warnings && cargo fmt --check",
+    "pre-commit": "staged=$(git diff --cached --name-only --no-renames); printf '%s\\n' \"$staged\" | grep -q '\\.md$' && { pnpm run markdown-lint || exit 1; }; printf '%s\\n' \"$staged\" | grep -q '^app/' || exit 0; (cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .) || exit 1; printf '%s\\n' \"$staged\" | grep -q '^app/src-tauri/' || exit 0; cd app/src-tauri && cargo clippy --all-targets -- -D warnings && cargo fmt --check",
+    "pre-merge-commit": "staged=$(git diff --cached --name-only --no-renames); printf '%s\\n' \"$staged\" | grep -q '\\.md$' && { pnpm run markdown-lint || exit 1; }; printf '%s\\n' \"$staged\" | grep -q '^app/' || exit 0; (cd app && npx tsc --noEmit && npx eslint . && npx prettier --check .) || exit 1; printf '%s\\n' \"$staged\" | grep -q '^app/src-tauri/' || exit 0; cd app/src-tauri && cargo clippy --all-targets -- -D warnings && cargo fmt --check",
     "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2",
     "pre-push": "cd app && npx vitest run && cd src-tauri && cargo test"
   }

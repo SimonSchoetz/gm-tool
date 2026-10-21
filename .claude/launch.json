@@ -3,8 +3,11 @@
   "configurations": [
     {
       "name": "web",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "app", "run", "web", "--port", "5173"],
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        ". \"$HOME/.nvm/nvm.sh\" && nvm use --silent && exec pnpm --dir app run web --port 5173"
+      ],
       "port": 5173
     }
   ]

@@ -21,7 +21,7 @@ describe('parseLayoutFromRow', () => {
     });
 
     expect(() => parseLayoutFromRow(stored)).toThrow(
-      /^Stored layout is invalid/,
+      /^Stored layout is invalid: \[[\s\S]*\]$/,
     );
   });
 });

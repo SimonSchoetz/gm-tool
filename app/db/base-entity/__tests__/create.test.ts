@@ -55,7 +55,7 @@ describe('create', () => {
     const { create } = await import('../create');
 
     await expect(create('npcs', 'missing-adventure')).rejects.toThrow(
-      'FOREIGN KEY constraint failed',
+      /^FOREIGN KEY constraint failed$/,
     );
 
     expect(await readBaseEntities()).toEqual([]);

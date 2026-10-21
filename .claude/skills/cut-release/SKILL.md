@@ -37,7 +37,7 @@ At the repo root: move the classified entries into a new `## [vX.Y.Z] - YYYY-MM-
 
 Show the user the full diff — the version-file changes and the CHANGELOG.md section — before committing anything. Once confirmed, commit with exactly:
 
-```
+```text
 chore(release): bump version to vX.Y.Z
 ```
 

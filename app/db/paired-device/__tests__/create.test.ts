@@ -66,7 +66,7 @@ describe('create', () => {
     await create({ id: DEVICE_A, name: 'Laptop' });
 
     await expect(create({ id: DEVICE_A, name: 'Again' })).rejects.toThrow(
-      'UNIQUE constraint failed',
+      /^UNIQUE constraint failed: paired_devices\.id$/,
     );
 
     expect(await readDevices()).toHaveLength(1);
