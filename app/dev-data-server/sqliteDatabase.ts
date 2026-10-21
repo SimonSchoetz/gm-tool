@@ -1,4 +1,4 @@
-// Node host — imported by vitePlugin.ts and by the test support in db/__tests__/support/; stands in for @tauri-apps/plugin-sql's Database over node:sqlite, so its importers run only under Node (Vite's config bundle, or a test under `// @vitest-environment node`). The folder has no index.ts; protocol.ts states why.
+// Node host — stands in for @tauri-apps/plugin-sql's Database over node:sqlite, so whatever imports it runs only under Node (Vite's config bundle, or a test under `// @vitest-environment node`). The folder has no index.ts; protocol.ts states why.
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import type { QueryResult } from '@tauri-apps/plugin-sql';
 

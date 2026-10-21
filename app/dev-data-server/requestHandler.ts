@@ -1,4 +1,4 @@
-// Node host — imported by vitePlugin.ts: the dev data server's HTTP surface — body reading, routing, status mapping and image serving in front of the command table and the adapter.
+// Node host: the dev data server's HTTP surface — body reading, routing, status mapping and image serving in front of the command table and the adapter.
 import { existsSync, readFileSync } from 'node:fs';
 import type { ServerResponse } from 'node:http';
 import { extname, join } from 'node:path';

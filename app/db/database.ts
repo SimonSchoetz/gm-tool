@@ -1,9 +1,8 @@
 import type Database from '@tauri-apps/plugin-sql';
+import { DATABASE_FILE } from '@domain';
 import { loadDatabase } from '@platform';
 import { runMigrations } from './_migrations';
 import { backupDatabase } from './database-backup';
-
-const DATABASE_FILE = 'gm_tool.db';
 
 let db: Database | null = null;
 let initializingPromise: Promise<Database> | null = null;

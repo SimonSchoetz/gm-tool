@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import type { SQLOutputValue } from 'node:sqlite';
-import { INSTALLED_DATABASE_FILE } from '../../installedAppData';
+import { DATABASE_FILE } from '../../../domain/database';
 
 type AppDatabaseOptions = {
   notes?: { id: string; body: string }[];
@@ -26,7 +26,7 @@ export const writeAppDatabase = (
     pairedDevicesExtraColumn = false,
   }: AppDatabaseOptions = {},
 ): void => {
-  const db = new DatabaseSync(join(dir, INSTALLED_DATABASE_FILE));
+  const db = new DatabaseSync(join(dir, DATABASE_FILE));
   db.exec(`
     CREATE TABLE notes (id TEXT PRIMARY KEY, body TEXT);
     CREATE TABLE _sync_peers (id TEXT PRIMARY KEY, last_received_seq INTEGER);
@@ -62,7 +62,7 @@ export const readAppDatabaseRows = (
   dir: string,
   sql: string,
 ): Record<string, SQLOutputValue>[] => {
-  const db = new DatabaseSync(join(dir, INSTALLED_DATABASE_FILE));
+  const db = new DatabaseSync(join(dir, DATABASE_FILE));
   try {
     return db.prepare(sql).all();
   } finally {

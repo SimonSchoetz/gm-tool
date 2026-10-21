@@ -1,13 +1,12 @@
-// Node host — imported by runDevMirror.ts, which `node` runs directly as the first half of the `dev` script, so its relative imports carry the `.ts` extension Node's type stripping requires.
+// Node host — `node` loads it directly in the first half of the `dev` script, so its relative imports carry the `.ts` extension Node's type stripping requires.
 import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { DATABASE_FILE, DEVICE_SYSTEM_KEY } from '../domain/database/index.ts';
 import {
   copyDatabase,
   copyImages,
-  DEVICE_SYSTEM_KEY,
   hasInstalledAppData,
-  INSTALLED_DATABASE_FILE,
 } from './installedAppData.ts';
 
 type MirrorOutcome = 'mirrored' | 'no-installed-data';
@@ -120,22 +119,19 @@ export const mirrorInstalledData = ({
     copyDatabase(sourceDir, staging);
     copyImages(sourceDir, staging);
     keepDevIdentity(
-      join(staging, INSTALLED_DATABASE_FILE),
-      join(targetDir, INSTALLED_DATABASE_FILE),
+      join(staging, DATABASE_FILE),
+      join(targetDir, DATABASE_FILE),
     );
     // Removing gm_tool.db-wal and gm_tool.db-shm with the main file keeps a stale log from being replayed under the new database.
     for (const name of [
-      INSTALLED_DATABASE_FILE,
-      `${INSTALLED_DATABASE_FILE}-wal`,
-      `${INSTALLED_DATABASE_FILE}-shm`,
+      DATABASE_FILE,
+      `${DATABASE_FILE}-wal`,
+      `${DATABASE_FILE}-shm`,
       'images',
     ]) {
       rmSync(join(targetDir, name), { recursive: true, force: true });
     }
-    renameSync(
-      join(staging, INSTALLED_DATABASE_FILE),
-      join(targetDir, INSTALLED_DATABASE_FILE),
-    );
+    renameSync(join(staging, DATABASE_FILE), join(targetDir, DATABASE_FILE));
     renameSync(join(staging, 'images'), join(targetDir, 'images'));
   } finally {
     rmSync(staging, { recursive: true, force: true });

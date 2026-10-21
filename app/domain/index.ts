@@ -1,6 +1,7 @@
 export * from './adventures';
 export * from './base-entities';
 export * from './base-entity-content-sections';
+export * from './database';
 export * from './devices';
 export * from './encounters';
 export * from './entities';
