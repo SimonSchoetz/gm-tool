@@ -9,17 +9,18 @@ This directory contains specs and planning documents. Specs are temporary and wi
 **Layered breakdown** — layers in dependency order:
 
 1. Domain
-2. Database
-3. Rust backend
-4. Services
-5. Data Access Layer
-6. Frontend
+2. Platform
+3. Database
+4. Rust backend
+5. Services
+6. Data Access Layer
+7. Frontend
 
-The Rust backend depends on neither Domain nor Database — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller.
+The Rust backend depends on neither Domain nor Database — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller. Platform imports none of these layers and Database, Services, the Data Access Layer and the Frontend import it, so it is specified before them; `app/dev-data-server/` is development tooling outside this order.
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
-**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components). Its Required bullet takes an acceptance criterion that only the component's event handling decides out of the exemption, so that criterion gets a component test, never a note; the risk category the exemption still excludes is a criterion whose outcome depends on layout, which that bullet leaves without a test. The required scope under `src/` — which files must have tests — is that Required bullet plus `.claude/rules/src-unit-tests.md` — Testing Policy.
+**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components). Its Required bullet takes an acceptance criterion that only the component's event handling decides out of the exemption, so that criterion gets a component test, never a note; the risk category the exemption still excludes is a criterion whose outcome depends on layout, which that bullet leaves without a test. A `[MANUAL-VERIFY]` criterion that web mode can exercise (`app/docs/features/web-dev-mode.md`) is verified in the browser pane while implementing; only one that needs the native host stays a hand test. The required scope under `src/` — which files must have tests — is that Required bullet plus `.claude/rules/src-unit-tests.md` — Testing Policy.
 
 **Barrel instructions require explicit validation.** Before writing any barrel instruction (including "no change needed"), read the actual barrel file and verify every export against the barrel conventions in `app/CLAUDE.md` — Directory Structure. Existing `export *` is not evidence that it is correct. A spec that instructs "no change needed" for a barrel that violates the explicit-exports rule is a spec defect.
 

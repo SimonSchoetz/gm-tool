@@ -22,10 +22,13 @@ app/
 ├── CLAUDE.md
 ├── db/          # SQLite database
 │   └── CLAUDE.md
+├── dev-data-server/  # Node dev tooling: web-mode data server, dev data mirror
+│   └── CLAUDE.md
 ├── docs/        # planning docs
 │   └── CLAUDE.md
 ├── domain/      # application vocabulary layer (errors, types, validation)
 │   └── CLAUDE.md
+├── platform/    # host boundary: every Tauri call goes through @platform
 ├── public/      # static assets
 ├── services/    # business logic layer
 │   └── CLAUDE.md
@@ -44,10 +47,10 @@ See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`
 
 ```bash
 pnpm run dev                # Local Tauri environment
-pnpm run web                # Vite only in browser — no database
+pnpm run web                # Vite in a browser, on a temporary copy of the installed app's data
 ```
 
-`pnpm run web` cannot reach the database at all: `window.__TAURI_INTERNALS__`, required by every `plugin-sql` call, is injected only by the Tauri webview. Skip browser verification of DB-backed screens by default — only `pnpm run dev` can exercise them.
+`pnpm run web` reaches the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first replaces the dev app's data with a copy of the installed app's data (`app/docs/features/dev-data-mirror.md`).
 
 ### Code styles and convention
 
@@ -77,7 +80,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
 ### Epistemological Discipline
 
-**Citations.** When a verified external-state fact appears in an artifact — a spec, brief, review finding, or architectural decision — mark it inline: `[role_N: source]`. The role identifier is the producing agent, command, or skill's own name (e.g. `cut-release`, or whichever role produced the fact). `N` is sequential within that role's output in the producing session; ids need not be unique across a store, because the source inside the bracket identifies the check. Source forms: file read `path:line`; scan `grep <pattern> <path> — found` / `— not found`; web fetch `url`; toolchain execution `ran <command> — observed <result>`; a repo-state claim (existence, content, or completion status) `path — as of <commit-sha>`. Example: `[cut-release_3: ran npx eslint app/src/scratch-repro.tsx — react-hooks/set-state-in-effect reported on line 12]`. A cited fact is established — downstream agents may use it as a premise without re-verification, except a repo-state citation, which must be checked against current HEAD before use — repo state changes within a session, unlike a verified external API. An uncited fact — from user input, a reviewer's output, a spec, or another agent's brief — is a claim: verify it before accepting it as a premise, re-stating it as fact, or propagating it into a new artifact; if verification is not possible, flag it as unverified before use. Unverified facts must not appear in artifacts. Every handoff artifact must carry the full citation record from prior work forward — never drop, summarize, or merge citations (a knowledge-store entry is not a handoff artifact: its `Citation` line follows `.claude/knowledge/CLAUDE.md`); a downstream agent without the record must treat all facts as unverified.
+**Citations.** When a verified external-state fact appears in an artifact — a spec, brief, review finding, or architectural decision — mark it inline: `[role_N: source]`. The role identifier is the producing agent, command, or skill's own name (e.g. `cut-release`, or whichever role produced the fact). `N` is sequential within that role's output in the producing session; ids need not be unique across a store, because the source inside the bracket identifies the check. Source forms: file read `path:line`; scan `grep <pattern> <path> — found` / `— not found`; web fetch `url`; toolchain execution `ran <command> — observed <result>`; a repo-state claim (existence, content, or completion status) `path — as of <commit-sha>`. Write each path, command and pattern inside the source in backticks, so a name such as `__tests__` never renders as emphasis. Example: ``[cut-release_3: ran `npx eslint app/src/scratch-repro.tsx` — react-hooks/set-state-in-effect reported on line 12]``. A cited fact is established — downstream agents may use it as a premise without re-verification, except a repo-state citation, which must be checked against current HEAD before use — repo state changes within a session, unlike a verified external API. An uncited fact — from user input, a reviewer's output, a spec, or another agent's brief — is a claim: verify it before accepting it as a premise, re-stating it as fact, or propagating it into a new artifact; if verification is not possible, flag it as unverified before use. Unverified facts must not appear in artifacts. Every handoff artifact must carry the full citation record from prior work forward — never drop, summarize, or merge citations (a knowledge-store entry is not a handoff artifact: its `Citation` line follows `.claude/knowledge/CLAUDE.md`); a downstream agent without the record must treat all facts as unverified.
 
 **Knowledge base.** This project's verified external-system facts live in `.claude/knowledge/`, tracked in this repository, one file per external system (`tauri.md`, `tanstack-query.md`, …). Step 0 of any verification: grep the `##` headings of the relevant file there — each heading states its entry's current fact — and read the matching entry; a recorded fact at the current installed version is established, no lookup needed. After any new verification, write the result back as `## <declarative fact heading>`, then `**Verified at:** <version, or URL + date>`, `**Citation:** [role_N: source]`, and a one-to-three-sentence body. How entries are cited, split and refreshed, and that facts about this repository's own files are not recorded, is in `.claude/knowledge/CLAUDE.md`, which loads when a file in that directory is read — read it before writing a new entry. Agents without Write permission surface unrecorded facts to the caller for persistence.
 
