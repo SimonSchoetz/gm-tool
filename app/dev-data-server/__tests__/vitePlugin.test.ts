@@ -98,6 +98,10 @@ describe('devDataServer temp directory', () => {
     mkdirSync(installedDir, { recursive: true });
     new DatabaseSync(join(installedDir, DATABASE_FILE)).close();
     vi.stubEnv('HOME', home.dir);
+    // A temp root of the test's own, which os.tmpdir() reads from TMPDIR on every call: in the shared one, another process's web-mode copies would join the listing.
+    const tempRoot = join(home.dir, 'tmp');
+    mkdirSync(tempRoot);
+    vi.stubEnv('TMPDIR', tempRoot);
   });
 
   afterEach(() => {
@@ -106,15 +110,13 @@ describe('devDataServer temp directory', () => {
   });
 
   it('gives each server start its own copy, and closing one server removes only its copy', async () => {
-    const before = new Set(webModeDirs());
-
     const closeFirst = await startWebServer();
     const closeSecond = await startWebServer();
-    const started = webModeDirs().filter((name) => !before.has(name));
+    const started = webModeDirs();
     expect(started).toHaveLength(2);
 
     await closeFirst();
-    const remaining = webModeDirs().filter((name) => !before.has(name));
+    const remaining = webModeDirs();
     expect(remaining).toHaveLength(1);
     expect(started).toContain(remaining[0]);
     expect(readdirSync(join(tmpdir(), remaining[0] ?? ''))).toContain(
@@ -122,6 +124,6 @@ describe('devDataServer temp directory', () => {
     );
 
     await closeSecond();
-    expect(webModeDirs().filter((name) => !before.has(name))).toEqual([]);
+    expect(webModeDirs()).toEqual([]);
   });
 });
