@@ -32,3 +32,24 @@ The reason after the colon is optional.
 
 **Verified at:** `@stryker-mutator/core` 10.0.0, <https://stryker-mutator.io/docs/stryker-js/configuration/> — 2026-10-21
 **Citation:** [mutation-check_9: `https://stryker-mutator.io/docs/stryker-js/configuration/` — "`src/app.js:1-11`" mutates lines 1 through 11, and a range cannot be combined with a glob in one entry] [mutation-check_10: ran `npx stryker run --mutate db/image/create.ts:1-2,db/image/create.ts:16-16` through `scripts/mutation-check.ts` in `app/` — observed `Instrumented 1 source file(s) with 5 mutant(s)`, against 24 for the whole file]
+
+## A `// Stryker disable next-line Regex` comment above `statement.replace(/\$(\d+)/g, '?$1')` ignores both of that line's Regex mutants, the killable `/\$(\D+)/g` one with the equivalent `/\$(\d)/g`; rewritten as `replace(/\$(?=\d)/g, '?')`, the line yields only Regex mutants the tests kill
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-21
+**Citation:** [mutant-triage_1: ran `npx stryker run --mutate dev-data-server/sqliteDatabase.ts` in `app/` with the comment above the line — observed both Regex mutants `Ignored`, where without it `/\$(\D+)/g` was `Killed` and `/\$(\d)/g` `Survived`] [mutant-triage_4: ran the same command on the lookahead form with no comment — observed Regex mutants `/\$(?!\d)/g` and `/\$(?=\D)/g`, both `Killed`]
+
+A next-line comment names a mutator, not a replacement, so on that line it could not keep the killable mutant active while ignoring the equivalent one; the behaviour-identical rewrite removed the equivalent mutant instead.
+
+## A `// Stryker disable next-line BlockStatement` comment written as the last line of a `try` block, directly above `} catch {`, leaves the catch block's BlockStatement mutant active
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-21
+**Citation:** [mutant-triage_2: ran `npx stryker run --mutate platform/webPlatform.ts` in `app/` with the comment directly above `} catch {` — observed the catch block's BlockStatement mutant `Survived`]
+
+Why the comment misses the block starting on the line below it was not established, so the same placement above `} finally {` or `} else {` is unverified.
+
+## A `// Stryker disable BlockStatement` comment above a `try` statement ignores its try and catch blocks' BlockStatement mutants; a `// Stryker restore BlockStatement` written as the function body's last line did not end it, while one written below the function's closing `};` did
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-21
+**Citation:** [mutant-triage_3: ran `npx stryker run --mutate platform/webPlatform.ts` in `app/` — observed with the restore as the body's last line every later BlockStatement mutant of the file `Ignored`, and with the restore below `};` only the try and catch blocks' mutants `Ignored`]
+
+A restore that does not take effect fails silently: the mutants it should have reactivated show as `Ignored` in `reports/mutation/mutation.json`, not as an error.
