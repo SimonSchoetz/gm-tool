@@ -19,7 +19,7 @@
     "dev": "cd app && pnpm run dev",
     "web": "cd app && pnpm run web",
     "lint": "cd app && npx eslint .",
-    "build-local": "cd app && pnpm run tauri build -- --debug",
+    "build-local": "cd app && pnpm run tauri build --debug --config src-tauri/tauri.dev.conf.json",
     "create-release": "node scripts/create-release.ts",
     "prettier-fix": "cd app && npx prettier --write .",
     "markdown-lint": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#_archive\" \"#app/src-tauri/target\" \"#app/src-tauri/vendor\" \"#.claude/worktrees\" \"#.claude/cycles\"",
