@@ -7,6 +7,8 @@ import {
   Ticker,
   TilingSprite,
 } from 'pixi.js';
+// The release CSP in tauri.conf.json has no 'unsafe-eval', so Application.init throws without Pixi's eval-free code paths
+import 'pixi.js/unsafe-eval';
 import { useEffect, useRef } from 'react';
 import { useSetting } from '@/data-access-layer';
 import { buildCompositeColor } from './helper/buildCompositeColor';
