@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New Encounters domain: create, manage, and organize encounters for your sessions
 
+## [v0.15.1] - 2026-10-22
+
+### Fixed
+
+- The background grid shows again in release builds, where the restricted content security policy from v0.15.0 had stopped it from rendering
+
 ## [v0.15.0] - 2026-10-21
 
 ### Added

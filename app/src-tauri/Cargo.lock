@@ -1982,7 +1982,7 @@ dependencies = [
 
 [[package]]
 name = "gm-tool"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "base64 0.23.1",
  "futures-core",
