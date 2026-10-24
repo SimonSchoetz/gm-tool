@@ -1,19 +1,25 @@
-.mention-popup-header-title {
+.MPH-title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-md);
+  /*max-width: inherit;*/
+  flex: 1;
 }
 
-.mention-popup-header-controls {
+.MPH--section-controls {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
 }
 
-.mention-popup-name--pinned {
+.MPH-title--pinned {
   cursor: grab;
 }
 
 .mention-popup-name--pinned:active {
   cursor: grabbing;
+}
+
+.MPH--content-section-label {
+  text-transform: uppercase;
 }

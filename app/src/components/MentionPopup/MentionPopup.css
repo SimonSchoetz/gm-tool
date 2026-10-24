@@ -7,6 +7,10 @@
   gap: var(--border-thin);
   box-shadow: var(--shadow-md);
   z-index: var(--most-front);
+  max-width: calc(
+    var(--popup-content-max-width) + var(--popup-content-section-height) +
+      var(--spacing-sm)
+  );
 }
 
 .mention-popup--below {

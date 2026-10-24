@@ -47,8 +47,8 @@ export const EntityPopupBody: FCProps<Props> = ({
         <ImagePlaceholderFrame
           className='entity-popup-body--image'
           dimensions={{
-            width: 'var(--summary-content-height)',
-            height: 'var(--summary-content-height)',
+            width: 'var(--popup-content-section-height)',
+            height: 'var(--popup-content-section-height)',
           }}
         >
           <ImageById imageId={imageId} />

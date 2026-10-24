@@ -8,12 +8,6 @@
   border-radius: var(--radius-md);
 }
 
-.entity-popup-body--summary {
-  max-height: var(--summary-content-height);
-  max-width: var(--summary-max-width);
-  overflow-y: auto;
-}
-
 .entity-popup-body--summary-region {
-  max-width: var(--summary-max-width);
+  flex: 1;
 }

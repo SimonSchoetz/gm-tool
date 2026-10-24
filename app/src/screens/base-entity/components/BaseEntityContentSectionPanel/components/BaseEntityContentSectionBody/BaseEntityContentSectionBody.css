@@ -1,6 +1,8 @@
 .base-entity-content-section-body {
   display: flex;
-  max-height: var(--summary-content-height);
+  max-height: var(--popup-content-section-height);
+
+  max-width: var(--popup-content-max-width);
   overflow-y: auto;
   margin: var(--spacing-sm);
   margin-left: 0;

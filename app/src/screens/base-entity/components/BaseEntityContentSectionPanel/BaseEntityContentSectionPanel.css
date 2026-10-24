@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--border-thin);
   border-radius: var(--radius-lg);
-  max-width: var(--summary-max-width);
+  width: fit-content;
 }
 
 .base-entity-content-section-panel-name-input {

@@ -20,22 +20,28 @@ export const MentionPopupHeader: FCProps<Props> = ({
 
   return (
     <PanelMenuBar
-      title={
-        <div className='mention-popup-header-title'>
-          <span
-            {...(header.isPinned ? header.draggableProps : {})}
-            className={cn(header.isPinned && 'mention-popup-name--pinned')}
-          >
-            {header.isPinned && controls === null && <>⠿ </>}
-            {header.name}
-          </span>
-          {controls !== null && (
-            <div className='mention-popup-header-controls'>{controls}</div>
-          )}
+      leading={
+        <span className='MPH--section-controls'>
+          {controls !== null && <>{controls}</>}
           {sectionName !== undefined && (
-            <span className='label'>{sectionName}</span>
+            <span className='label MPH--content-section-label'>
+              {sectionName}
+            </span>
           )}
-        </div>
+        </span>
+      }
+      title={
+        <span
+          {...(header.isPinned ? header.draggableProps : {})}
+          className={cn(
+            'clip-text',
+            'MPH-title',
+            header.isPinned && 'MPH-title--pinned',
+          )}
+        >
+          {header.isPinned && <>⠿ </>}
+          {header.name}
+        </span>
       }
     >
       <ClickableIcon

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { TextEditor } from '../../../../../../../TextEditor';
+import './EntityPopupSummary.css';
 
 type Props = {
   summary: string;

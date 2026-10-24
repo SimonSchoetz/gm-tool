@@ -13,7 +13,3 @@
 .breadcrumb-list svg {
   color: var(--color-fg-muted);
 }
-
-.clip-text {
-  white-space: wrap;
-}

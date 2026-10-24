@@ -13,7 +13,7 @@
 }
 
 .in-game-view--summary-text-editor {
-  height: var(--summary-content-height);
+  height: var(--popup-content-section-height);
   overflow-y: auto;
 }
 
