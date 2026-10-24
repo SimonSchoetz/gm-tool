@@ -5,7 +5,7 @@ import { ENVELOPE_VERSION } from '../devices';
 const IMAGE_ID_REGEX = /^[A-Za-z0-9_-]+$/;
 
 // Peers sync only when this matches; bump it when a build starts writing synced values an older build's schemas reject, so mismatched builds pause sync instead of skipping rows.
-export const SYNC_PROTOCOL_VERSION = 2;
+export const SYNC_PROTOCOL_VERSION = 3;
 
 const syncChangeSchema = z.object({
   tableName: z.string(),

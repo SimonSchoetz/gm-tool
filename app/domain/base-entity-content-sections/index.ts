@@ -11,6 +11,7 @@ export {
   patchBasicStatBlockContent,
   parseBasicStatBlockHpInput,
 } from './basicStatBlockContent';
+export { patchFiveEStatBlockContent } from './fiveEStatBlockContent';
 export { baseEntityContentSectionLoadError } from './errors';
 export { baseEntityContentSectionCreateError } from './errors';
 export { baseEntityContentSectionUpdateError } from './errors';

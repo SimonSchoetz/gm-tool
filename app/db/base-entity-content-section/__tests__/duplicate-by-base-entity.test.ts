@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { patchFiveEStatBlockContent } from '@domain';
 import type { BaseEntityContentSection } from '../types';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
@@ -10,6 +11,7 @@ vi.mock('@tauri-apps/plugin-sql', async () => {
 
 const T1 = '2026-01-10T09:00:00.000Z';
 const T2 = '2026-01-11T09:00:00.000Z';
+const FIVE_E_CONTENT = patchFiveEStatBlockContent(null, 'speed', '30 ft.');
 
 const readSections = async (baseEntityId: string) => {
   const { getDatabase } = await import('@db/database');
@@ -42,7 +44,7 @@ const seedSourceAndEmptyTarget = async () => {
     name: 'Section B',
   });
   await update(first, { content: 'c', checked: 1 });
-  await update(second, { content: 'c', checked: 1 });
+  await update(second, { content: FIVE_E_CONTENT, checked: 1 });
   return { sourceEntityId, targetEntityId };
 };
 
@@ -74,7 +76,7 @@ describe('duplicateByBaseEntity', () => {
         base_entity_id: targetEntityId,
         name: 'Section B',
         type: '5e-stat-block',
-        content: 'c',
+        content: FIVE_E_CONTENT,
         checked: 1,
         sort_order: 3,
         created_at: T2,

@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import { basicStatBlockContentSchema } from './basicStatBlockContent';
+import { fiveEStatBlockContentSchema } from './fiveEStatBlockContent';
 import type { BaseEntityContentSectionType } from './contentSectionTypes';
 
 // `null` marks content whose shape this app does not define (Lexical editor state), stored validated only as a string.
@@ -9,7 +10,7 @@ const CONTENT_SECTION_CONTENT_SCHEMAS: Record<
 > = {
   text: null,
   'basic-stat-block': basicStatBlockContentSchema,
-  '5e-stat-block': null,
+  '5e-stat-block': fiveEStatBlockContentSchema,
 };
 
 export const assertValidContentSectionContent = (
