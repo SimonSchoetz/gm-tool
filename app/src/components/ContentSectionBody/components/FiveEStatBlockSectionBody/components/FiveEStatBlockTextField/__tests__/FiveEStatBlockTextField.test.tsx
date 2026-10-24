@@ -22,7 +22,7 @@ describe('FiveEStatBlockTextField', () => {
     expect(saveField).toHaveBeenLastCalledWith('speed', '30 ');
   });
 
-  // [DEFERRED-VIOLATION: app/src/CLAUDE.md — Testing Policy, Forbidden bullet "React components" — `pnpm run mutation-check` leaves the component's `if (isHiddenTextField(...)) return null` unkilled without a component test of a render-time outcome
+  // [DEFERRED-VIOLATION: app/src/CLAUDE.md — Testing Policy, Forbidden bullet "React components" — `pnpm run mutation-check` leaves the component's `if (isHiddenTextField(...)) return null` unkilled without a component test of a render-time outcome]
   it('renders nothing, label included, for a read-only field with blank text', () => {
     render(
       <FiveEStatBlockTextField
