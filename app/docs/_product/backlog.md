@@ -2,7 +2,6 @@
 
 ## Closed Beta Ready
 
-- Fix (UX): When I highlight text in text editor and hover over a mention badge, a pop up might interrupt the highlighting -> while highlighting, the pop up should be supressed
 - Fix (UX): Text editor height in summary fields
 - Fix (UX): List item spacings (check list indentation is different to normal list)
 - Fix (UI): Placeholder on checkbox list item is a single-char straight line, overflowing all contents below

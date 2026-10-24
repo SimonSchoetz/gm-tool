@@ -3,26 +3,15 @@ import { createPortal } from 'react-dom';
 import { useRouterState } from '@tanstack/react-router';
 import { FCProps } from '@/types/fcProps.type';
 import { MentionPopup } from '@/components/MentionPopup';
-import type { PopupPosition, PopupPlacement } from '@/components/MentionPopup';
+import type { PopupPosition } from '@/components/MentionPopup';
 import {
   PinnedPopupsContext,
   ShowPopupArgs,
   PinnedPopupsContextValue,
 } from '../PinnedPopupsContext';
+import type { PopupEntry, RequestedPopupMode } from './popupEntry';
+import { requestPopup } from './helper/requestPopup';
 import './PinnedPopupsProvider.css';
-
-type PopupEntry = {
-  entityId: string;
-  entityType: string;
-  adventureId: string | null;
-  name: string;
-  position: PopupPosition;
-  placement: PopupPlacement;
-  zIndex: number;
-  pinned: boolean;
-  onMouseEnterBridge: (() => void) | null;
-  onMouseLeaveBridge: (() => void) | null;
-};
 
 type Props = { children: ReactNode };
 
@@ -37,24 +26,26 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
     setPopups([]);
   }, [routerState.location.pathname]);
 
-  const showPopup = (args: ShowPopupArgs) => {
-    const { onMouseEnterBridge, onMouseLeaveBridge, ...entry } = args;
+  const requestPopupWithMode = (
+    args: ShowPopupArgs,
+    mode: RequestedPopupMode,
+  ) => {
     topZRef.current += 1;
-    setPopups((prev) => [
-      ...prev.filter((p) => p.entityId !== args.entityId),
-      {
-        ...entry,
-        zIndex: topZRef.current,
-        pinned: false,
-        onMouseEnterBridge: onMouseEnterBridge ?? null,
-        onMouseLeaveBridge: onMouseLeaveBridge ?? null,
-      },
-    ]);
+    const zIndex = topZRef.current;
+    setPopups((prev) => requestPopup(prev, args, zIndex, mode));
+  };
+
+  const showPopup = (args: ShowPopupArgs) => {
+    requestPopupWithMode(args, 'hover');
+  };
+
+  const openPopupByClick = (args: ShowPopupArgs) => {
+    requestPopupWithMode(args, 'click');
   };
 
   const hidePopup = (entityId: string) => {
     setPopups((prev) =>
-      prev.filter((p) => p.entityId !== entityId || p.pinned),
+      prev.filter((p) => p.entityId !== entityId || p.mode !== 'hover'),
     );
   };
 
@@ -64,7 +55,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
         p.entityId === entityId
           ? {
               ...p,
-              pinned: true,
+              mode: 'pinned',
               onMouseEnterBridge: null,
               onMouseLeaveBridge: null,
             }
@@ -94,6 +85,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
 
   const contextValue: PinnedPopupsContextValue = {
     showPopup,
+    openPopupByClick,
     hidePopup,
     hasPopup,
   };
@@ -105,16 +97,16 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
         <div className='pinned-popups-stack'>
           {popups.map((entry) => {
             const {
-              pinned,
+              anchor,
               onMouseEnterBridge,
               onMouseLeaveBridge,
               ...entrySpread
             } = entry;
             return (
               <MentionPopup
-                key={entry.entityId}
+                // useDraggable copies initialPosition into state once, so the remount on a changed anchor is what moves a re-anchored popup; keying on position would remount on every drag.
+                key={`${entry.entityId}-${anchor.x}-${anchor.y}`}
                 {...entrySpread}
-                initialIsPinned={pinned}
                 onRemove={() => {
                   removePopup(entry.entityId);
                 }}

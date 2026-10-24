@@ -5,6 +5,7 @@ import { cn } from '@/util/className';
 import { buildEntityPath } from '@domain';
 import { useMentionEntityData } from '@/data-access-layer';
 import { useDraggable } from '@/hooks/useDraggable';
+import { useDismissClickOpened } from './hooks/useDismissClickOpened';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { MentionPopupHeader } from './components/MentionPopupHeader/MentionPopupHeader';
 import { MentionPopupHeaderContext } from './MentionPopupHeaderContext';
@@ -15,6 +16,7 @@ import './MentionPopup.css';
 
 export type PopupPosition = { x: number; y: number };
 export type PopupPlacement = 'above' | 'below';
+export type PopupMode = 'hover' | 'click' | 'pinned';
 
 type Props = {
   entityId: string;
@@ -24,7 +26,7 @@ type Props = {
   position: PopupPosition;
   placement: PopupPlacement;
   zIndex?: number;
-  initialIsPinned: boolean;
+  mode: PopupMode;
   onRemove: () => void;
   onPin?: () => void;
   onPositionChange?: (pos: PopupPosition) => void;
@@ -41,7 +43,7 @@ export const MentionPopup: FCProps<Props> = ({
   position,
   placement,
   zIndex,
-  initialIsPinned,
+  mode,
   onRemove,
   onPin,
   onPositionChange,
@@ -49,7 +51,6 @@ export const MentionPopup: FCProps<Props> = ({
   onMouseEnterBridge,
   onMouseLeaveBridge,
 }) => {
-  const [isPinned, setIsPinned] = useState(initialIsPinned);
   const { deleted } = useMentionEntityData(entityId, entityType);
 
   const { position: dragPosition, draggableProps } = useDraggable(
@@ -72,6 +73,12 @@ export const MentionPopup: FCProps<Props> = ({
     setClampedPosition({ x, y });
   }, [dragPosition.x, dragPosition.y, placement]);
 
+  const { markInside } = useDismissClickOpened({
+    isActive: mode === 'click',
+    anchorEntityId: entityId,
+    onDismiss: onRemove,
+  });
+
   const navigate = useNavigate();
 
   const handleNavigate = () => {
@@ -81,13 +88,12 @@ export const MentionPopup: FCProps<Props> = ({
   };
 
   const handlePin = () => {
-    setIsPinned(true);
     onPin?.();
   };
 
   const handleMouseLeave = () => {
     onMouseLeaveBridge?.();
-    if (!isPinned) {
+    if (mode === 'hover') {
       onRemove();
     }
   };
@@ -107,6 +113,7 @@ export const MentionPopup: FCProps<Props> = ({
       onMouseEnter={onMouseEnterBridge}
       onMouseLeave={handleMouseLeave}
       onMouseDown={onBringToFront}
+      onClick={markInside}
     >
       {deleted ? (
         <DeletedMentionContent entityType={entityType} />
@@ -114,7 +121,7 @@ export const MentionPopup: FCProps<Props> = ({
         <MentionPopupHeaderContext.Provider
           value={{
             name,
-            isPinned,
+            isPinned: mode === 'pinned',
             zIndex: zIndex ?? null,
             draggableProps,
             onPin: handlePin,

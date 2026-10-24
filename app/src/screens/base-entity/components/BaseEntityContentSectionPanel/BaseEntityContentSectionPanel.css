@@ -6,14 +6,6 @@
   max-width: var(--summary-max-width);
 }
 
-.base-entity-content-section-panel-content {
-  display: flex;
-  max-height: var(--summary-content-height);
-  overflow-y: auto;
-  margin: var(--spacing-sm);
-  margin-left: 0;
-}
-
 .base-entity-content-section-panel-name-input {
   font-size: inherit;
   font-weight: inherit;

@@ -1,10 +1,8 @@
 import { useRef, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import type { TextFormatType } from 'lexical';
 import { usePinnedPopups } from '@/providers/PinnedPopupsContext';
 import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
-import { buildEntityPath } from '@domain';
 import {
   useMentionEntityData,
   useTableConfigs,
@@ -12,6 +10,8 @@ import {
 } from '@/data-access-layer';
 import type { PopupPlacement } from '../../../MentionPopup';
 import { buildMentionTextDecoration } from './helper/buildMentionTextDecoration';
+import { hasPointerMoved } from './helper/hasPointerMoved';
+import { isPrimaryButtonDown } from './helper/isPrimaryButtonDown';
 import './MentionBadge.css';
 
 type Props = {
@@ -29,8 +29,8 @@ export const MentionBadge: FCProps<Props> = ({
   adventureId,
   format,
 }) => {
-  const navigate = useNavigate();
-  const { showPopup, hidePopup, hasPopup } = usePinnedPopups();
+  const { showPopup, openPopupByClick, hidePopup, hasPopup } =
+    usePinnedPopups();
   const {
     name: liveName,
     deleted,
@@ -47,25 +47,35 @@ export const MentionBadge: FCProps<Props> = ({
   const resolvedColor = tableConfig?.color ?? null;
   const resolvedName = !loading && liveName !== null ? liveName : displayName;
 
-  const badgeRef = useRef<HTMLSpanElement>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMouseOnBadgeRef = useRef(false);
   const isMouseOnPopupRef = useRef(false);
+  const mouseDownPositionRef = useRef<{ x: number; y: number } | null>(null);
 
-  const showPopupFromBadge = () => {
-    if (!badgeRef.current) return;
-    const rect = badgeRef.current.getBoundingClientRect();
+  const readPopupAnchor = (badge: HTMLElement) => {
+    const rect = badge.getBoundingClientRect();
     const placement: PopupPlacement =
       rect.top > window.innerHeight / 2 ? 'above' : 'below';
     const y = placement === 'below' ? rect.bottom : rect.top;
+    return { position: { x: rect.left, y }, placement };
+  };
+
+  const clearHoverTimer = () => {
+    // Stryker disable next-line ConditionalExpression: clearTimeout on a null id does nothing, so the guard changes no outcome
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  };
+
+  const showPopupFromBadge = (badge: HTMLElement) => {
     showPopup({
       entityId,
       entityType,
       adventureId,
       name: resolvedName,
-      position: { x: rect.left, y },
-      placement,
+      ...readPopupAnchor(badge),
       onMouseEnterBridge: () => {
         isMouseOnPopupRef.current = true;
         if (hideTimerRef.current) {
@@ -82,20 +92,21 @@ export const MentionBadge: FCProps<Props> = ({
     });
   };
 
-  const handleBadgeMouseEnter = () => {
+  const handleBadgeMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
     if (hasPopup(entityId)) return;
+    if (isPrimaryButtonDown(event.buttons)) return;
     isMouseOnBadgeRef.current = true;
     // must run alongside the delay timer, not inside showPopupFromBadge — moving it into the timer callback reintroduces the visible popup fill-in
     prefetchMentionEntity();
-    hoverTimerRef.current = setTimeout(showPopupFromBadge, 500);
+    const badge = event.currentTarget;
+    hoverTimerRef.current = setTimeout(() => {
+      showPopupFromBadge(badge);
+    }, 500);
   };
 
   const handleBadgeMouseLeave = () => {
     isMouseOnBadgeRef.current = false;
-    if (hoverTimerRef.current) {
-      clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
+    clearHoverTimer();
     hideTimerRef.current = setTimeout(() => {
       hideTimerRef.current = null;
       if (!isMouseOnPopupRef.current) {
@@ -104,10 +115,28 @@ export const MentionBadge: FCProps<Props> = ({
     }, 0);
   };
 
-  const handleClick = () => {
-    hidePopup(entityId);
-    const path = buildEntityPath(entityType, entityId, adventureId);
-    void navigate({ to: path });
+  const handleBadgeMouseDown = (event: React.MouseEvent) => {
+    mouseDownPositionRef.current = { x: event.clientX, y: event.clientY };
+    clearHoverTimer();
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    // Stryker disable next-line CallExpression: a hover request that fires after the click finds the click-open entry and changes nothing
+    clearHoverTimer();
+    const mouseDownPosition = mouseDownPositionRef.current;
+    mouseDownPositionRef.current = null;
+    if (
+      hasPointerMoved(mouseDownPosition, { x: event.clientX, y: event.clientY })
+    ) {
+      return;
+    }
+    openPopupByClick({
+      entityId,
+      entityType,
+      adventureId,
+      name: resolvedName,
+      ...readPopupAnchor(event.currentTarget),
+    });
   };
 
   useEffect(() => {
@@ -120,7 +149,6 @@ export const MentionBadge: FCProps<Props> = ({
   if (deleted) {
     return (
       <span
-        ref={badgeRef}
         className={cn(
           'mention-badge',
           'mention-badge--deleted',
@@ -133,6 +161,9 @@ export const MentionBadge: FCProps<Props> = ({
               buildMentionTextDecoration(format),
           } as React.CSSProperties
         }
+        data-mention-anchor={entityId}
+        onMouseDown={handleBadgeMouseDown}
+        onClick={handleClick}
         onMouseEnter={handleBadgeMouseEnter}
         onMouseLeave={handleBadgeMouseLeave}
       >
@@ -143,7 +174,6 @@ export const MentionBadge: FCProps<Props> = ({
 
   return (
     <span
-      ref={badgeRef}
       className={cn(
         'mention-badge',
         format.includes('bold') && 'mention-badge--bold',
@@ -155,6 +185,8 @@ export const MentionBadge: FCProps<Props> = ({
           '--mention-badge-text-decoration': buildMentionTextDecoration(format),
         } as React.CSSProperties
       }
+      data-mention-anchor={entityId}
+      onMouseDown={handleBadgeMouseDown}
       onClick={handleClick}
       onMouseEnter={handleBadgeMouseEnter}
       onMouseLeave={handleBadgeMouseLeave}

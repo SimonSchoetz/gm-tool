@@ -8,29 +8,35 @@ import { useMentionPopupHeader } from '../../hooks/useMentionPopupHeader';
 import './MentionPopupHeader.css';
 
 type Props = {
-  leading?: ReactNode;
-  titleSuffix?: string;
+  controls?: ReactNode;
+  sectionName?: string;
 };
 
 export const MentionPopupHeader: FCProps<Props> = ({
-  leading = null,
-  titleSuffix,
+  controls = null,
+  sectionName,
 }) => {
   const header = useMentionPopupHeader();
 
   return (
     <PanelMenuBar
-      leading={leading}
       title={
-        <>
-          {header.isPinned && leading === null && <>⠿</>} {header.name}
-          {titleSuffix}
-        </>
+        <div className='mention-popup-header-title'>
+          <span
+            {...(header.isPinned ? header.draggableProps : {})}
+            className={cn(header.isPinned && 'mention-popup-name--pinned')}
+          >
+            {header.isPinned && controls === null && <>⠿ </>}
+            {header.name}
+          </span>
+          {controls !== null && (
+            <div className='mention-popup-header-controls'>{controls}</div>
+          )}
+          {sectionName !== undefined && (
+            <span className='label'>{sectionName}</span>
+          )}
+        </div>
       }
-      titleProps={{
-        ...(header.isPinned ? header.draggableProps : {}),
-        className: cn(header.isPinned && 'mention-popup-name--pinned'),
-      }}
     >
       <ClickableIcon
         icon={<ExternalLinkIcon />}
