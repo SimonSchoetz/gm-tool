@@ -177,6 +177,8 @@ Number and text field components, the four sub-components bound to them, the bod
 - New: `…/FiveEStatBlockNumberField/__tests__/FiveEStatBlockNumberField.test.tsx`
 - New: `…/components/FiveEStatBlockTextField/FiveEStatBlockTextField.tsx`
 - New: `…/FiveEStatBlockTextField/__tests__/FiveEStatBlockTextField.test.tsx`
+- New: `…/FiveEStatBlockTextField/helper/isHiddenTextField.ts` — `export const isHiddenTextField = (readOnly: boolean, savedValue: string): boolean => readOnly && savedValue.trim() === '';` (no `index.ts`: a `helper` folder is function-grouping)
+- New: `…/FiveEStatBlockTextField/helper/__tests__/isHiddenTextField.test.ts`
 - New: `src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/types.ts` — `FiveEStatBlockGroupProps`
 - New: `src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/__tests__/FiveEStatBlockSectionBody.test.tsx`
 - New: `src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/index.ts` — `export { FiveEStatBlockSectionBody } from './FiveEStatBlockSectionBody';`
@@ -211,7 +213,7 @@ The sub-component CSS files other than Abilities are unchanged here (SF4). Modif
 
 - **Purpose**: one saved text input with its label (7 uses).
 - **Props**: `{ saveField: FiveEStatBlockGroupProps['saveField']; field: FiveEStatBlockTextKey; label: string; placeholder: string; savedValue: string; readOnly: boolean }`.
-- **Behavior**: no data hook; when `readOnly && savedValue.trim() === ''` returns `null`. Otherwise `<SyncedInput initValue={savedValue} onCommit={(text) => saveField(field, text)} readOnly={readOnly} placeholder={placeholder} />` — the committed string is what the field shows, never trimmed. The editable field is never hidden.
+- **Behavior**: no data hook; when `isHiddenTextField(readOnly, savedValue)` (imported from `./helper/isHiddenTextField`) returns `null`. Otherwise `<SyncedInput initValue={savedValue} onCommit={(text) => saveField(field, text)} readOnly={readOnly} placeholder={placeholder} />` — the committed string is what the field shows, never trimmed. The editable field is never hidden.
 - **UI / Visual**: `<label><span className='label'>{label}</span><SyncedInput /></label>`; no `type` attribute (`text` is the default). The body CSS selectors (`.five-e-stat-block-section-body label`) style it as in the outline.
 
 ### Groups
@@ -234,6 +236,13 @@ Every label string, placeholder string and class name already in the outline sta
 `FiveEStatBlockTextField.test.tsx`:
 
 - Typing calls `saveField` with the field's key and the text, a trailing space included — defect: the value is trimmed before saving.
+
+`helper/__tests__/isHiddenTextField.test.ts` (a helper test, required by `.claude/rules/src-unit-tests.md`; it is what `mutation-check` needs to kill the mutants of the hide rule, which no component test covers):
+
+- Read-only with an empty string is hidden — defect: a blank read-only field keeps its label and an empty input.
+- Read-only with only whitespace (spaces, a tab) is hidden — defect: `trim()` is dropped and a whitespace-only value counts as filled.
+- Read-only with text is not hidden, and text with surrounding spaces is not hidden — defect: the comparison is inverted, or the rule hides a filled field.
+- Editable (`readOnly` false) with an empty string and with whitespace is not hidden — defect: the editable field is hidden, leaving the user no way to enter text.
 
 `FiveEStatBlockSectionBody.test.tsx`:
 
@@ -286,7 +295,7 @@ Run `pnpm run markdown-fix` from the repository root after editing tables, then 
 
 ## CLAUDE.md impact
 
-- `app/src/CLAUDE.md` — Testing Policy forbids component tests except for a criterion only the component's event handling decides; the read-only rules of the 5e Stat Block (text field hidden when blank, placeholder dropped on number fields) are decided by props at render time, so no automated test covers them and a regression passes the suite; they are checked by hand in the browser pane. [spec-writer_6: `app/src/CLAUDE.md` — Testing Policy, Forbidden bullet — as of ff9df60e]
+- `app/src/CLAUDE.md` — Testing Policy forbids component tests except for a criterion only the component's event handling decides; the read-only rules of the 5e Stat Block (placeholder dropped on number fields) are decided by props at render time, so no automated test covers the placeholder drop and a regression there passes the suite; it is checked by hand in the browser pane. The text field's hide rule is extracted to `isHiddenTextField` and covered by a helper test, so this departure does not reach it. [spec-writer_6: `app/src/CLAUDE.md` — Testing Policy, Forbidden bullet — as of ff9df60e]
 - `.claude/rules/src-components.md` — "Framework context is not a prop" has components call the data hook themselves, while `useBaseEntityContentSections` creates one autosave queue per call and `flushAll`s it on unmount [spec-writer_2]; several sibling components that each call it for one section's content can flush full-content writes out of edit order. The rule covers values and callbacks that are identical wherever obtained (shared cache reads, URL params); a callback returned by a hook that owns per-instance deferred-write state (the autosave queue held through `useAutosaveQueue`) is not identical per call, so the parent that owns the section's writes calls the hook once and passes the save callback down, as this spec does in `FiveEStatBlockSectionBody` and as `BasicStatBlockSectionBody` does with one instance for both its HP input and its text editor. The rule text does not state this; this is an instruction gap, left to a dedicated instruction pass, and the spec does not ask for an exception that permits per-field calls.
 - `app/CLAUDE.md` — Domain Glossary: the Content section entry lists the types as "`text` or `5e-stat-block`" and omits `basic-stat-block`; this spec does not change that entry.
 
