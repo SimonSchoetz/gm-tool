@@ -9,7 +9,7 @@ import {
   ShowPopupArgs,
   PinnedPopupsContextValue,
 } from '../PinnedPopupsContext';
-import type { PopupEntry } from './popupEntry';
+import type { PopupEntry, RequestedPopupMode } from './popupEntry';
 import { requestPopup } from './helper/requestPopup';
 import './PinnedPopupsProvider.css';
 
@@ -28,7 +28,7 @@ export const PinnedPopupsProvider: FCProps<Props> = ({ children }) => {
 
   const requestPopupWithMode = (
     args: ShowPopupArgs,
-    mode: 'hover' | 'click',
+    mode: RequestedPopupMode,
   ) => {
     topZRef.current += 1;
     const zIndex = topZRef.current;

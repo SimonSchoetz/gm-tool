@@ -4,6 +4,8 @@ import type {
   PopupPosition,
 } from '@/components/MentionPopup';
 
+export type RequestedPopupMode = Extract<PopupMode, 'hover' | 'click'>;
+
 export type PopupEntry = {
   entityId: string;
   entityType: string;

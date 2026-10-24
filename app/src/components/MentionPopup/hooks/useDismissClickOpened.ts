@@ -25,8 +25,9 @@ export const useDismissClickOpened = ({
       if (event === insideEventRef.current) return;
       const isOnOwnBadge =
         event.target instanceof Element &&
-        event.target.closest(`[data-mention-anchor="${anchorEntityId}"]`) !==
-          null;
+        event.target
+          .closest('[data-mention-anchor]')
+          ?.getAttribute('data-mention-anchor') === anchorEntityId;
       if (isOnOwnBadge) return;
       onDismiss();
     };

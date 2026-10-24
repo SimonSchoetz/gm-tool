@@ -1,11 +1,11 @@
 import type { ShowPopupArgs } from '../../PinnedPopupsContext';
-import type { PopupEntry } from '../popupEntry';
+import type { PopupEntry, RequestedPopupMode } from '../popupEntry';
 
 export const requestPopup = (
   prev: PopupEntry[],
   args: ShowPopupArgs,
   zIndex: number,
-  mode: 'hover' | 'click',
+  mode: RequestedPopupMode,
 ): PopupEntry[] => {
   const { onMouseEnterBridge, onMouseLeaveBridge, ...entry } = args;
   const isHover = mode === 'hover';
