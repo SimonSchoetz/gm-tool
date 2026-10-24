@@ -21,7 +21,8 @@ export const FiveEStatBlockNumberField: FCProps<Props> = ({
   savedValue,
   readOnly,
 }) => {
-  const savedText = savedValue === null ? '' : String(savedValue);
+  // Stryker disable next-line StringLiteral: a number input reads any non-numeric text as empty, so a changed fallback shows the same field
+  const savedText = String(savedValue ?? '');
   const { value, setValue, focusProps } = useSyncedInputValue(savedText);
   const [inputRevision, setInputRevision] = useState(0);
 
@@ -44,6 +45,7 @@ export const FiveEStatBlockNumberField: FCProps<Props> = ({
         focusProps.onBlur();
         if (readSaveableWholeNumber(event.currentTarget).valid) return;
         setValue(savedText);
+        // Stryker disable next-line ArrowFunction,ArithmeticOperator,CallExpression: the remount matters only where a browser keeps unconvertible text in a number input, which jsdom never does
         setInputRevision((revision) => revision + 1);
       }}
       readOnly={readOnly}

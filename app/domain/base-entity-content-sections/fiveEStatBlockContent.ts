@@ -64,18 +64,18 @@ const EMPTY_CONTENT: FiveEStatBlockContent = {
 export const readFiveEStatBlockContent = (
   content: string | null,
 ): FiveEStatBlockContent => {
-  if (content === null) {
-    return EMPTY_CONTENT;
-  }
   let parsed: unknown;
+  // Stryker disable BlockStatement: a failed parse and a skipped parse both leave nothing the schema accepts, so no input observes a difference between the blocks and their empty forms
   try {
-    parsed = JSON.parse(content);
+    // `String(null)` is `'null'`, which parses to a value the schema rejects, so null content reads empty without a branch of its own.
+    parsed = JSON.parse(String(content));
   } catch {
     return EMPTY_CONTENT;
   }
   const result = fiveEStatBlockContentSchema.safeParse(parsed);
   return result.success ? result.data : EMPTY_CONTENT;
 };
+// Stryker restore BlockStatement
 
 export const patchFiveEStatBlockContent = <
   K extends FiveEStatBlockNumberKey | FiveEStatBlockTextKey,
