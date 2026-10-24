@@ -9,8 +9,8 @@ Contract blocks in the sub-feature files (prop lists, hook and helper signatures
 ## Progress tracker
 
 - Sub-feature 1: UpDownBtns — extract the session-independent up/down chevron pair from `StepSectionHeaderMoveBtn` into a shared component
-- Sub-feature 2: Section stepping and slide primitive — `useListNavigation` gains stepping and a recorded transition; new `SlideTransition` component
-- Sub-feature 3: Entity-screen section carousel — "Popup Content" empty title, up/down buttons, slide in the content panel
+- Sub-feature 2: Section stepping and slide primitive — `useListNavigation` gains stepping and a recorded transition; new `SlideTransition` component (deviation: `SlideTransition.tsx`/`.css` are committed with sub-feature 3, their first consumer, because `local/no-unused-exports` rejects an unimported export in sub-feature 2's own commit)
+- Sub-feature 3: Entity-screen section carousel — "Popup Content" empty title, up/down buttons, slide in the content panel (also commits `SlideTransition.tsx`/`.css` from sub-feature 2)
 - Sub-feature 4: Popup section carousel — up/down buttons and slide of the summary region in the mention popup
 - Sub-feature 5: Click-opened popup lifecycle — popup `mode`, click-open entry point, click-outside and Escape dismissal
 - Sub-feature 6: Badge click-open and selection suppression — badge opens its popup on click, no popup during a text selection
