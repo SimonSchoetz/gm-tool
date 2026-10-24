@@ -4,18 +4,18 @@ import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { z } from 'zod';
-import { DATABASE_FILE } from '../domain/database';
-import { runMigrations } from '../db/_migrations';
-import { createFixtureCycle } from './fixtureCycle';
+import { DATABASE_FILE } from '../domain/database/index.ts';
+import { runMigrations } from '../db/_migrations/index.ts';
+import { createFixtureCycle } from './fixtureCycle.ts';
 import {
   assertInstalledAppData,
   copyDatabase,
   copyImages,
   resolveInstalledAppDataDir,
-} from './installedAppData';
-import { readRepositoryJson, tauriConfigSchema } from './repositoryJson';
-import { createRequestHandler } from './requestHandler';
-import { openSqliteDatabase, type SqliteDatabase } from './sqliteDatabase';
+} from './installedAppData.ts';
+import { readRepositoryJson, tauriConfigSchema } from './repositoryJson.ts';
+import { createRequestHandler } from './requestHandler.ts';
+import { openSqliteDatabase, type SqliteDatabase } from './sqliteDatabase.ts';
 
 const packageJsonSchema = z.object({ version: z.string() });
 

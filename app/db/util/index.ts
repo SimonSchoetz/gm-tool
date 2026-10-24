@@ -1,8 +1,8 @@
-export { defineTable } from './schema/define-table';
-export { assertValidId, assertHasUpdateFields } from './validation';
-export { buildUpdateQuery } from './build-update-query';
-export { buildCreateQuery } from './build-create-query';
-export { buildDuplicateQuery } from './build-duplicate-query';
-export { generateId } from './generate-id';
-export { generateDbTimestamps } from './generate-db-timestamps';
-export { ensureColumn } from './ensure-column';
+export { defineTable } from './schema/define-table.ts';
+export { assertValidId, assertHasUpdateFields } from './validation.ts';
+export { buildUpdateQuery } from './build-update-query.ts';
+export { buildCreateQuery } from './build-create-query.ts';
+export { buildDuplicateQuery } from './build-duplicate-query.ts';
+export { generateId } from './generate-id.ts';
+export { generateDbTimestamps } from './generate-db-timestamps.ts';
+export { ensureColumn } from './ensure-column.ts';

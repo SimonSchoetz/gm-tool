@@ -1,7 +1,7 @@
 // Node host: the pure checks every request to the dev data server passes before it reaches the database, the images or a command.
 import type { Readable } from 'node:stream';
 // Relative rather than `@domain`: Vite's config bundle, which loads this file, resolves no path alias.
-import { IMAGE_FILE_EXTENSIONS } from '../domain/images';
+import { IMAGE_FILE_EXTENSIONS } from '../domain/images/index.ts';
 
 const ALLOWED_HOSTS: readonly string[] = ['localhost', '127.0.0.1', '[::1]'];
 

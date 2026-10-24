@@ -1,5 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
-import type { Migration } from './index';
+import type { Migration } from './index.ts';
 
 const up = async (db: Database): Promise<void> => {
   await db.execute(`

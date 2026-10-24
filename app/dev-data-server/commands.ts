@@ -10,14 +10,14 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
-import { DEVICE_SYSTEM_KEY } from '../domain/database';
-import { DEV_DATA_SERVER_PREFIX, DEV_DATA_SERVER_ROUTES } from './protocol';
+import { DEVICE_SYSTEM_KEY } from '../domain/database/index.ts';
+import { DEV_DATA_SERVER_PREFIX, DEV_DATA_SERVER_ROUTES } from './protocol.ts';
 import {
   isFixturePath,
   isSafeImageFileName,
   requestRejectionError,
-} from './requestGuard';
-import type { SqliteDatabase } from './sqliteDatabase';
+} from './requestGuard.ts';
+import type { SqliteDatabase } from './sqliteDatabase.ts';
 
 export type CommandContext = {
   db: SqliteDatabase;

@@ -1,5 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
-import type { Migration } from './index';
+import type { Migration } from './index.ts';
 
 // Frozen copies of what each db/<domain>/schema.ts's createTableSQL produced when this migration was frozen — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
 const CREATE_IMAGES_SQL = `

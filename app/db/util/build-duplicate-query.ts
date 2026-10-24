@@ -1,5 +1,5 @@
-import { buildCreateQuery } from './build-create-query';
-import { generateDbTimestamps } from './generate-db-timestamps';
+import { buildCreateQuery } from './build-create-query.ts';
+import { generateDbTimestamps } from './generate-db-timestamps.ts';
 
 // copiedColumns is the source row with id, created_at, and updated_at always destructured away — this function supplies id via newId and generates fresh timestamps itself — plus whatever else the caller excludes; deriving the copied set by exclusion instead of enumeration means a column added to the table later is duplicated without any caller change. A column the caller excludes and does not restore via overrides is omitted from the INSERT entirely and takes its SQL default — how a caller excluding name produces an unnamed duplicate. overrides re-supplies a column the caller excluded but must set itself, such as a freshly duplicated image_id or the target parent id.
 export const buildDuplicateQuery = (

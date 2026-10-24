@@ -1,5 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
-import type { Migration } from './index';
+import type { Migration } from './index.ts';
 
 // FK dependency order: parents before children. Frozen migration-local copy of db/_sync/registry.ts — see app/db/CLAUDE.md — Migrations for why.
 const SYNCED_TABLE_NAMES = [

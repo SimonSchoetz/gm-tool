@@ -1,6 +1,6 @@
 import type Database from '@tauri-apps/plugin-sql';
-import type { Migration } from './index';
-import { generateId, generateDbTimestamps } from '../util';
+import type { Migration } from './index.ts';
+import { generateId, generateDbTimestamps } from '../util/index.ts';
 
 const configs = [
   {

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
-import { devDataServer } from './dev-data-server/vitePlugin';
+import { devDataServer } from './dev-data-server/vitePlugin.ts';
 
 const host = process.env.TAURI_DEV_HOST;
 

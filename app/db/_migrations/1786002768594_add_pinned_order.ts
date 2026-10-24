@@ -1,6 +1,6 @@
 import type Database from '@tauri-apps/plugin-sql';
-import type { Migration } from './index';
-import { ensureColumn } from '../util';
+import type { Migration } from './index.ts';
+import { ensureColumn } from '../util/index.ts';
 
 const PINNED_ORDER_TABLES = [
   'npcs',

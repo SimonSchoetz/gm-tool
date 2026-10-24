@@ -1,5 +1,5 @@
 import type Database from '@tauri-apps/plugin-sql';
-import type { Migration } from './index';
+import type { Migration } from './index.ts';
 
 // A frozen copy of what db/base-entity/schema.ts's createTableSQL generates — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
 const CREATE_BASE_ENTITIES_SQL = `

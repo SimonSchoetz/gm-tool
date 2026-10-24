@@ -5,8 +5,11 @@ import { extname, join } from 'node:path';
 import type { Connect } from 'vite';
 import { z } from 'zod';
 // Relative rather than `@domain`: Vite's config bundle, which loads this file, resolves no path alias.
-import { IMAGE_FILE_EXTENSIONS, isImageFileExtension } from '../domain/images';
-import { answerCommand, type CommandContext } from './commands';
+import {
+  IMAGE_FILE_EXTENSIONS,
+  isImageFileExtension,
+} from '../domain/images/index.ts';
+import { answerCommand, type CommandContext } from './commands.ts';
 import {
   DEV_DATA_SERVER_PREFIX,
   DEV_DATA_SERVER_ROUTES,
@@ -18,7 +21,7 @@ import {
   type SqlExecuteResponse,
   type SqlRequest,
   type VersionResponse,
-} from './protocol';
+} from './protocol.ts';
 import {
   isAllowedHost,
   isJsonContentType,
@@ -27,7 +30,7 @@ import {
   MAX_JSON_BODY_BYTES,
   readJsonBody,
   requestRejectionError,
-} from './requestGuard';
+} from './requestGuard.ts';
 
 type DevDataContext = CommandContext & {
   nextFixture: (extensions: readonly string[]) => string | null;
