@@ -11,7 +11,15 @@ export {
   patchBasicStatBlockContent,
 } from './basicStatBlockContent';
 export { parseWholeNumberInput } from './wholeNumberInput';
-export { patchFiveEStatBlockContent } from './fiveEStatBlockContent';
+export {
+  patchFiveEStatBlockContent,
+  readFiveEStatBlockContent,
+} from './fiveEStatBlockContent';
+export type {
+  FiveEStatBlockContent,
+  FiveEStatBlockNumberKey,
+  FiveEStatBlockTextKey,
+} from './fiveEStatBlockContent';
 export { baseEntityContentSectionLoadError } from './errors';
 export { baseEntityContentSectionCreateError } from './errors';
 export { baseEntityContentSectionUpdateError } from './errors';

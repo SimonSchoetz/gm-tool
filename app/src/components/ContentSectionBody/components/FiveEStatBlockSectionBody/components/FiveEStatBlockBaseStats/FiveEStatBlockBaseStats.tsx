@@ -1,93 +1,67 @@
 import { FCProps } from '@/types/fcProps.type';
-import type { SectionBodyProps } from '../../../../types';
-import { Input } from '@/components/Input/Input';
+import type { FiveEStatBlockNumberKey } from '@domain';
+import type { FiveEStatBlockGroupProps } from '../../types';
+import { FiveEStatBlockNumberField } from '../FiveEStatBlockNumberField/FiveEStatBlockNumberField';
+import { FiveEStatBlockTextField } from '../FiveEStatBlockTextField/FiveEStatBlockTextField';
 import './FiveEStatBlockBaseStats.css';
 
-type Props = SectionBodyProps;
-export const FiveEStatBlockBaseStats: FCProps<Props> = ({ readOnly }) => {
+type NumberFieldConfig = {
+  field: FiveEStatBlockNumberKey;
+  label: string;
+  placeholder: string;
+};
+
+const ROW_ONE_FIELDS: NumberFieldConfig[] = [
+  { field: 'hp', label: 'HP:', placeholder: '000' },
+  { field: 'ac', label: 'AC:', placeholder: '00' },
+  { field: 'initiative', label: 'Initiative:', placeholder: '0' },
+  {
+    field: 'proficiencyBonus',
+    label: 'Proficiency Bonus:',
+    placeholder: '0',
+  },
+];
+
+export const FiveEStatBlockBaseStats: FCProps<FiveEStatBlockGroupProps> = ({
+  readOnly,
+  values,
+  saveField,
+}) => {
   return (
     <div className='five-e-stat-block-base-stats'>
       <div className='five-e-stat-block-base-stats-row-one'>
-        <label>
-          <span className='label'>HP:</span>
-          <Input
-            className='number-input'
-
-            key={'hp'}
-            type='number'
-            readOnly={readOnly}
-            placeholder='000'
-            maxLength={3}
-          />
-        </label>
-
-        <label>
-          <span className='label'>AC:</span>
-          <Input
-            className='number-input'
-            key={'ac'}
-            type='number'
-            readOnly={readOnly}
-            placeholder='00'
-            maxLength={2}
-          />
-        </label>
-
-        <label>
-          <span className='label'>Initiative:</span>
-          <Input
-            className='number-input'
-            key={'inititative'}
-            type='number'
-            readOnly={readOnly}
-            placeholder='0'
-            maxLength={2}
-          />
-        </label>
-
-        <label>
-          <span className='label'>Proficiency Bonus:</span>
-          <Input
-            className='number-input'
-            key={'proficiency bonus'}
-            type='number'
-            readOnly={readOnly}
-            placeholder='0'
-            maxLength={1}
-          />
-        </label>
+        {ROW_ONE_FIELDS.map(({ field, label, placeholder }) => (
+          <label key={field}>
+            <span className='label'>{label}</span>
+            <FiveEStatBlockNumberField
+              saveField={saveField}
+              field={field}
+              placeholder={placeholder}
+              savedValue={values[field]}
+              readOnly={readOnly}
+            />
+          </label>
+        ))}
       </div>
 
       <div className='five-e-stat-block-base-stats-row-two'>
-        <label>
-          <span className='label'>Speed:</span>
-          <Input
-            key={'speed'}
-            type='text'
-            readOnly={readOnly}
-            placeholder='30, Fly 60'
-          />
-        </label>
-        {/*
-        <label>
-          <span className='label'>Size:</span>
-          <Input
-            key={'size'}
-            type='text'
-            readOnly={readOnly}
-            placeholder='medium'
-          />
-        </label>*/}
+        <FiveEStatBlockTextField
+          saveField={saveField}
+          field='speed'
+          label='Speed:'
+          placeholder='30, Fly 60'
+          savedValue={values.speed}
+          readOnly={readOnly}
+        />
 
-        <label>
-          <span className='label'>Creature Type:</span>
-          <Input
-            key={'creature type'}
-            type='text'
-            readOnly={readOnly}
-            placeholder='Large Monstrosity'
-          />
-        </label>
+        <FiveEStatBlockTextField
+          saveField={saveField}
+          field='creatureType'
+          label='Creature Type:'
+          placeholder='Large Monstrosity'
+          savedValue={values.creatureType}
+          readOnly={readOnly}
+        />
       </div>
     </div>
   );

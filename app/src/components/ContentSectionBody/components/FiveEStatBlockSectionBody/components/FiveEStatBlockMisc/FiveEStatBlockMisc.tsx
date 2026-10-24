@@ -1,44 +1,41 @@
 import { FCProps } from '@/types/fcProps.type';
-import type { SectionBodyProps } from '../../../../types';
-import { Input } from '@/components/Input/Input';
+import type { FiveEStatBlockGroupProps } from '../../types';
+import { FiveEStatBlockTextField } from '../FiveEStatBlockTextField/FiveEStatBlockTextField';
 import './FiveEStatBlockMisc.css';
 
-type Props = SectionBodyProps;
-export const FiveEStatBlockMisc: FCProps<Props> = ({ readOnly }) => {
+export const FiveEStatBlockMisc: FCProps<FiveEStatBlockGroupProps> = ({
+  readOnly,
+  values,
+  saveField,
+}) => {
   return (
-    <div>
-      <label>
-        <span className='label'>Senses:</span>
+    <div className='five-e-stat-block-misc'>
+      <FiveEStatBlockTextField
+        saveField={saveField}
+        field='senses'
+        label='Senses:'
+        placeholder='e.g. passive Perception 16, Darkvision 60 ft.'
+        savedValue={values.senses}
+        readOnly={readOnly}
+      />
 
-        <Input
-          key={'senses'}
-          type='text'
-          readOnly={readOnly}
-          placeholder='e.g. passive Perception 16, Darkvision 60 ft.'
-        />
-      </label>
+      <FiveEStatBlockTextField
+        saveField={saveField}
+        field='skills'
+        label='Skills:'
+        placeholder='e.g. Perception +5'
+        savedValue={values.skills}
+        readOnly={readOnly}
+      />
 
-      <label>
-        <span className='label'>Skills:</span>
-
-        <Input
-          key={'senses'}
-          type='text'
-          readOnly={readOnly}
-          placeholder='e.g. Perception +5'
-        />
-      </label>
-
-      <label>
-        <span className='label'>Languages:</span>
-
-        <Input
-          key={'languages'}
-          type='text'
-          readOnly={readOnly}
-          placeholder='e.g. Common, Elvish, Giant'
-        />
-      </label>
+      <FiveEStatBlockTextField
+        saveField={saveField}
+        field='languages'
+        label='Languages:'
+        placeholder='e.g. Common, Elvish, Giant'
+        savedValue={values.languages}
+        readOnly={readOnly}
+      />
     </div>
   );
 };

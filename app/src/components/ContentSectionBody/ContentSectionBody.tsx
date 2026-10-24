@@ -2,7 +2,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { HtmlProps } from '@/types/htmlProps.type';
 import { cn } from '@/util/className';
 import { BasicStatBlockSectionBody } from './components/BasicStatBlockSectionBody';
-import { FiveEStatBlockSectionBody } from './components/FiveEStatBlockSectionBody/FiveEStatBlockSectionBody';
+import { FiveEStatBlockSectionBody } from './components/FiveEStatBlockSectionBody';
 import { TextSectionBody } from './components/TextSectionBody/TextSectionBody';
 import type { SectionBodyProps } from './types';
 import './ContentSectionBody.css';
@@ -37,8 +37,10 @@ export const ContentSectionBody: FCProps<Props> = ({
           />
         );
       case '5e-stat-block':
+        // Keyed by section id, so switching between two 5e sections remounts the body and resets its local field text.
         return (
           <FiveEStatBlockSectionBody
+            key={section.id}
             section={section}
             baseEntityId={baseEntityId}
             readOnly={readOnly}
