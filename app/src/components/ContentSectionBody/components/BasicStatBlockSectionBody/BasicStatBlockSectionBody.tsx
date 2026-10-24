@@ -13,7 +13,7 @@ import {
 } from '@domain';
 import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from '../../ContentSectionBody.constants';
 import type { SectionBodyProps } from '../../types';
-import { readSaveableHp } from './helper/readSaveableHp';
+import { readSaveableWholeNumber } from '../../helper/readSaveableWholeNumber';
 import './BasicStatBlockSectionBody.css';
 
 type Props = SectionBodyProps;
@@ -63,10 +63,10 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
           value={hpText}
           onChange={(event) => {
             setHpText(event.currentTarget.value);
-            // Saves and reverts go through `readSaveableHp`, never `parseBasicStatBlockHpInput(value)` alone: a number input holding text it cannot convert (`1.` while typing `1.5`, a lone `-`) reports `value` as `''`, and reading that as a cleared field would save an empty HP.
-            const hpInput = readSaveableHp(event.currentTarget);
+            // Saves and reverts go through `readSaveableWholeNumber`, never `parseWholeNumberInput(value)` alone: a number input holding text it cannot convert (`1.` while typing `1.5`, a lone `-`) reports `value` as `''`, and reading that as a cleared field would save an empty HP.
+            const hpInput = readSaveableWholeNumber(event.currentTarget);
             if (!hpInput.valid) return;
-            const { hp } = hpInput;
+            const { value: hp } = hpInput;
             updateSectionContent(section.id, (current) =>
               patchBasicStatBlockContent(current, { hp }),
             );
@@ -74,7 +74,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
           onFocus={focusProps.onFocus}
           onBlur={(event) => {
             focusProps.onBlur();
-            if (readSaveableHp(event.currentTarget).valid) return;
+            if (readSaveableWholeNumber(event.currentTarget).valid) return;
             setHpText(savedHpText);
             setHpInputRevision((revision) => revision + 1);
           }}

@@ -9,8 +9,8 @@ export {
   BASIC_STAT_BLOCK_HP_LABEL,
   parseBasicStatBlockContent,
   patchBasicStatBlockContent,
-  parseBasicStatBlockHpInput,
 } from './basicStatBlockContent';
+export { parseWholeNumberInput } from './wholeNumberInput';
 export { patchFiveEStatBlockContent } from './fiveEStatBlockContent';
 export { baseEntityContentSectionLoadError } from './errors';
 export { baseEntityContentSectionCreateError } from './errors';

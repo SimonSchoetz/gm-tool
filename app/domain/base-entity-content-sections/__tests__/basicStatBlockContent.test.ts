@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   parseBasicStatBlockContent,
   patchBasicStatBlockContent,
-  parseBasicStatBlockHpInput,
 } from '../basicStatBlockContent';
 
 const storedContent = JSON.stringify({
@@ -63,19 +62,5 @@ describe('patchBasicStatBlockContent', () => {
       basicStatBlock: { hp: 4 },
       textEditor: '',
     });
-  });
-});
-
-describe('parseBasicStatBlockHpInput', () => {
-  it.each(['', '   '])('reads %j as a valid cleared HP', (raw) => {
-    expect(parseBasicStatBlockHpInput(raw)).toEqual({ valid: true, hp: null });
-  });
-
-  it('accepts a negative whole number', () => {
-    expect(parseBasicStatBlockHpInput('-5')).toEqual({ valid: true, hp: -5 });
-  });
-
-  it.each(['1.5', 'abc'])('rejects %j, which is not a whole number', (raw) => {
-    expect(parseBasicStatBlockHpInput(raw)).toEqual({ valid: false });
   });
 });
