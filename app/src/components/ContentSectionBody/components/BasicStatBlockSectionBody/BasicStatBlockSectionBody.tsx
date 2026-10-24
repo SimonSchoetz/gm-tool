@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
-import { useParams } from '@tanstack/react-router';
 import { useBaseEntityContentSections } from '@/data-access-layer';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { Input } from '@/components/Input/Input';
@@ -11,23 +10,21 @@ import {
   parseBasicStatBlockContent,
   patchBasicStatBlockContent,
 } from '@domain';
-import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from '../../BaseEntityContentSectionPanel.constants';
+import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from '../../ContentSectionBody.constants';
+import type { SectionBodyProps } from '../../types';
 import { readSaveableHp } from './helper/readSaveableHp';
 import './BasicStatBlockSectionBody.css';
 
-type Props = {
-  sectionId: string;
-};
+type Props = SectionBodyProps;
 
-export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
-  const params = useParams({ strict: false });
-  const baseEntityId = params.baseEntityId ?? '';
-
+export const BasicStatBlockSectionBody: FCProps<Props> = ({
+  section,
+  baseEntityId,
+  readOnly,
+}) => {
   // HP and text both rewrite the whole `content`, so every write composes against the cached section through `updateSectionContent`, never against the rendered `section`, which lags a cache write by a task — an HP edit would otherwise be overwritten by the editor's next save.
-  const { sections, updateSectionContent } =
-    useBaseEntityContentSections(baseEntityId);
-  const section = sections.find((s) => s.id === sectionId) ?? null;
-  const content = parseBasicStatBlockContent(section?.content ?? null);
+  const { updateSectionContent } = useBaseEntityContentSections(baseEntityId);
+  const content = parseBasicStatBlockContent(section.content);
   const savedHp = content.basicStatBlock.hp;
   const savedHpText = savedHp === null ? '' : String(savedHp);
 
@@ -38,7 +35,23 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
   } = useSyncedInputValue(savedHpText);
   const [hpInputRevision, setHpInputRevision] = useState(0);
 
-  if (section === null) return;
+  const textEditorId = `basic-stat-block-${section.id}-${readOnly ? 'read' : 'edit'}`;
+
+  if (readOnly) {
+    return (
+      <div className='basic-stat-block-section-body'>
+        <div className='basic-stat-block-section-body-hp'>
+          <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
+          {savedHp !== null && <span>{savedHpText}</span>}
+        </div>
+        <TextEditor
+          textEditorId={textEditorId}
+          value={content.textEditor}
+          readOnly
+        />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -50,7 +63,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
         } as CSSProperties
       }
     >
-      <label className='basic-stat-block-section-body-hp'>
+      <label className='basic-stat-block-section-body-hp basic-stat-block-section-body-hp--editable'>
         <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
         <Input
           className='basic-stat-block-section-body-hp-input'
@@ -64,7 +77,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
             const hpInput = readSaveableHp(event.currentTarget);
             if (!hpInput.valid) return;
             const { hp } = hpInput;
-            updateSectionContent(sectionId, (current) =>
+            updateSectionContent(section.id, (current) =>
               patchBasicStatBlockContent(current, { hp }),
             );
           }}
@@ -78,11 +91,11 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({ sectionId }) => {
         />
       </label>
       <TextEditor
-        textEditorId={`basic-stat-block-${sectionId}`}
+        textEditorId={textEditorId}
         value={content.textEditor}
         placeholder={CONTENT_SECTION_EDITOR_PLACEHOLDER}
         onChange={(textEditor) => {
-          updateSectionContent(sectionId, (current) =>
+          updateSectionContent(section.id, (current) =>
             patchBasicStatBlockContent(current, { textEditor }),
           );
         }}

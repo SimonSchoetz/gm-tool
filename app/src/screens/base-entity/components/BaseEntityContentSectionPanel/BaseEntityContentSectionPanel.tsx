@@ -12,6 +12,7 @@ import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
 import { ContentSectionNav } from '@/components/ContentSectionNav/ContentSectionNav';
 import { UpDownBtns } from '@/components/UpDownBtns/UpDownBtns';
 import { SlideTransition } from '@/components/SlideTransition/SlideTransition';
+import { ContentSectionBody } from '@/components/ContentSectionBody';
 import { ContentSectionNavToggle } from '@/components/ContentSectionNavToggle/ContentSectionNavToggle';
 import { useListNavigation } from '@/hooks/useListNavigation';
 import {
@@ -19,7 +20,6 @@ import {
   contentSectionTypeLabel,
   type BaseEntityContentSectionType,
 } from '@domain';
-import { BaseEntityContentSectionBody } from './components/BaseEntityContentSectionBody/BaseEntityContentSectionBody';
 import { ContentSectionTypeMenu } from './components/ContentSectionTypeMenu/ContentSectionTypeMenu';
 import { getIdAfterRemoval } from './helper/getIdAfterRemoval';
 import './BaseEntityContentSectionPanel.css';
@@ -151,18 +151,22 @@ export const BaseEntityContentSectionPanel = () => {
                 : {
                     direction: transition.direction,
                     outgoing: (
-                      <BaseEntityContentSectionBody
+                      <ContentSectionBody
                         section={transition.from}
-                        isOutgoing
+                        baseEntityId={baseEntityId}
+                        readOnly
+                        className='base-entity-content-section-panel-body'
                       />
                     ),
                   }
             }
             onEnd={endTransition}
           >
-            <BaseEntityContentSectionBody
+            <ContentSectionBody
               section={selected}
-              isOutgoing={false}
+              baseEntityId={baseEntityId}
+              readOnly={false}
+              className='base-entity-content-section-panel-body'
             />
           </SlideTransition>
         </PanelBody>
