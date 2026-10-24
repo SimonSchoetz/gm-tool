@@ -14,7 +14,8 @@
 }
 
 .slide-transition-outgoing--forward {
-  animation: slide-transition-out-forward var(--transition-fast) ease-out;
+  animation: slide-transition-out-forward var(--transition-fast) ease-out
+    forwards;
 }
 
 .slide-transition-incoming--backward {
@@ -22,7 +23,8 @@
 }
 
 .slide-transition-outgoing--backward {
-  animation: slide-transition-out-backward var(--transition-fast) ease-out;
+  animation: slide-transition-out-backward var(--transition-fast) ease-out
+    forwards;
 }
 
 @keyframes slide-transition-in-forward {
