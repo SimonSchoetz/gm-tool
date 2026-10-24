@@ -5,6 +5,7 @@ import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { Input } from '@/components/Input/Input';
 import { TEXT_EDITOR_GUTTER_WIDTH, TextEditor } from '@/components/TextEditor';
 import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import {
   BASIC_STAT_BLOCK_HP_LABEL,
   parseBasicStatBlockContent,
@@ -37,22 +38,6 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
 
   const textEditorId = `basic-stat-block-${section.id}-${readOnly ? 'read' : 'edit'}`;
 
-  if (readOnly) {
-    return (
-      <div className='basic-stat-block-section-body'>
-        <div className='basic-stat-block-section-body-hp'>
-          <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
-          {savedHp !== null && <span>{savedHpText}</span>}
-        </div>
-        <TextEditor
-          textEditorId={textEditorId}
-          value={content.textEditor}
-          readOnly
-        />
-      </div>
-    );
-  }
-
   return (
     <div
       className='basic-stat-block-section-body'
@@ -63,7 +48,12 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
         } as CSSProperties
       }
     >
-      <label className='basic-stat-block-section-body-hp basic-stat-block-section-body-hp--editable'>
+      <label
+        className={cn(
+          'basic-stat-block-section-body-hp',
+          !readOnly && 'basic-stat-block-section-body-hp--editable',
+        )}
+      >
         <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
         <Input
           className='basic-stat-block-section-body-hp-input'
@@ -88,17 +78,22 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
             setHpText(savedHpText);
             setHpInputRevision((revision) => revision + 1);
           }}
+          readOnly={readOnly}
         />
       </label>
       <TextEditor
         textEditorId={textEditorId}
         value={content.textEditor}
         placeholder={CONTENT_SECTION_EDITOR_PLACEHOLDER}
-        onChange={(textEditor) => {
-          updateSectionContent(section.id, (current) =>
-            patchBasicStatBlockContent(current, { textEditor }),
-          );
-        }}
+        readOnly={readOnly}
+        // Passed only when editable: OnChangePlugin mounts whenever onChange is passed and fires on selection-only updates, and CheckboxReadOnlyPlugin toggles checklist items in a read-only editor, so a passed onChange would save a popup checkbox tick.
+        {...(!readOnly && {
+          onChange: (textEditor: string) => {
+            updateSectionContent(section.id, (current) =>
+              patchBasicStatBlockContent(current, { textEditor }),
+            );
+          },
+        })}
       />
     </div>
   );
