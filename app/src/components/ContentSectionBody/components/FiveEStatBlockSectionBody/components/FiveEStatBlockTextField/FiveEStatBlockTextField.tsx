@@ -2,6 +2,7 @@ import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
 import { FCProps } from '@/types/fcProps.type';
 import type { FiveEStatBlockTextKey } from '@domain';
 import type { FiveEStatBlockGroupProps } from '../../types';
+import { isHiddenTextField } from './helper/isHiddenTextField';
 
 type Props = {
   saveField: FiveEStatBlockGroupProps['saveField'];
@@ -22,7 +23,7 @@ export const FiveEStatBlockTextField: FCProps<Props> = ({
   readOnly,
   className,
 }) => {
-  if (readOnly && savedValue.trim() === '') return null;
+  if (isHiddenTextField(readOnly, savedValue)) return null;
 
   return (
     <label className={className}>
