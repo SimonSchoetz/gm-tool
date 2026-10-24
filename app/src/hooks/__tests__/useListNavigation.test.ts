@@ -250,4 +250,42 @@ describe('useListNavigation', () => {
 
     expect(result.current.transition).toBeNull();
   });
+
+  it('clears an existing transition when the selected item is selected again', () => {
+    const { result } = renderNavigation(TWO_ITEMS);
+    act(() => {
+      result.current.stepNext();
+    });
+    expect(result.current.transition).not.toBeNull();
+
+    act(() => {
+      result.current.select('b');
+    });
+
+    expect(result.current.transition).toBeNull();
+  });
+
+  it('records no transition for an id that is not in the list', () => {
+    const { result } = renderNavigation(TWO_ITEMS);
+    act(() => {
+      result.current.stepNext();
+    });
+
+    act(() => {
+      result.current.select('missing');
+    });
+
+    expect(result.current.transition).toBeNull();
+  });
+
+  it('records no transition when selecting in an empty list', () => {
+    const { result } = renderNavigation([]);
+
+    act(() => {
+      result.current.select('a');
+    });
+
+    expect(result.current.transition).toBeNull();
+    expect(result.current.selected).toBeNull();
+  });
 });

@@ -102,4 +102,38 @@ describe('useDismissClickOpened', () => {
 
     expect(onDismiss).not.toHaveBeenCalled();
   });
+
+  it('starts listening when it becomes active and calls the latest onDismiss', () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const { rerender } = renderHook(
+      ({ isActive, onDismiss }) =>
+        useDismissClickOpened({
+          isActive,
+          anchorEntityId: ENTITY_ID,
+          onDismiss,
+        }),
+      { initialProps: { isActive: false, onDismiss: first } },
+    );
+
+    rerender({ isActive: true, onDismiss: second });
+    clickOn(document.body);
+
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the badge of the entity it was re-rendered for, not the previous one', () => {
+    const onDismiss = vi.fn();
+    const { rerender } = renderHook(
+      ({ anchorEntityId }) =>
+        useDismissClickOpened({ isActive: true, anchorEntityId, onDismiss }),
+      { initialProps: { anchorEntityId: 'orc' } },
+    );
+
+    rerender({ anchorEntityId: ENTITY_ID });
+    clickOn(badgeOf(ENTITY_ID));
+
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
 });

@@ -185,4 +185,35 @@ describe('MentionBadge popup opening', () => {
     fireEvent.click(badge, { clientX: 10, clientY: 10 });
     expect(popupOf('goblin')).not.toBeNull();
   });
+
+  it('cancels the pending hover popup when the pointer leaves the badge', () => {
+    const [badge] = renderBadges('goblin');
+    fireEvent.mouseEnter(badge);
+
+    fireEvent.mouseLeave(badge);
+    advanceTimers(HOVER_DELAY_MS);
+
+    expect(popupOf('goblin')).toBeNull();
+  });
+
+  it.each([
+    ['below the badge', { top: 100, bottom: 120 }, '120px'],
+    ['above the badge', { top: 600, bottom: 620 }, '600px'],
+  ])('opens the popup %s at the badge', (_, rect, expectedY) => {
+    const [badge] = renderBadges('goblin');
+    badge.getBoundingClientRect = () =>
+      ({ ...rect, left: 150, right: 200 }) as DOMRect;
+
+    fireEvent.click(badge);
+
+    const popup = screen
+      .getByText('popup of goblin')
+      .closest<HTMLElement>('[style]');
+    expect(popup?.style.getPropertyValue('--rt-mention-pop-up-x')).toBe(
+      '150px',
+    );
+    expect(popup?.style.getPropertyValue('--rt-mention-pop-up-y')).toBe(
+      expectedY,
+    );
+  });
 });

@@ -142,6 +142,22 @@ describe('requestPopup', () => {
     ]);
   });
 
+  it('re-anchors a click entry when only the vertical anchor differs', () => {
+    const clicked = entry({ mode: 'click' });
+
+    const next = requestPopup(
+      [clicked],
+      args({ position: { x: clicked.anchor.x, y: clicked.anchor.y + 40 } }),
+      1002,
+      'click',
+    );
+
+    expect(next[0].anchor).toEqual({
+      x: clicked.anchor.x,
+      y: clicked.anchor.y + 40,
+    });
+  });
+
   it('leaves a click entry as it is, dragged position and z-index included, on a click at the same anchor', () => {
     const dragged = entry({
       mode: 'click',

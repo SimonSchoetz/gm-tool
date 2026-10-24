@@ -47,16 +47,14 @@ export const MentionBadge: FCProps<Props> = ({
   const resolvedColor = tableConfig?.color ?? null;
   const resolvedName = !loading && liveName !== null ? liveName : displayName;
 
-  const badgeRef = useRef<HTMLSpanElement>(null);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMouseOnBadgeRef = useRef(false);
   const isMouseOnPopupRef = useRef(false);
   const mouseDownPositionRef = useRef<{ x: number; y: number } | null>(null);
 
-  const readPopupAnchor = () => {
-    if (!badgeRef.current) return null;
-    const rect = badgeRef.current.getBoundingClientRect();
+  const readPopupAnchor = (badge: HTMLElement) => {
+    const rect = badge.getBoundingClientRect();
     const placement: PopupPlacement =
       rect.top > window.innerHeight / 2 ? 'above' : 'below';
     const y = placement === 'below' ? rect.bottom : rect.top;
@@ -64,21 +62,20 @@ export const MentionBadge: FCProps<Props> = ({
   };
 
   const clearHoverTimer = () => {
+    // Stryker disable next-line ConditionalExpression: clearTimeout on a null id does nothing, so the guard changes no outcome
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
       hoverTimerRef.current = null;
     }
   };
 
-  const showPopupFromBadge = () => {
-    const anchor = readPopupAnchor();
-    if (anchor === null) return;
+  const showPopupFromBadge = (badge: HTMLElement) => {
     showPopup({
       entityId,
       entityType,
       adventureId,
       name: resolvedName,
-      ...anchor,
+      ...readPopupAnchor(badge),
       onMouseEnterBridge: () => {
         isMouseOnPopupRef.current = true;
         if (hideTimerRef.current) {
@@ -95,13 +92,16 @@ export const MentionBadge: FCProps<Props> = ({
     });
   };
 
-  const handleBadgeMouseEnter = (event: React.MouseEvent) => {
+  const handleBadgeMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
     if (hasPopup(entityId)) return;
     if (isPrimaryButtonDown(event.buttons)) return;
     isMouseOnBadgeRef.current = true;
     // must run alongside the delay timer, not inside showPopupFromBadge — moving it into the timer callback reintroduces the visible popup fill-in
     prefetchMentionEntity();
-    hoverTimerRef.current = setTimeout(showPopupFromBadge, 500);
+    const badge = event.currentTarget;
+    hoverTimerRef.current = setTimeout(() => {
+      showPopupFromBadge(badge);
+    }, 500);
   };
 
   const handleBadgeMouseLeave = () => {
@@ -120,7 +120,8 @@ export const MentionBadge: FCProps<Props> = ({
     clearHoverTimer();
   };
 
-  const handleClick = (event: React.MouseEvent) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    // Stryker disable next-line CallExpression: a hover request that fires after the click finds the click-open entry and changes nothing
     clearHoverTimer();
     const mouseDownPosition = mouseDownPositionRef.current;
     mouseDownPositionRef.current = null;
@@ -129,14 +130,12 @@ export const MentionBadge: FCProps<Props> = ({
     ) {
       return;
     }
-    const anchor = readPopupAnchor();
-    if (anchor === null) return;
     openPopupByClick({
       entityId,
       entityType,
       adventureId,
       name: resolvedName,
-      ...anchor,
+      ...readPopupAnchor(event.currentTarget),
     });
   };
 
@@ -150,7 +149,6 @@ export const MentionBadge: FCProps<Props> = ({
   if (deleted) {
     return (
       <span
-        ref={badgeRef}
         className={cn(
           'mention-badge',
           'mention-badge--deleted',
@@ -176,7 +174,6 @@ export const MentionBadge: FCProps<Props> = ({
 
   return (
     <span
-      ref={badgeRef}
       className={cn(
         'mention-badge',
         format.includes('bold') && 'mention-badge--bold',

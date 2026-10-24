@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { SlideDirection } from '@/types/slideDirection.type';
 
+const readDirection = (from: number, to: number): SlideDirection | null => {
+  if (to === -1) return null;
+  if (to > from) return 'forward';
+  if (to < from) return 'backward';
+  return null;
+};
+
 type ListTransition<T> = { from: T; direction: SlideDirection };
 
 type ListNavigation<T> = {
@@ -34,18 +41,16 @@ export const useListNavigation = <T extends { id: string }>(
     ? items.findIndex((item) => item.id === selected.id)
     : -1;
   const hasPrevious = selectedIndex > 0;
-  const hasNext = selectedIndex !== -1 && selectedIndex < items.length - 1;
+  const hasNext = selectedIndex < items.length - 1;
 
   const moveTo = (id: string) => {
-    const targetIndex = items.findIndex((item) => item.id === id);
-    if (selected === null || targetIndex === -1 || id === selected.id) {
-      setTransition(null);
-    } else {
-      setTransition({
-        from: selected,
-        direction: targetIndex > selectedIndex ? 'forward' : 'backward',
-      });
-    }
+    const direction = readDirection(
+      selectedIndex,
+      items.findIndex((item) => item.id === id),
+    );
+    setTransition(
+      direction === null ? null : { from: items[selectedIndex], direction },
+    );
     setSelectedId(id);
   };
 
