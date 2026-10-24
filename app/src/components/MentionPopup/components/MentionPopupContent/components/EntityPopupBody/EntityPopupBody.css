@@ -13,3 +13,7 @@
   max-width: var(--summary-max-width);
   overflow-y: auto;
 }
+
+.entity-popup-body--summary-region {
+  max-width: var(--summary-max-width);
+}

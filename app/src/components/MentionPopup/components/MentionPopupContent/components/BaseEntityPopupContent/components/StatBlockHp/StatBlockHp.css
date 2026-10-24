@@ -1,4 +1,4 @@
-.base-entity-popup-content-hp {
+.stat-block-hp {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);

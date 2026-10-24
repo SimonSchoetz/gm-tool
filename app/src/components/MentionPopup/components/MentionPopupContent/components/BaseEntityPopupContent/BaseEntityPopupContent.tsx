@@ -6,13 +6,14 @@ import {
 } from '@/data-access-layer';
 import { useListNavigation } from '@/hooks/useListNavigation';
 import type { BaseEntityType } from '@domain/entities';
-import { BASIC_STAT_BLOCK_HP_LABEL, parseBasicStatBlockContent } from '@domain';
 import { ContentSectionNav } from '../../../../../ContentSectionNav/ContentSectionNav';
 import { ContentSectionNavToggle } from '../../../../../ContentSectionNavToggle/ContentSectionNavToggle';
+import { UpDownBtns } from '../../../../../UpDownBtns/UpDownBtns';
 import { useMentionPopupHeader } from '../../../../hooks/useMentionPopupHeader';
 import { MentionPopupHeader } from '../../../MentionPopupHeader/MentionPopupHeader';
 import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
-import './BaseEntityPopupContent.css';
+import { StatBlockHp } from './components/StatBlockHp/StatBlockHp';
+import { readPopupSummary } from './helper/readPopupSummary';
 
 type Props = {
   entityType: BaseEntityType;
@@ -39,6 +40,12 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
     select,
     toggleNav,
     closeNav,
+    hasPrevious,
+    hasNext,
+    stepPrevious,
+    stepNext,
+    transition,
+    endTransition,
   } = useListNavigation(sections);
   const { zIndex } = useMentionPopupHeader();
   const burgerRef = useRef<HTMLButtonElement | null>(null);
@@ -49,39 +56,34 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
     ? {
         titleSuffix: ` | ${selected.name ?? ''}`,
         leading: isNavAvailable ? (
-          <ContentSectionNavToggle
-            ref={burgerRef}
-            isOpen={isNavVisible}
-            onToggle={toggleNav}
-          />
+          <>
+            <ContentSectionNavToggle
+              ref={burgerRef}
+              isOpen={isNavVisible}
+              onToggle={toggleNav}
+            />
+            <UpDownBtns
+              upLabel='Previous section'
+              downLabel='Next section'
+              isUpDisabled={!hasPrevious}
+              isDownDisabled={!hasNext}
+              onUp={stepPrevious}
+              onDown={stepNext}
+            />
+          </>
         ) : null,
       }
     : {};
 
-  const statBlock =
-    selected?.type === 'basic-stat-block'
-      ? parseBasicStatBlockContent(selected.content)
-      : null;
-  const summarySlots: Pick<
-    React.ComponentProps<typeof EntityPopupBody>,
-    'summary' | 'summaryHeader'
-  > = statBlock !== null
-    ? {
-        summary: statBlock.textEditor,
-        summaryHeader: (
-          <div className='base-entity-popup-content-hp'>
-            <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
-            {statBlock.basicStatBlock.hp}
-          </div>
-        ),
-      }
-    : { summary: selected?.content ?? null };
+  const { summary, hp } = readPopupSummary(selected);
+  const outgoing = readPopupSummary(transition?.from ?? null);
 
   return (
     <>
       <MentionPopupHeader {...headerSlots} />
       <EntityPopupBody
-        {...summarySlots}
+        summary={summary}
+        summaryHeader={<StatBlockHp hp={hp} />}
         imageId={baseEntity.image_id}
         // The section id makes EntityPopupBody's TextEditor remount on a section switch instead of showing the previous section.
         textEditorId={
@@ -89,6 +91,20 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
             ? `content-section-popup-${selected.id}`
             : `${entityType}-popup-${entityId}`
         }
+        summarySlide={{
+          slide:
+            transition === null
+              ? null
+              : {
+                  direction: transition.direction,
+                  outgoing: {
+                    summary: outgoing.summary,
+                    summaryHeader: <StatBlockHp hp={outgoing.hp} />,
+                    textEditorId: `content-section-popup-${transition.from.id}`,
+                  },
+                },
+          onEnd: endTransition,
+        }}
       />
       {isNavVisible && (
         // Portaled by AnchoredPopup. React computes an unpinned MentionPopup's mouse leave over the React tree, where this popup is a descendant, so moving the pointer into it does not remove the MentionPopup.
