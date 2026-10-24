@@ -48,6 +48,7 @@ export const FiveEStatBlockBaseStats: FCProps<FiveEStatBlockGroupProps> = ({
         <FiveEStatBlockTextField
           saveField={saveField}
           field='speed'
+          className='five-e-stat-block-base-stats-speed'
           label='Speed:'
           placeholder='30, Fly 60'
           savedValue={values.speed}
@@ -57,6 +58,7 @@ export const FiveEStatBlockBaseStats: FCProps<FiveEStatBlockGroupProps> = ({
         <FiveEStatBlockTextField
           saveField={saveField}
           field='creatureType'
+          className='five-e-stat-block-base-stats-creature-type'
           label='Creature Type:'
           placeholder='Large Monstrosity'
           savedValue={values.creatureType}

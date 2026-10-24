@@ -2,12 +2,13 @@ import { useBaseEntityContentSections } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { patchFiveEStatBlockContent, readFiveEStatBlockContent } from '@domain';
 import type { SectionBodyProps } from '../../types';
+// Imported before the groups so their stylesheets load after it: its `label` rules and the groups' `label` rules tie on specificity, and the later one wins.
+import './FiveEStatBlockSectionBody.css';
 import { FiveEStatBlockAbilities } from './components/FiveEStatBlockAbilities/FiveEStatBlockAbilities';
 import { FiveEStatBlockBaseStats } from './components/FiveEStatBlockBaseStats/FiveEStatBlockBaseStats';
 import { FiveEStatBlockDefenses } from './components/FiveEStatBlockDefenses/FiveEStatBlockDefenses';
 import { FiveEStatBlockMisc } from './components/FiveEStatBlockMisc/FiveEStatBlockMisc';
 import type { FiveEStatBlockGroupProps } from './types';
-import './FiveEStatBlockSectionBody.css';
 
 type Props = SectionBodyProps;
 

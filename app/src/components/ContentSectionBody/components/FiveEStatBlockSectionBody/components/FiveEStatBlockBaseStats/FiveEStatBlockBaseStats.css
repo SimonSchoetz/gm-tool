@@ -9,3 +9,16 @@
 .five-e-stat-block-base-stats-row-two {
   grid-template-columns: 1fr 2.4fr; /* one-off */
 }
+
+/* Pinned columns: without them a hidden Speed lets Creature Type auto-place into the narrow first column, and a childless row leaves a blank band from the body's flex gap. */
+.five-e-stat-block-base-stats-speed {
+  grid-column: 1;
+}
+
+.five-e-stat-block-base-stats-creature-type {
+  grid-column: 2;
+}
+
+.five-e-stat-block-base-stats-row-two:empty {
+  display: none;
+}

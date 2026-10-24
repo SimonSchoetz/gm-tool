@@ -10,6 +10,7 @@ type Props = {
   placeholder: string;
   savedValue: string;
   readOnly: boolean;
+  className?: string;
 };
 
 export const FiveEStatBlockTextField: FCProps<Props> = ({
@@ -19,11 +20,12 @@ export const FiveEStatBlockTextField: FCProps<Props> = ({
   placeholder,
   savedValue,
   readOnly,
+  className,
 }) => {
   if (readOnly && savedValue.trim() === '') return null;
 
   return (
-    <label>
+    <label className={className}>
       <span className='label'>{label}</span>
       <SyncedInput
         initValue={savedValue}
