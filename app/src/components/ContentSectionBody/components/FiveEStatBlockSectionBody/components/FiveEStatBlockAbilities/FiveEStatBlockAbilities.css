@@ -1,0 +1,27 @@
+.five-e-stat-block-abilities {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /*grid-template-rows: repeat(3, 1fr);*/
+}
+
+.five-e-stat-block-abilities-row-header div {
+  display: flex;
+  align-items: center;
+}
+
+.five-e-stat-block-abilities label span {
+  display: flex;
+  justify-content: center;
+}
+
+.five-e-stat-block-abilities label input {
+  text-align: center;
+}
+
+.five-e-stat-block-abilities label,
+.five-e-stat-block-abilities-row-header {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0;
+  /*flex-direction: column;*/
+}

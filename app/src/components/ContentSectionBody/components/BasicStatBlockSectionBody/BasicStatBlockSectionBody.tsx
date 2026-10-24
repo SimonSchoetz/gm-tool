@@ -56,7 +56,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
       >
         <span className='label'>{BASIC_STAT_BLOCK_HP_LABEL}</span>
         <Input
-          className='basic-stat-block-section-body-hp-input'
+          className='number-input'
           // Remounted on every revert: React rewrites a number input's text only when its DOM value differs from the bound value, and unconvertible text already reads `''`, so a revert to an empty HP would otherwise leave `-` or `1.` on screen.
           key={hpInputRevision}
           type='number'

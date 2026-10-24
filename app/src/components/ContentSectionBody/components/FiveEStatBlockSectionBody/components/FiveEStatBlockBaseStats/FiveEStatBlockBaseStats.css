@@ -1,0 +1,11 @@
+.five-e-stat-block-base-stats div {
+  display: grid;
+}
+
+.five-e-stat-block-base-stats-row-one {
+  grid-template-columns: 1.2fr 1fr 1.8fr 3fr; /* one-off */
+}
+
+.five-e-stat-block-base-stats-row-two {
+  grid-template-columns: 1fr 2.4fr; /* one-off */
+}

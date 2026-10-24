@@ -81,3 +81,9 @@ a:hover {
   color: var(--color-fg-muted);
   font-size: var(--font-size-md);
 }
+
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
