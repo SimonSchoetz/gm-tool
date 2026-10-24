@@ -1,6 +1,6 @@
 # Docs
 
-This directory contains specs and planning documents. Specs are temporary and will be deleted when implemented; their structure (sections, markers, split format) is supplied by the tooling that writes them, and the Spec Format Extension below adds this project's own rules to it.
+This directory contains specs and planning documents. A spec's structure (sections, markers, split format) and its life from creation to deletion are supplied by the tooling that writes it, and the Spec Format Extension below adds this project's own rules to it.
 
 `domain-scaffold.md` is a long-living infrastructure reference document — it is NOT a temporary spec and must not be deleted after implementation. Update it when core domain infrastructure changes (new layers, changed conventions, new ambient systems).
 
