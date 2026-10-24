@@ -1,0 +1,62 @@
+.slide-transition {
+  position: relative;
+  overflow: hidden;
+}
+
+.slide-transition-outgoing {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.slide-transition-incoming--forward {
+  animation: slide-transition-in-forward var(--transition-fast) ease-out;
+}
+
+.slide-transition-outgoing--forward {
+  animation: slide-transition-out-forward var(--transition-fast) ease-out;
+}
+
+.slide-transition-incoming--backward {
+  animation: slide-transition-in-backward var(--transition-fast) ease-out;
+}
+
+.slide-transition-outgoing--backward {
+  animation: slide-transition-out-backward var(--transition-fast) ease-out;
+}
+
+@keyframes slide-transition-in-forward {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-transition-out-forward {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slide-transition-in-backward {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-transition-out-backward {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}

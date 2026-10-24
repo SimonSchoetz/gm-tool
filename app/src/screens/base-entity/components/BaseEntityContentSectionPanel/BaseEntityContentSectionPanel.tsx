@@ -9,8 +9,9 @@ import { PanelMenuBar } from '@/components/PanelMenuBar/PanelMenuBar';
 import { PanelBody } from '@/components/PanelBody/PanelBody';
 import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
 import { SyncedInput } from '@/components/SyncedInput/SyncedInput';
-import { TextEditor } from '@/components/TextEditor';
 import { ContentSectionNav } from '@/components/ContentSectionNav/ContentSectionNav';
+import { UpDownBtns } from '@/components/UpDownBtns/UpDownBtns';
+import { SlideTransition } from '@/components/SlideTransition/SlideTransition';
 import { ContentSectionNavToggle } from '@/components/ContentSectionNavToggle/ContentSectionNavToggle';
 import { useListNavigation } from '@/hooks/useListNavigation';
 import {
@@ -18,10 +19,9 @@ import {
   contentSectionTypeLabel,
   type BaseEntityContentSectionType,
 } from '@domain';
-import { BasicStatBlockSectionBody } from './components/BasicStatBlockSectionBody';
+import { BaseEntityContentSectionBody } from './components/BaseEntityContentSectionBody/BaseEntityContentSectionBody';
 import { ContentSectionTypeMenu } from './components/ContentSectionTypeMenu/ContentSectionTypeMenu';
 import { getIdAfterRemoval } from './helper/getIdAfterRemoval';
-import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from './BaseEntityContentSectionPanel.constants';
 import './BaseEntityContentSectionPanel.css';
 
 export const BaseEntityContentSectionPanel = () => {
@@ -37,6 +37,12 @@ export const BaseEntityContentSectionPanel = () => {
     select,
     toggleNav,
     closeNav,
+    hasPrevious,
+    hasNext,
+    stepPrevious,
+    stepNext,
+    transition,
+    endTransition,
   } = useListNavigation(sections);
   const { openDeleteDialog } = useDeleteDialog();
   const addButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -77,11 +83,21 @@ export const BaseEntityContentSectionPanel = () => {
       <PanelMenuBar
         leading={
           isNavAvailable ? (
-            <ContentSectionNavToggle
-              ref={burgerRef}
-              isOpen={isNavVisible}
-              onToggle={toggleNav}
-            />
+            <>
+              <ContentSectionNavToggle
+                ref={burgerRef}
+                isOpen={isNavVisible}
+                onToggle={toggleNav}
+              />
+              <UpDownBtns
+                upLabel='Previous section'
+                downLabel='Next section'
+                isUpDisabled={!hasPrevious}
+                isDownDisabled={!hasNext}
+                onUp={stepPrevious}
+                onDown={stepNext}
+              />
+            </>
           ) : (
             <ClickableIcon
               ref={addButtonRef}
@@ -107,7 +123,7 @@ export const BaseEntityContentSectionPanel = () => {
               }}
             />
           ) : (
-            'Content Section'
+            'Popup Content'
           )
         }
       >
@@ -126,25 +142,27 @@ export const BaseEntityContentSectionPanel = () => {
 
       {selected && (
         <PanelBody>
-          <div className='base-entity-content-section-panel-content'>
-            {selected.type === 'basic-stat-block' ? (
-              // Keyed by section id, so switching between two stat-block sections remounts the body and resets its HP field.
-              <BasicStatBlockSectionBody
-                key={selected.id}
-                sectionId={selected.id}
-              />
-            ) : (
-              // Includes the section id, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content.
-              <TextEditor
-                textEditorId={`content-section-${selected.id}`}
-                value={selected.content ?? ''}
-                placeholder={CONTENT_SECTION_EDITOR_PLACEHOLDER}
-                onChange={(content) => {
-                  updateSection(selected.id, { content });
-                }}
-              />
-            )}
-          </div>
+          <SlideTransition
+            slide={
+              transition === null
+                ? null
+                : {
+                    direction: transition.direction,
+                    outgoing: (
+                      <BaseEntityContentSectionBody
+                        section={transition.from}
+                        isOutgoing
+                      />
+                    ),
+                  }
+            }
+            onEnd={endTransition}
+          >
+            <BaseEntityContentSectionBody
+              section={selected}
+              isOutgoing={false}
+            />
+          </SlideTransition>
         </PanelBody>
       )}
 

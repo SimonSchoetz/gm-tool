@@ -1,0 +1,7 @@
+.base-entity-content-section-body {
+  display: flex;
+  max-height: var(--summary-content-height);
+  overflow-y: auto;
+  margin: var(--spacing-sm);
+  margin-left: 0;
+}
