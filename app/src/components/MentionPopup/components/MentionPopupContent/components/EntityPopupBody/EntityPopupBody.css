@@ -7,7 +7,3 @@
 .entity-popup-body--image {
   border-radius: var(--radius-md);
 }
-
-.entity-popup-body--summary-region {
-  flex: 1;
-}

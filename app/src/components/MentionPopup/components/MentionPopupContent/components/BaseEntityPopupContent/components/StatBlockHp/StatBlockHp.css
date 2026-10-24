@@ -1,7 +1,0 @@
-.stat-block-hp {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-base);
-  margin-bottom: var(--spacing-xs);
-}

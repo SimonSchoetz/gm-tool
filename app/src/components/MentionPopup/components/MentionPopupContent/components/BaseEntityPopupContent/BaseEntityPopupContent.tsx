@@ -6,14 +6,15 @@ import {
 } from '@/data-access-layer';
 import { useListNavigation } from '@/hooks/useListNavigation';
 import type { BaseEntityType } from '@domain/entities';
+import { ContentSectionBody } from '../../../../../ContentSectionBody';
 import { ContentSectionNav } from '../../../../../ContentSectionNav/ContentSectionNav';
 import { ContentSectionNavToggle } from '../../../../../ContentSectionNavToggle/ContentSectionNavToggle';
+import { SlideTransition } from '../../../../../SlideTransition/SlideTransition';
 import { UpDownBtns } from '../../../../../UpDownBtns/UpDownBtns';
 import { useMentionPopupHeader } from '../../../../hooks/useMentionPopupHeader';
 import { MentionPopupHeader } from '../../../MentionPopupHeader/MentionPopupHeader';
 import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
-import { StatBlockHp } from './components/StatBlockHp/StatBlockHp';
-import { readPopupSummary } from './helper/readPopupSummary';
+import './BaseEntityPopupContent.css';
 
 type Props = {
   entityType: BaseEntityType;
@@ -76,37 +77,37 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
         }
       : {};
 
-  const { summary, hp } = readPopupSummary(selected);
-  const outgoing = readPopupSummary(transition?.from ?? null);
-
   return (
     <>
       <MentionPopupHeader {...headerSlots} />
-      <EntityPopupBody
-        summary={summary}
-        summaryHeader={<StatBlockHp hp={hp} />}
-        imageId={baseEntity.image_id}
-        // The section id makes EntityPopupBody's TextEditor remount on a section switch instead of showing the previous section.
-        textEditorId={
-          selected
-            ? `content-section-popup-${selected.id}`
-            : `${entityType}-popup-${entityId}`
-        }
-        summarySlide={{
-          slide:
-            transition === null
-              ? null
-              : {
-                  direction: transition.direction,
-                  outgoing: {
-                    summary: outgoing.summary,
-                    summaryHeader: <StatBlockHp hp={outgoing.hp} />,
-                    textEditorId: `content-section-popup-${transition.from.id}`,
-                  },
-                },
-          onEnd: endTransition,
-        }}
-      />
+      <EntityPopupBody imageId={baseEntity.image_id}>
+        {selected && (
+          <SlideTransition
+            className='base-entity-popup-content-region'
+            slide={
+              transition === null
+                ? null
+                : {
+                    direction: transition.direction,
+                    outgoing: (
+                      <ContentSectionBody
+                        section={transition.from}
+                        baseEntityId={entityId}
+                        readOnly
+                      />
+                    ),
+                  }
+            }
+            onEnd={endTransition}
+          >
+            <ContentSectionBody
+              section={selected}
+              baseEntityId={entityId}
+              readOnly
+            />
+          </SlideTransition>
+        )}
+      </EntityPopupBody>
       {isNavVisible && (
         // Portaled by AnchoredPopup. React computes an unpinned MentionPopup's mouse leave over the React tree, where this popup is a descendant, so moving the pointer into it does not remove the MentionPopup.
         <ContentSectionNav

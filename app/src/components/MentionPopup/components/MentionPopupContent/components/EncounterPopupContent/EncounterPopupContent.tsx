@@ -1,6 +1,7 @@
 import { FCProps } from '@/types/fcProps.type';
 import { useEncounter } from '@/data-access-layer';
 import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
+import { EntityPopupBodyText } from '../EntityPopupBodyText/EntityPopupBodyText';
 
 type Props = {
   entityId: string;
@@ -16,10 +17,11 @@ export const EncounterPopupContent: FCProps<Props> = ({
   if (loading || !encounter) return;
 
   return (
-    <EntityPopupBody
-      summary={encounter.description ?? null}
-      imageId={null}
-      textEditorId={`encounter-popup-${entityId}`}
-    />
+    <EntityPopupBody imageId={null}>
+      <EntityPopupBodyText
+        text={encounter.description ?? null}
+        textEditorId={`encounter-popup-${entityId}`}
+      />
+    </EntityPopupBody>
   );
 };

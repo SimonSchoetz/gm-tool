@@ -1,6 +1,7 @@
 import { FCProps } from '@/types/fcProps.type';
 import { useSession } from '@/data-access-layer';
 import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
+import { EntityPopupBodyText } from '../EntityPopupBodyText/EntityPopupBodyText';
 
 type Props = {
   entityId: string;
@@ -16,10 +17,11 @@ export const SessionPopupContent: FCProps<Props> = ({
   if (loading || !session) return;
 
   return (
-    <EntityPopupBody
-      summary={session.summary}
-      imageId={null}
-      textEditorId={`session-popup-${entityId}`}
-    />
+    <EntityPopupBody imageId={null}>
+      <EntityPopupBodyText
+        text={session.summary}
+        textEditorId={`session-popup-${entityId}`}
+      />
+    </EntityPopupBody>
   );
 };

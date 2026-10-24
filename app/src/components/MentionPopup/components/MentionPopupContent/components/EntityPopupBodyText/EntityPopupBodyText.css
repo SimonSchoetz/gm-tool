@@ -1,4 +1,4 @@
-.entity-popup-body--summary {
+.entity-popup-body-text {
   max-height: var(--popup-content-section-height);
   max-width: var(--popup-content-max-width);
   overflow-y: auto;
