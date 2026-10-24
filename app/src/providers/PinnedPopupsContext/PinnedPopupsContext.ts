@@ -14,6 +14,7 @@ export type ShowPopupArgs = {
 
 export type PinnedPopupsContextValue = {
   showPopup: (args: ShowPopupArgs) => void;
+  openPopupByClick: (args: ShowPopupArgs) => void;
   hidePopup: (entityId: string) => void;
   hasPopup: (entityId: string) => boolean;
 };
