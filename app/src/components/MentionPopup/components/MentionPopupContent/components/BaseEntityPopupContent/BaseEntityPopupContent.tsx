@@ -52,28 +52,29 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
 
   if (loading || sectionsLoading || !baseEntity) return <MentionPopupHeader />;
 
-  const headerSlots: React.ComponentProps<typeof MentionPopupHeader> = selected
-    ? {
-        titleSuffix: ` | ${selected.name ?? ''}`,
-        leading: isNavAvailable ? (
-          <>
-            <ContentSectionNavToggle
-              ref={burgerRef}
-              isOpen={isNavVisible}
-              onToggle={toggleNav}
-            />
-            <UpDownBtns
-              upLabel='Previous section'
-              downLabel='Next section'
-              isUpDisabled={!hasPrevious}
-              isDownDisabled={!hasNext}
-              onUp={stepPrevious}
-              onDown={stepNext}
-            />
-          </>
-        ) : null,
-      }
-    : {};
+  const headerSlots: React.ComponentProps<typeof MentionPopupHeader> =
+    selected && isNavAvailable
+      ? {
+          sectionName: selected.name ?? '',
+          controls: (
+            <>
+              <ContentSectionNavToggle
+                ref={burgerRef}
+                isOpen={isNavVisible}
+                onToggle={toggleNav}
+              />
+              <UpDownBtns
+                upLabel='Previous section'
+                downLabel='Next section'
+                isUpDisabled={!hasPrevious}
+                isDownDisabled={!hasNext}
+                onUp={stepPrevious}
+                onDown={stepNext}
+              />
+            </>
+          ),
+        }
+      : {};
 
   const { summary, hp } = readPopupSummary(selected);
   const outgoing = readPopupSummary(transition?.from ?? null);
