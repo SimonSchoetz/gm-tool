@@ -1,4 +1,4 @@
-.step-move-btn-container {
+.up-down-btns {
   border: var(--border-thin) solid var(--color-primary);
   border-radius: var(--radius-sm);
   display: flex;
@@ -7,29 +7,29 @@
   flex-shrink: 0;
 }
 
-.step-move-btn-container:hover {
+.up-down-btns:hover {
   transition: scale var(--transition-fast);
   scale: 1.1;
 }
 
-.step-move-btn {
+.up-down-btns-btn {
   cursor: pointer;
   color: var(--color-primary);
   transition: color var(--transition-fast);
 }
 
-.step-move-btn:hover:not(:disabled) {
+.up-down-btns-btn:hover:not(:disabled) {
   color: var(--color-fg);
   background-color: var(--color-primary);
   transition: color var(--transition-fast);
 }
 
-.step-move-btn:disabled {
+.up-down-btns-btn:disabled {
   color: var(--color-primary);
   cursor: default;
 }
 
-.step-move-btn:hover:disabled {
+.up-down-btns-btn:hover:disabled {
   background-color: var(--color-primary);
   color: var(--color-secondary);
   cursor: default;
