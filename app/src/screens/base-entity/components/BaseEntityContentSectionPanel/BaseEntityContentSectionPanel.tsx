@@ -89,14 +89,16 @@ export const BaseEntityContentSectionPanel = () => {
                 isOpen={isNavVisible}
                 onToggle={toggleNav}
               />
-              <UpDownBtns
-                upLabel='Previous section'
-                downLabel='Next section'
-                isUpDisabled={!hasPrevious}
-                isDownDisabled={!hasNext}
-                onUp={stepPrevious}
-                onDown={stepNext}
-              />
+              <div>
+                <UpDownBtns
+                  upLabel='Previous section'
+                  downLabel='Next section'
+                  isUpDisabled={!hasPrevious}
+                  isDownDisabled={!hasNext}
+                  onUp={stepPrevious}
+                  onDown={stepNext}
+                />
+              </div>
             </>
           ) : (
             <ClickableIcon
