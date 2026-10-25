@@ -1,6 +1,6 @@
 # Docs
 
-This directory contains specs and planning documents. Specs are temporary and will be deleted when implemented; their structure (sections, markers, split format) is supplied by the tooling that writes them, and the Spec Format Extension below adds this project's own rules to it.
+This directory contains specs and planning documents. A spec's structure (sections, markers, split format) and its life from creation to deletion are supplied by the tooling that writes it, and the Spec Format Extension below adds this project's own rules to it.
 
 `domain-scaffold.md` is a long-living infrastructure reference document — it is NOT a temporary spec and must not be deleted after implementation. Update it when core domain infrastructure changes (new layers, changed conventions, new ambient systems).
 
@@ -20,7 +20,7 @@ The Rust backend depends on neither Domain nor Database — it is ordered here b
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
-**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components). Its Required bullet takes an acceptance criterion that only the component's event handling decides out of the exemption, so that criterion gets a component test, never a note; the risk category the exemption still excludes is a criterion whose outcome depends on layout, which that bullet leaves without a test. A `[MANUAL-VERIFY]` criterion that web mode can exercise (`app/docs/features/web-dev-mode.md`) is verified in the browser pane while implementing; only one that needs the native host stays a hand test. The required scope under `src/` — which files must have tests — is that Required bullet plus `.claude/rules/src-unit-tests.md` — Testing Policy.
+**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components). Its Required bullet takes an acceptance criterion that only the component's event handling decides out of the exemption, so that criterion gets a component test, never a note; the risk category the exemption still excludes is a criterion whose outcome depends on layout, which that bullet leaves without a test. A `[MANUAL-VERIFY]` criterion that web mode can exercise (`app/docs/features/web-dev-mode.md`) is verified in the browser pane while implementing; only one that needs the native host stays a hand test — the native file dialog, sync between devices, the updater, the backup (root `CLAUDE.md` — Development Commands). The required scope under `src/` — which files must have tests — is that Required bullet plus `.claude/rules/src-unit-tests.md` — Testing Policy.
 
 **Barrel instructions require explicit validation.** Before writing any barrel instruction (including "no change needed"), read the actual barrel file and verify every export against the barrel conventions in `app/CLAUDE.md` — Directory Structure. Existing `export *` is not evidence that it is correct. A spec that instructs "no change needed" for a barrel that violates the explicit-exports rule is a spec defect.
 
