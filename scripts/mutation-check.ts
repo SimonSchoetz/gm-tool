@@ -1,6 +1,7 @@
 // Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json.
-// Each mutant runs the Vitest tests related to its file through Stryker's command runner: Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
+// Each mutant runs the Vitest tests related to its file through Stryker's command runner (scripts/mutation-check-related.ts): Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
 // Only changed files with their own test file (`<dir>/__tests__/<name>.test.ts(x)`) are mutated; the others are listed as skipped.
+// With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, so a fix loop re-runs the files that had survivors; a run without arguments is the gate.
 // Exits non-zero when a mutant survives in one of them: a test that passes with its target logic mutated catches no regression there.
 // A survivor that no test could kill (an equivalent mutant) is silenced in the source with a `// Stryker disable next-line <mutator>: <reason>` comment.
 import { execFileSync, spawnSync } from "child_process";
@@ -74,29 +75,45 @@ const hasOwnTestFile = (appRelativePath: string) => {
   return [".test.ts", ".test.tsx"].some((suffix) => existsSync(path.join(appRoot, dir, "__tests__", `${name}${suffix}`)));
 };
 
-const testedFiles = filesToMutate.filter(hasOwnTestFile);
-const untestedFiles = filesToMutate.filter((file) => !hasOwnTestFile(file));
+// pnpm may forward the `--` separator as an argument.
+const requestedFiles = process.argv.slice(2).filter((argument) => argument !== "--").map((argument) => argument.replace(/^(\.\/)?app\//, ""));
+const unknownRequestedFiles = requestedFiles.filter((file) => !filesToMutate.includes(file));
+if (unknownRequestedFiles.length > 0) {
+  console.error(`mutation-check: not a changed production source under app/ against ${baseBranch}:\n  ${unknownRequestedFiles.join("\n  ")}`);
+  process.exit(2);
+}
+const selectedFiles = requestedFiles.length > 0 ? filesToMutate.filter((file) => requestedFiles.includes(file)) : filesToMutate;
+
+const testedFiles = selectedFiles.filter(hasOwnTestFile);
+const untestedFiles = selectedFiles.filter((file) => !hasOwnTestFile(file));
 
 if (untestedFiles.length > 0) {
   console.log(`mutation-check: skipping ${untestedFiles.length} changed file(s) without their own test file:\n  ${untestedFiles.join("\n  ")}`);
 }
 
+// One Stryker run for all files: its sandbox, processes and initial test run are paid once, and the command in app/stryker.config.json (scripts/mutation-check-related.ts) runs for each mutant only the tests related to the mutant's own file.
+const entries = testedFiles.flatMap((file) => {
+  const fileEntries = mutateEntries(file);
+  console.log(`\nmutation-check: ${fileEntries.join(", ") || `${file} (lines removed only)`}`);
+  return fileEntries.map((entry) => ({ file, entry }));
+});
+const filesWithEntries = [...new Set(entries.map(({ file }) => file))];
+
 const survivors: string[] = [];
 
-// One Stryker run per file, so each mutant runs only the tests related to its own file rather than to every changed file.
-for (const [index, file] of testedFiles.entries()) {
-  const entries = mutateEntries(file);
-  console.log(`\nmutation-check: [${index + 1}/${testedFiles.length}] ${entries.join(", ") || `${file} (lines removed only)`}`);
-  if (entries.length === 0) continue;
+if (entries.length > 0) {
   rmSync(path.join(appRoot, REPORT_PATH), { force: true });
-  // The command in app/stryker.config.json runs `vitest related` on MUTATION_CHECK_FILES for each mutant.
-  const stryker = spawnSync("npx", ["stryker", "run", "--mutate", entries.join(",")], {
+  const stryker = spawnSync("npx", ["stryker", "run", "--mutate", entries.map(({ entry }) => entry).join(",")], {
     cwd: appRoot,
     stdio: "inherit",
-    env: { ...process.env, MUTATION_CHECK_FILES: file },
+    env: {
+      ...process.env,
+      MUTATION_CHECK_FILES: filesWithEntries.join(","),
+      MUTATION_CHECK_RUNNER: path.join(repositoryRoot, "scripts", "mutation-check-related.ts"),
+    },
   });
   if (stryker.status !== 0) {
-    console.error(`mutation-check: Stryker exited with ${stryker.status ?? stryker.signal} on ${file}.`);
+    console.error(`mutation-check: Stryker exited with ${stryker.status ?? stryker.signal}.`);
     process.exit(stryker.status ?? 1);
   }
 

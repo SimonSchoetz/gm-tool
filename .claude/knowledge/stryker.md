@@ -60,3 +60,24 @@ A restore that does not take effect fails silently: the mutants it should have r
 **Citation:** [instruction-pass_2: `https://stryker-mutator.io/docs/stryker-js/configuration/` — default `cpuCoreCount <= 4? cpuCoreCount : cpuCoreCount - 1`, described as the concurrency of workers]
 
 With `app/stryker.config.json` setting no `concurrency`, a run on a multi-core machine tests several mutants at once, each in its own command run.
+
+## Stryker's file crawl ignores `.gitignore` files, so without `ignorePatterns` it counts and copies a gitignored `app/src-tauri/target` into every sandbox, which cost about 50 s per run
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-25
+**Citation:** [mutation-speed_1: `app/node_modules/@stryker-mutator/core/dist/src/fs/project-reader.js` — `resolveInputFileNames` crawls the directory tree with `ALWAYS_IGNORE`, `tempDirName`, the report file names and `ignorePatterns` as the only ignore rules, and reads no `.gitignore`] [mutation-speed_2: `app/node_modules/@stryker-mutator/core/schema/stryker-schema.json` — `ignorePatterns`: a pattern starting with `/` is relative to the current working directory, and the option has no effect with `inPlace`] [mutation-speed_3: ran `npx stryker run --mutate <file>:1-9 --ignorePatterns /src-tauri/target` in `app/` with a 54370-file `src-tauri/target` present — observed `Found 1 of 1054 file(s)` and `Done in 8 seconds`, against `Found 1 of 55424 file(s)` and `Done in 1 minute and 3 seconds` without the option]
+
+`"ignorePatterns": ["/src-tauri/target"]` in `app/stryker.config.json` leaves the sandbox with the 1054 other files, and the tests still pass in it.
+
+## Stryker sets `__STRYKER_ACTIVE_MUTANT__` to the mutant's id in the command runner's environment for each mutant run and leaves it unset during the initial dry run, and the instrumented file holds each of its mutants as a `stryMutAct_<hash>("<id>")` call
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-25
+**Citation:** [mutation-speed_4: `app/node_modules/@stryker-mutator/core/dist/src/test-runner/command-test-runner.js:50-66` — `mutantRun` passes `activeMutant.id` to `run`, which adds the variable to `process.env` only when that id is not `undefined`] [mutation-speed_5: ran `npx stryker run --mutate <file>:1-9 --cleanTempDir false` in `app/` — observed in the sandbox copy of the file the calls `stryMutAct_9fa48("0")` to `stryMutAct_9fa48("4")` for its 5 mutants, and the files without mutants unchanged]
+
+A command can therefore tell which file holds the active mutant by searching the files for that call; `scripts/mutation-check-related.ts` does, so one Stryker run covers all changed files and each mutant still runs only its own file's related tests. The call's name and the hash are Stryker-internal: a mutant found in no file runs no test and is reported as `Survived`.
+
+## `vitest related <file>` runs every test file that imports the file transitively, which for a file reached through the `@domain` barrel was 82 test files and 19 s
+
+**Verified at:** Vitest 5.0.2 — 2026-10-25
+**Citation:** [mutation-speed_6: ran `npx vitest related --run --passWithNoTests --bail 1 --maxWorkers 1 domain/base-entity-content-sections/wholeNumberInput.ts` in `app/` — observed `Tests 264 passed (264)`, `jsdom was created 82 times` and `Duration 19.00s`]
+
+The initial dry run and every surviving mutant of such a file pay this time; a killed mutant stops at its first failing test file because of `--bail 1`.
