@@ -20,3 +20,10 @@ A dot-directory that must not be linted needs a `#`-negated glob.
 **Citation:** [refine-1-follow-ups_4: ran `npm view markdownlint-cli2 version time --json` — observed `0.24.0` as `version`, and the three newest entries of `time` `0.23.2` at `2026-07-27T05:24:05.433Z`, `0.23.3` at `2026-09-20T04:44:38.259Z`, `0.24.0` at `2026-10-21T06:59:51.013Z`]
 
 pnpm's minimum release age (`.claude/knowledge/pnpm.md`) refuses 0.24.0 until that long after its publication.
+
+## markdownlint 0.41.1 enables MD001 (heading-increment) and MD036 (no-emphasis-as-heading) by default, so a standalone bold label line or a skipped heading level fails any config that keeps `"default": true`
+
+**Verified at:** markdownlint 0.41.1 (through markdownlint-cli2 0.23.3) — 2026-10-25
+**Citation:** [refine-claude_9: `node_modules/.pnpm/markdownlint@0.41.1/node_modules/markdownlint/schema/markdownlint-config-schema.json` — `properties.MD001` and `properties.MD036` each have `default: true`, and their object form's `enabled` defaults to `true`]
+
+MD036 reports a paragraph that is only emphasis without trailing punctuation, and MD001 a heading more than one level below the previous one.
