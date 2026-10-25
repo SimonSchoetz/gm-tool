@@ -10,12 +10,15 @@
   padding: 0;
   margin: 0;
   transition: var(--transition-fast);
+  border-radius: var(--radius-md);
 }
 
-.input:hover,
-.input:hover::placeholder {
+.input:hover:not(:read-only),
+.input:hover:not(:read-only)::placeholder {
   color: var(--color-primary);
   transition: var(--transition-fast);
+  background-color: rgb(var(--color-bg-rgb), 0.1); /* one-off */
+  box-shadow: var(--shadow-sm);
 }
 
 .input::placeholder {

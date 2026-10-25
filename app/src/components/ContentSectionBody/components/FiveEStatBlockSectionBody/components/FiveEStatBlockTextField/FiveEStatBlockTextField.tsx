@@ -28,14 +28,17 @@ export const FiveEStatBlockTextField: FCProps<Props> = ({
   return (
     <label className={className}>
       <span className='label'>{label}</span>
-      <SyncedInput
-        initValue={savedValue}
-        onCommit={(text) => {
-          saveField(field, text);
-        }}
-        readOnly={readOnly}
-        placeholder={placeholder}
-      />
+      {readOnly ? (
+        <div title={savedValue}>{savedValue}</div>
+      ) : (
+        <SyncedInput
+          initValue={savedValue}
+          onCommit={(text) => {
+            saveField(field, text);
+          }}
+          placeholder={placeholder}
+        />
+      )}
     </label>
   );
 };
