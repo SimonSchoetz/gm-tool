@@ -1,4 +1,4 @@
-const UNTITLED_COMBATANT_NAME = 'Untitled Combatant';
+export const UNTITLED_COMBATANT_NAME = 'Untitled Combatant';
 
 type NamedItem = {
   id: string;

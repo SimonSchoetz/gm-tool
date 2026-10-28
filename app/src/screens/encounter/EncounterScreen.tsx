@@ -6,6 +6,7 @@ import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
 import { EncounterQueueActions } from './components/EncounterQueueActions';
+import { EncounterSidePanel } from './components/EncounterSidePanel';
 import { PREVIEW_WIDTH } from '../screens.constants';
 import './EncounterScreen.css';
 
@@ -44,6 +45,9 @@ export const EncounterScreen = () => {
         </div>
         <div className='encounter-screen-middle-column'>
           <EncounterNotes />
+        </div>
+        <div className='encounter-screen-side-column'>
+          <EncounterSidePanel />
         </div>
       </div>
     </GlassPanel>

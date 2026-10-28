@@ -1,0 +1,18 @@
+.encounter-side-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+.encounter-side-panel-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.encounter-side-panel-tab {
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+}
