@@ -23,6 +23,8 @@ Decided during the PRD interview, not left out by accident:
 - **No round counter:** a new round is a message the GM types into the log. A reminder such as "reinforcements in round 3" is an encounter event in the queue.
 - **No initiative values:** the order is whatever the GM drags it to.
 - **No tracked values besides HP:** Stress, Armor slots, spell slots and Hope are player resources the GM does not manage.
+- **No condition tracking:** a condition such as poisoned or restrained is written into the combatant's notes.
+- **No session view on the encounter screen:** a session reaches an encounter through an @mention in its notes, and the GM navigates from there to the encounter screen for the whole fight.
 - **No PC HP carried between encounters:** each encounter starts a PC at the HP set there.
 - **No player-facing view and no hidden information:** only the GM sees the screen.
 - **No simultaneous use on two devices:** a fight runs on one device.
@@ -93,10 +95,10 @@ Decided during the PRD interview, not left out by accident:
 
 - **A1.** The tab lists the adventure's base entities, searched as on the entity list screens.
 - **A2.** An entity-type filter offers NPCs, Foes, PCs, Factions, Locations and Items in any combination. The choice is saved on the device and applies to every encounter.
-- **A3.** Each row has a quantity (default 1) and an Add button, which adds that many combatants of the entity.
+- **A3.** Each row has a quantity (default 1, at most 99) and an Add button, which adds that many combatants of the entity.
 - **A4.** A combatant's name shows a number only while the encounter holds two or more combatants of the same entity: one Goblin is "Goblin"; once a second exists they show as "Goblin 1" and "Goblin 2". Numbers continue from the highest one given in this encounter and are never reused, so removing Goblin 2 leaves Goblin 1 and Goblin 3. Removed combatants do not count; defeated ones do. A renamed combatant shows its own name, without a number.
 - **A5.** HP prefill: when the entity has exactly one stat block section (Basic or 5e) and its HP is a number, each new combatant gets that number as max HP and current HP. With no stat block, two or more stat blocks, or an empty HP, the combatant's HP is not set (V4). HP is copied when the combatant is added; a later edit of the stat block does not change combatants already in an encounter.
-- **A6.** A quick-combatant form takes a name, an optional HP and a quantity, and adds that many ad-hoc combatants. They are numbered by name as A4 numbers entity combatants.
+- **A6.** A quick-combatant form takes a name, an optional HP and a quantity (at most 99), and adds that many ad-hoc combatants. They are numbered by name as A4 numbers entity combatants.
 - **A7.** A new-event form takes a name and adds an encounter event; its note is written in the middle column.
 - **A8.** Each add writes one log entry, e.g. "Added Goblin ×5".
 
@@ -133,7 +135,7 @@ Decided during the PRD interview, not left out by accident:
 
 ### Entity deleted
 
-- **E1.** Deleting a base entity that has combatants keeps those combatants. They keep the entity's last-known name, their HP and their log entries, lose the image and the entity view, and from then on behave like ad-hoc combatants.
+- **E1.** Deleting a base entity that has combatants keeps those combatants. They keep the entity's name as it was when they were added, their HP and their log entries, lose the image and the entity view, and from then on behave like ad-hoc combatants.
 
 ## Decisions
 
@@ -173,13 +175,14 @@ Decided during the PRD interview, not left out by accident:
 | Hide defeated is saved per encounter; the Add filter is saved per device for all encounters | The filter follows the app's settings table, which does not sync; one device per fight makes syncing it moot | Claude's call, 2026-10-28 |
 | Set temp HP replaces, never adds; Set max HP clamps current HP down but never raises it | Temp HP from two sources does not stack in 5e; HP never above max follows the healing rule | Claude's call, 2026-10-28 |
 | Typed log messages can be deleted, not edited; automatic entries can only be reverted | Messages carry no combat state, so deleting one is safe; automatic entries are the fight's state | Claude's call, 2026-10-28 |
-| Combatants of a deleted entity stay, as ad-hoc combatants with the entity's last-known name | The fight and its log stay readable | Claude's call, 2026-10-28 |
+| Combatants of a deleted entity stay, as ad-hoc combatants with the entity's name from when they were added | The fight and its log stay readable; while the entity exists, its id is the link | proposed by Claude, accepted by Simon Schötz, 2026-10-28 |
+| After an entity is deleted, its combatants keep their numbers, even where that duplicates the number of an ad-hoc combatant of the same name | "A combat is done when it happened and barely looked into anymore." | proposed by Claude, accepted by Simon Schötz, 2026-10-28 |
+| Log lines show combatants' current names, so a rename changes how earlier lines read | "So if a name is changed, so be it. As long as the id of the parent entity is there and we can accurately point to this entity, we can connect dots accurately." | proposed by Claude, accepted by Simon Schötz, 2026-10-28 |
+| The Add quantities stop at 99 | One SQLite statement takes at most 32766 values (the ADR's Writes section cites it), and 99 is far above any fight | Claude's call, 2026-10-28 |
+| A combatant with max HP 0 shows the health overlay full | H10 allows 0, and the overlay's share of HP lost would divide by zero | Claude's call, 2026-10-28 |
 | Duplicate copies the queue at full HP and leaves the log behind | Duplicate is how a fight is run again (first row) | Claude's call, 2026-10-28 |
-
-## Open questions
-
-- **Conditions** (poisoned, restrained, vulnerable) are not covered; until decided they go into the combatant's notes.
-- **Session link:** whether a session's in-game view links to the encounters run in it is not covered.
+| Conditions go into the combatant's notes; the screen tracks none | not recorded | Simon Schötz, 2026-10-28 |
+| A session links to an encounter by an @mention in its notes; the GM leaves the session screen for the fight | Encounters are already mentionable, with their own popup [encounter-adr_22: `app/src/components/MentionPopup/components/MentionPopupContent/MentionPopupContent.tsx` — as of 9c92e901], whose Navigate button opens the entity's screen [encounter-adr_23: `app/src/components/MentionPopup/MentionPopup.tsx:84-88` — as of 9c92e901] | Simon Schötz, 2026-10-28 |
 
 ## Suggested slices
 

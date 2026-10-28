@@ -45,7 +45,7 @@ A transaction command as in C would also make today's multi-call writes (duplica
 | `encounter_id` | `TEXT NOT NULL`, FK `encounters` `ON DELETE CASCADE` | |
 | `kind` | `TEXT NOT NULL`: `combatant` or `event` | discriminates the two queue item kinds |
 | `base_entity_id` | `TEXT`, FK `base_entities` `ON DELETE SET NULL` | the entity of an entity combatant; null for an ad-hoc combatant, an event, or a combatant whose entity was deleted (E1) |
-| `name` | `TEXT NOT NULL` | an event's name; an ad-hoc combatant's typed name; for an entity combatant, the entity's name when it was added, shown only once the entity is gone |
+| `name` | `TEXT` | an event's name or an ad-hoc combatant's typed name, null once the GM clears it; for an entity combatant, the entity's name when it was added, null when it had none, shown only once the entity is gone (E1) |
 | `custom_name` | `TEXT` | a combatant's rename; null shows the derived name |
 | `sequence_number` | `INTEGER` | a combatant's number within its numbering key (Naming below); null for events |
 | `starting_max_hp` | `INTEGER` | a combatant's max HP when added; null when HP is not set; null for events |
@@ -53,7 +53,9 @@ A transaction command as in C would also make today's multi-call writes (duplica
 | `sort_order` | `INTEGER NOT NULL` | one order shared by combatants and events |
 | `created_at`, `updated_at` | `TEXT NOT NULL` | |
 
-Combatants and events share one table so that the queue has one `sort_order` to drag within. A reorder rewrites `sort_order` for every item, as the session step reorder does (encounter-adr_3). These columns are edited by the GM directly and saved like other text fields; none of them is combat state.
+Combatants and events share one table so that the queue has one `sort_order` to drag within. These columns are edited by the GM directly and saved like other text fields; none of them is combat state.
+
+`name` is nullable for two reasons. A text column the user can clear must be [encounter-adr_24: `app/db/CLAUDE.md` — "User-editable text columns are nullable" — as of 9c92e901]. And an entity's own `name` is nullable [encounter-adr_25: `app/db/base-entity/schema.ts` — `name` has `z.string().nullable()` and no `notNull` — as of 9c92e901], which an entity duplicate leaves empty [encounter-adr_26: `app/db/base-entity/duplicate.ts` — `name` is excluded from the copied columns with no override — as of 9c92e901], so a `NOT NULL` column would make adding such an entity fail.
 
 ### `encounter_log_entries`
 
@@ -63,9 +65,9 @@ Combatants and events share one table so that the queue has one `sort_order` to 
 | `encounter_id` | `TEXT NOT NULL`, FK `encounters` `ON DELETE CASCADE` | |
 | `kind` | `TEXT NOT NULL` | one of the kinds below |
 | `payload` | `TEXT NOT NULL` | JSON whose shape `domain/` validates per `kind` with zod, as content section content is validated |
-| `created_at`, `updated_at` | `TEXT NOT NULL` | `created_at` orders the log |
+| `created_at`, `updated_at` | `TEXT NOT NULL` | `created_at` orders the log, `rowid` breaks ties (Derivation) |
 
-An entry is never updated. A typed message may be deleted (L4); no other entry ever is.
+An entry is never updated. A typed message may be deleted (L4); no other entry ever is. The log's db module enforces this: it offers a create, a read of all entries of one encounter, and a delete whose `WHERE` clause includes `kind = 'message'`, and no update.
 
 | `kind` | `payload` | Revertible |
 | --- | --- | --- |
@@ -79,39 +81,58 @@ An entry is never updated. A typed message may be deleted (L4); no other entry e
 
 An entry stores what the GM entered, never the values that resulted. The resulting values depend on everything before the entry, so storing the input is what lets a revert recompute the fight without that entry.
 
+A stored payload is never rewritten, so its shape is permanent: a kind's payload schema may only change in ways that still parse every payload stored under it, and a change of meaning is a new kind.
+
 ### Elsewhere
 
-- `encounters` gains `hide_defeated INTEGER NOT NULL DEFAULT 0` (Q6).
+- `encounters` gains `hide_defeated INTEGER NOT NULL DEFAULT 0` (Q6), added through `ensureColumn` as an earlier column migration adds its column [encounter-adr_36: ``grep -rln ensureColumn app/db`` — found `app/db/util/ensure-column.ts` and `app/db/_migrations/1786002768594_add_pinned_order.ts`].
 - The Add tab's entity-type filter (A2) is a key in `_settings`, which is not a synced table [encounter-adr_5: `app/db/_sync/registry.ts` — as of 98592344], so each device keeps its own.
-- Both new tables join `SYNCED_TABLES` after `encounters` and `base_entities`, whose rows they reference. A build with the new migrations has a new migration head, so it pauses sync with an older build by itself (encounter-adr_2).
+- The migration creates both tables with their three sync triggers frozen into the migration file, as `1786186021664_add_encounters.ts` does for `encounters` [encounter-adr_35: `app/db/CLAUDE.md:82` — as of 9c92e901].
+- Both new tables join `SYNCED_TABLES` directly after `encounters`, which already follows `base_entities` [encounter-adr_37: `app/db/_sync/registry.ts` — as of 9c92e901], with `encounter_queue_items` before `encounter_log_entries`, so a peer receives the items an entry names before the entry. A build with the new migrations has a new migration head, so it pauses sync with an older build by itself (encounter-adr_2).
 
 ## Derivation
 
-One pure function in `domain/` takes an encounter's queue items and log entries and returns, per queue item: max HP, current HP, temp HP, defeated, removed.
+One pure function in `domain/` takes an encounter's queue items and its log entries, in the order the db read returns them, and returns:
+
+- per queue item: max HP, current HP, temp HP, defeated, removed;
+- the ids of the entries a revert drops, which the Log tab marks as reverted;
+- the ids of the entries it could not read, which the Log tab shows as unreadable.
+
+The Log tab offers Revert on a readable entry of a revertible kind that is not in the first set, so the UI never works out for itself which entries are in effect.
 
 1. Every combatant starts at max HP = `starting_max_hp`, current HP = max HP, temp HP 0, not defeated, not removed; every event starts not removed.
-2. Every entry named by a `revert` entry is dropped. A `revert` that names another `revert` or a non-revertible kind is ignored.
-3. The remaining entries are applied in order of `created_at`, then `id`, with the PRD's HP rules: damage takes temp HP first and leaves current HP without a floor (H3); heal stops at max HP (H4); temp HP is replaced (H5); a new max sets current HP when HP was not set and clamps current HP down when it is lower (H6). Damage or heal for a combatant whose HP is not set changes nothing; the UI does not offer it (H7).
+2. Every entry named by a `revert` entry is dropped. A `revert` that names another `revert`, a non-revertible kind or an unreadable entry is ignored.
+3. The remaining entries are applied in the order given, with the PRD's HP rules: damage takes temp HP first and leaves current HP without a floor (H3); heal stops at max HP (H4); temp HP is replaced (H5); a new max sets current HP when HP was not set and clamps current HP down when it is lower (H6). Damage or heal for a combatant whose HP is not set changes nothing; the UI does not offer it (H7). `removed` marks its items removed; `defeated` and `undefeated` set and clear the mark on their combatants; `added` and `message` change nothing. A target id with no queue item, possible mid-sync because sync is not transactional across tables, is skipped, and the entry's other targets still apply.
+4. An entry whose kind is unknown, or whose payload fails its kind's schema, applies nothing and is returned as unreadable: the function never throws on a stored entry. A throw would make the encounter unreadable for good, since such an entry can be neither edited nor deleted, and a peer's row reaches this database checked only against the table's column schema [encounter-adr_28: `app/db/_sync/apply-upsert.ts` — a peer row passes `entry.zodSchema.partial().safeParse` — as of 9c92e901], where `payload` is a string column.
+
+The db read returns entries `ORDER BY created_at, rowid`. SQLite gives a row inserted without an explicit rowid one more than the table's largest existing rowid [encounter-adr_44: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.c:98629-98630,98651-98664` — `OP_NewRowid`: "First we attempt to find the largest existing rowid and add one to that"] [encounter-adr_29: `https://www.sqlite.org/autoinc.html` — "The usual algorithm is to give the newly created row a ROWID that is one larger than the largest ROWID in the table prior to the insert."], so `rowid` puts two entries of the same millisecond in the order this device inserted them; `id`, a random nanoid, would order them at random [architect_9: ran `node -e` on node:sqlite 3.53.4 in an in-memory database — observed `ORDER BY created_at, id` return equal-`created_at` rows as insert-1, insert-3, insert-2, insert-0 and `ORDER BY created_at, rowid` return them in insertion order]. The tables have text primary keys and are not `WITHOUT ROWID` tables, so `rowid` is SQLite's own column [architect_10: ``grep -rn "WITHOUT ROWID" app/db --include=*.ts`` — not found].
 
 The queue's numbering (A4) is computed from the same result, because whether a combatant still counts depends on whether it is removed.
 
 ## Naming
 
 - **Numbering key:** `base_entity_id` for an entity combatant; `name` for an ad-hoc combatant or one whose entity was deleted.
-- **`sequence_number`:** on add, the highest number used for that key in the encounter, removed combatants included, plus one, so a number is never reused.
-- **Shown name:** `custom_name` when set; otherwise the entity's current name, or `name` when no entity is linked, followed by `sequence_number` while two or more combatants of that key are not removed. The name is computed at render and never stored as text, so it follows an entity rename and the A4 rule.
+- **`sequence_number`:** on add, the highest number used for that key in the encounter, removed combatants included, plus one, so a number is never reused. A combatant keeps its number when its entity is deleted and its key becomes `name`, so it can then share a number with an ad-hoc combatant of the same name. The PRD accepts this, since renumbering would change names the GM has already seen.
+- **Shown name:** `custom_name` when set; otherwise the entity's current name while an entity is linked; otherwise `name`; otherwise "Untitled Combatant" or "Untitled Event", as a session step without a name shows "Untitled Step" [encounter-adr_27: `app/domain/session-steps/sessionStepName.ts` — as of 9c92e901]. It is followed by `sequence_number` while two or more combatants of that key are not removed. The name is computed at render and never stored as text, so it follows an entity rename and the A4 rule.
+- **Log lines** show names the same way. A rename, or a number dropped once a sibling is removed, changes how earlier lines read; the entries name their targets by id, which stays exact, and the PRD accepts the changed wording.
+
+## Writes
+
+- **Add (A3, A6):** one multi-row `INSERT` of the new queue items, then one `added` entry. The derivation does not read `added`, so a failure between the two only loses that log line. The db layer's only insert builder writes one row [encounter-adr_33: `app/db/util/build-create-query.ts` — `buildCreateQuery` builds one `VALUES (…)` group — as of 9c92e901], so a multi-row builder joins it in `app/db/util/`. `sort_order` and `sequence_number` are computed from a read just before the insert, and Add is disabled while its write is pending, so a double click cannot hand out a number twice. The bundled SQLite caps one statement at 32766 bound parameters by default [encounter-adr_32: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.c:13892-13893` — `# define SQLITE_MAX_VARIABLE_NUMBER 32766` unless already defined] [encounter-adr_41: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/build.rs:266-268` — the bundled build defines `SQLITE_MAX_VARIABLE_NUMBER` from the environment variable of that name when it is set] [encounter-adr_42: ran `cargo tree --offline -e features -i libsqlite3-sys` in `app/src-tauri/` — observed the `bundled` feature enabled through `sqlx-sqlite`] [encounter-adr_43: ``grep -rn SQLITE_MAX_VARIABLE_NUMBER .github app/src-tauri`` — not found], so the quantity inputs are capped at 99.
+- **Reorder (Q4):** the reorder takes the encounter's full list in `sort_order` order, hidden-defeated and removed items included, moves the dragged block directly before or after the visible item it is dropped on, and rewrites `sort_order` for every row, one update per row as the session step reorder does (encounter-adr_3). A hidden or removed item keeps its place between its neighbours, so it comes back where it was (Q6, L5). Queue items are read `ORDER BY sort_order, id`. Order is not combat state, so a reorder that fails part-way only leaves an order the GM can drag again.
+- **Duplicate (D1):** the encounter row first, then each copied queue item through `buildDuplicateQuery`, which the Duplication rule requires, one statement per item as `duplicateBySession` copies session steps [encounter-adr_34: `app/db/CLAUDE.md` — Duplication; `app/db/session-step/duplicate-by-session.ts` — one `buildDuplicateQuery` and `execute` per step in a loop — as of 9c92e901]. The overrides are the new `encounter_id` and a `starting_max_hp` taken from the source's current derived max HP. Only items the derivation does not mark removed are copied.
 
 ## Consequences
 
 - An action, mass action included, is one statement: HP and the log cannot disagree, and a group action applies to all its targets or to none.
 - A revert, a removal and the revert of a removal need no snapshot of earlier values; "as if the entry never happened" (L5) is exact by construction.
-- Appended rows never compete in row-by-row sync. A peer that receives entries in another order still derives the same state, because the order comes from `created_at`, not from arrival.
+- Appended rows never compete in row-by-row sync. A peer that receives entries in another order still derives the same state, because the order comes from `created_at`, not from arrival; only entries of the same millisecond fall back to the peer's own `rowid`, which follows arrival.
 - The derivation is a pure function, testable in isolation, which suits `mutation-check`.
 - HP cannot be shown before the encounter's whole log has loaded. The screen reads all queue items and all log entries of the encounter in two queries and derives on the client; deriving is linear in the number of entries, a few hundred in a long fight.
 - The log can be neither pruned nor edited without changing the fight. Deleting a typed message is safe because messages carry no state.
-- Adding n combatants is one multi-row `INSERT` into `encounter_queue_items` and then one `added` entry. The derivation does not read `added`, so a failure between the two only loses that log line.
-- Duplicate (D1) has to derive the source's current max HP per combatant to write the copies' `starting_max_hp`, and copies only queue items the derivation does not mark removed.
-- The order of the log depends on the clock of the device that wrote it. Two devices writing into one fight could interleave wrongly, which the PRD rules out (one device per fight).
+- Duplicate is one statement per queue item, so a failure part-way leaves a partial copy, which the GM deletes, as a failed session duplicate does today.
+- The order of the log depends on the clock of the device that wrote it. Timestamps are UTC, so a change between summer and winter time does not move it [encounter-adr_40: ran `TZ=Europe/Berlin node -e` on two instants 1 ms apart across the 2026-10-25 change — observed local time step back from 02:59:59 to 02:00:00 while `toISOString()` moved from `2026-10-25T00:59:59.999Z` to `2026-10-25T01:00:00.000Z`]. A backward correction of the clock during a fight sorts entries written after it before those written just before it; the result changes only where the order of two entries decides it, such as damage and a heal near max HP. Simon Schötz accepted this risk on 2026-10-28. Two devices writing into one fight could interleave wrongly too, which the PRD rules out (one device per fight).
+- `VACUUM` may change the rowids of a table without an `INTEGER PRIMARY KEY` [encounter-adr_30: `https://www.sqlite.org/lang_vacuum.html` — "The VACUUM command may change the ROWIDs of entries in any tables that do not have an explicit INTEGER PRIMARY KEY."]. The backup and the dev data mirror copy the database with `VACUUM INTO` [encounter-adr_31: `app/db/database-backup.ts`, `app/dev-data-server/installedAppData.ts` — as of 9c92e901]. The page's only sentence about rowids names plain `VACUUM` [encounter-adr_45: ran `curl -sS https://www.sqlite.org/lang_vacuum.html` and a case-insensitive grep for `rowid` over the tag-stripped text — observed one match, the sentence quoted above], but it describes `VACUUM INTO` as the same copy written into the named file instead of a temporary one, so a restored or mirrored copy may reorder entries of the same millisecond. Entries with distinct timestamps keep their order.
 - A revert recomputes the fight instead of adding the entry's amounts back to today's values. The two differ only where temp HP was set between the entry and its revert; the PRD's Decisions table records this choice.
 
 ## Follow-ups for the spec
@@ -121,4 +142,6 @@ The queue's numbering (A4) is computed from the same result, because whether a c
 - `ScreensTextEditorLayout` is two columns with a maximum width of sidebar plus text editor [encounter-adr_10: `app/src/screens/components/ScreensTextEditorLayout/ScreensTextEditorLayout.css` — as of 98592344]; the three-column encounter screen gets its own layout, as `SessionScreen` has.
 - The backlog plans a tabbed right sidebar for entity screens as well (`app/docs/_product/backlog.md`, "Feature: Right sidebar"), which makes the Add / Actions / Log tab container a candidate for `app/src/components/`.
 - HP actions and typed messages are written on Apply or Enter, without the autosave delay; names and notes use the existing autosave path.
-- The new terms (queue item, combatant, encounter event, combat log) belong in `app/CLAUDE.md` — Domain Glossary once the tables exist, and `app/docs/_product/domain-scaffold.md` is checked per `app/docs/CLAUDE.md` — Spec Format Extension.
+- The two new reads, an encounter's queue items and its log entries, get query keys in `encounterKeys`, which has only `list` and `detail` [encounter-adr_38: `app/src/data-access-layer/encounters/encounterKeys.ts` — as of 9c92e901].
+- Set max HP accepts 0 (H10), so the health overlay (Q2) shows a combatant with max HP 0 as fully lost instead of dividing by zero.
+- The new terms (queue item, combatant, encounter event, combat log) belong in `app/CLAUDE.md` — Domain Glossary once the tables exist, and `app/docs/_product/domain-scaffold.md` is checked per `app/docs/CLAUDE.md` — Spec Format Extension. Its Detail Screen Composition section calls `EncounterScreen` a deliberately minimal base for a future encounter screen [encounter-adr_39: `app/docs/_product/domain-scaffold.md` — Detail Screen Composition, the `screens/encounter/` bullet — as of 9c92e901]; that bullet is rewritten for the three-column screen.
