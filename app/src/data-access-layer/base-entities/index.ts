@@ -4,3 +4,4 @@ export {
   baseEntityListQueryOptions,
   baseEntityQueryOptions,
 } from './baseEntityQueryOptions';
+export { useAdventureBaseEntities } from './useAdventureBaseEntities';

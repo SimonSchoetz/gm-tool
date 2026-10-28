@@ -10,3 +10,5 @@ export { encounterQueueLoadError } from './errors';
 export { encounterQueueAddError } from './errors';
 export { encounterQueueReorderError } from './errors';
 export { parseAddQuantity } from './addQuantity';
+export { deriveCombatState } from './deriveCombatState';
+export { shownCombatantNames } from './shownCombatantNames';

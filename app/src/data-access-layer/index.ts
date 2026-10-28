@@ -6,7 +6,11 @@ export { useImage, useUpdateImageFrame } from './images';
 export type { ImageFrame } from './images';
 export { imageQueryOptions } from './images';
 export { ensureImagePainted } from './images';
-export { useBaseEntities, useBaseEntity } from './base-entities';
+export {
+  useBaseEntities,
+  useBaseEntity,
+  useAdventureBaseEntities,
+} from './base-entities';
 export {
   baseEntityListQueryOptions,
   baseEntityQueryOptions,

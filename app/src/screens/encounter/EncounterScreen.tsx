@@ -4,6 +4,7 @@ import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
+import { EncounterQueue } from './components/EncounterQueue';
 import { EncounterQueueActions } from './components/EncounterQueueActions';
 import { PREVIEW_WIDTH } from '../screens.constants';
 import './EncounterScreen.css';
@@ -38,6 +39,7 @@ export const EncounterScreen = () => {
 
       <div className='encounter-screen-body'>
         <div className='encounter-screen-queue-column'>
+          <EncounterQueue />
           <EncounterQueueActions />
         </div>
         <div className='encounter-screen-middle-column'>

@@ -17,7 +17,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
 import { ReorderableNavListItem } from './components/ReorderableNavListItem/ReorderableNavListItem';
-import { reorderIds } from './helper/reorderIds';
+import { reorderIds } from '@/util/reorderIds';
 import './ReorderableNavList.css';
 
 type Props = {
