@@ -141,6 +141,7 @@ describe('EncounterAddRow', () => {
     });
     expect(goblinQuantity).toHaveValue(1);
   });
+
   it('keeps the quantity at 1 on leaving the field after an add of another quantity', async () => {
     const user = userEvent.setup();
     renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));

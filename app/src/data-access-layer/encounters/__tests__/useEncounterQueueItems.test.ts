@@ -168,6 +168,7 @@ describe('useEncounterQueueItems', () => {
       queryKey: encounterKeys.queueItems('encounter-1'),
     });
   });
+
   it('exposes an empty queue while the items load', () => {
     getQueueItems.mockReturnValue(new Promise(() => undefined));
     const { result } = renderHookWithQueryClient(() =>

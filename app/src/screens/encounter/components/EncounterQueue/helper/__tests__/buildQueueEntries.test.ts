@@ -37,7 +37,7 @@ describe('buildQueueEntries', () => {
   it('has no image for a combatant without a base entity', () => {
     const [entry] = buildQueueEntries(
       [buildEncounterQueueItem({ id: 'a', base_entity_id: null })],
-      [buildBaseEntity()],
+      [buildBaseEntity({ image_id: 'image-1' })],
     );
 
     expect(entry.imageId).toBeNull();
