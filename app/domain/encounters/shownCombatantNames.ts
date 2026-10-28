@@ -11,20 +11,22 @@ export const shownCombatantNames = (
   items: NamedItem[],
   entityNamesById: Map<string, string | null>,
 ): Map<string, string> => {
+  // The map has no null key, so a combatant without a base entity is never linked.
+  const namesByEntityId: ReadonlyMap<string | null, string | null> =
+    entityNamesById;
+
   // An entity id absent from the map is not linked: while the entity lists refetch after an entity delete, a combatant whose entity is already gone must show its stored name, and treating it as linked would show "Untitled Combatant" instead.
-  const isLinked = (
-    item: NamedItem,
-  ): item is NamedItem & { baseEntityId: string } =>
-    item.baseEntityId !== null && entityNamesById.has(item.baseEntityId);
+  const isLinked = (item: NamedItem): boolean =>
+    namesByEntityId.has(item.baseEntityId);
 
   const baseName = (item: NamedItem): string =>
     (isLinked(item)
-      ? (entityNamesById.get(item.baseEntityId) ?? null)
+      ? (namesByEntityId.get(item.baseEntityId) ?? null)
       : item.name) ?? UNTITLED_COMBATANT_NAME;
 
   const numberingKey = (item: NamedItem): string =>
     JSON.stringify(
-      isLinked(item) ? ['entity', item.baseEntityId] : ['name', item.name],
+      isLinked(item) ? [true, item.baseEntityId] : [false, item.name],
     );
 
   const itemsPerKey = new Map<string, number>();
