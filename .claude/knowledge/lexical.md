@@ -265,3 +265,10 @@ Reading its version needs the file path `app/node_modules/lexical/package.json` 
 **Citation:** [architect_12: @lexical/react 0.52.0 dist/LexicalOnChangePlugin.dev.js:46, 59-62 — `ignoreSelectionChange = false` in the props destructuring; the update listener returns early on a selection-only change only when `ignoreSelectionChange` is true]
 
 Without `ignoreSelectionChange`, merely placing the caret in an editor — clicking into it — fires the plugin's `onChange` with the full editor state, even though no content changed.
+
+## Typing into `TextEditor` with user-event under jsdom does not reach the Lexical editor state, although the editor mounts and calls `onChange`
+
+**Verified at:** lexical (installed in `app/`), @testing-library/user-event (installed), jsdom (installed), vitest ^5.0.2
+**Citation:** [spec-writer_13: ran `npx vitest run src/screens/encounter/components/EncounterNotes/__tests__/scratch.test.tsx` in `app/` — a test rendered `TextEditor` from `@/components/TextEditor` inside `TanstackQueryClientProvider`, with `@tanstack/react-router` mocked to `useParams: () => ({ adventureId: 'adventure-1' })` and `@services/tableConfigService` mocked, clicked its `[contenteditable="true"]` element and ran `user.keyboard('hello')`; `onChange` had been called, and the last value it received was `{"root":{"children":[],"direction":null,"format":"","indent":0,"type":"root","version":1}}`, without `hello`; scratch deleted]
+
+`TextEditor` renders in jsdom only with `useParams` answered (its `MentionTypeaheadPlugin` calls it) and the table-config query served. A test cannot assert what a user typing into it saves, because the typed text never enters the editor state.

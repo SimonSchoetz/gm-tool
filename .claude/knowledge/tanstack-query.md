@@ -71,3 +71,24 @@ Unless `refetchType` is `'none'`, `invalidateQueries` refetches the matching que
 **Citation:** [architect_10: @tanstack/query-core 5.104.0 src/notifyManager.ts:19, 32-39, 78-86, src/timeoutManager.ts:241-243 — `batchCalls` wraps a listener so it runs through the notify manager's scheduler, which defaults to a `setTimeout(0)`] [architect_11: @tanstack/react-query 5.104.0 src/useBaseQuery.ts:95-99 — `useSyncExternalStore` subscribes through `notifyManager.batchCalls`] [architect_13: @tanstack/query-core 5.104.0 src/query.ts:892, src/queryClient.ts `getQueryData` — reads the query's current state synchronously]
 
 `useQuery` subscribes to the cache through `notifyManager.batchCalls`, so a component learns of a `setQueryData` write only after a `setTimeout(0)`, while `getQueryData` returns the written value immediately. For at least one task after a write, data a component received through `useQuery` at its last render is therefore stale, and code that must build on the latest value reads it with `getQueryData` at call time.
+
+## `useIsMutating(filters?, queryClient?)` returns the number of pending mutations that match `filters`
+
+**Verified at:** @tanstack/react-query 5.104.0
+**Citation:** [architect_1: `app/node_modules/@tanstack/react-query/build/modern/useMutationState.d.ts:4,24` — "returns the `number` of mutations that your application currently has `pending`"; `export declare function useIsMutating(filters?: MutationFilters, queryClient?: QueryClient): number`]
+
+`useIsMutating` counts the pending mutations across the whole app that match its `MutationFilters`, such as `{ mutationKey: [...] }`, and returns that count as a number.
+
+## A `mutationKey` filter matches a mutation's key by array prefix unless `exact: true` is set
+
+**Verified at:** @tanstack/query-core 5.104.0
+**Citation:** [spec-writer_1: `app/node_modules/.pnpm/@tanstack+query-core@5.104.0/node_modules/@tanstack/query-core/src/utils.ts:237-264,300-319` — `matchMutation` returns false for a mutation with no `mutationKey`, compares `hashKey` of both keys only when `exact` is set, and otherwise calls `partialMatchKey(mutation.options.mutationKey, filters.mutationKey)`, which for two arrays returns false when the filter is longer than the key and otherwise compares the filter's elements one by one against the key's leading elements]
+
+A filter `{ mutationKey: ['a'] }` matches a pending mutation keyed `['a', 'b']`, and one keyed `['b']` or with no key is not matched. `useIsMutating` and `QueryClient.isMutating` both filter through `matchMutation`.
+
+## A mutation is `pending` in the mutation cache from the synchronous start of `mutate`, so `QueryClient.isMutating` counts it in the same call stack
+
+**Verified at:** @tanstack/query-core 5.104.0
+**Citation:** [spec-writer_2: `app/node_modules/.pnpm/@tanstack+query-core@5.104.0/node_modules/@tanstack/query-core/src/mutation.ts:284,324` — `execute` is `async` and dispatches `{ type: 'pending' }` before its first `await`; `src/queryClient.ts:168-172` — `isMutating` returns `this.#mutationCache.findAll({ ...filters, status: 'pending' }).length`; `src/mutationObserver.ts:208-220` — `mutate()` builds the mutation and returns `execute(variables)` in the same call]
+
+A second `mutate()` call made in the same synchronous call stack as the first, before React re-renders, already sees `queryClient.isMutating({ mutationKey })` greater than 0. A hook-local `isPending` flag or a `useIsMutating` value read from render state lags the call by a render.

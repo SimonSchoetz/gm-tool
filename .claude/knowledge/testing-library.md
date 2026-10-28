@@ -69,3 +69,10 @@ A `wheel` handler's `preventDefault()` is therefore observable in a test through
 **Citation:** [instruction-pass_8: app/node_modules/@testing-library/user-event/dist/esm/setup/wrapAsync.js:6 — every API call runs through `getConfig().asyncWrapper`; app/node_modules/@testing-library/react/dist/pure.js:84-100 — `asyncWrapper` awaits a `setTimeout(..., 0)` and advances it only through `jest.advanceTimersByTime(0)` when `jestFakeTimersAreEnabled()`] [instruction-pass_9: ran `npx vitest run` from `app/` on a scratch test clicking a button through user-event — observed a timeout under `vi.useFakeTimers()` with `userEvent.setup()` and with `userEvent.setup({ advanceTimers: vi.advanceTimersByTime })`; under `vi.useFakeTimers({ shouldAdvanceTime: true })` with `userEvent.setup()` the click resolved, a 600 ms `setTimeout` its handler started had not fired by then, and `await act(() => vi.runOnlyPendingTimersAsync())` fired it; scratch deleted]
 
 The `setTimeout` that `asyncWrapper` awaits is advanced only through a `jest` global, which the `waitFor` entry above finds absent from Vitest's globals.
+
+## A mutation that fails under `throwOnError: true` throws from the hook's render, and an `ErrorBoundary` wrapper around `renderHook` catches it after the mutation's `onError` has run
+
+**Verified at:** @tanstack/react-query 5.104.0, @testing-library/react ^16.3.3, react-error-boundary ^6.1.6, vitest ^5.0.2
+**Citation:** [spec-writer_3: ran `npx vitest run src/data-access-layer/encounters/__tests__/scratchUseQueue.test.tsx` in `app/` — observed 2 passed: a hook whose `useMutation` `mutationFn` rejected, on a client from `createQueryClient()` (mutation `throwOnError: true`), rendered with `renderHook` in a wrapper of `ErrorBoundary` around `QueryClientProvider`, left a spy on that client's `invalidateQueries` called with the key the mutation's `onError` invalidates; scratch deleted]
+
+The test reads the spy after `await act(() => vi.advanceTimersByTimeAsync(0))`. `renderHookWithQueryClient` offers no wrapper option, so a hook test of a mutation failure builds its own client and wrapper.
