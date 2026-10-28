@@ -186,12 +186,11 @@ Decided during the PRD interview, not left out by accident:
 
 ## Suggested slices
 
-Each slice leaves a usable screen, in this order:
+Each slice leaves a usable screen and is one implementation run, started once the previous one is merged, in this order:
 
-1. Queue with entity combatants: the three-column layout, the Add tab with search, type filter, quantity, numbering and HP prefill, images with the HP overlay and numbers, reordering one item at a time.
+1. Schema and queue with entity combatants: one migration with both new tables, their sync triggers and `hide_defeated` (`app/docs/_product/decisions/0001-encounter-combat-state.md` — Data), so no later slice adds a migration; the three-column layout, the Add tab with search, type filter, quantity, numbering and HP prefill, images with the HP overlay and numbers, reordering one item at a time.
 2. Actions tab and log storage: Damage, Heal, Set temp HP, Set max HP, defeated marks, Remove, Hide defeated, with their automatic log entries, for one selected combatant.
 3. Log tab: the list, Revert, typed messages with mentions.
 4. Multi-select: Cmd/Ctrl- and Shift-click, block drag, group actions with per-target amounts.
 5. Middle column: combat name, notes, and the editable entity view.
-6. Ad-hoc combatants and encounter events.
-7. Duplicate with the copied queue.
+6. Ad-hoc combatants, encounter events, and Duplicate with the copied queue, in one run, so Duplicate copies every kind of queue item from the start.
