@@ -1,20 +1,19 @@
 import { useParams } from '@tanstack/react-router';
 import { useEncounter } from '@/data-access-layer';
+import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
-import { TextEditor } from '@/components/TextEditor';
 import { EncounterHeader } from './components/EncounterHeader';
-import { EncounterSidebar } from './components/EncounterSidebar';
-import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
+import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
+import { EncounterQueueActions } from './components/EncounterQueueActions';
+import { PREVIEW_WIDTH } from '../screens.constants';
+import './EncounterScreen.css';
 
 export const EncounterScreen = () => {
   const { adventureId, encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
 
-  const { encounter, updateEncounter, loading } = useEncounter(
-    encounterId,
-    adventureId,
-  );
+  const { encounter, loading } = useEncounter(encounterId, adventureId);
 
   if (loading || !encounter) {
     return (
@@ -25,18 +24,26 @@ export const EncounterScreen = () => {
   }
 
   return (
-    <ScreensTextEditorLayout
-      header={<EncounterHeader />}
-      sideBar={<EncounterSidebar />}
-      body={
-        <TextEditor
-          value={encounter.description ?? ''}
-          textEditorId={`ENCOUNTER_${encounter.id}_description`}
-          onChange={(description) => {
-            updateEncounter({ description });
-          }}
-        />
+    <GlassPanel
+      style={
+        {
+          '--encounter-screen-side-width': `${PREVIEW_WIDTH * 1.5}px`,
+        } as React.CSSProperties
       }
-    />
+      className='encounter-screen'
+    >
+      <header className='encounter-screen-header'>
+        <EncounterHeader />
+      </header>
+
+      <div className='encounter-screen-body'>
+        <div className='encounter-screen-queue-column'>
+          <EncounterQueueActions />
+        </div>
+        <div className='encounter-screen-middle-column'>
+          <EncounterNotes />
+        </div>
+      </div>
+    </GlassPanel>
   );
 };

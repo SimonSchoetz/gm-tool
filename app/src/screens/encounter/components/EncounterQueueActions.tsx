@@ -3,9 +3,8 @@ import { Button } from '@/components/Button/Button';
 import { useEncounter } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { ScreensDuplicateBtn } from '../../components/ScreensDuplicateBtn';
-import { ScreensSidebar } from '../../components/ScreensSidebar/ScreensSidebar';
 
-export const EncounterSidebar = () => {
+export const EncounterQueueActions = () => {
   const router = useRouter();
   const { adventureId, encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
@@ -21,7 +20,7 @@ export const EncounterSidebar = () => {
   };
 
   return (
-    <ScreensSidebar>
+    <>
       <ScreensDuplicateBtn entityType='encounters' />
 
       <Button
@@ -37,6 +36,6 @@ export const EncounterSidebar = () => {
         }}
         buttonStyle={'danger'}
       />
-    </ScreensSidebar>
+    </>
   );
 };

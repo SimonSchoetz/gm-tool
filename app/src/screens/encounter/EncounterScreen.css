@@ -1,0 +1,29 @@
+.encounter-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
+.encounter-screen-header {
+  padding: var(--spacing-md);
+  padding-bottom: 0;
+}
+
+.encounter-screen-body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--spacing-md);
+  gap: var(--spacing-md);
+  display: grid;
+  grid-template-columns: var(--encounter-screen-side-width) minmax(0, 1fr);
+}
+
+.encounter-screen-queue-column,
+.encounter-screen-middle-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 0;
+}

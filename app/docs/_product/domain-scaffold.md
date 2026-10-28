@@ -238,7 +238,7 @@ After creating these files, run `pnpm run build:frontend` once from `app/` — s
 **`screens/session/` and `screens/encounter/` are deliberate exceptions** to this composition — each for its own reason, and neither is a template to copy:
 
 - `screens/session/`: its hand-rolled `SessionHeader` re-implements what `ScreensNameInput` now provides, and its custom `SessionScreen.css` layout predates the shared components below. This shape must not be copied.
-- `screens/encounter/`: `EncounterScreen` bypasses `ScreensTextEditorLayout` because Encounter has no summary field — its custom `EncounterScreen.css` (GlassPanel root, header above a body grid) is a deliberately minimal base for a future encounter-specific screen. Unlike `SessionHeader`, `EncounterHeader` composes the shared `ScreensNameInput` rather than hand-rolling it — only the screen-level layout deviates, not the header's internals. Do not copy this shape either; it's justified by Encounter's specific lack of a summary field, not a new default pattern.
+- `screens/encounter/`: `EncounterScreen` has its own `EncounterScreen.css`: a `GlassPanel` root with `EncounterHeader` above a three-column body — the combat queue with Duplicate and Delete below it, the global combat notes in a fixed-height panel, and a sidebar of tabs. `EncounterHeader` composes the shared `ScreensNameInput` rather than hand-rolling it, unlike `SessionHeader`. The shape is justified by an encounter being a working surface with a queue, notes and an action sidebar, not a new default pattern, so it is not to be copied either.
 
 ## Customization Points
 

@@ -1,0 +1,10 @@
+.encounter-notes {
+  padding: var(--spacing-sm);
+  padding-left: 0;
+  border-radius: var(--radius-lg);
+}
+
+.encounter-notes-text-editor {
+  height: var(--popup-content-section-height);
+  overflow-y: auto;
+}
