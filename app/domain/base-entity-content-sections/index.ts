@@ -25,3 +25,4 @@ export { baseEntityContentSectionCreateError } from './errors';
 export { baseEntityContentSectionUpdateError } from './errors';
 export { baseEntityContentSectionDeleteError } from './errors';
 export { baseEntityContentSectionReorderError } from './errors';
+export { singleStatBlockHp } from './singleStatBlockHp';

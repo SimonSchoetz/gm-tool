@@ -6,3 +6,7 @@ export { encounterDeleteError } from './errors';
 export { encounterDuplicateError } from './errors';
 export { serializeLogEntryPayload } from './logEntryPayloads';
 export type { LogEntryKind, LogEntryPayload } from './logEntryPayloads';
+export { encounterQueueLoadError } from './errors';
+export { encounterQueueAddError } from './errors';
+export { encounterQueueReorderError } from './errors';
+export { parseAddQuantity } from './addQuantity';

@@ -62,3 +62,38 @@ export const encounterDuplicateError = (
   error.name = 'EncounterDuplicateError';
   return error;
 };
+
+type EncounterQueueLoadError = Error & { name: 'EncounterQueueLoadError' };
+export const encounterQueueLoadError = (
+  cause?: unknown,
+): EncounterQueueLoadError => {
+  const error = new Error(
+    `Failed to load the encounter queue: ${String(cause)}`,
+  ) as EncounterQueueLoadError;
+  error.name = 'EncounterQueueLoadError';
+  return error;
+};
+
+type EncounterQueueAddError = Error & { name: 'EncounterQueueAddError' };
+export const encounterQueueAddError = (
+  cause?: unknown,
+): EncounterQueueAddError => {
+  const error = new Error(
+    `Failed to add combatants to the encounter queue: ${String(cause)}`,
+  ) as EncounterQueueAddError;
+  error.name = 'EncounterQueueAddError';
+  return error;
+};
+
+type EncounterQueueReorderError = Error & {
+  name: 'EncounterQueueReorderError';
+};
+export const encounterQueueReorderError = (
+  cause?: unknown,
+): EncounterQueueReorderError => {
+  const error = new Error(
+    `Failed to reorder the encounter queue: ${String(cause)}`,
+  ) as EncounterQueueReorderError;
+  error.name = 'EncounterQueueReorderError';
+  return error;
+};
