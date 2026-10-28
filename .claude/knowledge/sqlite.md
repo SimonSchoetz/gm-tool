@@ -56,6 +56,13 @@ A single JS-side `db.execute()` call (via tauri-plugin-sql) can safely contain m
 
 So a multi-row `INSERT … VALUES (…), (…)` with no conflict clause, sent as one statement, lands whole or not at all.
 
+## SQLite 3.46.0 gives a row inserted without an explicit rowid the table's largest existing rowid plus one, and picks rowids at random only once that largest is the maximum; a table with a TEXT primary key that is not declared WITHOUT ROWID still has this rowid
+
+**Verified at:** libsqlite3-sys 0.30.1 (SQLite 3.46.0), read 2026-10-28; sqlite.org current docs, fetched 2026-10-28; node:sqlite under Node v24.21.0 (SQLite 3.53.4), run 2026-10-28
+**Citation:** [encounter-adr_44: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.c:98629-98630,98651-98664` — `OP_NewRowid`: "First we attempt to find the largest existing rowid and add one to that"; `sqlite3BtreeLast`, then `v++`, or `useRandomRowid = 1` once `v>=MAX_ROWID`] [encounter-adr_29: https://www.sqlite.org/autoinc.html — "In SQLite, table rows normally have a 64-bit signed integer ROWID which is unique among all rows in the same table. (WITHOUT ROWID tables are the exception.)"] [architect_9: ran `node -e` on an in-memory `DatabaseSync` table with a TEXT primary key and equal `created_at` values — observed `ORDER BY created_at, rowid` return insertion order and `ORDER BY created_at, id` return random-id order]
+
+So for rows inserted without an explicit rowid, `ORDER BY rowid` follows their insertion order while no rowid has reached the maximum and nothing has renumbered them, which `VACUUM` may do (the entry beginning "`VACUUM` may change the rowids").
+
 ## SQLite's ON CONFLICT target requires the constraint to already exist at prepare time
 
 **Verified at:** sqlite.org current docs, fetched 2026-08-27
@@ -104,6 +111,13 @@ The drop fails if the column is a PRIMARY KEY, has a UNIQUE constraint, is index
 **Citation:** [spec-writer_2: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.h:149 — `#define SQLITE_VERSION "3.46.0"`; ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sqlx-0.8.6/Cargo.toml:478-481 — `sqlite = ["_sqlite", "sqlx-sqlite/bundled", ...]`]
 
 tauri-plugin-sql enables sqlx's `sqlite` feature, which turns on `bundled`, so the engine version is the vendored amalgamation's rather than the OS's system SQLite. Any SQL feature introduced at or before 3.46.0 is available.
+
+## The SQLite amalgamation libsqlite3-sys 0.30.1 bundles caps one statement at 32766 bound parameters by default, and its build script passes another cap when a `SQLITE_MAX_VARIABLE_NUMBER` environment variable is set at build time
+
+**Verified at:** libsqlite3-sys 0.30.1 (SQLite 3.46.0), read 2026-10-28
+**Citation:** [encounter-adr_32: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/sqlite3/sqlite3.c:13892-13893` — `#ifndef SQLITE_MAX_VARIABLE_NUMBER` … `# define SQLITE_MAX_VARIABLE_NUMBER 32766`] [encounter-adr_41: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/build.rs:266-268` — the bundled build adds `-DSQLITE_MAX_VARIABLE_NUMBER=<limit>` when the environment variable of that name is set]
+
+A multi-row `INSERT` binds one parameter per column per row, so under the default cap its row count is bounded by 32766 divided by the column count.
 
 ## TYPE, CONTENT, and CHECKED are not SQLite keywords and are usable as unquoted column names
 
@@ -180,3 +194,10 @@ Opening a WAL database read-only in a directory the process cannot write to fail
 **Citation:** [architect_17: <https://www.sqlite.org/lang_vacuum.html>] [spec-writer_39: ran a scratch `node` probe in a temp directory: a `DatabaseSync` writer set `PRAGMA journal_mode = WAL`, created a table and inserted one row and stayed open; a second `DatabaseSync` on the same file ran `prepare('VACUUM INTO ?').run(<copy path>)` and closed — observed the directory holding `gm_tool.db`, `gm_tool.db-shm` and `gm_tool.db-wal` before and after the copy, the copy opened read-only holding the inserted row, and the `-wal` and `-shm` files gone once the writer closed] [implement_2: ran `npx vitest run dev-data-server/__tests__/installedAppData.test.ts` from `app/` at 88bc6ddd — observed the case "copies the committed rows a WAL writer still holds open" passing: a second connection's `VACUUM INTO` copy held both rows while the writer stayed open, with the source main file's bytes and the directory listing unchanged]
 
 A copy taken with `VACUUM INTO` through a second connection to the source is complete even while another connection holds the source open in WAL mode with uncheckpointed rows, and the source's main file and directory are left as they were until the last connection closes.
+
+## `VACUUM` may change the rowids of a table without an explicit INTEGER PRIMARY KEY; the docs page's only sentence about rowids names plain `VACUUM`, not `VACUUM INTO`
+
+**Verified at:** <https://www.sqlite.org/lang_vacuum.html>, 2026-10-28
+**Citation:** [encounter-adr_30: https://www.sqlite.org/lang_vacuum.html — "The VACUUM command may change the ROWIDs of entries in any tables that do not have an explicit INTEGER PRIMARY KEY."; "The VACUUM command works by copying the contents of the database into a temporary database file and then overwriting the original with the contents of the temporary file."; "The VACUUM INTO command works the same way except that it uses the file named on the INTO clause in place of the temporary database and omits the step of copying the vacuumed database back over top of the original database."] [encounter-adr_45: ran `curl -sS https://www.sqlite.org/lang_vacuum.html` and a case-insensitive grep for `rowid` over the tag-stripped text — observed one match, the first sentence quoted in the previous citation]
+
+Since the page says `VACUUM INTO` copies the database into the named file the way `VACUUM` copies it into its temporary file, a copy made with it may hold different rowids than the source for such a table; no probe has checked it.
