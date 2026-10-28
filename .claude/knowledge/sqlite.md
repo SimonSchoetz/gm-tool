@@ -49,6 +49,13 @@ If a raw `'BEGIN'` string is executed via `Executor::execute()` (as opposed to `
 
 A single JS-side `db.execute()` call (via tauri-plugin-sql) can safely contain multiple `;`-separated SQL statements with parameters correctly distributed across them — this closes the statement-splitting gap for a migration with no data-dependent branching between statements, though it does not by itself restore transaction safety (see the raw-SQL BEGIN entry above) and doesn't help a migration that reads a row and branches in JS before issuing further statements.
 
+## One SQL statement outside BEGIN is atomic: it runs in its own implicit transaction, and under the default ABORT conflict algorithm a constraint failure backs out everything it changed
+
+**Verified at:** sqlite.org current docs, fetched 2026-10-28
+**Citation:** [encounter-adr_13: https://www.sqlite.org/lang_transaction.html — "Any command that accesses the database … will automatically start a transaction if one is not already in effect"; "Automatically started transactions are committed when the last SQL statement finishes."] [encounter-adr_14: https://www.sqlite.org/lang_conflict.html — ABORT "backs out any changes made by the current SQL statement"; "The default conflict resolution algorithm is ABORT."]
+
+So a multi-row `INSERT … VALUES (…), (…)` with no conflict clause, sent as one statement, lands whole or not at all.
+
 ## SQLite's ON CONFLICT target requires the constraint to already exist at prepare time
 
 **Verified at:** sqlite.org current docs, fetched 2026-08-27
