@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
+import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
 import type * as service from '@services/encounterQueueService';
 import { createQueryClient } from '../../queryClient';
 import {
@@ -26,21 +27,6 @@ vi.mock('@services/encounterQueueService', () => ({
   addEntityCombatants,
   reorderQueueItems,
 }));
-
-const queueItem = (id: string, sortOrder: number): EncounterQueueItem => ({
-  id,
-  encounter_id: 'encounter-1',
-  kind: 'combatant',
-  base_entity_id: 'entity-1',
-  name: null,
-  custom_name: null,
-  notes: null,
-  sequence_number: 1,
-  starting_max_hp: null,
-  sort_order: sortOrder,
-  created_at: '2026-01-10T09:00:00.000Z',
-  updated_at: '2026-01-10T09:00:00.000Z',
-});
 
 const withDeferredAdd = () => {
   let release: (() => void) | null = null;
@@ -127,7 +113,10 @@ describe('useEncounterQueueItems', () => {
   });
 
   it('rewrites the cached sort_order at once and calls the service with the ordered ids', async () => {
-    getQueueItems.mockResolvedValue([queueItem('a', 0), queueItem('b', 1)]);
+    getQueueItems.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
+      buildEncounterQueueItem({ id: 'b', sort_order: 1 }),
+    ]);
     const { result, queryClient } = renderHookWithQueryClient(() =>
       useEncounterQueueItems('encounter-1'),
     );
@@ -152,7 +141,10 @@ describe('useEncounterQueueItems', () => {
   });
 
   it('invalidates the queue of the encounter when the reorder write rejects', async () => {
-    getQueueItems.mockResolvedValue([queueItem('a', 0), queueItem('b', 1)]);
+    getQueueItems.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
+      buildEncounterQueueItem({ id: 'b', sort_order: 1 }),
+    ]);
     reorderQueueItems.mockRejectedValue(new Error('locked'));
     const queryClient = createQueryClient();
     const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
@@ -227,7 +219,10 @@ describe('useEncounterQueueItems', () => {
   });
 
   it('drops an id that is not in the cached queue from the rewritten list', async () => {
-    getQueueItems.mockResolvedValue([queueItem('a', 0), queueItem('b', 1)]);
+    getQueueItems.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
+      buildEncounterQueueItem({ id: 'b', sort_order: 1 }),
+    ]);
     const { result, queryClient } = renderHookWithQueryClient(() =>
       useEncounterQueueItems('encounter-1'),
     );

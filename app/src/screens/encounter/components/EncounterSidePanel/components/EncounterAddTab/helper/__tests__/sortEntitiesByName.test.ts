@@ -1,26 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import type { BaseEntity } from '@db/base-entity';
+import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
 import { sortEntitiesByName } from '../sortEntitiesByName';
-
-const entity = (id: string, name: string | null): BaseEntity => ({
-  id,
-  adventure_id: 'adventure-1',
-  entity_type: 'foes',
-  name,
-  description: null,
-  image_id: null,
-  pinned_order: null,
-  created_at: '',
-  updated_at: '',
-});
 
 describe('sortEntitiesByName', () => {
   it('orders named entities A to Z and puts unnamed ones last in input order', () => {
     const sorted = sortEntitiesByName([
-      entity('unnamed-1', null),
-      entity('orc', 'Orc'),
-      entity('unnamed-2', null),
-      entity('goblin', 'Goblin'),
+      buildBaseEntity({ id: 'unnamed-1', name: null }),
+      buildBaseEntity({ id: 'orc', name: 'Orc' }),
+      buildBaseEntity({ id: 'unnamed-2', name: null }),
+      buildBaseEntity({ id: 'goblin', name: 'Goblin' }),
     ]);
 
     expect(sorted.map((e) => e.id)).toEqual([
@@ -32,7 +20,10 @@ describe('sortEntitiesByName', () => {
   });
 
   it('leaves the array it was given unchanged', () => {
-    const entities = [entity('orc', 'Orc'), entity('goblin', 'Goblin')];
+    const entities = [
+      buildBaseEntity({ id: 'orc', name: 'Orc' }),
+      buildBaseEntity({ id: 'goblin', name: 'Goblin' }),
+    ];
 
     sortEntitiesByName(entities);
 

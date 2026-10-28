@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseEntity } from '@db/base-entity';
+import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
+import { ROUTE_ENCOUNTER_ID } from '@/__tests__/support/encounterRouteParams';
 import type * as service from '@services/encounterQueueService';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
 import { EncounterAddRow } from '../EncounterAddRow';
@@ -16,24 +18,10 @@ vi.mock('@services/encounterQueueService', () => ({
   addEntityCombatants,
 }));
 
-// Answers as the router does: the params of the route named by `from`, and nothing for another route.
-vi.mock('@tanstack/react-router', () => ({
-  useParams: ({ from }: { from: string }) =>
-    from === '/adventure/$adventureId/encounter/$encounterId'
-      ? { adventureId: 'adventure-1', encounterId: 'encounter-1' }
-      : {},
-}));
-
-const baseEntity = (id: string, name: string): BaseEntity => ({
-  id,
-  adventure_id: 'adventure-1',
-  entity_type: 'foes',
-  name,
-  description: null,
-  image_id: null,
-  pinned_order: null,
-  created_at: '',
-  updated_at: '',
+vi.mock('@tanstack/react-router', async () => {
+  const { encounterRouteParams } =
+    await import('@/__tests__/support/encounterRouteParams');
+  return { useParams: encounterRouteParams };
 });
 
 const renderRows = (...entities: BaseEntity[]) =>
@@ -64,7 +52,7 @@ describe('EncounterAddRow', () => {
 
   it('puts the last valid quantity back when the field is left empty', async () => {
     const user = userEvent.setup();
-    renderRows(baseEntity('goblin', 'Goblin'));
+    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
     const quantity = screen.getByLabelText('Quantity');
 
     await setQuantity(user, quantity, '5');
@@ -78,7 +66,7 @@ describe('EncounterAddRow', () => {
     'disables Add for the quantity %s',
     async (text) => {
       const user = userEvent.setup();
-      renderRows(baseEntity('goblin', 'Goblin'));
+      renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
 
       await setQuantity(user, screen.getByLabelText('Quantity'), text);
 
@@ -88,7 +76,7 @@ describe('EncounterAddRow', () => {
 
   it('disables Add for an empty quantity', async () => {
     const user = userEvent.setup();
-    renderRows(baseEntity('goblin', 'Goblin'));
+    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
 
     await user.clear(screen.getByLabelText('Quantity'));
 
@@ -97,7 +85,7 @@ describe('EncounterAddRow', () => {
 
   it.each(['1', '99'])('enables Add for the quantity %s', async (text) => {
     const user = userEvent.setup();
-    renderRows(baseEntity('goblin', 'Goblin'));
+    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
 
     await setQuantity(user, screen.getByLabelText('Quantity'), text);
 
@@ -106,14 +94,14 @@ describe('EncounterAddRow', () => {
 
   it('adds the quantity of the entity to the route’s encounter when Add is clicked', async () => {
     const user = userEvent.setup();
-    renderRows(baseEntity('goblin', 'Goblin'));
+    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
 
     await setQuantity(user, screen.getByLabelText('Quantity'), '3');
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
     await waitFor(() => {
       expect(addEntityCombatants).toHaveBeenCalledWith(
-        'encounter-1',
+        ROUTE_ENCOUNTER_ID,
         'foes',
         'goblin',
         3,
@@ -129,7 +117,10 @@ describe('EncounterAddRow', () => {
         pendingAdd.finish = resolve;
       }),
     );
-    renderRows(baseEntity('goblin', 'Goblin'), baseEntity('orc', 'Orc'));
+    renderRows(
+      buildBaseEntity({ id: 'goblin', name: 'Goblin' }),
+      buildBaseEntity({ id: 'orc', name: 'Orc' }),
+    );
     const [goblinQuantity] = screen.getAllByLabelText('Quantity');
 
     await setQuantity(user, goblinQuantity, '3');
@@ -152,7 +143,7 @@ describe('EncounterAddRow', () => {
   });
   it('keeps the quantity at 1 on leaving the field after an add of another quantity', async () => {
     const user = userEvent.setup();
-    renderRows(baseEntity('goblin', 'Goblin'));
+    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
     const quantity = screen.getByLabelText('Quantity');
 
     await setQuantity(user, quantity, '3');

@@ -38,6 +38,7 @@ const CREATE_ENCOUNTER_LOG_ENTRIES_SQL = `
 const SYNCED_TABLE_NAMES = ['encounter_queue_items', 'encounter_log_entries'];
 
 // Frozen local copy of buildTriggerSQL in 1784365870026_add_sync_infrastructure.ts — a migration must never depend on a shared helper, since a later edit to that helper would retroactively change this already-applied migration's behavior (see app/db/CLAUDE.md — Migrations).
+// tableName is an element of SYNCED_TABLE_NAMES above, a module-local literal, at every call (app/db/CLAUDE.md — Conventions, "Values are always bound").
 const buildTriggerSQL = (
   tableName: string,
   event: 'INSERT' | 'UPDATE' | 'DELETE',

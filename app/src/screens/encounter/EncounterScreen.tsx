@@ -5,7 +5,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
-import { EncounterQueueActions } from './components/EncounterQueueActions';
+import { EncounterQueueActions } from './components/EncounterQueueActions/EncounterQueueActions';
 import { EncounterSidePanel } from './components/EncounterSidePanel';
 import { PREVIEW_WIDTH } from '../screens.constants';
 import './EncounterScreen.css';

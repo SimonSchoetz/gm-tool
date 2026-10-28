@@ -2,6 +2,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseEntity } from '@db/base-entity';
+import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
 import type * as settingsDb from '@db/_settings';
 import type * as baseEntityService from '@services/baseEntityService';
 import type * as queueService from '@services/encounterQueueService';
@@ -23,28 +24,10 @@ vi.mock('@services/baseEntityService', () => ({ getAllBaseEntities }));
 vi.mock('@services/encounterQueueService', () => ({ getQueueItems }));
 vi.mock('@db/_settings', () => ({ getSetting, updateSetting }));
 
-// Answers as the router does: the params of the route named by `from`, and nothing for another route.
-vi.mock('@tanstack/react-router', () => ({
-  useParams: ({ from }: { from: string }) =>
-    from === '/adventure/$adventureId/encounter/$encounterId'
-      ? { adventureId: 'adventure-1', encounterId: 'encounter-1' }
-      : {},
-}));
-
-const entity = (
-  name: string,
-  entityType: BaseEntity['entity_type'],
-  description: string | null = null,
-): BaseEntity => ({
-  id: name,
-  adventure_id: 'adventure-1',
-  entity_type: entityType,
-  name,
-  description,
-  image_id: null,
-  pinned_order: null,
-  created_at: '',
-  updated_at: '',
+vi.mock('@tanstack/react-router', async () => {
+  const { encounterRouteParams } =
+    await import('@/__tests__/support/encounterRouteParams');
+  return { useParams: encounterRouteParams };
 });
 
 const arrange = (entities: BaseEntity[]) => {
@@ -60,12 +43,7 @@ const renderTab = async () => {
 
 const shownNames = (names: string[]) =>
   screen
-    .queryAllByText(
-      (_, element) => names.includes(element?.textContent ?? ''),
-      {
-        selector: '.clip-text',
-      },
-    )
+    .queryAllByText((_, element) => names.includes(element?.textContent ?? ''))
     .map((element) => element.textContent);
 
 describe('EncounterAddTab', () => {
@@ -75,9 +53,14 @@ describe('EncounterAddTab', () => {
     getSetting.mockResolvedValue(null);
     updateSetting.mockReset().mockResolvedValue();
     arrange([
-      entity('Orc', 'foes'),
-      entity('Alice', 'npcs', 'a tall orc hunter'),
-      entity('Bree', 'pcs'),
+      buildBaseEntity({ id: 'Orc', name: 'Orc', entity_type: 'foes' }),
+      buildBaseEntity({
+        id: 'Alice',
+        name: 'Alice',
+        entity_type: 'npcs',
+        description: 'a tall orc hunter',
+      }),
+      buildBaseEntity({ id: 'Bree', name: 'Bree', entity_type: 'pcs' }),
     ]);
   });
 
@@ -123,9 +106,7 @@ describe('EncounterAddTab', () => {
     getSetting.mockResolvedValue({ entity_types: ['foes', 'pcs'] });
     await renderTab();
 
-    expect(
-      await screen.findByText('Bree', { selector: '.clip-text' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('Bree')).toBeInTheDocument();
     expect(shownNames(['Alice', 'Bree', 'Orc'])).toEqual(['Bree', 'Orc']);
   });
 

@@ -7,6 +7,11 @@ import type { EncounterQueueItem } from '@db/encounter-queue-item';
 import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityContentSection } from '@db/base-entity-content-section';
 import {
+  buildBaseEntity,
+  buildEncounterQueueItem,
+  buildSection,
+} from './support/encounterQueueFixtures';
+import {
   patchBasicStatBlockContent,
   patchFiveEStatBlockContent,
 } from '@domain';
@@ -32,56 +37,11 @@ vi.mock('@db/base-entity', () => ({ get: getBaseEntity }));
 vi.mock('@db/base-entity-content-section', () => ({ getAllByBaseEntity }));
 
 const ENCOUNTER_ID = 'encounter-1';
-const ENTITY_ID = 'goblin';
-
-const queueItem = (
-  overrides: Partial<EncounterQueueItem>,
-): EncounterQueueItem => ({
-  id: 'item',
-  encounter_id: ENCOUNTER_ID,
-  kind: 'combatant',
-  base_entity_id: ENTITY_ID,
-  name: null,
-  custom_name: null,
-  notes: null,
-  sequence_number: 1,
-  starting_max_hp: null,
-  sort_order: 0,
-  created_at: '',
-  updated_at: '',
-  ...overrides,
-});
-
-const baseEntity = (name: string | null): BaseEntity => ({
-  id: ENTITY_ID,
-  adventure_id: 'adventure-1',
-  entity_type: 'foes',
-  name,
-  description: null,
-  image_id: null,
-  pinned_order: null,
-  created_at: '',
-  updated_at: '',
-});
-
-const section = (
-  type: BaseEntityContentSection['type'],
-  content: string | null,
-): BaseEntityContentSection => ({
-  id: `section-${type}`,
-  base_entity_id: ENTITY_ID,
-  name: null,
-  type,
-  content,
-  checked: 0,
-  sort_order: 0,
-  created_at: '',
-  updated_at: '',
-});
+const ENTITY_ID = 'entity-1';
 
 const arrange = ({
   existing = [],
-  entity = baseEntity('Goblin'),
+  entity = buildBaseEntity(),
   sections = [],
 }: {
   existing?: EncounterQueueItem[];
@@ -114,8 +74,8 @@ describe('addEntityCombatants', () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({
       existing: [
-        queueItem({ id: 'a', sort_order: 0 }),
-        queueItem({ id: 'b', sort_order: 5 }),
+        buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
+        buildEncounterQueueItem({ id: 'b', sort_order: 5 }),
       ],
     });
 
@@ -137,9 +97,9 @@ describe('addEntityCombatants', () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({
       existing: [
-        queueItem({ id: 'a', sequence_number: 1, sort_order: 0 }),
-        queueItem({ id: 'b', sequence_number: 3, sort_order: 1 }),
-        queueItem({
+        buildEncounterQueueItem({ id: 'a', sequence_number: 1, sort_order: 0 }),
+        buildEncounterQueueItem({ id: 'b', sequence_number: 3, sort_order: 1 }),
+        buildEncounterQueueItem({
           id: 'c',
           base_entity_id: 'other',
           sequence_number: 9,
@@ -157,7 +117,11 @@ describe('addEntityCombatants', () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({
       existing: [
-        queueItem({ id: 'c', base_entity_id: 'other', sequence_number: 9 }),
+        buildEncounterQueueItem({
+          id: 'c',
+          base_entity_id: 'other',
+          sequence_number: 9,
+        }),
       ],
     });
 
@@ -170,7 +134,7 @@ describe('addEntityCombatants', () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({
       sections: [
-        section(
+        buildSection(
           'basic-stat-block',
           patchBasicStatBlockContent(null, { hp: 7 }),
         ),
@@ -196,7 +160,10 @@ describe('addEntityCombatants', () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({
       sections: [
-        section('5e-stat-block', patchFiveEStatBlockContent(null, 'hp', 0)),
+        buildSection(
+          '5e-stat-block',
+          patchFiveEStatBlockContent(null, 'hp', 0),
+        ),
       ],
     });
 
@@ -210,11 +177,11 @@ describe('addEntityCombatants', () => {
     [
       'two stat blocks',
       [
-        section(
+        buildSection(
           'basic-stat-block',
           patchBasicStatBlockContent(null, { hp: 7 }),
         ),
-        section(
+        buildSection(
           'basic-stat-block',
           patchBasicStatBlockContent(null, { hp: 8 }),
         ),
@@ -223,7 +190,7 @@ describe('addEntityCombatants', () => {
     [
       'an empty HP',
       [
-        section(
+        buildSection(
           'basic-stat-block',
           patchBasicStatBlockContent(null, { hp: null }),
         ),
@@ -240,7 +207,7 @@ describe('addEntityCombatants', () => {
 
   it('leaves the name out of the rows for an unnamed entity', async () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
-    arrange({ entity: baseEntity(null) });
+    arrange({ entity: buildBaseEntity({ name: null }) });
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
 
@@ -301,7 +268,7 @@ describe('addEntityCombatants', () => {
     await expect(
       addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1),
     ).rejects.toThrow(
-      /^Failed to add combatants to the encounter queue: BaseEntityNotFoundError: Foe with id goblin not found$/,
+      /^Failed to add combatants to the encounter queue: BaseEntityNotFoundError: Foe with id entity-1 not found$/,
     );
     expect(createMany).not.toHaveBeenCalled();
     expect(createLogEntry).not.toHaveBeenCalled();
@@ -315,7 +282,7 @@ describe('getQueueItems', () => {
 
   it('returns the encounter’s queue items', async () => {
     const { getQueueItems } = await import('../encounterQueueService');
-    const items = [queueItem({ id: 'a' })];
+    const items = [buildEncounterQueueItem({ id: 'a' })];
     getAllByEncounter.mockResolvedValue(items);
 
     expect(await getQueueItems(ENCOUNTER_ID)).toBe(items);

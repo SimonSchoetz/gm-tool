@@ -1,19 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import type { BaseEntity } from '@db/base-entity';
+import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
 import { BASE_ENTITY_TYPES } from '@domain';
 import { filterByEntityTypes } from '../filterByEntityTypes';
 
-const entities: BaseEntity[] = BASE_ENTITY_TYPES.map((entityType) => ({
-  id: entityType,
-  adventure_id: 'adventure-1',
-  entity_type: entityType,
-  name: entityType,
-  description: null,
-  image_id: null,
-  pinned_order: null,
-  created_at: '',
-  updated_at: '',
-}));
+const entities = BASE_ENTITY_TYPES.map((entityType) =>
+  buildBaseEntity({
+    id: entityType,
+    entity_type: entityType,
+    name: entityType,
+  }),
+);
 
 describe('filterByEntityTypes', () => {
   it('keeps every type for an empty selection', () => {
