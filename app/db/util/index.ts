@@ -6,3 +6,4 @@ export { buildDuplicateQuery } from './build-duplicate-query.ts';
 export { generateId } from './generate-id.ts';
 export { generateDbTimestamps } from './generate-db-timestamps.ts';
 export { ensureColumn } from './ensure-column.ts';
+export { buildCreateManyQuery } from './build-create-many-query.ts';

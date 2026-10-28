@@ -15,11 +15,28 @@ const seedAdventureWithChildren = async () => {
   const { create: createBaseEntity } = await import('@db/base-entity');
   const { create: createSection } =
     await import('@db/base-entity-content-section');
+  const { createMany: createQueueItems } =
+    await import('@db/encounter-queue-item');
+  const { create: createLogEntry } = await import('@db/encounter-log-entry');
   const id = await createAdventure();
   const sessionId = await createSession(id);
   await createSessionStep({ session_id: sessionId, sort_order: 0 });
-  await createEncounter(id);
+  const encounterId = await createEncounter(id);
   const baseEntityId = await createBaseEntity('npcs', id);
+  const queueItemIds = await createQueueItems([
+    {
+      encounter_id: encounterId,
+      kind: 'combatant',
+      base_entity_id: baseEntityId,
+      sequence_number: 1,
+      sort_order: 0,
+    },
+  ]);
+  await createLogEntry({
+    encounter_id: encounterId,
+    kind: 'added',
+    payload: { queueItemIds },
+  });
   await createSection({
     base_entity_id: baseEntityId,
     type: 'text',
@@ -36,6 +53,8 @@ const countChildRows = async () => {
     'sessions',
     'session_steps',
     'encounters',
+    'encounter_queue_items',
+    'encounter_log_entries',
     'base_entities',
     'base_entity_content_sections',
   ]) {
@@ -52,7 +71,7 @@ describe('remove', () => {
     vi.resetModules();
   });
 
-  it('deletes the adventure together with its sessions, steps, encounters, base entities and content sections', async () => {
+  it('deletes the adventure together with its sessions, steps, encounters with their queue items and log entries, base entities and content sections', async () => {
     const { remove } = await import('../remove');
     const { getDatabase } = await import('@db/database');
     const adventureId = await seedAdventureWithChildren();
@@ -68,6 +87,8 @@ describe('remove', () => {
       sessions: 0,
       session_steps: 0,
       encounters: 0,
+      encounter_queue_items: 0,
+      encounter_log_entries: 0,
       base_entities: 0,
       base_entity_content_sections: 0,
     });
@@ -86,6 +107,8 @@ describe('remove', () => {
       sessions: 1,
       session_steps: 1,
       encounters: 1,
+      encounter_queue_items: 1,
+      encounter_log_entries: 1,
       base_entities: 1,
       base_entity_content_sections: 1,
     });

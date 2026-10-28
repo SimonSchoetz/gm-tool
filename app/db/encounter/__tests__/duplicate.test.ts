@@ -59,6 +59,7 @@ describe('duplicate', () => {
       name: null,
       description: 'd',
       pinned_order: null,
+      hide_defeated: 0,
       created_at: T2,
       updated_at: T2,
     });

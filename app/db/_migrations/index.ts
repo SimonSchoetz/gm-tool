@@ -11,6 +11,7 @@ import { addEncountersMigration } from './1786186021664_add_encounters.ts';
 import { addTableConfigUniqueIndexMigration } from './1787825905519_add_table_config_unique_index.ts';
 import { addBaseEntitiesMigration } from './1789304154994_add_base_entities.ts';
 import { addBaseEntityContentSectionsMigration } from './1789743068849_add_base_entity_content_sections.ts';
+import { addEncounterQueueAndLogMigration } from './1793213621920_add_encounter_queue_and_log.ts';
 
 export type Migration = {
   id: string;
@@ -30,6 +31,7 @@ export const migrations: Migration[] = [
   addTableConfigUniqueIndexMigration,
   addBaseEntitiesMigration,
   addBaseEntityContentSectionsMigration,
+  addEncounterQueueAndLogMigration,
 ];
 
 // Equals the applied migration head after init; read here (not from the DB) to avoid an import cycle through database.ts.

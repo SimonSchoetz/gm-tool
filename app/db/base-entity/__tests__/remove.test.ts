@@ -46,4 +46,42 @@ describe('remove', () => {
       ),
     ).toEqual([{ base_entity_id: keptId }]);
   });
+
+  it('keeps the queue items that named the entity, now without a base entity and with their name unchanged', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createEncounter } = await import('@db/encounter');
+    const { createMany } = await import('@db/encounter-queue-item');
+    const { create } = await import('../create');
+    const { remove } = await import('../remove');
+    const { getDatabase } = await import('@db/database');
+    const adventureId = await createAdventure();
+    const encounterId = await createEncounter(adventureId);
+    const removedId = await create('foes', adventureId);
+    const keptId = await create('foes', adventureId);
+    await createMany(
+      [
+        { baseEntityId: removedId, name: 'Goblin', sort_order: 0 },
+        { baseEntityId: keptId, name: 'Orc', sort_order: 1 },
+      ].map(({ baseEntityId, name, sort_order }) => ({
+        encounter_id: encounterId,
+        kind: 'combatant' as const,
+        base_entity_id: baseEntityId,
+        sequence_number: 1,
+        sort_order,
+        name,
+      })),
+    );
+
+    await remove(removedId);
+
+    const db = await getDatabase();
+    expect(
+      await db.select<{ base_entity_id: string | null; name: string }[]>(
+        'SELECT base_entity_id, name FROM encounter_queue_items ORDER BY sort_order',
+      ),
+    ).toEqual([
+      { base_entity_id: null, name: 'Goblin' },
+      { base_entity_id: keptId, name: 'Orc' },
+    ]);
+  });
 });

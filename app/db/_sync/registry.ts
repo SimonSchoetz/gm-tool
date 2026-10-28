@@ -5,6 +5,8 @@ import { sessionTable } from '../session';
 import { baseEntityTable } from '../base-entity';
 import { baseEntityContentSectionTable } from '../base-entity-content-section';
 import { encounterTable } from '../encounter';
+import { encounterQueueItemTable } from '../encounter-queue-item';
+import { encounterLogEntryTable } from '../encounter-log-entry';
 import { sessionStepTable } from '../session-step';
 import { tableConfigTable } from '../table-config';
 
@@ -23,7 +25,7 @@ const syncedTable = (
   zodSchema: table.zodSchema,
 });
 
-// FK dependency order: parents before children. Apply upserts in this order, deletes in reverse. images first (SET NULL targets), adventures before all adventure-scoped tables, session_steps after sessions, base_entity_content_sections after base_entities, table_config last (no FK relations).
+// FK dependency order: parents before children. Apply upserts in this order, deletes in reverse. images first (SET NULL targets), adventures before all adventure-scoped tables, session_steps after sessions, base_entity_content_sections after base_entities, encounter_queue_items and encounter_log_entries after encounters, table_config last (no FK relations).
 export const SYNCED_TABLES: SyncedTable[] = [
   syncedTable('images', imageTable),
   syncedTable('adventures', adventureTable),
@@ -31,6 +33,8 @@ export const SYNCED_TABLES: SyncedTable[] = [
   syncedTable('base_entities', baseEntityTable),
   syncedTable('base_entity_content_sections', baseEntityContentSectionTable),
   syncedTable('encounters', encounterTable),
+  syncedTable('encounter_queue_items', encounterQueueItemTable),
+  syncedTable('encounter_log_entries', encounterLogEntryTable),
   syncedTable('session_steps', sessionStepTable),
   syncedTable('table_config', tableConfigTable),
 ];

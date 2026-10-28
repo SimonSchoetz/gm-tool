@@ -14,6 +14,12 @@ export const encounterTable = defineTable({
     name: { type: 'TEXT', zod: z.string().nullable() },
     description: { type: 'TEXT', zod: z.string().nullable() },
     pinned_order: { type: 'INTEGER', zod: z.number().nullable() },
+    hide_defeated: {
+      type: 'INTEGER',
+      notNull: true,
+      default: '0',
+      zod: z.number(),
+    },
     created_at: { type: 'TEXT', notNull: true, zod: z.string() },
     updated_at: { type: 'TEXT', notNull: true, zod: z.string() },
   },

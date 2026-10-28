@@ -4,3 +4,5 @@ export { encounterCreateError } from './errors';
 export { encounterUpdateError } from './errors';
 export { encounterDeleteError } from './errors';
 export { encounterDuplicateError } from './errors';
+export { serializeLogEntryPayload } from './logEntryPayloads';
+export type { LogEntryKind, LogEntryPayload } from './logEntryPayloads';
