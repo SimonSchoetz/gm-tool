@@ -109,15 +109,36 @@ describe('shownCombatantNames', () => {
     expect([names.get('a'), names.get('b')]).toEqual(['Goblin', 'Goblin 2']);
   });
 
-  it('does not share a numbering key between a linked combatant and an unlinked one with the same name', () => {
+  it('does not share a numbering key between a linked combatant and an unlinked one whose stored name equals the entity id', () => {
     const names = shownCombatantNames(
       [
         item('a', { sequenceNumber: 1 }),
-        item('b', { baseEntityId: null, sequenceNumber: 2 }),
+        item('b', { baseEntityId: null, name: 'goblin', sequenceNumber: 2 }),
       ],
       entities(['goblin', 'Goblin']),
     );
 
-    expect([names.get('a'), names.get('b')]).toEqual(['Goblin', 'Goblin']);
+    expect([names.get('a'), names.get('b')]).toEqual(['Goblin', 'goblin']);
+  });
+
+  it('does not share a numbering key between unlinked combatants with different stored names', () => {
+    const names = shownCombatantNames(
+      [
+        item('a', { baseEntityId: null, name: 'Orc', sequenceNumber: 1 }),
+        item('b', { baseEntityId: null, name: 'Wolf', sequenceNumber: 1 }),
+      ],
+      entities(),
+    );
+
+    expect([names.get('a'), names.get('b')]).toEqual(['Orc', 'Wolf']);
+  });
+
+  it('shows the stored name of a combatant without a base entity', () => {
+    expect(
+      shownCombatantNames(
+        [item('a', { baseEntityId: null, name: 'Stored' })],
+        entities(['goblin', 'Goblin']),
+      ).get('a'),
+    ).toBe('Stored');
   });
 });

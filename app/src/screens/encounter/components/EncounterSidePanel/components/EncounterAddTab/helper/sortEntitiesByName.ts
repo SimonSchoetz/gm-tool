@@ -1,8 +1,11 @@
 import type { BaseEntity } from '@db/base-entity';
 
-export const sortEntitiesByName = (entities: BaseEntity[]): BaseEntity[] =>
-  [...entities].sort((a, b) => {
-    if (a.name === null) return b.name === null ? 0 : 1;
-    if (b.name === null) return -1;
-    return a.name.localeCompare(b.name);
-  });
+type NamedBaseEntity = BaseEntity & { name: string };
+
+const hasName = (entity: BaseEntity): entity is NamedBaseEntity =>
+  entity.name !== null;
+
+export const sortEntitiesByName = (entities: BaseEntity[]): BaseEntity[] => [
+  ...entities.filter(hasName).sort((a, b) => a.name.localeCompare(b.name)),
+  ...entities.filter((entity) => !hasName(entity)),
+];

@@ -6,7 +6,7 @@ export const buildQueueEntries = (
   queueItems: EncounterQueueItem[],
   baseEntities: BaseEntity[],
 ) => {
-  const entitiesById = new Map(
+  const entitiesById = new Map<string | null, BaseEntity>(
     baseEntities.map((entity) => [entity.id, entity]),
   );
   const names = shownCombatantNames(
@@ -28,12 +28,10 @@ export const buildQueueEntries = (
   return queueItems.flatMap((item) => {
     const name = names.get(item.id) ?? null;
     const hp = combatState.get(item.id) ?? null;
+    // Stryker disable next-line ConditionalExpression,LogicalOperator,ArrayDeclaration: both maps hold one entry per queue item, so the guard is never entered and no input observes a difference
     if (name === null || hp === null) return [];
 
-    const entity =
-      item.base_entity_id === null
-        ? null
-        : (entitiesById.get(item.base_entity_id) ?? null);
+    const entity = entitiesById.get(item.base_entity_id) ?? null;
     return [{ id: item.id, name, imageId: entity?.image_id ?? null, ...hp }];
   });
 };

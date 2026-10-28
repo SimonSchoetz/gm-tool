@@ -6,7 +6,10 @@ export const MAX_ADD_QUANTITY = 99;
 
 export const parseAddQuantity = (raw: string): number | null => {
   const parsed = parseWholeNumberInput(raw);
-  if (!parsed.valid || parsed.value === null) return null;
+  // Stryker disable next-line ConditionalExpression: an invalid parse leaves `value` undefined, which fails both range comparisons below, so no input observes a difference
+  if (!parsed.valid) return null;
+  // Stryker disable next-line ConditionalExpression: a null `value` fails both range comparisons below, so no input observes a difference
+  if (parsed.value === null) return null;
   return parsed.value >= MIN_ADD_QUANTITY && parsed.value <= MAX_ADD_QUANTITY
     ? parsed.value
     : null;

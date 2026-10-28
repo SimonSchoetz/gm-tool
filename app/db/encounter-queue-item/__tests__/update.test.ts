@@ -65,4 +65,20 @@ describe('update', () => {
     });
     expect(await readItem(otherId)).toEqual(otherBefore);
   });
+
+  it('rejects an empty id', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('', { sort_order: 0 })).rejects.toThrow(
+      /^Valid Encounter queue item ID is required$/,
+    );
+  });
+
+  it('rejects an update without a field', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('item-1', {})).rejects.toThrow(
+      /^At least one field must be provided for update$/,
+    );
+  });
 });

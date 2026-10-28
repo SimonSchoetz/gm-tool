@@ -114,4 +114,34 @@ describe('createMany', () => {
       { name: 'Goblin', starting_max_hp: 0 },
     ]);
   });
+
+  it.each([
+    ['encounter', { encounter_id: '' }, /^Valid Encounter ID is required$/],
+    [
+      'base entity',
+      { base_entity_id: '' },
+      /^Valid Base entity ID is required$/,
+    ],
+  ])(
+    'rejects a row without a %s id and stores nothing',
+    async (_, override, message) => {
+      const { createMany } = await import('../create-many');
+      const { encounterId, baseEntityId } = await seedEncounterAndEntity();
+
+      await expect(
+        createMany([
+          {
+            encounter_id: encounterId,
+            kind: 'combatant',
+            base_entity_id: baseEntityId,
+            sequence_number: 1,
+            sort_order: 0,
+            ...override,
+          },
+        ]),
+      ).rejects.toThrow(message);
+
+      expect(await readItems()).toEqual([]);
+    },
+  );
 });

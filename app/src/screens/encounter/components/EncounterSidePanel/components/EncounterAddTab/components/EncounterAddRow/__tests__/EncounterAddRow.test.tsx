@@ -16,11 +16,12 @@ vi.mock('@services/encounterQueueService', () => ({
   addEntityCombatants,
 }));
 
+// Answers as the router does: the params of the route named by `from`, and nothing for another route.
 vi.mock('@tanstack/react-router', () => ({
-  useParams: () => ({
-    adventureId: 'adventure-1',
-    encounterId: 'encounter-1',
-  }),
+  useParams: ({ from }: { from: string }) =>
+    from === '/adventure/$adventureId/encounter/$encounterId'
+      ? { adventureId: 'adventure-1', encounterId: 'encounter-1' }
+      : {},
 }));
 
 const baseEntity = (id: string, name: string): BaseEntity => ({
@@ -148,5 +149,21 @@ describe('EncounterAddRow', () => {
       }
     });
     expect(goblinQuantity).toHaveValue(1);
+  });
+  it('keeps the quantity at 1 on leaving the field after an add of another quantity', async () => {
+    const user = userEvent.setup();
+    renderRows(baseEntity('goblin', 'Goblin'));
+    const quantity = screen.getByLabelText('Quantity');
+
+    await setQuantity(user, quantity, '3');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await waitFor(() => {
+      expect(addEntityCombatants).toHaveBeenCalledTimes(1);
+    });
+    await user.click(quantity);
+    await user.clear(quantity);
+    await user.tab();
+
+    expect(quantity).toHaveValue(1);
   });
 });

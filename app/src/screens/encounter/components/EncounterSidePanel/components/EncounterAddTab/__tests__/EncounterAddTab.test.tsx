@@ -23,11 +23,12 @@ vi.mock('@services/baseEntityService', () => ({ getAllBaseEntities }));
 vi.mock('@services/encounterQueueService', () => ({ getQueueItems }));
 vi.mock('@db/_settings', () => ({ getSetting, updateSetting }));
 
+// Answers as the router does: the params of the route named by `from`, and nothing for another route.
 vi.mock('@tanstack/react-router', () => ({
-  useParams: () => ({
-    adventureId: 'adventure-1',
-    encounterId: 'encounter-1',
-  }),
+  useParams: ({ from }: { from: string }) =>
+    from === '/adventure/$adventureId/encounter/$encounterId'
+      ? { adventureId: 'adventure-1', encounterId: 'encounter-1' }
+      : {},
 }));
 
 const entity = (

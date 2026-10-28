@@ -283,7 +283,11 @@ describe('addEntityCombatants', () => {
 
       await expect(
         addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, quantity),
-      ).rejects.toMatchObject({ name: 'EncounterQueueAddError' });
+      ).rejects.toThrow(
+        new RegExp(
+          `^Failed to add combatants to the encounter queue: Error: Invalid quantity: ${quantity}$`,
+        ),
+      );
       expect(getBaseEntity).not.toHaveBeenCalled();
       expect(getAllByEncounter).not.toHaveBeenCalled();
       expect(createMany).not.toHaveBeenCalled();
@@ -296,7 +300,9 @@ describe('addEntityCombatants', () => {
 
     await expect(
       addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1),
-    ).rejects.toMatchObject({ name: 'EncounterQueueAddError' });
+    ).rejects.toThrow(
+      /^Failed to add combatants to the encounter queue: BaseEntityNotFoundError: Foe with id goblin not found$/,
+    );
     expect(createMany).not.toHaveBeenCalled();
     expect(createLogEntry).not.toHaveBeenCalled();
   });
@@ -314,6 +320,15 @@ describe('getQueueItems', () => {
 
     expect(await getQueueItems(ENCOUNTER_ID)).toBe(items);
     expect(getAllByEncounter).toHaveBeenCalledWith(ENCOUNTER_ID);
+  });
+
+  it('rejects as EncounterQueueLoadError when the read fails', async () => {
+    const { getQueueItems } = await import('../encounterQueueService');
+    getAllByEncounter.mockRejectedValue(new Error('locked'));
+
+    await expect(getQueueItems(ENCOUNTER_ID)).rejects.toMatchObject({
+      name: 'EncounterQueueLoadError',
+    });
   });
 });
 

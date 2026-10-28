@@ -43,4 +43,12 @@ describe('getAllByEncounter', () => {
       (await getAllByEncounter(encounterId)).map((item) => item.id),
     ).toEqual([first, ...tieByIdOrder, second]);
   });
+
+  it('rejects an empty encounter id', async () => {
+    const { getAllByEncounter } = await import('../get-all-by-encounter');
+
+    await expect(getAllByEncounter('')).rejects.toThrow(
+      /^Valid Encounter ID is required$/,
+    );
+  });
 });

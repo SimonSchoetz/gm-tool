@@ -176,4 +176,76 @@ describe('useEncounterQueueItems', () => {
       queryKey: encounterKeys.queueItems('encounter-1'),
     });
   });
+  it('exposes an empty queue while the items load', () => {
+    getQueueItems.mockReturnValue(new Promise(() => undefined));
+    const { result } = renderHookWithQueryClient(() =>
+      useEncounterQueueItems('encounter-1'),
+    );
+
+    expect(result.current.queueItems).toEqual([]);
+    expect(result.current.loading).toBe(true);
+  });
+
+  it("still adds while another encounter's add is pending", async () => {
+    withDeferredAdd();
+    const { result } = renderHookWithQueryClient(() => ({
+      first: useEncounterQueueItems('encounter-1'),
+      second: useEncounterQueueItems('encounter-2'),
+    }));
+    await settle(0);
+
+    act(() => {
+      void result.current.first.addEntityCombatants('foes', 'entity-1', 1);
+    });
+    await settle(0);
+    act(() => {
+      void result.current.second.addEntityCombatants('foes', 'entity-2', 1);
+    });
+    await settle(0);
+
+    expect(addEntityCombatants.mock.calls.map((call) => call[0])).toEqual([
+      'encounter-1',
+      'encounter-2',
+    ]);
+  });
+
+  it('writes the order without touching the cache when the queue is not loaded yet', async () => {
+    getQueueItems.mockReturnValue(new Promise(() => undefined));
+    const { result, queryClient } = renderHookWithQueryClient(() =>
+      useEncounterQueueItems('encounter-1'),
+    );
+
+    act(() => {
+      result.current.reorderQueueItems(['b', 'a']);
+    });
+    await settle(0);
+
+    expect(
+      queryClient.getQueryData(encounterKeys.queueItems('encounter-1')),
+    ).toBeUndefined();
+    expect(reorderQueueItems).toHaveBeenCalledWith(['b', 'a']);
+  });
+
+  it('drops an id that is not in the cached queue from the rewritten list', async () => {
+    getQueueItems.mockResolvedValue([queueItem('a', 0), queueItem('b', 1)]);
+    const { result, queryClient } = renderHookWithQueryClient(() =>
+      useEncounterQueueItems('encounter-1'),
+    );
+    await settle(0);
+
+    act(() => {
+      result.current.reorderQueueItems(['b', 'ghost', 'a']);
+    });
+
+    expect(
+      queryClient
+        .getQueryData<EncounterQueueItem[]>(
+          encounterKeys.queueItems('encounter-1'),
+        )
+        ?.map((item) => [item.id, item.sort_order]),
+    ).toEqual([
+      ['b', 0],
+      ['a', 2],
+    ]);
+  });
 });

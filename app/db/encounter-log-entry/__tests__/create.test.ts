@@ -70,4 +70,18 @@ describe('create', () => {
 
     expect(await readEntries()).toEqual([]);
   });
+
+  it('rejects an empty encounter id and stores no row', async () => {
+    const { create } = await import('../create');
+
+    await expect(
+      create({
+        encounter_id: '',
+        kind: 'added',
+        payload: { queueItemIds: ['a'] },
+      }),
+    ).rejects.toThrow(/^Valid Encounter ID is required$/);
+
+    expect(await readEntries()).toEqual([]);
+  });
 });

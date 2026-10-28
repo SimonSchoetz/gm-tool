@@ -33,6 +33,7 @@ describe('describeQueueEntryHp', () => {
     { maxHp: 7, currentHp: 0 },
     { maxHp: 7, currentHp: -2 },
     { maxHp: 0, currentHp: 0 },
+    { maxHp: 0, currentHp: 3 },
     { maxHp: -3, currentHp: 2 },
   ])('is down with a full lost share for %j', (hp) => {
     expect(describeQueueEntryHp({ ...hp, tempHp: 0 })).toMatchObject({

@@ -29,6 +29,7 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
   const quantity = parseAddQuantity(quantityText);
 
   const handleAdd = async () => {
+    // Stryker disable next-line ConditionalExpression: the Add button is disabled while the quantity is null, so a click never reaches this guard
     if (quantity === null) return;
     await addEntityCombatants(baseEntity.entity_type, baseEntity.id, quantity);
     setQuantityText('1');
