@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import * as service from '@services/encounterService';
+import * as queueService from '@services/encounterQueueService';
 import { encounterKeys } from './encounterKeys';
 
 export const encounterListQueryOptions = (adventureId: string) =>
@@ -17,5 +18,13 @@ export const encounterQueryOptions = (encounterId: string) =>
     enabled: !!encounterId,
     staleTime: 0,
     refetchOnMount: 'always',
+    throwOnError: true,
+  });
+
+export const encounterQueueItemsQueryOptions = (encounterId: string) =>
+  queryOptions({
+    queryKey: encounterKeys.queueItems(encounterId),
+    queryFn: () => queueService.getQueueItems(encounterId),
+    enabled: !!encounterId,
     throwOnError: true,
   });

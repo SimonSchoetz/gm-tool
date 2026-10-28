@@ -14,7 +14,11 @@ export {
 export { useBaseEntityContentSections } from './base-entity-content-sections';
 export { useSessions, useSession } from './sessions';
 export { sessionListQueryOptions, sessionQueryOptions } from './sessions';
-export { useEncounters, useEncounter } from './encounters';
+export {
+  useEncounters,
+  useEncounter,
+  useEncounterQueueItems,
+} from './encounters';
 export { encounterListQueryOptions, encounterQueryOptions } from './encounters';
 export { useTableConfig, useTableConfigs } from './table-config';
 export { tableConfigListQueryOptions } from './table-config';
