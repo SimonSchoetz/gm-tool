@@ -27,15 +27,19 @@ export const useEncounterSelection = (
     setSelectedId(null);
   }
 
-  useEffect(() => {
-    const clearOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelectedId(null);
-    };
-    document.addEventListener('keydown', clearOnEscape);
-    return () => {
-      document.removeEventListener('keydown', clearOnEscape);
-    };
-  }, []);
+  useEffect(
+    () => {
+      const clearOnEscape = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') setSelectedId(null);
+      };
+      document.addEventListener('keydown', clearOnEscape);
+      return () => {
+        document.removeEventListener('keydown', clearOnEscape);
+      };
+    },
+    // Stryker disable next-line ArrayDeclaration: a dependency array holding one constant never changes between renders, so the effect runs once as with an empty one
+    [],
+  );
 
   const select = (id: string) => {
     setSelectedId(id);

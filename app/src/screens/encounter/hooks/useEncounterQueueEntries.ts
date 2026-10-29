@@ -34,6 +34,7 @@ export const useEncounterQueueEntries = (): {
       queueItems,
       logEntries,
       baseEntities,
+      // Stryker disable next-line OptionalChaining: every read has loaded when this runs and a loaded encounter is never null, so no input observes a difference
       encounter?.hide_defeated === 1,
     ),
     loading,

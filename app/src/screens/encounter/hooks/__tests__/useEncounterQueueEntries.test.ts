@@ -54,29 +54,41 @@ describe('useEncounterQueueEntries', () => {
     queryClient.clear();
   });
 
-  it('keeps entries empty until every read has loaded, so no HP shows before the log arrives', async () => {
+  it.each([
+    ['encounter', getEncounterById],
+    ['queue', getQueueItems],
+    ['log', getLogEntries],
+    ['entities', getAllBaseEntities],
+  ])(
+    'keeps entries empty while the %s read is pending, so no HP shows before everything has loaded',
+    async (_read, pendingRead) => {
+      arrange(0, []);
+      const pending = Promise.withResolvers<never>();
+      pendingRead.mockReturnValue(pending.promise);
+
+      const { result } = renderHook(() => useEncounterQueueEntries(), {
+        wrapper: TanstackQueryClientProvider,
+      });
+      // Let the other reads settle while this one stays pending.
+      await waitFor(() => {
+        expect(pendingRead).toHaveBeenCalled();
+      });
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      expect(result.current).toEqual({ entries: [], loading: true });
+    },
+  );
+
+  it('shows the entries once every read has loaded', async () => {
     arrange(0, []);
-    const log = Promise.withResolvers<EncounterLogEntry[]>();
-    getLogEntries.mockReturnValue(log.promise);
 
     const { result } = renderHook(() => useEncounterQueueEntries(), {
       wrapper: TanstackQueryClientProvider,
     });
     await waitFor(() => {
-      expect(getLogEntries).toHaveBeenCalled();
-    });
-    await waitFor(() => {
-      expect(getQueueItems).toHaveBeenCalled();
-    });
-    // Let the other reads settle while the log stays pending.
-    await new Promise((resolve) => setTimeout(resolve, 20));
-
-    expect(result.current).toEqual({ entries: [], loading: true });
-
-    log.resolve([]);
-    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
+
     expect(result.current.entries).toHaveLength(1);
   });
 

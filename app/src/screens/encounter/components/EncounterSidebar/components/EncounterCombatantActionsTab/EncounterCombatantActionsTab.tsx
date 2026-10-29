@@ -21,6 +21,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
   const { entries } = useEncounterQueueEntries();
   const { recordLogEntry, isRecording } = useEncounterLogEntries(encounterId);
   // Held here, not in the combatant row: this component stays mounted, so the amount survives an action and a selection that passes through empty.
+  // Stryker disable next-line StringLiteral: a number input reads any non-numeric text as empty, so a changed initial text shows the same field and parses to no amount
   const [amountText, setAmountText] = useState('');
   const entry =
     entries.find((candidate) => candidate.id === selectedId) ?? null;

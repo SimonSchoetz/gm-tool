@@ -48,6 +48,25 @@ describe('serializeLogEntryPayload', () => {
 
 describe('readLogEntry', () => {
   it.each([
+    ['damage', 'amount'],
+    ['heal', 'amount'],
+    ['temp-hp', 'value'],
+    ['max-hp', 'value'],
+  ])('accepts a %s payload with several targets', (kind, field) => {
+    const payload = {
+      targets: [
+        { queueItemId: 'a', [field]: 1 },
+        { queueItemId: 'b', [field]: 2 },
+      ],
+    };
+
+    expect(readLogEntry(kind, JSON.stringify(payload))).toEqual({
+      kind,
+      payload,
+    });
+  });
+
+  it.each([
     ['damage', { targets: [{ queueItemId: 'a', amount: 3 }] }],
     ['heal', { targets: [{ queueItemId: 'a', amount: 3 }] }],
     ['temp-hp', { targets: [{ queueItemId: 'a', value: 3 }] }],

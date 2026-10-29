@@ -66,6 +66,9 @@ describe('EncounterActions', () => {
   it('saves hide_defeated 1 when the box is checked and 0 when it is unchecked again', async () => {
     const user = userEvent.setup();
     await renderActions();
+    expect(
+      screen.getByRole('checkbox', { name: 'Hide defeated' }),
+    ).not.toBeChecked();
 
     await user.click(screen.getByRole('checkbox', { name: 'Hide defeated' }));
     await act(() => vi.runOnlyPendingTimersAsync());

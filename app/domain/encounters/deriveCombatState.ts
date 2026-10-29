@@ -1,45 +1,57 @@
 import { readLogEntry } from './logEntryPayloads';
 
-type CombatState = {
-  maxHp: number | null;
-  currentHp: number | null;
+type Hp = { max: number; current: number };
+type TrackedState = {
+  hp: Hp | null;
   tempHp: number;
   defeated: boolean;
   removed: boolean;
 };
 
-const applyDamage = (state: CombatState, amount: number): void => {
-  if (state.maxHp === null || state.currentHp === null) {
+const applyDamage = (state: TrackedState, amount: number): void => {
+  if (state.hp === null) {
     return;
   }
   const absorbedByTempHp = Math.min(state.tempHp, amount);
   state.tempHp -= absorbedByTempHp;
-  state.currentHp -= amount - absorbedByTempHp;
+  state.hp.current -= amount - absorbedByTempHp;
 };
 
-const applyHeal = (state: CombatState, amount: number): void => {
-  if (state.maxHp === null || state.currentHp === null) {
+const applyHeal = (state: TrackedState, amount: number): void => {
+  if (state.hp === null) {
     return;
   }
-  state.currentHp = Math.min(state.maxHp, state.currentHp + amount);
+  state.hp.current = Math.min(state.hp.max, state.hp.current + amount);
 };
 
-const applyMaxHp = (state: CombatState, value: number): void => {
-  state.currentHp =
-    state.currentHp === null ? value : Math.min(state.currentHp, value);
-  state.maxHp = value;
+const applyMaxHp = (state: TrackedState, value: number): void => {
+  state.hp = {
+    max: value,
+    current: state.hp === null ? value : Math.min(state.hp.current, value),
+  };
 };
 
 export const deriveCombatState = (
   items: { id: string; startingMaxHp: number | null }[],
   entries: { kind: string; payload: string }[],
-): Map<string, CombatState> => {
-  const states = new Map<string, CombatState>(
+): Map<
+  string,
+  {
+    maxHp: number | null;
+    currentHp: number | null;
+    tempHp: number;
+    defeated: boolean;
+    removed: boolean;
+  }
+> => {
+  const states = new Map<string, TrackedState>(
     items.map((item) => [
       item.id,
       {
-        maxHp: item.startingMaxHp,
-        currentHp: item.startingMaxHp,
+        hp:
+          item.startingMaxHp === null
+            ? null
+            : { max: item.startingMaxHp, current: item.startingMaxHp },
         tempHp: 0,
         defeated: false,
         removed: false,
@@ -53,8 +65,6 @@ export const deriveCombatState = (
       continue;
     }
     switch (entry.kind) {
-      case 'added':
-        break;
       case 'damage':
         for (const { queueItemId, amount } of entry.payload.targets) {
           const state = states.get(queueItemId) ?? null;
@@ -92,5 +102,16 @@ export const deriveCombatState = (
     }
   }
 
-  return states;
+  return new Map(
+    [...states].map(([id, { hp, tempHp, defeated, removed }]) => [
+      id,
+      {
+        maxHp: hp?.max ?? null,
+        currentHp: hp?.current ?? null,
+        tempHp,
+        defeated,
+        removed,
+      },
+    ]),
+  );
 };

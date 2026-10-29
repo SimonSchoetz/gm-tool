@@ -19,9 +19,12 @@ export const buildQueueEntries = (
     })),
     logEntries,
   );
-  const keptItems = queueItems.filter(
-    (item) => !combatState.get(item.id)?.removed,
-  );
+  const keptItems = queueItems.filter((item) => {
+    const state = combatState.get(item.id) ?? null;
+    // Stryker disable next-line ConditionalExpression,BooleanLiteral: deriveCombatState holds one state per item, so the guard is never entered and no input observes a difference
+    if (state === null) return false;
+    return !state.removed;
+  });
   // Naming sees every kept item, hidden defeated ones included, so toggling Hide defeated never renumbers siblings.
   const names = shownCombatantNames(
     keptItems.map((item) => ({

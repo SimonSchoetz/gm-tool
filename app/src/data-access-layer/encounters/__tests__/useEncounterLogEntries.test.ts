@@ -147,4 +147,14 @@ describe('useEncounterLogEntries', () => {
     expect(wasRecorded).toBe(true);
     resolveWrite();
   });
+
+  it('exposes an empty log while the entries load', () => {
+    getLogEntries.mockReturnValue(new Promise(() => undefined));
+    const { result } = renderHookWithQueryClient(() =>
+      useEncounterLogEntries('encounter-1'),
+    );
+
+    expect(result.current.logEntries).toEqual([]);
+    expect(result.current.loading).toBe(true);
+  });
 });

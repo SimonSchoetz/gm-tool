@@ -34,6 +34,16 @@ export const serializeLogEntryPayload = <K extends LogEntryKind>(
   payload: LogEntryPayload<K>,
 ): string => JSON.stringify(LOG_ENTRY_PAYLOAD_SCHEMAS[kind].parse(payload));
 
+// Stryker disable BlockStatement: a payload that is not JSON reaches the schema as null or as undefined, which fails it either way, so no input observes a difference between the catch block and an empty one
+const parseJson = (raw: string): unknown => {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+// Stryker restore BlockStatement
+
 export const readLogEntry = (
   kind: string,
   payload: string,
@@ -42,15 +52,11 @@ export const readLogEntry = (
   if (!Object.hasOwn(LOG_ENTRY_PAYLOAD_SCHEMAS, kind)) {
     return null;
   }
-  try {
-    const knownKind = kind as LogEntryKind;
-    const parsed = LOG_ENTRY_PAYLOAD_SCHEMAS[knownKind].safeParse(
-      JSON.parse(payload),
-    );
-    return parsed.success
-      ? ({ kind: knownKind, payload: parsed.data } as ReadLogEntry)
-      : null;
-  } catch {
-    return null;
-  }
+  const knownKind = kind as LogEntryKind;
+  const parsed = LOG_ENTRY_PAYLOAD_SCHEMAS[knownKind].safeParse(
+    parseJson(payload),
+  );
+  return parsed.success
+    ? ({ kind: knownKind, payload: parsed.data } as ReadLogEntry)
+    : null;
 };

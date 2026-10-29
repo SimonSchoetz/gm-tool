@@ -168,22 +168,61 @@ describe('deriveCombatState', () => {
     expect(state.get('a')?.currentHp).toBe(9);
   });
 
-  it('skips a target with no item and still applies the entry to its other targets', () => {
-    const state = deriveCombatState(
-      [{ id: 'a', startingMaxHp: 10 }],
-      [
-        entry('damage', {
-          targets: [
-            { queueItemId: 'gone', amount: 3 },
-            { queueItemId: 'a', amount: 3 },
-          ],
-        }),
-      ],
-    );
+  it.each([
+    [
+      'damage',
+      {
+        targets: [
+          { queueItemId: 'gone', amount: 3 },
+          { queueItemId: 'a', amount: 3 },
+        ],
+      },
+      { currentHp: 7 },
+    ],
+    [
+      'heal',
+      {
+        targets: [
+          { queueItemId: 'gone', amount: 3 },
+          { queueItemId: 'a', amount: 3 },
+        ],
+      },
+      { currentHp: 10 },
+    ],
+    [
+      'temp-hp',
+      {
+        targets: [
+          { queueItemId: 'gone', value: 3 },
+          { queueItemId: 'a', value: 3 },
+        ],
+      },
+      { tempHp: 3 },
+    ],
+    [
+      'max-hp',
+      {
+        targets: [
+          { queueItemId: 'gone', value: 4 },
+          { queueItemId: 'a', value: 4 },
+        ],
+      },
+      { maxHp: 4 },
+    ],
+    ['defeated', { queueItemIds: ['gone', 'a'] }, { defeated: true }],
+    ['removed', { queueItemIds: ['gone', 'a'] }, { removed: true }],
+  ])(
+    'skips a %s target with no item and still applies the entry to its other targets',
+    (kind, payload, expected) => {
+      const state = deriveCombatState(
+        [{ id: 'a', startingMaxHp: 10 }],
+        [entry(kind, payload)],
+      );
 
-    expect(state.get('a')?.currentHp).toBe(7);
-    expect(state.has('gone')).toBe(false);
-  });
+      expect(state.get('a')).toMatchObject(expected);
+      expect(state.has('gone')).toBe(false);
+    },
+  );
 
   it('keeps a removed item in the result', () => {
     const state = deriveCombatState(

@@ -1,5 +1,5 @@
 import { act, fireEvent, renderHook } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { useEncounterSelection } from '../useEncounterSelection';
 
 const renderSelection = (encounterId = 'encounter-1', shownIds = ['a', 'b']) =>
@@ -89,5 +89,18 @@ describe('useEncounterSelection', () => {
       selectedId: null,
       activeTab: 'add',
     });
+  });
+
+  it('removes its Escape listener from the document when it unmounts', () => {
+    const removeEventListener = vi.spyOn(document, 'removeEventListener');
+    const { unmount } = renderSelection();
+
+    unmount();
+
+    expect(removeEventListener).toHaveBeenCalledWith(
+      'keydown',
+      expect.any(Function),
+    );
+    removeEventListener.mockRestore();
   });
 });
