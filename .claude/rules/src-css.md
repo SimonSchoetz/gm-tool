@@ -28,6 +28,10 @@ Whether a component or screen owns a `.css` file at all, and where its CSS goes 
   - ✅ `border-radius: 3px; /* one-off */`
 - **Raw values without `/* one-off */` are surfaced to the user after the task completes, not mid-task, and never block the commit.** Collect them during implementation and report file path, line, and value at the end of the task; the user then decides: add a token, add the annotation, or leave it. The deferred state is not a violation.
 
+## A class that sets `display` on an element rendered with `hidden`
+
+The `hidden` attribute hides an element through a user-agent default rule that an author `display` value overrides (`.claude/knowledge/html.md` — "The `hidden` attribute hides an element through a user-agent default rule, which the standard says style sheets can override"). So when a class sets `display` on an element a component renders with `hidden`, the same stylesheet also holds a rule for that class with `[hidden]` that sets `display: none`, or the element stays visible.
+
 ## No unilateral additions to `styles/variables/`
 
 Never add a new CSS variable to the variables folder on your own. If a value appears to be reused across components and would benefit from a token, flag it to the user — they decide whether to add it and which file it belongs in. Introduce the value inline (or as a runtime custom property if DB-sourced) in the meantime. This inline fallback is temporary, pending token approval — not a permanent state.
