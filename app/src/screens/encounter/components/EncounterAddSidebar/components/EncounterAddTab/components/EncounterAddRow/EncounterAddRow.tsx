@@ -4,7 +4,7 @@ import type { BaseEntity } from '@db/base-entity';
 import {
   MAX_ADD_QUANTITY,
   MIN_ADD_QUANTITY,
-  UNTITLED_COMBATANT_NAME,
+  UNNAMED_ENTITY_LABEL,
   entityTypeLabel,
   parseAddQuantity,
 } from '@domain';
@@ -47,7 +47,7 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
 
       <div className='encounter-add-row-text'>
         <div className='clip-text'>
-          {baseEntity.name ?? UNTITLED_COMBATANT_NAME}
+          {baseEntity.name ?? UNNAMED_ENTITY_LABEL}
         </div>
         <div className='encounter-add-row-type'>
           {entityTypeLabel(baseEntity.entity_type)}

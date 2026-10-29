@@ -5,8 +5,8 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
-import { EncounterQueueActions } from './components/EncounterQueueActions/EncounterQueueActions';
-import { EncounterSidePanel } from './components/EncounterSidePanel';
+import { EncounterActions } from './components/EncounterActions/EncounterActions';
+import { EncounterAddSidebar } from './components/EncounterAddSidebar';
 import { PREVIEW_WIDTH } from '../screens.constants';
 import './EncounterScreen.css';
 
@@ -41,13 +41,13 @@ export const EncounterScreen = () => {
       <div className='encounter-screen-body'>
         <div className='encounter-screen-queue-column'>
           <EncounterQueue />
-          <EncounterQueueActions />
+          <EncounterActions />
         </div>
         <div className='encounter-screen-middle-column'>
           <EncounterNotes />
         </div>
         <div className='encounter-screen-side-column'>
-          <EncounterSidePanel />
+          <EncounterAddSidebar />
         </div>
       </div>
     </GlassPanel>

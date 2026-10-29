@@ -1,1 +1,1 @@
-export { EncounterSidePanel } from './EncounterSidePanel';
+export { EncounterAddSidebar } from './EncounterAddSidebar';

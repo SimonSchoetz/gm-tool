@@ -1,12 +1,10 @@
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { EncounterAddTab } from './components/EncounterAddTab';
-import './EncounterSidePanel.css';
+import './EncounterAddSidebar.css';
 
-export const EncounterSidePanel = () => (
-  <GlassPanel className='encounter-side-panel'>
-    <div className='encounter-side-panel-tabs'>
-      <span className='encounter-side-panel-tab'>Add</span>
-    </div>
+export const EncounterAddSidebar = () => (
+  <GlassPanel className='encounter-add-sidebar'>
+    <span className='encounter-add-sidebar-heading'>Add</span>
     <EncounterAddTab />
   </GlassPanel>
 );

@@ -1,4 +1,4 @@
-.encounter-side-panel {
+.encounter-add-sidebar {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -7,12 +7,7 @@
   gap: var(--spacing-sm);
 }
 
-.encounter-side-panel-tabs {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
-.encounter-side-panel-tab {
+.encounter-add-sidebar-heading {
   color: var(--color-primary);
   font-size: var(--font-size-lg);
 }

@@ -4,7 +4,7 @@ import { useEncounter } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 
-export const EncounterQueueActions = () => {
+export const EncounterActions = () => {
   const router = useRouter();
   const { adventureId, encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',

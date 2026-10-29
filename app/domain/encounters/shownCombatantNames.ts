@@ -1,4 +1,4 @@
-export const UNTITLED_COMBATANT_NAME = 'Untitled Combatant';
+export const UNNAMED_ENTITY_LABEL = 'Untitled Combatant';
 
 type NamedItem = {
   id: string;
@@ -22,7 +22,7 @@ export const shownCombatantNames = (
   const baseName = (item: NamedItem): string =>
     (isLinked(item)
       ? (namesByEntityId.get(item.baseEntityId) ?? null)
-      : item.name) ?? UNTITLED_COMBATANT_NAME;
+      : item.name) ?? UNNAMED_ENTITY_LABEL;
 
   const numberingKey = (item: NamedItem): string =>
     JSON.stringify(

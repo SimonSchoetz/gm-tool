@@ -17,5 +17,5 @@ export {
 export { deriveCombatState } from './deriveCombatState';
 export {
   shownCombatantNames,
-  UNTITLED_COMBATANT_NAME,
+  UNNAMED_ENTITY_LABEL,
 } from './shownCombatantNames';
