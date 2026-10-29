@@ -198,6 +198,12 @@ describe('EncounterCombatantActionsTab', () => {
     expect(amountField()).toHaveValue(5);
   });
 
+  it('labels the empty amount field with an Amount placeholder', async () => {
+    await renderTab();
+
+    expect(screen.getByPlaceholderText('Amount')).toBe(amountField());
+  });
+
   it('enables Damage once an amount is typed', async () => {
     const user = userEvent.setup();
     await renderTab();

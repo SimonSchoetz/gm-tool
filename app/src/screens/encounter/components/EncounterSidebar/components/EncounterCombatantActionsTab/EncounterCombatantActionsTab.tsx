@@ -78,6 +78,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
           type='number'
           min={0}
           aria-label='Amount'
+          placeholder='Amount'
           value={amountText}
           onChange={(event) => {
             setAmountText(event.currentTarget.value);
