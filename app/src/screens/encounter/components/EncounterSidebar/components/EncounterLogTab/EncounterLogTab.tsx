@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { FCProps } from '@/types/fcProps.type';
 import { useEncounterLogLines } from '../../../../hooks/useEncounterLogLines';
+import { EncounterLogComposer } from './components/EncounterLogComposer/EncounterLogComposer';
 import { EncounterLogEntry } from './components/EncounterLogEntry/EncounterLogEntry';
 import './EncounterLogTab.css';
 
@@ -37,6 +38,8 @@ export const EncounterLogTab: FCProps<Props> = ({ isOpen }) => {
           </ul>
         )}
       </div>
+
+      <EncounterLogComposer />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import type * as baseEntityService from '@services/baseEntityService';
 import type * as encounterService from '@services/encounterService';
 import type * as logEntryService from '@services/encounterLogEntryService';
 import type * as queueService from '@services/encounterQueueService';
+import type * as tableConfigService from '@services/tableConfigService';
 import { buildEncounter } from '@/__tests__/support/buildEncounter';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
 import type { SidebarTab } from '../../../hooks/useEncounterSelection';
@@ -24,6 +25,9 @@ const getLogEntries = vi.hoisted(() =>
 const getQueueItems = vi.hoisted(() =>
   vi.fn<typeof queueService.getQueueItems>(),
 );
+const getAllTableConfigs = vi.hoisted(() =>
+  vi.fn<typeof tableConfigService.getAllTableConfigs>(),
+);
 const getSetting = vi.hoisted(() => vi.fn<typeof settingsDb.getSetting>());
 const updateSetting = vi.hoisted(() =>
   vi.fn<typeof settingsDb.updateSetting>(),
@@ -33,6 +37,7 @@ vi.mock('@services/baseEntityService', () => ({ getAllBaseEntities }));
 vi.mock('@services/encounterService', () => ({ getEncounterById }));
 vi.mock('@services/encounterLogEntryService', () => ({ getLogEntries }));
 vi.mock('@services/encounterQueueService', () => ({ getQueueItems }));
+vi.mock('@services/tableConfigService', () => ({ getAllTableConfigs }));
 vi.mock('@db/_settings', () => ({ getSetting, updateSetting }));
 
 vi.mock('@tanstack/react-router', async () => {
@@ -73,6 +78,7 @@ describe('EncounterSidebar', () => {
   beforeEach(() => {
     queryClient.clear();
     getAllBaseEntities.mockResolvedValue([]);
+    getAllTableConfigs.mockResolvedValue([]);
     getEncounterById.mockResolvedValue(buildEncounter());
     getLogEntries.mockResolvedValue([]);
     getQueueItems.mockResolvedValue([]);

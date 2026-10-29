@@ -1,0 +1,9 @@
+.encounter-log-composer {
+  display: flex;
+  padding: var(--spacing-sm);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  /* A long draft scrolls inside the composer instead of pushing the list away. */
+  max-height: calc(3 * var(--spacing-3xl));
+  overflow-y: auto;
+}
