@@ -16,39 +16,29 @@ Conventions for a file that renders JSX and for the `helper/` directories compon
 
 **Icon components imported from any third-party icon library are always bound to a name ending in `Icon`, even when the library's own exported name does not end that way.** Rename via the import alias when necessary (`import { Trash2 as Trash2Icon } from 'some-icon-library'`) — never bind the bare library name directly into JSX-consuming code. No single-use or plugin-local exception applies.
 
-- ✅ GOOD: `import { CalendarIcon } from 'lucide-react';`
-- ❌ BAD: `import { Calendar } from 'lucide-react';`
-
 ## Component Library
 
 - Each component has its own folder.
 - A component has its own `.css` file only when it owns styles of its own — see `app/src/CLAUDE.md` — Styles for the full rule and the sub-component CSS-extraction convention.
-- Functions that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself. This covers both pure functions (transformations, formatters, predicates) and non-pure helpers (DOM/canvas mutation drivers). The exception is a function that reads the component's props or state directly, or calls a state setter, touches a ref or calls a hook (an event handler, a callback passed to JSX or a hook): it stays in the component file, but a computation inside it that produces a value and writes nothing (calls no state setter, touches no ref, calls no hook) moves to `helper/` once it has more than one statement or any branch, however few times it occurs, taking the props, state and other values it reads as arguments (an `onDragEnd` handler deriving the reordered id list from `items`, `active` and `over` is this case: the derivation takes them as arguments and the handler passes its result on). A branch is an `if`, a `switch`, an early return or a conditional expression (`?:`), the last counting inside a single expression too. Code that stays inline — a single expression without a branch, a bare read of props or state, or code that writes (the setter, ref and hook calls above) — is extracted to `helper/` only once it reaches 2+ occurrences within the same component's file — list every occurrence as a call site to update. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
+- Functions that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself, pure (transformations, formatters, predicates) or not (DOM/canvas mutation drivers). The exception is a function that reads the component's props or state directly, or calls a state setter, touches a ref or calls a hook (an event handler, a callback passed to JSX or a hook): it stays in the component file, but a computation inside it that produces a value and writes nothing (calls no state setter, touches no ref, calls no hook) moves to `helper/` once it has more than one statement or any branch, even at a single occurrence, taking the props, state and other values it reads as arguments (an `onDragEnd` handler deriving the reordered id list from `items`, `active` and `over` passes them as arguments and hands the result on). A branch is an `if`, a `switch`, an early return or a conditional expression (`?:`), the last counting inside a single expression too. Code that stays inline — a single expression without a branch, a bare read of props or state, or code that writes (the setter, ref and hook calls above) — is extracted to `helper/` only at 2+ occurrences within the same component's file — list every occurrence as a call site to update. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
 - **Sub-component ownership**: near-identical JSX repeated 2+ times within a component, with only data-level variance between occurrences, is extracted to a sub-component. A sub-component (a function returning JSX, used exclusively within one parent) belongs in `ComponentName/components/`, where `ComponentName` is its immediate JSX parent — not any ancestor, at every nesting depth (a sub-component's sub-component belongs to its own `components/`, never the screen or top-level module's). When two or more unrelated parents render the same sub-component, it belongs to neither — place it as a peer module directory at the nearest shared ancestor (a standalone `components/SubComponentName/`, not nested under either consumer). **Exception — provider modules**: a component rendered exclusively by a provider still belongs in `components/`, not the provider's own module directory; `providers/` is infrastructure, and its `components/` (if any) holds only provider-internal structural fragments, not domain UI.
-  - ❌ `providers/PinnedPopupsProvider/components/MentionPopup/` — belongs in `components/MentionPopup/` even when a provider is the sole renderer
 - A module's own `ComponentName/index.ts`, when it has one, never re-exports the contents of its `helper/` or `components/` folders — they are internal to the module.
-  - ❌ `export { SubComponent } from './components/SubComponent'` in `ComponentName/index.ts` — the sub-component is internal, never re-exported upward
-- **A sub-component must never import a type back from the parent module that owns it.** When a type is used by both a parent and its `components/`-owned sub-component, the parent-owns-child direction makes a child-to-parent import a cycle in the module graph, even when `import type` erases it at compile time with no `tsc` error. Extract the shared type to a neutral file both import from — never have the sub-component reach back into the parent's file.
-  - ❌ `TableEdgeHint.tsx` (in `TableEdgeHandlePlugin/components/TableEdgeHint/`) importing `HintDirection` via `import type { HintDirection } from '../../TableEdgeHandlePlugin'` — backwards even though it compiles
-  - ✅ Declare `HintDirection` in a neutral file (e.g. `TableEdgeHandlePlugin/types.ts`), imported by both `TableEdgeHandlePlugin.tsx` and `TableEdgeHint.tsx`
+- **A sub-component must never import a type back from the parent module that owns it.** When a parent and its `components/`-owned sub-component share a type, a child-to-parent import is a cycle in the module graph even when `import type` erases it and `tsc` passes. Extract the shared type to a neutral file both import from.
+  - ❌ `TableEdgeHint.tsx` (in `TableEdgeHandlePlugin/components/TableEdgeHint/`) importing `HintDirection` via `import type { HintDirection } from '../../TableEdgeHandlePlugin'` — backwards even though it compiles; ✅ declare `HintDirection` in a neutral file (e.g. `TableEdgeHandlePlugin/types.ts`) that `TableEdgeHandlePlugin.tsx` and `TableEdgeHint.tsx` both import
 
 ## Context scoped to one component
 
 **A React context whose Provider is rendered by one component, for its own subtree, lives in that component's module directory — never in `providers/`.** The criterion is where the Provider renders: `providers/` holds contexts whose Provider wraps the app root (`.claude/rules/src-providers.md` — providers/). The shape is two files, with `X` a name for what the context carries: `XContext.ts` beside the providing component's main file, declaring `createContext<Value | null>(null)`, and `hooks/useX.ts` in the same module directory (a function-grouping folder, so no `index.ts` — `app/CLAUDE.md` — Directory Structure (all TypeScript layers)), which reads the context with `useContext`, throws when the value is `null`, and names the providing component in the error message. The context file imports nothing from the providing component or its sub-components, so a sub-component that imports the hook (which imports the context file) never closes an `import-x/no-cycle` cycle.
 
 - ✅ `MentionPopup/MentionPopupHeaderContext.ts` + `MentionPopup/hooks/useMentionPopupHeader.ts` (`X` = `MentionPopupHeader`), provided by `MentionPopup/MentionPopup.tsx` and consumed by `MentionPopup/components/MentionPopupHeader/MentionPopupHeader.tsx`
-- ❌ the same pair under `providers/` — its Provider is not app-level
 
 ## Component Internals
 
-**No IIFE or inline sub-components in JSX.** An IIFE inside a render return (`{(() => { ... })()}`) or a named function declared inside the component body that returns JSX are both signs extraction didn't happen. Logic returning a primitive → `helper/`; logic returning JSX → a sub-component in `components/`, exactly as if defined outside the parent file — declaring it inline does not exempt it from the ownership rule.
+**No IIFE or inline sub-components in JSX.** An IIFE inside a render return (`{(() => { ... })()}`) or a named function declared inside the component body that returns JSX are both signs extraction didn't happen. Logic returning a primitive → `helper/`; logic returning JSX → a sub-component in `components/`, exactly as if defined outside the parent file.
 
-**Pass props directly when no transformation, guard, renaming, or toolchain enforcement is needed — never wrap them in a named function that only forwards its argument unchanged; inline the prop reference instead.** Governs JSX prop wiring only — not hook return types or public API boundaries, where a wrapper hides implementation details and presents a domain-typed interface. Permitted wrapper cases: a transformation (`() => onClose(id)`), a guard (`() => { if (enabled) onSubmit() }`), a signature adapter (`(e: MouseEvent) => onSelect(e.currentTarget.dataset.id)`), or an active ESLint requirement (`() => { void handleAsync(); }` — `@typescript-eslint/no-misused-promises` discarding a Promise where a synchronous callback is expected).
+**Pass props directly when no transformation, guard, renaming, or toolchain enforcement is needed — never wrap them in a named function that only forwards its argument unchanged; inline the prop reference instead** (`<Foo onMouseEnter={onMouseEnterBridge} />`, not `const handleMouseEnter = () => onMouseEnterBridge();` passed as the prop). Governs JSX prop wiring only — not hook return types or public API boundaries, where a wrapper hides implementation details and presents a domain-typed interface. Permitted wrapper cases: a transformation (`() => onClose(id)`), a guard (`() => { if (enabled) onSubmit() }`), a signature adapter (`(e: MouseEvent) => onSelect(e.currentTarget.dataset.id)`), or an active ESLint requirement (`() => { void handleAsync(); }` — `@typescript-eslint/no-misused-promises` discarding a Promise where a synchronous callback is expected).
 
-- ❌ BAD: `const handleMouseEnter = () => onMouseEnterBridge(); <Foo onMouseEnter={handleMouseEnter} />`
-- ✅ GOOD: `<Foo onMouseEnter={onMouseEnterBridge} />`
-
-**Before wiring a prop to any component you did not write in the current task, read its implementation file and verify the prop is forwarded to the element or sub-component where it takes effect.** This includes `ref` — under React 19, `ref` is an ordinary prop on function components, not separate infrastructure, so a `ref` you did not personally forward is exactly the case this rule governs. A prop declared in a component's props type may not be forwarded internally — TypeScript types describe the interface surface, not the internal wiring. A prop that is silently dropped or silently shadowed (see the `Omit` rule below) is a runtime no-op with no compiler or linter error either way. Verify before writing the JSX; do not defer it to code review.
+**Before wiring a prop to any component you did not write in the current task, read its implementation file and verify the prop is forwarded to the element or sub-component where it takes effect.** This includes `ref` — under React 19, `ref` is an ordinary prop on function components, so a `ref` you did not personally forward is exactly the case this rule governs. A prop declared in a component's props type may not be forwarded internally, and a prop that is silently dropped or silently shadowed (see the `Omit` rule below) is a runtime no-op with no compiler or linter error. Verify before writing the JSX.
 
 **Props pattern — three cases, pick exactly one:**
 
@@ -65,53 +55,43 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
    - ✅ `type Props = { onSearch: (term: string) => void; placeholder?: string }; export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => { ... }`
    - ❌ `const SearchInput = ({ onSearch }: { onSearch: () => void }) => { ... }` — inline destructuring without FCProps
    - ❌ `const SearchInput: React.FC<Props> = ...` — use FCProps, not React.FC
-   - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely (✅ `export const AdventureCrumb = () => { ... }`) — do not write `type Props = object`, `type Props = Record<string, never>`, or keep an empty/placeholder `FCProps<Props>` (❌ `export const AdventureCrumb: FCProps<Props> = () => { ... }`).
+   - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely (✅ `export const AdventureCrumb = () => { ... }`) — do not write `type Props = object`, `type Props = Record<string, never>`, or keep an empty/placeholder `FCProps<Props>`.
 
-**A wrapper hardcoding a value for a prop inherited via `React.ComponentProps<typeof Parent>` (case 2 above) must `Omit` that prop from its own `Props` type.** Otherwise a caller can pass a value that is silently shadowed in JSX — see the prop-wiring rule above. Every hardcoded prop must be excluded, not just the first one added.
+**A wrapper hardcoding a value for a prop inherited via `React.ComponentProps<typeof Parent>` (case 2 above) must `Omit` that prop from its own `Props` type.** Otherwise a caller can pass a value that is silently shadowed in JSX. Every hardcoded prop must be excluded, not just the first one added.
 
 - ✅ `Omit<React.ComponentProps<typeof SyncedInput>, 'autoFocus' | 'className'>` when both are hardcoded
-- ❌ `Omit<...,'autoFocus'>` only, while `className` is also hardcoded in JSX
 
-**Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default. Omit it entirely — the browser supplies the default and the attribute adds no information.
-
-- ❌ `<input type="text" />` → ✅ `<input />` — `type="text"` is the default
-- ✅ `<input type="checkbox" />`, `<button type="button" />` — non-default values are kept
+**Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default — omit it, the browser supplies it (❌ `<input type="text" />` → ✅ `<input />`). Non-default values are kept (✅ `<input type="checkbox" />`, `<button type="button" />`).
 
 **Variant system:**
 
 - Variants are expressed as a union type prop and applied via a CSS modifier class. Never express variants as inline styles. Never use one boolean prop per variant when the component has — or may grow — more than one variant.
   - ✅ `buttonStyle?: 'danger'` → `cn('button-wrapper', buttonStyle && \`button-wrapper--${buttonStyle}\`)`
   - ❌ `isDanger?: boolean; isPrimary?: boolean`
-  - ❌ `style={{ color: 'red' }}` to express a variant
 
 - **`cn()` usage — conditional and computed classes only:** Use `cn()` when class names are conditional or computed at runtime. One static string, or two or more static strings with no argument depending on a runtime condition (ternary, `&&`, a variable), must use `className="..."` directly — never `cn(...)` with every argument static.
-  - ✅ GOOD: `cn('button-wrapper', buttonStyle && \`button-wrapper--${buttonStyle}\`)` — conditional, cn() is correct
-  - ❌ BAD: `cn('button-wrapper')` — single static string, cn() adds no value; use `className="button-wrapper"` directly
-  - ❌ BAD: `cn('button-wrapper', 'button-wrapper--active')` — two static strings, no conditional; use `className="button-wrapper button-wrapper--active"` directly
+  - ❌ BAD: `cn('button-wrapper', 'button-wrapper--active')` — every argument static (likewise a single static string); use `className="button-wrapper button-wrapper--active"` directly
 
 **UI primitive wrappers — prefer the component over the bare HTML element.** Two match types apply, checked in order:
 
 1. **Name-match**: a component in `src/components/` sharing the exact name of a native HTML element (PascalCase vs lowercase — e.g., `Input` / `<input>`) is always used instead of the bare element.
 2. **Semantic-match**: before a typed variant of an HTML element (e.g., `<input type="color">`), check `src/components/` for a specialized component (naming pattern `[Modifier][ElementName]`, e.g. `ColorInput`, `DateInput`) — use it, never the generic wrapper with a `type` attribute.
 
-- Name-match: ✅ `<Input value={val} onChange={handler} />` ❌ `<input value={val} onChange={handler} />`
-- Semantic-match: ✅ `<ColorInput value={val} onChange={handler} />` ❌ `<Input type="color" value={val} onChange={handler} />`
-
 ## Component-scoped custom properties
 
-When a CSS value cannot use a global token from `styles/variables/`, declare it as a CSS custom property on the component's root element — the prefix identifies its source. DB-sourced values (known only at runtime, not at build time) are applied via an inline `style` prop, never as a direct inline style property, and prefixed `--rt-[component-name]-` to distinguish them from global tokens at a glance; the CSS file then consumes the custom property via `var()`. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, both go in a single object cast — never split across two props or two casts. Static component-scoped values (e.g. a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component) are prefixed `--[component-name]-` (kebab-cased, no `rt` segment) to distinguish them from both global tokens and runtime values.
+When a CSS value cannot use a global token from `styles/variables/`, declare it as a CSS custom property on the component's root element — the prefix identifies its source. DB-sourced values (known only at runtime) are applied via an inline `style` prop, never as a direct inline style property, and prefixed `--rt-[component-name]-`; the CSS file then consumes the custom property via `var()`. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, both go in a single object cast — never split across two props or two casts. Static component-scoped values (e.g. a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component) are prefixed `--[component-name]-` (kebab-cased, no `rt` segment).
 
-- ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` (combined cast) or `style={{ '--rt-component-xyz-color': color } as React.CSSProperties}` (property alone) + CSS: `color: var(--rt-component-xyz-color)`
+- ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
 - ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
-- ✅ `--card-flip-duration: 0.4s` (set in CSS) or `--floating-toolbar-offset: 0px` (set in JS as a style prop for a non-DB computed value) — both consumed via `var(...)` within the same component; illustrative, not tied to any specific file
-- ❌ `--rt-toolbar-position: 8px` — the `--rt-` prefix signals DB-sourced; do not use it for static or JS-computed values that are not DB-derived
+- ✅ `--card-flip-duration: 0.4s` (set in CSS) or `--floating-toolbar-offset: 0px` (set in JS as a style prop) — static values, consumed via `var(...)` within the same component
+- ❌ `--rt-toolbar-position: 8px` — `--rt-` signals DB-sourced; never use it for a static or JS-computed value
 
 ## Stylesheet import order
 
 **A `.tsx` file's stylesheet imports are ordered by the cascade, never by tidiness.** Stylesheets load in import order, so when this file's own `.css` and a child component's `.css` set the same property on the same element at equal specificity, the one imported later wins. Import the file's own stylesheet before the imports of the child components whose stylesheets must override it, put an inline comment on it naming the tying rules, and when reordering imports never move a `.css` import across a component import.
 
-- ✅ `FiveEStatBlockSectionBody.tsx`: `import './FiveEStatBlockSectionBody.css';` above the four group component imports, because its `label` rules tie with the groups' `label` rules and the groups must win
-- ❌ the same file with the group component imports above its own `.css` import — the body's stylesheet loads last and breaks the Abilities grid
+- ✅ `FiveEStatBlockSectionBody.tsx`: `import './FiveEStatBlockSectionBody.css';` above the group component imports, because its `label` rules tie with the groups' and the groups must win
+- ❌ the group component imports above that `.css` import — the body's stylesheet loads last and breaks the Abilities grid
 
 ## Controlled inputs that drive auto-save mutations
 
@@ -119,13 +99,11 @@ When a CSS value cannot use a global token from `styles/variables/`, declare it 
 
 - ✅ GOOD (Case 1): `<SyncedInput initValue={widget?.name ?? ''} onCommit={(value) => updateWidget({ name: value })} />`
 - ✅ GOOD (Case 2): `const { value, setValue, focusProps } = useSyncedInputValue(widget?.dueDate ?? ''); <DateInput value={value} onChange={(e) => { setValue(e.target.value); updateWidget({ dueDate: e.target.value }); }} {...focusProps} />`
-- ❌ BAD: `<Input value={widget.name ?? ''} onChange={(e) => updateWidget({ name: e.target.value })} />` — jumps mid-keystroke on re-fetch, and never adopts a paired-device edit either way
+- ❌ BAD: `<Input value={widget.name ?? ''} onChange={(e) => updateWidget({ name: e.target.value })} />`
 
 ## Framework context is not a prop
 
 Never relay a value as a prop when the receiving component can obtain it directly from a framework-managed context. This prohibition covers data-fetching results, data-fetching callbacks, and routing context (URL params via `useParams`). Props are reserved for state that genuinely belongs to a parent: cross-component coordination such as tooltip visibility, modal open/close, or selection state shared between siblings. Pass a callback down only when the parent owns the coordination state and the child reports events up. If a component has a button, that component owns the button's action — it does not receive a callback from two levels up.
 
-- ❌ BAD: `SessionScreen` fetches session data, passes it to `PrepView`, which passes it to `StepSection`, which passes it to `StepSectionHeader`
-- ✅ GOOD: `StepSectionHeader` calls `useSession(sessionId)` directly; TanStack Query serves the cached value
-- ❌ BAD: `SessionScreen` passes `sessionId` and `adventureId` as props to `SessionHeader`, which then passes them to `useSession`
-- ✅ GOOD: `SessionHeader` calls `useParams()` directly and passes the result to `useSession`
+- ❌ BAD: `SessionScreen` fetches session data and relays it through `PrepView` and `StepSection` to `StepSectionHeader`; or passes `sessionId` and `adventureId` as props to `SessionHeader` only to feed `useSession`
+- ✅ GOOD: `StepSectionHeader` calls `useSession(sessionId)` directly (TanStack Query serves the cached value); `SessionHeader` calls `useParams()` directly and passes the result to `useSession`
