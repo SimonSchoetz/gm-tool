@@ -37,19 +37,37 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
     );
   }
 
-  const planRows = selectedEntries.map((entry) => ({
+  const rows = selectedEntries.map((entry) => ({
+    entry,
+    hp: describeQueueEntryHp(entry),
+  }));
+  const planRows = rows.map(({ entry, hp }) => ({
     id: entry.id,
     amount: parseActionAmount(amountTextOf(entry.id)),
-    hasHp: describeQueueEntryHp(entry) !== null,
+    hasHp: hp !== null,
     defeated: entry.defeated,
   }));
-  const damagePlan = planGroupAction('damage', planRows);
-  const healPlan = planGroupAction('heal', planRows);
-  const tempHpPlan = planGroupAction('temp-hp', planRows);
-  const maxHpPlan = planGroupAction('max-hp', planRows);
-  const defeatedPlan = planGroupAction('defeated', planRows);
-  const undefeatedPlan = planGroupAction('undefeated', planRows);
-  const removedPlan = planGroupAction('removed', planRows);
+  const amountButtons = [
+    { label: 'Damage', plan: planGroupAction('damage', planRows) },
+    { label: 'Heal', plan: planGroupAction('heal', planRows) },
+    { label: 'Set temp HP', plan: planGroupAction('temp-hp', planRows) },
+    { label: 'Set max HP', plan: planGroupAction('max-hp', planRows) },
+  ];
+  const stateButtons = [
+    {
+      label: 'Mark defeated',
+      plan: planGroupAction('defeated', planRows),
+    },
+    {
+      label: 'Unmark defeated',
+      plan: planGroupAction('undefeated', planRows),
+    },
+    {
+      label: 'Remove',
+      plan: planGroupAction('removed', planRows),
+      buttonStyle: 'danger' as const,
+    },
+  ];
 
   const recordPlan = (plan: GroupActionPlan | null) => {
     // Stryker disable next-line ConditionalExpression: every button is disabled while its plan is null, so a click never reaches this guard
@@ -73,78 +91,37 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
         />
       )}
 
-      <div className='encounter-combatant-actions-tab-buttons'>
-        <Button
-          label='Damage'
-          disabled={isWriting || damagePlan === null}
-          onClick={() => {
-            recordPlan(damagePlan);
-          }}
-        />
-        <Button
-          label='Heal'
-          disabled={isWriting || healPlan === null}
-          onClick={() => {
-            recordPlan(healPlan);
-          }}
-        />
-        <Button
-          label='Set temp HP'
-          disabled={isWriting || tempHpPlan === null}
-          onClick={() => {
-            recordPlan(tempHpPlan);
-          }}
-        />
-        <Button
-          label='Set max HP'
-          disabled={isWriting || maxHpPlan === null}
-          onClick={() => {
-            recordPlan(maxHpPlan);
-          }}
-        />
-      </div>
-
-      <div className='encounter-combatant-actions-tab-buttons'>
-        <Button
-          label='Mark defeated'
-          disabled={isWriting || defeatedPlan === null}
-          onClick={() => {
-            recordPlan(defeatedPlan);
-          }}
-        />
-        <Button
-          label='Unmark defeated'
-          disabled={isWriting || undefeatedPlan === null}
-          onClick={() => {
-            recordPlan(undefeatedPlan);
-          }}
-        />
-        <Button
-          label='Remove'
-          buttonStyle='danger'
-          // Stryker disable next-line ConditionalExpression: the buttons render only for a non-empty selection, so removedPlan is never null here and no input observes a difference
-          disabled={isWriting || removedPlan === null}
-          onClick={() => {
-            recordPlan(removedPlan);
-          }}
-        />
-      </div>
-
-      <div className='encounter-combatant-actions-tab-rows'>
-        {selectedEntries.map((entry) => {
-          const hp = describeQueueEntryHp(entry);
-          return (
-            <EncounterCombatantActionRow
-              key={entry.id}
-              name={entry.name}
-              hpText={hp ? hp.text : 'HP is not set. Set max HP to track it.'}
-              amountText={amountTextOf(entry.id)}
-              onAmountChange={(text) => {
-                setRowText(entry.id, text);
+      {[amountButtons, stateButtons].map((group) => (
+        <div
+          key={group[0].label}
+          className='encounter-combatant-actions-tab-buttons'
+        >
+          {group.map(({ label, plan, ...rest }) => (
+            <Button
+              key={label}
+              label={label}
+              {...rest}
+              disabled={isWriting || plan === null}
+              onClick={() => {
+                recordPlan(plan);
               }}
             />
-          );
-        })}
+          ))}
+        </div>
+      ))}
+
+      <div className='encounter-combatant-actions-tab-rows'>
+        {rows.map(({ entry, hp }) => (
+          <EncounterCombatantActionRow
+            key={entry.id}
+            name={entry.name}
+            hpText={hp ? hp.text : 'HP is not set. Set max HP to track it.'}
+            amountText={amountTextOf(entry.id)}
+            onAmountChange={(text) => {
+              setRowText(entry.id, text);
+            }}
+          />
+        ))}
       </div>
     </div>
   );
