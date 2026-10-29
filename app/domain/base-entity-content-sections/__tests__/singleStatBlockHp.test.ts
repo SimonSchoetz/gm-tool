@@ -4,11 +4,11 @@ import { patchFiveEStatBlockContent } from '../fiveEStatBlockContent';
 import { singleStatBlockHp } from '../singleStatBlockHp';
 
 const basicBlock = (hp: number | null) => ({
-  type: 'basic-stat-block',
+  type: 'basic-stat-block' as const,
   content: patchBasicStatBlockContent(null, { hp }),
 });
 const fiveEBlock = (hp: number | null) => ({
-  type: '5e-stat-block',
+  type: '5e-stat-block' as const,
   content: patchFiveEStatBlockContent(null, 'hp', hp),
 });
 
