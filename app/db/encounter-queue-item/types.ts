@@ -10,6 +10,9 @@ export type CreateEncounterQueueItemInput = {
   base_entity_id: string;
   sequence_number: number;
   sort_order: number;
+};
+// Carried by every row of one createMany call, so a batch cannot hold rows with different key sets.
+export type SharedEncounterQueueItemFields = {
   name?: string;
   starting_max_hp?: number;
 };

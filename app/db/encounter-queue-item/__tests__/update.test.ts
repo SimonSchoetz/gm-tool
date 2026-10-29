@@ -48,9 +48,8 @@ describe('update', () => {
         base_entity_id: baseEntityId,
         sequence_number: sort_order,
         sort_order,
-        name: 'Goblin',
-        starting_max_hp: 7,
       })),
+      { name: 'Goblin', starting_max_hp: 7 },
     );
     const targetBefore = await readItem(targetId);
     const otherBefore = await readItem(otherId);

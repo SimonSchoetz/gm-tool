@@ -54,6 +54,7 @@ const arrange = ({
 };
 
 const createdRows = () => createMany.mock.calls[0][0];
+const sharedFields = () => createMany.mock.calls[0][1];
 
 describe('addEntityCombatants', () => {
   beforeEach(() => {
@@ -150,10 +151,9 @@ describe('addEntityCombatants', () => {
         encounter_id: ENCOUNTER_ID,
         kind: 'combatant',
         base_entity_id: ENTITY_ID,
-        name: 'Goblin',
-        starting_max_hp: 7,
       });
     }
+    expect(sharedFields()).toEqual({ name: 'Goblin', starting_max_hp: 7 });
   });
 
   it('keeps a stat block HP of 0', async () => {
@@ -169,7 +169,7 @@ describe('addEntityCombatants', () => {
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
 
-    expect(createdRows()[0].starting_max_hp).toBe(0);
+    expect(sharedFields()?.starting_max_hp).toBe(0);
   });
 
   it.each([
@@ -196,22 +196,25 @@ describe('addEntityCombatants', () => {
         ),
       ],
     ],
-  ])('leaves starting_max_hp out of the rows for %s', async (_, sections) => {
-    const { addEntityCombatants } = await import('../encounterQueueService');
-    arrange({ sections });
+  ])(
+    'leaves starting_max_hp out of the shared fields for %s',
+    async (_, sections) => {
+      const { addEntityCombatants } = await import('../encounterQueueService');
+      arrange({ sections });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
+      await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
 
-    expect('starting_max_hp' in createdRows()[0]).toBe(false);
-  });
+      expect(sharedFields()).not.toHaveProperty('starting_max_hp');
+    },
+  );
 
-  it('leaves the name out of the rows for an unnamed entity', async () => {
+  it('leaves the name out of the shared fields for an unnamed entity', async () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({ entity: buildBaseEntity({ name: null }) });
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
 
-    expect('name' in createdRows()[0]).toBe(false);
+    expect(sharedFields()).not.toHaveProperty('name');
   });
 
   it('writes the added entry after the insert with the ids createMany returned, in order', async () => {
@@ -229,6 +232,17 @@ describe('addEntityCombatants', () => {
     expect(createMany.mock.invocationCallOrder[0]).toBeLessThan(
       createLogEntry.mock.invocationCallOrder[0],
     );
+  });
+
+  it('resolves when the added log write fails after the combatants were stored, so a retry cannot add the batch twice', async () => {
+    const { addEntityCombatants } = await import('../encounterQueueService');
+    arrange();
+    createLogEntry.mockRejectedValue(new Error('log table locked'));
+
+    await expect(
+      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2),
+    ).resolves.toBeUndefined();
+    expect(createMany).toHaveBeenCalledTimes(1);
   });
 
   it('writes no added entry and rejects as EncounterQueueAddError when createMany rejects', async () => {

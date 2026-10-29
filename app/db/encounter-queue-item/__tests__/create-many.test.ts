@@ -94,23 +94,23 @@ describe('createMany', () => {
     ]);
   });
 
-  it('stores the name and the starting max HP of rows that carry them', async () => {
+  it('stores the shared name and starting max HP in every row of the batch', async () => {
     const { createMany } = await import('../create-many');
     const { encounterId, baseEntityId } = await seedEncounterAndEntity();
 
-    await createMany([
-      {
+    await createMany(
+      [0, 1].map((sortOrder) => ({
         encounter_id: encounterId,
-        kind: 'combatant',
+        kind: 'combatant' as const,
         base_entity_id: baseEntityId,
-        sequence_number: 1,
-        sort_order: 0,
-        name: 'Goblin',
-        starting_max_hp: 0,
-      },
-    ]);
+        sequence_number: sortOrder + 1,
+        sort_order: sortOrder,
+      })),
+      { name: 'Goblin', starting_max_hp: 0 },
+    );
 
     expect(await readItems()).toMatchObject([
+      { name: 'Goblin', starting_max_hp: 0 },
       { name: 'Goblin', starting_max_hp: 0 },
     ]);
   });

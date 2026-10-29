@@ -60,17 +60,23 @@ export const addEntityCombatants = async (
         base_entity_id: baseEntityId,
         sequence_number: firstSequenceNumber + index,
         sort_order: firstSortOrder + index,
+      })),
+      {
         ...(baseEntity.name !== null ? { name: baseEntity.name } : {}),
         ...(startingMaxHp !== null ? { starting_max_hp: startingMaxHp } : {}),
-      })),
+      },
     );
 
-    // A failed log write leaves the added combatants in place: the derivation does not read `added`.
-    await logEntryDb.create({
-      encounter_id: encounterId,
-      kind: 'added',
-      payload: { queueItemIds },
-    });
+    // The combatants are stored by now. A failed log write loses only its `added` line, which the derivation does not read, and reporting the add as failed would invite a retry that adds the batch twice.
+    try {
+      await logEntryDb.create({
+        encounter_id: encounterId,
+        kind: 'added',
+        payload: { queueItemIds },
+      });
+    } catch {
+      // Swallowed on purpose: see the comment above.
+    }
   } catch (err) {
     throw encounterQueueAddError(err);
   }

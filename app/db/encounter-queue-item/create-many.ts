@@ -5,10 +5,14 @@ import {
   generateDbTimestamps,
   assertValidId,
 } from '../util';
-import type { CreateEncounterQueueItemInput } from './types';
+import type {
+  CreateEncounterQueueItemInput,
+  SharedEncounterQueueItemFields,
+} from './types';
 
 export const createMany = async (
   rows: CreateEncounterQueueItemInput[],
+  shared: SharedEncounterQueueItemFields = {},
 ): Promise<string[]> => {
   rows.forEach((row) => {
     assertValidId(row.encounter_id, 'Encounter');
@@ -38,9 +42,9 @@ export const createMany = async (
         sort_order: row.sort_order,
         created_at,
         updated_at,
-        ...(row.name !== undefined ? { name: row.name } : {}),
-        ...(row.starting_max_hp !== undefined
-          ? { starting_max_hp: row.starting_max_hp }
+        ...(shared.name !== undefined ? { name: shared.name } : {}),
+        ...(shared.starting_max_hp !== undefined
+          ? { starting_max_hp: shared.starting_max_hp }
           : {}),
       },
     })),
