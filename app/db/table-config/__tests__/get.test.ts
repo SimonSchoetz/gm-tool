@@ -1,14 +1,17 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { TableLayout } from '../layout-schema';
+import {
+  insertTableConfig,
+  TABLE_CONFIG_ID,
+  TABLE_CONFIG_TIMESTAMP,
+} from './support/insertTableConfig';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
     await import('@db/__tests__/support/sqlite-test-database');
   return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
-
-const CREATED_AT = '2026-01-10T09:00:00.000Z';
 
 const layout: TableLayout = {
   searchable_columns: ['name'],
@@ -19,34 +22,21 @@ const layout: TableLayout = {
 describe('get', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.useFakeTimers({ toFake: ['Date'] });
-    vi.setSystemTime(new Date(CREATED_AT));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   it('returns the config whose id is passed with its layout parsed, and null for an unknown id', async () => {
-    const { create } = await import('../create');
     const { get } = await import('../get');
-    const id = await create({
-      table_name: 'custom',
-      color: '1, 2, 3',
-      layout,
-      tagging_enabled: 0,
-      scope: 'global',
-    });
+    await insertTableConfig(layout);
 
-    expect(await get(id)).toEqual({
-      id,
+    expect(await get(TABLE_CONFIG_ID)).toEqual({
+      id: TABLE_CONFIG_ID,
       table_name: 'custom',
       color: '1, 2, 3',
-      tagging_enabled: 0,
+      tagging_enabled: 1,
       scope: 'global',
       layout,
-      created_at: CREATED_AT,
-      updated_at: CREATED_AT,
+      created_at: TABLE_CONFIG_TIMESTAMP,
+      updated_at: TABLE_CONFIG_TIMESTAMP,
     });
     expect(await get('missing-config')).toBeNull();
   });

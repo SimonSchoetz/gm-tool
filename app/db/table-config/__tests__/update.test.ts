@@ -2,6 +2,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { TableLayout } from '../layout-schema';
 import type { UpdateTableConfigInput } from '../types';
+import {
+  insertTableConfig,
+  TABLE_CONFIG_ID,
+} from './support/insertTableConfig';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -21,11 +25,6 @@ const newLayout: TableLayout = {
   sort_state: { column: 'description', direction: 'desc' },
 };
 
-const createConfig = async () => {
-  const { create } = await import('../create');
-  return create({ table_name: 'custom', color: '1, 2, 3', layout });
-};
-
 const readRow = async (id: string) => {
   const { getDatabase } = await import('@db/database');
   const db = await getDatabase();
@@ -43,33 +42,39 @@ describe('update', () => {
 
   it('writes tagging_enabled 0 over 1 and rejects a value above 1, leaving the row unchanged', async () => {
     const { update } = await import('../update');
-    const id = await createConfig();
-    expect((await readRow(id)).taggingEnabled).toBe(1);
+    await insertTableConfig(layout);
+    expect((await readRow(TABLE_CONFIG_ID)).taggingEnabled).toBe(1);
 
-    await update(id, { tagging_enabled: 0 });
-    expect((await readRow(id)).taggingEnabled).toBe(0);
+    await update(TABLE_CONFIG_ID, { tagging_enabled: 0 });
+    expect((await readRow(TABLE_CONFIG_ID)).taggingEnabled).toBe(0);
 
-    await expect(update(id, { tagging_enabled: 2 })).rejects.toThrow();
-    expect((await readRow(id)).taggingEnabled).toBe(0);
+    await expect(
+      update(TABLE_CONFIG_ID, { tagging_enabled: 2 }),
+    ).rejects.toThrow();
+    expect((await readRow(TABLE_CONFIG_ID)).taggingEnabled).toBe(0);
   });
 
   it('stores a new valid layout without its unknown keys and rejects an invalid one, leaving the stored layout unchanged', async () => {
     const { update } = await import('../update');
-    const id = await createConfig();
+    await insertTableConfig(layout);
 
-    await update(id, {
+    await update(TABLE_CONFIG_ID, {
       layout: { ...newLayout, unknown_key: 'ignored' },
     } as unknown as UpdateTableConfigInput);
-    expect(JSON.parse((await readRow(id)).layout)).toEqual(newLayout);
+    expect(JSON.parse((await readRow(TABLE_CONFIG_ID)).layout)).toEqual(
+      newLayout,
+    );
 
     await expect(
-      update(id, {
+      update(TABLE_CONFIG_ID, {
         layout: {
           ...layout,
           columns: [{ key: 'name', label: 'Name', width: null }],
         },
       } as unknown as UpdateTableConfigInput),
     ).rejects.toThrow(/^Invalid layout: \[[\s\S]*\]$/);
-    expect(JSON.parse((await readRow(id)).layout)).toEqual(newLayout);
+    expect(JSON.parse((await readRow(TABLE_CONFIG_ID)).layout)).toEqual(
+      newLayout,
+    );
   });
 });
