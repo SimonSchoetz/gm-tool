@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseEntity } from '@db/base-entity';
@@ -157,5 +157,36 @@ describe('EncounterAddRow', () => {
     await user.tab();
 
     expect(quantity).toHaveValue(1);
+  });
+  it('keeps the quantity of a row whose add the in-flight guard refused', async () => {
+    const user = userEvent.setup();
+    const pendingAdd: { finish: (() => void) | null } = { finish: null };
+    addEntityCombatants.mockReturnValue(
+      new Promise<void>((resolve) => {
+        pendingAdd.finish = resolve;
+      }),
+    );
+    renderRows(
+      buildBaseEntity({ id: 'goblin', name: 'Goblin' }),
+      buildBaseEntity({ id: 'orc', name: 'Orc' }),
+    );
+    const [, orcQuantity] = screen.getAllByLabelText('Quantity');
+    await setQuantity(user, orcQuantity, '3');
+    const [goblinAdd, orcAdd] = screen.getAllByRole('button', { name: 'Add' });
+
+    // Both clicks land before React re-renders, so the second row's button is still enabled while the first add is already pending.
+    act(() => {
+      goblinAdd.click();
+      orcAdd.click();
+    });
+    await waitFor(() => {
+      expect(addEntityCombatants).toHaveBeenCalledTimes(1);
+    });
+    pendingAdd.finish?.();
+    await waitFor(() => {
+      expect(goblinAdd).toBeEnabled();
+    });
+
+    expect(orcQuantity).toHaveValue(3);
   });
 });

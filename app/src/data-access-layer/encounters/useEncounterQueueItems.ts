@@ -17,7 +17,7 @@ type UseEncounterQueueItemsReturn = {
     entityType: BaseEntityType,
     baseEntityId: string,
     quantity: number,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   isAdding: boolean;
   reorderQueueItems: (orderedIds: string[]) => void;
 };
@@ -64,15 +64,16 @@ export const useEncounterQueueItems = (
     entityType: BaseEntityType,
     baseEntityId: string,
     quantity: number,
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     if (
       queryClient.isMutating({
         mutationKey: encounterKeys.addCombatants(encounterId),
       }) > 0
     ) {
-      return;
+      return false;
     }
     await addMutation.mutateAsync({ entityType, baseEntityId, quantity });
+    return true;
   };
 
   const reorderMutation = useMutation({

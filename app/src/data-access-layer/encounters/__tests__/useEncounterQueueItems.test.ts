@@ -76,18 +76,25 @@ describe('useEncounterQueueItems', () => {
     expect(result.current.sibling.isAdding).toBe(false);
   });
 
-  it('calls the service once for a second add in the same call stack as the first', async () => {
-    withDeferredAdd();
+  it('calls the service once for a second add in the same call stack as the first and reports that it was refused', async () => {
+    const releaseAdd = withDeferredAdd();
     const { result } = renderHookWithQueryClient(() => ({
       first: useEncounterQueueItems('encounter-1'),
       second: useEncounterQueueItems('encounter-1'),
     }));
     await settle(0);
 
+    const adds: Promise<boolean>[] = [];
     act(() => {
-      void result.current.first.addEntityCombatants('foes', 'entity-1', 1);
-      void result.current.second.addEntityCombatants('foes', 'entity-1', 1);
+      adds.push(
+        result.current.first.addEntityCombatants('foes', 'entity-1', 1),
+      );
+      adds.push(
+        result.current.second.addEntityCombatants('foes', 'entity-1', 1),
+      );
     });
+    await settle(0);
+    releaseAdd();
     await settle(0);
 
     expect(addEntityCombatants).toHaveBeenCalledTimes(1);
@@ -97,6 +104,7 @@ describe('useEncounterQueueItems', () => {
       'entity-1',
       1,
     );
+    expect(await Promise.all(adds)).toEqual([true, false]);
   });
 
   it('invalidates the queue of the encounter once an add resolved', async () => {
@@ -105,8 +113,11 @@ describe('useEncounterQueueItems', () => {
     );
     await settle(0);
 
-    await act(() => result.current.addEntityCombatants('foes', 'entity-1', 1));
+    const wasAdded = await act(() =>
+      result.current.addEntityCombatants('foes', 'entity-1', 1),
+    );
 
+    expect(wasAdded).toBe(true);
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: encounterKeys.queueItems('encounter-1'),
     });
