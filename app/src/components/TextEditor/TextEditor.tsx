@@ -30,6 +30,7 @@ import { CheckboxReadOnlyPlugin } from './plugins/CheckboxReadOnlyPlugin';
 import { EmbeddedLinkPlugin } from './plugins/EmbeddedLinkPlugin/EmbeddedLinkPlugin';
 import { EmptyNodeHintPlugin } from './plugins/EmptyNodeHintPlugin/EmptyNodeHintPlugin';
 import { ExternalValueSyncPlugin } from './plugins/ExternalValueSyncPlugin';
+import { SendOnEnterPlugin } from './plugins/SendOnEnterPlugin';
 import { MentionFormatPlugin } from './plugins/MentionFormatPlugin/MentionFormatPlugin';
 import { SlashCommandPlugin } from './plugins/SlashCommandPlugin';
 import { TableCellBackgroundGuardPlugin } from './plugins/TableCellBackgroundGuardPlugin/TableCellBackgroundGuardPlugin';
@@ -52,6 +53,10 @@ type Props = {
   placeholder?: string;
   readOnly?: boolean;
   onChange?: (value: string) => void;
+  // 'message' is the one-line composer form of the editor: Enter sends through onSubmit, and the toolbar, slash commands, lists, headings, tables and toggles are left out.
+  variant?: 'document' | 'message';
+  // Resolves true when the message was recorded, false when the write was refused and the text must stay.
+  onSubmit?: (value: string) => Promise<boolean>;
   className?: HtmlProps<'div'>['className'];
 };
 
@@ -92,9 +97,12 @@ export const TextEditor: FCProps<Props> = ({
   onChange,
   placeholder = 'Description...',
   readOnly = false,
+  variant = 'document',
+  onSubmit,
   className,
   ...props
 }) => {
+  const isDocument = variant === 'document';
   const [anchorElem, setAnchorElem] = useState<HTMLDivElement | null>(null);
   const initialConfig = {
     namespace: textEditorId,
@@ -145,9 +153,8 @@ export const TextEditor: FCProps<Props> = ({
           className='text-editor'
           style={
             {
-              '--text-editor-gutter-width': readOnly
-                ? '0'
-                : TEXT_EDITOR_GUTTER_WIDTH,
+              '--text-editor-gutter-width':
+                readOnly || !isDocument ? '0' : TEXT_EDITOR_GUTTER_WIDTH,
             } as CSSProperties
           }
           ref={setAnchorElem}
@@ -163,38 +170,45 @@ export const TextEditor: FCProps<Props> = ({
           />
 
           <HistoryPlugin />
-          <ListPlugin />
-          <CheckListPlugin />
+          {isDocument && <ListPlugin />}
+          {isDocument && <CheckListPlugin />}
           {/* hasCellMerge disabled — insert/delete/move operations assume a regular cell grid */}
-          <TablePlugin hasCellMerge={false} />
-          <TableCellBackgroundGuardPlugin />
-          <TabIndentationPlugin />
-          <LinkPlugin />
-          <EmbeddedLinkPlugin />
+          {isDocument && <TablePlugin hasCellMerge={false} />}
+          {isDocument && <TableCellBackgroundGuardPlugin />}
+          {isDocument && <TabIndentationPlugin />}
+          {isDocument && <LinkPlugin />}
+          {isDocument && <EmbeddedLinkPlugin />}
           <MarkdownShortcutPlugin
-            transformers={[
-              UNORDERED_LIST,
-              ORDERED_LIST,
-              CHECK_LIST,
-              ...TYPOGRAPHIC_TRANSFORMERS,
-            ]}
+            transformers={
+              isDocument
+                ? [
+                    UNORDERED_LIST,
+                    ORDERED_LIST,
+                    CHECK_LIST,
+                    ...TYPOGRAPHIC_TRANSFORMERS,
+                  ]
+                : TYPOGRAPHIC_TRANSFORMERS
+            }
           />
 
           {onChange && <OnChangePlugin onChange={handleChange} />}
           <ExternalValueSyncPlugin value={value} />
-          <ToggleGutterPlugin />
-          {!readOnly && <FloatingToolbar />}
+          {isDocument && <ToggleGutterPlugin />}
+          {isDocument && !readOnly && <FloatingToolbar />}
           {!readOnly && <MentionTypeaheadPlugin />}
-          {!readOnly && <SlashCommandPlugin />}
-          {!readOnly && <TableEdgeHandlePlugin />}
-          {!readOnly && anchorElem && (
+          {isDocument && !readOnly && <SlashCommandPlugin />}
+          {isDocument && !readOnly && <TableEdgeHandlePlugin />}
+          {isDocument && !readOnly && anchorElem && (
             <BlockDragHandlePlugin anchorElem={anchorElem} />
           )}
           {!readOnly && <MentionFormatPlugin />}
-          {!readOnly && <EmptyNodeHintPlugin />}
-          {!readOnly && <ToggleKeyboardPlugin />}
-          {!readOnly && <ToggleHeaderGuardPlugin />}
-          {readOnly && <CheckboxReadOnlyPlugin />}
+          {isDocument && !readOnly && <EmptyNodeHintPlugin />}
+          {isDocument && !readOnly && <ToggleKeyboardPlugin />}
+          {isDocument && !readOnly && <ToggleHeaderGuardPlugin />}
+          {isDocument && readOnly && <CheckboxReadOnlyPlugin />}
+          {!isDocument && !readOnly && onSubmit && (
+            <SendOnEnterPlugin onSubmit={onSubmit} />
+          )}
         </div>
       </LexicalComposer>
     </div>
