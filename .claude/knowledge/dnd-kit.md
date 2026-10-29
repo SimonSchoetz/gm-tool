@@ -48,3 +48,24 @@ The first item is the inferred result of every rect being zero under jsdom, whic
 **Citation:** [spec-writer_2: ran `npx vitest run` on the same scratch test with `{Escape}` pressed between the move and the release — observed `onDragEnd` not called and `requestAnimationFrame` resolved]
 
 A cancelled drag is therefore observable in a component test as the absence of the save a drop would make.
+
+## `@dnd-kit/core`'s pointer sensor stops propagation of the `click` that follows an activated drag
+
+**Verified at:** @dnd-kit/core 6.3.1, 2026-10-29
+**Citation:** [architect_9: `app/node_modules/.pnpm/@dnd-kit+core@6.3.1_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@dnd-kit/core/dist/core.esm.js:1495-1511` — `handleStart` adds `EventName.Click` with `stopPropagation` and `capture: true` on the document once activated]
+
+The click that follows a drop therefore never reaches the dragged entry's own `onClick`, so a drag runs no click rule.
+
+## `@dnd-kit/core`'s pointer sensor removes its document listeners 50 ms after a drag ends, so a click in that window is still swallowed
+
+**Verified at:** @dnd-kit/core 6.3.1, vitest 5.0.2 (jsdom), @testing-library/user-event 14.6.7, ran 2026-10-29
+**Citation:** [implement_1: `app/node_modules/.pnpm/@dnd-kit+core@6.3.1_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@dnd-kit/core/dist/core.esm.js:1475-1479` — `detach` removes the sensor's own listeners at once and calls `setTimeout(this.documentListeners.removeAll, 50)` for the document ones] [implement_2: ran `npx vitest run src/screens/encounter/components/EncounterQueue/__tests__` — a `user.click` in the test right after one that cancelled a drag with Escape reached no `onClick` handler, and the same test passed alone with `-t`]
+
+A test that clicks after a test that dragged waits those 50 ms first.
+
+## `SortableContext` re-measures its droppables when its `items` change during a drag
+
+**Verified at:** @dnd-kit/sortable 10.0.0, 2026-10-29
+**Citation:** [architect_10: `app/node_modules/.pnpm/@dnd-kit+sortable@10.0.0_@dnd-kit+core@6.3.1_react-dom@19.3.0_react@19.3.0__react@19.3.0__react@19.3.0/node_modules/@dnd-kit/sortable/dist/sortable.esm.js:316-320` — a layout effect calls `measureDroppableContainers(items)` when `itemsHaveChanged && isDragging`]
+
+A drop is therefore decided against the list as it stands when the drop happens, after any entries were removed from `items` during the drag.
