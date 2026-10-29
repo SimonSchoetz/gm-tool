@@ -16,9 +16,10 @@ import { useParams } from '@tanstack/react-router';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useEncounterQueueItems } from '@/data-access-layer';
+import { FCProps } from '@/types/fcProps.type';
 import { reorderIds } from '@/util/reorderIds';
 import { useEncounterQueueEntries } from '../../hooks/useEncounterQueueEntries';
-import { EncounterQueueEntry } from './components/EncounterQueueEntry/EncounterQueueEntry';
+import { EncounterQueueEntry } from './components/EncounterQueueEntry';
 import './EncounterQueue.css';
 
 type Props = {
@@ -26,7 +27,7 @@ type Props = {
   onSelect: (id: string) => void;
 };
 
-export const EncounterQueue = ({ selectedId, onSelect }: Props) => {
+export const EncounterQueue: FCProps<Props> = ({ selectedId, onSelect }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });

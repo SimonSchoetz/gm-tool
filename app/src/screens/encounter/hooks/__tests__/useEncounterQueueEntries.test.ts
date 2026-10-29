@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EncounterLogEntry } from '@db/encounter-log-entry';
+import { BASE_ENTITY_TYPES } from '@domain';
 import type * as baseEntityService from '@services/baseEntityService';
 import type * as encounterService from '@services/encounterService';
 import type * as logEntryService from '@services/encounterLogEntryService';
@@ -69,11 +70,12 @@ describe('useEncounterQueueEntries', () => {
       const { result } = renderHook(() => useEncounterQueueEntries(), {
         wrapper: TanstackQueryClientProvider,
       });
-      // Let the other reads settle while this one stays pending.
+      // Only the pending read is still fetching once the others have settled.
       await waitFor(() => {
-        expect(pendingRead).toHaveBeenCalled();
+        expect(queryClient.isFetching()).toBe(
+          pendingRead === getAllBaseEntities ? BASE_ENTITY_TYPES.length : 1,
+        );
       });
-      await new Promise((resolve) => setTimeout(resolve, 20));
 
       expect(result.current).toEqual({ entries: [], loading: true });
     },

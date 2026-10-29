@@ -5,20 +5,3 @@
   min-height: 0;
   padding: var(--spacing-sm);
 }
-
-.encounter-sidebar-panel {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  background-color: var(--color-surface);
-  border: var(--border-thin) solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-/* The class above sets display, which overrides the hidden attribute's default display: none (.claude/knowledge/html.md); without this rule the inactive panel stays visible. */
-.encounter-sidebar-panel[hidden] {
-  display: none;
-}

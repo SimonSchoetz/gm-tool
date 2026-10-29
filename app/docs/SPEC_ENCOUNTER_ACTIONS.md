@@ -36,7 +36,7 @@ One `INSERT` per action; HP, defeated and removed are derived from the queue ite
 
 ### Shared view-model
 
-`buildQueueEntries` and `describeQueueEntryHp` (with `describeQueueEntryImage`, which shares its file) live in `screens/encounter/helper/`, and one hook, `useEncounterQueueEntries`, composes the reads for the queue, the Actions tab and the screen (C6).
+`buildQueueEntries` and `describeQueueEntryHp` live in `screens/encounter/helper/`, and `describeQueueEntryImage` in its own file in `EncounterQueueEntry/helper/`, and one hook, `useEncounterQueueEntries`, composes the reads for the queue, the Actions tab and the screen (C6).
 
 ### Reorder input
 
@@ -90,7 +90,7 @@ The select handler is on the queue entry root, never on the drag handle (C11).
 
 ### A defeated combatant's image turns grey
 
-A defeated combatant's queue entry is not dimmed; its image turns greyscale in place of the red damage tint, whatever its HP, and unmarking brings back its colours and the tint its HP gives; the grey is the one HP 0 or below already gives, and `describeQueueEntryImage` in `describeQueueEntryHp.ts` decides it (row 15).
+A defeated combatant's queue entry is not dimmed; its image turns greyscale in place of the red damage tint, whatever its HP, and unmarking brings back its colours and the tint its HP gives; the grey is the one HP 0 or below already gives, and `describeQueueEntryImage` in `EncounterQueueEntry/helper/` decides it (row 15).
 
 ### The tabs look like browser tabs
 

@@ -4,10 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { EncounterQueueEntry } from '../EncounterQueueEntry';
 
-vi.mock('../../../../EncounterEntityImage/EncounterEntityImage', () => ({
-  EncounterEntityImage: () => null,
-}));
-
 type HpProps = { maxHp: number | null; currentHp: number | null };
 
 const renderEntry = ({

@@ -2,10 +2,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { FCProps } from '@/types/fcProps.type';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
-import {
-  describeQueueEntryHp,
-  describeQueueEntryImage,
-} from '../../../../helper/describeQueueEntryHp';
+import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
+import { describeQueueEntryImage } from './helper/describeQueueEntryImage';
 import './EncounterQueueEntry.css';
 
 type Props = {
@@ -76,8 +74,8 @@ export const EncounterQueueEntry: FCProps<Props> = ({
       >
         <EncounterEntityImage imageId={imageId} size={64} />
         {imageLook === 'tint' && (
-          // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
           <div
+            // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
             className='encounter-queue-entry-tint'
             aria-label='Damage tint'
           />
