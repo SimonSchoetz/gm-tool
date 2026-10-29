@@ -108,3 +108,14 @@ export const encounterLogLoadError = (
   error.name = 'EncounterLogLoadError';
   return error;
 };
+
+type EncounterLogRecordError = Error & { name: 'EncounterLogRecordError' };
+export const encounterLogRecordError = (
+  cause?: unknown,
+): EncounterLogRecordError => {
+  const error = new Error(
+    `Failed to record an encounter log entry: ${String(cause)}`,
+  ) as EncounterLogRecordError;
+  error.name = 'EncounterLogRecordError';
+  return error;
+};

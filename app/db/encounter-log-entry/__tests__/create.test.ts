@@ -56,6 +56,26 @@ describe('create', () => {
     ]);
   });
 
+  it('stores a temp-hp entry with its value-field payload serialized under its own kind', async () => {
+    const { create } = await import('../create');
+    const encounterId = await createEncounter();
+    const payload = { targets: [{ queueItemId: 'a', value: 5 }] };
+
+    const id = await create({
+      encounter_id: encounterId,
+      kind: 'temp-hp',
+      payload,
+    });
+
+    expect(await readEntries()).toEqual([
+      expect.objectContaining({
+        id,
+        kind: 'temp-hp',
+        payload: '{"targets":[{"queueItemId":"a","value":5}]}',
+      }),
+    ]);
+  });
+
   it('rejects a payload with an empty queueItemIds and stores no row', async () => {
     const { create } = await import('../create');
     const encounterId = await createEncounter();

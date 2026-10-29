@@ -1,4 +1,4 @@
-import { serializeLogEntryPayload } from '@domain';
+import { serializeLogEntryPayload, type LogEntryKind } from '@domain';
 import { getDatabase } from '../database';
 import {
   generateId,
@@ -8,8 +8,8 @@ import {
 } from '../util';
 import type { CreateEncounterLogEntryInput } from './types';
 
-export const create = async (
-  data: CreateEncounterLogEntryInput,
+export const create = async <K extends LogEntryKind>(
+  data: CreateEncounterLogEntryInput<K>,
 ): Promise<string> => {
   assertValidId(data.encounter_id, 'Encounter');
 

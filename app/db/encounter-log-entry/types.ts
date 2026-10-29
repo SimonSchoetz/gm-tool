@@ -5,8 +5,8 @@ import { encounterLogEntryTable } from './schema';
 export type EncounterLogEntry = z.infer<
   typeof encounterLogEntryTable.zodSchema
 >;
-export type CreateEncounterLogEntryInput = {
+export type CreateEncounterLogEntryInput<K extends LogEntryKind> = {
   encounter_id: string;
-  kind: LogEntryKind;
-  payload: LogEntryPayload<LogEntryKind>;
+  kind: K;
+  payload: LogEntryPayload<K>;
 };
