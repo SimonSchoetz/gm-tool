@@ -95,6 +95,22 @@ describe('EncounterSidebar', () => {
     expect(onTabChange.mock.calls).toEqual([['actions'], ['add']]);
   });
 
+  it('lists the tabs Add, Actions and Log in that order and reports the Log tab as log', async () => {
+    const onTabChange = vi.fn();
+    const user = userEvent.setup();
+    await renderSidebar(onTabChange);
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.ariaLabel)).toEqual([
+      'Add',
+      'Actions',
+      'Log',
+    ]);
+
+    await user.click(screen.getByRole('tab', { name: 'Log' }));
+
+    expect(onTabChange).toHaveBeenCalledWith('log');
+  });
+
   it('shows only the active tab panel to the accessibility tree', async () => {
     const user = userEvent.setup();
     await renderSidebar();
@@ -108,6 +124,12 @@ describe('EncounterSidebar', () => {
     expect(
       screen.getAllByRole('tabpanel').map((panel) => panel.ariaLabel),
     ).toEqual(['Actions']);
+
+    await user.click(screen.getByRole('tab', { name: 'Log' }));
+
+    expect(
+      screen.getAllByRole('tabpanel').map((panel) => panel.ariaLabel),
+    ).toEqual(['Log']);
   });
 
   it('keeps the Add search text while the Actions tab is open', async () => {

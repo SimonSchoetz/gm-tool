@@ -1,0 +1,45 @@
+.encounter-log-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.encounter-log-entry--automatic,
+.encounter-log-entry--unreadable {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+.encounter-log-entry--message {
+  padding: var(--spacing-sm);
+  background-color: var(--color-surface);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-fg);
+}
+
+.encounter-log-entry-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The element's default text-decoration already strikes the text through. */
+.encounter-log-entry-content del {
+  color: var(--color-fg-muted);
+}
+
+.encounter-log-entry-buttons {
+  display: flex;
+  gap: var(--spacing-xs);
+  visibility: hidden;
+}
+
+.encounter-log-entry:hover .encounter-log-entry-buttons {
+  visibility: visible;
+}
+
+.encounter-log-entry-time {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}

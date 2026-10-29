@@ -32,6 +32,25 @@ describe('useEncounterSelection', () => {
     });
   });
 
+  it.each(['actions', 'log'] as const)(
+    'selects the id and leaves the %s tab open',
+    (tab) => {
+      const { result } = renderSelection();
+      act(() => {
+        result.current.setActiveTab(tab);
+      });
+
+      act(() => {
+        result.current.select('a');
+      });
+
+      expect(result.current).toMatchObject({
+        selectedId: 'a',
+        activeTab: tab,
+      });
+    },
+  );
+
   it('keeps the selection when the tab is switched back to Add', () => {
     const { result } = renderSelection();
     act(() => {

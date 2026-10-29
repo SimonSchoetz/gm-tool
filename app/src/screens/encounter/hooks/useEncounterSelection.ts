@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export type SidebarTab = 'add' | 'actions';
+export type SidebarTab = 'add' | 'actions' | 'log';
 
 export const useEncounterSelection = (
   encounterId: string,
@@ -43,7 +43,8 @@ export const useEncounterSelection = (
 
   const select = (id: string) => {
     setSelectedId(id);
-    setActiveTab('actions');
+    // Only the Add tab follows a selection: a click on a queue entry never pulls the GM out of the log.
+    setActiveTab((tab) => (tab === 'add' ? 'actions' : tab));
   };
 
   return { selectedId, activeTab, select, setActiveTab };
