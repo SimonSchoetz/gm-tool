@@ -18,16 +18,17 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { reorderIds } from '@/util/reorderIds';
+import type { SelectionModifiers } from '../../helper/applySelectionClick';
 import { useEncounterQueueEntries } from '../../hooks/useEncounterQueueEntries';
 import { EncounterQueueEntry } from './components/EncounterQueueEntry';
 import './EncounterQueue.css';
 
 type Props = {
-  selectedId: string | null;
-  onSelect: (id: string) => void;
+  selectedIds: string[];
+  onSelect: (id: string, modifiers: SelectionModifiers) => void;
 };
 
-export const EncounterQueue: FCProps<Props> = ({ selectedId, onSelect }) => {
+export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
@@ -78,7 +79,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedId, onSelect }) => {
             <EncounterQueueEntry
               key={entry.id}
               {...entry}
-              selected={entry.id === selectedId}
+              selected={selectedIds.includes(entry.id)}
               onSelect={onSelect}
             />
           ))}

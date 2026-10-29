@@ -1,0 +1,21 @@
+.encounter-combatant-action-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.encounter-combatant-action-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.encounter-combatant-action-row-hp {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+.encounter-combatant-action-row .encounter-combatant-action-row-amount {
+  width: calc(var(--spacing-3xl) + var(--spacing-md));
+  flex-shrink: 0;
+  text-align: center;
+}

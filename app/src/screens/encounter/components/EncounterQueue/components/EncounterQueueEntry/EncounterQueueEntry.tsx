@@ -1,7 +1,9 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
+import type { SelectionModifiers } from '../../../../helper/applySelectionClick';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { describeQueueEntryImage } from './helper/describeQueueEntryImage';
 import './EncounterQueueEntry.css';
@@ -15,7 +17,7 @@ type Props = {
   tempHp: number;
   defeated: boolean;
   selected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, modifiers: SelectionModifiers) => void;
 };
 
 export const EncounterQueueEntry: FCProps<Props> = ({
@@ -39,8 +41,12 @@ export const EncounterQueueEntry: FCProps<Props> = ({
   } = useSortable({ id });
   const hp = describeQueueEntryHp({ maxHp, currentHp, tempHp });
   const imageLook = describeQueueEntryImage(hp, defeated);
-  // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
-  const imageClassName = `encounter-queue-entry-image encounter-queue-entry-image--${imageLook}`;
+  const imageClassName = cn(
+    // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+    'encounter-queue-entry-image',
+    // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+    `encounter-queue-entry-image--${imageLook}`,
+  );
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -55,8 +61,11 @@ export const EncounterQueueEntry: FCProps<Props> = ({
       // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
       className='encounter-queue-entry'
       aria-current={selected ? 'true' : undefined}
-      onClick={() => {
-        onSelect(id);
+      onClick={(event) => {
+        onSelect(id, {
+          shift: event.shiftKey,
+          toggle: event.metaKey || event.ctrlKey,
+        });
       }}
     >
       <span

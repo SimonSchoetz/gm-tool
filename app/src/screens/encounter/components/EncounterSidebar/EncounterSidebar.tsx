@@ -11,7 +11,7 @@ import './EncounterSidebar.css';
 type Props = {
   activeTab: SidebarTab;
   onTabChange: (tab: SidebarTab) => void;
-  selectedId: string | null;
+  selectedIds: string[];
 };
 
 const TABS: { id: SidebarTab; label: string }[] = [
@@ -23,7 +23,7 @@ const TABS: { id: SidebarTab; label: string }[] = [
 export const EncounterSidebar: FCProps<Props> = ({
   activeTab,
   onTabChange,
-  selectedId,
+  selectedIds,
 }) => (
   <GlassPanel className='encounter-sidebar'>
     <EncounterSidebarTabs
@@ -38,7 +38,7 @@ export const EncounterSidebar: FCProps<Props> = ({
       aria-label='Actions'
       hidden={activeTab !== 'actions'}
     >
-      <EncounterCombatantActionsTab selectedId={selectedId} />
+      <EncounterCombatantActionsTab selectedIds={selectedIds} />
     </EncounterSidebarPanel>
     <EncounterSidebarPanel aria-label='Log' hidden={activeTab !== 'log'}>
       <EncounterLogTab

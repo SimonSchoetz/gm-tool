@@ -5,6 +5,7 @@
   color: var(--color-primary);
   cursor: pointer;
   border-radius: var(--radius-xl);
+  user-select: none;
 }
 
 .encounter-queue-entry[aria-current='true'] {

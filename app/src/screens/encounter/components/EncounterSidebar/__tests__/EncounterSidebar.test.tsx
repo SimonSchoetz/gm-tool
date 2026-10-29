@@ -60,7 +60,7 @@ const StatefulSidebar = ({
         onTabChange(tab);
         setActiveTab(tab);
       }}
-      selectedId={null}
+      selectedIds={[]}
     />
   );
 };

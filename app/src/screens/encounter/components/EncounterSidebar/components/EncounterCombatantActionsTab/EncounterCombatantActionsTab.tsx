@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { parseActionAmount } from '@domain';
 import { Button } from '@/components/Button/Button';
@@ -7,26 +6,30 @@ import { useEncounterLogEntries } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEntries';
-import { getActionAvailability } from './helper/getActionAvailability';
+import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
+import { planGroupAction } from './helper/planGroupAction';
+import type { GroupActionPlan } from './helper/planGroupAction';
+import { useActionAmounts } from './hooks/useActionAmounts';
 import './EncounterCombatantActionsTab.css';
 
-type Props = { selectedId: string | null };
+type Props = { selectedIds: string[] };
 
 export const EncounterCombatantActionsTab: FCProps<Props> = ({
-  selectedId,
+  selectedIds,
 }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
   const { entries } = useEncounterQueueEntries();
   const { recordLogEntry, isWriting } = useEncounterLogEntries(encounterId);
-  // Held in this component, which stays mounted, and not beside the amount field, which unmounts whenever the selection is empty: the amount survives an action and a selection that passes through empty.
-  // Stryker disable next-line StringLiteral: a number input reads any non-numeric text as empty, so a changed initial text shows the same field and parses to no amount
-  const [amountText, setAmountText] = useState('');
-  const entry =
-    entries.find((candidate) => candidate.id === selectedId) ?? null;
+  // Held in this component, which stays mounted, and not beside the amount fields, which unmount whenever the selection is empty: the amounts survive an action and a selection that passes through empty.
+  const { sharedText, amountTextOf, setSharedText, setRowText } =
+    useActionAmounts(selectedIds);
+  const selectedEntries = entries.filter((entry) =>
+    selectedIds.includes(entry.id),
+  );
 
-  if (!entry) {
+  if (selectedEntries.length === 0) {
     return (
       <div className='encounter-combatant-actions-tab'>
         Select a combatant in the queue.
@@ -34,85 +37,69 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
     );
   }
 
-  const hp = describeQueueEntryHp(entry);
-  const amount = parseActionAmount(amountText);
-  const available = getActionAvailability({
-    amount,
-    hasHp: hp !== null,
+  const planRows = selectedEntries.map((entry) => ({
+    id: entry.id,
+    amount: parseActionAmount(amountTextOf(entry.id)),
+    hasHp: describeQueueEntryHp(entry) !== null,
     defeated: entry.defeated,
-    isWriting,
-  });
+  }));
+  const damagePlan = planGroupAction('damage', planRows);
+  const healPlan = planGroupAction('heal', planRows);
+  const tempHpPlan = planGroupAction('temp-hp', planRows);
+  const maxHpPlan = planGroupAction('max-hp', planRows);
+  const defeatedPlan = planGroupAction('defeated', planRows);
+  const undefeatedPlan = planGroupAction('undefeated', planRows);
+  const removedPlan = planGroupAction('removed', planRows);
 
-  const recordAmount = (kind: 'damage' | 'heal') => {
-    // Stryker disable next-line ConditionalExpression: the four amount buttons are disabled while the amount is null, so a click never reaches this guard
-    if (amount === null) return;
-    void recordLogEntry(kind, {
-      targets: [{ queueItemId: entry.id, amount }],
-    });
-  };
-
-  const recordValue = (kind: 'temp-hp' | 'max-hp') => {
-    // Stryker disable next-line ConditionalExpression: the four amount buttons are disabled while the amount is null, so a click never reaches this guard
-    if (amount === null) return;
-    void recordLogEntry(kind, {
-      targets: [{ queueItemId: entry.id, value: amount }],
-    });
-  };
-
-  const recordState = (kind: 'defeated' | 'undefeated' | 'removed') => {
-    void recordLogEntry(kind, { queueItemIds: [entry.id] });
+  const recordPlan = (plan: GroupActionPlan | null) => {
+    // Stryker disable next-line ConditionalExpression: every button is disabled while its plan is null, so a click never reaches this guard
+    if (plan === null) return;
+    void recordLogEntry(plan.kind, plan.payload);
   };
 
   return (
     <div className='encounter-combatant-actions-tab'>
-      <div className='encounter-combatant-actions-tab-row'>
-        <div className='encounter-combatant-actions-tab-text'>
-          <div className='clip-text'>{entry.name}</div>
-          <div className='encounter-combatant-actions-tab-hp'>
-            {hp ? hp.text : 'HP is not set. Set max HP to track it.'}
-          </div>
-        </div>
-
+      {selectedEntries.length > 1 && (
         <Input
-          className='encounter-combatant-actions-tab-amount number-input'
+          className='number-input'
           type='number'
           min={0}
-          aria-label='Amount'
-          placeholder='Amount'
-          value={amountText}
+          aria-label='Shared amount'
+          placeholder='Amount for all'
+          value={sharedText}
           onChange={(event) => {
-            setAmountText(event.currentTarget.value);
+            setSharedText(event.currentTarget.value);
           }}
         />
-      </div>
+      )}
 
       <div className='encounter-combatant-actions-tab-buttons'>
         <Button
           label='Damage'
-          disabled={!available.damage}
+          disabled={isWriting || damagePlan === null}
           onClick={() => {
-            recordAmount('damage');
+            recordPlan(damagePlan);
           }}
         />
         <Button
           label='Heal'
-          disabled={!available.heal}
+          disabled={isWriting || healPlan === null}
           onClick={() => {
-            recordAmount('heal');
+            recordPlan(healPlan);
           }}
         />
         <Button
           label='Set temp HP'
-          disabled={!available.setTempHp}
+          disabled={isWriting || tempHpPlan === null}
           onClick={() => {
-            recordValue('temp-hp');
+            recordPlan(tempHpPlan);
           }}
         />
         <Button
           label='Set max HP'
-          disabled={!available.setMaxHp}
+          disabled={isWriting || maxHpPlan === null}
           onClick={() => {
-            recordValue('max-hp');
+            recordPlan(maxHpPlan);
           }}
         />
       </div>
@@ -120,26 +107,44 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
       <div className='encounter-combatant-actions-tab-buttons'>
         <Button
           label='Mark defeated'
-          disabled={!available.markDefeated}
+          disabled={isWriting || defeatedPlan === null}
           onClick={() => {
-            recordState('defeated');
+            recordPlan(defeatedPlan);
           }}
         />
         <Button
           label='Unmark defeated'
-          disabled={!available.unmarkDefeated}
+          disabled={isWriting || undefeatedPlan === null}
           onClick={() => {
-            recordState('undefeated');
+            recordPlan(undefeatedPlan);
           }}
         />
         <Button
           label='Remove'
           buttonStyle='danger'
-          disabled={!available.remove}
+          // Stryker disable next-line ConditionalExpression: the buttons render only for a non-empty selection, so removedPlan is never null here and no input observes a difference
+          disabled={isWriting || removedPlan === null}
           onClick={() => {
-            recordState('removed');
+            recordPlan(removedPlan);
           }}
         />
+      </div>
+
+      <div className='encounter-combatant-actions-tab-rows'>
+        {selectedEntries.map((entry) => {
+          const hp = describeQueueEntryHp(entry);
+          return (
+            <EncounterCombatantActionRow
+              key={entry.id}
+              name={entry.name}
+              hpText={hp ? hp.text : 'HP is not set. Set max HP to track it.'}
+              amountText={amountTextOf(entry.id)}
+              onAmountChange={(text) => {
+                setRowText(entry.id, text);
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

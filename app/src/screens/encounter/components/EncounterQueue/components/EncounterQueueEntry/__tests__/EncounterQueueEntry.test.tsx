@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import type { SelectionModifiers } from '../../../../../helper/applySelectionClick';
 import { EncounterQueueEntry } from '../EncounterQueueEntry';
 
 type HpProps = { maxHp: number | null; currentHp: number | null };
@@ -15,7 +16,7 @@ const renderEntry = ({
 }: Partial<HpProps> & {
   defeated?: boolean;
   selected?: boolean;
-  onSelect?: (id: string) => void;
+  onSelect?: (id: string, modifiers: SelectionModifiers) => void;
 } = {}) =>
   render(
     <EncounterQueueEntry
@@ -44,7 +45,9 @@ const StatefulEntry = () => {
       tempHp={0}
       defeated={false}
       selected={selectedId === 'item-7'}
-      onSelect={setSelectedId}
+      onSelect={(id) => {
+        setSelectedId(id);
+      }}
     />
   );
 };
@@ -53,15 +56,40 @@ const isCurrent = () =>
   screen.getByText('Goblin').closest('[aria-current="true"]') !== null;
 
 describe('EncounterQueueEntry', () => {
-  it('reports its own id once when it is clicked', async () => {
+  it('reports its own id once with no modifiers on a plain click', async () => {
     const onSelect = vi.fn();
     const user = userEvent.setup();
     renderEntry({ onSelect });
 
     await user.click(screen.getByText('Goblin'));
 
-    expect(onSelect.mock.calls).toEqual([['item-7']]);
+    expect(onSelect.mock.calls).toEqual([
+      ['item-7', { shift: false, toggle: false }],
+    ]);
   });
+
+  it.each([
+    ['a Shift-click', '{Shift>}', { shift: true, toggle: false }],
+    ['a Meta-click', '{Meta>}', { shift: false, toggle: true }],
+    ['a Ctrl-click', '{Control>}', { shift: false, toggle: true }],
+    [
+      'a Shift-click with Meta held',
+      '{Shift>}{Meta>}',
+      { shift: true, toggle: true },
+    ],
+  ])(
+    'reports its own id once with the modifiers of %s',
+    async (_case, keys, modifiers) => {
+      const onSelect = vi.fn();
+      const user = userEvent.setup();
+      renderEntry({ onSelect });
+
+      await user.keyboard(keys);
+      await user.click(screen.getByText('Goblin'));
+
+      expect(onSelect.mock.calls).toEqual([['item-7', modifiers]]);
+    },
+  );
 
   it('is marked as the current item after a click and not before', async () => {
     const user = userEvent.setup();
