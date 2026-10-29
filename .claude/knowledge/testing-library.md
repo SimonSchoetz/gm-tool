@@ -76,3 +76,10 @@ The `setTimeout` that `asyncWrapper` awaits is advanced only through a `jest` gl
 **Citation:** [spec-writer_3: ran `npx vitest run src/data-access-layer/encounters/__tests__/scratchUseQueue.test.tsx` in `app/` — observed 2 passed: a hook whose `useMutation` `mutationFn` rejected, on a client from `createQueryClient()` (mutation `throwOnError: true`), rendered with `renderHook` in a wrapper of `ErrorBoundary` around `QueryClientProvider`, left a spy on that client's `invalidateQueries` called with the key the mutation's `onError` invalidates; scratch deleted]
 
 The test reads the spy after `await act(() => vi.advanceTimersByTimeAsync(0))`. `renderHookWithQueryClient` offers no wrapper option, so a hook test of a mutation failure builds its own client and wrapper.
+
+## Under Vitest's `css: true`, a button an imported stylesheet hides with `visibility: hidden` is not found by `queryByRole` with a `name`, even with `hidden: true`, while `queryByText` finds it
+
+**Verified at:** @testing-library/dom 10.4.1, jsdom 30.1.1, vitest 5.0.2 — 2026-10-29
+**Citation:** [refine-claude_1: ran `npx vitest run` in `app/` on a scratch test rendering `<div class='probe-row'><button class='probe-btn'>Revert</button></div>` with an imported stylesheet `.probe-btn { visibility: hidden; } .probe-row:hover .probe-btn { visibility: visible; }` — observed `getComputedStyle(button).visibility` `hidden`, `queryByRole('button', { name: 'Revert' })` and `queryByRole('button', { name: 'Revert', hidden: true })` both `null`, `queryByText('Revert')` found; scratch deleted] [refine-claude_2: `app/node_modules/.pnpm/@testing-library+react@16.3.3_…/node_modules/@testing-library/dom/dist/role-helpers.js:67` — `isInaccessible` returns true when the computed `visibility` is `hidden`]
+
+jsdom applies the stylesheet because `app/vitest.config.ts` sets `css: true`, and no `:hover` state is ever matched, so a hover-revealed control stays hidden for the whole test; a role query for it returns `null` whether the control is rendered or not.
