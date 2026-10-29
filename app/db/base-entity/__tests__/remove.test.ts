@@ -58,19 +58,15 @@ describe('remove', () => {
     const encounterId = await createEncounter(adventureId);
     const removedId = await create('foes', adventureId);
     const keptId = await create('foes', adventureId);
-    await createMany(
-      [
-        { baseEntityId: removedId, name: 'Goblin', sort_order: 0 },
-        { baseEntityId: keptId, name: 'Orc', sort_order: 1 },
-      ].map(({ baseEntityId, name, sort_order }) => ({
-        encounter_id: encounterId,
-        kind: 'combatant' as const,
-        base_entity_id: baseEntityId,
-        sequence_number: 1,
-        sort_order,
-        name,
-      })),
-    );
+    const queueItem = (baseEntityId: string, sortOrder: number) => ({
+      encounter_id: encounterId,
+      kind: 'combatant' as const,
+      base_entity_id: baseEntityId,
+      sequence_number: 1,
+      sort_order: sortOrder,
+    });
+    await createMany([queueItem(removedId, 0)], { name: 'Goblin' });
+    await createMany([queueItem(keptId, 1)], { name: 'Orc' });
 
     await remove(removedId);
 
