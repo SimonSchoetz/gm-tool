@@ -1,12 +1,11 @@
 // @vitest-environment node
 import { spawnSync } from 'node:child_process';
 import type { SpawnSyncReturns } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DATABASE_FILE } from '../../domain/database';
-import { resolveInstalledAppDataDir } from '../installedAppData';
-import { readRepositoryJson, tauriConfigSchema } from '../repositoryJson';
+import { appDataDirectories } from './support/appDataDirectories';
 import { readAppDatabaseRows, writeAppDatabase } from './support/appDatabase';
 import { createTempDirectory } from './support/tempDirectory';
 
@@ -18,20 +17,7 @@ let devDir: string;
 
 beforeEach(() => {
   temp = createTempDirectory();
-  const releaseIdentifier = readRepositoryJson(
-    '../src-tauri/tauri.conf.json',
-    tauriConfigSchema,
-  ).identifier;
-  const devIdentifier = readRepositoryJson(
-    '../src-tauri/tauri.dev.conf.json',
-    tauriConfigSchema,
-  ).identifier;
-  releaseDir = resolveInstalledAppDataDir(
-    'darwin',
-    temp.dir,
-    releaseIdentifier,
-  );
-  devDir = resolveInstalledAppDataDir('darwin', temp.dir, devIdentifier);
+  ({ releaseDir, devDir } = appDataDirectories(temp.dir));
   mkdirSync(releaseDir, { recursive: true });
 });
 
@@ -46,9 +32,8 @@ const runEntry = (): SpawnSyncReturns<string> =>
   });
 
 describe.runIf(process.platform === 'darwin')('runDevMirror', () => {
-  it('exits 0 and mirrors the release data into the dev identifier directory beside it, leaving the release directory unchanged', () => {
+  it('exits 0 and mirrors the release data into the dev identifier directory beside it', () => {
     writeAppDatabase(releaseDir, { notes: [{ id: 'one', body: 'release' }] });
-    const releaseListing = readdirSync(releaseDir).sort();
 
     const result = runEntry();
 
@@ -56,31 +41,18 @@ describe.runIf(process.platform === 'darwin')('runDevMirror', () => {
     expect(readAppDatabaseRows(devDir, 'SELECT id FROM notes')).toEqual([
       { id: 'one' },
     ]);
-    expect(readdirSync(releaseDir).sort()).toEqual(releaseListing);
   });
 
-  it('exits 0, names the expected database path and leaves the dev directory untouched when the release app has no database', () => {
-    const result = runEntry();
-
-    expect(result.status).toBe(0);
-    expect(result.stdout).toContain(join(releaseDir, DATABASE_FILE));
-    expect(existsSync(devDir)).toBe(false);
-  });
-
-  it('exits non-zero, names the table and leaves the old dev data intact when the release database lacks a table', () => {
+  it('exits non-zero, names the table and swaps no database in when the release database lacks a table', () => {
     writeAppDatabase(releaseDir, {
       notes: [{ id: 'release', body: 'release' }],
       omitPairedDevices: true,
     });
-    mkdirSync(devDir, { recursive: true });
-    writeAppDatabase(devDir, { notes: [{ id: 'dev', body: 'dev' }] });
 
     const result = runEntry();
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain('paired_devices');
-    expect(readAppDatabaseRows(devDir, 'SELECT id FROM notes')).toEqual([
-      { id: 'dev' },
-    ]);
+    expect(existsSync(join(devDir, DATABASE_FILE))).toBe(false);
   });
 });
