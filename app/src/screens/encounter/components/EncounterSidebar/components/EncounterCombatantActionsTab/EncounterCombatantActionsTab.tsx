@@ -7,6 +7,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEntries';
 import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
+import { describeActionRowHp } from './helper/describeActionRowHp';
 import { planGroupAction } from './helper/planGroupAction';
 import type { GroupActionPlan } from './helper/planGroupAction';
 import { useActionAmounts } from './hooks/useActionAmounts';
@@ -115,7 +116,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
           <EncounterCombatantActionRow
             key={entry.id}
             name={entry.name}
-            hpText={hp ? hp.text : 'HP is not set. Set max HP to track it.'}
+            hpText={describeActionRowHp(hp)}
             amountText={amountTextOf(entry.id)}
             onAmountChange={(text) => {
               setRowText(entry.id, text);

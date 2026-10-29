@@ -21,7 +21,10 @@ import { FCProps } from '@/types/fcProps.type';
 import type { SelectionModifiers } from '../../helper/applySelectionClick';
 import { useEncounterQueueEntries } from '../../hooks/useEncounterQueueEntries';
 import { EncounterQueueEntry } from './components/EncounterQueueEntry';
+import { countOtherDragged } from './helper/countOtherDragged';
+import { foldBlockDrag } from './helper/foldBlockDrag';
 import { getBlockDragOtherIds } from './helper/getBlockDragOtherIds';
+import { getDraggedIds } from './helper/getDraggedIds';
 import { reorderIdsAsBlock } from './helper/reorderIdsAsBlock';
 import './EncounterQueue.css';
 
@@ -65,9 +68,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
     setBlockDrag({ activeId, otherIds, folded: false });
     // The other entries leave the list one frame after the drag starts: removed in the commit that starts it, they leave the dragged entry above the pointer by their height, because dnd-kit measures the entry after the removal. The failure is invisible to tests (jsdom computes no layout).
     requestAnimationFrame(() => {
-      setBlockDrag((current) =>
-        current === null ? current : { ...current, folded: true },
-      );
+      setBlockDrag(foldBlockDrag);
     });
   };
 
@@ -84,9 +85,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
     reorderQueueItems(
       reorderIdsAsBlock(
         queueItems.map((item) => item.id),
-        blockDrag === null
-          ? [String(active.id)]
-          : [String(active.id), ...blockDrag.otherIds],
+        getDraggedIds(String(active.id), blockDrag),
         String(active.id),
         String(over.id),
       ),
@@ -116,9 +115,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
               key={entry.id}
               {...entry}
               selected={selectedIds.includes(entry.id)}
-              otherDraggedCount={
-                blockDrag?.activeId === entry.id ? blockDrag.otherIds.length : 0
-              }
+              otherDraggedCount={countOtherDragged(entry.id, blockDrag)}
               onSelect={onSelect}
             />
           ))}
