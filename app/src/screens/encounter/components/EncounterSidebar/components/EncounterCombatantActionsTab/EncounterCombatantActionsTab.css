@@ -21,7 +21,7 @@
 }
 
 .encounter-combatant-actions-tab .encounter-combatant-actions-tab-amount {
-  width: var(--spacing-3xl);
+  width: calc(var(--spacing-3xl) + var(--spacing-md));
   flex-shrink: 0;
   text-align: center;
 }
