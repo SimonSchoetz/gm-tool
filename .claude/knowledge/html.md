@@ -27,3 +27,10 @@ Code that reads the caret of an `<input type='number'>` gets no position from it
 **Citation:** [spec-writer_8: https://html.spec.whatwg.org/multipage/forms.html#the-label-element — Content model: "Phrasing content, but with no descendant labelable elements unless it is the element's labeled control, and no descendant label elements."; "If the for attribute is not specified, but the label element has a labelable element descendant, then the first such descendant in tree order is the label element's labeled control."]
 
 `<label><span>HP</span><input /></label>` is valid markup that makes the input the label's control, so a click on the label text focuses the input with no `for`/`id` pair. A second labelable element, or a nested `label`, inside it is not permitted.
+
+## The `hidden` attribute hides an element through a user-agent default rule, which the standard says style sheets can override
+
+**Verified at:** HTML Living Standard, fetched 2026-10-29
+**Citation:** [spec-writer_5: https://html.spec.whatwg.org/multipage/rendering.html — 15.3.1 Hidden elements: `[hidden]:not([hidden=until-found i]):not(embed) { display: none; }`; 15.2: these rules are "expected to be used as part of the user-agent level style sheet defaults for all documents"; 15.1: the `hidden` attribute "normally means the element is not being rendered, though this might be overridden by the style sheets"]
+
+A `display` value that an author rule sets on an element carrying `hidden` can override that default, so a panel whose class sets `display` needs its own `[hidden] { display: none }` rule beside it to stay hidden.

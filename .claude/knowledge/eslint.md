@@ -205,3 +205,10 @@ A dynamic `import()` of a restricted module passes both rules, and a `vi.mock('<
 **Citation:** [code-reviewer_4: `app/node_modules/.pnpm/eslint-plugin-import-x@4.17.1_*/node_modules/eslint-plugin-import-x/lib/rules/no-restricted-paths.js:142` — `absoluteExceptionPaths = zoneExcept.map(exceptionPath => path.resolve(absoluteFrom, exceptionPath))`] [implement_9: the same file :139-146 — `isPathRestricted` tests `containsPath(absoluteImportPath, absoluteFrom)`, every exception must satisfy `isValidExceptionPath(absoluteFrom, …)`, and an import inside an exception path is not reported]
 
 A zone `{ from: './dev-data-server', except: ['./protocol.ts'] }` exempts `dev-data-server/protocol.ts`, written relative to the zone's folder rather than to `basePath`.
+
+## `react-hooks/set-state-in-render` does not fire on a `setState` call guarded by a comparison in a hook's render body, and fires on an unconditional one, under this project's `eslint.config.js`
+
+**Verified at:** eslint-plugin-react-hooks 7.1.1, eslint 10.11.0, ran 2026-10-29
+**Citation:** [spec-writer_1: ran `npx eslint src/screens/encounter/hooks/scratchSelection.ts` from `app/` on a hook with two render-phase `if (… !== …) { setX(…) }` blocks and an Escape `keydown` effect — observed only `local/no-unused-exports` on its two exports; `tsc --noEmit` exit 0] [spec-writer_2: ran `npx eslint src/screens/encounter/hooks/scratchControl.ts` on a hook calling `setValue(1)` unconditionally in its body — observed `react-hooks/set-state-in-render` "Found setState() in render"]
+
+A render-phase `if (prevInput !== input) { setPrevInput(input); setDerived(…) }` or `if (selectedId !== null && !shownIds.includes(selectedId)) setSelectedId(null)` passes the lint row, so the store-the-previous-value reset needs no suppression.
