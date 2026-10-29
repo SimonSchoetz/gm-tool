@@ -272,3 +272,45 @@ Without `ignoreSelectionChange`, merely placing the caret in an editor — click
 **Citation:** [spec-writer_13: ran `npx vitest run src/screens/encounter/components/EncounterNotes/__tests__/scratch.test.tsx` in `app/` — a test rendered `TextEditor` from `@/components/TextEditor` inside `TanstackQueryClientProvider`, with `@tanstack/react-router` mocked to `useParams: () => ({ adventureId: 'adventure-1' })` and `@services/tableConfigService` mocked, clicked its `[contenteditable="true"]` element and ran `user.keyboard('hello')`; `onChange` had been called, and the last value it received was `{"root":{"children":[],"direction":null,"format":"","indent":0,"type":"root","version":1}}`, without `hello`; scratch deleted]
 
 `TextEditor` renders in jsdom only with `useParams` answered (its `MentionTypeaheadPlugin` calls it) and the table-config query served. A test cannot assert what a user typing into it saves, because the typed text never enters the editor state.
+
+## `LexicalTypeaheadMenuPlugin` takes a `commandPriority` prop, default `COMMAND_PRIORITY_LOW`, which sets the priority of every key handler of its menu, Enter included
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [spec-writer_1: `app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx:138,162,300` — `commandPriority?: CommandListenerPriority` declared, defaulted to `COMMAND_PRIORITY_LOW` and forwarded to `LexicalMenu`; `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:318,572,590` — the menu's `KEY_ENTER_COMMAND` listener is registered with that value; `app/node_modules/@lexical/react/dist/LexicalTypeaheadMenuPlugin.d.ts:25` — the prop is in the shipped declaration]
+
+`MentionTypeaheadPlugin` passes no `commandPriority`, so its menu keys run at `COMMAND_PRIORITY_LOW`.
+
+## `LexicalMenu` registers its `KEY_ENTER_COMMAND` listener again whenever `options` or `selectedIndex` change, and the listener acts only when `options[selectedIndex]` exists and Shift is not held
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [spec-writer_2: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:571-591` — the `KEY_ENTER_COMMAND` listener returns false for a null `options`, a null `selectedIndex`, a missing `options[selectedIndex]` or `event.shiftKey`, otherwise calls `selectOptionAndCleanUp` and returns true; :593-602 — the effect registering it lists `options` and `selectedIndex` among its dependencies]
+
+Each re-registration adds the listener behind the others already at its priority, so another `COMMAND_PRIORITY_LOW` listener cannot be relied on to run after it.
+
+## `COMMAND_PRIORITY_BEFORE_EDITOR` runs after every `COMMAND_PRIORITY_LOW` listener and before the `COMMAND_PRIORITY_EDITOR` ones, the default rich-text Enter handler included
+
+**Verified at:** lexical 0.52.0, @lexical/rich-text 0.52.0
+**Citation:** [spec-writer_3: `app/node_modules/lexical/src/LexicalEditor.ts:669,689-693,1426-1433` — `COMMAND_PRIORITY_BEFORE_EDITOR = -8`, `normalizePriority` is `priority & 7` so it maps to bucket 0, and a listener whose priority differs from its bucket is added to the front of that bucket; `app/node_modules/lexical/src/LexicalUpdates.ts:1034` — `triggerCommandListeners` walks the buckets from 4 down to 0 and stops at the first listener returning true; `app/node_modules/@lexical/rich-text/src/index.ts:1788-1840` — the default `KEY_ENTER_COMMAND` handler is registered with `COMMAND_PRIORITY_EDITOR`]
+
+A listener at `COMMAND_PRIORITY_BEFORE_EDITOR` therefore sees an Enter that the typeahead menu (at its default `COMMAND_PRIORITY_LOW`) did not take, regardless of the order the two were registered in.
+
+## Escape on the typeahead menu closes it without calling `onQueryChange`, so a consumer's `options` stay populated until the next editor update
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [spec-writer_4: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:536-552` — the `KEY_ESCAPE_COMMAND` listener calls `close()` unless `rendersNothing`, which is false whenever a `menuRenderFn` is given; `app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx:175-190` — `closeTypeahead` calls `onClose` and `setResolution(null)`; `grep -n onQueryChange` over that file — found at :125 (the prop's declaration), :147 (its doc comment), :155 (the destructuring), :236 (the one call, inside the editor update listener) and :271 (a dependency array)]
+
+A flag derived from the consumer's `options.length` alone therefore stays true after Escape; the `onOpen` and `onClose` props report the menu's own open state.
+
+## A `keydown` dispatched with `fireEvent.keyDown` on the editor's `contenteditable` element reaches `KEY_ENTER_COMMAND` listeners under jsdom
+
+**Verified at:** lexical 0.52.0, @testing-library/react (installed), jsdom (installed), vitest ^5.0.2
+**Citation:** [spec-writer_5: ran `npx vitest run src/components/TextEditor/plugins/__tests__/scratch.test.tsx --reporter=verbose --disableConsoleIntercept` in `app/` — a test rendered `LexicalComposer` with `RichTextPlugin` and a probe registering `KEY_ENTER_COMMAND` at `COMMAND_PRIORITY_HIGH`, set the text "hello" through `editor.update`, then called `dispatchCommand` once and `fireEvent.keyDown` on `[contenteditable="true"]` three times (`key: 'Enter', keyCode: 13`, the same with `shiftKey: true`, and `key: 'Enter'` alone); the listener ran four times, each reading the text "hello" through `editor.getEditorState().read`, with `shiftKey` true only on the third; scratch deleted]
+
+Unlike typing with user-event (the entry above), a test can drive Enter and Shift+Enter into the editor this way and read the resulting editor state; whether a default action followed was not observed.
+
+## `LexicalEvents.ts` dispatches `KEY_ENTER_COMMAND` with a `null` event when a composition ends on a line break, so an Enter listener must accept `KeyboardEvent | null`
+
+**Verified at:** lexical 0.52.0, @lexical/react 0.52.0
+**Citation:** [spec-writer_32: `app/node_modules/lexical/src/LexicalEvents.ts:1564` — `dispatchCommand(editor, KEY_ENTER_COMMAND, null)` after the comment "If the last character is a line break, we also need to insert a line break"; `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:571-577` — the library's own Enter listener is typed `(event: KeyboardEvent | null)` and guards `event !== null` before `preventDefault`]
+
+A listener that dereferences `event` unguarded throws on that dispatch.
