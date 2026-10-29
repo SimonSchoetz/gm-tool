@@ -71,7 +71,7 @@ Entity vocabulary grounded in the actual database schema. Most terms below own a
 - **Combat log entry** — One row of an Encounter's Combat log (`encounter_log_entries`, `db/encounter-log-entry/schema.ts`): a `kind` and a text `payload`. Adding combatants writes an `added` entry.
 - **Image** — A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items.
 - **Table Config** — Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity.
-- **Content section** — An ordered (`sort_order`), typed (`text` or `5e-stat-block`) child row of a Base entity (`db/base-entity-content-section/schema.ts`), linked by `base_entity_id` with cascade delete. It is not scoped by `adventure_id`. A base entity's summary is held in its content sections; `base_entities` has no summary column.
+- **Content section** — An ordered (`sort_order`), typed (`text`, `basic-stat-block` or `5e-stat-block`, `BASE_ENTITY_CONTENT_SECTION_TYPES` in `domain/base-entity-content-sections/contentSectionTypes.ts`) child row of a Base entity (`db/base-entity-content-section/schema.ts`), linked by `base_entity_id` with cascade delete. It is not scoped by `adventure_id`. A base entity's summary is held in its content sections; `base_entities` has no summary column.
 
 ## Third-Party Libraries
 
