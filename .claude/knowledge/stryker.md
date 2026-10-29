@@ -81,3 +81,17 @@ A command can therefore tell which file holds the active mutant by searching the
 **Citation:** [mutation-speed_6: ran `npx vitest related --run --passWithNoTests --bail 1 --maxWorkers 1 domain/base-entity-content-sections/wholeNumberInput.ts` in `app/` — observed `Tests 264 passed (264)`, `jsdom was created 82 times` and `Duration 19.00s`]
 
 The initial dry run and every surviving mutant of such a file pay this time; a killed mutant stops at its first failing test file because of `--bail 1`.
+
+## A `// Stryker disable next-line ArrayDeclaration` comment written as the last statement of an `useEffect` callback, above `}, []);`, leaves the dependency array's mutant active; written between the call's arguments, directly above `[]`, it ignores it
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-29
+**Citation:** [implementer_1: ran `pnpm run mutation-check -- app/src/screens/encounter/hooks/useEncounterSelection.ts` — observed the survivor `useEncounterSelection.ts:39:6 ArrayDeclaration` with the comment inside the callback body, and `mutation-check: passed` once the comment sat between the arguments of `useEffect(`]
+
+This is the same placement limit the entry on the comment above `} catch {` records: a comment inside a block does not reach a mutant on the line after the block closes.
+
+## A `// Stryker disable next-line StringLiteral` comment between the attributes of a JSX opening tag, directly above `className='…'`, ignores that attribute's StringLiteral mutant
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-29
+**Citation:** [implementer_2: ran `pnpm run mutation-check` in the repository root on `EncounterQueueEntry.tsx` — observed `mutation-check: passed` with the comment above `className='encounter-queue-entry'` and above `className='encounter-queue-entry-tint'`, where the earlier run listed `StringLiteral → ""` survivors on both attribute lines]
+
+The comment is a `//` line inside the tag, between two attributes.
