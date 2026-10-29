@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
+import { BASE_ENTITY_ID } from '@/__tests__/support/buildBaseEntity';
 import {
   QUEUE_ITEM_ENCOUNTER_ID,
   buildEncounterQueueItem,
@@ -65,7 +66,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     act(() => {
-      void result.current.adder.addEntityCombatants('foes', 'entity-1', 2);
+      void result.current.adder.addEntityCombatants('foes', BASE_ENTITY_ID, 2);
     });
 
     await settle(0);
@@ -90,10 +91,10 @@ describe('useEncounterQueueItems', () => {
     const adds: Promise<boolean>[] = [];
     act(() => {
       adds.push(
-        result.current.first.addEntityCombatants('foes', 'entity-1', 1),
+        result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
       );
       adds.push(
-        result.current.second.addEntityCombatants('foes', 'entity-1', 1),
+        result.current.second.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
       );
     });
     await settle(0);
@@ -104,7 +105,7 @@ describe('useEncounterQueueItems', () => {
     expect(addEntityCombatants).toHaveBeenCalledWith(
       QUEUE_ITEM_ENCOUNTER_ID,
       'foes',
-      'entity-1',
+      BASE_ENTITY_ID,
       1,
     );
     expect(await Promise.all(adds)).toEqual([true, false]);
@@ -117,7 +118,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     const wasAdded = await act(() =>
-      result.current.addEntityCombatants('foes', 'entity-1', 1),
+      result.current.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
     );
 
     expect(wasAdded).toBe(true);
@@ -205,7 +206,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     act(() => {
-      void result.current.first.addEntityCombatants('foes', 'entity-1', 1);
+      void result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID, 1);
     });
     await settle(0);
     act(() => {
