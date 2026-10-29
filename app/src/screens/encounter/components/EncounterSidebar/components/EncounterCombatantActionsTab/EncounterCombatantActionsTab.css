@@ -19,3 +19,15 @@
   font-size: var(--font-size-md);
   color: var(--color-fg-muted);
 }
+
+.encounter-combatant-actions-tab .encounter-combatant-actions-tab-amount {
+  width: var(--spacing-3xl);
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.encounter-combatant-actions-tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}

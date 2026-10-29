@@ -1,7 +1,7 @@
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import type { SidebarTab } from '../../hooks/useEncounterSelection';
 import { EncounterAddTab } from './components/EncounterAddTab';
-import { EncounterCombatantActionsTab } from './components/EncounterCombatantActionsTab/EncounterCombatantActionsTab';
+import { EncounterCombatantActionsTab } from './components/EncounterCombatantActionsTab';
 import { EncounterSidebarTabs } from './components/EncounterSidebarTabs/EncounterSidebarTabs';
 import './EncounterSidebar.css';
 

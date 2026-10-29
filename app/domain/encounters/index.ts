@@ -16,6 +16,7 @@ export {
   MIN_ADD_QUANTITY,
   MAX_ADD_QUANTITY,
 } from './addQuantity';
+export { parseActionAmount } from './actionAmount';
 export { deriveCombatState } from './deriveCombatState';
 export {
   shownCombatantNames,
