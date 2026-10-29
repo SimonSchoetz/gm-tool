@@ -12,10 +12,12 @@ const renderEntry = ({
   currentHp = null,
   defeated = false,
   selected = false,
+  otherDraggedCount = 0,
   onSelect = vi.fn(),
 }: Partial<HpProps> & {
   defeated?: boolean;
   selected?: boolean;
+  otherDraggedCount?: number;
   onSelect?: (id: string, modifiers: SelectionModifiers) => void;
 } = {}) =>
   render(
@@ -28,6 +30,7 @@ const renderEntry = ({
       tempHp={0}
       defeated={defeated}
       selected={selected}
+      otherDraggedCount={otherDraggedCount}
       onSelect={onSelect}
     />,
   );
@@ -45,6 +48,7 @@ const StatefulEntry = () => {
       tempHp={0}
       defeated={false}
       selected={selectedId === 'item-7'}
+      otherDraggedCount={0}
       onSelect={(id) => {
         setSelectedId(id);
       }}
@@ -90,6 +94,15 @@ describe('EncounterQueueEntry', () => {
       expect(onSelect.mock.calls).toEqual([['item-7', modifiers]]);
     },
   );
+
+  it('shows how many other entries travel with it only when that count is above 0', () => {
+    const { unmount } = renderEntry({ otherDraggedCount: 3 });
+    expect(screen.getByText('+3')).toBeInTheDocument();
+    unmount();
+
+    renderEntry({ otherDraggedCount: 0 });
+    expect(screen.queryByText(/^\+\d+$/)).not.toBeInTheDocument();
+  });
 
   it('is marked as the current item after a click and not before', async () => {
     const user = userEvent.setup();

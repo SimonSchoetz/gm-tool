@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -11,17 +12,20 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import type { DragEndEvent } from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { useParams } from '@tanstack/react-router';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import { reorderIds } from '@/util/reorderIds';
 import type { SelectionModifiers } from '../../helper/applySelectionClick';
 import { useEncounterQueueEntries } from '../../hooks/useEncounterQueueEntries';
 import { EncounterQueueEntry } from './components/EncounterQueueEntry';
+import { getBlockDragOtherIds } from './helper/getBlockDragOtherIds';
+import { reorderIdsAsBlock } from './helper/reorderIdsAsBlock';
 import './EncounterQueue.css';
+
+type BlockDrag = { activeId: string; otherIds: string[]; folded: boolean };
 
 type Props = {
   selectedIds: string[];
@@ -42,6 +46,8 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
     }),
   );
 
+  const [blockDrag, setBlockDrag] = useState<BlockDrag | null>(null);
+
   if (loading) {
     return (
       <div className='content-center'>
@@ -50,36 +56,69 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
     );
   }
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const activeId = String(event.active.id);
+    const otherIds = getBlockDragOtherIds(selectedIds, activeId);
+    // Stryker disable next-line ConditionalExpression: with no other selected entry the state would hold an empty otherIds, which folds nothing, badges nothing and adds nothing to the block, so no input observes a difference
+    if (otherIds.length === 0) return;
+
+    setBlockDrag({ activeId, otherIds, folded: false });
+    // The other entries leave the list one frame after the drag starts: removed in the commit that starts it, they leave the dragged entry above the pointer by their height, because dnd-kit measures the entry after the removal. The failure is invisible to tests (jsdom computes no layout).
+    requestAnimationFrame(() => {
+      setBlockDrag((current) =>
+        current === null ? current : { ...current, folded: true },
+      );
+    });
+  };
+
+  const handleDragCancel = () => {
+    setBlockDrag(null);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setBlockDrag(null);
     if (!over || active.id === over.id) return;
 
     // The full list in the DAL's order, never the shown ids: a shown-only list would rewrite sort_order for the shown items alone, and the cache update would drop the hidden and removed items.
     reorderQueueItems(
-      reorderIds(
+      reorderIdsAsBlock(
         queueItems.map((item) => item.id),
+        blockDrag === null
+          ? [String(active.id)]
+          : [String(active.id), ...blockDrag.otherIds],
         String(active.id),
         String(over.id),
       ),
     );
   };
 
+  const shownEntries = entries.filter(
+    (entry) => !(blockDrag?.folded && blockDrag.otherIds.includes(entry.id)),
+  );
+
   return (
     <GlassPanel className='encounter-queue' intensity='off'>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={entries.map((entry) => entry.id)}
+          // Stryker disable next-line ArrowFunction: the sorting strategy reads items only to compute transforms from measured rects, which jsdom does not compute, so no input observes a difference
+          items={shownEntries.map((entry) => entry.id)}
           strategy={verticalListSortingStrategy}
         >
-          {entries.map((entry) => (
+          {shownEntries.map((entry) => (
             <EncounterQueueEntry
               key={entry.id}
               {...entry}
               selected={selectedIds.includes(entry.id)}
+              otherDraggedCount={
+                blockDrag?.activeId === entry.id ? blockDrag.otherIds.length : 0
+              }
               onSelect={onSelect}
             />
           ))}

@@ -6,6 +6,7 @@
   cursor: pointer;
   border-radius: var(--radius-xl);
   user-select: none;
+  position: relative;
 }
 
 .encounter-queue-entry[aria-current='true'] {
@@ -52,4 +53,15 @@
 .encounter-queue-entry-hp {
   font-size: var(--font-size-md);
   color: var(--color-fg-muted);
+}
+
+.encounter-queue-entry-badge {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-sm);
+  padding: 0 var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: var(--color-fg);
+  font-size: var(--font-size-md);
 }

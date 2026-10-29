@@ -17,6 +17,7 @@ type Props = {
   tempHp: number;
   defeated: boolean;
   selected: boolean;
+  otherDraggedCount: number;
   onSelect: (id: string, modifiers: SelectionModifiers) => void;
 };
 
@@ -29,6 +30,7 @@ export const EncounterQueueEntry: FCProps<Props> = ({
   tempHp,
   defeated,
   selected,
+  otherDraggedCount,
   onSelect,
 }) => {
   const {
@@ -95,6 +97,15 @@ export const EncounterQueueEntry: FCProps<Props> = ({
         <div className='clip-text'>{name}</div>
         {hp && <div className='encounter-queue-entry-hp'>{hp.text}</div>}
       </div>
+
+      {otherDraggedCount > 0 && (
+        <span
+          // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+          className='encounter-queue-entry-badge'
+        >
+          +{otherDraggedCount}
+        </span>
+      )}
     </div>
   );
 };
