@@ -50,7 +50,7 @@ pnpm run dev                # Local Tauri environment
 pnpm run web                # Vite in a browser, on a temporary copy of the installed app's data
 ```
 
-`pnpm run web` reaches the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first replaces the dev app's data with a copy of the installed app's data (`app/docs/features/dev-data-mirror.md`).
+`pnpm run web` reaches the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first offers to replace the dev app's data with a copy of the installed app's data: it mirrors unasked only when the dev app has no database, and keeps existing dev data unless the prompt is answered `y` — so a session that starts it without a terminal runs on the dev data as it is (`app/docs/features/dev-data-mirror.md`).
 
 ### Communication Style
 
