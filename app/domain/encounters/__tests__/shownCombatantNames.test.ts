@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { shownCombatantNames } from '../shownCombatantNames';
+import {
+  shownCombatantBaseName,
+  shownCombatantNames,
+} from '../shownCombatantNames';
 
 const item = (
   id: string,
@@ -140,5 +143,39 @@ describe('shownCombatantNames', () => {
         entities(['goblin', 'Goblin']),
       ).get('a'),
     ).toBe('Stored');
+  });
+});
+
+describe('shownCombatantBaseName', () => {
+  it('shows the live entity name for a linked combatant and the stored name once its entity is absent', () => {
+    expect(
+      shownCombatantBaseName(
+        item('a', { name: 'Old Name' }),
+        entities(['goblin', 'Renamed']),
+      ),
+    ).toBe('Renamed');
+    expect(
+      shownCombatantBaseName(item('a', { name: 'Stored' }), entities()),
+    ).toBe('Stored');
+  });
+
+  it('shows Untitled Combatant when no name is left', () => {
+    expect(
+      shownCombatantBaseName(
+        item('a', { baseEntityId: null, name: null }),
+        entities(),
+      ),
+    ).toBe('Untitled Combatant');
+  });
+
+  it('carries no sequence number even beside a sibling', () => {
+    const goblins = [
+      item('a', { sequenceNumber: 1 }),
+      item('b', { sequenceNumber: 2 }),
+    ];
+    const names = entities(['goblin', 'Goblin']);
+
+    expect(shownCombatantNames(goblins, names).get('a')).toBe('Goblin 1');
+    expect(shownCombatantBaseName(goblins[0], names)).toBe('Goblin');
   });
 });

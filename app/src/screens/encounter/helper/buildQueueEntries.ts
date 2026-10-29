@@ -1,7 +1,8 @@
 import type { BaseEntity } from '@db/base-entity';
 import type { EncounterLogEntry } from '@db/encounter-log-entry';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
-import { deriveCombatState, shownCombatantNames } from '@domain';
+import { deriveCombatState } from '@domain';
+import { nameQueueItems } from './nameQueueItems';
 
 export const buildQueueEntries = (
   queueItems: EncounterQueueItem[],
@@ -25,19 +26,11 @@ export const buildQueueEntries = (
     if (state === null) return false;
     return !state.removed;
   });
-  // Naming sees every kept item, hidden defeated ones included, so toggling Hide defeated never renumbers siblings.
-  const names = shownCombatantNames(
-    keptItems.map((item) => ({
-      id: item.id,
-      baseEntityId: item.base_entity_id,
-      name: item.name,
-      sequenceNumber: item.sequence_number,
-    })),
-    new Map(baseEntities.map((entity) => [entity.id, entity.name])),
-  );
+  const names = nameQueueItems(queueItems, combatState, baseEntities);
 
   return keptItems.flatMap((item) => {
-    const name = names.get(item.id) ?? null;
+    // Stryker disable next-line OptionalChaining: nameQueueItems holds one entry per queue item, so the lookup never misses and no input observes a difference
+    const name = names.get(item.id)?.shownName ?? null;
     const state = combatState.get(item.id) ?? null;
     // Stryker disable next-line ConditionalExpression,LogicalOperator,ArrayDeclaration: both maps hold one entry per kept item, so the guard is never entered and no input observes a difference
     if (name === null || state === null) return [];

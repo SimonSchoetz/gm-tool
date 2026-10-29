@@ -19,6 +19,7 @@ export {
 export { parseActionAmount } from './actionAmount';
 export { deriveCombatState } from './deriveCombatState';
 export {
+  shownCombatantBaseName,
   shownCombatantNames,
   UNNAMED_ENTITY_LABEL,
 } from './shownCombatantNames';
