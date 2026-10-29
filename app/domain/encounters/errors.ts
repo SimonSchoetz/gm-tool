@@ -119,3 +119,15 @@ export const encounterLogRecordError = (
   error.name = 'EncounterLogRecordError';
   return error;
 };
+
+type EncounterLogDeleteError = Error & { name: 'EncounterLogDeleteError' };
+export const encounterLogDeleteError = (
+  id: string,
+  cause?: unknown,
+): EncounterLogDeleteError => {
+  const error = new Error(
+    `Failed to delete the encounter log entry ${id}: ${String(cause)}`,
+  ) as EncounterLogDeleteError;
+  error.name = 'EncounterLogDeleteError';
+  return error;
+};

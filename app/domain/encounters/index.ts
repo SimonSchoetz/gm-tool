@@ -11,6 +11,7 @@ export { encounterQueueAddError } from './errors';
 export { encounterQueueReorderError } from './errors';
 export { encounterLogLoadError } from './errors';
 export { encounterLogRecordError } from './errors';
+export { encounterLogDeleteError } from './errors';
 export {
   parseAddQuantity,
   MIN_ADD_QUANTITY,

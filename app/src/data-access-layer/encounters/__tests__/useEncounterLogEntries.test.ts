@@ -11,17 +11,23 @@ import { useEncounterLogEntries } from '../useEncounterLogEntries';
 
 const getLogEntries = vi.hoisted(() => vi.fn<typeof service.getLogEntries>());
 const recordLogEntry = vi.hoisted(() => vi.fn<typeof service.recordLogEntry>());
+const deleteLogMessage = vi.hoisted(() =>
+  vi.fn<typeof service.deleteLogMessage>(),
+);
 
 vi.mock('@services/encounterLogEntryService', () => ({
   getLogEntries,
   recordLogEntry,
+  deleteLogMessage,
 }));
 
 const DAMAGE = { targets: [{ queueItemId: 'item-1', amount: 3 }] };
 
-const withDeferredRecord = () => {
+const withDeferredWrite = (spy: {
+  mockReturnValue: (value: Promise<void>) => unknown;
+}) => {
   let release: (() => void) | null = null;
-  recordLogEntry.mockReturnValue(
+  spy.mockReturnValue(
     new Promise<void>((resolve) => {
       release = resolve;
     }),
@@ -30,12 +36,14 @@ const withDeferredRecord = () => {
     release?.();
   };
 };
+const withDeferredRecord = () => withDeferredWrite(recordLogEntry);
 
 describe('useEncounterLogEntries', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     getLogEntries.mockReset().mockResolvedValue([]);
     recordLogEntry.mockReset().mockResolvedValue();
+    deleteLogMessage.mockReset().mockResolvedValue();
   });
 
   it("reports recording on every hook instance of the encounter while a write is pending, not on another encounter's, and clears it after the write resolves", async () => {
@@ -156,5 +164,104 @@ describe('useEncounterLogEntries', () => {
 
     expect(result.current.logEntries).toEqual([]);
     expect(result.current.loading).toBe(true);
+  });
+
+  it('deletes the named message once and invalidates the log of the encounter', async () => {
+    const { result, invalidateQueries } = renderHookWithQueryClient(() =>
+      useEncounterLogEntries('encounter-1'),
+    );
+    await settle(0);
+
+    let wasDeleted = false;
+    await act(async () => {
+      wasDeleted = await result.current.deleteLogMessage('entry-9');
+    });
+
+    expect(deleteLogMessage).toHaveBeenCalledTimes(1);
+    expect(deleteLogMessage).toHaveBeenCalledWith('entry-9');
+    expect(wasDeleted).toBe(true);
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: encounterKeys.logEntries('encounter-1'),
+    });
+  });
+
+  it('calls the service once for a second delete in the same call stack and reports that it was refused', async () => {
+    const resolveDelete = withDeferredWrite(deleteLogMessage);
+    const { result } = renderHookWithQueryClient(() => ({
+      first: useEncounterLogEntries('encounter-1'),
+      second: useEncounterLogEntries('encounter-1'),
+    }));
+    await settle(0);
+
+    const deletes: Promise<boolean>[] = [];
+    act(() => {
+      deletes.push(result.current.first.deleteLogMessage('entry-1'));
+      deletes.push(result.current.second.deleteLogMessage('entry-1'));
+    });
+    await settle(0);
+    resolveDelete();
+    await settle(0);
+
+    expect(deleteLogMessage).toHaveBeenCalledTimes(1);
+    expect(await Promise.all(deletes)).toEqual([true, false]);
+  });
+
+  it('refuses a delete while a record is pending and a record while a delete is pending', async () => {
+    const resolveRecord = withDeferredRecord();
+    const { result } = renderHookWithQueryClient(() =>
+      useEncounterLogEntries('encounter-1'),
+    );
+    await settle(0);
+
+    act(() => {
+      void result.current.recordLogEntry('damage', DAMAGE);
+    });
+    await settle(0);
+
+    let deleteResult = true;
+    await act(async () => {
+      deleteResult = await result.current.deleteLogMessage('entry-1');
+    });
+    resolveRecord();
+    await settle(0);
+
+    const resolveDelete = withDeferredWrite(deleteLogMessage);
+    act(() => {
+      void result.current.deleteLogMessage('entry-1');
+    });
+    await settle(0);
+    let recordResult = true;
+    await act(async () => {
+      recordResult = await result.current.recordLogEntry('damage', DAMAGE);
+    });
+    resolveDelete();
+    await settle(0);
+
+    expect(deleteResult).toBe(false);
+    expect(recordResult).toBe(false);
+    expect(deleteLogMessage).toHaveBeenCalledTimes(1);
+    expect(recordLogEntry).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports recording on a sibling instance while a delete is pending, until the log refetch has resolved', async () => {
+    const { result } = renderHookWithQueryClient(() => ({
+      writer: useEncounterLogEntries('encounter-1'),
+      sibling: useEncounterLogEntries('encounter-1'),
+    }));
+    await settle(0);
+    const refetch = Promise.withResolvers<EncounterLogEntry[]>();
+    getLogEntries.mockReturnValue(refetch.promise);
+
+    act(() => {
+      void result.current.writer.deleteLogMessage('entry-1');
+    });
+    await settle(0);
+
+    expect(result.current.sibling.isRecording).toBe(true);
+
+    refetch.resolve([]);
+    await settle(0);
+
+    expect(result.current.sibling.isRecording).toBe(false);
   });
 });

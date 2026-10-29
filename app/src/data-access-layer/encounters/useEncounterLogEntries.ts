@@ -18,6 +18,7 @@ type UseEncounterLogEntriesReturn = {
     kind: K,
     payload: LogEntryPayload<K>,
   ) => Promise<boolean>;
+  deleteLogMessage: (entryId: string) => Promise<boolean>;
 };
 
 export const useEncounterLogEntries = (
@@ -29,8 +30,17 @@ export const useEncounterLogEntries = (
     encounterLogEntriesQueryOptions(encounterId),
   );
 
+  // Shared by the record and the delete mutation on purpose: isRecording and the call-time refusal then cover every write to the encounter's log.
+  const writeMutationKey = encounterKeys.recordLogEntry(encounterId);
+
+  // The invalidation promise is returned, so the mutation stays pending until the refetch has resolved: with `void` the buttons would re-enable while the queue still shows the old HP, and a second click would act on stale numbers.
+  const invalidateLogEntries = () =>
+    queryClient.invalidateQueries({
+      queryKey: encounterKeys.logEntries(encounterId),
+    });
+
   const recordMutation = useMutation({
-    mutationKey: encounterKeys.recordLogEntry(encounterId),
+    mutationKey: writeMutationKey,
     mutationFn: ({
       kind,
       payload,
@@ -38,32 +48,44 @@ export const useEncounterLogEntries = (
       kind: LogEntryKind;
       payload: LogEntryPayload<LogEntryKind>;
     }) => service.recordLogEntry(encounterId, kind, payload),
-    // The invalidation promise is returned, so the mutation stays pending until the refetch has resolved: with `void` the buttons would re-enable while the queue still shows the old HP, and a second click would act on stale numbers.
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: encounterKeys.logEntries(encounterId),
-      }),
+    onSuccess: invalidateLogEntries,
   });
 
-  // Read from the mutation cache, not from recordMutation: a hook-local isPending belongs to one hook instance, so a sibling's buttons would stay enabled. The guard in recordLogEntry reads the cache at call time because a useIsMutating value read from render state lags the call by a render, so two calls in one call stack would both write.
-  const isRecording =
-    useIsMutating({ mutationKey: encounterKeys.recordLogEntry(encounterId) }) >
-    0;
+  const deleteMutation = useMutation({
+    mutationKey: writeMutationKey,
+    mutationFn: (entryId: string) => service.deleteLogMessage(entryId),
+    onSuccess: invalidateLogEntries,
+  });
+
+  // Read from the mutation cache, not from a mutation: a hook-local isPending belongs to one hook instance, so a sibling's buttons would stay enabled. The guard reads the cache at call time because a useIsMutating value read from render state lags the call by a render, so two calls in one call stack would both write.
+  const isRecording = useIsMutating({ mutationKey: writeMutationKey }) > 0;
+  const isWriting = () =>
+    queryClient.isMutating({ mutationKey: writeMutationKey }) > 0;
 
   const recordLogEntry = async <K extends LogEntryKind>(
     kind: K,
     payload: LogEntryPayload<K>,
   ): Promise<boolean> => {
-    if (
-      queryClient.isMutating({
-        mutationKey: encounterKeys.recordLogEntry(encounterId),
-      }) > 0
-    ) {
+    if (isWriting()) {
       return false;
     }
     await recordMutation.mutateAsync({ kind, payload });
     return true;
   };
 
-  return { logEntries, loading, isRecording, recordLogEntry };
+  const deleteLogMessage = async (entryId: string): Promise<boolean> => {
+    if (isWriting()) {
+      return false;
+    }
+    await deleteMutation.mutateAsync(entryId);
+    return true;
+  };
+
+  return {
+    logEntries,
+    loading,
+    isRecording,
+    recordLogEntry,
+    deleteLogMessage,
+  };
 };

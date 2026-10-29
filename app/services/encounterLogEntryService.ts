@@ -1,6 +1,7 @@
 import * as logEntryDb from '@db/encounter-log-entry';
 import type { EncounterLogEntry } from '@db/encounter-log-entry';
 import {
+  encounterLogDeleteError,
   encounterLogLoadError,
   encounterLogRecordError,
   type LogEntryKind,
@@ -26,5 +27,13 @@ export const recordLogEntry = async <K extends LogEntryKind>(
     await logEntryDb.create({ encounter_id: encounterId, kind, payload });
   } catch (err) {
     throw encounterLogRecordError(err);
+  }
+};
+
+export const deleteLogMessage = async (entryId: string): Promise<void> => {
+  try {
+    await logEntryDb.remove(entryId);
+  } catch (err) {
+    throw encounterLogDeleteError(entryId, err);
   }
 };
