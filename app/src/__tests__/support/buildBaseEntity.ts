@@ -1,9 +1,11 @@
 import type { BaseEntity } from '@db/base-entity';
 
+export const BASE_ENTITY_ID = 'entity-1';
+
 export const buildBaseEntity = (
   overrides: Partial<BaseEntity> = {},
 ): BaseEntity => ({
-  id: 'entity-1',
+  id: BASE_ENTITY_ID,
   adventure_id: 'adventure-1',
   entity_type: 'foes',
   name: 'Goblin',

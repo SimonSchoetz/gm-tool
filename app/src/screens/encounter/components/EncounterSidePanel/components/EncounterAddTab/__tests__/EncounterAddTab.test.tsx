@@ -41,9 +41,10 @@ const renderTab = async () => {
   await screen.findByPlaceholderText('Search entities...');
 };
 
+// Matches the text a name element holds itself, in document order, so a wrapper around it is never counted.
 const shownNames = (names: string[]) =>
   screen
-    .queryAllByText((_, element) => names.includes(element?.textContent ?? ''))
+    .queryAllByText(new RegExp(`^(${names.join('|')})$`))
     .map((element) => element.textContent);
 
 describe('EncounterAddTab', () => {

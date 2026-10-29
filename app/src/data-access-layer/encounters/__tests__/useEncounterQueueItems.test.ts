@@ -4,7 +4,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
-import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
+import {
+  QUEUE_ITEM_ENCOUNTER_ID,
+  buildEncounterQueueItem,
+} from '@/__tests__/support/buildEncounterQueueItem';
 import type * as service from '@services/encounterQueueService';
 import { createQueryClient } from '../../queryClient';
 import {
@@ -55,8 +58,8 @@ describe('useEncounterQueueItems', () => {
   it("disables every hook instance of the encounter while an add is pending, not another encounter's, and enables them again after it resolves", async () => {
     const resolveAdd = withDeferredAdd();
     const { result } = renderHookWithQueryClient(() => ({
-      adder: useEncounterQueueItems('encounter-1'),
-      sibling: useEncounterQueueItems('encounter-1'),
+      adder: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      sibling: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
       other: useEncounterQueueItems('encounter-2'),
     }));
     await settle(0);
@@ -79,8 +82,8 @@ describe('useEncounterQueueItems', () => {
   it('calls the service once for a second add in the same call stack as the first and reports that it was refused', async () => {
     const releaseAdd = withDeferredAdd();
     const { result } = renderHookWithQueryClient(() => ({
-      first: useEncounterQueueItems('encounter-1'),
-      second: useEncounterQueueItems('encounter-1'),
+      first: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      second: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     }));
     await settle(0);
 
@@ -99,7 +102,7 @@ describe('useEncounterQueueItems', () => {
 
     expect(addEntityCombatants).toHaveBeenCalledTimes(1);
     expect(addEntityCombatants).toHaveBeenCalledWith(
-      'encounter-1',
+      QUEUE_ITEM_ENCOUNTER_ID,
       'foes',
       'entity-1',
       1,
@@ -109,7 +112,7 @@ describe('useEncounterQueueItems', () => {
 
   it('invalidates the queue of the encounter once an add resolved', async () => {
     const { result, invalidateQueries } = renderHookWithQueryClient(() =>
-      useEncounterQueueItems('encounter-1'),
+      useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
     await settle(0);
 
@@ -119,7 +122,7 @@ describe('useEncounterQueueItems', () => {
 
     expect(wasAdded).toBe(true);
     expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: encounterKeys.queueItems('encounter-1'),
+      queryKey: encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
     });
   });
 
@@ -129,7 +132,7 @@ describe('useEncounterQueueItems', () => {
       buildEncounterQueueItem({ id: 'b', sort_order: 1 }),
     ]);
     const { result, queryClient } = renderHookWithQueryClient(() =>
-      useEncounterQueueItems('encounter-1'),
+      useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
     await settle(0);
 
@@ -140,7 +143,7 @@ describe('useEncounterQueueItems', () => {
     expect(
       queryClient
         .getQueryData<EncounterQueueItem[]>(
-          encounterKeys.queueItems('encounter-1'),
+          encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
         )
         ?.map((item) => [item.id, item.sort_order]),
     ).toEqual([
@@ -165,9 +168,12 @@ describe('useEncounterQueueItems', () => {
         { fallback: null },
         createElement(QueryClientProvider, { client: queryClient }, children),
       );
-    const { result } = renderHook(() => useEncounterQueueItems('encounter-1'), {
-      wrapper,
-    });
+    const { result } = renderHook(
+      () => useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      {
+        wrapper,
+      },
+    );
     await settle(0);
 
     act(() => {
@@ -176,14 +182,14 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: encounterKeys.queueItems('encounter-1'),
+      queryKey: encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
     });
   });
 
   it('exposes an empty queue while the items load', () => {
     getQueueItems.mockReturnValue(new Promise(() => undefined));
     const { result } = renderHookWithQueryClient(() =>
-      useEncounterQueueItems('encounter-1'),
+      useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
 
     expect(result.current.queueItems).toEqual([]);
@@ -193,7 +199,7 @@ describe('useEncounterQueueItems', () => {
   it("still adds while another encounter's add is pending", async () => {
     withDeferredAdd();
     const { result } = renderHookWithQueryClient(() => ({
-      first: useEncounterQueueItems('encounter-1'),
+      first: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
       second: useEncounterQueueItems('encounter-2'),
     }));
     await settle(0);
@@ -208,7 +214,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     expect(addEntityCombatants.mock.calls.map((call) => call[0])).toEqual([
-      'encounter-1',
+      QUEUE_ITEM_ENCOUNTER_ID,
       'encounter-2',
     ]);
   });
@@ -216,7 +222,7 @@ describe('useEncounterQueueItems', () => {
   it('writes the order without touching the cache when the queue is not loaded yet', async () => {
     getQueueItems.mockReturnValue(new Promise(() => undefined));
     const { result, queryClient } = renderHookWithQueryClient(() =>
-      useEncounterQueueItems('encounter-1'),
+      useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
 
     act(() => {
@@ -225,7 +231,9 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     expect(
-      queryClient.getQueryData(encounterKeys.queueItems('encounter-1')),
+      queryClient.getQueryData(
+        encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      ),
     ).toBeUndefined();
     expect(reorderQueueItems).toHaveBeenCalledWith(['b', 'a']);
   });
@@ -236,7 +244,7 @@ describe('useEncounterQueueItems', () => {
       buildEncounterQueueItem({ id: 'b', sort_order: 1 }),
     ]);
     const { result, queryClient } = renderHookWithQueryClient(() =>
-      useEncounterQueueItems('encounter-1'),
+      useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
     await settle(0);
 
@@ -247,7 +255,7 @@ describe('useEncounterQueueItems', () => {
     expect(
       queryClient
         .getQueryData<EncounterQueueItem[]>(
-          encounterKeys.queueItems('encounter-1'),
+          encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
         )
         ?.map((item) => [item.id, item.sort_order]),
     ).toEqual([

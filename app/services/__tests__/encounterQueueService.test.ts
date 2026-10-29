@@ -7,6 +7,8 @@ import type { EncounterQueueItem } from '@db/encounter-queue-item';
 import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityContentSection } from '@db/base-entity-content-section';
 import {
+  ENCOUNTER_ID,
+  ENTITY_ID,
   buildBaseEntity,
   buildEncounterQueueItem,
   buildSection,
@@ -35,9 +37,6 @@ vi.mock('@db/encounter-queue-item', () => ({
 vi.mock('@db/encounter-log-entry', () => ({ create: createLogEntry }));
 vi.mock('@db/base-entity', () => ({ get: getBaseEntity }));
 vi.mock('@db/base-entity-content-section', () => ({ getAllByBaseEntity }));
-
-const ENCOUNTER_ID = 'encounter-1';
-const ENTITY_ID = 'entity-1';
 
 const arrange = ({
   existing = [],
@@ -282,7 +281,9 @@ describe('addEntityCombatants', () => {
     await expect(
       addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1),
     ).rejects.toThrow(
-      /^Failed to add combatants to the encounter queue: BaseEntityNotFoundError: Foe with id entity-1 not found$/,
+      new RegExp(
+        `^Failed to add combatants to the encounter queue: BaseEntityNotFoundError: Foe with id ${ENTITY_ID} not found$`,
+      ),
     );
     expect(createMany).not.toHaveBeenCalled();
     expect(createLogEntry).not.toHaveBeenCalled();

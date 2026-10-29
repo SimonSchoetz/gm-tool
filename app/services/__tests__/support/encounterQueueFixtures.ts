@@ -2,13 +2,16 @@ import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityContentSection } from '@db/base-entity-content-section';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
 
+export const ENCOUNTER_ID = 'encounter-1';
+export const ENTITY_ID = 'entity-1';
+
 export const buildEncounterQueueItem = (
   overrides: Partial<EncounterQueueItem> = {},
 ): EncounterQueueItem => ({
   id: 'item-1',
-  encounter_id: 'encounter-1',
+  encounter_id: ENCOUNTER_ID,
   kind: 'combatant',
-  base_entity_id: 'entity-1',
+  base_entity_id: ENTITY_ID,
   name: null,
   custom_name: null,
   notes: null,
@@ -23,7 +26,7 @@ export const buildEncounterQueueItem = (
 export const buildBaseEntity = (
   overrides: Partial<BaseEntity> = {},
 ): BaseEntity => ({
-  id: 'entity-1',
+  id: ENTITY_ID,
   adventure_id: 'adventure-1',
   entity_type: 'foes',
   name: 'Goblin',
@@ -40,7 +43,7 @@ export const buildSection = (
   content: string | null,
 ): BaseEntityContentSection => ({
   id: `section-${type}`,
-  base_entity_id: 'entity-1',
+  base_entity_id: ENTITY_ID,
   name: null,
   type,
   content,
