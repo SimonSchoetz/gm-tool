@@ -60,13 +60,13 @@ describe('useEncounterLogEntries', () => {
     });
     await settle(0);
 
-    expect(result.current.sibling.isRecording).toBe(true);
-    expect(result.current.other.isRecording).toBe(false);
+    expect(result.current.sibling.isWriting).toBe(true);
+    expect(result.current.other.isWriting).toBe(false);
 
     resolveWrite();
     await settle(0);
 
-    expect(result.current.sibling.isRecording).toBe(false);
+    expect(result.current.sibling.isWriting).toBe(false);
   });
 
   it('calls the service once for a second record in the same call stack and reports that it was refused', async () => {
@@ -109,12 +109,12 @@ describe('useEncounterLogEntries', () => {
     await settle(0);
 
     expect(recordLogEntry).toHaveBeenCalledTimes(1);
-    expect(result.current.isRecording).toBe(true);
+    expect(result.current.isWriting).toBe(true);
 
     refetch.resolve([]);
     await settle(0);
 
-    expect(result.current.isRecording).toBe(false);
+    expect(result.current.isWriting).toBe(false);
   });
 
   it('invalidates the log of the encounter after a write', async () => {
@@ -257,11 +257,11 @@ describe('useEncounterLogEntries', () => {
     });
     await settle(0);
 
-    expect(result.current.sibling.isRecording).toBe(true);
+    expect(result.current.sibling.isWriting).toBe(true);
 
     refetch.resolve([]);
     await settle(0);
 
-    expect(result.current.sibling.isRecording).toBe(false);
+    expect(result.current.sibling.isWriting).toBe(false);
   });
 });

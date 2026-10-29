@@ -5,7 +5,7 @@ const READY = {
   amount: 5,
   hasHp: true,
   defeated: false,
-  isRecording: false,
+  isWriting: false,
 };
 
 describe('getActionAvailability', () => {
@@ -47,11 +47,11 @@ describe('getActionAvailability', () => {
   it('disables all seven buttons while a write is recording', () => {
     expect(
       Object.values(
-        getActionAvailability({ ...READY, defeated: true, isRecording: true }),
+        getActionAvailability({ ...READY, defeated: true, isWriting: true }),
       ),
     ).toEqual([false, false, false, false, false, false, false]);
     expect(
-      Object.values(getActionAvailability({ ...READY, isRecording: true })),
+      Object.values(getActionAvailability({ ...READY, isWriting: true })),
     ).toEqual([false, false, false, false, false, false, false]);
   });
 });

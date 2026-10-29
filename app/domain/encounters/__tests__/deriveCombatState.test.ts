@@ -331,20 +331,4 @@ describe('deriveCombatState', () => {
     expect(state.items.get('a')?.currentHp).toBe(10);
     expect(state.revertedEntryIds).toEqual(new Set(['hit']));
   });
-
-  it('lists an unknown kind, invalid JSON and a failing payload as unreadable and a readable entry as not', () => {
-    const state = deriveCombatState(
-      [{ id: 'a', startingMaxHp: 10 }],
-      [
-        entry('constructor', { queueItemIds: ['a'] }, 'unknown'),
-        { id: 'broken', kind: 'damage', payload: '{not json' },
-        damage('a', -4, 'failing'),
-        damage('a', 1, 'fine'),
-      ],
-    );
-
-    expect(state.unreadableEntryIds).toEqual(
-      new Set(['unknown', 'broken', 'failing']),
-    );
-  });
 });

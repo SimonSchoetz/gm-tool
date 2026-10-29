@@ -13,7 +13,7 @@ import { encounterLogEntriesQueryOptions } from './encounterQueryOptions';
 type UseEncounterLogEntriesReturn = {
   logEntries: EncounterLogEntry[];
   loading: boolean;
-  isRecording: boolean;
+  isWriting: boolean;
   recordLogEntry: <K extends LogEntryKind>(
     kind: K,
     payload: LogEntryPayload<K>,
@@ -30,8 +30,8 @@ export const useEncounterLogEntries = (
     encounterLogEntriesQueryOptions(encounterId),
   );
 
-  // Shared by the record and the delete mutation on purpose: isRecording and the call-time refusal then cover every write to the encounter's log.
-  const writeMutationKey = encounterKeys.recordLogEntry(encounterId);
+  // One key for the record and the delete mutation, so the pending flag and the call-time refusal cover every write.
+  const writeMutationKey = encounterKeys.writeLogEntry(encounterId);
 
   // The invalidation promise is returned, so the mutation stays pending until the refetch has resolved: with `void` the buttons would re-enable while the queue still shows the old HP, and a second click would act on stale numbers.
   const invalidateLogEntries = () =>
@@ -58,15 +58,15 @@ export const useEncounterLogEntries = (
   });
 
   // Read from the mutation cache, not from a mutation: a hook-local isPending belongs to one hook instance, so a sibling's buttons would stay enabled. The guard reads the cache at call time because a useIsMutating value read from render state lags the call by a render, so two calls in one call stack would both write.
-  const isRecording = useIsMutating({ mutationKey: writeMutationKey }) > 0;
-  const isWriting = () =>
+  const isWriting = useIsMutating({ mutationKey: writeMutationKey }) > 0;
+  const hasPendingWrite = () =>
     queryClient.isMutating({ mutationKey: writeMutationKey }) > 0;
 
   const recordLogEntry = async <K extends LogEntryKind>(
     kind: K,
     payload: LogEntryPayload<K>,
   ): Promise<boolean> => {
-    if (isWriting()) {
+    if (hasPendingWrite()) {
       return false;
     }
     await recordMutation.mutateAsync({ kind, payload });
@@ -74,7 +74,7 @@ export const useEncounterLogEntries = (
   };
 
   const deleteLogMessage = async (entryId: string): Promise<boolean> => {
-    if (isWriting()) {
+    if (hasPendingWrite()) {
       return false;
     }
     await deleteMutation.mutateAsync(entryId);
@@ -84,7 +84,7 @@ export const useEncounterLogEntries = (
   return {
     logEntries,
     loading,
-    isRecording,
+    isWriting,
     recordLogEntry,
     deleteLogMessage,
   };

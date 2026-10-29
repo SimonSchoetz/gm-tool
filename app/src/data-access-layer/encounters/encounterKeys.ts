@@ -8,6 +8,6 @@ export const encounterKeys = {
     ['encounter-log-entries', encounterId] as const,
   addCombatants: (encounterId: string) =>
     ['encounter-add-combatants', encounterId] as const,
-  recordLogEntry: (encounterId: string) =>
-    ['encounter-record-log-entry', encounterId] as const,
+  writeLogEntry: (encounterId: string) =>
+    ['encounter-write-log-entry', encounterId] as const,
 };

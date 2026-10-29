@@ -2,12 +2,12 @@ export const getActionAvailability = ({
   amount,
   hasHp,
   defeated,
-  isRecording,
+  isWriting,
 }: {
   amount: number | null;
   hasHp: boolean;
   defeated: boolean;
-  isRecording: boolean;
+  isWriting: boolean;
 }): {
   damage: boolean;
   heal: boolean;
@@ -19,12 +19,12 @@ export const getActionAvailability = ({
 } => {
   const hasAmount = amount !== null;
   return {
-    damage: !isRecording && hasAmount && hasHp,
-    heal: !isRecording && hasAmount && hasHp,
-    setTempHp: !isRecording && hasAmount,
-    setMaxHp: !isRecording && hasAmount,
-    markDefeated: !isRecording && !defeated,
-    unmarkDefeated: !isRecording && defeated,
-    remove: !isRecording,
+    damage: !isWriting && hasAmount && hasHp,
+    heal: !isWriting && hasAmount && hasHp,
+    setTempHp: !isWriting && hasAmount,
+    setMaxHp: !isWriting && hasAmount,
+    markDefeated: !isWriting && !defeated,
+    unmarkDefeated: !isWriting && defeated,
+    remove: !isWriting,
   };
 };

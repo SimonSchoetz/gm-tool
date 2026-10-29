@@ -45,7 +45,6 @@ export const deriveCombatState = (
 ): {
   items: Map<string, DerivedItemState>;
   revertedEntryIds: ReadonlySet<string>;
-  unreadableEntryIds: ReadonlySet<string>;
 } => {
   const states = new Map<string, TrackedState>(
     items.map((item) => [
@@ -66,9 +65,6 @@ export const deriveCombatState = (
     id: raw.id,
     entry: readLogEntry(raw.kind, raw.payload),
   }));
-  const unreadableEntryIds = new Set(
-    readEntries.filter(({ entry }) => entry === null).map(({ id }) => id),
-  );
   const revertibleEntryIds = new Set(
     readEntries
       .filter(
@@ -143,6 +139,5 @@ export const deriveCombatState = (
       ]),
     ),
     revertedEntryIds,
-    unreadableEntryIds,
   };
 };

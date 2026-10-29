@@ -14,7 +14,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const { recordLogEntry, deleteLogMessage, isRecording } =
+  const { recordLogEntry, deleteLogMessage, isWriting } =
     useEncounterLogEntries(encounterId);
 
   let content: ReactNode;
@@ -26,7 +26,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
         actionButton = (
           <Button
             label='Revert'
-            disabled={isRecording}
+            disabled={isWriting}
             onClick={() => {
               void recordLogEntry('revert', { entryId: line.id });
             }}
@@ -47,7 +47,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
         <Button
           label='Delete'
           buttonStyle='danger'
-          disabled={isRecording}
+          disabled={isWriting}
           onClick={() => {
             void deleteLogMessage(line.id);
           }}
