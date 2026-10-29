@@ -22,7 +22,7 @@
   border-radius: var(--radius-lg);
 }
 
-.encounter-queue-entry-image--down {
+.encounter-queue-entry-image--grey {
   filter: grayscale(1);
 }
 

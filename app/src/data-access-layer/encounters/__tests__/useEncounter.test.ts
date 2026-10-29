@@ -1,7 +1,7 @@
 import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Encounter } from '@db/encounter';
 import type * as service from '@services/encounterService';
+import { buildEncounter } from '@/__tests__/support/buildEncounter';
 import { AUTOSAVE_DELAY_MS } from '../../createAutosaveQueue';
 import {
   renderHookWithQueryClient,
@@ -21,17 +21,6 @@ vi.mock('@services/encounterService', () => ({
   getEncounterById,
   updateEncounter,
 }));
-
-const encounterRow = (id: string): Encounter => ({
-  id,
-  adventure_id: 'adventure-1',
-  name: null,
-  description: null,
-  pinned_order: null,
-  hide_defeated: 0,
-  created_at: '2026-01-10T09:00:00.000Z',
-  updated_at: '2026-01-10T09:00:00.000Z',
-});
 
 const renderEncounter = async () => {
   const rendered = renderHookWithQueryClient(
@@ -54,7 +43,7 @@ describe('useEncounter', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     getEncounterById.mockImplementation((id) =>
-      Promise.resolve(encounterRow(id)),
+      Promise.resolve(buildEncounter({ id })),
     );
     updateEncounter.mockResolvedValue(undefined);
   });

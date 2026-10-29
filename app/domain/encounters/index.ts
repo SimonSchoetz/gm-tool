@@ -9,6 +9,7 @@ export type { LogEntryKind, LogEntryPayload } from './logEntryPayloads';
 export { encounterQueueLoadError } from './errors';
 export { encounterQueueAddError } from './errors';
 export { encounterQueueReorderError } from './errors';
+export { encounterLogLoadError } from './errors';
 export {
   parseAddQuantity,
   MIN_ADD_QUANTITY,

@@ -15,26 +15,18 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import { useParams } from '@tanstack/react-router';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
-import {
-  useAdventureBaseEntities,
-  useEncounterQueueItems,
-} from '@/data-access-layer';
+import { useEncounterQueueItems } from '@/data-access-layer';
 import { reorderIds } from '@/util/reorderIds';
+import { useEncounterQueueEntries } from '../../hooks/useEncounterQueueEntries';
 import { EncounterQueueEntry } from './components/EncounterQueueEntry';
-import { buildQueueEntries } from './helper/buildQueueEntries';
 import './EncounterQueue.css';
 
 export const EncounterQueue = () => {
-  const { adventureId, encounterId } = useParams({
+  const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const {
-    queueItems,
-    loading: queueLoading,
-    reorderQueueItems,
-  } = useEncounterQueueItems(encounterId);
-  const { baseEntities, loading: entitiesLoading } =
-    useAdventureBaseEntities(adventureId);
+  const { entries, loading } = useEncounterQueueEntries();
+  const { queueItems, reorderQueueItems } = useEncounterQueueItems(encounterId);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -43,7 +35,7 @@ export const EncounterQueue = () => {
     }),
   );
 
-  if (queueLoading || entitiesLoading) {
+  if (loading) {
     return (
       <div className='content-center'>
         <LoadingIcon />
@@ -51,15 +43,14 @@ export const EncounterQueue = () => {
     );
   }
 
-  const entries = buildQueueEntries(queueItems, baseEntities);
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
+    // The full list in the DAL's order, never the shown ids: a shown-only list would rewrite sort_order for the shown items alone, and the cache update would drop the hidden and removed items.
     reorderQueueItems(
       reorderIds(
-        entries.map((entry) => entry.id),
+        queueItems.map((item) => item.id),
         String(active.id),
         String(over.id),
       ),

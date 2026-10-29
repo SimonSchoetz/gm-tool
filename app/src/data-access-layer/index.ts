@@ -22,6 +22,7 @@ export {
   useEncounters,
   useEncounter,
   useEncounterQueueItems,
+  useEncounterLogEntries,
 } from './encounters';
 export { encounterListQueryOptions, encounterQueryOptions } from './encounters';
 export { useTableConfig, useTableConfigs } from './table-config';

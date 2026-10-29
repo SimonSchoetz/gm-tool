@@ -97,3 +97,14 @@ export const encounterQueueReorderError = (
   error.name = 'EncounterQueueReorderError';
   return error;
 };
+
+type EncounterLogLoadError = Error & { name: 'EncounterLogLoadError' };
+export const encounterLogLoadError = (
+  cause?: unknown,
+): EncounterLogLoadError => {
+  const error = new Error(
+    `Failed to load the encounter log: ${String(cause)}`,
+  ) as EncounterLogLoadError;
+  error.name = 'EncounterLogLoadError';
+  return error;
+};

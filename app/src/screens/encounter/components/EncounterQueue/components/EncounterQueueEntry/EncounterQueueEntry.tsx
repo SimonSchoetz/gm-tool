@@ -3,7 +3,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
-import { describeQueueEntryHp } from './helper/describeQueueEntryHp';
+import {
+  describeQueueEntryHp,
+  describeQueueEntryImage,
+} from './helper/describeQueueEntryHp';
 import './EncounterQueueEntry.css';
 
 type Props = {
@@ -13,6 +16,7 @@ type Props = {
   maxHp: number | null;
   currentHp: number | null;
   tempHp: number;
+  defeated: boolean;
 };
 
 export const EncounterQueueEntry: FCProps<Props> = ({
@@ -22,6 +26,7 @@ export const EncounterQueueEntry: FCProps<Props> = ({
   maxHp,
   currentHp,
   tempHp,
+  defeated,
 }) => {
   const {
     attributes,
@@ -32,6 +37,7 @@ export const EncounterQueueEntry: FCProps<Props> = ({
     transition,
   } = useSortable({ id });
   const hp = describeQueueEntryHp({ maxHp, currentHp, tempHp });
+  const imageLook = describeQueueEntryImage(hp, defeated);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -53,11 +59,11 @@ export const EncounterQueueEntry: FCProps<Props> = ({
       <div
         className={cn(
           'encounter-queue-entry-image',
-          hp?.state === 'down' && 'encounter-queue-entry-image--down',
+          imageLook === 'grey' && 'encounter-queue-entry-image--grey',
         )}
       >
         <EncounterEntityImage imageId={imageId} size={64} />
-        {hp?.state === 'hurt' && <div className='encounter-queue-entry-tint' />}
+        {imageLook === 'tint' && <div className='encounter-queue-entry-tint' />}
       </div>
 
       <div className='encounter-queue-entry-text'>
