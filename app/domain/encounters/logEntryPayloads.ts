@@ -18,7 +18,22 @@ const LOG_ENTRY_PAYLOAD_SCHEMAS = {
   defeated: queueItemIds,
   undefeated: queueItemIds,
   removed: queueItemIds,
+  message: z.object({ editorState: z.string().min(1) }),
+  revert: z.object({ entryId: z.string().min(1) }),
 } as const;
+
+const REVERTIBLE_LOG_ENTRY_KINDS: ReadonlySet<string> = new Set([
+  'damage',
+  'heal',
+  'temp-hp',
+  'max-hp',
+  'defeated',
+  'undefeated',
+  'removed',
+]);
+
+export const isRevertibleLogEntryKind = (kind: string): boolean =>
+  REVERTIBLE_LOG_ENTRY_KINDS.has(kind);
 
 export type LogEntryKind = keyof typeof LOG_ENTRY_PAYLOAD_SCHEMAS;
 export type LogEntryPayload<K extends LogEntryKind> = z.infer<

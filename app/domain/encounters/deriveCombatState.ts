@@ -1,4 +1,4 @@
-import { readLogEntry } from './logEntryPayloads';
+import { isRevertibleLogEntryKind, readLogEntry } from './logEntryPayloads';
 
 type Hp = { max: number; current: number };
 type TrackedState = {
@@ -31,19 +31,22 @@ const applyMaxHp = (state: TrackedState, value: number): void => {
   };
 };
 
+type DerivedItemState = {
+  maxHp: number | null;
+  currentHp: number | null;
+  tempHp: number;
+  defeated: boolean;
+  removed: boolean;
+};
+
 export const deriveCombatState = (
   items: { id: string; startingMaxHp: number | null }[],
-  entries: { kind: string; payload: string }[],
-): Map<
-  string,
-  {
-    maxHp: number | null;
-    currentHp: number | null;
-    tempHp: number;
-    defeated: boolean;
-    removed: boolean;
-  }
-> => {
+  entries: { id: string; kind: string; payload: string }[],
+): {
+  items: Map<string, DerivedItemState>;
+  revertedEntryIds: ReadonlySet<string>;
+  unreadableEntryIds: ReadonlySet<string>;
+} => {
   const states = new Map<string, TrackedState>(
     items.map((item) => [
       item.id,
@@ -59,9 +62,33 @@ export const deriveCombatState = (
     ]),
   );
 
-  for (const raw of entries) {
-    const entry = readLogEntry(raw.kind, raw.payload);
-    if (entry === null) {
+  const readEntries = entries.map((raw) => ({
+    id: raw.id,
+    entry: readLogEntry(raw.kind, raw.payload),
+  }));
+  const unreadableEntryIds = new Set(
+    readEntries.filter(({ entry }) => entry === null).map(({ id }) => id),
+  );
+  const revertibleEntryIds = new Set(
+    readEntries
+      .filter(
+        ({ entry }) => entry !== null && isRevertibleLogEntryKind(entry.kind),
+      )
+      .map(({ id }) => id),
+  );
+  // A revert drops its target wherever the target sits in the order, so a sync that delivers the revert first changes nothing.
+  const revertedEntryIds = new Set<string>();
+  for (const { entry } of readEntries) {
+    if (entry?.kind !== 'revert') {
+      continue;
+    }
+    if (revertibleEntryIds.has(entry.payload.entryId)) {
+      revertedEntryIds.add(entry.payload.entryId);
+    }
+  }
+
+  for (const { id, entry } of readEntries) {
+    if (entry === null || revertedEntryIds.has(id)) {
       continue;
     }
     switch (entry.kind) {
@@ -102,16 +129,20 @@ export const deriveCombatState = (
     }
   }
 
-  return new Map(
-    [...states].map(([id, { hp, tempHp, defeated, removed }]) => [
-      id,
-      {
-        maxHp: hp?.max ?? null,
-        currentHp: hp?.current ?? null,
-        tempHp,
-        defeated,
-        removed,
-      },
-    ]),
-  );
+  return {
+    items: new Map(
+      [...states].map(([id, { hp, tempHp, defeated, removed }]) => [
+        id,
+        {
+          maxHp: hp?.max ?? null,
+          currentHp: hp?.current ?? null,
+          tempHp,
+          defeated,
+          removed,
+        },
+      ]),
+    ),
+    revertedEntryIds,
+    unreadableEntryIds,
+  };
 };

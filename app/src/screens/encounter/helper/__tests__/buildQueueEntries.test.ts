@@ -164,4 +164,38 @@ describe('buildQueueEntries', () => {
       { id: 'c', defeated: false },
     ]);
   });
+
+  it('puts a combatant back in the queue with its derived HP when its removal is reverted', () => {
+    const items = [
+      buildEncounterQueueItem({ id: 'a', name: 'First', starting_max_hp: 10 }),
+      buildEncounterQueueItem({ id: 'b', name: 'Second', starting_max_hp: 10 }),
+    ];
+    const damageSecond = buildEncounterLogEntry(
+      'damage',
+      { targets: [{ queueItemId: 'b', amount: 3 }] },
+      { id: 'damage-second' },
+    );
+    const removeSecond = buildEncounterLogEntry(
+      'removed',
+      { queueItemIds: ['b'] },
+      { id: 'remove-second' },
+    );
+    const revertRemoval = buildEncounterLogEntry(
+      'revert',
+      { entryId: removeSecond.id },
+      { id: 'revert-removal' },
+    );
+
+    expect(
+      buildQueueEntries(
+        items,
+        [damageSecond, removeSecond, revertRemoval],
+        [],
+        false,
+      ).map((entry) => ({ id: entry.id, currentHp: entry.currentHp })),
+    ).toEqual([
+      { id: 'a', currentHp: 10 },
+      { id: 'b', currentHp: 7 },
+    ]);
+  });
 });

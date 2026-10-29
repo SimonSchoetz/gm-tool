@@ -18,7 +18,7 @@ export const buildQueueEntries = (
       startingMaxHp: item.starting_max_hp,
     })),
     logEntries,
-  );
+  ).items;
   const keptItems = queueItems.filter((item) => {
     const state = combatState.get(item.id) ?? null;
     // Stryker disable next-line ConditionalExpression,BooleanLiteral: deriveCombatState holds one state per item, so the guard is never entered and no input observes a difference
