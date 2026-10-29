@@ -3,6 +3,12 @@
   align-items: center;
   gap: var(--spacing-sm);
   color: var(--color-primary);
+  cursor: pointer;
+  border-radius: var(--radius-xl);
+}
+
+.encounter-queue-entry--selected {
+  box-shadow: var(--box-shadow-active);
 }
 
 .encounter-queue-entry-handle {

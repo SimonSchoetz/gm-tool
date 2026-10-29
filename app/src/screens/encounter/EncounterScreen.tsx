@@ -6,7 +6,9 @@ import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
 import { EncounterActions } from './components/EncounterActions/EncounterActions';
-import { EncounterAddSidebar } from './components/EncounterAddSidebar';
+import { EncounterSidebar } from './components/EncounterSidebar';
+import { useEncounterQueueEntries } from './hooks/useEncounterQueueEntries';
+import { useEncounterSelection } from './hooks/useEncounterSelection';
 import { PREVIEW_WIDTH } from '../screens.constants';
 import './EncounterScreen.css';
 
@@ -16,6 +18,11 @@ export const EncounterScreen = () => {
   });
 
   const { encounter, loading } = useEncounter(encounterId, adventureId);
+  const { entries } = useEncounterQueueEntries();
+  const { selectedId, activeTab, select, setActiveTab } = useEncounterSelection(
+    encounterId,
+    entries.map((entry) => entry.id),
+  );
 
   if (loading || !encounter) {
     return (
@@ -40,14 +47,18 @@ export const EncounterScreen = () => {
 
       <div className='encounter-screen-body'>
         <div className='encounter-screen-queue-column'>
-          <EncounterQueue />
+          <EncounterQueue selectedId={selectedId} onSelect={select} />
           <EncounterActions />
         </div>
         <div className='encounter-screen-middle-column'>
           <EncounterNotes />
         </div>
         <div className='encounter-screen-side-column'>
-          <EncounterAddSidebar />
+          <EncounterSidebar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            selectedId={selectedId}
+          />
         </div>
       </div>
     </GlassPanel>

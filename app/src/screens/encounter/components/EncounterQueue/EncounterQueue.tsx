@@ -18,10 +18,15 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { reorderIds } from '@/util/reorderIds';
 import { useEncounterQueueEntries } from '../../hooks/useEncounterQueueEntries';
-import { EncounterQueueEntry } from './components/EncounterQueueEntry';
+import { EncounterQueueEntry } from './components/EncounterQueueEntry/EncounterQueueEntry';
 import './EncounterQueue.css';
 
-export const EncounterQueue = () => {
+type Props = {
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+};
+
+export const EncounterQueue = ({ selectedId, onSelect }: Props) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
@@ -69,7 +74,12 @@ export const EncounterQueue = () => {
           strategy={verticalListSortingStrategy}
         >
           {entries.map((entry) => (
-            <EncounterQueueEntry key={entry.id} {...entry} />
+            <EncounterQueueEntry
+              key={entry.id}
+              {...entry}
+              selected={entry.id === selectedId}
+              onSelect={onSelect}
+            />
           ))}
         </SortableContext>
       </DndContext>

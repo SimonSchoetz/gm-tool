@@ -1,0 +1,21 @@
+.encounter-combatant-actions-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.encounter-combatant-actions-tab-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.encounter-combatant-actions-tab-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.encounter-combatant-actions-tab-hp {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}

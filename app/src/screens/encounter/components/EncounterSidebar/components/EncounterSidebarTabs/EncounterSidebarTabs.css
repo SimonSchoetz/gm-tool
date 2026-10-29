@@ -1,0 +1,36 @@
+.encounter-sidebar-tabs {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
+  margin-bottom: calc(-1 * var(--border-thin));
+}
+
+/* .action-container:hover sets border: none at the same specificity as these :hover selectors, so the border is written for :hover too and comes after it; dropping a :hover selector lets a hovered tab lose its border and jump. */
+.encounter-sidebar-tabs-tab,
+.encounter-sidebar-tabs-tab:hover {
+  border: var(--border-thin) solid var(--color-border-muted);
+  border-bottom-color: var(--color-border);
+}
+
+.encounter-sidebar-tabs-tab {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background-color: var(--color-bg-muted);
+  color: var(--color-fg-muted);
+}
+
+.encounter-sidebar-tabs-tab:hover {
+  color: var(--color-fg);
+}
+
+/* Written after the inactive rules and for :hover as well, so the active tab keeps its joined border when hovered. */
+.encounter-sidebar-tabs-tab--active,
+.encounter-sidebar-tabs-tab--active:hover {
+  margin-top: 0;
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  border-bottom-color: var(--color-surface);
+  color: var(--color-fg);
+}

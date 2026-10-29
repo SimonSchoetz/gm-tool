@@ -6,7 +6,7 @@ import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEnt
 import {
   describeQueueEntryHp,
   describeQueueEntryImage,
-} from './helper/describeQueueEntryHp';
+} from '../../../../helper/describeQueueEntryHp';
 import './EncounterQueueEntry.css';
 
 type Props = {
@@ -17,6 +17,8 @@ type Props = {
   currentHp: number | null;
   tempHp: number;
   defeated: boolean;
+  selected: boolean;
+  onSelect: (id: string) => void;
 };
 
 export const EncounterQueueEntry: FCProps<Props> = ({
@@ -27,6 +29,8 @@ export const EncounterQueueEntry: FCProps<Props> = ({
   currentHp,
   tempHp,
   defeated,
+  selected,
+  onSelect,
 }) => {
   const {
     attributes,
@@ -46,7 +50,17 @@ export const EncounterQueueEntry: FCProps<Props> = ({
   } as React.CSSProperties;
 
   return (
-    <div ref={setNodeRef} style={style} className='encounter-queue-entry'>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'encounter-queue-entry',
+        selected && 'encounter-queue-entry--selected',
+      )}
+      onClick={() => {
+        onSelect(id);
+      }}
+    >
       <span
         ref={setActivatorNodeRef}
         className='encounter-queue-entry-handle'
