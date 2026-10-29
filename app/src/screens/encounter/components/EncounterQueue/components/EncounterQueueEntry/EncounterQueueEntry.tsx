@@ -1,7 +1,6 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { FCProps } from '@/types/fcProps.type';
-import { cn } from '@/util/className';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
 import {
   describeQueueEntryHp,
@@ -42,6 +41,8 @@ export const EncounterQueueEntry: FCProps<Props> = ({
   } = useSortable({ id });
   const hp = describeQueueEntryHp({ maxHp, currentHp, tempHp });
   const imageLook = describeQueueEntryImage(hp, defeated);
+  // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+  const imageClassName = `encounter-queue-entry-image encounter-queue-entry-image--${imageLook}`;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -53,10 +54,9 @@ export const EncounterQueueEntry: FCProps<Props> = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        'encounter-queue-entry',
-        selected && 'encounter-queue-entry--selected',
-      )}
+      // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+      className='encounter-queue-entry'
+      aria-current={selected ? 'true' : undefined}
       onClick={() => {
         onSelect(id);
       }}
@@ -71,13 +71,17 @@ export const EncounterQueueEntry: FCProps<Props> = ({
       </span>
 
       <div
-        className={cn(
-          'encounter-queue-entry-image',
-          imageLook === 'grey' && 'encounter-queue-entry-image--grey',
-        )}
+        className={imageClassName}
+        aria-label={imageLook === 'grey' ? 'Greyed-out image' : undefined}
       >
         <EncounterEntityImage imageId={imageId} size={64} />
-        {imageLook === 'tint' && <div className='encounter-queue-entry-tint' />}
+        {imageLook === 'tint' && (
+          // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+          <div
+            className='encounter-queue-entry-tint'
+            aria-label='Damage tint'
+          />
+        )}
       </div>
 
       <div className='encounter-queue-entry-text'>
