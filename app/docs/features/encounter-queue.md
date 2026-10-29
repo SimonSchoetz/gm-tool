@@ -100,7 +100,7 @@ Where the user waits: the Add tab shows the loading icon until the adventure's e
 
 None in the open-questions register.
 
-Not yet registered: whether a paired device on a build from before this feature, which does not know the two new tables, pauses sync or skips them. The sync protocol version stays at 3, and the branch did not establish how an older build treats a table it does not know. The lead takes it to the user. The sync rule in Rules above depends on it.
+A paired device on a build from before this feature pauses sync with this build until both run the same build. This feature adds a migration, which gives the build a new migration head, and a peer counts as compatible only when its sync protocol version and its migration head both equal the device's own (`app/services/syncService.ts:76-77`; decision record `0001-encounter-combat-state.md` — Data, Elsewhere). The sync protocol version itself stays at 3.
 
 ## Where to look
 
