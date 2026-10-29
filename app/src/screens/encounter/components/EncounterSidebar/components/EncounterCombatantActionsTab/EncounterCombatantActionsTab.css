@@ -1,33 +1,22 @@
 .encounter-combatant-actions-tab {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.encounter-combatant-actions-tab-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.encounter-combatant-actions-tab-text {
   flex: 1;
-  min-width: 0;
-}
-
-.encounter-combatant-actions-tab-hp {
-  font-size: var(--font-size-md);
-  color: var(--color-fg-muted);
-}
-
-.encounter-combatant-actions-tab .encounter-combatant-actions-tab-amount {
-  width: calc(var(--spacing-3xl) + var(--spacing-md));
-  flex-shrink: 0;
-  text-align: center;
+  min-height: 0;
+  gap: var(--spacing-sm);
 }
 
 .encounter-combatant-actions-tab-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
+}
+
+.encounter-combatant-actions-tab-rows {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  gap: var(--spacing-sm);
 }

@@ -19,10 +19,11 @@ export const EncounterScreen = () => {
 
   const { encounter, loading } = useEncounter(encounterId, adventureId);
   const { entries } = useEncounterQueueEntries();
-  const { selectedId, activeTab, select, setActiveTab } = useEncounterSelection(
-    encounterId,
-    entries.map((entry) => entry.id),
-  );
+  const { selectedIds, activeTab, select, setActiveTab } =
+    useEncounterSelection(
+      encounterId,
+      entries.map((entry) => entry.id),
+    );
 
   if (loading || !encounter) {
     return (
@@ -47,7 +48,7 @@ export const EncounterScreen = () => {
 
       <div className='encounter-screen-body'>
         <div className='encounter-screen-queue-column'>
-          <EncounterQueue selectedId={selectedId} onSelect={select} />
+          <EncounterQueue selectedIds={selectedIds} onSelect={select} />
           <EncounterActions />
         </div>
         <div className='encounter-screen-middle-column'>
@@ -57,7 +58,7 @@ export const EncounterScreen = () => {
           <EncounterSidebar
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            selectedId={selectedId}
+            selectedIds={selectedIds}
           />
         </div>
       </div>
