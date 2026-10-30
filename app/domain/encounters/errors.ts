@@ -79,7 +79,7 @@ export const encounterQueueAddError = (
   cause?: unknown,
 ): EncounterQueueAddError => {
   const error = new Error(
-    `Failed to add combatants to the encounter queue: ${String(cause)}`,
+    `Failed to add to the encounter queue: ${String(cause)}`,
   ) as EncounterQueueAddError;
   error.name = 'EncounterQueueAddError';
   return error;
@@ -108,6 +108,19 @@ export const encounterQueueUpdateError = (
     `Failed to update the encounter queue item: ${String(cause)}`,
   ) as EncounterQueueUpdateError;
   error.name = 'EncounterQueueUpdateError';
+  return error;
+};
+
+type EncounterQueueDuplicateError = Error & {
+  name: 'EncounterQueueDuplicateError';
+};
+export const encounterQueueDuplicateError = (
+  cause?: unknown,
+): EncounterQueueDuplicateError => {
+  const error = new Error(
+    `Failed to duplicate the encounter queue: ${String(cause)}`,
+  ) as EncounterQueueDuplicateError;
+  error.name = 'EncounterQueueDuplicateError';
   return error;
 };
 

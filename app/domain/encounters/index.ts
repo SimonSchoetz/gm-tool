@@ -14,6 +14,7 @@ export { encounterQueueLoadError } from './errors';
 export { encounterQueueAddError } from './errors';
 export { encounterQueueReorderError } from './errors';
 export { encounterQueueUpdateError } from './errors';
+export { encounterQueueDuplicateError } from './errors';
 export { encounterLogLoadError } from './errors';
 export { encounterLogRecordError } from './errors';
 export { encounterLogDeleteError } from './errors';
