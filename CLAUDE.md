@@ -48,9 +48,10 @@ See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`
 ```bash
 pnpm run dev                # Local Tauri environment
 pnpm run web                # Vite in a browser, on a temporary copy of the dev app's data
+pnpm run web:seed           # Vite in a browser, on a fresh database filled by the dev seed
 ```
 
-`pnpm run web` reaches the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first offers to replace the dev app's data with a copy of the installed app's data: it mirrors unasked only when the dev app has no database, and keeps existing dev data unless the prompt is answered `y` — so a session that starts it without a terminal runs on the dev data as it is (`app/docs/features/dev-data-mirror.md`).
+`pnpm run web` and `pnpm run web:seed` reach the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). It verifies on the seeded mode (`pnpm run web:seed`, the `seeded-web` launch configuration), whose data is the same at every start and whose entities the Seeded mode table in that file names; `pnpm run web` serves a copy of the developer's own dev data, for a check that needs it. What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first offers to replace the dev app's data with a copy of the installed app's data — unasked only when the dev app has no database; a session that starts it without a terminal keeps the dev data (`app/docs/features/dev-data-mirror.md`).
 
 ### Communication Style
 

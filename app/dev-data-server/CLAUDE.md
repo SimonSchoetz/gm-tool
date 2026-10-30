@@ -1,17 +1,17 @@
 # Dev data server
 
-`app/dev-data-server/` is Node code for development only: the Vite plugin that serves a copy of the installed app's data to web mode (`app/docs/features/web-dev-mode.md`), and the mirror step `pnpm run dev` runs before the Tauri app starts (`app/docs/features/dev-data-mirror.md`). It never reaches a release build. `runDevMirror.ts` runs under `node` with no build step, so it relies on Node's type stripping at the Node 24 floor that `engines.node` in `app/package.json` declares and `.nvmrc` pins; there is no fallback for an older Node.
+`app/dev-data-server/` is Node code for development only: the Vite plugin that serves web mode (`app/docs/features/web-dev-mode.md`) a copy of the dev app's data, or a freshly seeded database, and the mirror step `pnpm run dev` runs before the Tauri app starts (`app/docs/features/dev-data-mirror.md`). It never reaches a release build. `runDevMirror.ts` runs under `node` with no build step, so it relies on Node's type stripping at the Node 24 floor that `engines.node` in `app/package.json` declares and `.nvmrc` pins; there is no fallback for an older Node.
 
 ## Hosts
 
-- The folder has no `index.ts`. Its public files serve two module hosts, Vite's config loader (`vitePlugin.ts`) and the browser bundle (`protocol.ts`): a barrel exporting both would pull `node:sqlite` and `node:fs` into the browser graph, and a barrel exporting one would make the other import reach past it (`local/no-import-past-index`).
+- The folder has no `index.ts`. Its public files serve two module hosts, Vite's config loader (`vitePlugin.ts`) and the browser bundle (`protocol.ts`): a barrel exporting both would pull `node:sqlite` and `node:fs` into the browser graph, and a barrel exporting one would make the other import reach past it (`local/no-import-past-index`). `seed/seed.ts` and `seed/seedPlatform.ts` run in a third host, the short-lived Vite server `seedDatabase.ts` creates, which resolves the project aliases that neither of the other two hosts does.
 - App and browser code import only `protocol.ts` from this folder, which `import-x/no-restricted-paths` in `app/eslint.config.js` enforces.
 - A file's top-of-file comment starts with its host: `Node host`, or `Browser host` for `protocol.ts`. It never names the files that import it, because the lint above fixes who may import and a list of importers goes stale when a file splits.
 
 ## Imports
 
-- A non-test file here imports its siblings and the rest of `app/` by relative path, never through a project alias (`@domain`, `@db`, `@/`), because Vite's config loader bundles these files and resolves no path alias. This departs from `app/domain/CLAUDE.md` — Imports, which sends external consumers through `@domain`.
-- A file `node` loads — `runDevMirror.ts`, which the `dev` script runs, and every module its relative imports reach, `app/domain/database/` included — imports its relative modules with the `.ts` extension, which Node's type stripping requires, so it reaches only modules that do the same. Every other file here is loaded by Vite (its config loader or the browser bundle) or by Vitest, and imports without an extension.
+- A non-test file here outside `seed/` imports its siblings and the rest of `app/` by relative path, never through a project alias (`@domain`, `@db`, `@/`), because Vite's config loader bundles these files and resolves no path alias. The files under `seed/` run in the seed server, which resolves the aliases, so this bullet does not bind them. This departs from `app/domain/CLAUDE.md` — Imports, which sends external consumers through `@domain`.
+- A file `node` loads — `runDevMirror.ts`, which the `dev` script runs, and every module its relative imports reach, `app/domain/database/` included — imports its relative modules with the `.ts` extension, which Node's type stripping requires, so it reaches only modules that do the same. A file Vite's config loader reaches — `vitePlugin.ts` and every module its relative imports reach, wherever under `app/` — imports its relative modules with `.ts` too (a directory import as `…/index.ts`), because Vite 8 warns that `configLoader: 'native'`, its planned default, needs the extension. The files under `seed/` and the test files under `__tests__/` import without an extension; `protocol.ts` imports nothing.
 
 ## SQL
 
