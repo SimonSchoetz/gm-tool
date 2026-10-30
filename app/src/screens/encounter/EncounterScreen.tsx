@@ -6,6 +6,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
+import { EncounterShownCombatant } from './components/EncounterShownCombatant';
 import { EncounterActions } from './components/EncounterActions/EncounterActions';
 import { EncounterSidebar } from './components/EncounterSidebar';
 import { useEncounterQueueEntries } from './hooks/useEncounterQueueEntries';
@@ -21,7 +22,7 @@ export const EncounterScreen = () => {
   const { encounter, loading } = useEncounter(encounterId, adventureId);
   const { entries } = useEncounterQueueEntries();
   const middleColumnRef = useRef<HTMLDivElement | null>(null);
-  const { selectedIds, activeTab, select, setActiveTab } =
+  const { selectedIds, shownItemId, activeTab, select, setActiveTab } =
     useEncounterSelection(
       encounterId,
       entries.map((entry) => entry.id),
@@ -56,6 +57,7 @@ export const EncounterScreen = () => {
         </div>
         <div ref={middleColumnRef} className='encounter-screen-middle-column'>
           <EncounterNotes />
+          <EncounterShownCombatant shownItemId={shownItemId} />
         </div>
         <div className='encounter-screen-side-column'>
           <EncounterSidebar
