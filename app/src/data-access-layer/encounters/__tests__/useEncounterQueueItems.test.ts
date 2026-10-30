@@ -23,6 +23,10 @@ const getQueueItems = vi.hoisted(() => vi.fn<typeof service.getQueueItems>());
 const addEntityCombatants = vi.hoisted(() =>
   vi.fn<typeof service.addEntityCombatants>(),
 );
+const addRandomCombatants = vi.hoisted(() =>
+  vi.fn<typeof service.addRandomCombatants>(),
+);
+const addEvent = vi.hoisted(() => vi.fn<typeof service.addEvent>());
 const reorderQueueItems = vi.hoisted(() =>
   vi.fn<typeof service.reorderQueueItems>(),
 );
@@ -33,13 +37,19 @@ const updateQueueItem = vi.hoisted(() =>
 vi.mock('@services/encounterQueueService', () => ({
   getQueueItems,
   addEntityCombatants,
+  addRandomCombatants,
+  addEvent,
   reorderQueueItems,
   updateQueueItem,
 }));
 
-const withDeferredAdd = () => {
+const withDeferredAdd = (
+  addSpy: {
+    mockReturnValue: (value: Promise<void>) => unknown;
+  } = addEntityCombatants,
+) => {
   let release: (() => void) | null = null;
-  addEntityCombatants.mockReturnValue(
+  addSpy.mockReturnValue(
     new Promise<void>((resolve) => {
       release = resolve;
     }),
@@ -54,6 +64,8 @@ describe('useEncounterQueueItems', () => {
     vi.useFakeTimers();
     getQueueItems.mockResolvedValue([]);
     addEntityCombatants.mockReset().mockResolvedValue();
+    addRandomCombatants.mockReset().mockResolvedValue();
+    addEvent.mockReset().mockResolvedValue();
     reorderQueueItems.mockReset().mockResolvedValue();
     updateQueueItem.mockReset().mockResolvedValue();
   });
@@ -117,7 +129,7 @@ describe('useEncounterQueueItems', () => {
     expect(await Promise.all(adds)).toEqual([true, false]);
   });
 
-  it('invalidates the queue of the encounter once an add resolved', async () => {
+  it('invalidates the queue and the log of the encounter once an add resolved', async () => {
     const { result, invalidateQueries } = renderHookWithQueryClient(() =>
       useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
@@ -130,6 +142,103 @@ describe('useEncounterQueueItems', () => {
     expect(wasAdded).toBe(true);
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: encounterKeys.logEntries(QUEUE_ITEM_ENCOUNTER_ID),
+    });
+  });
+
+  it('keeps isAdding true after the service resolved until the queue and the log have refetched', async () => {
+    const { result, invalidateQueries } = renderHookWithQueryClient(() =>
+      useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+    );
+    await settle(0);
+    let finishRefetch: () => void = () => undefined;
+    invalidateQueries.mockReturnValue(
+      new Promise<void>((resolve) => {
+        finishRefetch = resolve;
+      }),
+    );
+
+    act(() => {
+      void result.current.addEvent('Lair action');
+    });
+    await settle(0);
+    expect(result.current.isAdding).toBe(true);
+
+    finishRefetch();
+    await settle(0);
+    expect(result.current.isAdding).toBe(false);
+  });
+
+  describe.each([
+    [
+      'an entity combatant',
+      addEntityCombatants,
+      (hook: ReturnType<typeof useEncounterQueueItems>) =>
+        hook.addEntityCombatants('foes', BASE_ENTITY_ID, 2),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'foes', BASE_ENTITY_ID, 2],
+    ],
+    [
+      'a random combatant',
+      addRandomCombatants,
+      (hook: ReturnType<typeof useEncounterQueueItems>) =>
+        hook.addRandomCombatants('Grunt', 10, 2),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'Grunt', 10, 2],
+    ],
+    [
+      'an event',
+      addEvent,
+      (hook: ReturnType<typeof useEncounterQueueItems>) =>
+        hook.addEvent('Lair action'),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'Lair action'],
+    ],
+  ] as const)('adding %s', (_label, serviceSpy, run, expectedArguments) => {
+    it('calls its service function once for a double call in one call stack and refuses the second', async () => {
+      const releaseAdd = withDeferredAdd(serviceSpy);
+      const { result } = renderHookWithQueryClient(() => ({
+        first: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+        second: useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      }));
+      await settle(0);
+
+      const adds: Promise<boolean>[] = [];
+      act(() => {
+        adds.push(run(result.current.first));
+        adds.push(run(result.current.second));
+      });
+      await settle(0);
+      releaseAdd();
+      await settle(0);
+
+      expect(serviceSpy).toHaveBeenCalledTimes(1);
+      expect(serviceSpy).toHaveBeenCalledWith(...expectedArguments);
+      expect(await Promise.all(adds)).toEqual([true, false]);
+    });
+
+    it('is refused while an add of each other kind is pending', async () => {
+      const releaseAdd = withDeferredAdd(serviceSpy);
+      const { result } = renderHookWithQueryClient(() =>
+        useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      );
+      await settle(0);
+
+      act(() => {
+        void run(result.current);
+      });
+      await settle(0);
+      const refused = await act(() =>
+        Promise.all([
+          result.current.addEntityCombatants('foes', 'entity-2', 1),
+          result.current.addRandomCombatants('Brute', null, 1),
+          result.current.addEvent('Other'),
+        ]),
+      );
+      releaseAdd();
+      await settle(0);
+
+      // The add under test is refused too: its own call is pending.
+      expect(refused).toEqual([false, false, false]);
     });
   });
 
@@ -307,6 +416,27 @@ describe('useEncounterQueueItems', () => {
         ['a', 'Boss', 'n'],
         ['b', null, null],
       ]);
+    });
+
+    it('writes an event rename into the cache at once and schedules the save with the name for that item', async () => {
+      const { result, queryClient } = await renderLoaded();
+
+      act(() => {
+        result.current.updateQueueItem('a', { name: 'Lair' });
+      });
+
+      expect(
+        queryClient
+          .getQueryData<EncounterQueueItem[]>(
+            encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
+          )
+          ?.map((item) => [item.id, item.name]),
+      ).toEqual([
+        ['a', 'Lair'],
+        ['b', 'Goblin'],
+      ]);
+      await settle(AUTOSAVE_DELAY_MS);
+      expect(updateQueueItem).toHaveBeenCalledWith('a', { name: 'Lair' });
     });
 
     it('schedules the save without touching the cache when the queue is not loaded yet', async () => {
