@@ -1,27 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  CombatantEntry,
-  EventEntry,
-} from '../../../../../../helper/buildQueueEntries';
+import {
+  buildCombatantEntry,
+  buildEventEntry,
+} from '../../../../../../__tests__/support/buildQueueEntry';
 import { buildPlanRows } from '../buildPlanRows';
 
-const combatant = (
-  id: string,
-  overrides: Partial<CombatantEntry> = {},
-): CombatantEntry => ({
-  kind: 'combatant',
-  id,
-  name: id,
-  automaticName: id,
-  entity: null,
-  imageId: null,
-  maxHp: 10,
-  currentHp: 10,
-  tempHp: 0,
-  defeated: false,
-  ...overrides,
-});
-const event = (id: string): EventEntry => ({ kind: 'event', id, name: id });
+const combatant = (id: string, overrides = {}) =>
+  buildCombatantEntry({ id, name: id, automaticName: id, ...overrides });
+const event = (id: string) => buildEventEntry({ id, name: id });
 
 describe('buildPlanRows', () => {
   it('maps an event to an event row without an amount, and a combatant to its parsed amount, whether it has HP and whether it is defeated', () => {

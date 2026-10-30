@@ -23,7 +23,7 @@ import {
   type BaseEntityType,
 } from '@domain';
 
-// The rename and the notes only: a queue item's entity, kind and position never change through this write (the entity view relies on a combatant's entity only ever being emptied, and a reorder goes through reorderQueueItems). Only an event's rename passes `name`, never a combatant's, whose `name` is its numbering key and the name stored from its entity.
+// The rename and the notes only: a queue item's `kind`, `base_entity_id` and `sort_order` never change through this write (`base_entity_id` is only ever emptied, when its entity is deleted, and a reorder goes through reorderQueueItems). Only an event's rename passes `name`, never a combatant's, whose `name` is its numbering key and the name stored from its entity.
 export type UpdateQueueItemData = Pick<
   UpdateEncounterQueueItemInput,
   'custom_name' | 'name' | 'notes'

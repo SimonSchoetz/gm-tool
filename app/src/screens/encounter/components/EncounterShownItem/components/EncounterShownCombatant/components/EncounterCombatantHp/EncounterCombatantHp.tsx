@@ -1,16 +1,14 @@
 import { useBaseEntityContentSections } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { describeQueueEntryHp } from '../../../../../../helper/describeQueueEntryHp';
-import { useEncounterQueueEntry } from '../../../../../../hooks/useEncounterQueueEntry';
-import { isCombatantEntry } from '../../../../../../helper/isCombatantEntry';
+import { useEncounterCombatantEntry } from '../../../../../../hooks/useEncounterCombatantEntry';
 import { describeHpNotSetHint } from './helper/describeHpNotSetHint';
 import './EncounterCombatantHp.css';
 
 type Props = { shownItemId: string };
 
 export const EncounterCombatantHp: FCProps<Props> = ({ shownItemId }) => {
-  const queueEntry = useEncounterQueueEntry(shownItemId);
-  const entry = isCombatantEntry(queueEntry) ? queueEntry : null;
+  const entry = useEncounterCombatantEntry(shownItemId);
   // The query is disabled for an empty id, so no read happens without a linked entity.
   const { sections, loading } = useBaseEntityContentSections(
     entry?.entity?.id ?? '',

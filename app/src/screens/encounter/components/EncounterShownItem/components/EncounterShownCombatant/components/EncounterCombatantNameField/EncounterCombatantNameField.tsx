@@ -4,8 +4,7 @@ import { useEncounterQueueItems } from '@/data-access-layer';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { useTypographicInput } from '@/hooks/useTypographicInput';
 import { FCProps } from '@/types/fcProps.type';
-import { useEncounterQueueEntry } from '../../../../../../hooks/useEncounterQueueEntry';
-import { isCombatantEntry } from '../../../../../../helper/isCombatantEntry';
+import { useEncounterCombatantEntry } from '../../../../../../hooks/useEncounterCombatantEntry';
 import { resolveCustomName } from './helper/resolveCustomName';
 
 type Props = { shownItemId: string };
@@ -16,8 +15,7 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const queueEntry = useEncounterQueueEntry(shownItemId);
-  const entry = isCombatantEntry(queueEntry) ? queueEntry : null;
+  const entry = useEncounterCombatantEntry(shownItemId);
   const { updateQueueItem } = useEncounterQueueItems(encounterId);
   // Stryker disable next-line StringLiteral: the field renders nothing while the entry is null, so the empty string is never shown
   const shownName = entry?.name ?? '';
