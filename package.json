@@ -18,6 +18,7 @@
     "test": "cd app && pnpm run test",
     "dev": "cd app && pnpm run dev",
     "web": "cd app && pnpm run web",
+    "web:seed": "cd app && pnpm run web:seed",
     "lint": "cd app && npx eslint .",
     "build-local": "cd app && pnpm run tauri build --debug --config src-tauri/tauri.dev.conf.json",
     "create-release": "node scripts/create-release.ts",
