@@ -51,6 +51,19 @@ describe('EncounterShownCombatant', () => {
     getAllBaseEntities.mockResolvedValue([]);
   });
 
+  it('shows the hint and no combatant fields when nothing is shown', () => {
+    render(<EncounterShownCombatant shownItemId={null} />, {
+      wrapper: TanstackQueryClientProvider,
+    });
+
+    expect(
+      screen.getByText('Click a combatant in the queue to show it here.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('textbox', { name: 'Combatant name' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('replaces the former combatant with the newly shown one', async () => {
     const { rerender } = render(
       <EncounterShownCombatant shownItemId='item-1' />,
