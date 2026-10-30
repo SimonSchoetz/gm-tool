@@ -3,11 +3,9 @@ import { Button } from '@/components/Button/Button';
 import { Input } from '@/components/Input/Input';
 import { useEncounterLogEntries } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import type {
-  CombatantEntry,
-  EventEntry,
-} from '../../../../helper/buildQueueEntries';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
+import { isCombatantEntry } from '../../../../helper/isCombatantEntry';
+import { isEventEntry } from '../../../../helper/isEventEntry';
 import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEntries';
 import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
 import { buildPlanRows } from './helper/buildPlanRows';
@@ -18,13 +16,6 @@ import { useActionAmounts } from './hooks/useActionAmounts';
 import './EncounterCombatantActionsTab.css';
 
 type Props = { selectedIds: string[] };
-
-const isCombatantEntry = (
-  entry: CombatantEntry | EventEntry,
-): entry is CombatantEntry => entry.kind === 'combatant';
-const isEventEntry = (
-  entry: CombatantEntry | EventEntry,
-): entry is EventEntry => entry.kind === 'event';
 
 export const EncounterCombatantActionsTab: FCProps<Props> = ({
   selectedIds,
