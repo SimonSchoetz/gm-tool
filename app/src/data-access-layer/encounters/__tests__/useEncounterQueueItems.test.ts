@@ -1,6 +1,6 @@
 import { createElement, type ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
@@ -11,6 +11,7 @@ import {
 } from '@/__tests__/support/buildEncounterQueueItem';
 import type * as service from '@services/encounterQueueService';
 import { createQueryClient } from '../../queryClient';
+import { AUTOSAVE_DELAY_MS } from '../../createAutosaveQueue';
 import {
   renderHookWithQueryClient,
   settle,
@@ -25,11 +26,15 @@ const addEntityCombatants = vi.hoisted(() =>
 const reorderQueueItems = vi.hoisted(() =>
   vi.fn<typeof service.reorderQueueItems>(),
 );
+const updateQueueItem = vi.hoisted(() =>
+  vi.fn<typeof service.updateQueueItem>(),
+);
 
 vi.mock('@services/encounterQueueService', () => ({
   getQueueItems,
   addEntityCombatants,
   reorderQueueItems,
+  updateQueueItem,
 }));
 
 const withDeferredAdd = () => {
@@ -50,6 +55,7 @@ describe('useEncounterQueueItems', () => {
     getQueueItems.mockResolvedValue([]);
     addEntityCombatants.mockReset().mockResolvedValue();
     reorderQueueItems.mockReset().mockResolvedValue();
+    updateQueueItem.mockReset().mockResolvedValue();
   });
 
   afterEach(() => {
@@ -263,5 +269,155 @@ describe('useEncounterQueueItems', () => {
       ['b', 0],
       ['a', 2],
     ]);
+  });
+
+  describe('updateQueueItem', () => {
+    const cachedFields = (queryClient: QueryClient) =>
+      queryClient
+        .getQueryData<EncounterQueueItem[]>(
+          encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
+        )
+        ?.map((item) => [item.id, item.custom_name, item.notes]);
+
+    const renderLoaded = async () => {
+      getQueueItems.mockResolvedValue([
+        buildEncounterQueueItem({ id: 'a' }),
+        buildEncounterQueueItem({ id: 'b' }),
+      ]);
+      const rendered = renderHookWithQueryClient(
+        ({ encounterId }: { encounterId: string }) =>
+          useEncounterQueueItems(encounterId),
+        { initialProps: { encounterId: QUEUE_ITEM_ENCOUNTER_ID } },
+      );
+      await settle(0);
+      return rendered;
+    };
+
+    it('writes the edit into the cache at once, for its item only', async () => {
+      const { result, queryClient } = await renderLoaded();
+
+      act(() => {
+        result.current.updateQueueItem('a', {
+          custom_name: 'Boss',
+          notes: 'n',
+        });
+      });
+
+      expect(cachedFields(queryClient)).toEqual([
+        ['a', 'Boss', 'n'],
+        ['b', null, null],
+      ]);
+    });
+
+    it('schedules the save without touching the cache when the queue is not loaded yet', async () => {
+      getQueueItems.mockReturnValue(new Promise(() => undefined));
+      const { result, queryClient } = renderHookWithQueryClient(() =>
+        useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      );
+
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: 'Boss' });
+      });
+      await settle(AUTOSAVE_DELAY_MS);
+
+      expect(
+        queryClient.getQueryData(
+          encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
+        ),
+      ).toBeUndefined();
+      expect(updateQueueItem).toHaveBeenCalledWith('a', {
+        custom_name: 'Boss',
+      });
+    });
+
+    it('writes the scheduled id and data after a re-render for another encounter', async () => {
+      const { result, rerender } = await renderLoaded();
+
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: 'Boss' });
+      });
+      rerender({ encounterId: 'encounter-2' });
+      await settle(AUTOSAVE_DELAY_MS);
+
+      expect(updateQueueItem).toHaveBeenCalledTimes(1);
+      expect(updateQueueItem).toHaveBeenCalledWith('a', {
+        custom_name: 'Boss',
+      });
+    });
+
+    it('invalidates the queue of the scheduled encounter, not the re-rendered one, when the write fails', async () => {
+      getQueueItems.mockResolvedValue([buildEncounterQueueItem({ id: 'a' })]);
+      updateQueueItem.mockRejectedValue(new Error('locked'));
+      const queryClient = createQueryClient();
+      const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = ({ children }: { children: ReactNode }) =>
+        createElement(
+          ErrorBoundary,
+          { fallback: null },
+          createElement(QueryClientProvider, { client: queryClient }, children),
+        );
+      const { result, rerender } = renderHook(
+        ({ encounterId }: { encounterId: string }) =>
+          useEncounterQueueItems(encounterId),
+        { wrapper, initialProps: { encounterId: QUEUE_ITEM_ENCOUNTER_ID } },
+      );
+      await settle(0);
+
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: 'Boss' });
+      });
+      rerender({ encounterId: 'encounter-2' });
+      await settle(AUTOSAVE_DELAY_MS);
+
+      expect(invalidateQueries).toHaveBeenCalledTimes(1);
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
+      });
+    });
+
+    it('sends two edits to one item as one merged write', async () => {
+      const { result } = await renderLoaded();
+
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: 'Boss' });
+      });
+      act(() => {
+        result.current.updateQueueItem('a', { notes: 'n' });
+      });
+      await settle(AUTOSAVE_DELAY_MS);
+
+      expect(updateQueueItem).toHaveBeenCalledTimes(1);
+      expect(updateQueueItem).toHaveBeenCalledWith('a', {
+        custom_name: 'Boss',
+        notes: 'n',
+      });
+    });
+
+    it('sends a null rename that follows text as null', async () => {
+      const { result, queryClient } = await renderLoaded();
+
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: 'Boss' });
+      });
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: null });
+      });
+      await settle(AUTOSAVE_DELAY_MS);
+
+      expect(updateQueueItem).toHaveBeenCalledWith('a', { custom_name: null });
+      expect(cachedFields(queryClient)?.[0]).toEqual(['a', null, null]);
+    });
+
+    it('invalidates nothing after a successful save', async () => {
+      const { result, invalidateQueries } = await renderLoaded();
+
+      act(() => {
+        result.current.updateQueueItem('a', { custom_name: 'Boss' });
+      });
+      await settle(AUTOSAVE_DELAY_MS);
+
+      expect(updateQueueItem).toHaveBeenCalledTimes(1);
+      expect(invalidateQueries).not.toHaveBeenCalled();
+    });
   });
 });

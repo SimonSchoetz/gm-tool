@@ -1,5 +1,9 @@
 export type SelectionModifiers = { shift: boolean; toggle: boolean };
-export type SelectionState = { ids: string[]; anchorId: string | null };
+export type SelectionState = {
+  ids: string[];
+  anchorId: string | null;
+  shownItemId: string | null;
+};
 
 export const applySelectionClick = (
   state: SelectionState,
@@ -13,17 +17,27 @@ export const applySelectionClick = (
     const clickedIndex = shownIds.indexOf(clickedId);
     const from = Math.min(anchorIndex, clickedIndex);
     const to = Math.max(anchorIndex, clickedIndex);
-    return { ids: shownIds.slice(from, to + 1), anchorId: state.anchorId };
-  }
-
-  if (modifiers.toggle && !modifiers.shift) {
     return {
-      ids: state.ids.includes(clickedId)
-        ? state.ids.filter((id) => id !== clickedId)
-        : [...state.ids, clickedId],
-      anchorId: clickedId,
+      ids: shownIds.slice(from, to + 1),
+      anchorId: state.anchorId,
+      shownItemId: clickedId,
     };
   }
 
-  return { ids: [clickedId], anchorId: clickedId };
+  if (modifiers.toggle && !modifiers.shift) {
+    if (state.ids.includes(clickedId)) {
+      return {
+        ids: state.ids.filter((id) => id !== clickedId),
+        anchorId: clickedId,
+        shownItemId: state.shownItemId === clickedId ? null : state.shownItemId,
+      };
+    }
+    return {
+      ids: [...state.ids, clickedId],
+      anchorId: clickedId,
+      shownItemId: clickedId,
+    };
+  }
+
+  return { ids: [clickedId], anchorId: clickedId, shownItemId: clickedId };
 };

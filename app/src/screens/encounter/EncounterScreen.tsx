@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { useEncounter } from '@/data-access-layer';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
@@ -5,6 +6,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
+import { EncounterShownCombatant } from './components/EncounterShownCombatant';
 import { EncounterActions } from './components/EncounterActions/EncounterActions';
 import { EncounterSidebar } from './components/EncounterSidebar';
 import { useEncounterQueueEntries } from './hooks/useEncounterQueueEntries';
@@ -19,10 +21,12 @@ export const EncounterScreen = () => {
 
   const { encounter, loading } = useEncounter(encounterId, adventureId);
   const { entries } = useEncounterQueueEntries();
-  const { selectedIds, activeTab, select, setActiveTab } =
+  const middleColumnRef = useRef<HTMLDivElement | null>(null);
+  const { selectedIds, shownItemId, activeTab, select, setActiveTab } =
     useEncounterSelection(
       encounterId,
       entries.map((entry) => entry.id),
+      middleColumnRef,
     );
 
   if (loading || !encounter) {
@@ -51,8 +55,9 @@ export const EncounterScreen = () => {
           <EncounterQueue selectedIds={selectedIds} onSelect={select} />
           <EncounterActions />
         </div>
-        <div className='encounter-screen-middle-column'>
+        <div ref={middleColumnRef} className='encounter-screen-middle-column'>
           <EncounterNotes />
+          <EncounterShownCombatant shownItemId={shownItemId} />
         </div>
         <div className='encounter-screen-side-column'>
           <EncounterSidebar

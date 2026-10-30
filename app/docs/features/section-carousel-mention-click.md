@@ -77,7 +77,7 @@ Not yet registered, each from the implementation and its review; the user decide
 ## Where to look
 
 - Shared pieces: `UpDownBtns` (the button pair, also used by the sessions screen's step move buttons), `SlideTransition`, `useListNavigation` (stepping, end flags and the recorded transition), the slide-direction type.
-- Entity screen: `BaseEntityContentSectionPanel`, rendering its sections through `ContentSectionBody`.
+- Entity screen: `ScreensBaseEntityContentSectionPanel`, rendering its sections through `ContentSectionBody`.
 - Popup: `BaseEntityPopupContent`, `EntityPopupBody`, `EntityPopupBodyText`, `ContentSectionBody`, `MentionPopupHeader`, `MentionPopup` and its `useDismissClickOpened` hook.
 - Click-open and selection suppression: `MentionBadge` with its `hasPointerMoved` and `isPrimaryButtonDown` helpers; the popups provider with `requestPopup` and the popup entry type.
 - Tests: `useListNavigation.test`, `requestPopup.test`, `useDismissClickOpened.test`, `MentionPopup.test`, `MentionBadge.test`, `hasPointerMoved.test`, `isPrimaryButtonDown.test`.

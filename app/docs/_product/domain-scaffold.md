@@ -233,12 +233,12 @@ After creating these files, run `pnpm run build:frontend` once from `app/` — s
 
 ## Detail Screen Composition
 
-`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the header slot renders `ScreensNameInput` for the entity's name, the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the body-header slot renders `BaseEntityContentSectionPanel` keyed by the entity's id — the entity's content sections, one shown at a time, with a menu bar to add, rename, switch between and delete them — and the body slot renders the description editor. This is the reference implementation for that composition pattern.
+`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the header slot renders `ScreensNameInput` for the entity's name, the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the body-header slot renders `ScreensBaseEntityContentSectionPanel` (`screens/components/`, which takes the entity id as a prop) keyed by the entity's id — the entity's content sections, one shown at a time, with a menu bar to add, rename, switch between and delete them — and the body slot renders the description editor. This is the reference implementation for that composition pattern.
 
 **`screens/session/` and `screens/encounter/` are deliberate exceptions** to this composition — each for its own reason, and neither is a template to copy:
 
 - `screens/session/`: its hand-rolled `SessionHeader` re-implements what `ScreensNameInput` now provides, and its custom `SessionScreen.css` layout predates the shared components below. This shape must not be copied.
-- `screens/encounter/`: `EncounterScreen` has its own `EncounterScreen.css`: a `GlassPanel` root with `EncounterHeader` above a three-column body — the combat queue with Duplicate and Delete below it, the global combat notes in a fixed-height panel, and a tabbed sidebar (Add, Actions and Log). `EncounterHeader` composes the shared `ScreensNameInput` rather than hand-rolling it, unlike `SessionHeader`. The shape is justified by an encounter being a working surface with a queue, notes and a tabbed sidebar (Add, Actions and Log), not a new default pattern, so it is not to be copied either.
+- `screens/encounter/`: `EncounterScreen` has its own `EncounterScreen.css`: a `GlassPanel` root with `EncounterHeader` above a three-column body — the combat queue with Duplicate and Delete below it, a middle column that holds the global combat notes in a fixed-height panel and, below them, the shown combatant's view in one scroll area, and a tabbed sidebar (Add, Actions and Log). `EncounterHeader` composes the shared `ScreensNameInput` rather than hand-rolling it, unlike `SessionHeader`. The shape is justified by an encounter being a working surface with a queue, notes and a tabbed sidebar (Add, Actions and Log), not a new default pattern, so it is not to be copied either.
 
 ## Customization Points
 

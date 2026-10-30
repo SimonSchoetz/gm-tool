@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
+import {
+  BASE_ENTITY_ID,
+  buildBaseEntity,
+} from '@/__tests__/support/buildBaseEntity';
 import { buildEncounterLogEntry } from '@/__tests__/support/buildEncounterLogEntry';
 import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
 import { buildQueueEntries } from '../buildQueueEntries';
@@ -196,6 +199,56 @@ describe('buildQueueEntries', () => {
     ).toEqual([
       { id: 'a', currentHp: 10 },
       { id: 'b', currentHp: 7 },
+    ]);
+  });
+
+  it('names a renamed combatant by its rename and keeps its numbered automatic name', () => {
+    const [entry] = buildQueueEntries(
+      [
+        buildEncounterQueueItem({
+          id: 'a',
+          name: 'Goblin',
+          custom_name: 'Boss',
+          sequence_number: 1,
+        }),
+        buildEncounterQueueItem({
+          id: 'b',
+          name: 'Goblin',
+          sequence_number: 2,
+        }),
+      ],
+      [],
+      [buildBaseEntity()],
+      false,
+    );
+
+    expect(entry).toMatchObject({ name: 'Boss', automaticName: 'Goblin 1' });
+  });
+
+  it('carries the id and type of an entity in the lists and none for a combatant whose entity is absent or whose base_entity_id is null', () => {
+    const entries = buildQueueEntries(
+      [
+        buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
+        buildEncounterQueueItem({
+          id: 'b',
+          base_entity_id: 'deleted',
+          sort_order: 1,
+        }),
+        buildEncounterQueueItem({
+          id: 'c',
+          base_entity_id: null,
+          sort_order: 2,
+        }),
+      ],
+      [],
+      [buildBaseEntity({ entity_type: 'npcs' })],
+      false,
+    );
+
+    expect(entries.map((entry) => entry.entity)).toEqual([
+      { id: BASE_ENTITY_ID, entityType: 'npcs' },
+      null,
+      null,
     ]);
   });
 });

@@ -1,5 +1,5 @@
 import { act, fireEvent, renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useEncounterSelection } from '../useEncounterSelection';
 
 const PLAIN = { shift: false, toggle: false };
@@ -9,14 +9,27 @@ const TOGGLE = { shift: false, toggle: true };
 const renderSelection = (
   encounterId = 'encounter-1',
   shownIds = ['a', 'b', 'c'],
+  middleColumnRef: { current: HTMLElement | null } = { current: null },
 ) =>
   renderHook(
     (props: { encounterId: string; shownIds: string[] }) =>
-      useEncounterSelection(props.encounterId, props.shownIds),
+      useEncounterSelection(props.encounterId, props.shownIds, middleColumnRef),
     { initialProps: { encounterId, shownIds } },
   );
 
+const mountMiddleColumn = (innerHtml: string) => {
+  const column = document.createElement('div');
+  column.innerHTML = innerHtml;
+  const outside = document.createElement('input');
+  document.body.append(column, outside);
+  return { column, outside };
+};
+
 describe('useEncounterSelection', () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
   it('starts with nothing selected on the Add tab', () => {
     const { result } = renderSelection();
 
@@ -194,5 +207,134 @@ describe('useEncounterSelection', () => {
       expect.any(Function),
     );
     removeEventListener.mockRestore();
+  });
+
+  it('shows the clicked id', () => {
+    const { result } = renderSelection();
+
+    act(() => {
+      result.current.select('b', PLAIN);
+    });
+
+    expect(result.current.shownItemId).toBe('b');
+  });
+
+  it('shows another id after a toggle that adds it and after a Shift-click', () => {
+    const { result } = renderSelection();
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+
+    act(() => {
+      result.current.select('b', TOGGLE);
+    });
+    expect(result.current.shownItemId).toBe('b');
+
+    act(() => {
+      result.current.select('c', SHIFT);
+    });
+    expect(result.current.shownItemId).toBe('c');
+  });
+
+  it('shows nothing when a toggle removes the shown id and keeps the shown id when a toggle removes another', () => {
+    const { result } = renderSelection();
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+    act(() => {
+      result.current.select('b', TOGGLE);
+    });
+
+    act(() => {
+      result.current.select('a', TOGGLE);
+    });
+    expect(result.current.shownItemId).toBe('b');
+
+    act(() => {
+      result.current.select('b', TOGGLE);
+    });
+    expect(result.current.shownItemId).toBeNull();
+  });
+
+  it('shows nothing after Escape and after the encounter id changes', () => {
+    const { result, rerender } = renderSelection();
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(result.current.shownItemId).toBeNull();
+
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+    rerender({ encounterId: 'encounter-2', shownIds: ['a', 'b', 'c'] });
+    expect(result.current.shownItemId).toBeNull();
+  });
+
+  it('returns no shown id in the render where it leaves the shown ids', () => {
+    const { result, rerender } = renderSelection();
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+
+    rerender({ encounterId: 'encounter-1', shownIds: ['b', 'c'] });
+
+    expect(result.current.shownItemId).toBeNull();
+  });
+
+  it('keeps the selection and the shown id on Escape in an input of the middle column', () => {
+    const middleColumnRef = { current: null as HTMLElement | null };
+    const { column } = mountMiddleColumn('<input aria-label="field" />');
+    middleColumnRef.current = column;
+    const { result } = renderSelection(undefined, undefined, middleColumnRef);
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+
+    const input = column.querySelector('input');
+    if (!input) throw new Error('No input in the middle column');
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    expect(result.current).toMatchObject({
+      selectedIds: ['a'],
+      shownItemId: 'a',
+    });
+  });
+
+  it('clears the selection and the shown id on Escape on a button of the middle column', () => {
+    const middleColumnRef = { current: null as HTMLElement | null };
+    const { column } = mountMiddleColumn('<button>button</button>');
+    middleColumnRef.current = column;
+    const { result } = renderSelection(undefined, undefined, middleColumnRef);
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+
+    const button = column.querySelector('button');
+    if (!button) throw new Error('No button in the middle column');
+    fireEvent.keyDown(button, { key: 'Escape' });
+
+    expect(result.current).toMatchObject({
+      selectedIds: [],
+      shownItemId: null,
+    });
+  });
+
+  it('clears the selection and the shown id on Escape in an input outside the middle column', () => {
+    const middleColumnRef = { current: null as HTMLElement | null };
+    const { column, outside } = mountMiddleColumn('<input />');
+    middleColumnRef.current = column;
+    const { result } = renderSelection(undefined, undefined, middleColumnRef);
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+
+    fireEvent.keyDown(outside, { key: 'Escape' });
+
+    expect(result.current).toMatchObject({
+      selectedIds: [],
+      shownItemId: null,
+    });
   });
 });

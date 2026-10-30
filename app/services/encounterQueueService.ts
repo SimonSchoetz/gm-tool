@@ -1,5 +1,8 @@
 import * as queueItemDb from '@db/encounter-queue-item';
-import type { EncounterQueueItem } from '@db/encounter-queue-item';
+import type {
+  EncounterQueueItem,
+  UpdateEncounterQueueItemInput,
+} from '@db/encounter-queue-item';
 import * as logEntryDb from '@db/encounter-log-entry';
 import * as baseEntityDb from '@db/base-entity';
 import * as sectionDb from '@db/base-entity-content-section';
@@ -8,10 +11,17 @@ import {
   encounterQueueAddError,
   encounterQueueLoadError,
   encounterQueueReorderError,
+  encounterQueueUpdateError,
   parseAddQuantity,
   singleStatBlockHp,
   type BaseEntityType,
 } from '@domain';
+
+// The rename and the notes only: a queue item's entity, kind and position never change through this write (the entity view relies on a combatant's entity only ever being emptied, and a reorder goes through reorderQueueItems).
+export type UpdateQueueItemData = Pick<
+  UpdateEncounterQueueItemInput,
+  'custom_name' | 'notes'
+>;
 
 export const getQueueItems = async (
   encounterId: string,
@@ -91,5 +101,16 @@ export const reorderQueueItems = async (
     }
   } catch (err) {
     throw encounterQueueReorderError(err);
+  }
+};
+
+export const updateQueueItem = async (
+  id: string,
+  data: UpdateQueueItemData,
+): Promise<void> => {
+  try {
+    await queueItemDb.update(id, data);
+  } catch (err) {
+    throw encounterQueueUpdateError(err);
   }
 };

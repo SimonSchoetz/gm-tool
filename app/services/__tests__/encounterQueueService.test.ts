@@ -340,3 +340,30 @@ describe('reorderQueueItems', () => {
     });
   });
 });
+
+describe('updateQueueItem', () => {
+  beforeEach(() => {
+    update.mockReset().mockResolvedValue();
+  });
+
+  it('updates the item with the id and the data', async () => {
+    const { updateQueueItem } = await import('../encounterQueueService');
+
+    await updateQueueItem('a', { custom_name: 'Boss', notes: 'n' });
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledWith('a', {
+      custom_name: 'Boss',
+      notes: 'n',
+    });
+  });
+
+  it('rejects as EncounterQueueUpdateError when the update fails', async () => {
+    const { updateQueueItem } = await import('../encounterQueueService');
+    update.mockRejectedValue(new Error('locked'));
+
+    await expect(
+      updateQueueItem('a', { custom_name: 'Boss' }),
+    ).rejects.toMatchObject({ name: 'EncounterQueueUpdateError' });
+  });
+});

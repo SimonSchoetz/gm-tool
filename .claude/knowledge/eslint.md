@@ -212,3 +212,10 @@ A zone `{ from: './dev-data-server', except: ['./protocol.ts'] }` exempts `dev-d
 **Citation:** [spec-writer_1: ran `npx eslint src/screens/encounter/hooks/scratchSelection.ts` from `app/` on a hook with two render-phase `if (… !== …) { setX(…) }` blocks and an Escape `keydown` effect — observed only `local/no-unused-exports` on its two exports; `tsc --noEmit` exit 0] [spec-writer_2: ran `npx eslint src/screens/encounter/hooks/scratchControl.ts` on a hook calling `setValue(1)` unconditionally in its body — observed `react-hooks/set-state-in-render` "Found setState() in render"]
 
 A render-phase `if (prevInput !== input) { setPrevInput(input); setDerived(…) }` or `if (selectedId !== null && !shownIds.includes(selectedId)) setSelectedId(null)` passes the lint row, so the store-the-previous-value reset needs no suppression.
+
+## `react-hooks/refs` does not fire on a hook that receives a ref object as a parameter and reads `ref.current` inside a `keydown` listener registered in `useEffect`, nor on the component that passes a `useRef` result to it
+
+**Verified at:** eslint-plugin-react-hooks 7.1.1, eslint 10.11.0, ran 2026-10-30
+**Citation:** [spec-writer_3: ran `npx eslint src/screens/encounter/hooks/scratchProbeHook.ts src/screens/encounter/scratchProbeScreen.tsx` from `app/` on a hook taking `React.RefObject<HTMLElement | null>` whose effect listener reads `ref.current`, with the ref in the dependency array, and a component calling it with `useRef<HTMLDivElement | null>(null)` also attached as the `ref` of a `div` — observed only `local/no-unused-exports` on the two exports]
+
+The ref reaches the hook as its own argument, as the entry on a props object rendered as a `ref` attribute describes for a ref that arrives as its own prop.

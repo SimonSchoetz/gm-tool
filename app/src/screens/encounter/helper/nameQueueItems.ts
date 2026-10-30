@@ -2,12 +2,17 @@ import type { BaseEntity } from '@db/base-entity';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
 import { shownCombatantBaseName, shownCombatantNames } from '@domain';
 
-type QueueItemName = { shownName: string; baseName: string };
+type QueueItemName = {
+  shownName: string;
+  automaticName: string;
+  baseName: string;
+};
 
 const toNamedItem = (item: EncounterQueueItem) => ({
   id: item.id,
   baseEntityId: item.base_entity_id,
   name: item.name,
+  customName: item.custom_name,
   sequenceNumber: item.sequence_number,
 });
 
@@ -34,10 +39,12 @@ export const nameQueueItems = (
         toNamedItem(item),
         entityNamesById,
       );
-      return [
-        item.id,
-        { shownName: shownNames.get(item.id) ?? baseName, baseName },
-      ];
+      // Stryker disable next-line ObjectLiteral: the pass over all items holds one entry per queue item, so the lookup never misses and no input observes a difference
+      const names = shownNames.get(item.id) ?? {
+        shownName: baseName,
+        automaticName: baseName,
+      };
+      return [item.id, { ...names, baseName }];
     }),
   );
 };

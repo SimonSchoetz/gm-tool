@@ -97,4 +97,58 @@ describe('nameQueueItems', () => {
       ['b', 'Goblin'],
     ]);
   });
+
+  it('shows a renamed kept item its name and keeps its sibling numbered', () => {
+    const names = nameQueueItems(
+      [
+        buildEncounterQueueItem({
+          id: 'a',
+          name: 'Goblin',
+          custom_name: 'Boss',
+          sequence_number: 1,
+        }),
+        goblin('b', 2),
+      ],
+      states([]),
+      [],
+    );
+
+    expect(shownNames(names)).toEqual([
+      ['a', 'Boss'],
+      ['b', 'Goblin 2'],
+    ]);
+  });
+
+  it('shows a renamed removed item its name', () => {
+    const names = nameQueueItems(
+      [
+        buildEncounterQueueItem({
+          id: 'a',
+          name: 'Goblin',
+          custom_name: 'Boss',
+          sequence_number: 1,
+        }),
+        goblin('b', 2),
+      ],
+      states(['a']),
+      [],
+    );
+
+    expect(shownNames(names)[0]).toEqual(['a', 'Boss']);
+  });
+
+  it('takes the automatic name of a removed item from the pass over all items', () => {
+    const names = nameQueueItems(
+      [goblin('a', 1), goblin('b', 2)],
+      states(['b']),
+      [],
+    );
+
+    expect(
+      [...names].map(([id, { automaticName }]) => [id, automaticName]),
+    ).toEqual([
+      ['a', 'Goblin'],
+      ['b', 'Goblin 2'],
+    ]);
+  });
 });

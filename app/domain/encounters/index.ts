@@ -13,6 +13,7 @@ export type { LogEntryKind, LogEntryPayload } from './logEntryPayloads';
 export { encounterQueueLoadError } from './errors';
 export { encounterQueueAddError } from './errors';
 export { encounterQueueReorderError } from './errors';
+export { encounterQueueUpdateError } from './errors';
 export { encounterLogLoadError } from './errors';
 export { encounterLogRecordError } from './errors';
 export { encounterLogDeleteError } from './errors';
@@ -22,6 +23,7 @@ export {
   MAX_ADD_QUANTITY,
 } from './addQuantity';
 export { parseActionAmount } from './actionAmount';
+export { normalizeCustomName } from './customName';
 export { deriveCombatState } from './deriveCombatState';
 export {
   shownCombatantBaseName,
