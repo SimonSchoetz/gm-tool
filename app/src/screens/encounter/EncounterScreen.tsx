@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { useEncounter } from '@/data-access-layer';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
@@ -19,10 +20,12 @@ export const EncounterScreen = () => {
 
   const { encounter, loading } = useEncounter(encounterId, adventureId);
   const { entries } = useEncounterQueueEntries();
+  const middleColumnRef = useRef<HTMLDivElement | null>(null);
   const { selectedIds, activeTab, select, setActiveTab } =
     useEncounterSelection(
       encounterId,
       entries.map((entry) => entry.id),
+      middleColumnRef,
     );
 
   if (loading || !encounter) {
@@ -51,7 +54,7 @@ export const EncounterScreen = () => {
           <EncounterQueue selectedIds={selectedIds} onSelect={select} />
           <EncounterActions />
         </div>
-        <div className='encounter-screen-middle-column'>
+        <div ref={middleColumnRef} className='encounter-screen-middle-column'>
           <EncounterNotes />
         </div>
         <div className='encounter-screen-side-column'>

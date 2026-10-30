@@ -1,21 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import { applySelectionClick } from '../helper/applySelectionClick';
 import type {
   SelectionModifiers,
   SelectionState,
 } from '../helper/applySelectionClick';
+import { isEditableWithin } from '../helper/isEditableWithin';
 import { pruneSelection } from '../helper/pruneSelection';
 
 export type SidebarTab = 'add' | 'actions' | 'log';
 
-// Stryker disable next-line ArrayDeclaration: the prune on every render drops an id that is not shown, so no input observes a difference
-const EMPTY_SELECTION: SelectionState = { ids: [], anchorId: null };
+const EMPTY_SELECTION: SelectionState = {
+  // Stryker disable next-line ArrayDeclaration: the prune on every render drops an id that is not shown, so no input observes a difference
+  ids: [],
+  anchorId: null,
+  shownItemId: null,
+};
 
 export const useEncounterSelection = (
   encounterId: string,
   shownIds: string[],
+  middleColumnRef: RefObject<HTMLElement | null>,
 ): {
   selectedIds: string[];
+  shownItemId: string | null;
   activeTab: SidebarTab;
   select: (id: string, modifiers: SelectionModifiers) => void;
   setActiveTab: (tab: SidebarTab) => void;
@@ -40,15 +47,20 @@ export const useEncounterSelection = (
   useEffect(
     () => {
       const clearOnEscape = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') setSelection(EMPTY_SELECTION);
+        if (
+          event.key === 'Escape' &&
+          !isEditableWithin(middleColumnRef.current, event.target)
+        ) {
+          setSelection(EMPTY_SELECTION);
+        }
       };
       document.addEventListener('keydown', clearOnEscape);
       return () => {
         document.removeEventListener('keydown', clearOnEscape);
       };
     },
-    // Stryker disable next-line ArrayDeclaration: a dependency array holding one constant never changes between renders, so the effect runs once as with an empty one
-    [],
+    // Stryker disable next-line ArrayDeclaration: a dependency array holding one ref object never changes between renders, so the effect runs once as with an empty one
+    [middleColumnRef],
   );
 
   const select = (id: string, modifiers: SelectionModifiers) => {
@@ -61,6 +73,7 @@ export const useEncounterSelection = (
 
   return {
     selectedIds: shownIds.filter((id) => selection.ids.includes(id)),
+    shownItemId: pruned.shownItemId,
     activeTab,
     select,
     setActiveTab,
