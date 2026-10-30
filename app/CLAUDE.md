@@ -59,7 +59,7 @@ When two or more tests call a function that owns or reaches module-level singlet
 
 ## Domain Glossary
 
-Entity vocabulary grounded in the actual database schema. Most terms below own a dedicated `db/<domain>/schema.ts`; the base entity types (NPC, PC, Foe, Faction, Location, Item) are rows of one shared table instead. Every entity below is scoped to a single Adventure via `adventure_id` unless noted otherwise. An entry describes every column the code reads or writes for its entity, so a slice that gives a column its first reader or writer adds it to the entry in the same change. An entry owes only those columns: a column the code already read or wrote is not added when its entry is touched, and root `CLAUDE.md` — Best Practices & Code Quality, "Active check on touched files" does not make completing the entry part of that change.
+Entity vocabulary grounded in the actual database schema. Most terms below own a dedicated `db/<domain>/schema.ts`; the base entity types (NPC, PC, Foe, Faction, Location, Item) are rows of one shared table instead. Every entity below is scoped to a single Adventure via `adventure_id` unless noted otherwise. An entry describes every column the code reads or writes for its entity, so a slice that gives a column its first reader or writer adds it to the entry in the same change — the one departure from root `CLAUDE.md` — Tool Use Discipline, "Instruction files are never edited as a side effect of another task", for a glossary column entry and nothing else. An entry owes only those columns: a column the code already read or wrote is not added when its entry is touched, and root `CLAUDE.md` — Best Practices & Code Quality, "Active check on touched files" does not make completing the entry part of that change.
 
 - **Adventure** — Top-level campaign container. Owns all other entities.
 - **Session** — A single game session within an Adventure. Tracks `active_view` (`prep` or `ingame`) and owns an ordered set of Session Steps.
@@ -79,7 +79,7 @@ The verification obligation stated in the shared rules file's Epistemological Di
 
 1. Check the installed version in `package.json`
 2. Fetch the official documentation for that exact version from the internet
-3. If documentation is ambiguous or unavailable, ask before proceeding
+3. If documentation is ambiguous or unavailable, ask before proceeding (this replaces the "I assume…" fallback of the shared Epistemological Discipline rule beginning "Training data confers reasoning capability")
 
 To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
 
