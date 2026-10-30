@@ -15,6 +15,7 @@
     "tauri": "tauri",
     "build:frontend": "vite build",
     "web": "vite --mode web",
+    "web:seed": "GM_TOOL_WEB_DATA=seed vite --mode web",
     "dev:frontend": "vite",
     "preview": "vite preview",
     "test": "npx vitest run && npx tsc --noEmit && npx eslint . && npx prettier --check .",

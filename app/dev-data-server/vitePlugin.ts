@@ -1,5 +1,5 @@
 // Node host — bundled into Vite's config by its loader, which is why it imports ../db/_migrations and this folder's files by relative path: the bundle resolves no path alias.
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
@@ -15,11 +15,27 @@ import {
 } from './installedAppData.ts';
 import { readAppIdentifiers, readRepositoryJson } from './repositoryJson.ts';
 import { createRequestHandler } from './requestHandler.ts';
+import { seedDatabase } from './seedDatabase.ts';
 import { openSqliteDatabase, type SqliteDatabase } from './sqliteDatabase.ts';
 
 const packageJsonSchema = z.object({ version: z.string() });
 
 const TEMP_DIR_PREFIX = 'gm-tool-web-mode-';
+
+// Set by the `web:seed` script in app/package.json; without it web mode serves a copy of the dev app's data.
+const WEB_DATA_ENV = 'GM_TOOL_WEB_DATA';
+const SEEDED_WEB_DATA = 'seed';
+
+// The dev app's data, not the installed release app's: it holds the developer's test data, and the copy keeps web-mode edits and the checkout's pending migrations out of the dev app's own database.
+const devAppDataDir = (): string => {
+  const dir = resolveAppDataDir(
+    process.platform,
+    homedir(),
+    readAppIdentifiers().dev,
+  );
+  assertDevAppData(dir);
+  return dir;
+};
 
 export const devDataServer = (): Plugin => {
   // Stryker disable next-line BooleanLiteral: Vite calls configResolved, which sets `active`, before configureServer reads it, so the initial value is never read.
@@ -44,22 +60,25 @@ export const devDataServer = (): Plugin => {
     },
     async configureServer(server) {
       if (!active) return;
-      // The dev app's data, not the installed release app's: it holds the developer's test data, and the copy keeps web-mode edits and the checkout's pending migrations out of the dev app's own database.
-      const sourceDir = resolveAppDataDir(
-        process.platform,
-        homedir(),
-        readAppIdentifiers().dev,
-      );
-      assertDevAppData(sourceDir);
+      const seeded = process.env[WEB_DATA_ENV] === SEEDED_WEB_DATA;
+      // The seeded mode reads no app data at all.
+      const sourceDir = seeded ? null : devAppDataDir();
       const serverDir = mkdtempSync(join(tmpdir(), TEMP_DIR_PREFIX));
       tempDir = serverDir;
-      copyDatabase(sourceDir, serverDir);
-      copyImages(sourceDir, serverDir);
+      if (sourceDir === null) {
+        mkdirSync(join(serverDir, 'images'));
+      } else {
+        copyDatabase(sourceDir, serverDir);
+        copyImages(sourceDir, serverDir);
+      }
       const serverDb = openSqliteDatabase(join(serverDir, DATABASE_FILE));
       db = serverDb;
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
       // Stryker disable next-line ArrowFunction: runMigrations awaits the callback's result, and awaiting `undefined` continues just as awaiting a resolved promise does.
       await runMigrations(serverDb, () => Promise.resolve());
+      if (seeded) {
+        await seedDatabase(serverDb, server.config);
+      }
       const { version } = readRepositoryJson(
         '../package.json',
         packageJsonSchema,
