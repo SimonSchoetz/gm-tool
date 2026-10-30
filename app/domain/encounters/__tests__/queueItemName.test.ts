@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeCustomName } from '../customName';
+import { normalizeQueueItemName } from '../queueItemName';
 
-describe('normalizeCustomName', () => {
+describe('normalizeQueueItemName', () => {
   it('gives null for no name', () => {
-    expect(normalizeCustomName(null)).toBeNull();
+    expect(normalizeQueueItemName(null)).toBeNull();
   });
 
   it.each([
     ['empty', ''],
     ['spaces-only', '   '],
   ])('gives null for an %s name', (_label, raw) => {
-    expect(normalizeCustomName(raw)).toBeNull();
+    expect(normalizeQueueItemName(raw)).toBeNull();
   });
 
   it('trims surrounding spaces and keeps interior ones', () => {
-    expect(normalizeCustomName('  Big  Boss ')).toBe('Big  Boss');
+    expect(normalizeQueueItemName('  Big  Boss ')).toBe('Big  Boss');
   });
 });

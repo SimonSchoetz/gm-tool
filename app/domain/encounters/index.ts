@@ -23,7 +23,9 @@ export {
   MAX_ADD_QUANTITY,
 } from './addQuantity';
 export { parseActionAmount } from './actionAmount';
-export { normalizeCustomName } from './customName';
+export { normalizeQueueItemName } from './queueItemName';
+export { shownEventName, UNNAMED_EVENT_LABEL } from './shownEventName';
+export { parseRandomCombatantHp } from './randomCombatantHp';
 export { deriveCombatState } from './deriveCombatState';
 export {
   shownCombatantBaseName,
