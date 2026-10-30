@@ -1,4 +1,5 @@
 import { FCProps } from '@/types/fcProps.type';
+import { EncounterCombatantEntityView } from './components/EncounterCombatantEntityView';
 import { EncounterCombatantHp } from './components/EncounterCombatantHp';
 import { EncounterCombatantNameField } from './components/EncounterCombatantNameField';
 import { EncounterCombatantNotes } from './components/EncounterCombatantNotes/EncounterCombatantNotes';
@@ -23,6 +24,10 @@ export const EncounterShownCombatant: FCProps<Props> = ({ shownItemId }) => {
       />
       <EncounterCombatantHp key={shownItemId} shownItemId={shownItemId} />
       <EncounterCombatantNotes key={shownItemId} shownItemId={shownItemId} />
+      <EncounterCombatantEntityView
+        key={shownItemId}
+        shownItemId={shownItemId}
+      />
     </div>
   );
 };
