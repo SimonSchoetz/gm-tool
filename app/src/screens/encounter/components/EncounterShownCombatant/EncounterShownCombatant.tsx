@@ -1,4 +1,5 @@
 import { FCProps } from '@/types/fcProps.type';
+import { EncounterCombatantHp } from './components/EncounterCombatantHp';
 import { EncounterCombatantNameField } from './components/EncounterCombatantNameField';
 import './EncounterShownCombatant.css';
 
@@ -19,6 +20,7 @@ export const EncounterShownCombatant: FCProps<Props> = ({ shownItemId }) => {
         key={shownItemId}
         shownItemId={shownItemId}
       />
+      <EncounterCombatantHp key={shownItemId} shownItemId={shownItemId} />
     </div>
   );
 };

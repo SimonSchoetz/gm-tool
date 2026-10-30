@@ -41,6 +41,10 @@ export const buildQueueEntries = (
         id: item.id,
         name: itemNames.shownName,
         automaticName: itemNames.automaticName,
+        entity:
+          entity === null
+            ? null
+            : { id: entity.id, entityType: entity.entity_type },
         imageId: entity?.image_id ?? null,
         maxHp: state.maxHp,
         currentHp: state.currentHp,

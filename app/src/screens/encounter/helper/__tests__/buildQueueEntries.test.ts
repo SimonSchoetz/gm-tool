@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
+import {
+  BASE_ENTITY_ID,
+  buildBaseEntity,
+} from '@/__tests__/support/buildBaseEntity';
 import { buildEncounterLogEntry } from '@/__tests__/support/buildEncounterLogEntry';
 import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
 import { buildQueueEntries } from '../buildQueueEntries';
@@ -220,5 +223,32 @@ describe('buildQueueEntries', () => {
     );
 
     expect(entry).toMatchObject({ name: 'Boss', automaticName: 'Goblin 1' });
+  });
+
+  it('carries the id and type of an entity in the lists and none for a combatant whose entity is absent or whose base_entity_id is null', () => {
+    const entries = buildQueueEntries(
+      [
+        buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
+        buildEncounterQueueItem({
+          id: 'b',
+          base_entity_id: 'deleted',
+          sort_order: 1,
+        }),
+        buildEncounterQueueItem({
+          id: 'c',
+          base_entity_id: null,
+          sort_order: 2,
+        }),
+      ],
+      [],
+      [buildBaseEntity({ entity_type: 'npcs' })],
+      false,
+    );
+
+    expect(entries.map((entry) => entry.entity)).toEqual([
+      { id: BASE_ENTITY_ID, entityType: 'npcs' },
+      null,
+      null,
+    ]);
   });
 });

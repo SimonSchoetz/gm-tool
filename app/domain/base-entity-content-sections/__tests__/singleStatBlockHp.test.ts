@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { patchBasicStatBlockContent } from '../basicStatBlockContent';
 import { patchFiveEStatBlockContent } from '../fiveEStatBlockContent';
-import { singleStatBlockHp } from '../singleStatBlockHp';
+import { hpNotSetReason, singleStatBlockHp } from '../singleStatBlockHp';
 
 const basicBlock = (hp: number | null) => ({
   type: 'basic-stat-block' as const,
@@ -44,5 +44,28 @@ describe('singleStatBlockHp', () => {
         basicBlock(9),
       ]),
     ).toBe(9);
+  });
+});
+
+describe('hpNotSetReason', () => {
+  it('gives no-hp-value for no stat block', () => {
+    expect(hpNotSetReason([])).toBe('no-hp-value');
+  });
+
+  it('gives no-hp-value for one stat block with an empty HP', () => {
+    expect(hpNotSetReason([basicBlock(null)])).toBe('no-hp-value');
+  });
+
+  it('gives several-stat-blocks for two stat blocks, a Basic and a 5e one together', () => {
+    expect(hpNotSetReason([basicBlock(5), basicBlock(6)])).toBe(
+      'several-stat-blocks',
+    );
+    expect(hpNotSetReason([basicBlock(5), fiveEBlock(6)])).toBe(
+      'several-stat-blocks',
+    );
+  });
+
+  it('gives other for one stat block that has an HP value', () => {
+    expect(hpNotSetReason([basicBlock(7)])).toBe('other');
   });
 });

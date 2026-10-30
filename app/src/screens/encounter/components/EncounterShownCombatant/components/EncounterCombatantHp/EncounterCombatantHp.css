@@ -1,0 +1,4 @@
+.encounter-combatant-hp-defeated {
+  color: var(--color-text-muted);
+  margin-left: var(--spacing-sm);
+}
