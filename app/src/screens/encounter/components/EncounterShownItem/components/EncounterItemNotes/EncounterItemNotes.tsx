@@ -3,11 +3,14 @@ import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { TextEditor } from '@/components/TextEditor';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import './EncounterCombatantNotes.css';
+import './EncounterItemNotes.css';
 
-type Props = { shownItemId: string };
+type Props = { shownItemId: string; placeholder: string };
 
-export const EncounterCombatantNotes: FCProps<Props> = ({ shownItemId }) => {
+export const EncounterItemNotes: FCProps<Props> = ({
+  shownItemId,
+  placeholder,
+}) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
@@ -18,9 +21,9 @@ export const EncounterCombatantNotes: FCProps<Props> = ({ shownItemId }) => {
   if (item === null) return;
 
   return (
-    <GlassPanel intensity='bright' className='encounter-combatant-notes'>
+    <GlassPanel intensity='bright' className='encounter-item-notes'>
       <TextEditor
-        placeholder='Combatant notes...'
+        placeholder={placeholder}
         textEditorId={`ENCOUNTER_QUEUE_ITEM_${item.id}_notes`}
         value={item.notes ?? ''}
         onChange={(notes) => {

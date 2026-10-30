@@ -1,6 +1,6 @@
 import { FCProps } from '@/types/fcProps.type';
-import { useEncounterQueueEntry } from '../../../../hooks/useEncounterQueueEntry';
-import { ScreensBaseEntityContentSectionPanel } from '../../../../../components/ScreensBaseEntityContentSectionPanel';
+import { useEncounterQueueEntry } from '../../../../../../hooks/useEncounterQueueEntry';
+import { ScreensBaseEntityContentSectionPanel } from '../../../../../../../components/ScreensBaseEntityContentSectionPanel';
 import { EncounterCombatantEntityDescription } from './components/EncounterCombatantEntityDescription/EncounterCombatantEntityDescription';
 
 type Props = { shownItemId: string };

@@ -1,0 +1,19 @@
+.encounter-shown-item {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.encounter-shown-item > * + * {
+  margin-top: var(--spacing-md);
+}
+
+.encounter-shown-item-hint {
+  color: var(--color-text-muted);
+}
+
+/* One home for the declarations of both name fields (combatant and event). A descendant compound out-ranks `.input`'s `font-size` whatever the stylesheet load order. */
+.encounter-shown-item .encounter-shown-item-name-field {
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-medium);
+}

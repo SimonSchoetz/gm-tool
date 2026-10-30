@@ -4,9 +4,8 @@ import { useEncounterQueueItems } from '@/data-access-layer';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { useTypographicInput } from '@/hooks/useTypographicInput';
 import { FCProps } from '@/types/fcProps.type';
-import { useEncounterQueueEntry } from '../../../../hooks/useEncounterQueueEntry';
+import { useEncounterQueueEntry } from '../../../../../../hooks/useEncounterQueueEntry';
 import { resolveCustomName } from './helper/resolveCustomName';
-import './EncounterCombatantNameField.css';
 
 type Props = { shownItemId: string };
 
@@ -36,7 +35,7 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
   return (
     <Input
       ref={inputRef}
-      className='encounter-combatant-name-field'
+      className='encounter-shown-item-name-field'
       aria-label='Combatant name'
       value={value}
       onChange={handleChange}

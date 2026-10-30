@@ -1,7 +1,7 @@
 import { useBaseEntityContentSections } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
-import { useEncounterQueueEntry } from '../../../../hooks/useEncounterQueueEntry';
+import { describeQueueEntryHp } from '../../../../../../helper/describeQueueEntryHp';
+import { useEncounterQueueEntry } from '../../../../../../hooks/useEncounterQueueEntry';
 import { describeHpNotSetHint } from './helper/describeHpNotSetHint';
 import './EncounterCombatantHp.css';
 
