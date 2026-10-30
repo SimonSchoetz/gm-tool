@@ -1,8 +1,6 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BaseEntity } from '@db/base-entity';
-import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as settingsDb from '@db/_settings';
 import type * as baseEntityService from '@services/baseEntityService';
 import type * as queueService from '@services/encounterQueueService';
@@ -30,117 +28,124 @@ vi.mock('@tanstack/react-router', async () => {
   return { useParams: encounterRouteParams };
 });
 
-const arrange = (entities: BaseEntity[]) => {
-  getAllBaseEntities.mockImplementation((entityType) =>
-    Promise.resolve(entities.filter((e) => e.entity_type === entityType)),
-  );
-};
+const SEARCH_PLACEHOLDER = 'Search entities...';
 
 const renderTab = async () => {
-  render(<EncounterAddTab />, { wrapper: TanstackQueryClientProvider });
-  await screen.findByPlaceholderText('Search entities...');
+  const rendered = render(<EncounterAddTab />, {
+    wrapper: TanstackQueryClientProvider,
+  });
+  await screen.findByPlaceholderText(SEARCH_PLACEHOLDER);
+  return rendered;
 };
 
-// Matches the text a name element holds itself, in document order, so a wrapper around it is never counted.
-const shownNames = (names: string[]) =>
-  screen
-    .queryAllByText(new RegExp(`^(${names.join('|')})$`))
-    .map((element) => element.textContent);
+// The switch is a button named by the option that is not selected, so a switch is driven by clicking the other option's label.
+const clickSwitch = async (
+  user: ReturnType<typeof userEvent.setup>,
+  name: string,
+) => {
+  await user.click(await screen.findByRole('button', { name }));
+};
+
+const eventField = () =>
+  screen.queryByRole('textbox', { name: 'Event name to add' });
+const combatantField = () =>
+  screen.queryByRole('textbox', { name: 'Combatant name to add' });
 
 describe('EncounterAddTab', () => {
   beforeEach(() => {
     queryClient.clear();
     getQueueItems.mockResolvedValue([]);
+    getAllBaseEntities.mockResolvedValue([]);
     getSetting.mockResolvedValue(null);
     updateSetting.mockReset().mockResolvedValue();
-    arrange([
-      buildBaseEntity({ id: 'Orc', name: 'Orc', entity_type: 'foes' }),
-      buildBaseEntity({
-        id: 'Alice',
-        name: 'Alice',
-        entity_type: 'npcs',
-        description: 'a tall orc hunter',
-      }),
-      buildBaseEntity({ id: 'Bree', name: 'Bree', entity_type: 'pcs' }),
-    ]);
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('lists every type by name when no filter is saved', async () => {
-    await renderTab();
-
-    expect(shownNames(['Alice', 'Bree', 'Orc'])).toEqual([
-      'Alice',
-      'Bree',
-      'Orc',
-    ]);
-  });
-
-  it('saves a checked type together with the types already saved', async () => {
-    getSetting.mockResolvedValue({ entity_types: ['foes'] });
+  it('starts on the entity list with the switch named Other, then shows the event form, and the random combatant form after Random Combatant', async () => {
     const user = userEvent.setup();
     await renderTab();
 
-    await user.click(screen.getByRole('checkbox', { name: 'NPC' }));
+    expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Other' })).toBeInTheDocument();
+    expect(eventField()).not.toBeInTheDocument();
+    expect(combatantField()).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Random Combatant' }),
+    ).not.toBeInTheDocument();
 
-    expect(updateSetting).toHaveBeenCalledWith('encounterAddFilter', {
-      entity_types: ['foes', 'npcs'],
-    });
-  });
-
-  it('removes an unchecked type from the saved types', async () => {
-    getSetting.mockResolvedValue({ entity_types: ['foes', 'npcs'] });
-    const user = userEvent.setup();
-    await renderTab();
-
-    await user.click(screen.getByRole('checkbox', { name: 'Foe' }));
-
-    expect(updateSetting).toHaveBeenCalledWith('encounterAddFilter', {
-      entity_types: ['npcs'],
-    });
-  });
-
-  it('lists only the types of a saved selection', async () => {
-    getSetting.mockResolvedValue({ entity_types: ['foes', 'pcs'] });
-    await renderTab();
-
-    expect(await screen.findByText('Bree')).toBeInTheDocument();
-    expect(shownNames(['Alice', 'Bree', 'Orc'])).toEqual(['Bree', 'Orc']);
-  });
-
-  it('narrows the list by name and by description with the name matches first', async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    const user = userEvent.setup();
-    await renderTab();
-
-    await user.type(screen.getByPlaceholderText('Search entities...'), 'orc');
-    await act(() => vi.runOnlyPendingTimersAsync());
-
-    expect(shownNames(['Alice', 'Bree', 'Orc'])).toEqual(['Orc', 'Alice']);
-  });
-
-  it('shows the no-entities line for an adventure without entities', async () => {
-    arrange([]);
-    render(<EncounterAddTab />, { wrapper: TanstackQueryClientProvider });
+    await clickSwitch(user, 'Other');
 
     expect(
-      await screen.findByText('This adventure has no entities yet.'),
-    ).toBeInTheDocument();
-  });
+      await screen.findByRole('textbox', { name: 'Event name to add' }),
+    ).toBeVisible();
+    expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).not.toBeVisible();
+    expect(combatantField()).not.toBeInTheDocument();
 
-  it('shows No results found for a search without a match', async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    const user = userEvent.setup();
-    await renderTab();
-
-    await user.type(screen.getByPlaceholderText('Search entities...'), 'zzz');
-    await act(() => vi.runOnlyPendingTimersAsync());
+    await clickSwitch(user, 'Random Combatant');
 
     expect(
-      within(screen.getByRole('list')).getByText('No results found'),
-    ).toBeInTheDocument();
+      await screen.findByRole('textbox', { name: 'Combatant name to add' }),
+    ).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'HP' })).toBeVisible();
+    expect(screen.getByRole('spinbutton', { name: 'Quantity' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeVisible();
+    expect(eventField()).not.toBeInTheDocument();
+  });
+
+  it('keeps the typed drafts and the entity search text through every switch', async () => {
+    const user = userEvent.setup();
+    await renderTab();
+    await user.type(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), 'orc');
+
+    await clickSwitch(user, 'Other');
+    await user.type(
+      await screen.findByRole('textbox', { name: 'Event name to add' }),
+      'Lair action',
+    );
+    await clickSwitch(user, 'Random Combatant');
+    await user.type(
+      await screen.findByRole('textbox', { name: 'Combatant name to add' }),
+      'Grunt',
+    );
+    await user.type(screen.getByRole('textbox', { name: 'HP' }), '10');
+    await clickSwitch(user, 'Event');
+    expect(
+      await screen.findByRole('textbox', { name: 'Event name to add' }),
+    ).toHaveValue('Lair action');
+    await clickSwitch(user, 'Random Combatant');
+    expect(
+      await screen.findByRole('textbox', { name: 'Combatant name to add' }),
+    ).toHaveValue('Grunt');
+    expect(screen.getByRole('textbox', { name: 'HP' })).toHaveValue('10');
+
+    await clickSwitch(user, 'Entities');
+
+    expect(await screen.findByPlaceholderText(SEARCH_PLACEHOLDER)).toHaveValue(
+      'orc',
+    );
+    expect(eventField()).not.toBeInTheDocument();
+    expect(combatantField()).not.toBeInTheDocument();
+
+    await clickSwitch(user, 'Other');
+    expect(
+      await screen.findByRole('textbox', { name: 'Combatant name to add' }),
+    ).toHaveValue('Grunt');
+  });
+
+  it('starts on Entities and Event again after the tab is unmounted, even when Random Combatant was chosen last', async () => {
+    const user = userEvent.setup();
+    const { unmount } = await renderTab();
+    await clickSwitch(user, 'Other');
+    await clickSwitch(user, 'Random Combatant');
+    await screen.findByRole('textbox', { name: 'Combatant name to add' });
+    unmount();
+
+    await renderTab();
+
+    expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).toBeVisible();
+    await clickSwitch(user, 'Other');
+    expect(
+      await screen.findByRole('textbox', { name: 'Event name to add' }),
+    ).toBeVisible();
+    expect(combatantField()).not.toBeInTheDocument();
   });
 });

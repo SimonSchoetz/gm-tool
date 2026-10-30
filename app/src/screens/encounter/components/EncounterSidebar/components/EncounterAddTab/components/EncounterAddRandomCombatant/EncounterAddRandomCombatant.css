@@ -1,0 +1,21 @@
+.encounter-add-random-combatant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* The class above sets display, which overrides the hidden attribute's default display: none (.claude/knowledge/html.md); without this rule the inactive panel stays visible. */
+.encounter-add-random-combatant[hidden] {
+  display: none;
+}
+
+.encounter-add-random-combatant-row {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* `.input` is 100% wide, so beside the fixed quantity field and the Add button the field would shrink them; a zero basis lets it take only the space they leave. */
+.encounter-add-random-combatant-hp {
+  flex: 1 1 0;
+  min-width: 0;
+}

@@ -61,6 +61,8 @@ export const EncounterScreen = () => {
         </div>
         <div className='encounter-screen-side-column'>
           <EncounterSidebar
+            // Keyed by the encounter id so opening a duplicated encounter starts on Entities and Event with empty fields even when the screen stays mounted across the id change.
+            key={encounterId}
             activeTab={activeTab}
             onTabChange={setActiveTab}
             selectedIds={selectedIds}

@@ -15,9 +15,3 @@
   font-size: var(--font-size-md);
   color: var(--color-fg-muted);
 }
-
-.encounter-add-row .encounter-add-row-quantity {
-  width: var(--spacing-2xl);
-  flex-shrink: 0;
-  text-align: center;
-}

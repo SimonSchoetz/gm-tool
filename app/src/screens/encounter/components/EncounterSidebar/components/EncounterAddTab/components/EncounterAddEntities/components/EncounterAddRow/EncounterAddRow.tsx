@@ -1,18 +1,12 @@
-import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import type { BaseEntity } from '@db/base-entity';
-import {
-  MAX_ADD_QUANTITY,
-  MIN_ADD_QUANTITY,
-  UNNAMED_ENTITY_LABEL,
-  entityTypeLabel,
-  parseAddQuantity,
-} from '@domain';
+import { UNNAMED_ENTITY_LABEL, entityTypeLabel } from '@domain';
 import { Button } from '@/components/Button/Button';
-import { Input } from '@/components/Input/Input';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import { EncounterEntityImage } from '../../../../../EncounterEntityImage/EncounterEntityImage';
+import { EncounterEntityImage } from '../../../../../../../EncounterEntityImage/EncounterEntityImage';
+import { EncounterQuantityInput } from '../../../EncounterQuantityInput/EncounterQuantityInput';
+import { useAddQuantity } from '../../../../hooks/useAddQuantity';
 import './EncounterAddRow.css';
 
 type Props = {
@@ -24,9 +18,13 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
   const { addEntityCombatants, isAdding } = useEncounterQueueItems(encounterId);
-  const [quantityText, setQuantityText] = useState('1');
-  const [lastValidQuantity, setLastValidQuantity] = useState(1);
-  const quantity = parseAddQuantity(quantityText);
+  const {
+    quantity,
+    quantityText,
+    changeQuantityText,
+    revertQuantityText,
+    reset,
+  } = useAddQuantity();
 
   const handleAdd = async () => {
     // Stryker disable next-line ConditionalExpression: the Add button is disabled while the quantity is null, so a click never reaches this guard
@@ -37,8 +35,7 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
       quantity,
     );
     if (!wasAdded) return;
-    setQuantityText('1');
-    setLastValidQuantity(1);
+    reset();
   };
 
   return (
@@ -54,21 +51,10 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
         </div>
       </div>
 
-      <Input
-        className='encounter-add-row-quantity number-input'
-        type='number'
-        min={MIN_ADD_QUANTITY}
-        max={MAX_ADD_QUANTITY}
-        aria-label='Quantity'
-        value={quantityText}
-        onChange={(event) => {
-          setQuantityText(event.currentTarget.value);
-          const validQuantity = parseAddQuantity(event.currentTarget.value);
-          if (validQuantity !== null) setLastValidQuantity(validQuantity);
-        }}
-        onBlur={() => {
-          setQuantityText(String(lastValidQuantity));
-        }}
+      <EncounterQuantityInput
+        quantityText={quantityText}
+        onQuantityTextChange={changeQuantityText}
+        onBlur={revertQuantityText}
       />
 
       <Button
