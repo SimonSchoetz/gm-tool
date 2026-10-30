@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { useParams } from '@tanstack/react-router';
 import { PlusIcon, Trash2Icon } from 'lucide-react';
 import { useBaseEntityContentSections } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
@@ -15,6 +14,7 @@ import { SlideTransition } from '@/components/SlideTransition/SlideTransition';
 import { ContentSectionBody } from '@/components/ContentSectionBody';
 import { ContentSectionNavToggle } from '@/components/ContentSectionNavToggle/ContentSectionNavToggle';
 import { useListNavigation } from '@/hooks/useListNavigation';
+import { FCProps } from '@/types/fcProps.type';
 import {
   contentSectionLabel,
   contentSectionTypeLabel,
@@ -22,12 +22,13 @@ import {
 } from '@domain';
 import { ContentSectionTypeMenu } from './components/ContentSectionTypeMenu/ContentSectionTypeMenu';
 import { getIdAfterRemoval } from './helper/getIdAfterRemoval';
-import './BaseEntityContentSectionPanel.css';
+import './ScreensBaseEntityContentSectionPanel.css';
 
-export const BaseEntityContentSectionPanel = () => {
-  const params = useParams({ strict: false });
-  const baseEntityId = params.baseEntityId ?? '';
+type Props = { baseEntityId: string };
 
+export const ScreensBaseEntityContentSectionPanel: FCProps<Props> = ({
+  baseEntityId,
+}) => {
   const { sections, loading, createSection, updateSection, deleteSection } =
     useBaseEntityContentSections(baseEntityId);
   const {
@@ -78,7 +79,7 @@ export const BaseEntityContentSectionPanel = () => {
   return (
     <GlassPanel
       intensity='bright'
-      className='base-entity-content-section-panel'
+      className='screens-base-entity-content-section-panel'
     >
       <PanelMenuBar
         leading={
@@ -117,7 +118,7 @@ export const BaseEntityContentSectionPanel = () => {
             // Keyed by section id, so switching sections resets the input's local value.
             <SyncedInput
               key={selected.id}
-              className='base-entity-content-section-panel-name-input'
+              className='screens-base-entity-content-section-panel-name-input'
               initValue={selected.name ?? ''}
               placeholder={contentSectionTypeLabel(selected.type)}
               onCommit={(name) => {
@@ -155,7 +156,7 @@ export const BaseEntityContentSectionPanel = () => {
                         section={transition.from}
                         baseEntityId={baseEntityId}
                         readOnly
-                        className='base-entity-content-section-panel-body'
+                        className='screens-base-entity-content-section-panel-body'
                       />
                     ),
                   }
@@ -166,7 +167,7 @@ export const BaseEntityContentSectionPanel = () => {
               section={selected}
               baseEntityId={baseEntityId}
               readOnly={false}
-              className='base-entity-content-section-panel-body'
+              className='screens-base-entity-content-section-panel-body'
             />
           </SlideTransition>
         </PanelBody>

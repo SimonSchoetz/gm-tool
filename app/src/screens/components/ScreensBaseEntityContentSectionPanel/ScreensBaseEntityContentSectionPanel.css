@@ -1,4 +1,4 @@
-.base-entity-content-section-panel {
+.screens-base-entity-content-section-panel {
   display: flex;
   flex-direction: column;
   gap: var(--border-thin);
@@ -6,12 +6,12 @@
   width: fit-content;
 }
 
-.base-entity-content-section-panel-name-input {
+.screens-base-entity-content-section-panel-name-input {
   font-size: inherit;
   font-weight: inherit;
 }
 
-.base-entity-content-section-panel-body {
+.screens-base-entity-content-section-panel-body {
   margin: var(--spacing-sm);
   margin-left: 0;
 }

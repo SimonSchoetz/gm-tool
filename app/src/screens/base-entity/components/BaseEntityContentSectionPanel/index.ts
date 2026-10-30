@@ -1,1 +1,0 @@
-export { BaseEntityContentSectionPanel } from './BaseEntityContentSectionPanel';
