@@ -1,30 +1,30 @@
-// Node host — loaded by Vite's config bundle and, in the first half of the `dev` script, by `node` directly, so its relative imports carry the `.ts` extension Node's type stripping requires. The app identifier comes from app/src-tauri/tauri.conf.json.
+// Node host — loaded by Vite's config bundle and, in the first half of the `dev` script, by `node` directly, so its relative imports carry the `.ts` extension Node's type stripping requires. The identifiers it resolves come from readAppIdentifiers.
 import { copyFileSync, cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { DATABASE_FILE } from '../domain/database/index.ts';
 
-export const resolveInstalledAppDataDir = (
+export const resolveAppDataDir = (
   platform: NodeJS.Platform,
   homeDir: string,
   identifier: string,
 ): string => {
   if (platform !== 'darwin') {
     throw new Error(
-      `The dev data server reads the installed app's data from ~/Library/Application Support/${identifier}, which exists on macOS only; this platform is ${platform}.`,
+      `The app's data lives in ~/Library/Application Support/${identifier}, which exists on macOS only; this platform is ${platform}.`,
     );
   }
   return join(homeDir, 'Library', 'Application Support', identifier);
 };
 
-export const hasInstalledAppData = (dir: string): boolean =>
+export const hasAppData = (dir: string): boolean =>
   existsSync(join(dir, DATABASE_FILE));
 
-export const assertInstalledAppData = (dir: string): void => {
-  if (!hasInstalledAppData(dir)) {
+export const assertDevAppData = (dir: string): void => {
+  if (!hasAppData(dir)) {
     const databasePath = join(dir, DATABASE_FILE);
     throw new Error(
-      `No installed app data at ${databasePath}. Install the release app and open it once, so it creates its database, before running web mode.`,
+      `No dev app data at ${databasePath}. Run \`pnpm run dev\` once, which copies the installed app's data into a dev app without a database, before running web mode.`,
     );
   }
 };

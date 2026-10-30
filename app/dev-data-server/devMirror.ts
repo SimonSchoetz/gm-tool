@@ -3,11 +3,7 @@ import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { DATABASE_FILE, DEVICE_SYSTEM_KEY } from '../domain/database/index.ts';
-import {
-  copyDatabase,
-  copyImages,
-  hasInstalledAppData,
-} from './installedAppData.ts';
+import { copyDatabase, copyImages, hasAppData } from './installedAppData.ts';
 
 type MirrorOutcome = 'mirrored' | 'no-installed-data';
 
@@ -111,7 +107,7 @@ export const mirrorInstalledData = ({
       `The dev data directory ${targetDir} is the installed app's data directory; refusing to replace it.`,
     );
   }
-  if (!hasInstalledAppData(sourceDir)) return 'no-installed-data';
+  if (!hasAppData(sourceDir)) return 'no-installed-data';
 
   mkdirSync(targetDir, { recursive: true });
   const staging = join(targetDir, STAGING_DIR_NAME);
