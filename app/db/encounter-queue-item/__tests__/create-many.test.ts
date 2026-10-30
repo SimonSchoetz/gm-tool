@@ -115,6 +115,79 @@ describe('createMany', () => {
     ]);
   });
 
+  it('stores a batch of random combatants with no entity, the given sequence numbers, the shared name and the shared HP', async () => {
+    const { createMany } = await import('../create-many');
+    const { encounterId } = await seedEncounterAndEntity();
+
+    const ids = await createMany(
+      [0, 1].map((index) => ({
+        encounter_id: encounterId,
+        kind: 'combatant' as const,
+        sequence_number: index + 3,
+        sort_order: index + 5,
+      })),
+      { name: 'Grunt', starting_max_hp: 10 },
+    );
+
+    expect(await readItems()).toEqual([
+      {
+        id: ids[0],
+        encounter_id: encounterId,
+        kind: 'combatant',
+        base_entity_id: null,
+        name: 'Grunt',
+        custom_name: null,
+        notes: null,
+        sequence_number: 3,
+        starting_max_hp: 10,
+        sort_order: 5,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+      {
+        id: ids[1],
+        encounter_id: encounterId,
+        kind: 'combatant',
+        base_entity_id: null,
+        name: 'Grunt',
+        custom_name: null,
+        notes: null,
+        sequence_number: 4,
+        starting_max_hp: 10,
+        sort_order: 6,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
+  });
+
+  it('stores an event with no entity link and no sequence number', async () => {
+    const { createMany } = await import('../create-many');
+    const { encounterId } = await seedEncounterAndEntity();
+
+    const [id] = await createMany(
+      [{ encounter_id: encounterId, kind: 'event', sort_order: 2 }],
+      { name: 'Lair action' },
+    );
+
+    expect(await readItems()).toEqual([
+      {
+        id,
+        encounter_id: encounterId,
+        kind: 'event',
+        base_entity_id: null,
+        name: 'Lair action',
+        custom_name: null,
+        notes: null,
+        sequence_number: null,
+        starting_max_hp: null,
+        sort_order: 2,
+        created_at: CREATED_AT,
+        updated_at: CREATED_AT,
+      },
+    ]);
+  });
+
   it.each([
     ['encounter', { encounter_id: '' }, /^Valid Encounter ID is required$/],
     [

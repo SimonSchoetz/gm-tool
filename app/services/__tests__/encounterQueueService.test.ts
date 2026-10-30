@@ -110,7 +110,11 @@ describe('addEntityCombatants', () => {
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2);
 
-    expect(createdRows().map((row) => row.sequence_number)).toEqual([4, 5]);
+    expect(
+      createdRows().map((row) =>
+        'sequence_number' in row ? row.sequence_number : null,
+      ),
+    ).toEqual([4, 5]);
   });
 
   it('starts numbering at 1 when the entity has no combatant yet', async () => {
@@ -127,7 +131,11 @@ describe('addEntityCombatants', () => {
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
 
-    expect(createdRows().map((row) => row.sequence_number)).toEqual([1]);
+    expect(
+      createdRows().map((row) =>
+        'sequence_number' in row ? row.sequence_number : null,
+      ),
+    ).toEqual([1]);
   });
 
   it('writes all rows in one createMany call carrying the single stat block HP and the entity name', async () => {
