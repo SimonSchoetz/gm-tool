@@ -13,6 +13,7 @@ export type { LogEntryKind, LogEntryPayload } from './logEntryPayloads';
 export { encounterQueueLoadError } from './errors';
 export { encounterQueueAddError } from './errors';
 export { encounterQueueReorderError } from './errors';
+export { encounterQueueUpdateError } from './errors';
 export { encounterLogLoadError } from './errors';
 export { encounterLogRecordError } from './errors';
 export { encounterLogDeleteError } from './errors';

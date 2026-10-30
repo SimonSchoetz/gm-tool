@@ -198,4 +198,27 @@ describe('buildQueueEntries', () => {
       { id: 'b', currentHp: 7 },
     ]);
   });
+
+  it('names a renamed combatant by its rename and keeps its numbered automatic name', () => {
+    const [entry] = buildQueueEntries(
+      [
+        buildEncounterQueueItem({
+          id: 'a',
+          name: 'Goblin',
+          custom_name: 'Boss',
+          sequence_number: 1,
+        }),
+        buildEncounterQueueItem({
+          id: 'b',
+          name: 'Goblin',
+          sequence_number: 2,
+        }),
+      ],
+      [],
+      [buildBaseEntity()],
+      false,
+    );
+
+    expect(entry).toMatchObject({ name: 'Boss', automaticName: 'Goblin 1' });
+  });
 });

@@ -65,6 +65,38 @@ describe('update', () => {
     expect(await readItem(otherId)).toEqual(otherBefore);
   });
 
+  it('writes a null custom_name over a stored one and leaves the notes and the other row untouched', async () => {
+    const { create: createAdventure } = await import('@db/adventure');
+    const { create: createEncounter } = await import('@db/encounter');
+    const { create: createBaseEntity } = await import('@db/base-entity');
+    const { createMany } = await import('../create-many');
+    const { update } = await import('../update');
+    const adventureId = await createAdventure();
+    const encounterId = await createEncounter(adventureId);
+    const baseEntityId = await createBaseEntity('foes', adventureId);
+    const [targetId, otherId] = await createMany(
+      [0, 1].map((sort_order) => ({
+        encounter_id: encounterId,
+        kind: 'combatant' as const,
+        base_entity_id: baseEntityId,
+        sequence_number: sort_order + 1,
+        sort_order,
+      })),
+      { name: 'Goblin' },
+    );
+    await update(targetId, { custom_name: 'Boss', notes: 'n' });
+    await update(otherId, { custom_name: 'Other' });
+    const otherBefore = await readItem(otherId);
+
+    await update(targetId, { custom_name: null });
+
+    expect(await readItem(targetId)).toMatchObject({
+      custom_name: null,
+      notes: 'n',
+    });
+    expect(await readItem(otherId)).toEqual(otherBefore);
+  });
+
   it('rejects an empty id', async () => {
     const { update } = await import('../update');
 

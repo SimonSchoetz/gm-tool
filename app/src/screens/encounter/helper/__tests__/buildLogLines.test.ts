@@ -242,4 +242,42 @@ describe('buildLogLines', () => {
       },
     ]);
   });
+
+  it('names a renamed combatant on a Damage line', () => {
+    const boss = buildEncounterQueueItem({
+      id: 'a',
+      name: 'Goblin',
+      custom_name: 'Boss',
+    });
+
+    expect(textsOf(buildLogLines([boss], [damage('e1')], []))).toEqual([
+      'Damage: Boss (3)',
+    ]);
+  });
+
+  it('keeps the entity name on an added line whose first item is renamed', () => {
+    const items = [
+      buildEncounterQueueItem({
+        id: 'a',
+        name: 'Goblin',
+        custom_name: 'Boss',
+        sequence_number: 1,
+      }),
+      buildEncounterQueueItem({
+        id: 'b',
+        name: 'Goblin',
+        sequence_number: 2,
+      }),
+    ];
+
+    expect(
+      textsOf(
+        buildLogLines(
+          items,
+          [log('e1', 'added', { queueItemIds: ['a', 'b'] })],
+          [],
+        ),
+      ),
+    ).toEqual(['Added: Goblin ×2']);
+  });
 });

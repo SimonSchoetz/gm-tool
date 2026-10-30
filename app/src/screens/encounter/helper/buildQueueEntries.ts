@@ -29,18 +29,18 @@ export const buildQueueEntries = (
   const names = nameQueueItems(queueItems, combatState, baseEntities);
 
   return keptItems.flatMap((item) => {
-    // Stryker disable next-line OptionalChaining: nameQueueItems holds one entry per queue item, so the lookup never misses and no input observes a difference
-    const name = names.get(item.id)?.shownName ?? null;
+    const itemNames = names.get(item.id) ?? null;
     const state = combatState.get(item.id) ?? null;
     // Stryker disable next-line ConditionalExpression,LogicalOperator,ArrayDeclaration: both maps hold one entry per kept item, so the guard is never entered and no input observes a difference
-    if (name === null || state === null) return [];
+    if (itemNames === null || state === null) return [];
     if (hideDefeated && state.defeated) return [];
 
     const entity = entitiesById.get(item.base_entity_id) ?? null;
     return [
       {
         id: item.id,
-        name,
+        name: itemNames.shownName,
+        automaticName: itemNames.automaticName,
         imageId: entity?.image_id ?? null,
         maxHp: state.maxHp,
         currentHp: state.currentHp,

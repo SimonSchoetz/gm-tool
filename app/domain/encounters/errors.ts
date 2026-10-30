@@ -98,6 +98,19 @@ export const encounterQueueReorderError = (
   return error;
 };
 
+type EncounterQueueUpdateError = Error & {
+  name: 'EncounterQueueUpdateError';
+};
+export const encounterQueueUpdateError = (
+  cause?: unknown,
+): EncounterQueueUpdateError => {
+  const error = new Error(
+    `Failed to update the encounter queue item: ${String(cause)}`,
+  ) as EncounterQueueUpdateError;
+  error.name = 'EncounterQueueUpdateError';
+  return error;
+};
+
 type EncounterLogLoadError = Error & { name: 'EncounterLogLoadError' };
 export const encounterLogLoadError = (
   cause?: unknown,

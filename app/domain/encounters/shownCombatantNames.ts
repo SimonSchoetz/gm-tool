@@ -4,6 +4,7 @@ type NamedItem = {
   id: string;
   baseEntityId: string | null;
   name: string | null;
+  customName: string | null;
   sequenceNumber: number | null;
 };
 
@@ -29,7 +30,7 @@ export const shownCombatantBaseName = (
 export const shownCombatantNames = (
   items: NamedItem[],
   entityNamesById: Map<string, string | null>,
-): Map<string, string> => {
+): Map<string, { shownName: string; automaticName: string }> => {
   const numberingKey = (item: NamedItem): string =>
     JSON.stringify(
       isLinked(item, entityNamesById)
@@ -47,11 +48,17 @@ export const shownCombatantNames = (
     items.map((item) => {
       const isShared = (itemsPerKey.get(numberingKey(item)) ?? 0) >= 2;
       const name = shownCombatantBaseName(item, entityNamesById);
-      return [
-        item.id,
+      const automaticName =
         isShared && item.sequenceNumber !== null
           ? `${name} ${item.sequenceNumber}`
-          : name,
+          : name;
+      const customName = item.customName?.trim() ?? '';
+      return [
+        item.id,
+        {
+          shownName: customName === '' ? automaticName : customName,
+          automaticName,
+        },
       ];
     }),
   );
