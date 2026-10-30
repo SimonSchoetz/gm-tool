@@ -17,17 +17,11 @@ export const EncounterShownCombatant: FCProps<Props> = ({ shownItemId }) => {
   }
 
   return (
-    <div className='encounter-shown-combatant'>
-      <EncounterCombatantNameField
-        key={shownItemId}
-        shownItemId={shownItemId}
-      />
-      <EncounterCombatantHp key={shownItemId} shownItemId={shownItemId} />
-      <EncounterCombatantNotes key={shownItemId} shownItemId={shownItemId} />
-      <EncounterCombatantEntityView
-        key={shownItemId}
-        shownItemId={shownItemId}
-      />
+    <div key={shownItemId} className='encounter-shown-combatant'>
+      <EncounterCombatantNameField shownItemId={shownItemId} />
+      <EncounterCombatantHp shownItemId={shownItemId} />
+      <EncounterCombatantNotes shownItemId={shownItemId} />
+      <EncounterCombatantEntityView shownItemId={shownItemId} />
     </div>
   );
 };
