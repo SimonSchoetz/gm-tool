@@ -7,6 +7,7 @@ import { importX } from 'eslint-plugin-import-x';
 import reactHooks from 'eslint-plugin-react-hooks';
 import { reactRefresh } from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
+import noExtensionlessNodeHostImport from './eslint-rules/no-extensionless-node-host-import.js';
 import noImportPastIndex from './eslint-rules/no-import-past-index.js';
 import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-result.js';
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
@@ -79,6 +80,7 @@ export default defineConfig(
     plugins: {
       local: {
         rules: {
+          'no-extensionless-node-host-import': noExtensionlessNodeHostImport,
           'no-import-past-index': noImportPastIndex,
           'no-unnormalized-lookup-result': noUnnormalizedLookupResult,
           'no-unused-exports': noUnusedExports,
@@ -115,6 +117,19 @@ export default defineConfig(
       ],
       'local/no-unnormalized-lookup-result': 'error',
       'local/no-unused-exports': 'error',
+      // app/dev-data-server/CLAUDE.md — Imports: Vite's config loader and the `dev` script's `node` load these entries and every file their relative imports reach, where Node's type stripping requires the `.ts` extension and Vite 8 warns that its native config loader does.
+      'local/no-extensionless-node-host-import': [
+        'error',
+        {
+          entries: [
+            path.resolve(import.meta.dirname, 'vite.config.ts'),
+            path.resolve(
+              import.meta.dirname,
+              'dev-data-server/runDevMirror.ts',
+            ),
+          ],
+        },
+      ],
       'import-x/no-cycle': ['error', { ignoreExternal: true }],
     },
   },

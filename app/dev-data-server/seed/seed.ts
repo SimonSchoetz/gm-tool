@@ -4,12 +4,12 @@ import {
   patchBasicStatBlockContent,
   patchFiveEStatBlockContent,
   type BaseEntityType,
-} from '../../domain';
-import * as adventureService from '../../services/adventureService';
-import * as baseEntityContentSectionService from '../../services/baseEntityContentSectionService';
-import * as baseEntityService from '../../services/baseEntityService';
-import * as encounterQueueService from '../../services/encounterQueueService';
-import * as encounterService from '../../services/encounterService';
+} from '@domain';
+import * as adventureService from '@services/adventureService';
+import * as baseEntityContentSectionService from '@services/baseEntityContentSectionService';
+import * as baseEntityService from '@services/baseEntityService';
+import * as encounterQueueService from '@services/encounterQueueService';
+import * as encounterService from '@services/encounterService';
 import { provideSeedDatabase } from './seedPlatform';
 
 const createNamedBaseEntity = async (
