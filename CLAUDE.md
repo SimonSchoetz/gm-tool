@@ -47,7 +47,7 @@ See `app/CLAUDE.md` for TypeScript conventions shared across `src/`, `services/`
 
 ```bash
 pnpm run dev                # Local Tauri environment
-pnpm run web                # Vite in a browser, on a temporary copy of the installed app's data
+pnpm run web                # Vite in a browser, on a temporary copy of the dev app's data
 ```
 
 `pnpm run web` reaches the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`). What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first offers to replace the dev app's data with a copy of the installed app's data: it mirrors unasked only when the dev app has no database, and keeps existing dev data unless the prompt is answered `y` — so a session that starts it without a terminal runs on the dev data as it is (`app/docs/features/dev-data-mirror.md`).
@@ -86,17 +86,17 @@ The verification obligation stated in the shared rules file's Epistemological Di
 
 - **Check Commands:**
 
-  | Key | Invocation | Working directory | Cadence | Trigger |
-  | --- | --- | --- | --- | --- |
-  | `type-check` | `npx tsc --noEmit` | `app/` | every check | always |
-  | `lint` | `npx eslint .` | `app/` | every check | always |
-  | `format-check` | `npx prettier --check .` | `app/` | every check | always |
-  | `markdown-lint` | `pnpm run markdown-lint` | repository root | every check | when a `*.md` path is touched |
-  | `test` | `npx vitest run` | `app/` | full-suite-only | always |
-  | `rust-lint` | `cargo clippy --all-targets -- -D warnings` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
-  | `rust-format-check` | `cargo fmt --check` | `app/src-tauri/` | every check | when `app/src-tauri/` is touched |
-  | `rust-test` | `cargo test` | `app/src-tauri/` | full-suite-only | when `app/src-tauri/` is touched |
-  | `mutation-check` | `pnpm run mutation-check` | repository root | full-suite-only | when a file under `app/` is touched |
+  | Key                 | Invocation                                  | Working directory | Cadence         | Trigger                             |
+  | ------------------- | ------------------------------------------- | ----------------- | --------------- | ----------------------------------- |
+  | `type-check`        | `npx tsc --noEmit`                          | `app/`            | every check     | always                              |
+  | `lint`              | `npx eslint .`                              | `app/`            | every check     | always                              |
+  | `format-check`      | `npx prettier --check .`                    | `app/`            | every check     | always                              |
+  | `markdown-lint`     | `pnpm run markdown-lint`                    | repository root   | every check     | when a `*.md` path is touched       |
+  | `test`              | `npx vitest run`                            | `app/`            | full-suite-only | always                              |
+  | `rust-lint`         | `cargo clippy --all-targets -- -D warnings` | `app/src-tauri/`  | every check     | when `app/src-tauri/` is touched    |
+  | `rust-format-check` | `cargo fmt --check`                         | `app/src-tauri/`  | every check     | when `app/src-tauri/` is touched    |
+  | `rust-test`         | `cargo test`                                | `app/src-tauri/`  | full-suite-only | when `app/src-tauri/` is touched    |
+  | `mutation-check`    | `pnpm run mutation-check`                   | repository root   | full-suite-only | when a file under `app/` is touched |
 
   `Cadence: every check` runs both between sub-features and as part of the full suite; `full-suite-only` runs only as part of the full suite. Between sub-features, run every row whose `Trigger` condition holds and whose `Cadence` is `every check`, each from its own `Working directory`. The full suite — every row whose `Trigger` condition holds, regardless of `Cadence` — runs at the start of a session (baseline). `mutation-check` also runs by hand before the final review cycle, and again after the fixes made in that cycle; a run without arguments is the gate and must exit zero. A report lists every survivor at once: resolve all of them, then re-run only the files that had survivors with `pnpm run mutation-check -- <file>…` (the printed `app/<path>` without its `:line:column`; a file that is not a changed production source exits 2) until they exit zero, and finish with a run without arguments. No git hook runs it. It mutates only the lines the branch added or changed against `main`, in files that have their own test file, and fails when a mutant there survives. Each survivor it prints is resolved by a test that fails on that mutation; a `// Stryker disable next-line <mutator>: <reason>` comment above the line is for a mutant whose reason can state why no input observes a difference from the original (`.claude/knowledge/stryker.md`). A disable comment also ignores the mutants of that mutator on the line that the tests already kill, so where it would hide one, rewrite the line to a form with the same behaviour that generates no equivalent mutant instead; and a next-line comment written directly above `} catch {` does not reach the catch block. Where a comment reaches, and what it silences, is recorded as observed in `.claude/knowledge/stryker.md`. After the final review cycle, no row is run by hand before committing, because the `simple-git-hooks` block of the `package.json` beside this file runs every other row: `pre-commit` and `pre-merge-commit` run `markdown-lint` when a staged path ends in `.md`, then `type-check`, `lint` and `format-check` when a staged path is under `app/`, then `rust-lint` and `rust-format-check` when a staged path is under `app/src-tauri/`; `pre-push` runs `test`, then `rust-test`, on every push. A failing row rejects the commit or the push. A table `markdown-lint` reports under MD060 is re-aligned by `pnpm run markdown-fix` from the repository root, which re-runs the lint and exits with its status; never align one by hand. For `test` and `rust-test`, this departs from Tool Use Discipline, "Run the project's own check suite": they run at push, not before each commit.
 
