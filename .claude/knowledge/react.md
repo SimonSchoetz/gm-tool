@@ -65,3 +65,10 @@ Calling `createContext<T>()` with no argument does not type-check.
 **Citation:** [spec-writer_5: app/node_modules/react-dom/cjs/react-dom-client.development.js:1850-1853 — in `updateInput`, for `"number" === type`: `if ((0 === value && "" === element.value) || element.value != value) element.value = "" + getToStringValue(value);`]
 
 A controlled `<input type='number'>` bound to `''` while it shows unconvertible text (its DOM `value` is then `''`) is left alone on re-render, so the typed text stays visible. The same check means that setting the bound value to `''` cannot clear such text from the field: React writes nothing because the DOM `value` already reads `''`.
+
+## React sets `contentEditable={true}` through `setAttribute`, so the element carries the attribute `contenteditable="true"`, and removes the attribute for a `null` value
+
+**Verified at:** react-dom 19.3.0
+**Citation:** [spec-writer_5: `app/node_modules/react-dom/cjs/react-dom-client.development.js:21886-21899` — the `contentEditable` case calls `domElement.setAttribute(key, value)` unless `value` is `null`, a function or a symbol, and `removeAttribute(key)` otherwise]; [spec-writer_6: `app/node_modules/@lexical/react/dist/LexicalContentEditable.dev.js:122` — `contentEditable: isEditable` among the props `ContentEditable` renders]
+
+A selector `[contenteditable="true"]` therefore matches an editable Lexical root, and an editor rendered with `readOnly` carries `contenteditable="false"`.

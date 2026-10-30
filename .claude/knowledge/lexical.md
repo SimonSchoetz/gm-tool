@@ -314,3 +314,10 @@ Unlike typing with user-event (the entry above), a test can drive Enter and Shif
 **Citation:** [spec-writer_32: `app/node_modules/lexical/src/LexicalEvents.ts:1564` — `dispatchCommand(editor, KEY_ENTER_COMMAND, null)` after the comment "If the last character is a line break, we also need to insert a line break"; `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:571-577` — the library's own Enter listener is typed `(event: KeyboardEvent | null)` and guards `event !== null` before `preventDefault`]
 
 A listener that dereferences `event` unguarded throws on that dispatch.
+
+## `LexicalMenu`'s `KEY_ESCAPE_COMMAND` listener calls `stopImmediatePropagation()`, and Lexical registers its `keydown` listener on the editor's root element, so an Escape that closes the typeahead menu does not bubble to a `document` listener
+
+**Verified at:** lexical 0.52.0, @lexical/react 0.52.0
+**Citation:** [spec-writer_4: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:536-548` — unless `rendersNothing`, the listener calls `event.preventDefault()` and `event.stopImmediatePropagation()`, then `close()`; `app/node_modules/lexical/src/LexicalEvents.ts:164,2076,2159` — the `['keydown', onKeyDown]` entry is registered through `registerEventListener(rootElement, eventName, eventHandler)`]
+
+An Escape pressed in an editor with no open menu was not traced to the `document`.
