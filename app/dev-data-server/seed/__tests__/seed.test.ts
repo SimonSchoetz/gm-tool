@@ -1,15 +1,15 @@
 // @vitest-environment node
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { runMigrations } from '../../db/_migrations';
+import { runMigrations } from '../../../db/_migrations';
 import {
   openTestDatabase,
   skipBackup,
   type TestDatabase,
-} from '../../db/__tests__/support/sqlite-test-database';
-import { runSeed } from '../seed/seed';
+} from '../../../db/__tests__/support/sqlite-test-database';
+import { runSeed } from '../seed';
 
 // The seed's own Vite server aliases `@platform` to seedPlatform.ts (seedDatabase.ts); this mock gives the db code the seed reaches the same module.
-vi.mock('@platform', () => import('../seed/seedPlatform'));
+vi.mock('@platform', () => import('../seedPlatform'));
 
 type BaseEntityRow = { id: string; entity_type: string; name: string | null };
 type SectionRow = { type: string; content: string | null };
