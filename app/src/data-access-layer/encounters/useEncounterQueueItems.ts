@@ -4,12 +4,10 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import type {
-  EncounterQueueItem,
-  UpdateEncounterQueueItemInput,
-} from '@db/encounter-queue-item';
+import type { EncounterQueueItem } from '@db/encounter-queue-item';
 import type { BaseEntityType } from '@domain/entities';
 import * as service from '@services/encounterQueueService';
+import type { UpdateQueueItemData } from '@services/encounterQueueService';
 import { encounterKeys } from './encounterKeys';
 import { encounterQueueItemsQueryOptions } from './encounterQueryOptions';
 import { useAutosaveQueue } from '../useAutosaveQueue';
@@ -26,7 +24,7 @@ type UseEncounterQueueItemsReturn = {
   ) => Promise<boolean>;
   isAdding: boolean;
   reorderQueueItems: (orderedIds: string[]) => void;
-  updateQueueItem: (id: string, data: UpdateEncounterQueueItemInput) => void;
+  updateQueueItem: (id: string, data: UpdateQueueItemData) => void;
 };
 
 export const useEncounterQueueItems = (
@@ -117,7 +115,7 @@ export const useEncounterQueueItems = (
     }: {
       id: string;
       encounterId: string;
-      data: UpdateEncounterQueueItemInput;
+      data: UpdateQueueItemData;
     }) => service.updateQueueItem(id, data),
     onError: (_error, { encounterId: scheduledEncounterId }) => {
       void queryClient.invalidateQueries({
@@ -128,15 +126,12 @@ export const useEncounterQueueItems = (
 
   const saveQueue = useAutosaveQueue<{
     encounterId: string;
-    data: UpdateEncounterQueueItemInput;
+    data: UpdateQueueItemData;
   }>(mergeScopedEdit, (id, { encounterId: scheduledEncounterId, data }) => {
     updateMutation.mutate({ id, encounterId: scheduledEncounterId, data });
   });
 
-  const updateQueueItem = (
-    id: string,
-    data: UpdateEncounterQueueItemInput,
-  ): void => {
+  const updateQueueItem = (id: string, data: UpdateQueueItemData): void => {
     queryClient.setQueryData<EncounterQueueItem[]>(
       encounterKeys.queueItems(encounterId),
       (old) => {

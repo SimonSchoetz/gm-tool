@@ -1,3 +1,5 @@
+import { normalizeCustomName } from './customName';
+
 export const UNNAMED_ENTITY_LABEL = 'Untitled Combatant';
 
 type NamedItem = {
@@ -52,11 +54,11 @@ export const shownCombatantNames = (
         isShared && item.sequenceNumber !== null
           ? `${name} ${item.sequenceNumber}`
           : name;
-      const customName = item.customName?.trim() ?? '';
+      const customName = normalizeCustomName(item.customName);
       return [
         item.id,
         {
-          shownName: customName === '' ? automaticName : customName,
+          shownName: customName ?? automaticName,
           automaticName,
         },
       ];

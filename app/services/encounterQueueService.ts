@@ -17,6 +17,12 @@ import {
   type BaseEntityType,
 } from '@domain';
 
+// The rename and the notes only: a queue item's entity, kind and position never change through this write (the entity view relies on a combatant's entity only ever being emptied, and a reorder goes through reorderQueueItems).
+export type UpdateQueueItemData = Pick<
+  UpdateEncounterQueueItemInput,
+  'custom_name' | 'notes'
+>;
+
 export const getQueueItems = async (
   encounterId: string,
 ): Promise<EncounterQueueItem[]> => {
@@ -100,7 +106,7 @@ export const reorderQueueItems = async (
 
 export const updateQueueItem = async (
   id: string,
-  data: UpdateEncounterQueueItemInput,
+  data: UpdateQueueItemData,
 ): Promise<void> => {
   try {
     await queueItemDb.update(id, data);
