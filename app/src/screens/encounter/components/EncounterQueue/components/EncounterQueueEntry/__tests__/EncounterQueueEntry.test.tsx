@@ -22,6 +22,7 @@ const renderEntry = ({
 } = {}) =>
   render(
     <EncounterQueueEntry
+      kind='combatant'
       id='item-7'
       name='Goblin'
       imageId={null}
@@ -40,6 +41,7 @@ const StatefulEntry = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   return (
     <EncounterQueueEntry
+      kind='combatant'
       id='item-7'
       name='Goblin'
       imageId={null}
@@ -145,5 +147,50 @@ describe('EncounterQueueEntry', () => {
     renderEntry();
     expect(screen.queryByLabelText('Damage tint')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Greyed-out image')).not.toBeInTheDocument();
+  });
+
+  describe('an event entry', () => {
+    const renderEvent = (onSelect = vi.fn()) =>
+      render(
+        <EncounterQueueEntry
+          kind='event'
+          id='event-1'
+          name='Lair action'
+          selected={false}
+          otherDraggedCount={0}
+          onSelect={onSelect}
+        />,
+      );
+
+    it('shows its name and the event icon tile and no HP text, damage tint or greyed-out image', () => {
+      renderEvent();
+
+      expect(screen.getByText('Lair action')).toBeInTheDocument();
+      expect(screen.getByLabelText('Event icon')).toBeInTheDocument();
+      expect(screen.queryByText(/\//)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Damage tint')).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Greyed-out image'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('reports its own id with the modifiers of a click', async () => {
+      const onSelect = vi.fn();
+      const user = userEvent.setup();
+      renderEvent(onSelect);
+
+      await user.keyboard('{Shift>}');
+      await user.click(screen.getByText('Lair action'));
+
+      expect(onSelect.mock.calls).toEqual([
+        ['event-1', { shift: true, toggle: false }],
+      ]);
+    });
+  });
+
+  it('shows no event icon for a combatant entry', () => {
+    renderEntry();
+
+    expect(screen.queryByLabelText('Event icon')).not.toBeInTheDocument();
   });
 });

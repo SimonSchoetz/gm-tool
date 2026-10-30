@@ -1,0 +1,17 @@
+.encounter-add-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.encounter-add-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.encounter-add-row-type {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}

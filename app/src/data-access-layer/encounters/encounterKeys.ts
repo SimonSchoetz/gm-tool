@@ -6,8 +6,8 @@ export const encounterKeys = {
     ['encounter-queue-items', encounterId] as const,
   logEntries: (encounterId: string) =>
     ['encounter-log-entries', encounterId] as const,
-  addCombatants: (encounterId: string) =>
-    ['encounter-add-combatants', encounterId] as const,
+  addQueueItems: (encounterId: string) =>
+    ['encounter-add-queue-items', encounterId] as const,
   writeLogEntry: (encounterId: string) =>
     ['encounter-write-log-entry', encounterId] as const,
 };

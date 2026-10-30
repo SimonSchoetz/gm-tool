@@ -13,15 +13,22 @@ export type GroupActionPlan = {
   [K in GroupActionKind]: { kind: K; payload: LogEntryPayload<K> };
 }[GroupActionKind];
 
-type PlanRow = {
-  id: string;
-  amount: number | null;
-  hasHp: boolean;
-  defeated: boolean;
-};
+export type PlanRow =
+  | { kind: 'event'; id: string }
+  | {
+      kind: 'combatant';
+      id: string;
+      amount: number | null;
+      hasHp: boolean;
+      defeated: boolean;
+    };
+type CombatantPlanRow = Extract<PlanRow, { kind: 'combatant' }>;
+
+const isCombatantRow = (row: PlanRow): row is CombatantPlanRow =>
+  row.kind === 'combatant';
 
 const amountsOf = (
-  rows: PlanRow[],
+  rows: CombatantPlanRow[],
 ): { queueItemId: string; amount: number }[] | null => {
   const targets: { queueItemId: string; amount: number }[] = [];
   for (const row of rows) {
@@ -36,8 +43,10 @@ const idsOf = (rows: PlanRow[]): string[] | null =>
 
 export const planGroupAction = (
   kind: GroupActionKind,
-  rows: PlanRow[],
+  planRows: PlanRow[],
 ): GroupActionPlan | null => {
+  // An event row takes no amount and no state: every kind but `removed` runs over the combatant rows.
+  const rows = planRows.filter(isCombatantRow);
   switch (kind) {
     case 'damage':
     case 'heal': {
@@ -68,7 +77,7 @@ export const planGroupAction = (
       return queueItemIds === null ? null : { kind, payload: { queueItemIds } };
     }
     case 'removed': {
-      const queueItemIds = idsOf(rows);
+      const queueItemIds = idsOf(planRows);
       return queueItemIds === null ? null : { kind, payload: { queueItemIds } };
     }
   }

@@ -1,5 +1,6 @@
 import * as encounterDb from '@db/encounter';
 import type { Encounter, UpdateEncounterInput } from '@db/encounter';
+import * as encounterQueueService from '@services/encounterQueueService';
 import {
   encounterNotFoundError,
   encounterLoadError,
@@ -63,7 +64,10 @@ export const deleteEncounter = async (id: string): Promise<void> => {
 
 export const duplicateEncounter = async (id: string): Promise<string> => {
   try {
-    return await encounterDb.duplicate(id);
+    const newId = await encounterDb.duplicate(id);
+    // No atomic multi-call write exists on this platform: a failed queue copy leaves the new encounter and a part of its queue behind.
+    await encounterQueueService.duplicateQueue(id, newId);
+    return newId;
   } catch (err) {
     throw encounterDuplicateError(id, err);
   }

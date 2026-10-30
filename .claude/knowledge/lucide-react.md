@@ -27,3 +27,10 @@ Available globe-state icons: `GlobeCheckIcon`, `GlobeOffIcon`, `GlobeXIcon`, `Gl
 **Citation:** [spec-writer_1: grep -oE '[A-Za-z0-9]+ as (Menu|Plus|Trash2)Icon' app/node_modules/lucide-react/dist/lucide-react.d.ts — found `Menu as MenuIcon`, `Plus as PlusIcon`, `Trash as Trash2Icon`] [spec-writer_2: grep -c "declare const Trash2" app/node_modules/lucide-react/dist/lucide-react.d.ts — 0 found; the same pattern form, grep -c "declare const Table2:", finds 1]
 
 `Trash2Icon` is exported as an alias of the icon declared as `Trash`, and no `Trash2` declaration exists at this version.
+
+## A `LucideIcon` component takes `size?: string | number` through `LucideProps` and strokes in `currentColor` by default
+
+**Verified at:** lucide-react 1.49.0
+**Citation:** [spec-writer_3: `app/node_modules/lucide-react/dist/lucide-react.d.ts:34-35` — `interface LucideProps extends ElementAttributes { size?: string | number;`, `:42` — `type LucideIcon = ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>`, `:2187` — `declare const BellRing: LucideIcon;`] [spec-writer_4: `app/node_modules/lucide-react/dist/esm/Icon.mjs:40` — `color: contextColor = "currentColor"`, and `app/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs:14` — `stroke: "currentColor"`]
+
+An icon such as `BellRing` (imported as `BellRingIcon`) is sized by its `size` prop, in pixels as a number, with no stylesheet rule. Without a `color` prop it strokes in `currentColor`, so it takes the text colour of the element it sits in.

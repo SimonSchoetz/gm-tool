@@ -1,6 +1,12 @@
 import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityContentSection } from '@db/base-entity-content-section';
+import type { EncounterLogEntry } from '@db/encounter-log-entry';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
+import {
+  serializeLogEntryPayload,
+  type LogEntryKind,
+  type LogEntryPayload,
+} from '@domain';
 
 export const ENCOUNTER_ID = 'encounter-1';
 export const ENTITY_ID = 'entity-1';
@@ -51,4 +57,18 @@ export const buildSection = (
   sort_order: 0,
   created_at: '',
   updated_at: '',
+});
+
+export const buildEncounterLogEntry = <K extends LogEntryKind>(
+  kind: K,
+  payload: LogEntryPayload<K>,
+  overrides: Partial<EncounterLogEntry> = {},
+): EncounterLogEntry => ({
+  id: 'log-entry-1',
+  encounter_id: ENCOUNTER_ID,
+  kind,
+  payload: serializeLogEntryPayload(kind, payload),
+  created_at: '',
+  updated_at: '',
+  ...overrides,
 });

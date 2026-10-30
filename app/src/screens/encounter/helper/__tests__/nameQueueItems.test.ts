@@ -151,4 +151,90 @@ describe('nameQueueItems', () => {
       ['b', 'Goblin 2'],
     ]);
   });
+
+  describe('events and random combatants', () => {
+    const event = (id: string, name: string | null, overrides = {}) =>
+      buildEncounterQueueItem({
+        id,
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name,
+        ...overrides,
+      });
+    const grunt = (id: string, sequence_number: number, overrides = {}) =>
+      buildEncounterQueueItem({
+        id,
+        base_entity_id: null,
+        name: 'Grunt',
+        sequence_number,
+        ...overrides,
+      });
+
+    it('reads an event beside a random combatant of the same name bare for both', () => {
+      const names = nameQueueItems(
+        [event('a', 'Grunt'), grunt('b', 1)],
+        states([]),
+        [],
+      );
+
+      expect(shownNames(names)).toEqual([
+        ['a', 'Grunt'],
+        ['b', 'Grunt'],
+      ]);
+    });
+
+    it('shows Untitled Event as shown, automatic and base name for an emptied or spaces-only event name, and ignores custom_name', () => {
+      const names = nameQueueItems(
+        [
+          event('a', null),
+          event('b', '   '),
+          event('c', null, { custom_name: 'Renamed' }),
+        ],
+        states([]),
+        [],
+      );
+
+      expect([...names.values()]).toEqual(
+        ['a', 'b', 'c'].map(() => ({
+          shownName: 'Untitled Event',
+          automaticName: 'Untitled Event',
+          baseName: 'Untitled Event',
+        })),
+      );
+    });
+
+    it('numbers random combatants by their exact name, keeps the number of a removed one and lets a renamed one count for its sibling', () => {
+      const names = nameQueueItems(
+        [
+          grunt('a', 1),
+          grunt('b', 2),
+          grunt('c', 3, { custom_name: 'Boss' }),
+          grunt('d', 1, { name: 'grunt' }),
+        ],
+        states(['a', 'c']),
+        [],
+      );
+
+      expect(shownNames(names)).toEqual([
+        ['a', 'Grunt 1'],
+        ['b', 'Grunt'],
+        ['c', 'Boss'],
+        ['d', 'grunt'],
+      ]);
+    });
+
+    it('numbers two random combatants of one name', () => {
+      const names = nameQueueItems(
+        [grunt('a', 1), grunt('b', 2)],
+        states([]),
+        [],
+      );
+
+      expect(shownNames(names)).toEqual([
+        ['a', 'Grunt 1'],
+        ['b', 'Grunt 2'],
+      ]);
+    });
+  });
 });

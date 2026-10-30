@@ -10,6 +10,7 @@ import {
   ENCOUNTER_ID,
   ENTITY_ID,
   buildBaseEntity,
+  buildEncounterLogEntry,
   buildEncounterQueueItem,
   buildSection,
 } from './support/encounterQueueFixtures';
@@ -23,7 +24,13 @@ const getAllByEncounter = vi.hoisted(() =>
 );
 const createMany = vi.hoisted(() => vi.fn<typeof queueItemDb.createMany>());
 const update = vi.hoisted(() => vi.fn<typeof queueItemDb.update>());
+const duplicateByEncounter = vi.hoisted(() =>
+  vi.fn<typeof queueItemDb.duplicateByEncounter>(),
+);
 const createLogEntry = vi.hoisted(() => vi.fn<typeof logEntryDb.create>());
+const getAllLogEntries = vi.hoisted(() =>
+  vi.fn<typeof logEntryDb.getAllByEncounter>(),
+);
 const getBaseEntity = vi.hoisted(() => vi.fn<typeof baseEntityDb.get>());
 const getAllByBaseEntity = vi.hoisted(() =>
   vi.fn<typeof sectionDb.getAllByBaseEntity>(),
@@ -33,8 +40,12 @@ vi.mock('@db/encounter-queue-item', () => ({
   getAllByEncounter,
   createMany,
   update,
+  duplicateByEncounter,
 }));
-vi.mock('@db/encounter-log-entry', () => ({ create: createLogEntry }));
+vi.mock('@db/encounter-log-entry', () => ({
+  create: createLogEntry,
+  getAllByEncounter: getAllLogEntries,
+}));
 vi.mock('@db/base-entity', () => ({ get: getBaseEntity }));
 vi.mock('@db/base-entity-content-section', () => ({ getAllByBaseEntity }));
 
@@ -110,7 +121,11 @@ describe('addEntityCombatants', () => {
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2);
 
-    expect(createdRows().map((row) => row.sequence_number)).toEqual([4, 5]);
+    expect(
+      createdRows().map((row) =>
+        'sequence_number' in row ? row.sequence_number : null,
+      ),
+    ).toEqual([4, 5]);
   });
 
   it('starts numbering at 1 when the entity has no combatant yet', async () => {
@@ -127,7 +142,11 @@ describe('addEntityCombatants', () => {
 
     await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
 
-    expect(createdRows().map((row) => row.sequence_number)).toEqual([1]);
+    expect(
+      createdRows().map((row) =>
+        'sequence_number' in row ? row.sequence_number : null,
+      ),
+    ).toEqual([1]);
   });
 
   it('writes all rows in one createMany call carrying the single stat block HP and the entity name', async () => {
@@ -265,7 +284,7 @@ describe('addEntityCombatants', () => {
         addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, quantity),
       ).rejects.toThrow(
         new RegExp(
-          `^Failed to add combatants to the encounter queue: Error: Invalid quantity: ${quantity}$`,
+          `^Failed to add to the encounter queue: Error: Invalid quantity: ${quantity}$`,
         ),
       );
       expect(getBaseEntity).not.toHaveBeenCalled();
@@ -282,7 +301,7 @@ describe('addEntityCombatants', () => {
       addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1),
     ).rejects.toThrow(
       new RegExp(
-        `^Failed to add combatants to the encounter queue: BaseEntityNotFoundError: Foe with id ${ENTITY_ID} not found$`,
+        `^Failed to add to the encounter queue: BaseEntityNotFoundError: Foe with id ${ENTITY_ID} not found$`,
       ),
     );
     expect(createMany).not.toHaveBeenCalled();
@@ -365,5 +384,346 @@ describe('updateQueueItem', () => {
     await expect(
       updateQueueItem('a', { custom_name: 'Boss' }),
     ).rejects.toMatchObject({ name: 'EncounterQueueUpdateError' });
+  });
+});
+
+const resetAddMocks = () => {
+  getAllByEncounter.mockReset().mockResolvedValue([]);
+  createMany
+    .mockReset()
+    .mockImplementation((rows) =>
+      Promise.resolve(rows.map((_, index) => `new-${index}`)),
+    );
+  createLogEntry.mockReset().mockResolvedValue('log-1');
+};
+
+describe('addRandomCombatants', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    resetAddMocks();
+  });
+
+  const sequenceNumbers = () =>
+    createdRows().map((row) =>
+      'sequence_number' in row ? row.sequence_number : null,
+    );
+
+  it('numbers from the highest sequence number among combatants without an entity and with the same name, with a gap in the existing numbers', async () => {
+    const { addRandomCombatants } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({
+        id: 'a',
+        base_entity_id: null,
+        name: 'Grunt',
+        sequence_number: 1,
+      }),
+      buildEncounterQueueItem({
+        id: 'b',
+        base_entity_id: null,
+        name: 'Grunt',
+        sequence_number: 4,
+      }),
+    ]);
+
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 2);
+
+    expect(sequenceNumbers()).toEqual([5, 6]);
+  });
+
+  it('does not count an event, an entity combatant or a random combatant of another name or letter case', async () => {
+    const { addRandomCombatants } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({
+        id: 'event',
+        kind: 'event',
+        base_entity_id: null,
+        name: 'Grunt',
+        sequence_number: 8,
+      }),
+      buildEncounterQueueItem({
+        id: 'entity',
+        base_entity_id: ENTITY_ID,
+        name: 'Grunt',
+        sequence_number: 8,
+      }),
+      buildEncounterQueueItem({
+        id: 'other-name',
+        base_entity_id: null,
+        name: 'Brute',
+        sequence_number: 8,
+      }),
+      buildEncounterQueueItem({
+        id: 'other-case',
+        base_entity_id: null,
+        name: 'grunt',
+        sequence_number: 8,
+      }),
+    ]);
+
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 1);
+
+    expect(sequenceNumbers()).toEqual([1]);
+  });
+
+  it('counts a combatant whose entity was deleted with the random combatants of its name', async () => {
+    const { addRandomCombatants } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({
+        id: 'orphan',
+        base_entity_id: null,
+        name: 'Goblin',
+        sequence_number: 2,
+      }),
+    ]);
+
+    await addRandomCombatants(ENCOUNTER_ID, 'Goblin', null, 1);
+
+    expect(sequenceNumbers()).toEqual([3]);
+  });
+
+  it('writes the quantity as rows of one createMany call that continue sort_order, with the trimmed name and no entity', async () => {
+    const { addRandomCombatants } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'a', sort_order: 5 }),
+    ]);
+
+    await addRandomCombatants(ENCOUNTER_ID, '  Grunt ', 10, 2);
+
+    expect(createMany).toHaveBeenCalledTimes(1);
+    expect(createdRows()).toEqual([
+      {
+        encounter_id: ENCOUNTER_ID,
+        kind: 'combatant',
+        sequence_number: 1,
+        sort_order: 6,
+      },
+      {
+        encounter_id: ENCOUNTER_ID,
+        kind: 'combatant',
+        sequence_number: 2,
+        sort_order: 7,
+      },
+    ]);
+    expect(sharedFields()).toEqual({ name: 'Grunt', starting_max_hp: 10 });
+  });
+
+  it('keeps an HP of 0 and leaves starting_max_hp out for no HP', async () => {
+    const { addRandomCombatants } = await import('../encounterQueueService');
+
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', 0, 1);
+    expect(sharedFields()).toEqual({ name: 'Grunt', starting_max_hp: 0 });
+
+    createMany.mockClear();
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 1);
+    expect(sharedFields()).toEqual({ name: 'Grunt' });
+  });
+
+  it.each([
+    ['a blank name', ' ', null, 1, /Name is required$/],
+    ['HP -1', 'Grunt', -1, 1, /Invalid HP: -1$/],
+    ['HP 1.5', 'Grunt', 1.5, 1, /Invalid HP: 1.5$/],
+    ['quantity 0', 'Grunt', null, 0, /Invalid quantity: 0$/],
+    ['quantity 100', 'Grunt', null, 100, /Invalid quantity: 100$/],
+  ])(
+    'rejects %s as EncounterQueueAddError before any db call',
+    async (_label, name, hp, quantity, message) => {
+      const { addRandomCombatants } = await import('../encounterQueueService');
+
+      const result = addRandomCombatants(ENCOUNTER_ID, name, hp, quantity);
+
+      await expect(result).rejects.toMatchObject({
+        name: 'EncounterQueueAddError',
+      });
+      await expect(result).rejects.toThrow(message);
+      expect(getAllByEncounter).not.toHaveBeenCalled();
+      expect(createMany).not.toHaveBeenCalled();
+    },
+  );
+});
+
+describe('addEvent', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    resetAddMocks();
+  });
+
+  it('writes one event row with the trimmed name, the next sort_order, no sequence number and no entity', async () => {
+    const { addEvent } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'a', sort_order: 3 }),
+    ]);
+
+    await addEvent(ENCOUNTER_ID, ' Lair action ');
+
+    expect(createMany).toHaveBeenCalledTimes(1);
+    expect(createdRows()).toEqual([
+      { encounter_id: ENCOUNTER_ID, kind: 'event', sort_order: 4 },
+    ]);
+    expect(sharedFields()).toEqual({ name: 'Lair action' });
+  });
+
+  it('rejects a blank name as EncounterQueueAddError before any write', async () => {
+    const { addEvent } = await import('../encounterQueueService');
+
+    await expect(addEvent(ENCOUNTER_ID, '   ')).rejects.toMatchObject({
+      name: 'EncounterQueueAddError',
+    });
+    expect(createMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('the added entry of every add', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    resetAddMocks();
+    getBaseEntity.mockReset().mockResolvedValue(buildBaseEntity());
+    getAllByBaseEntity.mockReset().mockResolvedValue([]);
+    createMany.mockResolvedValue(['x']);
+  });
+
+  it.each([
+    [
+      'a random combatant',
+      async () => {
+        const { addRandomCombatants } =
+          await import('../encounterQueueService');
+        await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 1);
+      },
+    ],
+    [
+      'an event',
+      async () => {
+        const { addEvent } = await import('../encounterQueueService');
+        await addEvent(ENCOUNTER_ID, 'Lair action');
+      },
+    ],
+  ])(
+    'is written once after the insert for %s, with the ids createMany returned',
+    async (_label, add) => {
+      await add();
+
+      expect(createLogEntry).toHaveBeenCalledTimes(1);
+      expect(createLogEntry).toHaveBeenCalledWith({
+        encounter_id: ENCOUNTER_ID,
+        kind: 'added',
+        payload: { queueItemIds: ['x'] },
+      });
+      expect(createMany.mock.invocationCallOrder[0]).toBeLessThan(
+        createLogEntry.mock.invocationCallOrder[0],
+      );
+    },
+  );
+});
+
+describe('duplicateQueue', () => {
+  const SOURCE = 'source-encounter';
+  const TARGET = 'target-encounter';
+
+  beforeEach(() => {
+    vi.resetModules();
+    getAllByEncounter.mockReset();
+    getAllLogEntries.mockReset().mockResolvedValue([]);
+    duplicateByEncounter.mockReset().mockResolvedValue();
+    createLogEntry.mockReset().mockResolvedValue('log-1');
+  });
+
+  const copiedMap = () => duplicateByEncounter.mock.calls[0][2];
+
+  it('hands over the derived max HP of each item, null for an item without HP and for an event, and keeps a defeated item', async () => {
+    const { duplicateQueue } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'raised', starting_max_hp: 10 }),
+      buildEncounterQueueItem({ id: 'no-hp', starting_max_hp: null }),
+      buildEncounterQueueItem({
+        id: 'event',
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        starting_max_hp: null,
+      }),
+      buildEncounterQueueItem({ id: 'defeated', starting_max_hp: 5 }),
+    ]);
+    getAllLogEntries.mockResolvedValue([
+      buildEncounterLogEntry(
+        'max-hp',
+        { targets: [{ queueItemId: 'raised', value: 12 }] },
+        { id: 'e1' },
+      ),
+      buildEncounterLogEntry(
+        'defeated',
+        { queueItemIds: ['defeated'] },
+        { id: 'e2' },
+      ),
+    ]);
+
+    await duplicateQueue(SOURCE, TARGET);
+
+    expect(copiedMap()).toEqual(
+      new Map([
+        ['raised', 12],
+        ['no-hp', null],
+        ['event', null],
+        ['defeated', 5],
+      ]),
+    );
+  });
+
+  it('leaves out a removed item and keeps one whose removal was reverted', async () => {
+    const { duplicateQueue } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([
+      buildEncounterQueueItem({ id: 'gone', starting_max_hp: 5 }),
+      buildEncounterQueueItem({ id: 'back', starting_max_hp: 6 }),
+    ]);
+    getAllLogEntries.mockResolvedValue([
+      buildEncounterLogEntry(
+        'removed',
+        { queueItemIds: ['gone'] },
+        { id: 'e1' },
+      ),
+      buildEncounterLogEntry(
+        'removed',
+        { queueItemIds: ['back'] },
+        { id: 'e2' },
+      ),
+      buildEncounterLogEntry('revert', { entryId: 'e2' }, { id: 'e3' }),
+    ]);
+
+    await duplicateQueue(SOURCE, TARGET);
+
+    expect(copiedMap()).toEqual(new Map([['back', 6]]));
+  });
+
+  it('reads the source queue and log and copies from the source into the target', async () => {
+    const { duplicateQueue } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([]);
+
+    await duplicateQueue(SOURCE, TARGET);
+
+    expect(getAllByEncounter).toHaveBeenCalledWith(SOURCE);
+    expect(getAllLogEntries).toHaveBeenCalledWith(SOURCE);
+    expect(duplicateByEncounter).toHaveBeenCalledWith(
+      SOURCE,
+      TARGET,
+      expect.any(Map),
+    );
+  });
+
+  it('rejects as EncounterQueueDuplicateError when a read fails', async () => {
+    const { duplicateQueue } = await import('../encounterQueueService');
+    getAllByEncounter.mockRejectedValue(new Error('locked'));
+
+    await expect(duplicateQueue(SOURCE, TARGET)).rejects.toMatchObject({
+      name: 'EncounterQueueDuplicateError',
+    });
+    expect(duplicateByEncounter).not.toHaveBeenCalled();
+  });
+
+  it('writes no log entry', async () => {
+    const { duplicateQueue } = await import('../encounterQueueService');
+    getAllByEncounter.mockResolvedValue([buildEncounterQueueItem()]);
+
+    await duplicateQueue(SOURCE, TARGET);
+
+    expect(createLogEntry).not.toHaveBeenCalled();
   });
 });

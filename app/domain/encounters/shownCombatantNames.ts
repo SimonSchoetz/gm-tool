@@ -1,4 +1,4 @@
-import { normalizeCustomName } from './customName';
+import { normalizeQueueItemName } from './queueItemName';
 
 export const UNNAMED_ENTITY_LABEL = 'Untitled Combatant';
 
@@ -54,7 +54,7 @@ export const shownCombatantNames = (
         isShared && item.sequenceNumber !== null
           ? `${name} ${item.sequenceNumber}`
           : name;
-      const customName = normalizeCustomName(item.customName);
+      const customName = normalizeQueueItemName(item.customName);
       return [
         item.id,
         {

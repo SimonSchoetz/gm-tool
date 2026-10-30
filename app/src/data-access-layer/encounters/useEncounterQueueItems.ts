@@ -14,6 +14,21 @@ import { useAutosaveQueue } from '../useAutosaveQueue';
 import { mergeScopedEdit } from '../mergeScopedEdit';
 import { mergeUpdate } from '../mergeUpdate';
 
+type AddQueueItemsVariables =
+  | {
+      kind: 'entity';
+      entityType: BaseEntityType;
+      baseEntityId: string;
+      quantity: number;
+    }
+  | {
+      kind: 'random';
+      name: string;
+      startingMaxHp: number | null;
+      quantity: number;
+    }
+  | { kind: 'event'; name: string };
+
 type UseEncounterQueueItemsReturn = {
   queueItems: EncounterQueueItem[];
   loading: boolean;
@@ -22,6 +37,12 @@ type UseEncounterQueueItemsReturn = {
     baseEntityId: string,
     quantity: number,
   ) => Promise<boolean>;
+  addRandomCombatants: (
+    name: string,
+    startingMaxHp: number | null,
+    quantity: number,
+  ) => Promise<boolean>;
+  addEvent: (name: string) => Promise<boolean>;
   isAdding: boolean;
   reorderQueueItems: (orderedIds: string[]) => void;
   updateQueueItem: (id: string, data: UpdateQueueItemData) => void;
@@ -36,50 +57,72 @@ export const useEncounterQueueItems = (
     encounterQueueItemsQueryOptions(encounterId),
   );
 
+  // One mutation and one key serve all three adds, so no add runs beside another of the same encounter: two would hand out the same sort_order. A resolved add stays pending until the queue and the log have refetched, so every Add button stays disabled until both show the new rows and the `added` line.
   const addMutation = useMutation({
-    mutationKey: encounterKeys.addCombatants(encounterId),
-    mutationFn: ({
-      entityType,
-      baseEntityId,
-      quantity,
-    }: {
-      entityType: BaseEntityType;
-      baseEntityId: string;
-      quantity: number;
-    }) =>
-      service.addEntityCombatants(
-        encounterId,
-        entityType,
-        baseEntityId,
-        quantity,
-      ),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: encounterKeys.queueItems(encounterId),
-      });
+    mutationKey: encounterKeys.addQueueItems(encounterId),
+    mutationFn: (variables: AddQueueItemsVariables) => {
+      switch (variables.kind) {
+        case 'entity':
+          return service.addEntityCombatants(
+            encounterId,
+            variables.entityType,
+            variables.baseEntityId,
+            variables.quantity,
+          );
+        case 'random':
+          return service.addRandomCombatants(
+            encounterId,
+            variables.name,
+            variables.startingMaxHp,
+            variables.quantity,
+          );
+        case 'event':
+          return service.addEvent(encounterId, variables.name);
+      }
     },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: encounterKeys.queueItems(encounterId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: encounterKeys.logEntries(encounterId),
+        }),
+      ]),
   });
 
-  // The pending state is read from the mutation cache, not from addMutation: a hook-local isPending belongs to one hook instance, so the Add rows would not disable each other. The guard in addEntityCombatants reads the cache at call time because a useIsMutating value read from render state lags the call by a render, so two calls in one call stack would both write and hand out the same sort_order and sequence_number.
+  // The pending state is read from the mutation cache, not from addMutation: a hook-local isPending belongs to one hook instance, so the Add buttons would not disable each other. The guard in add reads the cache at call time because a useIsMutating value read from render state lags the call by a render, so two calls in one call stack, of any of the three adds, would both write and hand out the same sort_order.
   const isAdding =
-    useIsMutating({ mutationKey: encounterKeys.addCombatants(encounterId) }) >
+    useIsMutating({ mutationKey: encounterKeys.addQueueItems(encounterId) }) >
     0;
 
-  const addEntityCombatants = async (
-    entityType: BaseEntityType,
-    baseEntityId: string,
-    quantity: number,
-  ): Promise<boolean> => {
+  const add = async (variables: AddQueueItemsVariables): Promise<boolean> => {
     if (
       queryClient.isMutating({
-        mutationKey: encounterKeys.addCombatants(encounterId),
+        mutationKey: encounterKeys.addQueueItems(encounterId),
       }) > 0
     ) {
       return false;
     }
-    await addMutation.mutateAsync({ entityType, baseEntityId, quantity });
+    await addMutation.mutateAsync(variables);
     return true;
   };
+
+  const addEntityCombatants = (
+    entityType: BaseEntityType,
+    baseEntityId: string,
+    quantity: number,
+  ): Promise<boolean> =>
+    add({ kind: 'entity', entityType, baseEntityId, quantity });
+
+  const addRandomCombatants = (
+    name: string,
+    startingMaxHp: number | null,
+    quantity: number,
+  ): Promise<boolean> => add({ kind: 'random', name, startingMaxHp, quantity });
+
+  const addEvent = (name: string): Promise<boolean> =>
+    add({ kind: 'event', name });
 
   const reorderMutation = useMutation({
     mutationFn: (orderedIds: string[]) => service.reorderQueueItems(orderedIds),
@@ -149,6 +192,8 @@ export const useEncounterQueueItems = (
     queueItems,
     loading,
     addEntityCombatants,
+    addRandomCombatants,
+    addEvent,
     isAdding,
     reorderQueueItems,
     updateQueueItem,

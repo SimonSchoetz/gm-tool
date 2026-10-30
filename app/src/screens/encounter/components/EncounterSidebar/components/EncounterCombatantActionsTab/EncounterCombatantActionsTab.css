@@ -20,3 +20,8 @@
   overflow-y: auto;
   gap: var(--spacing-sm);
 }
+
+.encounter-combatant-actions-tab-events-note {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}

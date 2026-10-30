@@ -1,0 +1,13 @@
+.encounter-add-event {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.encounter-add-event[hidden] {
+  display: none;
+}
+
+.encounter-add-event-name {
+  flex: 1;
+  min-width: 0;
+}

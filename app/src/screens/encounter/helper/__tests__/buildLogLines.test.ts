@@ -280,4 +280,39 @@ describe('buildLogLines', () => {
       ),
     ).toEqual(['Added: Goblin ×2']);
   });
+
+  it('names an event on an added line and a combatant and an event on a removed line, a blank event as Untitled Event', () => {
+    const items = [
+      buildEncounterQueueItem({ id: 'a', name: 'Goblin', sequence_number: 1 }),
+      buildEncounterQueueItem({
+        id: 'b',
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name: 'Lair action',
+      }),
+      buildEncounterQueueItem({
+        id: 'c',
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name: null,
+      }),
+    ];
+    const lines = buildLogLines(
+      items,
+      [
+        log('e1', 'added', { queueItemIds: ['b'] }),
+        log('e2', 'removed', { queueItemIds: ['a', 'b'] }),
+        log('e3', 'removed', { queueItemIds: ['c'] }),
+      ],
+      [],
+    );
+
+    expect(textsOf(lines)).toEqual([
+      'Added: Lair action',
+      'Removed: Goblin, Lair action',
+      'Removed: Untitled Event',
+    ]);
+  });
 });

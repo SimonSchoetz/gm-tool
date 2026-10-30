@@ -1,12 +1,14 @@
 import { useParams } from '@tanstack/react-router';
-import { parseActionAmount } from '@domain';
 import { Button } from '@/components/Button/Button';
 import { Input } from '@/components/Input/Input';
 import { useEncounterLogEntries } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
+import { isCombatantEntry } from '../../../../helper/isCombatantEntry';
+import { isEventEntry } from '../../../../helper/isEventEntry';
 import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEntries';
 import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
+import { buildPlanRows } from './helper/buildPlanRows';
 import { describeActionRowHp } from './helper/describeActionRowHp';
 import { planGroupAction } from './helper/planGroupAction';
 import type { GroupActionPlan } from './helper/planGroupAction';
@@ -23,12 +25,14 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
   });
   const { entries } = useEncounterQueueEntries();
   const { recordLogEntry, isWriting } = useEncounterLogEntries(encounterId);
-  // Held in this component, which stays mounted, and not beside the amount fields, which unmount whenever the selection is empty: the amounts survive an action and a selection that passes through empty.
-  const { sharedText, amountTextOf, setSharedText, setRowText } =
-    useActionAmounts(selectedIds);
   const selectedEntries = entries.filter((entry) =>
     selectedIds.includes(entry.id),
   );
+  const combatantEntries = selectedEntries.filter(isCombatantEntry);
+  const eventEntries = selectedEntries.filter(isEventEntry);
+  // Held in this component, which stays mounted, and not beside the amount fields, which unmount whenever the selection is empty: the amounts survive an action and a selection that passes through empty. The amounts see the selected combatants only: an event never receives an amount.
+  const { sharedText, amountTextOf, setSharedText, setRowText } =
+    useActionAmounts(combatantEntries.map((entry) => entry.id));
 
   if (selectedEntries.length === 0) {
     return (
@@ -38,16 +42,11 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
     );
   }
 
-  const rows = selectedEntries.map((entry) => ({
+  const rows = combatantEntries.map((entry) => ({
     entry,
     hp: describeQueueEntryHp(entry),
   }));
-  const planRows = rows.map(({ entry, hp }) => ({
-    id: entry.id,
-    amount: parseActionAmount(amountTextOf(entry.id)),
-    hasHp: hp !== null,
-    defeated: entry.defeated,
-  }));
+  const planRows = buildPlanRows(selectedEntries, amountTextOf);
   const amountButtons = [
     { label: 'Damage', plan: planGroupAction('damage', planRows) },
     { label: 'Heal', plan: planGroupAction('heal', planRows) },
@@ -78,7 +77,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
 
   return (
     <div className='encounter-combatant-actions-tab'>
-      {selectedEntries.length > 1 && (
+      {combatantEntries.length > 1 && (
         <Input
           className='number-input'
           type='number'
@@ -124,6 +123,13 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
           />
         ))}
       </div>
+
+      {eventEntries.length > 0 && (
+        <p className='encounter-combatant-actions-tab-events-note'>
+          Remove also removes:{' '}
+          {eventEntries.map((entry) => entry.name).join(', ')}
+        </p>
+      )}
     </div>
   );
 };

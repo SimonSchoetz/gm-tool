@@ -10,7 +10,6 @@
   border-radius: var(--radius-lg);
 }
 
-/* The class above sets display, which overrides the hidden attribute's default display: none (.claude/knowledge/html.md); without this rule the inactive panel stays visible. */
 .encounter-sidebar-panel[hidden] {
   display: none;
 }

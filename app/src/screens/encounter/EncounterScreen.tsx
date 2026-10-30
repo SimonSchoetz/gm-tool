@@ -6,7 +6,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
-import { EncounterShownCombatant } from './components/EncounterShownCombatant';
+import { EncounterShownItem } from './components/EncounterShownItem';
 import { EncounterActions } from './components/EncounterActions/EncounterActions';
 import { EncounterSidebar } from './components/EncounterSidebar';
 import { useEncounterQueueEntries } from './hooks/useEncounterQueueEntries';
@@ -57,10 +57,12 @@ export const EncounterScreen = () => {
         </div>
         <div ref={middleColumnRef} className='encounter-screen-middle-column'>
           <EncounterNotes />
-          <EncounterShownCombatant shownItemId={shownItemId} />
+          <EncounterShownItem shownItemId={shownItemId} />
         </div>
         <div className='encounter-screen-side-column'>
           <EncounterSidebar
+            // Keyed by the encounter id so opening a duplicated encounter starts on Entities and Event with empty fields even when the screen stays mounted across the id change.
+            key={encounterId}
             activeTab={activeTab}
             onTabChange={setActiveTab}
             selectedIds={selectedIds}

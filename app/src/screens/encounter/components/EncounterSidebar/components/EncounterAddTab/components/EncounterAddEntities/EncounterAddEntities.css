@@ -1,0 +1,35 @@
+.encounter-add-entities {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--spacing-sm);
+}
+
+.encounter-add-entities[hidden] {
+  display: none;
+}
+
+.encounter-add-entities-type-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.encounter-add-entities-type {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.encounter-add-entities-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

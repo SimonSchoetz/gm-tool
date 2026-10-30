@@ -3,7 +3,7 @@ import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import type { ResolvedConfig, ViteDevServer } from 'vite';
+import { resolveConfig, type ResolvedConfig, type ViteDevServer } from 'vite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { DATABASE_FILE } from '../../domain/database';
@@ -74,7 +74,11 @@ describe('devDataServer configureServer and closeServer', () => {
       name.startsWith('gm-tool-web-mode-'),
     );
 
-  const startServer = async (mode: string) => {
+  // `config` is read only by the seeded mode, whose seed server takes the web server's aliases from it.
+  const startServer = async (
+    mode: string,
+    config: ResolvedConfig | null = null,
+  ) => {
     const plugin = devDataServer();
     const configResolved = plugin.configResolved as unknown as (
       config: ResolvedConfig,
@@ -90,6 +94,7 @@ describe('devDataServer configureServer and closeServer', () => {
     const use = vi.fn();
     await configureServer({
       middlewares: { use },
+      config,
     } as unknown as ViteDevServer);
     return {
       use,
@@ -174,6 +179,30 @@ describe('devDataServer configureServer and closeServer', () => {
     await expect(context.db.select('SELECT 1')).rejects.toThrow(
       /^database is not open$/,
     );
+  });
+
+  it('in the seeded mode, hands the request handler a fresh database holding the seed and an empty images folder, reading no app data', async () => {
+    // Without any app data, so a seeded start that read the dev or release directory would fail.
+    rmSync(join(home.dir, 'Library'), { recursive: true });
+    vi.stubEnv('GM_TOOL_WEB_DATA', 'seed');
+    const webServerConfig = await resolveConfig(
+      {
+        configFile: resolve(import.meta.dirname, '../../vite.config.ts'),
+        mode: 'web',
+      },
+      'serve',
+    );
+
+    const { close } = await startServer('web', webServerConfig);
+
+    const [[context]] = createRequestHandler.mock.calls;
+    expect(await context.db.select('SELECT name FROM adventures')).toEqual([
+      { name: 'Seed Adventure' },
+    ]);
+    expect(context.imagesDir.startsWith(tmpdir())).toBe(true);
+    expect(readdirSync(context.imagesDir)).toEqual([]);
+    await close();
+    expect(webModeDirs()).toEqual([]);
   });
 
   it('refuses to start without the dev database, naming it, though the installed release data exists, and leaves no copy', async () => {

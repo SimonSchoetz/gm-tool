@@ -63,6 +63,13 @@ Vitest 4 auto-awaited such an assertion at the end of the test and only printed 
 
 Under that default, a support module under `__tests__/` whose name has no `.test` or `.spec` segment is never run as a test file, so shared test helpers can live beside the tests that import them.
 
+## Setting `test.exclude` in the Vitest config replaces the default excludes `['**/node_modules/**', '**/.git/**']`; spreading `configDefaults.exclude` keeps them
+
+**Verified at:** vitest 5.0.2
+**Citation:** [stryker-tmp-exclude_1: <https://vitest.dev/config/exclude>, fetched 2026-10-30 — "manually setting `exclude` in your config will replace the default value"] [stryker-tmp-exclude_2: `app/node_modules/vitest/dist/chunks/defaults.D2ip7f-X.js:6` — `const defaultExclude = ["**/node_modules/**", "**/.git/**"]`] [stryker-tmp-exclude_3: `app/node_modules/vitest/dist/config.d.ts:107` — `configDefaults` among the exports of `vitest/config`] [stryker-tmp-exclude_4: ran `npx vitest list --filesOnly` from `app/` with a planted `.stryker-tmp/sandbox-1/planted.test.ts` (Stryker's sandbox directory) — observed 256 files including it without `exclude`, 255 without it under `exclude: [...configDefaults.exclude, '.stryker-tmp/**']`]
+
+The documentation says the CLI `exclude` option, by contrast, adds to the defaults. A config-file `exclude` lists `...configDefaults.exclude` (imported from `vitest/config`) first, or the `node_modules` and `.git` exclusions are lost.
+
 ## `await expect(promise).rejects.toMatchObject({ name })` matches an Error whose `name` was assigned after construction and fails on a plain `Error`
 
 **Verified at:** vitest 5.0.2, run 2026-10-20

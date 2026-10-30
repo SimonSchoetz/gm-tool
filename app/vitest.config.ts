@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -9,6 +9,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/__tests__/setup.ts',
     css: true,
+    // `pnpm run mutation-check` writes sandbox copies of the app under `.stryker-tmp`; a run beside it would collect their test files too. Setting `exclude` replaces Vitest's defaults, hence the spread.
+    exclude: [...configDefaults.exclude, '.stryker-tmp/**'],
     coverage: {
       include: [
         'src/**/*.{ts,tsx}',

@@ -152,4 +152,24 @@ describe('EncounterSidebar', () => {
       'orc',
     );
   });
+
+  it('keeps the Add form with its typed name when another tab is opened and Add again', async () => {
+    const user = userEvent.setup();
+    await renderSidebar();
+    await user.click(screen.getByRole('button', { name: 'Other' }));
+    await user.click(
+      await screen.findByRole('button', { name: 'Random Combatant' }),
+    );
+    await user.type(
+      await screen.findByRole('textbox', { name: 'Combatant name to add' }),
+      'Grunt',
+    );
+
+    await user.click(screen.getByRole('tab', { name: 'Actions' }));
+    await user.click(screen.getByRole('tab', { name: 'Add' }));
+
+    expect(
+      screen.getByRole('textbox', { name: 'Combatant name to add' }),
+    ).toHaveValue('Grunt');
+  });
 });

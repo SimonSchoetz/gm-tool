@@ -6,33 +6,31 @@ import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEnt
 import type { SelectionModifiers } from '../../../../helper/applySelectionClick';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { describeQueueEntryImage } from './helper/describeQueueEntryImage';
+import { QUEUE_ENTRY_IMAGE_SIZE } from './EncounterQueueEntry.constants';
+import { EncounterQueueEventTile } from './components/EncounterQueueEventTile/EncounterQueueEventTile';
 import './EncounterQueueEntry.css';
 
+type KindProps =
+  | {
+      kind: 'combatant';
+      id: string;
+      name: string;
+      imageId: string | null;
+      maxHp: number | null;
+      currentHp: number | null;
+      tempHp: number;
+      defeated: boolean;
+    }
+  | { kind: 'event'; id: string; name: string };
+
 type Props = {
-  id: string;
-  name: string;
-  imageId: string | null;
-  maxHp: number | null;
-  currentHp: number | null;
-  tempHp: number;
-  defeated: boolean;
   selected: boolean;
   otherDraggedCount: number;
   onSelect: (id: string, modifiers: SelectionModifiers) => void;
-};
+} & KindProps;
 
-export const EncounterQueueEntry: FCProps<Props> = ({
-  id,
-  name,
-  imageId,
-  maxHp,
-  currentHp,
-  tempHp,
-  defeated,
-  selected,
-  otherDraggedCount,
-  onSelect,
-}) => {
+export const EncounterQueueEntry: FCProps<Props> = (props) => {
+  const { id, name, selected, otherDraggedCount, onSelect } = props;
   const {
     attributes,
     listeners,
@@ -41,8 +39,13 @@ export const EncounterQueueEntry: FCProps<Props> = ({
     transform,
     transition,
   } = useSortable({ id });
-  const hp = describeQueueEntryHp({ maxHp, currentHp, tempHp });
-  const imageLook = describeQueueEntryImage(hp, defeated);
+  const hp = props.kind === 'combatant' ? describeQueueEntryHp(props) : null;
+  const imageLook =
+    // Stryker disable next-line ConditionalExpression: an event has no defeated flag and no HP, so describeQueueEntryImage returns plain for it too and no input observes a difference
+    props.kind === 'combatant'
+      ? describeQueueEntryImage(hp, props.defeated)
+      : // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
+        'plain';
   const imageClassName = cn(
     // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
     'encounter-queue-entry-image',
@@ -83,7 +86,14 @@ export const EncounterQueueEntry: FCProps<Props> = ({
         className={imageClassName}
         aria-label={imageLook === 'grey' ? 'Greyed-out image' : undefined}
       >
-        <EncounterEntityImage imageId={imageId} size={64} />
+        {props.kind === 'event' ? (
+          <EncounterQueueEventTile />
+        ) : (
+          <EncounterEntityImage
+            imageId={props.imageId}
+            size={QUEUE_ENTRY_IMAGE_SIZE}
+          />
+        )}
         {imageLook === 'tint' && (
           <div
             // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
