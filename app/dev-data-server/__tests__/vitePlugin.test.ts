@@ -7,9 +7,10 @@ import type { ResolvedConfig, ViteDevServer } from 'vite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { DATABASE_FILE } from '../../domain/database';
-import { readRepositoryJson, tauriConfigSchema } from '../repositoryJson';
+import { readRepositoryJson } from '../repositoryJson';
 import type { createRequestHandler as createRequestHandlerType } from '../requestHandler';
 import { devDataServer } from '../vitePlugin';
+import { appDataDirectories } from './support/appDataDirectories';
 import { createTempDirectory } from './support/tempDirectory';
 
 // The context the plugin computes for the request handler is its outcome; the handler itself has its own tests.
@@ -36,12 +37,12 @@ describe('devDataServer configResolved', () => {
     expect(() => {
       runConfigResolved(resolvedConfig('serve', 'web', true));
     }).toThrow(
-      /^The dev data server serves the installed app's data, so server\.host must be false or 'localhost'; it is true — remove --host or set it to localhost\.$/,
+      /^The dev data server serves the dev app's data, so server\.host must be false or 'localhost'; it is true — remove --host or set it to localhost\.$/,
     );
     expect(() => {
       runConfigResolved(resolvedConfig('serve', 'web', '0.0.0.0'));
     }).toThrow(
-      /^The dev data server serves the installed app's data, so server\.host must be false or 'localhost'; it is 0\.0\.0\.0 — remove --host or set it to localhost\.$/,
+      /^The dev data server serves the dev app's data, so server\.host must be false or 'localhost'; it is 0\.0\.0\.0 — remove --host or set it to localhost\.$/,
     );
   });
 
@@ -66,7 +67,7 @@ describe('devDataServer configResolved', () => {
 
 describe('devDataServer configureServer and closeServer', () => {
   let home: ReturnType<typeof createTempDirectory>;
-  let installedDir: string;
+  let devDir: string;
 
   const webModeDirs = () =>
     readdirSync(tmpdir()).filter((name) =>
@@ -98,21 +99,23 @@ describe('devDataServer configureServer and closeServer', () => {
 
   const startWebServer = async () => (await startServer('web')).close;
 
+  const writeAppData = (dir: string, probe: string) => {
+    mkdirSync(join(dir, 'images'), { recursive: true });
+    const db = new DatabaseSync(join(dir, DATABASE_FILE));
+    db.exec('CREATE TABLE probe (a TEXT)');
+    db.prepare('INSERT INTO probe (a) VALUES (?)').run(probe);
+    db.close();
+    writeFileSync(join(dir, 'images', `${probe}.png`), 'png');
+  };
+
   beforeEach(() => {
     createRequestHandler.mockClear();
     home = createTempDirectory();
-    const { identifier } = readRepositoryJson(
-      '../src-tauri/tauri.conf.json',
-      tauriConfigSchema,
-    );
-    installedDir = join(home.dir, 'Library', 'Application Support', identifier);
-    mkdirSync(join(installedDir, 'images'), { recursive: true });
-    const installed = new DatabaseSync(join(installedDir, DATABASE_FILE));
-    installed.exec(
-      "CREATE TABLE probe (a TEXT); INSERT INTO probe (a) VALUES ('installed')",
-    );
-    installed.close();
-    writeFileSync(join(installedDir, 'images', 'installed.png'), 'png');
+    const directories = appDataDirectories(home.dir);
+    devDir = directories.devDir;
+    // The installed release app's data sits beside the dev app's, so a plugin that read the release directory would hand the handler its rows.
+    writeAppData(directories.releaseDir, 'release');
+    writeAppData(devDir, 'dev');
     vi.stubEnv('HOME', home.dir);
     // A temp root of the test's own, which os.tmpdir() reads from TMPDIR on every call: in the shared one, another process's web-mode copies would join the listing.
     const tempRoot = join(home.dir, 'tmp');
@@ -143,7 +146,7 @@ describe('devDataServer configureServer and closeServer', () => {
     expect(webModeDirs()).toEqual([]);
   });
 
-  it('hands the request handler the copy of the installed data, the app version and the fixture images, and closes the copy on close', async () => {
+  it('hands the request handler a copy of the dev app data, not the installed release data, with the app version and the fixture images, and closes the copy on close', async () => {
     const { use, close } = await startServer('web');
 
     expect(createRequestHandler).toHaveBeenCalledTimes(1);
@@ -152,10 +155,10 @@ describe('devDataServer configureServer and closeServer', () => {
       createRequestHandler.mock.results[0]?.value,
     );
     expect(await context.db.select('SELECT a FROM probe')).toEqual([
-      { a: 'installed' },
+      { a: 'dev' },
     ]);
     expect(context.imagesDir.startsWith(tmpdir())).toBe(true);
-    expect(readdirSync(context.imagesDir)).toEqual(['installed.png']);
+    expect(readdirSync(context.imagesDir)).toEqual(['dev.png']);
     expect(context.version).toBe(
       readRepositoryJson('../package.json', z.object({ version: z.string() }))
         .version,
@@ -173,11 +176,11 @@ describe('devDataServer configureServer and closeServer', () => {
     );
   });
 
-  it('refuses to start without the installed database, naming it, and leaves no copy', async () => {
-    rmSync(join(installedDir, DATABASE_FILE));
+  it('refuses to start without the dev database, naming it, though the installed release data exists, and leaves no copy', async () => {
+    rmSync(join(devDir, DATABASE_FILE));
 
     await expect(startWebServer()).rejects.toThrow(
-      /^No installed app data at .+ before running web mode\.$/,
+      `No dev app data at ${join(devDir, DATABASE_FILE)}.`,
     );
     expect(webModeDirs()).toEqual([]);
   });

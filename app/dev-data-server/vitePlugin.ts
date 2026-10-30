@@ -8,12 +8,12 @@ import { DATABASE_FILE } from '../domain/database/index.ts';
 import { runMigrations } from '../db/_migrations/index.ts';
 import { createFixtureCycle } from './fixtureCycle.ts';
 import {
-  assertInstalledAppData,
+  assertDevAppData,
   copyDatabase,
   copyImages,
-  resolveInstalledAppDataDir,
+  resolveAppDataDir,
 } from './installedAppData.ts';
-import { readRepositoryJson, tauriConfigSchema } from './repositoryJson.ts';
+import { readAppIdentifiers, readRepositoryJson } from './repositoryJson.ts';
 import { createRequestHandler } from './requestHandler.ts';
 import { openSqliteDatabase, type SqliteDatabase } from './sqliteDatabase.ts';
 
@@ -24,7 +24,7 @@ const TEMP_DIR_PREFIX = 'gm-tool-web-mode-';
 export const devDataServer = (): Plugin => {
   // Stryker disable next-line BooleanLiteral: Vite calls configResolved, which sets `active`, before configureServer reads it, so the initial value is never read.
   let active = false;
-  // Each server start copies the installed app's data into a directory of its own, so a second web server never empties the copy the first one serves; closeServer removes it on close and on restart.
+  // Each server start copies the dev app's data into a directory of its own, so a second web server never empties the copy the first one serves; closeServer removes it on close and on restart.
   let tempDir: string | null = null;
   let db: SqliteDatabase | null = null;
   return {
@@ -38,23 +38,19 @@ export const devDataServer = (): Plugin => {
         config.server.host !== 'localhost'
       ) {
         throw new Error(
-          `The dev data server serves the installed app's data, so server.host must be false or 'localhost'; it is ${String(config.server.host)} — remove --host or set it to localhost.`,
+          `The dev data server serves the dev app's data, so server.host must be false or 'localhost'; it is ${String(config.server.host)} — remove --host or set it to localhost.`,
         );
       }
     },
     async configureServer(server) {
       if (!active) return;
-      // The release app's identifier, not tauri.dev.conf.json's: web mode reads the data of the installed release app.
-      const { identifier } = readRepositoryJson(
-        '../src-tauri/tauri.conf.json',
-        tauriConfigSchema,
-      );
-      const sourceDir = resolveInstalledAppDataDir(
+      // The dev app's data, not the installed release app's: it holds the developer's test data, and the copy keeps web-mode edits and the checkout's pending migrations out of the dev app's own database.
+      const sourceDir = resolveAppDataDir(
         process.platform,
         homedir(),
-        identifier,
+        readAppIdentifiers().dev,
       );
-      assertInstalledAppData(sourceDir);
+      assertDevAppData(sourceDir);
       const serverDir = mkdtempSync(join(tmpdir(), TEMP_DIR_PREFIX));
       tempDir = serverDir;
       copyDatabase(sourceDir, serverDir);

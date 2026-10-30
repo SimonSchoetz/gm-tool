@@ -13,7 +13,7 @@ import {
 import type { Platform } from './types';
 
 export const UNREACHABLE_DEV_DATA_SERVER_MESSAGE =
-  "The dev data server is not reachable. Start the app with the `web` launch configuration or run `pnpm run web` from app/ to serve a copy of the installed app's data.";
+  "The dev data server is not reachable. Start the app with the `web` launch configuration or run `pnpm run web` from app/ to serve a copy of the dev app's data.";
 
 const fetchJson = async <T>(route: string, init: RequestInit): Promise<T> => {
   const response = await fetch(`${DEV_DATA_SERVER_PREFIX}${route}`, init);

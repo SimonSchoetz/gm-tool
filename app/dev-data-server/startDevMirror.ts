@@ -1,12 +1,12 @@
 // Node host — the steps `pnpm run dev` takes before the dev app starts: locate the release and dev data directories, decide whether to replace the dev data, and mirror; mirrorFromProcess runs them on a process's streams and returns its exit code. A dev app without a database is mirrored unasked, since it has nothing to lose; otherwise only a `y` or `yes` to the question mirrors, and without a terminal to ask in the dev data is kept. It is loaded under `node`, so its relative imports carry the `.ts` extension Node's type stripping requires.
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { DATABASE_FILE } from '../domain/database/index.ts';
 import { mirrorInstalledData } from './devMirror.ts';
-import { resolveInstalledAppDataDir } from './installedAppData.ts';
-import { readRepositoryJson, tauriConfigSchema } from './repositoryJson.ts';
+import { resolveAppDataDir } from './installedAppData.ts';
+import { readAppIdentifiers } from './repositoryJson.ts';
 
 export const MIRROR_QUESTION =
   "Replace the dev data with a copy of the installed app's data? [y/N] ";
@@ -30,26 +30,15 @@ export const startDevMirror = async ({
   ask: (question: string) => Promise<string>;
   log: (line: string) => void;
 }): Promise<void> => {
-  const releaseIdentifier = readRepositoryJson(
-    '../src-tauri/tauri.conf.json',
-    tauriConfigSchema,
-  ).identifier;
-  const devIdentifier = readRepositoryJson(
-    '../src-tauri/tauri.dev.conf.json',
-    tauriConfigSchema,
-  ).identifier;
+  const identifiers = readAppIdentifiers();
   let sourceDir: string;
   try {
-    sourceDir = resolveInstalledAppDataDir(
-      platform,
-      homeDir,
-      releaseIdentifier,
-    );
+    sourceDir = resolveAppDataDir(platform, homeDir, identifiers.release);
   } catch (error) {
     log(`${String(error)} ${STARTS_ON_OWN_DATA}`);
     return;
   }
-  const targetDir = join(dirname(sourceDir), devIdentifier);
+  const targetDir = resolveAppDataDir(platform, homeDir, identifiers.dev);
   if (existsSync(join(targetDir, DATABASE_FILE))) {
     if (!interactive) {
       log(

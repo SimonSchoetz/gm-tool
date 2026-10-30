@@ -12,11 +12,11 @@ import { DatabaseSync } from 'node:sqlite';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DATABASE_FILE } from '../../domain/database';
 import {
-  assertInstalledAppData,
+  assertDevAppData,
   copyDatabase,
   copyImages,
-  hasInstalledAppData,
-  resolveInstalledAppDataDir,
+  hasAppData,
+  resolveAppDataDir,
 } from '../installedAppData';
 import { openSqliteDatabase } from '../sqliteDatabase';
 import { createTempDirectory } from './support/tempDirectory';
@@ -44,39 +44,39 @@ const readRows = async (dir: string): Promise<unknown> => {
   return rows;
 };
 
-describe('resolveInstalledAppDataDir', () => {
+describe('resolveAppDataDir', () => {
   it('resolves the macOS data directory from the given home and refuses another platform naming that path', () => {
-    expect(resolveInstalledAppDataDir('darwin', '/Users/gm', 'com.app')).toBe(
+    expect(resolveAppDataDir('darwin', '/Users/gm', 'com.app')).toBe(
       '/Users/gm/Library/Application Support/com.app',
     );
-    expect(() =>
-      resolveInstalledAppDataDir('linux', '/home/gm', 'com.app'),
-    ).toThrow(
-      /^The dev data server reads the installed app's data from ~\/Library\/Application Support\/com\.app, which exists on macOS only; this platform is linux\.$/,
+    expect(() => resolveAppDataDir('linux', '/home/gm', 'com.app')).toThrow(
+      /^The app's data lives in ~\/Library\/Application Support\/com\.app, which exists on macOS only; this platform is linux\.$/,
     );
   });
 });
 
-describe('hasInstalledAppData', () => {
+describe('hasAppData', () => {
   it('is false for a directory without the database file and true once it exists', () => {
-    expect(hasInstalledAppData(sourceDir)).toBe(false);
+    expect(hasAppData(sourceDir)).toBe(false);
 
     writeFileSync(join(sourceDir, DATABASE_FILE), '');
-    expect(hasInstalledAppData(sourceDir)).toBe(true);
+    expect(hasAppData(sourceDir)).toBe(true);
   });
 });
 
-describe('assertInstalledAppData', () => {
-  it('throws naming the missing database path and passes once the file exists', () => {
+describe('assertDevAppData', () => {
+  it('throws naming the missing database path and `pnpm run dev` as the way to create it, and passes once the file exists', () => {
     const databasePath = join(sourceDir, DATABASE_FILE);
 
     expect(() => {
-      assertInstalledAppData(sourceDir);
-    }).toThrow(databasePath);
+      assertDevAppData(sourceDir);
+    }).toThrow(
+      `No dev app data at ${databasePath}. Run \`pnpm run dev\` once, which copies the installed app's data into a dev app without a database, before running web mode.`,
+    );
 
     writeFileSync(databasePath, '');
     expect(() => {
-      assertInstalledAppData(sourceDir);
+      assertDevAppData(sourceDir);
     }).not.toThrow();
   });
 });
