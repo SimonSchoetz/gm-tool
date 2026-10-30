@@ -53,16 +53,23 @@ const GOBLIN: Combatant = { id: ITEM_ID, name: 'Goblin', maxHp: 10 };
 const ORC: Combatant = { id: OTHER_ID, name: 'Orc', maxHp: 20 };
 const TROLL: Combatant = { id: THIRD_ID, name: 'Troll', maxHp: 30 };
 
+type QueueEvent = { id: string; name: string };
+
+const LAIR: QueueEvent = { id: 'event-1', name: 'Lair action' };
+const REINFORCEMENTS: QueueEvent = { id: 'event-2', name: 'Reinforcements' };
+
 const arrange = ({
   combatants = [GOBLIN],
+  events = [],
   logEntries = [],
 }: {
   combatants?: Combatant[];
+  events?: QueueEvent[];
   logEntries?: EncounterLogEntry[];
 } = {}) => {
   getEncounterById.mockResolvedValue(buildEncounter());
-  getQueueItems.mockResolvedValue(
-    combatants.map(({ id, name, maxHp }, index) =>
+  getQueueItems.mockResolvedValue([
+    ...combatants.map(({ id, name, maxHp }, index) =>
       buildEncounterQueueItem({
         id,
         name,
@@ -70,19 +77,32 @@ const arrange = ({
         sort_order: index,
       }),
     ),
-  );
+    ...events.map(({ id, name }, index) =>
+      buildEncounterQueueItem({
+        id,
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name,
+        sort_order: combatants.length + index,
+      }),
+    ),
+  ]);
   getLogEntries.mockResolvedValue(logEntries);
   getAllBaseEntities.mockResolvedValue([]);
 };
 
-const renderTab = async (selectedIds: string[] = [ITEM_ID]) => {
+const renderTab = async (
+  selectedIds: string[] = [ITEM_ID],
+  readyText = 'Goblin',
+) => {
   const rendered = render(
     <EncounterCombatantActionsTab selectedIds={selectedIds} />,
     {
       wrapper: TanstackQueryClientProvider,
     },
   );
-  if (selectedIds.length > 0) await screen.findByText('Goblin');
+  if (selectedIds.length > 0) await screen.findByText(readyText);
   return rendered;
 };
 
@@ -248,6 +268,13 @@ describe('EncounterCombatantActionsTab', () => {
       ).toBe(true);
     });
     releaseWrite();
+  });
+
+  it('shows no events line when no event is selected', async () => {
+    arrange({ events: [LAIR] });
+    await renderTab();
+
+    expect(screen.queryByText(/Remove also removes/)).not.toBeInTheDocument();
   });
 
   it('shows a hint while nothing is selected', async () => {
@@ -495,6 +522,91 @@ describe('EncounterCombatantActionsTab', () => {
 
       rerender(<EncounterCombatantActionsTab selectedIds={[THIRD_ID]} />);
       expect(amountField('Troll')).toHaveValue(9);
+    });
+  });
+
+  describe('with events selected', () => {
+    const EVENTS_NOTE = 'Remove also removes: Lair action, Reinforcements';
+
+    beforeEach(() => {
+      arrange({ events: [LAIR, REINFORCEMENTS] });
+    });
+
+    it('enables only Remove, names the events and shows no row or amount field when only events are selected', async () => {
+      await renderTab([LAIR.id, REINFORCEMENTS.id], EVENTS_NOTE);
+
+      expect(button('Remove')).toBeEnabled();
+      for (const label of [
+        'Damage',
+        'Heal',
+        'Set temp HP',
+        'Set max HP',
+        'Mark defeated',
+        'Unmark defeated',
+      ]) {
+        expect(button(label)).toBeDisabled();
+      }
+      expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Select a combatant in the queue.'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows no shared field, one row and the events line for one combatant and one event, and Damage writes for the combatant alone', async () => {
+      arrange({ events: [LAIR] });
+      const user = userEvent.setup();
+      await renderTab([ITEM_ID, LAIR.id]);
+      await user.type(amountField(), '5');
+
+      expect(
+        screen.queryByRole('spinbutton', { name: 'Shared amount' }),
+      ).not.toBeInTheDocument();
+      expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
+      expect(
+        screen.getByText('Remove also removes: Lair action'),
+      ).toBeInTheDocument();
+
+      await user.click(button('Damage'));
+
+      await waitFor(() => {
+        expect(recordLogEntry.mock.calls).toEqual([
+          [
+            ROUTE_ENCOUNTER_ID,
+            'damage',
+            { targets: [{ queueItemId: ITEM_ID, amount: 5 }] },
+          ],
+        ]);
+      });
+    });
+
+    it('shows the shared field for two combatants and an event, and not for one combatant and two events', async () => {
+      arrange({ combatants: [GOBLIN, ORC], events: [LAIR] });
+      const { rerender } = await renderTab([ITEM_ID, OTHER_ID, LAIR.id]);
+
+      expect(sharedField()).toBeInTheDocument();
+
+      rerender(
+        <EncounterCombatantActionsTab
+          selectedIds={[ITEM_ID, LAIR.id, 'event-2']}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('spinbutton', { name: 'Shared amount' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('writes one Remove entry holding a combatant and an event in queue order', async () => {
+      const user = userEvent.setup();
+      await renderTab([LAIR.id, ITEM_ID]);
+
+      await user.click(button('Remove'));
+
+      await waitFor(() => {
+        expect(recordLogEntry.mock.calls).toEqual([
+          [ROUTE_ENCOUNTER_ID, 'removed', { queueItemIds: [ITEM_ID, LAIR.id] }],
+        ]);
+      });
     });
   });
 });

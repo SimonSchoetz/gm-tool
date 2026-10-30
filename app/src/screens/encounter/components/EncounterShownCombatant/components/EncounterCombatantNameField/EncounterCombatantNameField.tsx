@@ -16,7 +16,8 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const entry = useEncounterQueueEntry(shownItemId);
+  const queueEntry = useEncounterQueueEntry(shownItemId);
+  const entry = queueEntry?.kind === 'combatant' ? queueEntry : null;
   const { updateQueueItem } = useEncounterQueueItems(encounterId);
   // Stryker disable next-line StringLiteral: the field renders nothing while the entry is null, so the empty string is never shown
   const shownName = entry?.name ?? '';

@@ -178,4 +178,27 @@ describe('EncounterCombatantNameField', () => {
 
     expect(field).toHaveValue('Renamed on another device');
   });
+
+  it('renders nothing for the id of an event', async () => {
+    getQueueItems.mockResolvedValue([
+      buildEncounterQueueItem({
+        id: 'event-1',
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name: 'Lair action',
+      }),
+    ]);
+    render(<EncounterCombatantNameField shownItemId='event-1' />, {
+      wrapper: TanstackQueryClientProvider,
+    });
+    await waitFor(() => {
+      expect(getAllBaseEntities).toHaveBeenCalled();
+    });
+    await act(() => vi.runOnlyPendingTimersAsync());
+
+    expect(
+      screen.queryByRole('textbox', { name: 'Combatant name' }),
+    ).not.toBeInTheDocument();
+  });
 });

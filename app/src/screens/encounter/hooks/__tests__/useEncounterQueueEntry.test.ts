@@ -74,4 +74,25 @@ describe('useEncounterQueueEntry', () => {
 
     expect(result.current).toBeNull();
   });
+
+  it('returns the entry of an event, not null', async () => {
+    getQueueItems.mockResolvedValue([
+      buildEncounterQueueItem({
+        id: 'e',
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name: 'Lair action',
+      }),
+    ]);
+    const { result } = renderEntry('e');
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        kind: 'event',
+        id: 'e',
+        name: 'Lair action',
+      });
+    });
+  });
 });

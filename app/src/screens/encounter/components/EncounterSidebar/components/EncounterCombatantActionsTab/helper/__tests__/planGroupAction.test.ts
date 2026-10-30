@@ -8,7 +8,15 @@ const row = (
     hasHp: boolean;
     defeated: boolean;
   }> = {},
-) => ({ id, amount: 5, hasHp: true, defeated: false, ...overrides });
+) => ({
+  kind: 'combatant' as const,
+  id,
+  amount: 5,
+  hasHp: true,
+  defeated: false,
+  ...overrides,
+});
+const eventRow = (id: string) => ({ kind: 'event' as const, id });
 
 describe('planGroupAction', () => {
   it.each(['damage', 'heal'] as const)(
@@ -111,5 +119,55 @@ describe('planGroupAction', () => {
       ]),
     ).toEqual({ kind: 'removed', payload: { queueItemIds: ['a', 'b'] } });
     expect(planGroupAction('removed', [])).toBeNull();
+  });
+
+  it.each(['damage', 'heal', 'temp-hp', 'max-hp'] as const)(
+    '%s leaves an event row out, so an event neither blocks the plan nor receives an amount',
+    (kind) => {
+      const plan = planGroupAction(kind, [
+        eventRow('e'),
+        row('a', { amount: 3 }),
+      ]);
+
+      expect(plan?.kind).toBe(kind);
+      expect(
+        plan !== null && 'targets' in plan.payload
+          ? plan.payload.targets.map((target) => target.queueItemId)
+          : null,
+      ).toEqual(['a']);
+    },
+  );
+
+  it.each(['defeated', 'undefeated'] as const)(
+    '%s leaves an event row out of the listed ids',
+    (kind) => {
+      const plan = planGroupAction(kind, [
+        eventRow('e'),
+        row('a', { defeated: kind === 'undefeated' }),
+      ]);
+
+      expect(plan).toEqual({ kind, payload: { queueItemIds: ['a'] } });
+    },
+  );
+
+  it('lists every row for Remove in row order, events included, and gives null for events alone on every other kind', () => {
+    expect(
+      planGroupAction('removed', [row('a'), eventRow('e'), row('b')]),
+    ).toEqual({ kind: 'removed', payload: { queueItemIds: ['a', 'e', 'b'] } });
+
+    for (const kind of [
+      'damage',
+      'heal',
+      'temp-hp',
+      'max-hp',
+      'defeated',
+      'undefeated',
+    ] as const) {
+      expect(planGroupAction(kind, [eventRow('e')])).toBeNull();
+    }
+    expect(planGroupAction('removed', [eventRow('e')])).toEqual({
+      kind: 'removed',
+      payload: { queueItemIds: ['e'] },
+    });
   });
 });

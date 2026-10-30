@@ -5,11 +5,19 @@ import {
 } from '@/__tests__/support/buildBaseEntity';
 import { buildEncounterLogEntry } from '@/__tests__/support/buildEncounterLogEntry';
 import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
-import { buildQueueEntries } from '../buildQueueEntries';
+import { buildQueueEntries, type CombatantEntry } from '../buildQueueEntries';
+
+// The cases below read combatant-only fields of an entry, so they narrow to the combatant variant first.
+const buildCombatantEntries = (
+  ...args: Parameters<typeof buildQueueEntries>
+): CombatantEntry[] =>
+  buildQueueEntries(...args).filter(
+    (entry): entry is CombatantEntry => entry.kind === 'combatant',
+  );
 
 describe('buildQueueEntries', () => {
   it('keeps the order of the queue items', () => {
-    const entries = buildQueueEntries(
+    const entries = buildCombatantEntries(
       [
         buildEncounterQueueItem({ id: 'b', sort_order: 1 }),
         buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
@@ -23,7 +31,7 @@ describe('buildQueueEntries', () => {
   });
 
   it("shows the entity's current name and image after a rename", () => {
-    const [entry] = buildQueueEntries(
+    const [entry] = buildCombatantEntries(
       [buildEncounterQueueItem({ id: 'a', name: 'Old Name' })],
       [],
       [buildBaseEntity({ name: 'Renamed', image_id: 'image-9' })],
@@ -34,7 +42,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('keeps the stored name and has no image for a combatant of a deleted entity', () => {
-    const [entry] = buildQueueEntries(
+    const [entry] = buildCombatantEntries(
       [buildEncounterQueueItem({ id: 'a', name: 'Stored' })],
       [],
       [],
@@ -45,7 +53,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('has no image for a combatant without a base entity', () => {
-    const [entry] = buildQueueEntries(
+    const [entry] = buildCombatantEntries(
       [buildEncounterQueueItem({ id: 'a', base_entity_id: null })],
       [],
       [buildBaseEntity({ image_id: 'image-1' })],
@@ -56,7 +64,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('has no image for a linked entity without one', () => {
-    const [entry] = buildQueueEntries(
+    const [entry] = buildCombatantEntries(
       [buildEncounterQueueItem({ id: 'a' })],
       [],
       [buildBaseEntity({ image_id: null })],
@@ -67,7 +75,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('follows starting_max_hp for the HP fields', () => {
-    const entries = buildQueueEntries(
+    const entries = buildCombatantEntries(
       [
         buildEncounterQueueItem({ id: 'a', starting_max_hp: 7 }),
         buildEncounterQueueItem({ id: 'b', starting_max_hp: null }),
@@ -90,7 +98,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('applies a damage entry to the HP fields', () => {
-    const [entry] = buildQueueEntries(
+    const [entry] = buildCombatantEntries(
       [buildEncounterQueueItem({ id: 'a', starting_max_hp: 7 })],
       [
         buildEncounterLogEntry('damage', {
@@ -114,10 +122,10 @@ describe('buildQueueEntries', () => {
     });
 
     expect(
-      buildQueueEntries(goblins, [], [], false).map((entry) => entry.name),
+      buildCombatantEntries(goblins, [], [], false).map((entry) => entry.name),
     ).toEqual(['Goblin 1', 'Goblin 2']);
     expect(
-      buildQueueEntries(goblins, [removeFirst], [], false).map((entry) => ({
+      buildCombatantEntries(goblins, [removeFirst], [], false).map((entry) => ({
         id: entry.id,
         name: entry.name,
       })),
@@ -134,7 +142,7 @@ describe('buildQueueEntries', () => {
     });
 
     expect(
-      buildQueueEntries(goblins, [defeatFirst], [], true).map((entry) => ({
+      buildCombatantEntries(goblins, [defeatFirst], [], true).map((entry) => ({
         id: entry.id,
         name: entry.name,
       })),
@@ -152,12 +160,12 @@ describe('buildQueueEntries', () => {
     });
 
     expect(
-      buildQueueEntries(items, [defeatSecond], [], true).map(
+      buildCombatantEntries(items, [defeatSecond], [], true).map(
         (entry) => entry.id,
       ),
     ).toEqual(['a', 'c']);
     expect(
-      buildQueueEntries(items, [defeatSecond], [], false).map((entry) => ({
+      buildCombatantEntries(items, [defeatSecond], [], false).map((entry) => ({
         id: entry.id,
         defeated: entry.defeated,
       })),
@@ -190,7 +198,7 @@ describe('buildQueueEntries', () => {
     );
 
     expect(
-      buildQueueEntries(
+      buildCombatantEntries(
         items,
         [damageSecond, removeSecond, revertRemoval],
         [],
@@ -203,7 +211,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('names a renamed combatant by its rename and keeps its numbered automatic name', () => {
-    const [entry] = buildQueueEntries(
+    const [entry] = buildCombatantEntries(
       [
         buildEncounterQueueItem({
           id: 'a',
@@ -226,7 +234,7 @@ describe('buildQueueEntries', () => {
   });
 
   it('carries the id and type of an entity in the lists and none for a combatant whose entity is absent or whose base_entity_id is null', () => {
-    const entries = buildQueueEntries(
+    const entries = buildCombatantEntries(
       [
         buildEncounterQueueItem({ id: 'a', sort_order: 0 }),
         buildEncounterQueueItem({
@@ -250,5 +258,94 @@ describe('buildQueueEntries', () => {
       null,
       null,
     ]);
+  });
+
+  describe('events', () => {
+    const event = (id: string, name: string | null, sort_order: number) =>
+      buildEncounterQueueItem({
+        id,
+        kind: 'event',
+        base_entity_id: null,
+        sequence_number: null,
+        name,
+        sort_order,
+      });
+
+    it('builds an event entry with its id and name in queue order beside combatants, and a random combatant as a combatant entry with no entity or image', () => {
+      const entries = buildQueueEntries(
+        [
+          buildEncounterQueueItem({
+            id: 'a',
+            base_entity_id: null,
+            name: 'Grunt',
+            starting_max_hp: 10,
+            sort_order: 0,
+          }),
+          event('b', 'Lair action', 1),
+        ],
+        [],
+        [buildBaseEntity({ image_id: 'image-1' })],
+        false,
+      );
+
+      expect(entries).toEqual([
+        {
+          kind: 'combatant',
+          id: 'a',
+          name: 'Grunt',
+          automaticName: 'Grunt',
+          entity: null,
+          imageId: null,
+          maxHp: 10,
+          currentHp: 10,
+          tempHp: 0,
+          defeated: false,
+        },
+        { kind: 'event', id: 'b', name: 'Lair action' },
+      ]);
+    });
+
+    it('keeps an event when hiding is on even if a defeated entry names it, and still drops a defeated combatant', () => {
+      const entries = buildQueueEntries(
+        [
+          buildEncounterQueueItem({ id: 'a', name: 'Goblin', sort_order: 0 }),
+          event('b', 'Lair action', 1),
+        ],
+        [buildEncounterLogEntry('defeated', { queueItemIds: ['a', 'b'] })],
+        [],
+        true,
+      );
+
+      expect(entries.map((entry) => entry.id)).toEqual(['b']);
+    });
+
+    it('drops a removed event and brings it back in its place when the removal is reverted', () => {
+      const items = [
+        buildEncounterQueueItem({ id: 'a', name: 'Goblin', sort_order: 0 }),
+        event('b', 'Lair action', 1),
+        buildEncounterQueueItem({ id: 'c', name: 'Orc', sort_order: 2 }),
+      ];
+      const removeEvent = buildEncounterLogEntry(
+        'removed',
+        { queueItemIds: ['b'] },
+        { id: 'remove-event' },
+      );
+      const revert = buildEncounterLogEntry(
+        'revert',
+        { entryId: 'remove-event' },
+        { id: 'revert-removal' },
+      );
+
+      expect(
+        buildQueueEntries(items, [removeEvent], [], false).map(
+          (entry) => entry.id,
+        ),
+      ).toEqual(['a', 'c']);
+      expect(
+        buildQueueEntries(items, [removeEvent, revert], [], false).map(
+          (entry) => entry.id,
+        ),
+      ).toEqual(['a', 'b', 'c']);
+    });
   });
 });

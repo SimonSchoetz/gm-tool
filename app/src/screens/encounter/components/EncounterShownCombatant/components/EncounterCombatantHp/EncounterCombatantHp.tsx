@@ -8,7 +8,8 @@ import './EncounterCombatantHp.css';
 type Props = { shownItemId: string };
 
 export const EncounterCombatantHp: FCProps<Props> = ({ shownItemId }) => {
-  const entry = useEncounterQueueEntry(shownItemId);
+  const queueEntry = useEncounterQueueEntry(shownItemId);
+  const entry = queueEntry?.kind === 'combatant' ? queueEntry : null;
   // The query is disabled for an empty id, so no read happens without a linked entity.
   const { sections, loading } = useBaseEntityContentSections(
     entry?.entity?.id ?? '',
