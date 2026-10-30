@@ -26,7 +26,7 @@ Whether a component or screen owns a `.css` file at all, and where its CSS goes 
   - ❌ `color: #ffffff`
 - **`/* one-off */` — intentional CSS singularities:** when a raw value does not warrant a design token, because its use-case is narrow enough that the user has decided it need not be reused, mark it with a comment on the same line containing `one-off`; anything further in that comment records why the value was kept, for whoever reads it next. A reviewer who sees the marker must not file a violation. Whether a raw value warrants the annotation is the user's call — never the implementer's or reviewer's.
   - ✅ `border-radius: 3px; /* one-off */`
-- **Raw values without `/* one-off */` are surfaced to the user after the task completes, not mid-task, and never block the commit.** Collect them during implementation and report file path, line, and value at the end of the task; the user then decides: add a token, add the annotation, or leave it. The deferred state is not a violation.
+- **Raw values without `/* one-off */` are surfaced to the user after the task completes, not mid-task, and never block the commit.** Collect them during implementation and report file path, line, and value at the end of the task; the user then decides: add a token, add the annotation, or leave it. The deferred state is not a violation; this bullet departs from the shared Best Practices & Code Quality rule beginning "When editing a file for an unrelated task" and from root `CLAUDE.md` — Best Practices & Code Quality, "Active check on touched files", for raw CSS values only, since whether a value is a violation is the user's call.
 
 ## A class that sets `display` on an element rendered with `hidden`
 

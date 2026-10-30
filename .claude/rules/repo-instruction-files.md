@@ -1,5 +1,5 @@
 ---
-paths: ["CLAUDE.md", "**/CLAUDE.md", ".claude/rules/**/*.md", ".claude/gimbal.md"]
+paths: ["CLAUDE.md", "**/CLAUDE.md", ".claude/rules/**/*.md", ".claude/gimbal.md", "app/docs/**/*.md", "docs/**/*.md"]
 ---
 
 # Instruction files and rules placement
