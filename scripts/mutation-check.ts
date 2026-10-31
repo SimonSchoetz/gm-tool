@@ -4,25 +4,13 @@
 // With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, so a fix loop re-runs the files that had survivors; a run without arguments is the gate.
 // Exits non-zero when a mutant survives in one of them: a test that passes with its target logic mutated catches no regression there.
 // A survivor that no test could kill (an equivalent mutant) is silenced in the source with a `// Stryker disable next-line <mutator>: <reason>` comment.
+// Stryker does not run a mutant a disable comment covers and reports it as `Ignored`, so the gate audits those comments too: for the tested files with an `Ignored` mutant it runs Stryker a second time, on a scratch copy of app/ in which those files' disable comments are switched off (scripts/mutation-check-disable-audit.ts), over the lines of the ignored mutants.
+// A mutant that second run kills and the real run ignored was hidden by a comment although a test kills it, and fails the gate with the comment's reason; one that survives with the comments off stays a legitimate equivalent mutant. A branch without an `Ignored` mutant pays nothing for the audit.
 import { execFileSync, spawnSync } from "child_process";
-import { existsSync, readFileSync, rmSync } from "fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "fs";
+import os from "os";
 import path from "path";
-
-type MutantStatus = "Killed" | "Survived" | "NoCoverage" | "CompileError" | "RuntimeError" | "Timeout" | "Ignored" | "Pending";
-
-type MutationReport = {
-  files: Record<
-    string,
-    {
-      mutants: {
-        mutatorName: string;
-        replacement?: string;
-        status: MutantStatus;
-        location: { start: { line: number; column: number } };
-      }[];
-    }
-  >;
-};
+import { hiddenKillableMutants, ignoredMutantEntries, switchOffDisableDirectives, type MutationReport } from "./mutation-check-disable-audit.ts";
 
 const DEFAULT_BRANCH = "main";
 const PRODUCTION_DIRECTORIES = ["src", "services", "domain", "db", "dev-data-server", "platform", "util"];
@@ -99,16 +87,15 @@ const entries = testedFiles.flatMap((file) => {
 });
 const filesWithEntries = [...new Set(entries.map(({ file }) => file))];
 
-const survivors: string[] = [];
-
-if (entries.length > 0) {
-  rmSync(path.join(appRoot, REPORT_PATH), { force: true });
-  const stryker = spawnSync("npx", ["stryker", "run", "--mutate", entries.map(({ entry }) => entry).join(",")], {
-    cwd: appRoot,
+// One Stryker run with `workingDirectory` as app/, over the given `--mutate` entries; exits the script when Stryker itself fails.
+const runStryker = (workingDirectory: string, runEntries: string[], runFiles: string[]) => {
+  rmSync(path.join(workingDirectory, REPORT_PATH), { force: true });
+  const stryker = spawnSync("npx", ["stryker", "run", "--mutate", runEntries.join(",")], {
+    cwd: workingDirectory,
     stdio: "inherit",
     env: {
       ...process.env,
-      MUTATION_CHECK_FILES: filesWithEntries.join(","),
+      MUTATION_CHECK_FILES: runFiles.join(","),
       MUTATION_CHECK_RUNNER: path.join(repositoryRoot, "scripts", "mutation-check-related.ts"),
     },
   });
@@ -116,8 +103,33 @@ if (entries.length > 0) {
     console.error(`mutation-check: Stryker exited with ${stryker.status ?? stryker.signal}.`);
     process.exit(stryker.status ?? 1);
   }
+  return JSON.parse(readFileSync(path.join(workingDirectory, REPORT_PATH), "utf8")) as MutationReport;
+};
 
-  const report = JSON.parse(readFileSync(path.join(appRoot, REPORT_PATH), "utf8")) as MutationReport;
+// app/ without what Stryker's own sandbox would copy again; `node_modules` is linked, as Stryker links it into its sandbox. Each audited file has its disable comments switched off. The copy is removed when the script exits, whichever way it does.
+const auditCopyOfApp = (auditedFiles: string[]) => {
+  const scratchRoot = mkdtempSync(path.join(os.tmpdir(), "mutation-check-audit-"));
+  process.on("exit", () => rmSync(scratchRoot, { recursive: true, force: true }));
+  const scratchApp = path.join(scratchRoot, "app");
+  const excluded = ["node_modules", "reports", ".stryker-tmp", path.join("src-tauri", "target")].map((entry) => path.join(appRoot, entry));
+  cpSync(appRoot, scratchApp, { recursive: true, filter: (source) => !excluded.includes(source) });
+  symlinkSync(path.join(appRoot, "node_modules"), path.join(scratchApp, "node_modules"), "dir");
+  for (const file of auditedFiles) {
+    const scratchFile = path.join(scratchApp, file);
+    writeFileSync(scratchFile, switchOffDisableDirectives(readFileSync(scratchFile, "utf8")));
+  }
+  return scratchApp;
+};
+
+const survivors: string[] = [];
+const hiddenMutants: string[] = [];
+
+if (entries.length > 0) {
+  const report = runStryker(
+    appRoot,
+    entries.map(({ entry }) => entry),
+    filesWithEntries,
+  );
   for (const [appRelativePath, { mutants }] of Object.entries(report.files)) {
     for (const mutant of mutants) {
       if (mutant.status !== "Survived") continue;
@@ -125,10 +137,26 @@ if (entries.length > 0) {
       survivors.push(`app/${appRelativePath}:${line}:${column}  ${mutant.mutatorName}  → ${(mutant.replacement ?? "").replace(/\s+/g, " ")}`);
     }
   }
+
+  const ignoredEntries = ignoredMutantEntries(report);
+  if (ignoredEntries.length > 0) {
+    const auditedFiles = [...new Set(ignoredEntries.map(({ file }) => file))];
+    const auditEntries = [...new Set(ignoredEntries.map(({ entry }) => entry))];
+    console.log(`\nmutation-check: auditing the Stryker disable comments at ${auditEntries.join(", ")} with the comments switched off`);
+    const auditReport = runStryker(auditCopyOfApp(auditedFiles), auditEntries, auditedFiles);
+    for (const hidden of hiddenKillableMutants(report, auditReport)) {
+      hiddenMutants.push(
+        `app/${hidden.appRelativePath}:${hidden.line}:${hidden.column}  ${hidden.mutatorName}  → ${hidden.replacement.replace(/\s+/g, " ")}  hidden by a disable comment with the reason "${hidden.reason}"`,
+      );
+    }
+  }
 }
 
 if (survivors.length > 0) {
   console.error(`\nmutation-check: FAILED — ${survivors.length} mutant(s) survived in files with their own tests; the tests pass with this logic changed:\n  ${survivors.join("\n  ")}`);
-  process.exit(1);
 }
-console.log(`\nmutation-check: passed — no mutant survived in the ${testedFiles.length} changed file(s) with their own tests.`);
+if (hiddenMutants.length > 0) {
+  console.error(`\nmutation-check: FAILED — ${hiddenMutants.length} mutant(s) are hidden by a Stryker disable comment although a test kills them; rewrite the line so the comment is not needed, or drop the comment:\n  ${hiddenMutants.join("\n  ")}`);
+}
+if (survivors.length > 0 || hiddenMutants.length > 0) process.exit(1);
+console.log(`\nmutation-check: passed — no mutant survived in the ${testedFiles.length} changed file(s) with their own tests, and no disable comment hides a mutant a test kills.`);

@@ -95,3 +95,29 @@ This is the same placement limit the entry on the comment above `} catch {` reco
 **Citation:** [implementer_2: ran `pnpm run mutation-check` in the repository root on `EncounterQueueEntry.tsx` — observed `mutation-check: passed` with the comment above `className='encounter-queue-entry'` and above `className='encounter-queue-entry-tint'`, where the earlier run listed `StringLiteral → ""` survivors on both attribute lines]
 
 The comment is a `//` line inside the tag, between two attributes.
+
+## A `// Stryker disable next-line StringLiteral: <reason>` comment's mutant is listed in `mutation.json` with status `Ignored` and the reason as `statusReason` only when the mutant's line is inside the `--mutate` range
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-31
+**Citation:** [implementer_3: ran `node scripts/mutation-check.ts` on a changed `util/getDateString.ts` whose line 5 was `// Stryker disable next-line StringLiteral: month text is unobservable` and whose line 6 was `month: 'long', // changed` (a trailing comment added only to make the line changed) — observed with `--mutate util/getDateString.ts:5-6` one `StringLiteral` mutant in `reports/mutation/mutation.json`, status `Ignored`, `statusReason` `month text is unobservable`, and with `util/getDateString.ts:5-5` `Instrumented 1 source file(s) with 0 mutant(s)` and an empty `files`]
+
+A report therefore shows which files hold an ignored mutant, but not whether a test would kill it.
+
+## Replacing `Stryker disable` with `Stryker_disable` inside a disable comment switches it off without moving any line or column, and the mutant it covered then runs at the same position
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-31
+**Citation:** [implementer_4: `@stryker-mutator/instrumenter` `dist/src/transformers/directive-bookkeeper.js:46` — a comment is a directive only when its text matches `^\s?Stryker (disable|restore)…`] [implementer_5: ran `node scripts/mutation-check.ts` with that edit applied to a scratch copy of `util/getDateString.ts` — observed the `StringLiteral → ""` mutant at `6:12`, `Ignored` in the real run, `Killed` in the scratch run with `RangeError: Value  out of range for Date.prototype.toLocaleDateString options property month`] [implementer_6: ran `grep -n -i "directive\|disable-comment" app/node_modules/@stryker-mutator/core/schema/stryker-schema.json` — found only the `disableTypeChecks` description]
+
+The configuration schema names no option that turns the comments off, so the comment text is the switch.
+
+## A Stryker run with its working directory a copy of `app/` under the OS temp directory, made without `node_modules`, `reports`, `.stryker-tmp` and `src-tauri/target` and with `node_modules` a symlink to `app/node_modules`, finds its dependencies, passes its initial test run and kills a mutant
+
+**Verified at:** `@stryker-mutator/core` 10.0.0, pnpm 12.4.2 — 2026-10-31
+**Citation:** [implementer_5: ran `node scripts/mutation-check.ts`, which started `npx stryker run --mutate util/getDateString.ts:5-6` with that copy (`cpSync` into `mkdtemp(os.tmpdir() + "/mutation-check-audit-")`, then `symlinkSync(<app>/node_modules, <copy>/node_modules, "dir")`) as working directory — observed `Initial test run succeeded`, the mutant `Killed`, and the run `Done` in about 14 seconds]
+
+## Stryker creates no StringLiteral mutant for the object property value `'long' as const`
+
+**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-31
+**Citation:** [implementer_3: ran `node scripts/mutation-check.ts` on `util/getDateString.ts:5-6` with the line `month: 'long' as const,` under a `Stryker disable next-line StringLiteral` comment — observed `Instrumented 1 source file(s) with 0 mutant(s)` in both the real run and the run with the comment switched off, where `month: 'long', // changed` yielded the `StringLiteral → ""` mutant]
+
+Whether the same holds for a literal in another position under `as const` was not established.
