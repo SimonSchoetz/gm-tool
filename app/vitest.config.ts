@@ -4,8 +4,11 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  // The tests of the repository-root `scripts/` live outside this root; the dev server serves them only when it may read the parent directory.
+  server: { fs: { allow: ['..'] } },
   test: {
     globals: true,
+    include: [...configDefaults.include, '../scripts/**/*.test.ts'],
     environment: 'jsdom',
     setupFiles: './src/__tests__/setup.ts',
     css: true,
