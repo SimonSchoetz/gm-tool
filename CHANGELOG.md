@@ -6,7 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- New Encounters domain: create, manage, and organize encounters for your sessions
+## [v0.16.0] - 2026-11-01
+
+### Added
+
+- The encounter screen is enabled in the navigation bar, with a draggable combat queue, combatants added from your entities, and combat notes
+- Act on a selected combatant from the Actions tab: HP changes, defeat and removal are derived from the combat log, and defeated combatants are hidden
+- Combat log with a message composer, plus Revert and Delete for typed entries
+- Select several queue entries at once, act on them as a group, and drag the selection as one block
+- Click a combatant to show it in the middle column: editable combat name, HP, its own notes, and its entity's sections and description
+- Add random combatants and events to an encounter, and duplicate a queue
+- 5e stat block content section; read-only text fields show as plain text
+- Section carousel in the entity screen's content panel and in the mention popup, which now also opens on a click on the mention badge
+
+### Changed
 
 ## [v0.15.1] - 2026-10-22
 
