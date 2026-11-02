@@ -51,18 +51,19 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install
 
-      - name: type-check
-        run: npx tsc --noEmit
-
-      - name: lint
-        run: npx eslint .
-
-      - name: format-check
-        run: npx prettier --check .
-
+      # Before the type-check: `scripts/tsconfig.json` takes its Node types from the repository root's `@types/node`.
       - name: Install root dependencies
         run: pnpm install
         working-directory: .
+
+      - name: type-check
+        run: npx tsc --noEmit && npx tsc --noEmit -p ../scripts
+
+      - name: lint
+        run: npx eslint . ../scripts
+
+      - name: format-check
+        run: npx prettier --check . ../scripts
 
       - name: markdown-lint
         run: pnpm run markdown-lint

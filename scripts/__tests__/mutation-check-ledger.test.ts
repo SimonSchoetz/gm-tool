@@ -78,7 +78,7 @@ describe('parseLedger', () => {
   });
 
   it('rejects a ledger that is not an array', () => {
-    expect(() => parseLedger('{}')).toThrow('not a JSON array');
+    expect(() => parseLedger('{}')).toThrow(/^the ledger is not a JSON array$/);
   });
 
   it.each([
@@ -87,7 +87,7 @@ describe('parseLedger', () => {
     ['a string', 'entry'],
   ])('rejects an entry that is %s, naming the entry', (_name, value) => {
     expect(() => parseLedger(JSON.stringify([entry(), value]))).toThrow(
-      'ledger entry 1: entry is not an object',
+      /^ledger entry 1: entry is not an object$/,
     );
   });
 
@@ -357,12 +357,14 @@ describe('parseArguments', () => {
     ['an empty reason', ['--accept', '  ']],
     ['an option instead of a reason', ['--accept', '--accept', 'r']],
   ])('rejects --accept with %s', (_name, argv) => {
-    expect(() => parseArguments(argv)).toThrow('--accept needs a reason');
+    expect(() => parseArguments(argv)).toThrow(
+      /^--accept needs a reason: --accept "<why no test can observe the mutant>"$/,
+    );
   });
 
   it('rejects --accept given twice', () => {
     expect(() => parseArguments(['--accept', 'a', '--accept', 'b'])).toThrow(
-      '--accept is given twice',
+      /^--accept is given twice$/,
     );
   });
 });
