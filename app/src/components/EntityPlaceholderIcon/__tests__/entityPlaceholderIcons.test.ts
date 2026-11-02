@@ -3,14 +3,14 @@ import {
   CastleIcon,
   FlagIcon,
   GemIcon,
-  SwordIcon,
+  SwordsIcon,
   UserSquareIcon,
 } from 'lucide-react';
 import { ENTITY_PLACEHOLDER_ICONS } from '../entityPlaceholderIcons';
 
 describe('ENTITY_PLACEHOLDER_ICONS', () => {
   it.each([
-    ['encounters', SwordIcon],
+    ['encounters', SwordsIcon],
     ['items', GemIcon],
     ['locations', CastleIcon],
     ['factions', FlagIcon],

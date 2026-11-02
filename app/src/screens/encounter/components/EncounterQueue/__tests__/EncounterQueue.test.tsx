@@ -55,7 +55,7 @@ const renderQueue = async (
   render(<EncounterQueue selectedIds={selectedIds} onSelect={onSelect} />, {
     wrapper: TanstackQueryClientProvider,
   });
-  await screen.findByText('Goblin');
+  await screen.findByTitle('Goblin');
 };
 
 // Every entry's handle is a button named by the same grip glyph, in queue order.
@@ -148,16 +148,16 @@ describe('EncounterQueue', () => {
     const handle = await holdHandle(user, 'Imp');
 
     await waitFor(() => {
-      expect(screen.queryByText('Orc')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Orc')).not.toBeInTheDocument();
     });
-    expect(screen.queryByText('Troll')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Troll')).not.toBeInTheDocument();
     expect(screen.getByText('+2')).toBeInTheDocument();
-    expect(screen.getByText('Imp')).toBeInTheDocument();
+    expect(screen.getByTitle('Imp')).toBeInTheDocument();
 
     await user.pointer({ keys: '[/MouseLeft]', target: handle });
 
-    expect(await screen.findByText('Orc')).toBeInTheDocument();
-    expect(screen.getByText('Troll')).toBeInTheDocument();
+    expect(await screen.findByTitle('Orc')).toBeInTheDocument();
+    expect(screen.getByTitle('Troll')).toBeInTheDocument();
     expect(screen.queryByText('+2')).not.toBeInTheDocument();
   });
 
@@ -169,13 +169,13 @@ describe('EncounterQueue', () => {
     await holdHandle(user, 'Imp');
 
     expect(screen.getByText('+2')).toBeInTheDocument();
-    expect(screen.getByText('Orc')).toBeInTheDocument();
-    expect(screen.getByText('Troll')).toBeInTheDocument();
+    expect(screen.getByTitle('Orc')).toBeInTheDocument();
+    expect(screen.getByTitle('Troll')).toBeInTheDocument();
 
     await act(() => vi.advanceTimersByTimeAsync(20));
 
-    expect(screen.queryByText('Orc')).not.toBeInTheDocument();
-    expect(screen.queryByText('Troll')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Orc')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Troll')).not.toBeInTheDocument();
   });
 
   it('leaves the list alone when the frame of a finished drag arrives after its release', async () => {
@@ -187,8 +187,8 @@ describe('EncounterQueue', () => {
 
     await act(() => vi.advanceTimersByTimeAsync(20));
 
-    expect(screen.getByText('Orc')).toBeInTheDocument();
-    expect(screen.getByText('Imp')).toBeInTheDocument();
+    expect(screen.getByTitle('Orc')).toBeInTheDocument();
+    expect(screen.getByTitle('Imp')).toBeInTheDocument();
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 
@@ -201,7 +201,7 @@ describe('EncounterQueue', () => {
       requestAnimationFrame(resolve);
     });
 
-    expect(screen.getByText('Orc')).toBeInTheDocument();
+    expect(screen.getByTitle('Orc')).toBeInTheDocument();
     expect(screen.queryByText(/^\+\d+$/)).not.toBeInTheDocument();
   });
 
@@ -210,12 +210,12 @@ describe('EncounterQueue', () => {
     await renderQueue(['item-2', 'item-4']);
     await holdHandle(user, 'Imp');
     await waitFor(() => {
-      expect(screen.queryByText('Orc')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Orc')).not.toBeInTheDocument();
     });
 
     await user.keyboard('{Escape}');
 
-    expect(await screen.findByText('Orc')).toBeInTheDocument();
+    expect(await screen.findByTitle('Orc')).toBeInTheDocument();
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
     expect(reorderQueueItems).not.toHaveBeenCalled();
   });
@@ -226,15 +226,15 @@ describe('EncounterQueue', () => {
     await renderQueue(['item-2'], onSelect);
 
     expect(
-      screen.getByText('Orc').closest('[aria-current="true"]'),
+      screen.getByTitle('Orc').closest('[aria-current="true"]'),
     ).not.toBeNull();
     expect(
-      screen.getByText('Troll').closest('[aria-current="true"]'),
+      screen.getByTitle('Troll').closest('[aria-current="true"]'),
     ).toBeNull();
 
-    await user.click(screen.getByText('Troll'));
+    await user.click(screen.getByTitle('Troll'));
     await user.keyboard('{Shift>}');
-    await user.click(screen.getByText('Wolf'));
+    await user.click(screen.getByTitle('Wolf'));
 
     expect(onSelect.mock.calls).toEqual([
       ['item-3', { shift: false, toggle: false }],

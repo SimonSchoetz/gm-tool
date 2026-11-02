@@ -64,7 +64,7 @@ const StatefulEntry = () => {
 };
 
 const isCurrent = () =>
-  screen.getByText('Goblin').closest('[aria-current="true"]') !== null;
+  screen.getByTitle('Goblin').closest('[aria-current="true"]') !== null;
 
 describe('EncounterQueueEntry', () => {
   it.each([
@@ -86,7 +86,7 @@ describe('EncounterQueueEntry', () => {
     const user = userEvent.setup();
     renderEntry({ onSelect });
 
-    await user.click(screen.getByText('Goblin'));
+    await user.click(screen.getByTitle('Goblin'));
 
     expect(onSelect.mock.calls).toEqual([
       ['item-7', { shift: false, toggle: false }],
@@ -110,7 +110,7 @@ describe('EncounterQueueEntry', () => {
       renderEntry({ onSelect });
 
       await user.keyboard(keys);
-      await user.click(screen.getByText('Goblin'));
+      await user.click(screen.getByTitle('Goblin'));
 
       expect(onSelect.mock.calls).toEqual([['item-7', modifiers]]);
     },
@@ -131,7 +131,7 @@ describe('EncounterQueueEntry', () => {
 
     expect(isCurrent()).toBe(false);
 
-    await user.click(screen.getByText('Goblin'));
+    await user.click(screen.getByTitle('Goblin'));
 
     expect(isCurrent()).toBe(true);
   });
@@ -168,6 +168,15 @@ describe('EncounterQueueEntry', () => {
     expect(screen.queryByLabelText('Greyed-out image')).not.toBeInTheDocument();
   });
 
+  it('shows its HP as current/max, and no HP text with HP not set', () => {
+    const { unmount } = renderEntry({ maxHp: 10, currentHp: 4 });
+    expect(screen.getByText('4/10')).toBeInTheDocument();
+    unmount();
+
+    renderEntry();
+    expect(screen.queryByText(/\//)).not.toBeInTheDocument();
+  });
+
   describe('an event entry', () => {
     const renderEvent = (onSelect = vi.fn()) =>
       render(
@@ -181,10 +190,10 @@ describe('EncounterQueueEntry', () => {
         />,
       );
 
-    it('shows its name and the event icon tile and no HP text, damage tint or greyed-out image', () => {
+    it('carries its name as the row tooltip and shows the event icon tile and no HP text, damage tint or greyed-out image', () => {
       renderEvent();
 
-      expect(screen.getByText('Lair action')).toBeInTheDocument();
+      expect(screen.getByTitle('Lair action')).toBeInTheDocument();
       expect(screen.getByLabelText('Event icon')).toBeInTheDocument();
       expect(screen.queryByText(/\//)).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Damage tint')).not.toBeInTheDocument();
@@ -199,7 +208,7 @@ describe('EncounterQueueEntry', () => {
       renderEvent(onSelect);
 
       await user.keyboard('{Shift>}');
-      await user.click(screen.getByText('Lair action'));
+      await user.click(screen.getByTitle('Lair action'));
 
       expect(onSelect.mock.calls).toEqual([
         ['event-1', { shift: true, toggle: false }],
