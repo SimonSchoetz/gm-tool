@@ -17,7 +17,7 @@ export const EncounterPopupContent: FCProps<Props> = ({
   if (loading || !encounter) return;
 
   return (
-    <EntityPopupBody imageId={null}>
+    <EntityPopupBody imageId={encounter.image_id}>
       <EntityPopupBodyText
         text={encounter.description ?? null}
         textEditorId={`encounter-popup-${entityId}`}

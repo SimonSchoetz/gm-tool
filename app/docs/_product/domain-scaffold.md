@@ -4,6 +4,8 @@ Reference document for adding a new base entity type to the shared base-entity s
 
 This document does not scaffold new standalone domains (a domain with its own db, domain, service, and DAL stack — e.g. Sessions, Encounters, Adventures). Those remain out of its scope; it covers only adding one more entry to `BASE_ENTITY_TYPES`.
 
+A domain that holds an `image_id`, standalone or base, shows that image on every surface that shows the entity: its upload control (`UploadImgBtn`), the Cover column of its list (`CoverCell`), the placeholder icon for no image (`ENTITY_PLACEHOLDER_ICONS`), and its mention popup, whose body takes the image as `EntityPopupBody`'s `imageId` prop — `imageId={null}` there is a miss, not a default. A base entity type reaches all of them through the shared modules below; a standalone domain gets each one by hand, so its story lists each surface in Files affected (`EncounterPopupContent` passes `encounter.image_id` for the encounter's cover).
+
 This document is long-lived. Update it when core infrastructure changes (new layers, changed conventions, new ambient systems). Do not delete it when a feature built from it is implemented.
 
 ## Usage
