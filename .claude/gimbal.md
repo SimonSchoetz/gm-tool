@@ -79,7 +79,3 @@ Conventions for `app/src/` are additionally carried by path-scoped rules under `
 ## docs-directory
 
 `app/docs/`
-
-## spec-author
-
-`implementer`
