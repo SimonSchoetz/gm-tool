@@ -41,6 +41,7 @@ describe('create', () => {
         adventure_id: adventureId,
         name: `New Encounter ${getDateTimeString(CREATED_AT)}`,
         description: null,
+        image_id: null,
         pinned_order: null,
         hide_defeated: 0,
         created_at: CREATED_AT,

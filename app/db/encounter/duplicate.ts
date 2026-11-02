@@ -2,7 +2,10 @@ import { getDatabase } from '../database';
 import { generateId, buildDuplicateQuery, assertValidId } from '../util';
 import { get } from './get';
 
-export const duplicate = async (sourceId: string): Promise<string> => {
+export const duplicate = async (
+  sourceId: string,
+  imageId: string | null,
+): Promise<string> => {
   assertValidId(sourceId, 'Encounter');
 
   const source = await get(sourceId);
@@ -15,18 +18,16 @@ export const duplicate = async (sourceId: string): Promise<string> => {
   const {
     id: _sourceRowId,
     name: _sourceName,
+    image_id: _sourceImageId,
     pinned_order: _sourcePinnedOrder,
     created_at: _sourceCreatedAt,
     updated_at: _sourceUpdatedAt,
     ...copiedColumns
   } = source;
 
-  const { sql, values } = buildDuplicateQuery(
-    'encounters',
-    id,
-    copiedColumns,
-    {},
-  );
+  const { sql, values } = buildDuplicateQuery('encounters', id, copiedColumns, {
+    image_id: imageId,
+  });
 
   const db = await getDatabase();
   await db.execute(sql, values);

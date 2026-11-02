@@ -181,7 +181,7 @@ describe('devDataServer configureServer and closeServer', () => {
     );
   });
 
-  it('in the seeded mode, hands the request handler a fresh database holding the seed and an empty images folder, reading no app data', async () => {
+  it('in the seeded mode, hands the request handler a fresh database holding the seed and an images folder holding only the seed images, reading no app data', async () => {
     // Without any app data, so a seeded start that read the dev or release directory would fail.
     rmSync(join(home.dir, 'Library'), { recursive: true });
     vi.stubEnv('GM_TOOL_WEB_DATA', 'seed');
@@ -196,11 +196,19 @@ describe('devDataServer configureServer and closeServer', () => {
     const { close } = await startServer('web', webServerConfig);
 
     const [[context]] = createRequestHandler.mock.calls;
-    expect(await context.db.select('SELECT name FROM adventures')).toEqual([
-      { name: 'Seed Adventure' },
-    ]);
+    expect(
+      await context.db.select('SELECT name FROM adventures ORDER BY name'),
+    ).toEqual([{ name: 'Imageless Adventure' }, { name: 'Seed Adventure' }]);
     expect(context.imagesDir.startsWith(tmpdir())).toBe(true);
-    expect(readdirSync(context.imagesDir)).toEqual([]);
+    // The seed's images land in the folder the request handler serves from.
+    const seededImages = await context.db.select<
+      { id: string; file_extension: string }[]
+    >('SELECT id, file_extension FROM images');
+    expect([...readdirSync(context.imagesDir)].sort()).toEqual(
+      seededImages
+        .map(({ id, file_extension }) => `${id}.${file_extension}`)
+        .sort(),
+    );
     await close();
     expect(webModeDirs()).toEqual([]);
   });

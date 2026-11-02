@@ -2,6 +2,7 @@ import { useParams } from '@tanstack/react-router';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { TextEditor } from '@/components/TextEditor';
 import { useEncounter } from '@/data-access-layer';
+import { PREVIEW_HEIGHT } from '../../../screens.constants';
 import './EncounterNotes.css';
 
 export const EncounterNotes = () => {
@@ -13,7 +14,15 @@ export const EncounterNotes = () => {
   if (!encounter) return;
 
   return (
-    <GlassPanel intensity='bright' className='encounter-notes'>
+    <GlassPanel
+      intensity='bright'
+      className='encounter-notes'
+      style={
+        {
+          '--encounter-notes-height': `${PREVIEW_HEIGHT}px`,
+        } as React.CSSProperties
+      }
+    >
       <TextEditor
         className='encounter-notes-text-editor'
         textEditorId={`ENCOUNTER_${encounter.id}_description`}

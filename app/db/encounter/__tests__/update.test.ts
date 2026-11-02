@@ -70,6 +70,19 @@ describe('update', () => {
     });
   });
 
+  it('writes image_id and clears it to null', async () => {
+    const { update } = await import('../update');
+    const { seedImage } = await import('@db/__tests__/support/image-fixtures');
+    await seedImage('image-1', 'png', T1);
+    const id = await createEncounter();
+
+    await update(id, { image_id: 'image-1' });
+    expect(await readEncounter(id)).toMatchObject({ image_id: 'image-1' });
+
+    await update(id, { image_id: null });
+    expect(await readEncounter(id)).toMatchObject({ image_id: null });
+  });
+
   it('rejects a numeric description and leaves the row unchanged', async () => {
     const { update } = await import('../update');
     const id = await createEncounter();

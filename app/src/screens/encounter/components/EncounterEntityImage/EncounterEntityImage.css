@@ -1,5 +1,10 @@
+.encounter-entity-image {
+  border-radius: inherit;
+}
+
 .encounter-entity-image-icon {
   width: 100%;
   height: auto;
   color: var(--color-primary);
+  border-radius: inherit;
 }

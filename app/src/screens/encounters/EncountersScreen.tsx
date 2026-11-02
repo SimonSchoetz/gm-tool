@@ -54,6 +54,7 @@ export const EncountersScreen = () => {
         void handleEncounterCreation();
       }}
       searchPlaceholder='e.g. "name, some text in description"'
+      entityType='encounters'
     />
   );
 };

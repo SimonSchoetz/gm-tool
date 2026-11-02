@@ -1,6 +1,7 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { FCProps } from '@/types/fcProps.type';
+import type { BaseEntityType } from '@domain';
 import { cn } from '@/util/className';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
 import type { SelectionModifiers } from '../../../../helper/applySelectionClick';
@@ -16,6 +17,7 @@ type KindProps =
       id: string;
       name: string;
       imageId: string | null;
+      entity: { entityType: BaseEntityType } | null;
       maxHp: number | null;
       currentHp: number | null;
       tempHp: number;
@@ -72,15 +74,16 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
           toggle: event.metaKey || event.ctrlKey,
         });
       }}
+      title={name}
     >
-      <span
+      <div
         ref={setActivatorNodeRef}
-        className='encounter-queue-entry-handle'
+        className='encounter-queue-entry-handle content-center'
         {...attributes}
         {...listeners}
       >
         ⠿
-      </span>
+      </div>
 
       <div
         className={imageClassName}
@@ -91,6 +94,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
         ) : (
           <EncounterEntityImage
             imageId={props.imageId}
+            entityType={props.entity?.entityType ?? null}
             size={QUEUE_ENTRY_IMAGE_SIZE}
           />
         )}
@@ -103,10 +107,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
         )}
       </div>
 
-      <div className='encounter-queue-entry-text'>
-        <div className='clip-text'>{name}</div>
-        {hp && <div className='encounter-queue-entry-hp'>{hp.text}</div>}
-      </div>
+      {hp && <div className='label encounter-queue-entry-hp'>{hp.text}</div>}
 
       {otherDraggedCount > 0 && (
         <span

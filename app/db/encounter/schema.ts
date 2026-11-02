@@ -13,6 +13,11 @@ export const encounterTable = defineTable({
     },
     name: { type: 'TEXT', zod: z.string().nullable() },
     description: { type: 'TEXT', zod: z.string().nullable() },
+    image_id: {
+      type: 'TEXT',
+      foreignKey: { table: 'images', column: 'id', onDelete: 'SET NULL' },
+      zod: z.string().nullable(),
+    },
     pinned_order: { type: 'INTEGER', zod: z.number().nullable() },
     hide_defeated: {
       type: 'INTEGER',

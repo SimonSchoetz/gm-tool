@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
-import { AvatarCell } from '../components/AvatarCell/AvatarCell';
+import type { ImagePlaceholderEntityType } from '../../../../EntityPlaceholderIcon';
+import { CoverCell } from '../components/CoverCell/CoverCell';
 import { formatDateValue } from './formatDateValue';
 
 const DATE_KEYS = new Set(['created_at', 'updated_at']);
@@ -7,10 +8,11 @@ const DATE_KEYS = new Set(['created_at', 'updated_at']);
 export const renderCell = (
   key: string,
   item: Record<string, unknown>,
+  entityType: ImagePlaceholderEntityType | null,
 ): ReactNode => {
   if (key === 'image_id') {
     const imageId = typeof item.image_id === 'string' ? item.image_id : '';
-    return <AvatarCell imageId={imageId} />;
+    return <CoverCell imageId={imageId} entityType={entityType} />;
   }
   if (DATE_KEYS.has(key)) return formatDateValue(item[key]);
   const value = item[key];

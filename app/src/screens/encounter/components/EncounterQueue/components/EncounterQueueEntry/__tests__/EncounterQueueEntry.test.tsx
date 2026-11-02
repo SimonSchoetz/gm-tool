@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import type { BaseEntityType } from '@domain';
 import type { SelectionModifiers } from '../../../../../helper/applySelectionClick';
 import { EncounterQueueEntry } from '../EncounterQueueEntry';
 
@@ -11,11 +12,13 @@ const renderEntry = ({
   maxHp = null,
   currentHp = null,
   defeated = false,
+  entity = null,
   selected = false,
   otherDraggedCount = 0,
   onSelect = vi.fn(),
 }: Partial<HpProps> & {
   defeated?: boolean;
+  entity?: { entityType: BaseEntityType } | null;
   selected?: boolean;
   otherDraggedCount?: number;
   onSelect?: (id: string, modifiers: SelectionModifiers) => void;
@@ -26,6 +29,7 @@ const renderEntry = ({
       id='item-7'
       name='Goblin'
       imageId={null}
+      entity={entity}
       maxHp={maxHp}
       currentHp={currentHp}
       tempHp={0}
@@ -45,6 +49,7 @@ const StatefulEntry = () => {
       id='item-7'
       name='Goblin'
       imageId={null}
+      entity={null}
       maxHp={null}
       currentHp={null}
       tempHp={0}
@@ -59,15 +64,29 @@ const StatefulEntry = () => {
 };
 
 const isCurrent = () =>
-  screen.getByText('Goblin').closest('[aria-current="true"]') !== null;
+  screen.getByTitle('Goblin').closest('[aria-current="true"]') !== null;
 
 describe('EncounterQueueEntry', () => {
+  it.each([
+    ['a location entity', { entityType: 'locations' }, 'Location'],
+    ['no entity', null, 'Entity'],
+  ] as const)(
+    'shows the image placeholder of %s while it has no image',
+    (_label, entity, domainLabel) => {
+      renderEntry({ entity });
+
+      expect(
+        screen.getByLabelText(`${domainLabel} image placeholder`),
+      ).toBeInTheDocument();
+    },
+  );
+
   it('reports its own id once with no modifiers on a plain click', async () => {
     const onSelect = vi.fn();
     const user = userEvent.setup();
     renderEntry({ onSelect });
 
-    await user.click(screen.getByText('Goblin'));
+    await user.click(screen.getByTitle('Goblin'));
 
     expect(onSelect.mock.calls).toEqual([
       ['item-7', { shift: false, toggle: false }],
@@ -91,7 +110,7 @@ describe('EncounterQueueEntry', () => {
       renderEntry({ onSelect });
 
       await user.keyboard(keys);
-      await user.click(screen.getByText('Goblin'));
+      await user.click(screen.getByTitle('Goblin'));
 
       expect(onSelect.mock.calls).toEqual([['item-7', modifiers]]);
     },
@@ -112,7 +131,7 @@ describe('EncounterQueueEntry', () => {
 
     expect(isCurrent()).toBe(false);
 
-    await user.click(screen.getByText('Goblin'));
+    await user.click(screen.getByTitle('Goblin'));
 
     expect(isCurrent()).toBe(true);
   });
@@ -149,6 +168,15 @@ describe('EncounterQueueEntry', () => {
     expect(screen.queryByLabelText('Greyed-out image')).not.toBeInTheDocument();
   });
 
+  it('shows its HP as current/max, and no HP text with HP not set', () => {
+    const { unmount } = renderEntry({ maxHp: 10, currentHp: 4 });
+    expect(screen.getByText('4/10')).toBeInTheDocument();
+    unmount();
+
+    renderEntry();
+    expect(screen.queryByText(/\//)).not.toBeInTheDocument();
+  });
+
   describe('an event entry', () => {
     const renderEvent = (onSelect = vi.fn()) =>
       render(
@@ -162,10 +190,10 @@ describe('EncounterQueueEntry', () => {
         />,
       );
 
-    it('shows its name and the event icon tile and no HP text, damage tint or greyed-out image', () => {
+    it('carries its name as the row tooltip and shows the event icon tile and no HP text, damage tint or greyed-out image', () => {
       renderEvent();
 
-      expect(screen.getByText('Lair action')).toBeInTheDocument();
+      expect(screen.getByTitle('Lair action')).toBeInTheDocument();
       expect(screen.getByLabelText('Event icon')).toBeInTheDocument();
       expect(screen.queryByText(/\//)).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Damage tint')).not.toBeInTheDocument();
@@ -180,7 +208,7 @@ describe('EncounterQueueEntry', () => {
       renderEvent(onSelect);
 
       await user.keyboard('{Shift>}');
-      await user.click(screen.getByText('Lair action'));
+      await user.click(screen.getByTitle('Lair action'));
 
       expect(onSelect.mock.calls).toEqual([
         ['event-1', { shift: true, toggle: false }],

@@ -1,23 +1,35 @@
 .encounter-queue-entry {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
   color: var(--color-primary);
   cursor: pointer;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-sm);
   user-select: none;
   position: relative;
+  flex-shrink: 0;
+}
+
+.encounter-queue-entry:hover {
+  background-color: var(--color-bg-muted);
 }
 
 .encounter-queue-entry[aria-current='true'] {
   box-shadow: var(--box-shadow-active);
+  background-color: var(--color-bg-muted);
 }
 
 .encounter-queue-entry-handle {
   cursor: grab;
   font-size: var(--font-size-base);
   user-select: none;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-xs);
+  padding-right: var(--spacing-sm);
+  align-self: stretch; /* fill the row's height */
+}
+
+.encounter-queue-entry:hover .encounter-queue-entry-handle {
+  background-color: var(--color-primary);
+  color: var(--color-fg);
 }
 
 .encounter-queue-entry-handle:active {
@@ -28,6 +40,9 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
+  flex-shrink: 0;
+  margin: var(--spacing-xs) 0;
+  margin-left: var(--spacing-xs);
 }
 
 .encounter-queue-entry-image--grey {
@@ -43,16 +58,10 @@
   background-color: rgb(var(--color-danger-rgb), 0.5);
 }
 
-.encounter-queue-entry-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
-}
-
 .encounter-queue-entry-hp {
-  font-size: var(--font-size-md);
-  color: var(--color-fg-muted);
+  width: 100%;
+  text-align: center;
+  font-size: var(--font-size-base);
 }
 
 .encounter-queue-entry-badge {

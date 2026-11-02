@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Encounter, UpdateEncounterInput } from '@db/encounter';
+import type { Encounter } from '@db/encounter';
 import * as service from '@services/encounterService';
+import type { UpdateEncounterData } from '@services/encounterService';
 import { encounterKeys } from './encounterKeys';
 import { encounterQueryOptions } from './encounterQueryOptions';
 import { useAutosaveQueue } from '../useAutosaveQueue';
@@ -11,9 +12,10 @@ import { useDuplicateMutation } from '../useDuplicateMutation';
 type UseEncounterReturn = {
   encounter: Encounter | null;
   loading: boolean;
-  updateEncounter: (data: UpdateEncounterInput) => void;
+  updateEncounter: (data: UpdateEncounterData) => void;
   deleteEncounter: () => Promise<void>;
   duplicateEncounter: () => Promise<string>;
+  removeEncounterImage: () => Promise<void>;
 };
 
 export const useEncounter = (
@@ -33,7 +35,7 @@ export const useEncounter = (
     }: {
       id: string;
       adventureId: string;
-      data: UpdateEncounterInput;
+      data: UpdateEncounterData;
     }) => service.updateEncounter(id, data),
     onSuccess: (_result, { id, adventureId: scheduledAdventureId }) => {
       void queryClient.invalidateQueries({
@@ -47,7 +49,7 @@ export const useEncounter = (
 
   const saveQueue = useAutosaveQueue<{
     adventureId: string;
-    data: UpdateEncounterInput;
+    data: UpdateEncounterData;
   }>(mergeScopedEdit, (id, { adventureId: scheduledAdventureId, data }) => {
     updateMutation.mutate({ id, adventureId: scheduledAdventureId, data });
   });
@@ -66,14 +68,27 @@ export const useEncounter = (
     encounterKeys.list(adventureId),
   );
 
-  const updateEncounter = (data: UpdateEncounterInput) => {
+  const removeEncounterImageMutation = useMutation({
+    mutationFn: () => service.removeEncounterImage(encounterId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: encounterKeys.detail(encounterId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: encounterKeys.list(adventureId),
+      });
+    },
+  });
+
+  const updateEncounter = (data: UpdateEncounterData) => {
     if (!encounterData) return;
 
     queryClient.setQueryData<Encounter>(
       encounterKeys.detail(encounterId),
       (old) => {
         if (!old) return old;
-        return mergeUpdate(old, data);
+        const { imgFilePath: _imgFilePath, ...patch } = data;
+        return mergeUpdate(old, patch);
       },
     );
 
@@ -84,11 +99,16 @@ export const useEncounter = (
     await deleteMutation.mutateAsync();
   };
 
+  const removeEncounterImage = async (): Promise<void> => {
+    await removeEncounterImageMutation.mutateAsync();
+  };
+
   return {
     encounter: encounterData ?? null,
     loading: isLoadingEncounter,
     updateEncounter,
     deleteEncounter,
     duplicateEncounter,
+    removeEncounterImage,
   };
 };

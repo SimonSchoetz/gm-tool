@@ -7,6 +7,7 @@ import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { SearchInput } from '../SearchInput/SearchInput';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
 import { HorizontalDivider } from '../HorizontalDivider/HorizontalDivider';
+import type { ImagePlaceholderEntityType } from '../EntityPlaceholderIcon';
 import './SortableList.css';
 import { SortableListItem } from './components/SortableListItem';
 import { SortingTableHeader } from './components/SortingTableHeader/SortingTableHeader';
@@ -19,6 +20,7 @@ type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   onCreateNew?: () => void;
   className?: string;
   searchPlaceholder?: string;
+  entityType?: ImagePlaceholderEntityType | null;
 };
 
 export const SortableList = <
@@ -30,6 +32,7 @@ export const SortableList = <
   onCreateNew,
   className,
   searchPlaceholder = 'Search...',
+  entityType = null,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dragWidths, setDragWidths] = useState<Record<string, number> | null>(
@@ -129,6 +132,7 @@ export const SortableList = <
                 item={item}
                 onClick={handleRowClick}
                 dragWidths={dragWidths}
+                entityType={entityType}
               />
             ))}
 
@@ -148,6 +152,7 @@ export const SortableList = <
             item={item}
             onClick={handleRowClick}
             dragWidths={dragWidths}
+            entityType={entityType}
           />
         ))}
 
@@ -166,6 +171,7 @@ export const SortableList = <
                 item={item}
                 onClick={handleRowClick}
                 dragWidths={dragWidths}
+                entityType={entityType}
               />
             ))}
           </>

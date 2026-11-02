@@ -1,10 +1,10 @@
-.avatar-cell {
+.cover-cell {
   border-radius: var(--radius-xl);
 }
 
-.avatar-cell--icon {
+.cover-cell--icon {
   width: 100%;
   height: auto;
-  stroke-width: 1px;
+  stroke-width: 1px; /* one-off */
   color: var(--color-primary);
 }

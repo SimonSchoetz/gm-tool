@@ -4,6 +4,7 @@ import { useEncounter } from '@/data-access-layer';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
+import { EncounterCover } from './components/EncounterCover/EncounterCover';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
 import { EncounterShownItem } from './components/EncounterShownItem';
@@ -41,7 +42,8 @@ export const EncounterScreen = () => {
     <GlassPanel
       style={
         {
-          '--encounter-screen-side-width': `${PREVIEW_WIDTH * 1.5}px`,
+          '--encounter-screen-queue-column-width': `${PREVIEW_WIDTH}px`,
+          '--encounter-screen-side-column-width': `${PREVIEW_WIDTH * 1.5}px`,
         } as React.CSSProperties
       }
       className='encounter-screen'
@@ -52,6 +54,7 @@ export const EncounterScreen = () => {
 
       <div className='encounter-screen-body'>
         <div className='encounter-screen-queue-column'>
+          <EncounterCover />
           <EncounterQueue selectedIds={selectedIds} onSelect={select} />
           <EncounterActions />
         </div>
