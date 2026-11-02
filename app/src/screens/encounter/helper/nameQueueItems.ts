@@ -56,7 +56,7 @@ export const nameQueueItems = (
         toNamedItem(item),
         entityNamesById,
       );
-      // Stryker disable next-line ObjectLiteral: the pass over all combatants holds one entry per combatant, so the lookup never misses and no input observes a difference
+      // The pass over all combatants holds one entry per combatant, so this lookup never misses.
       const names = shownNames.get(item.id) ?? {
         shownName: baseName,
         automaticName: baseName,

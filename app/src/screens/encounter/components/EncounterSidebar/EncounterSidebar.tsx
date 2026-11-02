@@ -41,10 +41,7 @@ export const EncounterSidebar: FCProps<Props> = ({
       <EncounterCombatantActionsTab selectedIds={selectedIds} />
     </EncounterSidebarPanel>
     <EncounterSidebarPanel aria-label='Log' hidden={activeTab !== 'log'}>
-      <EncounterLogTab
-        // Stryker disable next-line ConditionalExpression,EqualityOperator,StringLiteral: isOpen only decides the scroll to the newest line, and jsdom computes no scroll height
-        isOpen={activeTab === 'log'}
-      />
+      <EncounterLogTab isOpen={activeTab === 'log'} />
     </EncounterSidebarPanel>
   </GlassPanel>
 );

@@ -38,13 +38,13 @@ const devAppDataDir = (): string => {
 };
 
 export const devDataServer = (): Plugin => {
-  // Stryker disable next-line BooleanLiteral: Vite calls configResolved, which sets `active`, before configureServer reads it, so the initial value is never read.
+  // Vite calls `configResolved`, which sets `active`, before `configureServer` reads it, so this initial value is never read.
   let active = false;
   // Each server start copies the dev app's data into a directory of its own, so a second web server never empties the copy the first one serves; closeServer removes it on close and on restart.
   let tempDir: string | null = null;
   let db: SqliteDatabase | null = null;
   return {
-    // Stryker disable next-line StringLiteral: nothing in app/ looks the plugin up by name; Vite uses the name only to label the plugin in its log output.
+    // Nothing in app/ looks the plugin up by name; Vite uses it only to label the plugin in its log output.
     name: 'gm-tool-dev-data-server',
     configResolved(config) {
       active = config.command === 'serve' && config.mode === 'web';
@@ -76,7 +76,6 @@ export const devDataServer = (): Plugin => {
       const imagesDir = join(serverDir, 'images');
       const fixturePaths = readFixturePaths();
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
-      // Stryker disable next-line ArrowFunction: runMigrations awaits the callback's result, and awaiting `undefined` continues just as awaiting a resolved promise does.
       await runMigrations(serverDb, () => Promise.resolve());
       if (seeded) {
         await seedDatabase(

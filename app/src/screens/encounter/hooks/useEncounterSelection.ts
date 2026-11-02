@@ -10,7 +10,7 @@ import { pruneSelection } from '../helper/pruneSelection';
 export type SidebarTab = 'add' | 'actions' | 'log';
 
 const EMPTY_SELECTION: SelectionState = {
-  // Stryker disable next-line ArrayDeclaration: the prune on every render drops an id that is not shown, so no input observes a difference
+  // The prune on every render drops an id that is not shown.
   ids: [],
   anchorId: null,
   shownItemId: null,
@@ -59,7 +59,7 @@ export const useEncounterSelection = (
         document.removeEventListener('keydown', clearOnEscape);
       };
     },
-    // Stryker disable next-line ArrayDeclaration: a dependency array holding one ref object never changes between renders, so the effect runs once as with an empty one
+    // A dependency array holding one ref object never changes between renders, so the effect runs once.
     [middleColumnRef],
   );
 

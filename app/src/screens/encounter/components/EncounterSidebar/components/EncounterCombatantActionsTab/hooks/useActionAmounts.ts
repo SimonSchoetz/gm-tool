@@ -4,7 +4,6 @@ import {
   type ActionAmountsState,
 } from '../helper/settleActionAmounts';
 
-// Stryker disable next-line StringLiteral: a number input reads any non-numeric text as empty, so a changed initial text shows the same field and parses to no amount
 const INITIAL_AMOUNTS: ActionAmountsState = { sharedText: '', rowTexts: {} };
 
 export const useActionAmounts = (

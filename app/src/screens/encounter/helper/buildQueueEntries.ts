@@ -36,7 +36,7 @@ export const buildQueueEntries = (
   ).items;
   const keptItems = queueItems.filter((item) => {
     const state = combatState.get(item.id) ?? null;
-    // Stryker disable next-line ConditionalExpression,BooleanLiteral: deriveCombatState holds one state per item, so the guard is never entered and no input observes a difference
+    // `deriveCombatState` holds one state per item, so this guard is never entered.
     if (state === null) return false;
     return !state.removed;
   });
@@ -45,7 +45,7 @@ export const buildQueueEntries = (
   return keptItems.flatMap((item): (CombatantEntry | EventEntry)[] => {
     const itemNames = names.get(item.id) ?? null;
     const state = combatState.get(item.id) ?? null;
-    // Stryker disable next-line ConditionalExpression,LogicalOperator,ArrayDeclaration: both maps hold one entry per kept item, so the guard is never entered and no input observes a difference
+    // Both maps hold one entry per kept item, so this guard is never entered.
     if (itemNames === null || state === null) return [];
     if (item.kind === 'event') {
       return [{ kind: 'event', id: item.id, name: itemNames.shownName }];

@@ -24,7 +24,6 @@ export const seedDatabase = async (
       ],
     },
     // The seed server is never listened on and is closed as soon as the seed has run, so these only keep it from opening an HTTP server, a WebSocket server and a file watcher meanwhile; a test could see them only through a fixed port or OS file handles, state app/CLAUDE.md — Testing keeps tests from reading.
-    // Stryker disable next-line ObjectLiteral,BooleanLiteral: see the comment above.
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
   });
   try {

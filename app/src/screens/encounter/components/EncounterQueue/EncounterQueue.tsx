@@ -62,7 +62,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
   const handleDragStart = (event: DragStartEvent) => {
     const activeId = String(event.active.id);
     const otherIds = getBlockDragOtherIds(selectedIds, activeId);
-    // Stryker disable next-line ConditionalExpression: with no other selected entry the state would hold an empty otherIds, which folds nothing, badges nothing and adds nothing to the block, so no input observes a difference
+    // With no other selected entry the state would hold an empty `otherIds`, which folds, badges and adds nothing.
     if (otherIds.length === 0) return;
 
     setBlockDrag({ activeId, otherIds, folded: false });
@@ -106,7 +106,6 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          // Stryker disable next-line ArrowFunction: the sorting strategy reads items only to compute transforms from measured rects, which jsdom does not compute, so no input observes a difference
           items={shownEntries.map((entry) => entry.id)}
           strategy={verticalListSortingStrategy}
         >

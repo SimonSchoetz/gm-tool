@@ -70,7 +70,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
   ];
 
   const recordPlan = (plan: GroupActionPlan | null) => {
-    // Stryker disable next-line ConditionalExpression: every button is disabled while its plan is null, so a click never reaches this guard
+    // Every button is disabled while its plan is null, so a click never reaches this guard.
     if (plan === null) return;
     void recordLogEntry(plan.kind, plan.payload);
   };
