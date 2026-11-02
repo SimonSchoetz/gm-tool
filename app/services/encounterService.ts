@@ -11,6 +11,10 @@ import {
   encounterDuplicateError,
 } from '@domain/encounters';
 
+export type UpdateEncounterData = UpdateEncounterInput & {
+  imgFilePath?: string;
+};
+
 export const getAllEncounters = async (
   adventureId: string,
 ): Promise<Encounter[]> => {
@@ -46,10 +50,30 @@ export const createEncounter = async (adventureId: string): Promise<string> => {
 
 export const updateEncounter = async (
   id: string,
-  data: UpdateEncounterInput,
+  data: UpdateEncounterData,
 ): Promise<void> => {
   try {
-    await encounterDb.update(id, data);
+    const imageId = data.imgFilePath
+      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
+      : null;
+
+    const { imgFilePath: _imgFilePath, ...dto } = data;
+    if (imageId) {
+      dto.image_id = imageId;
+    }
+
+    await encounterDb.update(id, dto);
+  } catch (err) {
+    throw encounterUpdateError(id, err);
+  }
+};
+
+export const removeEncounterImage = async (id: string): Promise<void> => {
+  try {
+    const encounter = await getEncounterById(id);
+    if (!encounter.image_id) return;
+    await imageService.deleteImage(encounter.image_id);
+    await encounterDb.update(id, { image_id: null });
   } catch (err) {
     throw encounterUpdateError(id, err);
   }

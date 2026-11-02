@@ -16,10 +16,14 @@ const getEncounterById = vi.hoisted(() =>
 const updateEncounter = vi.hoisted(() =>
   vi.fn<typeof service.updateEncounter>(),
 );
+const removeEncounterImage = vi.hoisted(() =>
+  vi.fn<typeof service.removeEncounterImage>(),
+);
 
 vi.mock('@services/encounterService', () => ({
   getEncounterById,
   updateEncounter,
+  removeEncounterImage,
 }));
 
 const renderEncounter = async () => {
@@ -46,6 +50,7 @@ describe('useEncounter', () => {
       Promise.resolve(buildEncounter({ id })),
     );
     updateEncounter.mockResolvedValue(undefined);
+    removeEncounterImage.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -98,6 +103,55 @@ describe('useEncounter', () => {
     expect(updateEncounter).toHaveBeenCalledWith('encounter-1', {
       description: 'kept',
       name: 'n',
+    });
+  });
+
+  it('writes a scheduled edit that carries a chosen file whole, under the scheduled encounter, after a re-render for another encounter', async () => {
+    const { result, rerender } = await renderEncounter();
+
+    act(() => {
+      result.current.updateEncounter({
+        imgFilePath: '/pick/map.png',
+        image_id: null,
+      });
+    });
+    rerender({ encounterId: 'encounter-2', adventureId: 'adventure-2' });
+    await settle(AUTOSAVE_DELAY_MS);
+
+    expect(updateEncounter).toHaveBeenCalledTimes(1);
+    expect(updateEncounter).toHaveBeenCalledWith('encounter-1', {
+      imgFilePath: '/pick/map.png',
+      image_id: null,
+    });
+  });
+
+  it('caches the edit without the chosen file path', async () => {
+    const { result, queryClient } = await renderEncounter();
+
+    act(() => {
+      result.current.updateEncounter({
+        imgFilePath: '/pick/map.png',
+        description: 'd',
+      });
+    });
+
+    expect(
+      queryClient.getQueryData(encounterKeys.detail('encounter-1')),
+    ).toEqual(buildEncounter({ id: 'encounter-1', description: 'd' }));
+  });
+
+  it("removes the image of the encounter the hook was built for and invalidates that encounter's detail and its adventure's list", async () => {
+    const { result, invalidateQueries } = await renderEncounter();
+
+    await act(() => result.current.removeEncounterImage());
+
+    expect(removeEncounterImage).toHaveBeenCalledWith('encounter-1');
+    expect(invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: encounterKeys.detail('encounter-1'),
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: encounterKeys.list('adventure-1'),
     });
   });
 });

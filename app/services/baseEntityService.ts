@@ -62,18 +62,9 @@ export const updateBaseEntity = async (
   data: UpdateBaseEntityData,
 ): Promise<void> => {
   try {
-    let imageId: string | null = null;
-
-    if (data.imgFilePath && data.image_id) {
-      imageId = await imageService.replaceImage(
-        data.image_id,
-        data.imgFilePath,
-      );
-    }
-
-    if (data.imgFilePath && !data.image_id) {
-      imageId = await imageService.createImage(data.imgFilePath);
-    }
+    const imageId = data.imgFilePath
+      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
+      : null;
 
     const { imgFilePath: _imgFilePath, ...dto } = data;
     if (imageId) {

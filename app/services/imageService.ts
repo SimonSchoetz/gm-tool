@@ -47,6 +47,14 @@ export const replaceImage = async (
   }
 };
 
+export const saveImage = (
+  currentImageId: string | null,
+  filePath: string,
+): Promise<string> =>
+  currentImageId
+    ? replaceImage(currentImageId, filePath)
+    : createImage(filePath);
+
 export const getImageById = async (id: string): Promise<Image> => {
   let img: Image | null;
   try {

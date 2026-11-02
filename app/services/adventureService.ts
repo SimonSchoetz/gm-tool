@@ -1,4 +1,6 @@
 import * as adventureDb from '@db/adventure';
+import * as baseEntityDb from '@db/base-entity';
+import * as encounterDb from '@db/encounter';
 import * as imageService from '@services/imageService';
 import type { Adventure, UpdateAdventureInput } from '@db/adventure';
 import {
@@ -8,6 +10,7 @@ import {
   adventureUpdateError,
   adventureDeleteError,
 } from '@domain/adventures';
+import { BASE_ENTITY_TYPES } from '@domain';
 
 export type UpdateAdventureData = UpdateAdventureInput & {
   imgFilePath?: string;
@@ -44,18 +47,9 @@ export const updateAdventure = async (
   data: UpdateAdventureData,
 ): Promise<void> => {
   try {
-    let imageId: string | null = null;
-
-    if (data.imgFilePath && data.image_id) {
-      imageId = await imageService.replaceImage(
-        data.image_id,
-        data.imgFilePath,
-      );
-    }
-
-    if (data.imgFilePath && !data.image_id) {
-      imageId = await imageService.createImage(data.imgFilePath);
-    }
+    const imageId = data.imgFilePath
+      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
+      : null;
 
     const { imgFilePath: _imgFilePath, ...dto } = data;
     if (imageId) {
@@ -88,8 +82,28 @@ export const deleteAdventure = async (
   try {
     const adventureToDelete = adventure ?? (await getAdventureById(id));
 
-    if (adventureToDelete.image_id) {
-      await imageService.deleteImage(adventureToDelete.image_id);
+    // The images are deleted before the row because the cascade removes the base entities and encounters, and with them the ids that name their images.
+    const baseEntityImageIds = (
+      await Promise.all(
+        BASE_ENTITY_TYPES.map((entityType) =>
+          baseEntityDb.getAll(entityType, id),
+        ),
+      )
+    )
+      .flat()
+      .map((baseEntity) => baseEntity.image_id);
+    const encounterImageIds = (await encounterDb.getAll(id)).map(
+      (encounter) => encounter.image_id,
+    );
+
+    for (const imageId of [
+      ...baseEntityImageIds,
+      ...encounterImageIds,
+      adventureToDelete.image_id,
+    ]) {
+      if (imageId) {
+        await imageService.deleteImage(imageId);
+      }
     }
 
     await adventureDb.remove(id);
