@@ -79,17 +79,15 @@ export const parseLedger = (json: string): LedgerEntry[] => {
   });
 };
 
-// The line number an entry stands for: the (`occurrence` + 1)th line of its file with its text, or null when the file or that line is missing.
+// The numbers of the lines whose normalized text is `lineText`, in file order; an entry's `occurrence` indexes this list.
+const linesWithText = (fileLines: string[], lineText: string) =>
+  fileLines.flatMap((sourceLine, index) => (normalizeText(sourceLine) === lineText ? [index + 1] : []));
+
+// The line number an entry stands for, or null when the file or that line is missing.
 const resolveLine = (entry: LedgerEntry, sourceLines: SourceLines) => {
   const fileLines = sourceLines(entry.file);
   if (fileLines === null) return null;
-  let seen = 0;
-  for (const [index, sourceLine] of fileLines.entries()) {
-    if (normalizeText(sourceLine) !== entry.lineText) continue;
-    if (seen === entry.occurrence) return index + 1;
-    seen += 1;
-  }
-  return null;
+  return linesWithText(fileLines, entry.lineText)[entry.occurrence] ?? null;
 };
 
 export const serializeLedger = (entries: LedgerEntry[], sourceLines: SourceLines) => {
@@ -118,13 +116,12 @@ export const survivorsOf = (report: MutationReport): Survivor[] =>
 export const entryFor = (survivor: Survivor, sourceLines: SourceLines, reason: string): LedgerEntry => {
   const fileLines = sourceLines(survivor.file) ?? [];
   const lineText = normalizeText(fileLines[survivor.line - 1] ?? "");
-  const occurrence = fileLines.slice(0, survivor.line - 1).filter((sourceLine) => normalizeText(sourceLine) === lineText).length;
   return {
     file: survivor.file,
     mutator: survivor.mutator,
     replacement: survivor.replacement,
     lineText,
-    occurrence,
+    occurrence: linesWithText(fileLines, lineText).indexOf(survivor.line),
     lines: survivor.endLine - survivor.line + 1,
     reason,
   };

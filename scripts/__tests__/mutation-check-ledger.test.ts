@@ -82,6 +82,16 @@ describe('parseLedger', () => {
   });
 
   it.each([
+    ['null', null],
+    ['an array', []],
+    ['a string', 'entry'],
+  ])('rejects an entry that is %s, naming the entry', (_name, value) => {
+    expect(() => parseLedger(JSON.stringify([entry(), value]))).toThrow(
+      'ledger entry 1: entry is not an object',
+    );
+  });
+
+  it.each([
     [
       'a missing key',
       { reason: undefined },
@@ -101,6 +111,10 @@ describe('parseLedger', () => {
     ],
     ['lines below 1', { lines: 0 }, 'lines is below 1'],
     ['an empty reason', { reason: '' }, 'reason is empty'],
+    ['an empty file', { file: '' }, 'file is empty'],
+    ['an empty mutator', { mutator: '' }, 'mutator is empty'],
+    ['an empty line text', { lineText: '' }, 'lineText is empty'],
+    ['an empty replacement', { replacement: '' }, 'replacement is empty'],
     [
       'a reason over two lines',
       { reason: 'a\nb' },

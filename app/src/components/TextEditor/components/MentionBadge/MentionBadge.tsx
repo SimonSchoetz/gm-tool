@@ -121,7 +121,6 @@ export const MentionBadge: FCProps<Props> = ({
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    // A hover request that fires after the click finds the click-open entry and changes nothing.
     clearHoverTimer();
     const mouseDownPosition = mouseDownPositionRef.current;
     mouseDownPositionRef.current = null;

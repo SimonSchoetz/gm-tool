@@ -76,7 +76,6 @@ export const devDataServer = (): Plugin => {
       const imagesDir = join(serverDir, 'images');
       const fixturePaths = readFixturePaths();
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
-      // `runMigrations` awaits the callback's result, and awaiting `undefined` continues just as awaiting a resolved promise does.
       await runMigrations(serverDb, () => Promise.resolve());
       if (seeded) {
         await seedDatabase(

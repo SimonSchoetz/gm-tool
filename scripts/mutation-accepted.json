@@ -24,7 +24,7 @@
     "lineText": "typeof sourcePath === 'string' && fixturePaths.includes(sourcePath);",
     "occurrence": 0,
     "lines": 1,
-    "reason": "without the type check, includes() rejects the same values"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/requestGuard.ts",
@@ -33,7 +33,7 @@
     "lineText": "const REQUEST_REJECTION_ERROR_NAME = 'RequestRejectionError';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an empty constant still tells a rejection apart from the other errors"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/requestHandler.ts",
@@ -42,7 +42,7 @@
     "lineText": "const method = req.method ?? 'GET';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the fallback method is never used"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/requestHandler.ts",
@@ -51,7 +51,7 @@
     "lineText": "const url = req.url ?? '';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the fallback url is never used"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/seedDatabase.ts",
@@ -96,7 +96,7 @@
     "lineText": "database.exec('PRAGMA foreign_keys = ON');",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the statement repeats node:sqlite's default"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/sqliteDatabase.ts",
@@ -105,7 +105,7 @@
     "lineText": "if (counts === null) {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "the guard and its block are never reached"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/sqliteDatabase.ts",
@@ -114,7 +114,7 @@
     "lineText": "if (counts === null) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard and its block are never reached"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/sqliteDatabase.ts",
@@ -132,7 +132,7 @@
     "lineText": "let active = false;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the initial value is overwritten before it is read"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/vitePlugin.ts",
@@ -141,7 +141,7 @@
     "lineText": "name: 'gm-tool-dev-data-server',",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the plugin name only labels log output"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "dev-data-server/vitePlugin.ts",
@@ -150,7 +150,7 @@
     "lineText": "await runMigrations(serverDb, () => Promise.resolve());",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a callback returning nothing lets the migrations continue the same way"
+    "reason": "runMigrations awaits the callback's result, and awaiting undefined continues just as awaiting a resolved promise does"
   },
   {
     "file": "domain/base-entity-content-sections/fiveEStatBlockContent.ts",
@@ -159,7 +159,7 @@
     "lineText": "} catch {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "an emptied block leaves a result the schema check reads as empty too"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "domain/encounters/logEntryPayloads.ts",
@@ -168,7 +168,7 @@
     "lineText": "} catch {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "an emptied catch returns nothing, which the schema rejects like null"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "domain/encounters/wholeNumberInRange.ts",
@@ -177,7 +177,7 @@
     "lineText": "if (!parsed.valid) return parsed;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "skipping the guard yields an equal { valid: false } from the range check below"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "platform/webPlatform.ts",
@@ -186,7 +186,7 @@
     "lineText": "} catch {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "an emptied catch returns nothing, which the caller reads as unreachable like false"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "platform/webPlatform.ts",
@@ -195,7 +195,7 @@
     "lineText": "if (protocol === null || !OPENABLE_URL_PROTOCOLS.includes(protocol)) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "without the null check, includes() rejects a null protocol on its own"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",
@@ -204,7 +204,7 @@
     "lineText": "const savedText = String(savedValue ?? '');",
     "occurrence": 0,
     "lines": 1,
-    "reason": "any other non-numeric fallback text shows the same empty field"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",
@@ -213,7 +213,7 @@
     "lineText": "setInputRevision((revision) => revision + 1);",
     "occurrence": 0,
     "lines": 1,
-    "reason": "jsdom keeps no unconvertible text in a number input, so the remount is never visible there"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",
@@ -222,7 +222,7 @@
     "lineText": "setInputRevision((revision) => revision + 1);",
     "occurrence": 0,
     "lines": 1,
-    "reason": "jsdom keeps no unconvertible text in a number input, so the remount is never visible there"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
@@ -231,7 +231,7 @@
     "lineText": "if (hoverTimerRef.current) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "calling clearTimeout without the guard changes nothing"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
@@ -240,7 +240,7 @@
     "lineText": "clearHoverTimer();",
     "occurrence": 2,
     "lines": 1,
-    "reason": "a late hover request finds the click-open entry and changes nothing"
+    "reason": "a hover request that fires after the click finds the click-open entry and changes nothing"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
@@ -249,7 +249,7 @@
     "lineText": "props.kind === 'combatant'",
     "occurrence": 0,
     "lines": 1,
-    "reason": "describeQueueEntryImage returns plain for an event as well"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
@@ -285,7 +285,7 @@
     "lineText": "if (otherIds.length === 0) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "proceeding with an empty otherIds folds, badges and adds nothing"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
@@ -303,7 +303,7 @@
     "lineText": "const shownName = entry?.name ?? '';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the fallback is never rendered while the entry is null"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterShownItem/components/EncounterShownCombatant/components/EncounterCombatantNameField/EncounterCombatantNameField.tsx",
@@ -312,7 +312,7 @@
     "lineText": "const automaticName = entry?.automaticName ?? '';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the fallback is never compared while the entry is null"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterShownItem/components/EncounterShownEvent/components/EncounterEventNameField/EncounterEventNameField.tsx",
@@ -321,7 +321,7 @@
     "lineText": "const { value, setValue, focusProps } = useSyncedInputValue(item?.name ?? '');",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the fallback is never rendered while the item is null"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterShownItem/EncounterShownItem.tsx",
@@ -330,7 +330,7 @@
     "lineText": "const entry = useEncounterQueueEntry(shownItemId ?? '');",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the id string is never read while the shown id is null"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddEntities/components/EncounterAddRow/EncounterAddRow.tsx",
@@ -339,7 +339,7 @@
     "lineText": "if (quantity === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the disabled Add button keeps a click from reaching the guard"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddRandomCombatant/EncounterAddRandomCombatant.tsx",
@@ -348,7 +348,7 @@
     "lineText": "if (!parsedHp.valid || quantity === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the disabled Add button and canAdd keep every call in an invalid state from reaching the guard"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddRandomCombatant/EncounterAddRandomCombatant.tsx",
@@ -357,7 +357,7 @@
     "lineText": "if (!parsedHp.valid || quantity === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the disabled Add button and canAdd keep every call in an invalid state from reaching the guard"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddRandomCombatant/EncounterAddRandomCombatant.tsx",
@@ -366,7 +366,7 @@
     "lineText": "if (!parsedHp.valid || quantity === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the disabled Add button and canAdd keep every call in an invalid state from reaching the guard"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterCombatantActionsTab/EncounterCombatantActionsTab.tsx",
@@ -375,7 +375,7 @@
     "lineText": "if (plan === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the disabled buttons keep a null plan from reaching the guard"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterLogTab/components/EncounterLogEntry/EncounterLogEntry.tsx",
@@ -438,7 +438,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "only revertible kinds are ever looked up in the resulting map"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -447,7 +447,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "only revertible kinds are ever looked up in the resulting map"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -456,7 +456,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "only revertible kinds are ever looked up in the resulting map"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -465,7 +465,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "only revertible kinds are ever looked up in the resulting map"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -474,7 +474,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "only revertible kinds are ever looked up in the resulting map"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -483,7 +483,7 @@
     "lineText": "if (state === null) return false;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -492,7 +492,7 @@
     "lineText": "if (state === null) return false;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -501,7 +501,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -510,7 +510,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -519,7 +519,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -528,7 +528,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -537,7 +537,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the guard is never entered"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/helper/nameQueueItems.ts",
@@ -546,7 +546,7 @@
     "lineText": "const names = shownNames.get(item.id) ?? {",
     "occurrence": 0,
     "lines": 4,
-    "reason": "the fallback object is never used"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/hooks/useEncounterQueueEntries.ts",
@@ -555,7 +555,7 @@
     "lineText": "encounter?.hide_defeated === 1,",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the encounter is never null when this runs"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/hooks/useEncounterSelection.ts",
@@ -564,7 +564,7 @@
     "lineText": "ids: [],",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an initial id is pruned on the first render"
+    "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
     "file": "src/screens/encounter/hooks/useEncounterSelection.ts",
@@ -573,6 +573,6 @@
     "lineText": "[middleColumnRef],",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an empty dependency array runs the effect just as often"
+    "reason": "the code comment at this statement states why no test can observe this change"
   }
 ]
