@@ -33,6 +33,13 @@ The reason after the colon is optional.
 **Verified at:** `@stryker-mutator/core` 10.0.0, <https://stryker-mutator.io/docs/stryker-js/configuration/> — 2026-10-21
 **Citation:** [mutation-check_9: `https://stryker-mutator.io/docs/stryker-js/configuration/` — "`src/app.js:1-11`" mutates lines 1 through 11, and a range cannot be combined with a glob in one entry] [mutation-check_10: ran `npx stryker run --mutate db/image/create.ts:1-2,db/image/create.ts:16-16` through `scripts/mutation-check.ts` in `app/` — observed `Instrumented 1 source file(s) with 5 mutant(s)`, against 24 for the whole file]
 
+## A `--mutate` range creates a mutant only when the mutant's whole location lies inside the range, so a multi-line mutant needs a range that covers its last line
+
+**Verified at:** `@stryker-mutator/core` and `@stryker-mutator/instrumenter` 10.0.0 — 2026-11-02
+**Citation:** [architect_3: `app/node_modules/.pnpm/@stryker-mutator+instrumenter@10.0.0/node_modules/@stryker-mutator/instrumenter/dist/src/transformers/babel-transformer.js:145-149` — `shouldMutate` requires `locationIncluded(range, path.node.loc)`, and `app/node_modules/.pnpm/@stryker-mutator+instrumenter@10.0.0/node_modules/@stryker-mutator/instrumenter/dist/src/util/syntax-helpers.js:173-181` — `locationIncluded` needs the range to start no later and end no earlier than the node] [architect_4: `app/node_modules/.pnpm/@stryker-mutator+core@10.0.0_@types+node@26.6.3/node_modules/@stryker-mutator/core/dist/src/fs/project-reader.js:196-206` — `file:a-b` becomes line `a-1` column 0 to line `b-1` column `Number.MAX_SAFE_INTEGER`] [architect_5: ran a scratch script that instruments `app/platform/webPlatform.ts` as of `9da20afa` (its `catch` block on lines 42 to 44) through the installed `Instrumenter.instrument` with whole-line ranges for file line 42 alone and for lines 42 to 44 — observed no mutant for 42, and the `catch` block's `BlockStatement "{}"` for 42 to 44]
+
+A change to only the first line of a multi-line construct therefore produces no mutant for the construct.
+
 ## A `// Stryker disable next-line Regex` comment above `statement.replace(/\$(\d+)/g, '?$1')` ignores both of that line's Regex mutants, the killable `/\$(\D+)/g` one with the equivalent `/\$(\d)/g`; rewritten as `replace(/\$(?=\d)/g, '?')`, the line yields only Regex mutants the tests kill
 
 **Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-21
