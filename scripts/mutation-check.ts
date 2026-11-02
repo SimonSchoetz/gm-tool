@@ -4,7 +4,7 @@
 // With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, so a fix loop re-runs the files that had survivors; a run without arguments is the gate. `--accept "<reason>"`, with or without files, is described below.
 // Exits non-zero when a mutant survives in one of them and scripts/mutation-accepted.json holds no entry for it: a test that passes with its target logic mutated catches no regression there.
 // A survivor no test can kill (an equivalent mutant) is accepted by an entry of that ledger, which names one mutant by its file, mutator, replacement and the text of the line it starts on (scripts/mutation-check-ledger.ts); a survivor matches one entry, so each of two identical mutants needs its own.
-// An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too.
+// An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
 // `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, so only mutants known to be equivalent are accepted. After editing an accepted line, remove its entry and re-run with `--accept`.
 import { execFileSync, spawnSync } from "child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "fs";
@@ -64,6 +64,17 @@ if (missingEntries.length > 0) {
     `mutation-check: FAILED — ${missingEntries.length} ledger entr(y/ies) in scripts/mutation-accepted.json name a file or line that no longer exists; remove each, and re-run with --accept "<reason>" if its mutant still survives:\n  ${missingEntries.map((entry) => describeEntry(entry, sourceLines)).join("\n  ")}`,
   );
   process.exit(1);
+}
+
+// Stryker honours a directive comment on its own, so a re-added one would hide mutants from this check.
+const directiveScan = spawnSync("git", ["grep", "-n", "--untracked", "-E", "Stryker (disable|restore)", "--", "app", ":!app/docs", ":!*.md"], { cwd: repositoryRoot, encoding: "utf8" });
+if (directiveScan.status === 0) {
+  console.error(`mutation-check: FAILED — a Stryker directive comment under app/ hides mutants from this check; remove it, and accept an equivalent mutant with --accept "<reason>" instead:\n  ${directiveScan.stdout.trim().split("\n").join("\n  ")}`);
+  process.exit(1);
+}
+if (directiveScan.status !== 1) {
+  console.error(`mutation-check: the scan for Stryker directive comments failed:\n${directiveScan.stderr}`);
+  process.exit(2);
 }
 
 const git = (...args: string[]) => execFileSync("git", args, { cwd: repositoryRoot, encoding: "utf8" });
