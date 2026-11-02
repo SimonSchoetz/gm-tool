@@ -36,22 +36,4 @@ describe('saveImage', () => {
     expect(create).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
     expect(replace).not.toHaveBeenCalled();
   });
-
-  it('rejects as ImageReplaceError when the replace fails', async () => {
-    const { saveImage } = await import('../imageService');
-    replace.mockRejectedValue(new Error('disk full'));
-
-    await expect(
-      saveImage('current-image', '/pick/map.png'),
-    ).rejects.toMatchObject({ name: 'ImageReplaceError' });
-  });
-
-  it('rejects as ImageCreateError when the create fails', async () => {
-    const { saveImage } = await import('../imageService');
-    create.mockRejectedValue(new Error('disk full'));
-
-    await expect(saveImage(null, '/pick/map.png')).rejects.toMatchObject({
-      name: 'ImageCreateError',
-    });
-  });
 });

@@ -8,7 +8,7 @@ const DATE_KEYS = new Set(['created_at', 'updated_at']);
 export const renderCell = (
   key: string,
   item: Record<string, unknown>,
-  entityType: ImagePlaceholderEntityType | null = null,
+  entityType: ImagePlaceholderEntityType | null,
 ): ReactNode => {
   if (key === 'image_id') {
     const imageId = typeof item.image_id === 'string' ? item.image_id : '';
