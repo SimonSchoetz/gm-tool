@@ -69,7 +69,7 @@ Entity vocabulary grounded in the actual database schema. Most terms below own a
 - **Queue item** — One row of an Encounter's queue (`encounter_queue_items`, `db/encounter-queue-item/schema.ts`), ordered by `sort_order`. Its `kind` is `combatant` or `event`. An event has no Base entity and is created in the Add tab; the queue and the middle column show its own `name`, or "Untitled Event" once emptied.
 - **Combatant** — A Queue item of kind `combatant`: one fighter in the Encounter, made from a Base entity (`base_entity_id`, emptied when that entity is deleted) or a random combatant typed in the Add tab, `base_entity_id` null from its creation, and keeping the `name` stored when it was added. `custom_name` is the GM's rename (null shows the derived name) and `notes` is the GM's free text about the fighter, both nullable text columns.
 - **Combat log entry** — One row of an Encounter's Combat log (`encounter_log_entries`, `db/encounter-log-entry/schema.ts`): a `kind` and a text `payload`; the kinds and each kind's payload shape are `LogEntryKind` and its schemas in `domain/encounters/logEntryPayloads.ts`. `deriveCombatState` (`domain/encounters/deriveCombatState.ts`) derives the combatants' state from the log, and its return type lists what it derives.
-- **Image** — A shared asset referenced by `image_id` across Adventures, NPCs, PCs, Foes, Factions, Locations, and Items.
+- **Image** — A shared asset referenced by `image_id` across Adventures, Encounters, NPCs, PCs, Foes, Factions, Locations, and Items.
 - **Table Config** — Shared infrastructure controlling per-table display settings (color, tagging, scope, layout). Not a narrative entity.
 - **Content section** — An ordered (`sort_order`), typed (`text`, `basic-stat-block` or `5e-stat-block`, `BASE_ENTITY_CONTENT_SECTION_TYPES` in `domain/base-entity-content-sections/contentSectionTypes.ts`) child row of a Base entity (`db/base-entity-content-section/schema.ts`), linked by `base_entity_id` with cascade delete. It is not scoped by `adventure_id`. A base entity's summary is held in its content sections; `base_entities` has no summary column.
 
@@ -79,10 +79,8 @@ The verification obligation stated in the shared rules file's Epistemological Di
 
 1. Check the installed version in `package.json`
 2. Fetch the official documentation for that exact version from the internet
-3. If documentation is ambiguous or unavailable, ask before proceeding (this replaces the "I assume…" fallback of the shared Epistemological Discipline rule beginning "Training data confers reasoning capability")
+3. If documentation is ambiguous or unavailable, ask before proceeding (this replaces the "I assume…" fallback of the rule named above)
 
 To inspect what a library actually exports, use Read or Glob on its `index.d.ts` (e.g. `node_modules/<package>/dist/index.d.ts`). Never use `node -e` or any runtime introspection — type declarations are the authoritative source and require no execution.
 
 For **ambient/global runtime types specifically** (DOM API, ES built-ins, and other globals available without an import statement) — these are not tied to any single npm package's `dist/index.d.ts`; they ship inside the TypeScript compiler's own `lib` files (`node_modules/typescript/lib/lib.*.d.ts`, e.g. `lib.dom.d.ts` for the DOM API), selected by the `lib` array in `tsconfig.json`. Read the specific `lib.*.d.ts` file directly to confirm a type's actual shape before asserting it — training-data familiarity with a well-known global API is not verification, and a supertype's signature does not apply to a subtype that narrows it via its own override.
-
-The lookup procedures for **Rust crates** and **Tauri configuration values** are in `app/src-tauri/CLAUDE.md` — Third-Party Libraries.
