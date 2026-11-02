@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "file": "domain/encounters/wholeNumberInRange.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!parsed.valid) return parsed;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "skipping the guard yields an equal { valid: false } from the range check below"
+  }
+]
