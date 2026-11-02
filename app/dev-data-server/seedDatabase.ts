@@ -1,11 +1,11 @@
-// Node host — bundled into Vite's config with vitePlugin.ts. The seed calls the app's own services, whose imports go through the project's path aliases, which the config bundle cannot resolve, so it runs in a Vite server of its own: that server resolves the aliases the web server's config holds, with `@platform` pointed at seed/seedPlatform.ts, and is closed once the seed has run.
+// Node host — bundled into Vite's config with vitePlugin.ts. The seed calls the app's own services, whose imports go through the project's path aliases, which the config bundle cannot resolve, so it runs in a Vite server of its own: that server resolves the aliases the web server's config holds, with `@platform` pointed at seed/seedPlatform.ts, which answers from the given database, images folder and fixture images, and is closed once the seed has run.
 import { join, resolve } from 'node:path';
 import { createServer, type ResolvedConfig } from 'vite';
 import type { runSeed } from './seed/seed.ts';
-import type { SqliteDatabase } from './sqliteDatabase.ts';
+import type { CommandContext } from './commands.ts';
 
 export const seedDatabase = async (
-  db: SqliteDatabase,
+  context: CommandContext,
   webServerConfig: ResolvedConfig,
 ): Promise<void> => {
   const seedServer = await createServer({
@@ -31,7 +31,7 @@ export const seedDatabase = async (
     const seedModule = (await seedServer.ssrLoadModule(
       resolve(import.meta.dirname, 'seed/seed.ts'),
     )) as { runSeed: typeof runSeed };
-    await seedModule.runSeed(db);
+    await seedModule.runSeed(context);
   } finally {
     await seedServer.close();
   }

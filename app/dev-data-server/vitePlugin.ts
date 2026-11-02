@@ -1,12 +1,12 @@
 // Node host — bundled into Vite's config by its loader, which is why it imports ../db/_migrations and this folder's files by relative path: the bundle resolves no path alias.
-import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import type { Plugin } from 'vite';
 import { z } from 'zod';
 import { DATABASE_FILE } from '../domain/database/index.ts';
 import { runMigrations } from '../db/_migrations/index.ts';
-import { createFixtureCycle } from './fixtureCycle.ts';
+import { createFixtureCycle, readFixturePaths } from './fixtureCycle.ts';
 import {
   assertDevAppData,
   copyDatabase,
@@ -73,24 +73,25 @@ export const devDataServer = (): Plugin => {
       }
       const serverDb = openSqliteDatabase(join(serverDir, DATABASE_FILE));
       db = serverDb;
+      const imagesDir = join(serverDir, 'images');
+      const fixturePaths = readFixturePaths();
       // The test support's `skipBackup` is this same no-op, but its module resolves `@db/_migrations`, an alias the config bundle cannot resolve.
       // Stryker disable next-line ArrowFunction: runMigrations awaits the callback's result, and awaiting `undefined` continues just as awaiting a resolved promise does.
       await runMigrations(serverDb, () => Promise.resolve());
       if (seeded) {
-        await seedDatabase(serverDb, server.config);
+        await seedDatabase(
+          { db: serverDb, imagesDir, fixturePaths },
+          server.config,
+        );
       }
       const { version } = readRepositoryJson(
         '../package.json',
         packageJsonSchema,
       );
-      const fixturesDir = resolve(import.meta.dirname, 'fixtures/images');
-      const fixturePaths = readdirSync(fixturesDir).map((name) =>
-        join(fixturesDir, name),
-      );
       server.middlewares.use(
         createRequestHandler({
           db: serverDb,
-          imagesDir: join(serverDir, 'images'),
+          imagesDir,
           fixturePaths,
           nextFixture: createFixtureCycle(fixturePaths),
           version,
