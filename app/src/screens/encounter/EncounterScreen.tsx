@@ -4,6 +4,7 @@ import { useEncounter } from '@/data-access-layer';
 import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { EncounterHeader } from './components/EncounterHeader';
+import { EncounterCover } from './components/EncounterCover/EncounterCover';
 import { EncounterNotes } from './components/EncounterNotes/EncounterNotes';
 import { EncounterQueue } from './components/EncounterQueue';
 import { EncounterShownItem } from './components/EncounterShownItem';
@@ -52,6 +53,7 @@ export const EncounterScreen = () => {
 
       <div className='encounter-screen-body'>
         <div className='encounter-screen-queue-column'>
+          <EncounterCover />
           <EncounterQueue selectedIds={selectedIds} onSelect={select} />
           <EncounterActions />
         </div>
