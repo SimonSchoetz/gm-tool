@@ -40,7 +40,11 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
 
   return (
     <li className='encounter-add-row'>
-      <EncounterEntityImage imageId={baseEntity.image_id} size={48} />
+      <EncounterEntityImage
+        imageId={baseEntity.image_id}
+        entityType={baseEntity.entity_type}
+        size={48}
+      />
 
       <div className='encounter-add-row-text'>
         <div className='clip-text'>

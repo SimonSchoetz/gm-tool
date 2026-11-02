@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import type { BaseEntityType } from '@domain';
 import type { SelectionModifiers } from '../../../../../helper/applySelectionClick';
 import { EncounterQueueEntry } from '../EncounterQueueEntry';
 
@@ -11,11 +12,13 @@ const renderEntry = ({
   maxHp = null,
   currentHp = null,
   defeated = false,
+  entity = null,
   selected = false,
   otherDraggedCount = 0,
   onSelect = vi.fn(),
 }: Partial<HpProps> & {
   defeated?: boolean;
+  entity?: { entityType: BaseEntityType } | null;
   selected?: boolean;
   otherDraggedCount?: number;
   onSelect?: (id: string, modifiers: SelectionModifiers) => void;
@@ -26,6 +29,7 @@ const renderEntry = ({
       id='item-7'
       name='Goblin'
       imageId={null}
+      entity={entity}
       maxHp={maxHp}
       currentHp={currentHp}
       tempHp={0}
@@ -45,6 +49,7 @@ const StatefulEntry = () => {
       id='item-7'
       name='Goblin'
       imageId={null}
+      entity={null}
       maxHp={null}
       currentHp={null}
       tempHp={0}
@@ -62,6 +67,20 @@ const isCurrent = () =>
   screen.getByText('Goblin').closest('[aria-current="true"]') !== null;
 
 describe('EncounterQueueEntry', () => {
+  it.each([
+    ['a location entity', { entityType: 'locations' }, 'Location'],
+    ['no entity', null, 'Entity'],
+  ] as const)(
+    'shows the image placeholder of %s while it has no image',
+    (_label, entity, domainLabel) => {
+      renderEntry({ entity });
+
+      expect(
+        screen.getByLabelText(`${domainLabel} image placeholder`),
+      ).toBeInTheDocument();
+    },
+  );
+
   it('reports its own id once with no modifiers on a plain click', async () => {
     const onSelect = vi.fn();
     const user = userEvent.setup();

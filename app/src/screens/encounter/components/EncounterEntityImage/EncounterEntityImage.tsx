@@ -1,4 +1,5 @@
-import { UserSquareIcon } from 'lucide-react';
+import type { BaseEntityType } from '@domain';
+import { EntityPlaceholderIcon } from '@/components/EntityPlaceholderIcon';
 import { ImageById } from '@/components/ImageById/ImageById';
 import { ImagePlaceholderFrame } from '@/components/ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { FCProps } from '@/types/fcProps.type';
@@ -6,15 +7,23 @@ import './EncounterEntityImage.css';
 
 type Props = {
   imageId: string | null;
+  entityType: BaseEntityType | null;
   size: number;
 };
 
-export const EncounterEntityImage: FCProps<Props> = ({ imageId, size }) => (
+export const EncounterEntityImage: FCProps<Props> = ({
+  imageId,
+  entityType,
+  size,
+}) => (
   <ImagePlaceholderFrame dimensions={{ width: size, height: size }}>
     {imageId !== null ? (
       <ImageById imageId={imageId} />
     ) : (
-      <UserSquareIcon className='encounter-entity-image-icon' />
+      <EntityPlaceholderIcon
+        entityType={entityType}
+        className='encounter-entity-image-icon'
+      />
     )}
   </ImagePlaceholderFrame>
 );

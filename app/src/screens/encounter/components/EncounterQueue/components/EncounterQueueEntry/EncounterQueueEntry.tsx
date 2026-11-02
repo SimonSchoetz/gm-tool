@@ -1,6 +1,7 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { FCProps } from '@/types/fcProps.type';
+import type { BaseEntityType } from '@domain';
 import { cn } from '@/util/className';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
 import type { SelectionModifiers } from '../../../../helper/applySelectionClick';
@@ -16,6 +17,7 @@ type KindProps =
       id: string;
       name: string;
       imageId: string | null;
+      entity: { entityType: BaseEntityType } | null;
       maxHp: number | null;
       currentHp: number | null;
       tempHp: number;
@@ -91,6 +93,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
         ) : (
           <EncounterEntityImage
             imageId={props.imageId}
+            entityType={props.entity?.entityType ?? null}
             size={QUEUE_ENTRY_IMAGE_SIZE}
           />
         )}
