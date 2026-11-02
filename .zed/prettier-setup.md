@@ -48,7 +48,7 @@ Find the correct path with `which prettierd` and substitute it above.
 
 **Note:** The path is nvm-version-specific. After switching node versions, run `npm install -g @fsouza/prettierd` again under the new version.
 
-## Project-level Prettier config (`app/.prettierrc`)
+## Project-level Prettier config (`.prettierrc`)
 
 Prettier options go here — not in Zed settings:
 
@@ -58,4 +58,4 @@ Prettier options go here — not in Zed settings:
 }
 ```
 
-Prettier resolves this file by walking up from the file being formatted, so placing it at `app/` covers the entire app.
+Prettier resolves this file by walking up from the file being formatted, so placing it at the repository root covers both `app/` and `scripts/`.

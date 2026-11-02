@@ -1,0 +1,10 @@
+{
+  "extends": "../app/tsconfig.json",
+  "compilerOptions": {
+    /* vitest is installed only under app/, which no file here has as an ancestor directory. */
+    "paths": {
+      "vitest": ["../app/node_modules/vitest"]
+    }
+  },
+  "include": ["."]
+}
