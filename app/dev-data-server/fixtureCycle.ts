@@ -1,5 +1,11 @@
-// Node host: the fixture images the web-mode file dialog hands out, in file-name order, one per call.
-import { basename, extname } from 'node:path';
+// Node host: the committed fixture images, and the cycle in which the web-mode file dialog hands them out, in file-name order, one per call.
+import { readdirSync } from 'node:fs';
+import { basename, extname, join, resolve } from 'node:path';
+
+const FIXTURES_DIR = resolve(import.meta.dirname, 'fixtures/images');
+
+export const readFixturePaths = (): string[] =>
+  readdirSync(FIXTURES_DIR).map((name) => join(FIXTURES_DIR, name));
 
 export const createFixtureCycle = (
   fixturePaths: readonly string[],

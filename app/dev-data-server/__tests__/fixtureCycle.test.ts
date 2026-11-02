@@ -2,7 +2,7 @@
 import { readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createFixtureCycle } from '../fixtureCycle';
+import { createFixtureCycle, readFixturePaths } from '../fixtureCycle';
 
 const FIXTURES_DIR = resolve(import.meta.dirname, '../fixtures/images');
 const fixturePaths = readdirSync(FIXTURES_DIR)
@@ -37,5 +37,11 @@ describe('createFixtureCycle', () => {
     expect(next(['gif'])).toBeNull();
 
     expect(next(['png', 'jpg', 'webp'])).toBe(portraitJpg);
+  });
+});
+
+describe('readFixturePaths', () => {
+  it('returns the absolute path of every committed fixture image', () => {
+    expect([...readFixturePaths()].sort()).toEqual(fixturePaths);
   });
 });

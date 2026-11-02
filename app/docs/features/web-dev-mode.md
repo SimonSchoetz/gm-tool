@@ -26,36 +26,42 @@ Failure:
 
 ## Seeded mode
 
-`pnpm run web:seed` from `app/` or the repository root, or `preview_start` with the `seeded-web` launch configuration (port 5174), starts the same Vite web mode with `GM_TOOL_WEB_DATA=seed` set. Instead of copying the dev app's data, the dev data server creates an empty database and an empty `images/` folder in its temporary folder, runs every migration of the checkout on it, then applies the seed (`app/dev-data-server/seed/seed.ts`) before Vite accepts requests. Everything after that — the platform module, the routes, the fixture images, settings — works as in the copy mode above. The seeded mode reads nothing under `~/Library/Application Support/`, so it also starts on a machine with no dev app data.
+`pnpm run web:seed` from `app/` or the repository root, or `preview_start` with the `seeded-web` launch configuration (port 5174), starts the same Vite web mode with `GM_TOOL_WEB_DATA=seed` set. Instead of copying the dev app's data, the dev data server creates an empty database and an empty `images/` folder in its temporary folder, runs every migration of the checkout on it, then applies the seed (`app/dev-data-server/seed/seed.ts`), whose images are copies of the fixture images in that `images/` folder, before Vite accepts requests. Everything after that — the platform module, the routes, the fixture images, settings — works as in the copy mode above. The seeded mode reads nothing under `~/Library/Application Support/`, so it also starts on a machine with no dev app data.
 
-The seed creates every row through the app's own services, never through SQL of its own, so a change to a schema or a service signature fails `type-check` on the seed instead of leaving it stale. The services import through the project's path aliases, which Vite's config bundle cannot resolve, so the dev data server runs the seed in a short-lived Vite server of its own that resolves them, with `@platform` pointed at a module that answers `loadDatabase` with the fresh database (`seedDatabase`, `seed/seedPlatform`).
+The seed creates every row through the app's own services, never through SQL of its own, so a change to a schema or a service signature fails `type-check` on the seed instead of leaving it stale. The services import through the project's path aliases, which Vite's config bundle cannot resolve, so the dev data server runs the seed in a short-lived Vite server of its own that resolves them, with `@platform` pointed at a module that answers `loadDatabase` with the fresh database and `invoke` from the dev data server's own command table, so the services' `save_image` copies a fixture image into the temporary `images/` folder (`seedDatabase`, `seed/seedPlatform`).
 
 The seeded data, by name — a spec or a check refers to these names, never to an id or a URL, since every seeded start creates its rows with new ids:
 
 | Name | What it is |
 | --- | --- |
-| Seed Adventure | The one adventure; every row below belongs to it |
-| Seed NPC | An NPC with no content section |
+| Seed Adventure | The adventure every row below belongs to; its image is the landscape fixture |
+| Imageless Adventure | A second adventure with no image and no content, so the adventure list shows a placeholder |
+| Seed NPC | An NPC with no content section; its image is the portrait fixture |
 | (unnamed NPC) | An NPC whose name is empty: the NPC list shows a blank name, the encounter's Add tab lists it as Untitled Combatant |
-| Seed PC | A PC with no content section |
-| Seed Faction | A faction with no content section |
-| Seed Location | A location with no content section |
-| Seed Item | An item with no content section |
-| Single Stat Block Foe | A foe with one content section, a 5e stat block with HP 7 |
+| Seed PC | A PC with no content section; its image is the portrait fixture |
+| Imageless PC | A PC with no content section and no image |
+| Seed Faction | A faction with no content section; its image is the square fixture |
+| Imageless Faction | A faction with no content section and no image |
+| Seed Location | A location with no content section; its image is the landscape fixture |
+| Imageless Location | A location with no content section and no image |
+| Seed Item | An item with no content section; its image is the square fixture |
+| Imageless Item | An item with no content section and no image |
+| Single Stat Block Foe | A foe with one content section, a 5e stat block with HP 7; its image is the square fixture |
 | Two Stat Block Foe | A foe with two stat blocks: a basic stat block with HP 12, then a 5e stat block with HP 30 |
 | No Stat Block Foe | A foe with one empty text section and no stat block |
-| Seed Encounter | An encounter whose queue shows, in order: Single Stat Block Foe 1 and Single Stat Block Foe 2 (7 / 7), Two Stat Block Foe (no HP: several stat blocks), the event Seed Event, No Stat Block Foe (no HP: no stat block) and the random combatant Seed Bandit (9 / 9); its combat log holds only the five `added` entries its adds wrote, one per add |
+| Seed Encounter | An encounter whose queue shows, in order: Single Stat Block Foe 1 and Single Stat Block Foe 2 (7 / 7), Two Stat Block Foe (no HP: several stat blocks), the event Seed Event, No Stat Block Foe (no HP: no stat block) and the random combatant Seed Bandit (9 / 9); its combat log holds only the five `added` entries its adds wrote, one per add; its cover is the landscape fixture |
+| Imageless Encounter | An encounter with an empty queue and no cover |
 
-No session, image, pinned entity or paired device is seeded. A check that needs a scenario this data does not hold adds it to the seed, its test (`seed.test`) and this table in the same change, so the next check finds it by name.
+Every row not named with an image above has none, so each list — adventures, every base entity type, encounters — shows at least one placeholder icon beside an image. No session, pinned entity or paired device is seeded. A check that needs a scenario this data does not hold adds it to the seed, its test (`seed.test`) and this table in the same change, so the next check finds it by name.
 
 Where the user waits: at server start, for the copy (a 2.1 MB database and 24 MB of images at the time of writing) and the migrations, before Vite accepts requests; on the first page load, for one health request before the database is used. Saving never holds up typing, as in the app.
 
 ## Data
 
-- **Reads (seeded mode):** the checkout's migrations and the seed, the `version` of `package.json`, the three fixture images; no app data directory.
+- **Reads (seeded mode):** the checkout's migrations and the seed, the `version` of `package.json`, the three fixture images, which the seed also copies; no app data directory.
 - **Reads:** the Tauri dev app's database file and `images/` directory under `~/Library/Application Support/com.gm-tool.dev/` (the identifier from `tauri.dev.conf.json`), once per server start; the checkout's migrations; the `version` of `package.json`; the three fixture images.
 - **Writes:** only the temporary copy — its database (a `-wal` file beside it while the server holds it open), its `_migrations` ledger as the pending migrations run, and its `images/`, where uploads and replacements land. Nothing under the dev app's directory is created, changed or removed, with one exception: a database the dev app left with a `-wal` file beside it is recovered in place when the copy step opens and closes it, as the app's next launch would do; a dev app running at the same time keeps its `-wal` file, since the copy step's connection is then not the last to close. The installed release app's directory is not read at all.
-- **Writes (seeded mode):** only the temporary folder: the new database, its `_migrations` ledger, the seeded rows, and its `images/`.
+- **Writes (seeded mode):** only the temporary folder: the new database, its `_migrations` ledger, the seeded rows, and its `images/`, which starts with the seeded images.
 - **Never:** nothing is committed, nothing reaches a paired device, and web-mode edits do not survive a server restart.
 
 ## Rules
@@ -79,11 +85,12 @@ Where the user waits: at server start, for the copy (a 2.1 MB database and 24 MB
 | With no dev app database, web mode does not start: the error names the expected database path and `pnpm run dev`, whose mirror copies the installed release app's data into a dev app without a database unasked; web mode neither falls back to the installed app's data nor writes the dev directory itself | One source for web-mode data, and the mirror stays the only writer of the dev directory outside the dev app | Claude's call, 2026-10-30; tested (`vitePlugin.test`, `installedAppData.test`) |
 | A seeded web mode, `pnpm run web:seed` (from `app/` or the repository root) and the `seeded-web` launch configuration on port 5174, starts from an empty database, runs every migration of the checkout and applies a fixed seed; `pnpm run web` stays the copy mode and the default | UI checks run against defined data, the way unit tests run against defined fixtures, so a result is reproducible and no check builds its scenario by hand | Simon Schötz, 2026-10-30; tested (`vitePlugin.test`, `seedDatabase.test`) |
 | The seed holds one adventure with entities of every base type, a foe with one stat block whose HP is a number, a foe with two stat blocks, a foe with no stat block, an unnamed entity, and an encounter with a few combatants and one event, each under the stable name the Seeded mode table lists | Specs and checks refer to seeded data by name | Simon Schötz, 2026-10-30; tested (`seed.test`) |
+| The seed gives the adventure, one base entity of each type and the seed encounter a fixture image, and keeps at least one adventure, base entity of each type and encounter without one | Image behaviour — covers, list Cover cells, the viewer dialog — and placeholder icons are checkable in the browser without uploading a fixture first | requested by the session verifying the encounter cover image, 2026-11-02; tested (`seed.test`) |
 | The seed creates data only through the app's own services (or `db/` functions), never through SQL of its own | A schema or service change breaks the seed at type-check time instead of leaving it silently stale | Simon Schötz, 2026-10-30 |
 | The seeded mode reads no app data directory and writes only its temporary folder; it never writes the dev app's or the installed app's data | Nothing ever writes the developer's real data | Simon Schötz, 2026-10-30; tested (`vitePlugin.test`) |
 | The seed lives under `app/dev-data-server/`, which no release build bundles: `tauri build` runs `beforeBuildCommand` `pnpm run build:frontend`, a `vite build` of `index.html`'s module graph into `frontendDist` `../dist` (`src-tauri/tauri.conf.json`), and no module of that graph imports the seed; a search of `app/dist/assets/` for `Seed Adventure` finds nothing | Seed data is development-only | Simon Schötz, 2026-10-30; no test |
 | The seeded mode is chosen by the `GM_TOOL_WEB_DATA=seed` environment variable the `web:seed` script sets, not by a Vite mode of its own | The platform module picks its web implementation by `import.meta.env.MODE === 'web'`, so another mode would load the Tauri implementation in the browser | Claude's call, 2026-10-30; tested (`vitePlugin.test`) |
-| The seed runs in a short-lived Vite server of its own, created with the web server's resolved aliases and `@platform` aliased first to a module that answers `loadDatabase` with the fresh database, and closed once the seed has run or failed | The services import through path aliases that Vite's config bundle, which loads the dev data server, does not resolve | Claude's call, 2026-10-30; tested (`seedDatabase.test`) |
+| The seed runs in a short-lived Vite server of its own, created with the web server's resolved aliases and `@platform` aliased first to a module that answers `loadDatabase` with the fresh database and `invoke` from the dev data server's command table with the temporary `images/` folder and the fixture images, and closed once the seed has run or failed | The services import through path aliases that Vite's config bundle, which loads the dev data server, does not resolve | Claude's call, 2026-10-30 (`invoke` added, Claude's call, 2026-11-02); tested (`seedDatabase.test`) |
 | Edits made in web mode survive page reloads and are gone when the dev data server restarts: every start seeds the same data, the current copy | A screen looks the same each time an agent opens it | proposed by Claude, accepted by Simon Schötz, 2026-10-20; no test |
 | The image upload and replace buttons in web mode take the next committed fixture image, cycling through the fixtures in file-name order | Upload, replace and framing flows run end to end in the browser; only the native dialog stays a Tauri hand test | proposed by Claude, accepted by Simon Schötz, 2026-10-20 |
 | The checkout's pending migrations run on the copy at every start, without a backup | The app's code expects the checkout's schema; the copy is disposable, so a backup would only copy a copy; every pending migration is exercised on real data before a release | Claude's call, 2026-10-20; no test |
