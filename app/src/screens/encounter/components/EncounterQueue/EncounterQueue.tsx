@@ -110,15 +110,17 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
           items={shownEntries.map((entry) => entry.id)}
           strategy={verticalListSortingStrategy}
         >
-          {shownEntries.map((entry) => (
-            <EncounterQueueEntry
-              key={entry.id}
-              {...entry}
-              selected={selectedIds.includes(entry.id)}
-              otherDraggedCount={countOtherDragged(entry.id, blockDrag)}
-              onSelect={onSelect}
-            />
-          ))}
+          <div className='encounter-queue-list'>
+            {shownEntries.map((entry) => (
+              <EncounterQueueEntry
+                key={entry.id}
+                {...entry}
+                selected={selectedIds.includes(entry.id)}
+                otherDraggedCount={countOtherDragged(entry.id, blockDrag)}
+                onSelect={onSelect}
+              />
+            ))}
+          </div>
         </SortableContext>
       </DndContext>
     </GlassPanel>

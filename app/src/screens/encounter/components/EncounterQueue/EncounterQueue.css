@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0;
+}
+
+.encounter-queue-list {
   overflow-y: auto;
-  gap: var(--spacing-xs);
 }

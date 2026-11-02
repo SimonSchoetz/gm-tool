@@ -10,7 +10,7 @@ export const describeQueueEntryHp = (hp: {
   const { maxHp, currentHp, tempHp } = hp;
   if (maxHp === null || currentHp === null) return null;
 
-  const text = `${currentHp} / ${maxHp}${tempHp > 0 ? ` +${tempHp}` : ''}`;
+  const text = `${currentHp}/${maxHp}${tempHp > 0 ? ` +${tempHp}` : ''}`;
   if (currentHp <= 0 || maxHp <= 0)
     return { text, state: 'down', lostShare: 1 };
   if (currentHp >= maxHp) return { text, state: 'ok', lostShare: 0 };

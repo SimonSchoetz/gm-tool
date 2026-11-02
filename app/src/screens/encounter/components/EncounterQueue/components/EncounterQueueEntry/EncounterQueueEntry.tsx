@@ -74,15 +74,16 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
           toggle: event.metaKey || event.ctrlKey,
         });
       }}
+      title={name}
     >
-      <span
+      <div
         ref={setActivatorNodeRef}
-        className='encounter-queue-entry-handle'
+        className='encounter-queue-entry-handle content-center'
         {...attributes}
         {...listeners}
       >
         ⠿
-      </span>
+      </div>
 
       <div
         className={imageClassName}
@@ -106,10 +107,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
         )}
       </div>
 
-      <div className='encounter-queue-entry-text'>
-        <div>{name}</div>
-        {hp && <div className='encounter-queue-entry-hp'>{hp.text}</div>}
-      </div>
+      {hp && <div className='label encounter-queue-entry-hp'>{hp.text}</div>}
 
       {otherDraggedCount > 0 && (
         <span

@@ -2,7 +2,7 @@ import {
   CastleIcon,
   FlagIcon,
   GemIcon,
-  SwordIcon,
+  SwordsIcon,
   UserSquareIcon,
   type LucideIcon,
 } from 'lucide-react';
@@ -12,7 +12,7 @@ export type ImagePlaceholderEntityType = BaseEntityType | 'encounters';
 
 // `person` is the silhouette of a combatant that has no entity, so it has no domain of its own.
 export const ENTITY_PLACEHOLDER_ICONS = {
-  encounters: SwordIcon,
+  encounters: SwordsIcon,
   items: GemIcon,
   locations: CastleIcon,
   factions: FlagIcon,

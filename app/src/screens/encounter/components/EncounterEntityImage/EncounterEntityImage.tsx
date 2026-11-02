@@ -16,7 +16,10 @@ export const EncounterEntityImage: FCProps<Props> = ({
   entityType,
   size,
 }) => (
-  <ImagePlaceholderFrame dimensions={{ width: size, height: size }}>
+  <ImagePlaceholderFrame
+    className='encounter-entity-image'
+    dimensions={{ width: size, height: size }}
+  >
     {imageId !== null ? (
       <ImageById imageId={imageId} />
     ) : (
