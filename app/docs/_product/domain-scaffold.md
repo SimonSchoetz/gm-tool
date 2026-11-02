@@ -1,15 +1,15 @@
 # Domain Scaffold
 
-Reference document for adding a new base entity type to the shared base-entity stack. Hand to `/write-specs` along with the new type's identifiers to generate a concrete, /implement-ready spec.
+Reference document for adding a new base entity type to the shared base-entity stack. Give it to `/gimbal:lead` (or `/gimbal:plan-feature`) as story input along with the new type's identifiers; the story plus the architect's verdict is the plan that `/gimbal:implement` builds from.
 
 This document does not scaffold new standalone domains (a domain with its own db, domain, service, and DAL stack — e.g. Sessions, Encounters, Adventures). Those remain out of its scope; it covers only adding one more entry to `BASE_ENTITY_TYPES`.
 
-This document is long-lived. Update it when core infrastructure changes (new layers, changed conventions, new ambient systems). Do not delete it when specs are implemented.
+This document is long-lived. Update it when core infrastructure changes (new layers, changed conventions, new ambient systems). Do not delete it when a feature built from it is implemented.
 
 ## Usage
 
 ```text
-/write-specs "Register a new base entity type named [SINGULAR] (plural: [PLURAL]) following
+/gimbal:lead "Register a new base entity type named [SINGULAR] (plural: [PLURAL]) following
 app/docs/_product/domain-scaffold.md.
 Customizations:
 - Display label: [PascalCase singular label, e.g. 'Foe', or an acronym like 'NPC'/'PC']
@@ -19,7 +19,7 @@ Customizations:
 - scope: ['adventure' or 'global', default 'adventure']"
 ```
 
-/write-specs will verify all paths and imports against the current codebase before writing. All identifiers are derived from the naming conventions below — supply only the customizations above.
+The planning step verifies all paths and imports against the current codebase before the plan is written. All identifiers are derived from the naming conventions below — supply only the customizations above.
 
 ## Naming Conventions
 
@@ -242,7 +242,7 @@ After creating these files, run `pnpm run build:frontend` once from `app/` — s
 
 ## Customization Points
 
-Resolve these at spec-generation time. Provide them in the `/write-specs` prompt.
+Resolve these at planning time. Provide them in the `/gimbal:lead` prompt.
 
 | Point | Default | Where used |
 | --- | --- | --- |
