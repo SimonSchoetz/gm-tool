@@ -17,9 +17,8 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
   });
   const entry = useEncounterCombatantEntry(shownItemId);
   const { updateQueueItem } = useEncounterQueueItems(encounterId);
-  // Stryker disable next-line StringLiteral: the field renders nothing while the entry is null, so the empty string is never shown
+  // The field renders nothing while the entry is null, so neither `''` fallback is shown or compared.
   const shownName = entry?.name ?? '';
-  // Stryker disable next-line StringLiteral: the field renders nothing while the entry is null, so no typed value reaches the comparison with the empty string
   const automaticName = entry?.automaticName ?? '';
   const { value, setValue, focusProps } = useSyncedInputValue(shownName);
   const { inputRef, handleChange } = useTypographicInput((typed) => {

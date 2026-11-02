@@ -16,7 +16,7 @@ export const EncounterEventNameField: FCProps<Props> = ({ shownItemId }) => {
   const { queueItems, updateQueueItem } = useEncounterQueueItems(encounterId);
   const item =
     queueItems.find((queueItem) => queueItem.id === shownItemId) ?? null;
-  // Stryker disable next-line StringLiteral: the field renders nothing while the item is null, so the empty string is never shown
+  // The field renders nothing while the item is null, so the `''` fallback is never shown.
   const { value, setValue, focusProps } = useSyncedInputValue(item?.name ?? '');
   const { inputRef, handleChange } = useTypographicInput((typed) => {
     setValue(typed);

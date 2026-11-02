@@ -96,12 +96,12 @@ The initial dry run and every surviving mutant of such a file pay this time; a k
 
 This is the same placement limit the entry on the comment above `} catch {` records: a comment inside a block does not reach a mutant on the line after the block closes.
 
-## A `// Stryker disable next-line StringLiteral` comment between the attributes of a JSX opening tag, directly above `className='…'`, ignores that attribute's StringLiteral mutant
+## Stryker's StringLiteral mutator creates no mutant for a string that is the direct value of a JSX attribute, such as `className='…'`
 
-**Verified at:** `@stryker-mutator/core` 10.0.0 — 2026-10-29
-**Citation:** [implementer_2: ran `pnpm run mutation-check` in the repository root on `EncounterQueueEntry.tsx` — observed `mutation-check: passed` with the comment above `className='encounter-queue-entry'` and above `className='encounter-queue-entry-tint'`, where the earlier run listed `StringLiteral → ""` survivors on both attribute lines]
+**Verified at:** `@stryker-mutator/instrumenter` 10.0.0 — 2026-11-02
+**Citation:** [architect_6: `app/node_modules/.pnpm/@stryker-mutator+instrumenter@10.0.0/node_modules/@stryker-mutator/instrumenter/dist/src/mutators/string-literal-mutator.js:24` — `isValidParent` excludes a string whose parent is `types.isJSXAttribute`] [implementer_1: ran `npx stryker run --mutate` in `app/` with ranges covering the `className='encounter-queue-entry'`, `className='encounter-queue-entry-tint'` and `className='encounter-queue-entry-badge'` lines of `src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx` as of `a9918d19` with its directive comments removed — observed no mutant on those lines, and `StringLiteral` mutants on the `'plain'` ternary branch and the two `cn()` arguments; the same run observed a `StringLiteral` mutant (replacement ``` `` ```) on the template literal of `<li className={`…`}>` in `src/screens/encounter/components/EncounterSidebar/components/EncounterLogTab/components/EncounterLogEntry/EncounterLogEntry.tsx`]
 
-The comment is a `//` line inside the tag, between two attributes.
+A string inside an expression, such as a `cn('…')` argument or a template literal in `className={…}`, is mutated.
 
 ## A `// Stryker disable next-line StringLiteral: <reason>` comment's mutant is listed in `mutation.json` with status `Ignored` and the reason as `statusReason` only when the mutant's line is inside the `--mutate` range
 

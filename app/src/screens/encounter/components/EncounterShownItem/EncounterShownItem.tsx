@@ -8,7 +8,7 @@ type Props = { shownItemId: string | null };
 
 export const EncounterShownItem: FCProps<Props> = ({ shownItemId }) => {
   // An empty id matches no entry: hooks never run conditionally.
-  // Stryker disable next-line StringLiteral: with a null id the component returns the hint before it reads the entry, so no id string changes the output
+  // With a null id the component returns the hint before it reads the entry.
   const entry = useEncounterQueueEntry(shownItemId ?? '');
 
   if (shownItemId === null) {

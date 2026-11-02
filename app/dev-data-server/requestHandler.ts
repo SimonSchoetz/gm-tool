@@ -140,7 +140,7 @@ const handle = async (
       'The dev data server answers loopback hosts only',
     );
   }
-  // Stryker disable next-line StringLiteral: node:http sets `method` on every request it parses, so the fallback, there for the optional type, never applies.
+  // node:http sets `method` on every request it parses; the fallback is there only for the optional type.
   const method = req.method ?? 'GET';
   if (method === 'GET') {
     if (route === DEV_DATA_SERVER_ROUTES.health) {
@@ -212,7 +212,7 @@ const handle = async (
 export const createRequestHandler =
   (context: DevDataContext): Connect.NextHandleFunction =>
   (req, res, next) => {
-    // Stryker disable next-line StringLiteral: node:http sets `url` on every request it parses, so the fallback, there for the optional type, never applies.
+    // node:http sets `url` on every request it parses; the fallback is there only for the optional type.
     const url = req.url ?? '';
     if (!url.startsWith(DEV_DATA_SERVER_PREFIX)) {
       next();

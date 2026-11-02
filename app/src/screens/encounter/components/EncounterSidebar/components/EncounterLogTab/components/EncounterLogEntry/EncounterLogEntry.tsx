@@ -38,7 +38,6 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
       content = (
         <TextEditor
           value={line.editorState}
-          // Stryker disable next-line StringLiteral: the id only names the editor instance, which no test observes
           textEditorId={`log-entry-${line.id}`}
           readOnly
         />
@@ -60,7 +59,6 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
   }
 
   return (
-    // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
     <li className={`encounter-log-entry encounter-log-entry--${line.kind}`}>
       <div className='encounter-log-entry-content'>{content}</div>
       <div className='encounter-log-entry-buttons'>{actionButton}</div>

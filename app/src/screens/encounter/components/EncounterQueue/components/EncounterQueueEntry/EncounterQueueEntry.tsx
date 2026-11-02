@@ -43,15 +43,12 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
   } = useSortable({ id });
   const hp = props.kind === 'combatant' ? describeQueueEntryHp(props) : null;
   const imageLook =
-    // Stryker disable next-line ConditionalExpression: an event has no defeated flag and no HP, so describeQueueEntryImage returns plain for it too and no input observes a difference
+    // An event has no defeated flag and no HP, so `describeQueueEntryImage` would return plain for it too.
     props.kind === 'combatant'
       ? describeQueueEntryImage(hp, props.defeated)
-      : // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
-        'plain';
+      : 'plain';
   const imageClassName = cn(
-    // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
     'encounter-queue-entry-image',
-    // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
     `encounter-queue-entry-image--${imageLook}`,
   );
 
@@ -65,7 +62,6 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
     <div
       ref={setNodeRef}
       style={style}
-      // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
       className='encounter-queue-entry'
       aria-current={selected ? 'true' : undefined}
       onClick={(event) => {
@@ -100,7 +96,6 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
         )}
         {imageLook === 'tint' && (
           <div
-            // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
             className='encounter-queue-entry-tint'
             aria-label='Damage tint'
           />
@@ -110,10 +105,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
       {hp && <div className='label encounter-queue-entry-hp'>{hp.text}</div>}
 
       {otherDraggedCount > 0 && (
-        <span
-          // Stryker disable next-line StringLiteral: class names only; jsdom computes no style and component tests may not assert a class name
-          className='encounter-queue-entry-badge'
-        >
+        <span className='encounter-queue-entry-badge'>
           +{otherDraggedCount}
         </span>
       )}

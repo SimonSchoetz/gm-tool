@@ -62,7 +62,7 @@ export const MentionBadge: FCProps<Props> = ({
   };
 
   const clearHoverTimer = () => {
-    // Stryker disable next-line ConditionalExpression: clearTimeout on a null id does nothing, so the guard changes no outcome
+    // `clearTimeout` on a null id does nothing; the guard only skips the call.
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
       hoverTimerRef.current = null;
@@ -121,7 +121,7 @@ export const MentionBadge: FCProps<Props> = ({
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    // Stryker disable next-line CallExpression: a hover request that fires after the click finds the click-open entry and changes nothing
+    // A hover request that fires after the click finds the click-open entry and changes nothing.
     clearHoverTimer();
     const mouseDownPosition = mouseDownPositionRef.current;
     mouseDownPositionRef.current = null;

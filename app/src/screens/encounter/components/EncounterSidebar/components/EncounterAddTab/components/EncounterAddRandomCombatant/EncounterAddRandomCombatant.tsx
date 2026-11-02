@@ -33,7 +33,7 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
     !isAdding;
 
   const handleAdd = async () => {
-    // Stryker disable next-line ConditionalExpression,LogicalOperator: the Add button is disabled and Enter is guarded by canAdd, so a call never reaches this guard in an invalid state
+    // The Add button is disabled and Enter is guarded by `canAdd`, so a call never reaches this guard in an invalid state.
     if (!parsedHp.valid || quantity === null) return;
     const wasAdded = await addRandomCombatants(name, parsedHp.hp, quantity);
     if (!wasAdded) return;

@@ -36,7 +36,7 @@ const LABELS = {
 } as const satisfies Record<AutomaticEntry['kind'], string>;
 
 const isAutomatic = (entry: ReadEntry | null): entry is AutomaticEntry =>
-  // Stryker disable next-line ConditionalExpression,StringLiteral: only the ids of reverted entries are looked up in the map built with this guard, and those are revertible kinds, so no input observes a difference
+  // Only the ids of reverted entries are looked up in the map built with this guard, and those are revertible kinds.
   entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';
 
 const withTargets = (label: string, targets: string[]): string =>
