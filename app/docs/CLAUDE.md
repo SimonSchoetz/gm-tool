@@ -1,10 +1,10 @@
 # Docs
 
-This directory contains specs and planning documents. A spec's structure (sections, markers, split format) and its life from creation to deletion are supplied by the tooling that writes it, and the Spec Format Extension below adds this project's own rules to it.
+This directory contains feature pages, product documents and planning documents. The Plan Format Extension below adds this project's own rules to the architect's brief (its Files affected lists) and to the implementer's plan record.
 
-`domain-scaffold.md` is a long-living infrastructure reference document — it is NOT a temporary spec and must not be deleted after implementation. Update it when core domain infrastructure changes (new layers, changed conventions, new ambient systems).
+`domain-scaffold.md` is a long-living infrastructure reference document — it must not be deleted. Update it when core domain infrastructure changes (new layers, changed conventions, new ambient systems).
 
-## Spec Format Extension
+## Plan Format Extension
 
 **Layered breakdown** — layers in dependency order:
 
@@ -20,19 +20,19 @@ The Rust backend depends on neither Domain nor Database — it is ordered here b
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
-**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components). Its Required bullet "Required — an acceptance criterion only the component decides" takes an acceptance criterion that only the component's event handling decides out of the exemption, so that criterion gets a component test, never a note; the risk category the exemption still excludes is a criterion whose outcome depends on layout, which that bullet leaves without a test. The required scope under `src/` — which files must have tests — is that bullet (not the Required bullet on a render-time branch that `mutation-check` reports, which no spec can foresee) plus `.claude/rules/src-unit-tests.md` — Testing Policy.
+**`[MANUAL-VERIFY]` trigger.** The testing-policy exemption is `app/src/CLAUDE.md` — Testing Policy's Forbidden bullet (React components). Its Required bullet "Required — an acceptance criterion only the component decides" takes an acceptance criterion that only the component's event handling decides out of the exemption, so that criterion gets a component test, never a note; the risk category the exemption still excludes is a criterion whose outcome depends on layout, which that bullet leaves without a test. The required scope under `src/` — which files must have tests — is that bullet (not the Required bullet on a render-time branch that `mutation-check` reports, which no brief or plan record can foresee) plus `.claude/rules/src-unit-tests.md` — Testing Policy.
 
 **Verification dataset.** The browser pane's seeded web mode is this project's declared verification dataset: its data is the same at every start, and `app/docs/features/web-dev-mode.md` — Seeded mode names its entities. An acceptance criterion or `[MANUAL-VERIFY]` item that the pane can drive (root `CLAUDE.md` — Development Commands) names the seeded entities it runs on by those names, never an id, a URL or data a tester must create first. When the scenario is not in the seed, the Files affected list of the sub-feature that first needs it carries the seed addition that section requires — one `Modified:` line per file it lists, each naming the new entity.
 
 **Mutation-check verification step.** Each sub-feature that creates or modifies a production source which has, or in that sub-feature gets, its own test file (`__tests__/<name>.test.ts` or `.test.tsx` in the source's folder) carries one verification step for the implementer: after its check rows pass and before its commit, run `pnpm run mutation-check -- <those production sources>` and resolve every survivor it prints, as root `CLAUDE.md` — Tool Use Discipline, Check Commands states for the per-file run and the re-run. The step states no expected result. A survivor that a test specified for a later sub-feature will kill waits for that sub-feature. The run without arguments before the final review cycle stays the gate.
 
-**Barrel instructions require explicit validation.** Before writing any barrel instruction (including "no change needed"), read the actual barrel file and verify every export against the barrel conventions in `app/CLAUDE.md` — Directory Structure. Existing `export *` is not evidence that it is correct. A spec that instructs "no change needed" for a barrel that violates the explicit-exports rule is a spec defect.
+**Barrel instructions require explicit validation.** Before writing any barrel instruction (including "no change needed"), read the actual barrel file and verify every export against the barrel conventions in `app/CLAUDE.md` — Directory Structure. Existing `export *` is not evidence that it is correct. A brief or plan record that instructs "no change needed" for a barrel that violates the explicit-exports rule is a defect.
 
 **Test fixture accuracy example.** ✅ `Modified: db/image/remove.ts` — error message changed; `Modified: db/image/__tests__/remove.test.ts` — update error message assertion from `'Image ID is required'` to `'Valid image ID is required'`. ❌ `Modified: db/image/remove.ts` only.
 
-**CLAUDE.md impact — `domain-scaffold.md`.** `app/docs/_product/domain-scaffold.md` is this project's long-living reference document for the impact section's reference-document bullets: a stale reference, a missing section, or an invalidated example there is resolved by editing it during this spec's own implementation, encoded as `Modified: app/docs/_product/domain-scaffold.md — <what changes>` in the relevant sub-feature's Files affected list.
+**Reference-document updates — `domain-scaffold.md`.** `app/docs/_product/domain-scaffold.md` is this project's long-living reference document: a stale reference, a missing section, or an invalidated example there is resolved by editing it during the feature's own implementation, encoded as `Modified: app/docs/_product/domain-scaffold.md — <what changes>` in the relevant sub-feature's Files affected list.
 
-**Default sortable columns.** All entity lists support sorting by `name`, `created_at`, and `updated_at` as baseline columns. These are app-wide defaults — never re-specify them in a feature story or a screen-specific spec. Domain-specific sort columns (e.g. `session_date` for sessions) are additive and require their own story or spec entry.
+**Default sortable columns.** All entity lists support sorting by `name`, `created_at`, and `updated_at` as baseline columns. These are app-wide defaults — never re-specify them in a feature story or a screen-specific brief. Domain-specific sort columns (e.g. `session_date` for sessions) are additive and require their own story or brief entry.
 
-- ❌ BAD: a session screen spec listing `name`, `created_at`, `updated_at` as session-specific sort work — already covered by the baseline
-- ✅ GOOD: a session screen spec adding only `session_date` as a new sort column, relying on the baseline for the rest
+- ❌ BAD: a session screen brief listing `name`, `created_at`, `updated_at` as session-specific sort work — already covered by the baseline
+- ✅ GOOD: a session screen brief adding only `session_date` as a new sort column, relying on the baseline for the rest

@@ -1,6 +1,6 @@
 # gimbal
 
-This file is this project's declaration for the `gimbal` Claude Code plugin — spec-driven workflow tooling that is not part of this repository: it is installed per machine as the symlink `~/.claude/skills/gimbal` into a checkout of `git@github.com:SimonSchoetz/setup.git` (directory `claude/gimbal/` of that repository). The plugin's skills read this file on demand, one `##` entry at a time, looked up by heading name; nothing here is auto-loaded, and this is the only file through which the project speaks to the plugin — `.claude/README.md` names it in prose for a human reader, and nothing else in this repository depends on it. Each entry holds a project fact or one pointer (`<path> — <heading>`) into this repository's own files. Without the plugin this file has no reader, and every command, path, and convention it names is still true of the project on its own.
+This file is this project's declaration for the `gimbal` Claude Code plugin — workflow tooling that is not part of this repository: it is installed per machine as the symlink `~/.claude/skills/gimbal` into a checkout of `git@github.com:SimonSchoetz/setup.git` (directory `claude/gimbal/` of that repository). The plugin's skills read this file on demand, one `##` entry at a time, looked up by heading name; nothing here is auto-loaded, and this is the only file through which the project speaks to the plugin — `.claude/README.md` names it in prose for a human reader, and nothing else in this repository depends on it. Each entry holds a project fact or one pointer (`<path> — <heading>`) into this repository's own files. Without the plugin this file has no reader, and every command, path, and convention it names is still true of the project on its own.
 
 ## checks
 
@@ -20,17 +20,9 @@ This file is this project's declaration for the `gimbal` Claude Code plugin — 
 
 `app/src-tauri/vendor/*/Cargo.toml` are vendored crates, not project manifests.
 
-## compiler-config
-
-- `app/tsconfig.json`
-
 ## linter-config
 
 - `app/eslint.config.js`
-
-## layer-order
-
-`app/docs/CLAUDE.md — Layered breakdown`
 
 ## layers
 
@@ -46,13 +38,9 @@ This file is this project's declaration for the `gimbal` Claude Code plugin — 
 
 Conventions for `app/src/` are additionally carried by path-scoped rules under `.claude/rules/`, indexed in `app/src/CLAUDE.md` — Structure. Each loads when Claude works with a matching file (reads, writes or edits it).
 
-## spec-directory
-
-`app/docs/`
-
 ## spec-format-extension
 
-`app/docs/CLAUDE.md — Spec Format Extension`
+`app/docs/CLAUDE.md — Plan Format Extension`
 
 ## testing-policy
 
@@ -71,10 +59,6 @@ Conventions for `app/src/` are additionally carried by path-scoped rules under `
 ## citation-format
 
 `CLAUDE.md — Citations`
-
-## library-lookup
-
-`app/CLAUDE.md — Third-Party Libraries`
 
 ## docs-directory
 
