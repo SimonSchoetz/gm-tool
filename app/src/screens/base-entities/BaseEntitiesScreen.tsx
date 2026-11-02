@@ -60,6 +60,7 @@ export const BaseEntitiesScreen: FCProps<Props> = ({ entityType }) => {
         void handleBaseEntityCreation();
       }}
       searchPlaceholder={`e.g. "name, ${baseEntitySearchHint(entityType)}, some text in description"`}
+      entityType={entityType}
     />
   );
 };

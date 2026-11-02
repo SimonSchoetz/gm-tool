@@ -1,6 +1,7 @@
 import './SortableListItem.css';
 import { useMemo } from 'react';
 import { FCProps } from '@/types/fcProps.type';
+import type { ImagePlaceholderEntityType } from '../../../EntityPlaceholderIcon';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
@@ -15,6 +16,7 @@ type Props = {
   item: Record<string, unknown>;
   onClick: (item: Record<string, unknown>) => void;
   dragWidths: Record<string, number> | null;
+  entityType: ImagePlaceholderEntityType | null;
 };
 
 export const SortableListItem: FCProps<Props> = ({
@@ -22,6 +24,7 @@ export const SortableListItem: FCProps<Props> = ({
   item,
   onClick,
   dragWidths,
+  entityType,
 }) => {
   const { config } = useTableConfig(tableConfigId);
   const columns = config?.layout.columns ?? [];
@@ -61,7 +64,9 @@ export const SortableListItem: FCProps<Props> = ({
               key={col.key}
             >
               {/* span wrapper is needed for clipping text */}
-              <span className='clip-text'>{renderCell(col.key, item)}</span>
+              <span className='clip-text'>
+                {renderCell(col.key, item, entityType)}
+              </span>
             </div>
           ))}
         </ActionContainer>

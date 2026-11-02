@@ -2,28 +2,57 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { renderCell } from '../renderCell';
 
-vi.mock('../../components/AvatarCell/AvatarCell', () => ({
-  AvatarCell: ({ imageId }: { imageId: string | null | undefined }) => (
-    <div data-testid='avatar-cell' data-image-id={imageId ?? ''} />
+vi.mock('../../components/CoverCell/CoverCell', () => ({
+  CoverCell: ({
+    imageId,
+    entityType,
+  }: {
+    imageId: string | null | undefined;
+    entityType: string | null;
+  }) => (
+    <div
+      data-testid='cover-cell'
+      data-image-id={imageId ?? ''}
+      data-entity-type={entityType ?? ''}
+    />
   ),
 }));
 
 describe('renderCell', () => {
   describe('image_id key', () => {
-    it('renders AvatarCell with the provided imageId', () => {
+    it('renders CoverCell with the provided imageId', () => {
       const node = renderCell('image_id', { image_id: 'img-123' });
       const { getByTestId } = render(<>{node}</>);
-      expect(getByTestId('avatar-cell')).toBeInTheDocument();
-      expect(getByTestId('avatar-cell')).toHaveAttribute(
+      expect(getByTestId('cover-cell')).toBeInTheDocument();
+      expect(getByTestId('cover-cell')).toHaveAttribute(
         'data-image-id',
         'img-123',
       );
     });
 
-    it('renders AvatarCell with empty data-image-id when image_id is absent', () => {
+    it('renders CoverCell with empty data-image-id when image_id is absent', () => {
       const node = renderCell('image_id', {});
       const { getByTestId } = render(<>{node}</>);
-      expect(getByTestId('avatar-cell')).toHaveAttribute('data-image-id', '');
+      expect(getByTestId('cover-cell')).toHaveAttribute('data-image-id', '');
+    });
+
+    it('hands the entity type to CoverCell, and null when there is none', () => {
+      const withType = render(
+        <>{renderCell('image_id', { image_id: 'img-123' }, 'locations')}</>,
+      );
+      expect(withType.getByTestId('cover-cell')).toHaveAttribute(
+        'data-entity-type',
+        'locations',
+      );
+      withType.unmount();
+
+      const withoutType = render(
+        <>{renderCell('image_id', { image_id: 'img-123' })}</>,
+      );
+      expect(withoutType.getByTestId('cover-cell')).toHaveAttribute(
+        'data-entity-type',
+        '',
+      );
     });
   });
 

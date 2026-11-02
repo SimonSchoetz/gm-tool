@@ -117,7 +117,7 @@ Needs no change — `app/platform/` is the host boundary every layer reaches Tau
       columns: [
         {
           key: 'image_id',
-          label: 'Avatar',
+          label: 'Cover',
           sortable: false,
           resizable: false,
           width: 136,
@@ -176,6 +176,7 @@ Needs no change — `services/baseEntityService.ts` already accepts any `BaseEnt
 - One label added to the existing grouped case in `screens/components/ScreensDuplicateBtn/ScreensDuplicateBtn.tsx`'s switch and in `src/components/Header/components/BreadcrumbList/components/BreadcrumbListEntry.tsx`'s switch — both already dispatch every base entity type through one shared body, so adding a type means adding its case label to the existing `case 'npcs': case 'pcs': ...` group, not writing a new branch.
 - One `ScreenNavBtn` entry in `src/components/SideBarNav/SideBarNav.tsx`'s adventure-scoped button group.
 - One `useBaseEntities('[plural]', adventureId)` call and one `statsMap` entry in `AdventureStats.tsx`.
+- One `[plural]` key in `ENTITY_PLACEHOLDER_ICONS` (`src/components/EntityPlaceholderIcon/entityPlaceholderIcons.ts`), the icon its lists, queue rows and Add-tab rows show for an entity with no image — the table is declared `satisfies Record<…>` over every `BaseEntityType`, so `tsc` rejects it until the key exists; `entityPlaceholderIcons.test.ts` gets the case for it.
 
 **Needs no change** — `MentionPopupContent.tsx` (dispatches every base entity type through `isBaseEntityType`), `BaseEntitiesScreen`, `BaseEntityScreen`, `BaseEntitySidebar`, `BaseEntityPopupContent`, `BaseEntityDuplicateBtn`, `BaseEntityCrumb`, `services/baseEntityService.ts`, and every `db/base-entity/` CRUD file — all already accept any `BaseEntityType` as their first argument or prop.
 
