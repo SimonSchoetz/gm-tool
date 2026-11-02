@@ -17,9 +17,9 @@
   padding: var(--spacing-md);
   gap: var(--spacing-md);
   display: grid;
-  grid-template-columns: var(--encounter-screen-side-width) minmax(0, 1fr) var(
-      --encounter-screen-side-width
-    );
+  grid-template-columns:
+    var(--encounter-screen-queue-column-width) minmax(0, 1fr)
+    var(--encounter-screen-side-column-width);
 }
 
 .encounter-screen-queue-column,

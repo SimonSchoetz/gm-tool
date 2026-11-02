@@ -7,6 +7,7 @@
   border-radius: var(--radius-xl);
   user-select: none;
   position: relative;
+  flex-shrink: 0;
 }
 
 .encounter-queue-entry[aria-current='true'] {
@@ -18,6 +19,7 @@
   font-size: var(--font-size-base);
   user-select: none;
   padding: var(--spacing-xs) var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 .encounter-queue-entry-handle:active {
@@ -28,6 +30,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
+  flex-shrink: 0;
 }
 
 .encounter-queue-entry-image--grey {
@@ -48,6 +51,7 @@
   flex-direction: column;
   min-width: 0;
   flex: 1;
+  overflow-wrap: anywhere;
 }
 
 .encounter-queue-entry-hp {

@@ -42,7 +42,8 @@ export const EncounterScreen = () => {
     <GlassPanel
       style={
         {
-          '--encounter-screen-side-width': `${PREVIEW_WIDTH * 1.5}px`,
+          '--encounter-screen-queue-column-width': `${PREVIEW_WIDTH}px`,
+          '--encounter-screen-side-column-width': `${PREVIEW_WIDTH * 1.5}px`,
         } as React.CSSProperties
       }
       className='encounter-screen'

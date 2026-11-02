@@ -104,7 +104,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
       </div>
 
       <div className='encounter-queue-entry-text'>
-        <div className='clip-text'>{name}</div>
+        <div>{name}</div>
         {hp && <div className='encounter-queue-entry-hp'>{hp.text}</div>}
       </div>
 
