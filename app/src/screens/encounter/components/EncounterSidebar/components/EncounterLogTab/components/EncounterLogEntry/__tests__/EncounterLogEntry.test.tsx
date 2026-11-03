@@ -151,6 +151,7 @@ describe('EncounterLogEntry', () => {
   it('gives only the entity name of an automatic line its full text as a title, so a name cut at the line’s width stays readable on hover', () => {
     renderLines(
       automatic('entry-1', {
+        isRevertible: false,
         parts: [
           { kind: 'text', text: 'Damage: ' },
           { kind: 'name', text: 'Goblin' },

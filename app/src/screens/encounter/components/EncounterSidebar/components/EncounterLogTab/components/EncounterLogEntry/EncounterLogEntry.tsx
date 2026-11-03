@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { useParams } from '@tanstack/react-router';
-import { Trash2Icon } from 'lucide-react';
-import { Button } from '@/components/Button/Button';
+import { Trash2Icon, Undo2Icon } from 'lucide-react';
 import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
 import { TextEditor } from '@/components/TextEditor';
 import { useEncounterLogEntries } from '@/data-access-layer';
@@ -40,8 +39,10 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
       content = line.isReverted ? <del>{parts}</del> : parts;
       if (line.isRevertible) {
         actionButton = (
-          <Button
+          <ClickableIcon
+            icon={<Undo2Icon />}
             label='Revert'
+            title='Revert'
             disabled={isWriting}
             onClick={() => {
               void recordLogEntry('revert', { entryId: line.id });
