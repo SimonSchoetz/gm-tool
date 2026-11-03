@@ -21,4 +21,8 @@ describe('computePanDelta', () => {
   it('dy uses containerHeight for normalization', () => {
     expect(computePanDelta(0, 600, 800, 600, 1).dy).toBe(100);
   });
+
+  it('full container height drag at zoom 2 produces dy=50', () => {
+    expect(computePanDelta(0, 600, 800, 600, 2).dy).toBe(50);
+  });
 });
