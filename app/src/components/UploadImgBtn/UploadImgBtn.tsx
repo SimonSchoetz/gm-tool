@@ -5,7 +5,7 @@ import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { HoloImg } from '../HoloImg';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import PopUpContainer from '../PopUpContainer/PopUpContainer';
-import { ImageViewerDialog } from './components/ImageViewerDialog';
+import { ImageViewerDialog } from '../ImageViewerDialog';
 import './UploadImgBtn.css';
 import { LoadingIcon } from '../LoadingIcon/LoadingIcon';
 

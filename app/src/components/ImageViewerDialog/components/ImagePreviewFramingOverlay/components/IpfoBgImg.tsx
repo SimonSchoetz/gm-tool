@@ -1,4 +1,4 @@
-import { ImageById } from '../../../../../../ImageById/ImageById';
+import { ImageById } from '../../../../ImageById/ImageById';
 import { FCProps } from '@/types/fcProps.type';
 import { useState } from 'react';
 import './IpfoBgImg.css';
