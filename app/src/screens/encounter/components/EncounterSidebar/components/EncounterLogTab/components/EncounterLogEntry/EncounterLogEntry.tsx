@@ -9,6 +9,9 @@ import { getTimeString } from '@util';
 import type { LogLine } from '../../../../../../helper/buildLogLines';
 import './EncounterLogEntry.css';
 
+// Smaller than the default icon, to sit beside the Log's small text.
+const LOG_ICON_SIZE = 16;
+
 type Props = { line: LogLine };
 
 export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
@@ -40,7 +43,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
       if (line.isRevertible) {
         actionButton = (
           <ClickableIcon
-            icon={<Undo2Icon />}
+            icon={<Undo2Icon size={LOG_ICON_SIZE} />}
             label='Revert'
             title='Revert'
             disabled={isWriting}
@@ -62,7 +65,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
       );
       actionButton = (
         <ClickableIcon
-          icon={<Trash2Icon />}
+          icon={<Trash2Icon size={LOG_ICON_SIZE} />}
           variant='danger'
           label='Delete'
           title='Delete'

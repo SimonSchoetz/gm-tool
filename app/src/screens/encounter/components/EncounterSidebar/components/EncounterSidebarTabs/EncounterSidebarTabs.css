@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   gap: var(--spacing-xs);
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
   margin-bottom: calc(-1 * var(--border-thin));
 }
 
