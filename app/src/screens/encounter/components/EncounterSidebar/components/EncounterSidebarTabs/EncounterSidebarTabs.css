@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   gap: var(--spacing-xs);
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-xs);
   margin-bottom: calc(-1 * var(--border-thin));
 }
 
@@ -15,7 +15,7 @@
 
 .encounter-sidebar-tabs-tab {
   margin-top: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   background-color: var(--color-bg-muted);
   color: var(--color-fg-muted);

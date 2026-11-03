@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildBaseEntity } from '@/__tests__/support/buildBaseEntity';
 import { buildEncounterLogEntry } from '@/__tests__/support/buildEncounterLogEntry';
 import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
-import { buildLogLines } from '../buildLogLines';
+import { buildLogLines, type LogLinePart } from '../buildLogLines';
 
 const goblin = buildEncounterQueueItem({ id: 'a', name: 'Goblin' });
 const orc = buildEncounterQueueItem({ id: 'b', name: 'Orc' });
@@ -12,8 +12,13 @@ const log = (id: string, ...args: Parameters<typeof buildEncounterLogEntry>) =>
 const damage = (id: string, queueItemId = 'a') =>
   log(id, 'damage', { targets: [{ queueItemId, amount: 3 }] });
 
+const joinedText = (parts: LogLinePart[]) =>
+  parts.map(({ text }) => text).join('');
+
 const textsOf = (lines: ReturnType<typeof buildLogLines>) =>
-  lines.map((line) => (line.kind === 'automatic' ? line.text : line.kind));
+  lines.map((line) =>
+    line.kind === 'automatic' ? joinedText(line.parts) : line.kind,
+  );
 
 describe('buildLogLines', () => {
   it.each([
@@ -57,6 +62,56 @@ describe('buildLogLines', () => {
       expect(textsOf(lines)).toEqual([expected]);
     },
   );
+
+  it('keeps every entity name in a name part of its own and the label, separators, figures and quantity in text parts', () => {
+    const goblins = [
+      buildEncounterQueueItem({ id: 'a', name: 'Goblin', sequence_number: 1 }),
+      buildEncounterQueueItem({ id: 'b', name: 'Goblin', sequence_number: 2 }),
+    ];
+    const lines = buildLogLines(
+      goblins,
+      [
+        log('e1', 'damage', {
+          targets: [
+            { queueItemId: 'a', amount: 3 },
+            { queueItemId: 'b', amount: 4 },
+          ],
+        }),
+        log('e2', 'defeated', { queueItemIds: ['a', 'b'] }),
+        log('e3', 'added', { queueItemIds: ['a', 'b'] }),
+        log('e4', 'added', { queueItemIds: ['a'] }),
+      ],
+      [],
+    );
+
+    expect(
+      lines.map((line) => (line.kind === 'automatic' ? line.parts : [])),
+    ).toEqual([
+      [
+        { kind: 'text', text: 'Damage: ' },
+        { kind: 'name', text: 'Goblin 1' },
+        { kind: 'text', text: ' (3)' },
+        { kind: 'text', text: ', ' },
+        { kind: 'name', text: 'Goblin 2' },
+        { kind: 'text', text: ' (4)' },
+      ],
+      [
+        { kind: 'text', text: 'Defeated: ' },
+        { kind: 'name', text: 'Goblin 1' },
+        { kind: 'text', text: ', ' },
+        { kind: 'name', text: 'Goblin 2' },
+      ],
+      [
+        { kind: 'text', text: 'Added: ' },
+        { kind: 'name', text: 'Goblin' },
+        { kind: 'text', text: ' ×2' },
+      ],
+      [
+        { kind: 'text', text: 'Added: ' },
+        { kind: 'name', text: 'Goblin' },
+      ],
+    ]);
+  });
 
   it('shows the base name once on an added line and a quantity only above one', () => {
     const goblins = [
@@ -155,7 +210,11 @@ describe('buildLogLines', () => {
       }),
       expect.objectContaining({
         id: 'e2',
-        text: 'Damage: Goblin (3)',
+        parts: [
+          { kind: 'text', text: 'Damage: ' },
+          { kind: 'name', text: 'Goblin' },
+          { kind: 'text', text: ' (3)' },
+        ],
         isReverted: true,
         isRevertible: false,
       }),
@@ -167,7 +226,12 @@ describe('buildLogLines', () => {
       expect.objectContaining({
         id: 'e4',
         kind: 'automatic',
-        text: 'Reverted: Damage: Goblin (3)',
+        parts: [
+          { kind: 'text', text: 'Reverted: ' },
+          { kind: 'text', text: 'Damage: ' },
+          { kind: 'name', text: 'Goblin' },
+          { kind: 'text', text: ' (3)' },
+        ],
         isReverted: false,
         isRevertible: false,
       }),
@@ -231,7 +295,11 @@ describe('buildLogLines', () => {
 
     expect(lines).toEqual([
       expect.objectContaining({
-        text: 'Damage: Troll (3)',
+        parts: [
+          { kind: 'text', text: 'Damage: ' },
+          { kind: 'name', text: 'Troll' },
+          { kind: 'text', text: ' (3)' },
+        ],
         createdAt: 'at-e1',
       }),
       {

@@ -103,6 +103,10 @@ describe('runSeed', () => {
         { entity_type: 'foes', name: 'No Stat Block Foe' },
         { entity_type: 'foes', name: 'Single Stat Block Foe' },
         { entity_type: 'foes', name: 'Two Stat Block Foe' },
+        {
+          entity_type: 'foes',
+          name: 'UnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoe',
+        },
         { entity_type: 'items', name: 'Imageless Item' },
         { entity_type: 'items', name: 'Seed Item' },
         { entity_type: 'locations', name: 'Imageless Location' },
@@ -137,6 +141,10 @@ describe('runSeed', () => {
       { name: 'Seed PC', original_filename: 'portrait.jpg' },
       { name: 'Single Stat Block Foe', original_filename: 'square.webp' },
       { name: 'Two Stat Block Foe', original_filename: null },
+      {
+        name: 'UnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoe',
+        original_filename: null,
+      },
     ]);
   });
 

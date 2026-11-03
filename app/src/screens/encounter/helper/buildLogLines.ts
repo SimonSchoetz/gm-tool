@@ -8,6 +8,9 @@ import {
 } from '@domain';
 import { nameQueueItems } from './nameQueueItems';
 
+// A `name` part is an entity name the screen shows on one line, cut at the line's width; a `text` part is the label, a separator or a figure, which stays readable.
+export type LogLinePart = { kind: 'text' | 'name'; text: string };
+
 export type LogLine =
   | { kind: 'unreadable'; id: string; createdAt: string }
   | { kind: 'message'; id: string; createdAt: string; editorState: string }
@@ -15,7 +18,7 @@ export type LogLine =
       kind: 'automatic';
       id: string;
       createdAt: string;
-      text: string;
+      parts: LogLinePart[];
       isReverted: boolean;
       isRevertible: boolean;
     };
@@ -39,13 +42,23 @@ const isAutomatic = (entry: ReadEntry | null): entry is AutomaticEntry =>
   // Only the ids of reverted entries are looked up in the map built with this guard, and those are revertible kinds.
   entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';
 
-const withTargets = (label: string, targets: string[]): string =>
-  targets.length === 0 ? label : `${label}: ${targets.join(', ')}`;
+const textPart = (text: string): LogLinePart => ({ kind: 'text', text });
+const namePart = (text: string): LogLinePart => ({ kind: 'name', text });
+
+const withTargets = (label: string, targets: LogLinePart[][]): LogLinePart[] =>
+  targets.length === 0
+    ? [textPart(label)]
+    : [
+        textPart(`${label}: `),
+        ...targets.flatMap((target, index) =>
+          index === 0 ? target : [textPart(', '), ...target],
+        ),
+      ];
 
 const describeEntry = (
   entry: AutomaticEntry,
   names: QueueItemNames,
-): string => {
+): LogLinePart[] => {
   // A target with no queue item (a sync race) is left out instead of throwing.
   const shownName = (queueItemId: string): string | null =>
     names.get(queueItemId)?.shownName ?? null;
@@ -56,7 +69,9 @@ const describeEntry = (
       label,
       targets.flatMap(({ queueItemId, figure }) => {
         const name = shownName(queueItemId);
-        return name === null ? [] : [`${name} (${figure})`];
+        return name === null
+          ? []
+          : [[namePart(name), textPart(` (${figure})`)]];
       }),
     );
 
@@ -84,7 +99,7 @@ const describeEntry = (
         label,
         entry.payload.queueItemIds.flatMap((queueItemId) => {
           const name = shownName(queueItemId);
-          return name === null ? [] : [name];
+          return name === null ? [] : [[namePart(name)]];
         }),
       );
     case 'added': {
@@ -94,8 +109,10 @@ const describeEntry = (
           .map((queueItemId) => names.get(queueItemId)?.baseName ?? null)
           .find((name) => name !== null) ?? null;
       const quantity =
-        queueItemIds.length > 1 ? ` ×${queueItemIds.length}` : '';
-      return baseName === null ? label : `${label}: ${baseName}${quantity}`;
+        queueItemIds.length > 1 ? [textPart(` ×${queueItemIds.length}`)] : [];
+      return baseName === null
+        ? [textPart(label)]
+        : [textPart(`${label}: `), namePart(baseName), ...quantity];
     }
   }
 };
@@ -148,7 +165,7 @@ export const buildLogLines = (
       return {
         kind: 'automatic',
         ...base,
-        text: `Reverted: ${describeEntry(reverted, names)}`,
+        parts: [textPart('Reverted: '), ...describeEntry(reverted, names)],
         isReverted: false,
         isRevertible: false,
       };
@@ -157,7 +174,7 @@ export const buildLogLines = (
     return {
       kind: 'automatic',
       ...base,
-      text: describeEntry(entry, names),
+      parts: describeEntry(entry, names),
       isReverted,
       isRevertible: isRevertibleLogEntryKind(entry.kind) && !isReverted,
     };
