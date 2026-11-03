@@ -2,24 +2,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  /*max-width: inherit;*/
   flex: 1;
-}
-
-.MPH--section-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
 }
 
 .MPH-title--pinned {
   cursor: grab;
-}
-
-.mention-popup-name--pinned:active {
-  cursor: grabbing;
-}
-
-.MPH--content-section-label {
-  text-transform: uppercase;
 }

@@ -19,28 +19,24 @@ type AddQueueItemsVariables =
       kind: 'entity';
       entityType: BaseEntityType;
       baseEntityId: string;
-      quantity: number;
     }
   | {
       kind: 'random';
       name: string;
       startingMaxHp: number | null;
-      quantity: number;
     }
   | { kind: 'event'; name: string };
 
 type UseEncounterQueueItemsReturn = {
   queueItems: EncounterQueueItem[];
   loading: boolean;
-  addEntityCombatants: (
+  addEntityCombatant: (
     entityType: BaseEntityType,
     baseEntityId: string,
-    quantity: number,
   ) => Promise<boolean>;
-  addRandomCombatants: (
+  addRandomCombatant: (
     name: string,
     startingMaxHp: number | null,
-    quantity: number,
   ) => Promise<boolean>;
   addEvent: (name: string) => Promise<boolean>;
   isAdding: boolean;
@@ -63,18 +59,16 @@ export const useEncounterQueueItems = (
     mutationFn: (variables: AddQueueItemsVariables) => {
       switch (variables.kind) {
         case 'entity':
-          return service.addEntityCombatants(
+          return service.addEntityCombatant(
             encounterId,
             variables.entityType,
             variables.baseEntityId,
-            variables.quantity,
           );
         case 'random':
-          return service.addRandomCombatants(
+          return service.addRandomCombatant(
             encounterId,
             variables.name,
             variables.startingMaxHp,
-            variables.quantity,
           );
         case 'event':
           return service.addEvent(encounterId, variables.name);
@@ -108,18 +102,15 @@ export const useEncounterQueueItems = (
     return true;
   };
 
-  const addEntityCombatants = (
+  const addEntityCombatant = (
     entityType: BaseEntityType,
     baseEntityId: string,
-    quantity: number,
-  ): Promise<boolean> =>
-    add({ kind: 'entity', entityType, baseEntityId, quantity });
+  ): Promise<boolean> => add({ kind: 'entity', entityType, baseEntityId });
 
-  const addRandomCombatants = (
+  const addRandomCombatant = (
     name: string,
     startingMaxHp: number | null,
-    quantity: number,
-  ): Promise<boolean> => add({ kind: 'random', name, startingMaxHp, quantity });
+  ): Promise<boolean> => add({ kind: 'random', name, startingMaxHp });
 
   const addEvent = (name: string): Promise<boolean> =>
     add({ kind: 'event', name });
@@ -191,8 +182,8 @@ export const useEncounterQueueItems = (
   return {
     queueItems,
     loading,
-    addEntityCombatants,
-    addRandomCombatants,
+    addEntityCombatant,
+    addRandomCombatant,
     addEvent,
     isAdding,
     reorderQueueItems,

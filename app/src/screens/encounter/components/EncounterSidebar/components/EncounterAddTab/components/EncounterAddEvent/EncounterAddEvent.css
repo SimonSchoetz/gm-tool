@@ -1,5 +1,6 @@
 .encounter-add-event {
   display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
 }
 
@@ -8,6 +9,5 @@
 }
 
 .encounter-add-event-name {
-  flex: 1;
   min-width: 0;
 }

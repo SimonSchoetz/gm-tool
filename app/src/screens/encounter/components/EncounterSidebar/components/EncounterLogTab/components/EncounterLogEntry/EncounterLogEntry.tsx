@@ -1,12 +1,16 @@
 import type { ReactNode } from 'react';
 import { useParams } from '@tanstack/react-router';
-import { Button } from '@/components/Button/Button';
+import { Trash2Icon, Undo2Icon } from 'lucide-react';
+import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
 import { TextEditor } from '@/components/TextEditor';
 import { useEncounterLogEntries } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { getTimeString } from '@util';
 import type { LogLine } from '../../../../../../helper/buildLogLines';
 import './EncounterLogEntry.css';
+
+// Smaller than the default icon, to sit beside the Log's small text.
+const LOG_ICON_SIZE = 16;
 
 type Props = { line: LogLine };
 
@@ -20,12 +24,28 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
   let content: ReactNode;
   let actionButton: ReactNode = null;
   switch (line.kind) {
-    case 'automatic':
-      content = line.isReverted ? <del>{line.text}</del> : line.text;
+    case 'automatic': {
+      const parts = line.parts.map((part, index) =>
+        part.kind === 'name' ? (
+          <span
+            // The parts of a line are fixed once it is built and never reordered, so the position is a stable key.
+            key={index}
+            className='encounter-log-entry-name clip-text'
+            title={part.text}
+          >
+            {part.text}
+          </span>
+        ) : (
+          part.text
+        ),
+      );
+      content = line.isReverted ? <del>{parts}</del> : parts;
       if (line.isRevertible) {
         actionButton = (
-          <Button
+          <ClickableIcon
+            icon={<Undo2Icon size={LOG_ICON_SIZE} />}
             label='Revert'
+            title='Revert'
             disabled={isWriting}
             onClick={() => {
               void recordLogEntry('revert', { entryId: line.id });
@@ -34,6 +54,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
         );
       }
       break;
+    }
     case 'message':
       content = (
         <TextEditor
@@ -43,9 +64,11 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
         />
       );
       actionButton = (
-        <Button
+        <ClickableIcon
+          icon={<Trash2Icon size={LOG_ICON_SIZE} />}
+          variant='danger'
           label='Delete'
-          buttonStyle='danger'
+          title='Delete'
           disabled={isWriting}
           onClick={() => {
             void deleteLogMessage(line.id);

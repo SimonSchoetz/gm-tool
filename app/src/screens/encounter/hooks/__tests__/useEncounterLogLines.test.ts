@@ -80,7 +80,13 @@ describe('useEncounterLogLines', () => {
     });
 
     expect(result.current.lines).toEqual([
-      expect.objectContaining({ kind: 'automatic', text: 'Removed: Goblin' }),
+      expect.objectContaining({
+        kind: 'automatic',
+        parts: [
+          { kind: 'text', text: 'Removed: ' },
+          { kind: 'name', text: 'Goblin' },
+        ],
+      }),
     ]);
   });
 });

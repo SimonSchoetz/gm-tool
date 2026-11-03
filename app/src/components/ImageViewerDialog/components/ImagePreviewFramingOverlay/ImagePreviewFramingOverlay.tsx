@@ -1,0 +1,131 @@
+import { useState, useEffect, useRef } from 'react';
+import type { CSSProperties } from 'react';
+import { FCProps } from '@/types/fcProps.type';
+import { useImage, useUpdateImageFrame } from '@/data-access-layer';
+import { ImageById } from '../../../ImageById/ImageById';
+import { clampFrame } from './helper/clampFrame';
+import { computePanDelta } from './helper/computePanDelta';
+import type { FrameState } from './helper/clampFrame';
+import './ImagePreviewFramingOverlay.css';
+import { IpfoBgImg } from './components/IpfoBgImg';
+import {
+  DEFAULT_FRAME,
+  IPFO_FRAME_BORDER_WIDTH,
+  ZOOM_STEP,
+} from './ImagePreviewFramingOverlay.constants';
+
+type Props = {
+  imageId: string;
+  dimensions: { width: number; height: number };
+};
+
+export const ImagePreviewFramingOverlay: FCProps<Props> = ({
+  imageId,
+  dimensions,
+}) => {
+  const isDraggingRef = useRef(false);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+
+  const { frame } = useImage(imageId);
+  const { updateFrame } = useUpdateImageFrame(imageId);
+  // Ref keeps updateFrame current without making it a reactive dep — avoids a mutation-invalidation → re-render → new updateFrame ref → re-effect loop.
+  const updateFrameRef = useRef(updateFrame);
+  useEffect(() => {
+    updateFrameRef.current = updateFrame;
+  });
+
+  const [frameState, setFrameState] = useState<FrameState>(
+    frame ?? DEFAULT_FRAME,
+  );
+  const initialFrameRef = useRef(frameState);
+
+  // The frame the overlay opened with is either stored already or equals `ImageById.css`'s fallback, so only a frame the user changed is saved.
+  useEffect(() => {
+    if (frameState === initialFrameRef.current) return;
+    updateFrameRef.current(frameState);
+  }, [frameState]);
+
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = overlayRef.current;
+    if (el === null) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setFrameState((prev) =>
+        clampFrame({ ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP }),
+      );
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    lastPointerRef.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || lastPointerRef.current === null) return;
+
+    const dx = e.clientX - lastPointerRef.current.x;
+    const dy = e.clientY - lastPointerRef.current.y;
+    lastPointerRef.current = { x: e.clientX, y: e.clientY };
+
+    setFrameState((prev) => {
+      const delta = computePanDelta(
+        dx,
+        dy,
+        dimensions.width,
+        dimensions.height,
+        prev.zoom,
+      );
+      return clampFrame({
+        ...prev,
+        x: prev.x - delta.dx,
+        y: prev.y - delta.dy,
+      });
+    });
+  };
+
+  const handlePointerUp = () => {
+    isDraggingRef.current = false;
+    lastPointerRef.current = null;
+  };
+
+  const overlayStyle = {
+    '--rt-ipfo-x': `${frameState.x}%`,
+    '--rt-ipfo-y': `${frameState.y}%`,
+    '--rt-ipfo-zoom': frameState.zoom,
+    '--rt-ipfo-frame-w': `${dimensions.width}px`,
+    '--rt-ipfo-frame-h': `${dimensions.height}px`,
+    '--ipfo-frame-border-width': `${IPFO_FRAME_BORDER_WIDTH}px`,
+  } as CSSProperties;
+
+  return (
+    <div
+      ref={overlayRef}
+      className='ipfo'
+      style={overlayStyle}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      <IpfoBgImg
+        imageId={imageId}
+        dimensions={dimensions}
+        frameState={frameState}
+      />
+      <div className='ipfo-image-frame'>
+        <ImageById
+          imageId={imageId}
+          alt='Framing preview'
+          className='ipfo-image'
+        />
+      </div>
+    </div>
+  );
+};

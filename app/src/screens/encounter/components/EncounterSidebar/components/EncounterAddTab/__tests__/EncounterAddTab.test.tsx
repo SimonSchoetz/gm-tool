@@ -86,7 +86,6 @@ describe('EncounterAddTab', () => {
       await screen.findByRole('textbox', { name: 'Combatant name to add' }),
     ).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'HP' })).toBeVisible();
-    expect(screen.getByRole('spinbutton', { name: 'Quantity' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Add' })).toBeVisible();
     expect(eventField()).not.toBeInTheDocument();
   });

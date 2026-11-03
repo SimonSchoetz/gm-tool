@@ -302,6 +302,31 @@ describe('useEncounterSelection', () => {
     });
   });
 
+  it('keeps the selection and the shown id on Escape while a modal dialog is open, and clears them once it is gone', () => {
+    const { result } = renderSelection();
+    act(() => {
+      result.current.select('a', PLAIN);
+    });
+    const dialog = document.createElement('div');
+    dialog.setAttribute('aria-modal', 'true');
+    document.body.append(dialog);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(result.current).toMatchObject({
+      selectedIds: ['a'],
+      shownItemId: 'a',
+    });
+
+    dialog.remove();
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(result.current).toMatchObject({
+      selectedIds: [],
+      shownItemId: null,
+    });
+  });
+
   it('clears the selection and the shown id on Escape on a button of the middle column', () => {
     const middleColumnRef = { current: null as HTMLElement | null };
     const { column } = mountMiddleColumn('<button>button</button>');

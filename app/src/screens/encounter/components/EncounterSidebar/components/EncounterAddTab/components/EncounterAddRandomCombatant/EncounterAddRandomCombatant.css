@@ -10,11 +10,10 @@
 
 .encounter-add-random-combatant-row {
   display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
 }
 
-/* `.input` is 100% wide, so beside the fixed quantity field and the Add button the field would shrink them; a zero basis lets it take only the space they leave. */
 .encounter-add-random-combatant-hp {
-  flex: 1 1 0;
   min-width: 0;
 }

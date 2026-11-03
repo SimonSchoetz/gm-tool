@@ -64,6 +64,6 @@ Not yet registered: two hand checks in the browser pane (`pnpm run web`) are sti
 ## Where to look
 
 - Shared bodies: `ContentSectionBody` (the dispatcher), `TextSectionBody`, `BasicStatBlockSectionBody` with the shared `readSaveableWholeNumber` helper, `FiveEStatBlockSectionBody`, and the `SectionBodyProps` type.
-- Screen: `ScreensBaseEntityContentSectionPanel`.
-- Popup: `BaseEntityPopupContent`, `EntityPopupBody`, `EntityPopupBodyText`, `SessionPopupContent`, `EncounterPopupContent`.
+- Screen: `BaseEntityContentSectionPanel` (in `screens/base-entity/components/`).
+- Popup: `BaseEntityPopupContent`, `EntityReadOnlyView`, `EntityPopupBody` (in `components/`), `EntityPopupBodyText`, `SessionPopupContent`, `EncounterPopupContent`.
 - Tests: `readSaveableWholeNumber.test`. The bodies themselves have no test: components carry none unless a handler alone decides an outcome.

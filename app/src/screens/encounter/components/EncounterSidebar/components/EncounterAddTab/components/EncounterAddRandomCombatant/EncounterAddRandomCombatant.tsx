@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { normalizeQueueItemName, parseRandomCombatantHp } from '@domain';
-import { Button } from '@/components/Button/Button';
 import { Input } from '@/components/Input/Input';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
-import { EncounterQuantityInput } from '../EncounterQuantityInput/EncounterQuantityInput';
-import { useAddQuantity } from '../../hooks/useAddQuantity';
+import { EncounterAddBtn } from '../EncounterAddBtn/EncounterAddBtn';
 import './EncounterAddRandomCombatant.css';
 
 type Props = { hidden: boolean };
@@ -15,31 +13,20 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const { addRandomCombatants, isAdding } = useEncounterQueueItems(encounterId);
+  const { addRandomCombatant, isAdding } = useEncounterQueueItems(encounterId);
   const [name, setName] = useState('');
   const [hpText, setHpText] = useState('');
-  const {
-    quantity,
-    quantityText,
-    changeQuantityText,
-    revertQuantityText,
-    reset,
-  } = useAddQuantity();
   const parsedHp = parseRandomCombatantHp(hpText);
   const canAdd =
-    normalizeQueueItemName(name) !== null &&
-    parsedHp.valid &&
-    quantity !== null &&
-    !isAdding;
+    normalizeQueueItemName(name) !== null && parsedHp.valid && !isAdding;
 
   const handleAdd = async () => {
     // The Add button is disabled and Enter is guarded by `canAdd`, so a call never reaches this guard in an invalid state.
-    if (!parsedHp.valid || quantity === null) return;
-    const wasAdded = await addRandomCombatants(name, parsedHp.hp, quantity);
+    if (!parsedHp.valid) return;
+    const wasAdded = await addRandomCombatant(name, parsedHp.hp);
     if (!wasAdded) return;
     setName('');
     setHpText('');
-    reset();
   };
 
   const addOnEnter = (event: React.KeyboardEvent) => {
@@ -70,16 +57,9 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
           }}
           onKeyDown={addOnEnter}
         />
-        <EncounterQuantityInput
-          quantityText={quantityText}
-          onQuantityTextChange={changeQuantityText}
-          onBlur={revertQuantityText}
-          onKeyDown={addOnEnter}
-        />
-        <Button
-          label='Add'
+        <EncounterAddBtn
           disabled={!canAdd}
-          onClick={() => {
+          onAdd={() => {
             void handleAdd();
           }}
         />

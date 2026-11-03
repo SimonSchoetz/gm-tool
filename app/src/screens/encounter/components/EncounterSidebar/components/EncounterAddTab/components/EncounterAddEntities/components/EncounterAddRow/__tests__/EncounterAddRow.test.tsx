@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseEntity } from '@db/base-entity';
@@ -9,13 +9,13 @@ import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
 import { EncounterAddRow } from '../EncounterAddRow';
 
 const getQueueItems = vi.hoisted(() => vi.fn<typeof service.getQueueItems>());
-const addEntityCombatants = vi.hoisted(() =>
-  vi.fn<typeof service.addEntityCombatants>(),
+const addEntityCombatant = vi.hoisted(() =>
+  vi.fn<typeof service.addEntityCombatant>(),
 );
 
 vi.mock('@services/encounterQueueService', () => ({
   getQueueItems,
-  addEntityCombatants,
+  addEntityCombatant,
 }));
 
 vi.mock('@tanstack/react-router', async () => {
@@ -34,85 +34,32 @@ const renderRows = (...entities: BaseEntity[]) =>
     { wrapper: TanstackQueryClientProvider },
   );
 
-const setQuantity = async (
-  user: ReturnType<typeof userEvent.setup>,
-  quantity: HTMLElement,
-  text: string,
-) => {
-  await user.clear(quantity);
-  await user.type(quantity, text);
-};
-
 describe('EncounterAddRow', () => {
   beforeEach(() => {
     queryClient.clear();
     getQueueItems.mockResolvedValue([]);
-    addEntityCombatants.mockReset().mockResolvedValue();
+    addEntityCombatant.mockReset().mockResolvedValue();
   });
 
-  it('puts the last valid quantity back when the field is left empty', async () => {
-    const user = userEvent.setup();
-    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
-    const quantity = screen.getByLabelText('Quantity');
-
-    await setQuantity(user, quantity, '5');
-    await user.clear(quantity);
-    await user.tab();
-
-    expect(quantity).toHaveValue(5);
-  });
-
-  it.each(['0', '100', '1.5'])(
-    'disables Add for the quantity %s',
-    async (text) => {
-      const user = userEvent.setup();
-      renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
-
-      await setQuantity(user, screen.getByLabelText('Quantity'), text);
-
-      expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
-    },
-  );
-
-  it('disables Add for an empty quantity', async () => {
+  it('adds the entity to the route’s encounter when Add is clicked', async () => {
     const user = userEvent.setup();
     renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
 
-    await user.clear(screen.getByLabelText('Quantity'));
-
-    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
-  });
-
-  it.each(['1', '99'])('enables Add for the quantity %s', async (text) => {
-    const user = userEvent.setup();
-    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
-
-    await setQuantity(user, screen.getByLabelText('Quantity'), text);
-
-    expect(screen.getByRole('button', { name: 'Add' })).toBeEnabled();
-  });
-
-  it('adds the quantity of the entity to the route’s encounter when Add is clicked', async () => {
-    const user = userEvent.setup();
-    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
-
-    await setQuantity(user, screen.getByLabelText('Quantity'), '3');
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
     await waitFor(() => {
-      expect(addEntityCombatants).toHaveBeenCalledWith(
+      expect(addEntityCombatant).toHaveBeenCalledWith(
         ROUTE_ENCOUNTER_ID,
         'foes',
         'goblin',
-        3,
       );
     });
   });
 
-  it('disables the Add buttons of every row while an add is pending and resets the quantity once it resolves', async () => {
+  it('disables the Add buttons of every row while an add is pending and enables them again once it resolves', async () => {
     const user = userEvent.setup();
     const pendingAdd: { finish: (() => void) | null } = { finish: null };
-    addEntityCombatants.mockReturnValue(
+    addEntityCombatant.mockReturnValue(
       new Promise<void>((resolve) => {
         pendingAdd.finish = resolve;
       }),
@@ -121,9 +68,7 @@ describe('EncounterAddRow', () => {
       buildBaseEntity({ id: 'goblin', name: 'Goblin' }),
       buildBaseEntity({ id: 'orc', name: 'Orc' }),
     );
-    const [goblinQuantity] = screen.getAllByLabelText('Quantity');
 
-    await setQuantity(user, goblinQuantity, '3');
     await user.click(screen.getAllByRole('button', { name: 'Add' })[0]);
 
     await waitFor(() => {
@@ -139,54 +84,5 @@ describe('EncounterAddRow', () => {
         expect(addButton).toBeEnabled();
       }
     });
-    expect(goblinQuantity).toHaveValue(1);
-  });
-
-  it('keeps the quantity at 1 on leaving the field after an add of another quantity', async () => {
-    const user = userEvent.setup();
-    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
-    const quantity = screen.getByLabelText('Quantity');
-
-    await setQuantity(user, quantity, '3');
-    await user.click(screen.getByRole('button', { name: 'Add' }));
-    await waitFor(() => {
-      expect(addEntityCombatants).toHaveBeenCalledTimes(1);
-    });
-    await user.click(quantity);
-    await user.clear(quantity);
-    await user.tab();
-
-    expect(quantity).toHaveValue(1);
-  });
-  it('keeps the quantity of a row whose add the in-flight guard refused', async () => {
-    const user = userEvent.setup();
-    const pendingAdd: { finish: (() => void) | null } = { finish: null };
-    addEntityCombatants.mockReturnValue(
-      new Promise<void>((resolve) => {
-        pendingAdd.finish = resolve;
-      }),
-    );
-    renderRows(
-      buildBaseEntity({ id: 'goblin', name: 'Goblin' }),
-      buildBaseEntity({ id: 'orc', name: 'Orc' }),
-    );
-    const [, orcQuantity] = screen.getAllByLabelText('Quantity');
-    await setQuantity(user, orcQuantity, '3');
-    const [goblinAdd, orcAdd] = screen.getAllByRole('button', { name: 'Add' });
-
-    // Both clicks land before React re-renders, so the second row's button is still enabled while the first add is already pending.
-    act(() => {
-      goblinAdd.click();
-      orcAdd.click();
-    });
-    await waitFor(() => {
-      expect(addEntityCombatants).toHaveBeenCalledTimes(1);
-    });
-    pendingAdd.finish?.();
-    await waitFor(() => {
-      expect(goblinAdd).toBeEnabled();
-    });
-
-    expect(orcQuantity).toHaveValue(3);
   });
 });

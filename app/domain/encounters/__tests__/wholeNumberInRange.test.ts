@@ -3,28 +3,21 @@ import { parseWholeNumberInRange } from '../wholeNumberInRange';
 
 describe('parseWholeNumberInRange', () => {
   it.each([
-    ['2', 2],
     ['1', 1],
-    ['5', 5],
-  ])('accepts %j inside the range, both bounds included', (raw, value) => {
-    expect(parseWholeNumberInRange(raw, 1, 5)).toEqual({ valid: true, value });
+    ['2', 2],
+    ['1e9', 1e9],
+  ])('accepts %j at or above the minimum', (raw, value) => {
+    expect(parseWholeNumberInRange(raw, 1)).toEqual({ valid: true, value });
   });
 
-  it.each(['0', '6'])('rejects %j outside the range', (raw) => {
-    expect(parseWholeNumberInRange(raw, 1, 5)).toEqual({ valid: false });
-  });
-
-  it('has no ceiling when no maximum is given', () => {
-    expect(parseWholeNumberInRange('1e9', 0)).toEqual({
-      valid: true,
-      value: 1e9,
-    });
+  it('rejects a number below the minimum', () => {
+    expect(parseWholeNumberInRange('0', 1)).toEqual({ valid: false });
   });
 
   it.each(['', '   '])(
     'reads %j as an empty field, even when the minimum is above 0',
     (raw) => {
-      expect(parseWholeNumberInRange(raw, 1, 5)).toEqual({
+      expect(parseWholeNumberInRange(raw, 1)).toEqual({
         valid: true,
         value: null,
       });

@@ -16,11 +16,30 @@
   border: var(--border-thin) solid var(--color-border);
   border-radius: var(--radius-lg);
   color: var(--color-fg);
+  flex-wrap: wrap;
 }
 
 .encounter-log-entry-content {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* An inline-block keeps the name on one line at no more than the line's width, so the text after it still wraps at its spaces; `vertical-align: bottom` because an inline-block with `overflow: hidden` has its bottom edge as baseline, and `text-decoration: inherit` because a decoration does not reach the contents of an inline-block, so a reverted line's strike-through would stop at each name. */
+.encounter-log-entry-name {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+  text-decoration: inherit;
+}
+
+/* In the 200 px column a message left beside its Delete slot and time stamp gets a strip of a few characters, so the entry's row wraps (`flex-wrap` above): the text takes the whole row and the Delete icon and the time stamp sit right-aligned on a second line. */
+.encounter-log-entry--message .encounter-log-entry-content {
+  flex: 1 1 100%;
+}
+
+.encounter-log-entry--message .encounter-log-entry-buttons {
+  margin-left: auto;
 }
 
 /* The element's default text-decoration already strikes the text through. */
@@ -30,7 +49,6 @@
 
 .encounter-log-entry-buttons {
   display: flex;
-  gap: var(--spacing-xs);
   visibility: hidden;
 }
 

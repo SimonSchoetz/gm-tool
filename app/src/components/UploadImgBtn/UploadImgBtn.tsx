@@ -1,11 +1,9 @@
 import { filePicker } from '@/util/filePicker';
-import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { HoloImg } from '../HoloImg';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
-import PopUpContainer from '../PopUpContainer/PopUpContainer';
-import { ImageViewerDialog } from './components/ImageViewerDialog';
+import { ImageViewerDialog } from '../ImageViewerDialog';
 import './UploadImgBtn.css';
 import { LoadingIcon } from '../LoadingIcon/LoadingIcon';
 
@@ -56,21 +54,13 @@ export const UploadImgBtn = ({
       >
         <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
       </ActionContainer>
-      {createPortal(
-        <PopUpContainer state={popupState} setState={setPopupState}>
-          <ImageViewerDialog
-            image_id={image_id}
-            title={title}
-            onClose={() => {
-              setPopupState('closed');
-            }}
-            uploadFn={uploadFn}
-            deleteFn={deleteFn}
-            dimensions={dimensions}
-          />
-        </PopUpContainer>,
-        document.body,
-      )}
+      <ImageViewerDialog
+        image_id={image_id}
+        title={title}
+        state={popupState}
+        setState={setPopupState}
+        editing={{ uploadFn, deleteFn, dimensions }}
+      />
     </>
   ) : (
     <ActionContainer

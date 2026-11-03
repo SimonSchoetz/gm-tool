@@ -40,7 +40,7 @@ const automatic = (
   kind: 'automatic',
   id,
   createdAt: '2024-03-15T14:05:00',
-  text: `Damage: ${id}`,
+  parts: [{ kind: 'text', text: `Damage: ${id}` }],
   isReverted: false,
   isRevertible: true,
   ...overrides,
@@ -146,6 +146,24 @@ describe('EncounterLogEntry', () => {
     expect(screen.getByText('Round 1')).toBeInTheDocument();
     expect(screen.getAllByRole('textbox')).toHaveLength(1);
     expect(screen.getAllByText('2:05 PM')).toHaveLength(2);
+  });
+
+  it('gives only the entity name of an automatic line its full text as a title, so a name cut at the line’s width stays readable on hover', () => {
+    renderLines(
+      automatic('entry-1', {
+        isRevertible: false,
+        parts: [
+          { kind: 'text', text: 'Damage: ' },
+          { kind: 'name', text: 'Goblin' },
+          { kind: 'text', text: ' (3)' },
+        ],
+      }),
+    );
+
+    const titled = screen.getAllByTitle(/./);
+
+    expect(titled).toHaveLength(1);
+    expect(titled[0]).toHaveTextContent('Goblin');
   });
 
   it('reads an unreadable line as Unreadable entry with a time and no buttons', () => {

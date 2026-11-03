@@ -225,6 +225,132 @@
     "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
+    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const [viewerState, setViewerState] = useState<'open' | 'closed'>('closed');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
+  },
+  {
+    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "dimensions={{",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
+  },
+  {
+    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "width: 'var(--popup-content-section-height)',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
+  },
+  {
+    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "height: 'var(--popup-content-section-height)',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "const isDraggingRef = useRef(false);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "isDraggingRef is read only together with lastPointerRef, which stays null until a press, so a true start value changes nothing observable"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (el === null) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the overlay element exists when the effect runs, so the guard never returns and no input observes a difference"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "el.addEventListener('wheel', onWheel, { passive: false });",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "return () => {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "el.removeEventListener('wheel', onWheel);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "}, []);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a constant dependency makes the effect run once, exactly as an empty dependency array does, so no input observes a difference"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!isDraggingRef.current || lastPointerRef.current === null) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the mutant replaces only the second operand, and lastPointerRef is never null while isDraggingRef is true (a press sets both, a release or leaving the preview clears both), so no input observes a difference"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "!isDraggingRef.current && lastPointerRef.current === null",
+    "lineText": "if (!isDraggingRef.current || lastPointerRef.current === null) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "isDraggingRef and lastPointerRef change together on a press and on a release, so the guard's operands never differ and no input observes a difference"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "isDraggingRef.current = false;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "isDraggingRef and lastPointerRef change together on a press and on a release, so the guard's operands never differ and no input observes a difference"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/ImageViewerDialog.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "setState('closed');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
+  },
+  {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
     "mutator": "ConditionalExpression",
     "replacement": "true",
@@ -333,37 +459,10 @@
     "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
-    "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddEntities/components/EncounterAddRow/EncounterAddRow.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (quantity === null) return;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
-  },
-  {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddRandomCombatant/EncounterAddRandomCombatant.tsx",
     "mutator": "ConditionalExpression",
     "replacement": "false",
-    "lineText": "if (!parsedHp.valid || quantity === null) return;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddRandomCombatant/EncounterAddRandomCombatant.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (!parsedHp.valid || quantity === null) return;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterAddTab/components/EncounterAddRandomCombatant/EncounterAddRandomCombatant.tsx",
-    "mutator": "LogicalOperator",
-    "replacement": "!parsedHp.valid && quantity === null",
-    "lineText": "if (!parsedHp.valid || quantity === null) return;",
+    "lineText": "if (!parsedHp.valid) return;",
     "occurrence": 0,
     "lines": 1,
     "reason": "the code comment at this statement states why no test can observe this change"

@@ -18,6 +18,10 @@ const LANDSCAPE_FIXTURE = 'landscape.png';
 const PORTRAIT_FIXTURE = 'portrait.jpg';
 const SQUARE_FIXTURE = 'square.webp';
 
+// A name with no space or hyphen, so no browser can break it: the fit checks of a narrow column read it.
+const UNBROKEN_NAME_FOE_NAME =
+  'UnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoe';
+
 const createNamedBaseEntity = async (
   entityType: BaseEntityType,
   adventureId: string,
@@ -148,6 +152,8 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
   );
   await baseEntityContentSectionService.createSection(noStatBlockFoeId, 'text');
 
+  await createNamedBaseEntity('foes', adventureId, UNBROKEN_NAME_FOE_NAME);
+
   const encounterId = await encounterService.createEncounter(adventureId);
   await encounterService.updateEncounter(encounterId, {
     name: 'Seed Encounter',
@@ -158,29 +164,26 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
   await encounterService.updateEncounter(imagelessEncounterId, {
     name: 'Imageless Encounter',
   });
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     singleStatBlockFoeId,
-    2,
   );
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
+    encounterId,
+    'foes',
+    singleStatBlockFoeId,
+  );
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     twoStatBlockFoeId,
-    1,
   );
   await encounterQueueService.addEvent(encounterId, 'Seed Event');
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     noStatBlockFoeId,
-    1,
   );
-  await encounterQueueService.addRandomCombatants(
-    encounterId,
-    'Seed Bandit',
-    9,
-    1,
-  );
+  await encounterQueueService.addRandomCombatant(encounterId, 'Seed Bandit', 9);
 };

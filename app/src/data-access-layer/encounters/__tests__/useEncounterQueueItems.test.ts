@@ -20,11 +20,11 @@ import { encounterKeys } from '../encounterKeys';
 import { useEncounterQueueItems } from '../useEncounterQueueItems';
 
 const getQueueItems = vi.hoisted(() => vi.fn<typeof service.getQueueItems>());
-const addEntityCombatants = vi.hoisted(() =>
-  vi.fn<typeof service.addEntityCombatants>(),
+const addEntityCombatant = vi.hoisted(() =>
+  vi.fn<typeof service.addEntityCombatant>(),
 );
-const addRandomCombatants = vi.hoisted(() =>
-  vi.fn<typeof service.addRandomCombatants>(),
+const addRandomCombatant = vi.hoisted(() =>
+  vi.fn<typeof service.addRandomCombatant>(),
 );
 const addEvent = vi.hoisted(() => vi.fn<typeof service.addEvent>());
 const reorderQueueItems = vi.hoisted(() =>
@@ -36,8 +36,8 @@ const updateQueueItem = vi.hoisted(() =>
 
 vi.mock('@services/encounterQueueService', () => ({
   getQueueItems,
-  addEntityCombatants,
-  addRandomCombatants,
+  addEntityCombatant,
+  addRandomCombatant,
   addEvent,
   reorderQueueItems,
   updateQueueItem,
@@ -46,7 +46,7 @@ vi.mock('@services/encounterQueueService', () => ({
 const withDeferredAdd = (
   addSpy: {
     mockReturnValue: (value: Promise<void>) => unknown;
-  } = addEntityCombatants,
+  } = addEntityCombatant,
 ) => {
   let release: (() => void) | null = null;
   addSpy.mockReturnValue(
@@ -63,8 +63,8 @@ describe('useEncounterQueueItems', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     getQueueItems.mockResolvedValue([]);
-    addEntityCombatants.mockReset().mockResolvedValue();
-    addRandomCombatants.mockReset().mockResolvedValue();
+    addEntityCombatant.mockReset().mockResolvedValue();
+    addRandomCombatant.mockReset().mockResolvedValue();
     addEvent.mockReset().mockResolvedValue();
     reorderQueueItems.mockReset().mockResolvedValue();
     updateQueueItem.mockReset().mockResolvedValue();
@@ -84,7 +84,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     act(() => {
-      void result.current.adder.addEntityCombatants('foes', BASE_ENTITY_ID, 2);
+      void result.current.adder.addEntityCombatant('foes', BASE_ENTITY_ID);
     });
 
     await settle(0);
@@ -109,22 +109,21 @@ describe('useEncounterQueueItems', () => {
     const adds: Promise<boolean>[] = [];
     act(() => {
       adds.push(
-        result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
+        result.current.first.addEntityCombatant('foes', BASE_ENTITY_ID),
       );
       adds.push(
-        result.current.second.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
+        result.current.second.addEntityCombatant('foes', BASE_ENTITY_ID),
       );
     });
     await settle(0);
     releaseAdd();
     await settle(0);
 
-    expect(addEntityCombatants).toHaveBeenCalledTimes(1);
-    expect(addEntityCombatants).toHaveBeenCalledWith(
+    expect(addEntityCombatant).toHaveBeenCalledTimes(1);
+    expect(addEntityCombatant).toHaveBeenCalledWith(
       QUEUE_ITEM_ENCOUNTER_ID,
       'foes',
       BASE_ENTITY_ID,
-      1,
     );
     expect(await Promise.all(adds)).toEqual([true, false]);
   });
@@ -136,7 +135,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     const wasAdded = await act(() =>
-      result.current.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
+      result.current.addEntityCombatant('foes', BASE_ENTITY_ID),
     );
 
     expect(wasAdded).toBe(true);
@@ -174,17 +173,17 @@ describe('useEncounterQueueItems', () => {
   describe.each([
     [
       'an entity combatant',
-      addEntityCombatants,
+      addEntityCombatant,
       (hook: ReturnType<typeof useEncounterQueueItems>) =>
-        hook.addEntityCombatants('foes', BASE_ENTITY_ID, 2),
-      [QUEUE_ITEM_ENCOUNTER_ID, 'foes', BASE_ENTITY_ID, 2],
+        hook.addEntityCombatant('foes', BASE_ENTITY_ID),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'foes', BASE_ENTITY_ID],
     ],
     [
       'a random combatant',
-      addRandomCombatants,
+      addRandomCombatant,
       (hook: ReturnType<typeof useEncounterQueueItems>) =>
-        hook.addRandomCombatants('Grunt', 10, 2),
-      [QUEUE_ITEM_ENCOUNTER_ID, 'Grunt', 10, 2],
+        hook.addRandomCombatant('Grunt', 10),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'Grunt', 10],
     ],
     [
       'an event',
@@ -229,8 +228,8 @@ describe('useEncounterQueueItems', () => {
       await settle(0);
       const refused = await act(() =>
         Promise.all([
-          result.current.addEntityCombatants('foes', 'entity-2', 1),
-          result.current.addRandomCombatants('Brute', null, 1),
+          result.current.addEntityCombatant('foes', 'entity-2'),
+          result.current.addRandomCombatant('Brute', null),
           result.current.addEvent('Other'),
         ]),
       );
@@ -321,15 +320,15 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     act(() => {
-      void result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID, 1);
+      void result.current.first.addEntityCombatant('foes', BASE_ENTITY_ID);
     });
     await settle(0);
     act(() => {
-      void result.current.second.addEntityCombatants('foes', 'entity-2', 1);
+      void result.current.second.addEntityCombatant('foes', 'entity-2');
     });
     await settle(0);
 
-    expect(addEntityCombatants.mock.calls.map((call) => call[0])).toEqual([
+    expect(addEntityCombatant.mock.calls.map((call) => call[0])).toEqual([
       QUEUE_ITEM_ENCOUNTER_ID,
       'encounter-2',
     ]);

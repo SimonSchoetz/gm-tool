@@ -1,4 +1,3 @@
-import { GlassPanel } from '@/components/GlassPanel/GlassPanel';
 import { FCProps } from '@/types/fcProps.type';
 import type { SidebarTab } from '../../hooks/useEncounterSelection';
 import { EncounterAddTab } from './components/EncounterAddTab';
@@ -25,7 +24,7 @@ export const EncounterSidebar: FCProps<Props> = ({
   onTabChange,
   selectedIds,
 }) => (
-  <GlassPanel className='encounter-sidebar'>
+  <div className='encounter-sidebar'>
     <EncounterSidebarTabs
       tabs={TABS}
       activeTab={activeTab}
@@ -43,5 +42,5 @@ export const EncounterSidebar: FCProps<Props> = ({
     <EncounterSidebarPanel aria-label='Log' hidden={activeTab !== 'log'}>
       <EncounterLogTab isOpen={activeTab === 'log'} />
     </EncounterSidebarPanel>
-  </GlassPanel>
+  </div>
 );

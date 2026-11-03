@@ -30,6 +30,7 @@
   overflow-y: auto;
   gap: var(--spacing-xs);
   margin: 0;
-  padding: 0;
+  /* The right padding gives a row's plus icon the room its hover growth (`scale: 1.1`) needs: scaled content counts as overflow, so without it hovering an icon adds a horizontal scrollbar to this list. */
+  padding: 0 var(--spacing-xs) 0 0;
   list-style: none;
 }
