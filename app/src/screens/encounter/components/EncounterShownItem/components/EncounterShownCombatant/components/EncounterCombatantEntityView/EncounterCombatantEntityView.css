@@ -1,12 +1,8 @@
 .encounter-combatant-entity-view {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-}
-
-/* The slot, not the panel, carries the width rule, so the panel keeps its own `width: fit-content` inside it. The minimum is the width under which the panel's menu bar would no longer fit, and below it the slot wraps under the image upload. */
-.encounter-combatant-entity-view-panel {
-  flex: 1 1 0;
-  min-width: min(100%, calc(var(--spacing-3xl) * 5));
+  flex-direction: column;
+  gap: var(--border-thin);
+  border-radius: var(--radius-lg);
+  width: fit-content;
+  max-width: 100%;
 }
