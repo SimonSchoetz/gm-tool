@@ -95,10 +95,10 @@ Decided during the PRD interview, not left out by accident:
 
 - **A1.** The tab lists the adventure's base entities, searched as on the entity list screens.
 - **A2.** An entity-type filter offers NPCs, Foes, PCs, Factions, Locations and Items in any combination. The choice is saved on the device and applies to every encounter.
-- **A3.** Each row has a quantity (default 1, at most 99) and an Add button, which adds that many combatants of the entity.
+- **A3.** Each row has a plus icon, which adds one combatant of the entity to the end of the queue; there is no quantity.
 - **A4.** A combatant's name shows a number only while the encounter holds two or more combatants of the same entity: one Goblin is "Goblin"; once a second exists they show as "Goblin 1" and "Goblin 2". Numbers continue from the highest one given in this encounter and are never reused, so removing Goblin 2 leaves Goblin 1 and Goblin 3. Removed combatants do not count; defeated ones do. A renamed combatant shows its own name, without a number.
 - **A5.** HP prefill: when the entity has exactly one stat block section (Basic or 5e) and its HP is a number, each new combatant gets that number as max HP and current HP. With no stat block, two or more stat blocks, or an empty HP, the combatant's HP is not set (V4). HP is copied when the combatant is added; a later edit of the stat block does not change combatants already in an encounter.
-- **A6.** A quick-combatant form takes a name, an optional HP and a quantity (at most 99), and adds that many ad-hoc combatants. They are numbered by name as A4 numbers entity combatants.
+- **A6.** A quick-combatant form takes a name and an optional HP, and a plus icon adds one ad-hoc combatant. They are numbered by name as A4 numbers entity combatants.
 - **A7.** A new-event form takes a name and adds an encounter event; its note is written in the middle column.
 - **A8.** Each add writes one log entry, e.g. "Added Goblin ×5".
 
