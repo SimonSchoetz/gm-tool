@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
-import { ImageById } from '../../../../../ImageById/ImageById';
-import ImagePlaceholderFrame from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
-import { PanelBody } from '../../../../../PanelBody/PanelBody';
+import { ImageById } from '../ImageById/ImageById';
+import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
+import { PanelBody } from '../PanelBody/PanelBody';
 import './EntityPopupBody.css';
 
 type Props = {

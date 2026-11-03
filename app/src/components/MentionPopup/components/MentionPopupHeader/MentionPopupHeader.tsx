@@ -1,35 +1,20 @@
-import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
 import { PinIcon, ExternalLinkIcon, XIcon } from 'lucide-react';
 import { ClickableIcon } from '../../../ClickableIcon/ClickableIcon';
+import { EntitySectionHeaderLeading } from '../../../EntitySectionHeaderLeading/EntitySectionHeaderLeading';
 import { PanelMenuBar } from '../../../PanelMenuBar/PanelMenuBar';
 import { useMentionPopupHeader } from '../../hooks/useMentionPopupHeader';
 import './MentionPopupHeader.css';
 
-type Props = {
-  controls?: ReactNode;
-  sectionName?: string;
-};
+type Props = React.ComponentProps<typeof EntitySectionHeaderLeading>;
 
-export const MentionPopupHeader: FCProps<Props> = ({
-  controls = null,
-  sectionName,
-}) => {
+export const MentionPopupHeader: FCProps<Props> = (leadingProps) => {
   const header = useMentionPopupHeader();
 
   return (
     <PanelMenuBar
-      leading={
-        <span className='MPH--section-controls'>
-          {controls !== null && <>{controls}</>}
-          {sectionName !== undefined && (
-            <span className='label MPH--content-section-label'>
-              {sectionName}
-            </span>
-          )}
-        </span>
-      }
+      leading={<EntitySectionHeaderLeading {...leadingProps} />}
       title={
         <span
           {...(header.isPinned ? header.draggableProps : {})}

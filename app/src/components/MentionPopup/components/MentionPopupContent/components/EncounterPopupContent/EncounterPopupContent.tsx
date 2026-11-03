@@ -1,6 +1,6 @@
 import { FCProps } from '@/types/fcProps.type';
 import { useEncounter } from '@/data-access-layer';
-import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
+import { EntityPopupBody } from '../../../../../EntityPopupBody/EntityPopupBody';
 import { EntityPopupBodyText } from '../EntityPopupBodyText/EntityPopupBodyText';
 
 type Props = {
