@@ -162,25 +162,26 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
     encounterId,
     'foes',
     singleStatBlockFoeId,
-    2,
+  );
+  await encounterQueueService.addEntityCombatants(
+    encounterId,
+    'foes',
+    singleStatBlockFoeId,
   );
   await encounterQueueService.addEntityCombatants(
     encounterId,
     'foes',
     twoStatBlockFoeId,
-    1,
   );
   await encounterQueueService.addEvent(encounterId, 'Seed Event');
   await encounterQueueService.addEntityCombatants(
     encounterId,
     'foes',
     noStatBlockFoeId,
-    1,
   );
   await encounterQueueService.addRandomCombatants(
     encounterId,
     'Seed Bandit',
     9,
-    1,
   );
 };

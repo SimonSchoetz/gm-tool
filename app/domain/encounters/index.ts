@@ -18,11 +18,6 @@ export { encounterQueueDuplicateError } from './errors';
 export { encounterLogLoadError } from './errors';
 export { encounterLogRecordError } from './errors';
 export { encounterLogDeleteError } from './errors';
-export {
-  parseAddQuantity,
-  MIN_ADD_QUANTITY,
-  MAX_ADD_QUANTITY,
-} from './addQuantity';
 export { parseActionAmount } from './actionAmount';
 export { normalizeQueueItemName } from './queueItemName';
 export { shownEventName, UNNAMED_EVENT_LABEL } from './shownEventName';

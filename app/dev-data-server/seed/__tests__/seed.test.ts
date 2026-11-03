@@ -240,13 +240,13 @@ describe('runSeed', () => {
         starting_max_hp: 9,
       },
     ]);
-    // Each of the seed's five add calls logs one `added` entry; nothing else is logged.
+    // Each of the seed's six add calls logs one `added` entry; nothing else is logged.
     expect(
       await db.select(
         'SELECT kind FROM encounter_log_entries WHERE encounter_id = $1',
         [encounters[0]?.id],
       ),
-    ).toEqual(Array.from({ length: 5 }, () => ({ kind: 'added' })));
+    ).toEqual(Array.from({ length: 6 }, () => ({ kind: 'added' })));
   });
 
   it('rejects naming a missing fixture image before writing any row', async () => {

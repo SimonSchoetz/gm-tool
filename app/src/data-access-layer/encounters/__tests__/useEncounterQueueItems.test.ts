@@ -84,7 +84,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     act(() => {
-      void result.current.adder.addEntityCombatants('foes', BASE_ENTITY_ID, 2);
+      void result.current.adder.addEntityCombatants('foes', BASE_ENTITY_ID);
     });
 
     await settle(0);
@@ -109,10 +109,10 @@ describe('useEncounterQueueItems', () => {
     const adds: Promise<boolean>[] = [];
     act(() => {
       adds.push(
-        result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
+        result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID),
       );
       adds.push(
-        result.current.second.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
+        result.current.second.addEntityCombatants('foes', BASE_ENTITY_ID),
       );
     });
     await settle(0);
@@ -124,7 +124,6 @@ describe('useEncounterQueueItems', () => {
       QUEUE_ITEM_ENCOUNTER_ID,
       'foes',
       BASE_ENTITY_ID,
-      1,
     );
     expect(await Promise.all(adds)).toEqual([true, false]);
   });
@@ -136,7 +135,7 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     const wasAdded = await act(() =>
-      result.current.addEntityCombatants('foes', BASE_ENTITY_ID, 1),
+      result.current.addEntityCombatants('foes', BASE_ENTITY_ID),
     );
 
     expect(wasAdded).toBe(true);
@@ -176,15 +175,15 @@ describe('useEncounterQueueItems', () => {
       'an entity combatant',
       addEntityCombatants,
       (hook: ReturnType<typeof useEncounterQueueItems>) =>
-        hook.addEntityCombatants('foes', BASE_ENTITY_ID, 2),
-      [QUEUE_ITEM_ENCOUNTER_ID, 'foes', BASE_ENTITY_ID, 2],
+        hook.addEntityCombatants('foes', BASE_ENTITY_ID),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'foes', BASE_ENTITY_ID],
     ],
     [
       'a random combatant',
       addRandomCombatants,
       (hook: ReturnType<typeof useEncounterQueueItems>) =>
-        hook.addRandomCombatants('Grunt', 10, 2),
-      [QUEUE_ITEM_ENCOUNTER_ID, 'Grunt', 10, 2],
+        hook.addRandomCombatants('Grunt', 10),
+      [QUEUE_ITEM_ENCOUNTER_ID, 'Grunt', 10],
     ],
     [
       'an event',
@@ -229,8 +228,8 @@ describe('useEncounterQueueItems', () => {
       await settle(0);
       const refused = await act(() =>
         Promise.all([
-          result.current.addEntityCombatants('foes', 'entity-2', 1),
-          result.current.addRandomCombatants('Brute', null, 1),
+          result.current.addEntityCombatants('foes', 'entity-2'),
+          result.current.addRandomCombatants('Brute', null),
           result.current.addEvent('Other'),
         ]),
       );
@@ -321,11 +320,11 @@ describe('useEncounterQueueItems', () => {
     await settle(0);
 
     act(() => {
-      void result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID, 1);
+      void result.current.first.addEntityCombatants('foes', BASE_ENTITY_ID);
     });
     await settle(0);
     act(() => {
-      void result.current.second.addEntityCombatants('foes', 'entity-2', 1);
+      void result.current.second.addEntityCombatants('foes', 'entity-2');
     });
     await settle(0);
 

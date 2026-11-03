@@ -31,8 +31,6 @@ vi.mock('@tanstack/react-router', async () => {
 const nameField = () =>
   screen.getByRole('textbox', { name: 'Combatant name to add' });
 const hpField = () => screen.getByRole('textbox', { name: 'HP' });
-const quantityField = () =>
-  screen.getByRole('spinbutton', { name: 'Quantity' });
 const addButton = () => screen.getByRole('button', { name: 'Add' });
 
 const withDeferredAdd = () => {
@@ -49,12 +47,10 @@ const withDeferredAdd = () => {
 
 const fill = async (
   user: ReturnType<typeof userEvent.setup>,
-  { name = 'Grunt', hp = '', quantity = '1' } = {},
+  { name = 'Grunt', hp = '' } = {},
 ) => {
   if (name !== '') await user.type(nameField(), name);
   if (hp !== '') await user.type(hpField(), hp);
-  await user.clear(quantityField());
-  await user.type(quantityField(), quantity);
 };
 
 describe('EncounterAddRandomCombatant', () => {
@@ -73,8 +69,6 @@ describe('EncounterAddRandomCombatant', () => {
     ['HP abc', { hp: 'abc' }],
     ['HP -1', { hp: '-1' }],
     ['HP 1.5', { hp: '1.5' }],
-    ['quantity 0', { quantity: '0' }],
-    ['quantity 100', { quantity: '100' }],
   ])('disables Add for %s', async (_label, values) => {
     const user = userEvent.setup();
 
@@ -94,9 +88,9 @@ describe('EncounterAddRandomCombatant', () => {
     expect(addButton()).toBeEnabled();
   });
 
-  it('adds with the route encounter id, the typed name, the parsed HP and the quantity, then empties the name and HP and returns the quantity to 1', async () => {
+  it('adds with the route encounter id, the typed name and the parsed HP, then empties the name and HP', async () => {
     const user = userEvent.setup();
-    await fill(user, { name: 'Grunt', hp: '1e3', quantity: '4' });
+    await fill(user, { name: 'Grunt', hp: '1e3' });
 
     await user.click(addButton());
 
@@ -105,14 +99,12 @@ describe('EncounterAddRandomCombatant', () => {
         ROUTE_ENCOUNTER_ID,
         'Grunt',
         1000,
-        4,
       );
     });
     await waitFor(() => {
       expect(nameField()).toHaveValue('');
     });
     expect(hpField()).toHaveValue('');
-    expect(quantityField()).toHaveValue(1);
   });
 
   it('adds with no HP for an empty field', async () => {
@@ -126,7 +118,6 @@ describe('EncounterAddRandomCombatant', () => {
         ROUTE_ENCOUNTER_ID,
         'Grunt',
         null,
-        1,
       );
     });
   });
@@ -134,7 +125,6 @@ describe('EncounterAddRandomCombatant', () => {
   it.each([
     ['name', nameField],
     ['HP', hpField],
-    ['quantity', quantityField],
   ])(
     'adds on Enter in the %s field while Add is enabled',
     async (_label, field) => {
@@ -152,7 +142,6 @@ describe('EncounterAddRandomCombatant', () => {
   it.each([
     ['name', nameField],
     ['HP', hpField],
-    ['quantity', quantityField],
   ])(
     'adds nothing on Enter in the %s field while Add is disabled',
     async (_label, field) => {

@@ -17,7 +17,6 @@ import {
   encounterQueueReorderError,
   encounterQueueUpdateError,
   normalizeQueueItemName,
-  parseAddQuantity,
   parseRandomCombatantHp,
   singleStatBlockHp,
   type BaseEntityType,
@@ -82,13 +81,8 @@ export const addEntityCombatants = async (
   encounterId: string,
   entityType: BaseEntityType,
   baseEntityId: string,
-  quantity: number,
 ): Promise<void> => {
   try {
-    if (parseAddQuantity(String(quantity)) === null) {
-      throw new Error(`Invalid quantity: ${quantity}`);
-    }
-
     const baseEntity = await baseEntityDb.get(entityType, baseEntityId);
     if (!baseEntity) {
       throw baseEntityNotFoundError(entityType, baseEntityId);
@@ -107,13 +101,15 @@ export const addEntityCombatants = async (
         ) + 1;
 
       return {
-        rows: Array.from({ length: quantity }, (_, index) => ({
-          encounter_id: encounterId,
-          kind: 'combatant' as const,
-          base_entity_id: baseEntityId,
-          sequence_number: firstSequenceNumber + index,
-          sort_order: firstSortOrder + index,
-        })),
+        rows: [
+          {
+            encounter_id: encounterId,
+            kind: 'combatant' as const,
+            base_entity_id: baseEntityId,
+            sequence_number: firstSequenceNumber,
+            sort_order: firstSortOrder,
+          },
+        ],
         shared: {
           ...(baseEntity.name !== null ? { name: baseEntity.name } : {}),
           ...(startingMaxHp !== null ? { starting_max_hp: startingMaxHp } : {}),
@@ -129,12 +125,8 @@ export const addRandomCombatants = async (
   encounterId: string,
   name: string,
   startingMaxHp: number | null,
-  quantity: number,
 ): Promise<void> => {
   try {
-    if (parseAddQuantity(String(quantity)) === null) {
-      throw new Error(`Invalid quantity: ${quantity}`);
-    }
     const trimmedName = requireQueueItemName(name);
     if (
       startingMaxHp !== null &&
@@ -159,12 +151,14 @@ export const addRandomCombatants = async (
         ) + 1;
 
       return {
-        rows: Array.from({ length: quantity }, (_, index) => ({
-          encounter_id: encounterId,
-          kind: 'combatant' as const,
-          sequence_number: firstSequenceNumber + index,
-          sort_order: firstSortOrder + index,
-        })),
+        rows: [
+          {
+            encounter_id: encounterId,
+            kind: 'combatant' as const,
+            sequence_number: firstSequenceNumber,
+            sort_order: firstSortOrder,
+          },
+        ],
         shared: {
           name: trimmedName,
           ...(startingMaxHp !== null ? { starting_max_hp: startingMaxHp } : {}),

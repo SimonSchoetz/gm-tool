@@ -13,7 +13,7 @@
   gap: var(--spacing-sm);
 }
 
-/* `.input` is 100% wide, so beside the fixed quantity field and the Add button the field would shrink them; a zero basis lets it take only the space they leave. */
+/* `.input` is 100% wide, so beside the Add button the field would shrink it; a zero basis lets it take only the space the button leaves. */
 .encounter-add-random-combatant-hp {
   flex: 1 1 0;
   min-width: 0;

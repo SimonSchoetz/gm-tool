@@ -19,13 +19,11 @@ type AddQueueItemsVariables =
       kind: 'entity';
       entityType: BaseEntityType;
       baseEntityId: string;
-      quantity: number;
     }
   | {
       kind: 'random';
       name: string;
       startingMaxHp: number | null;
-      quantity: number;
     }
   | { kind: 'event'; name: string };
 
@@ -35,12 +33,10 @@ type UseEncounterQueueItemsReturn = {
   addEntityCombatants: (
     entityType: BaseEntityType,
     baseEntityId: string,
-    quantity: number,
   ) => Promise<boolean>;
   addRandomCombatants: (
     name: string,
     startingMaxHp: number | null,
-    quantity: number,
   ) => Promise<boolean>;
   addEvent: (name: string) => Promise<boolean>;
   isAdding: boolean;
@@ -67,14 +63,12 @@ export const useEncounterQueueItems = (
             encounterId,
             variables.entityType,
             variables.baseEntityId,
-            variables.quantity,
           );
         case 'random':
           return service.addRandomCombatants(
             encounterId,
             variables.name,
             variables.startingMaxHp,
-            variables.quantity,
           );
         case 'event':
           return service.addEvent(encounterId, variables.name);
@@ -111,15 +105,12 @@ export const useEncounterQueueItems = (
   const addEntityCombatants = (
     entityType: BaseEntityType,
     baseEntityId: string,
-    quantity: number,
-  ): Promise<boolean> =>
-    add({ kind: 'entity', entityType, baseEntityId, quantity });
+  ): Promise<boolean> => add({ kind: 'entity', entityType, baseEntityId });
 
   const addRandomCombatants = (
     name: string,
     startingMaxHp: number | null,
-    quantity: number,
-  ): Promise<boolean> => add({ kind: 'random', name, startingMaxHp, quantity });
+  ): Promise<boolean> => add({ kind: 'random', name, startingMaxHp });
 
   const addEvent = (name: string): Promise<boolean> =>
     add({ kind: 'event', name });

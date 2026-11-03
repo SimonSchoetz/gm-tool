@@ -1,6 +1,0 @@
-/* A compound selector: it out-ranks `.input { width: 100% }` whatever the stylesheet load order. */
-.encounter-quantity-input.number-input {
-  width: var(--spacing-2xl);
-  flex-shrink: 0;
-  text-align: center;
-}

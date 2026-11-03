@@ -90,18 +90,18 @@ describe('addEntityCombatants', () => {
       ],
     });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
-    expect(createdRows().map((row) => row.sort_order)).toEqual([6, 7]);
+    expect(createdRows().map((row) => row.sort_order)).toEqual([6]);
   });
 
   it('starts sort_order at 0 on an empty queue', async () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange();
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
-    expect(createdRows().map((row) => row.sort_order)).toEqual([0, 1]);
+    expect(createdRows().map((row) => row.sort_order)).toEqual([0]);
   });
 
   it('continues numbering after the highest sequence_number of the same entity, with a gap, ignoring another entity', async () => {
@@ -119,13 +119,13 @@ describe('addEntityCombatants', () => {
       ],
     });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
     expect(
       createdRows().map((row) =>
         'sequence_number' in row ? row.sequence_number : null,
       ),
-    ).toEqual([4, 5]);
+    ).toEqual([4]);
   });
 
   it('starts numbering at 1 when the entity has no combatant yet', async () => {
@@ -140,7 +140,7 @@ describe('addEntityCombatants', () => {
       ],
     });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
     expect(
       createdRows().map((row) =>
@@ -149,7 +149,7 @@ describe('addEntityCombatants', () => {
     ).toEqual([1]);
   });
 
-  it('writes all rows in one createMany call carrying the single stat block HP and the entity name', async () => {
+  it('writes one row in one createMany call carrying the single stat block HP and the entity name', async () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({
       sections: [
@@ -160,17 +160,15 @@ describe('addEntityCombatants', () => {
       ],
     });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 3);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
     expect(createMany).toHaveBeenCalledTimes(1);
-    expect(createdRows()).toHaveLength(3);
-    for (const row of createdRows()) {
-      expect(row).toMatchObject({
-        encounter_id: ENCOUNTER_ID,
-        kind: 'combatant',
-        base_entity_id: ENTITY_ID,
-      });
-    }
+    expect(createdRows()).toHaveLength(1);
+    expect(createdRows()[0]).toMatchObject({
+      encounter_id: ENCOUNTER_ID,
+      kind: 'combatant',
+      base_entity_id: ENTITY_ID,
+    });
     expect(sharedFields()).toEqual({ name: 'Goblin', starting_max_hp: 7 });
   });
 
@@ -185,7 +183,7 @@ describe('addEntityCombatants', () => {
       ],
     });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
     expect(sharedFields()?.starting_max_hp).toBe(0);
   });
@@ -220,7 +218,7 @@ describe('addEntityCombatants', () => {
       const { addEntityCombatants } = await import('../encounterQueueService');
       arrange({ sections });
 
-      await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
+      await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
       expect(sharedFields()).not.toHaveProperty('starting_max_hp');
     },
@@ -230,7 +228,7 @@ describe('addEntityCombatants', () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({ entity: buildBaseEntity({ name: null }) });
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
     expect(sharedFields()).not.toHaveProperty('name');
   });
@@ -238,14 +236,14 @@ describe('addEntityCombatants', () => {
   it('writes the added entry after the insert with the ids createMany returned, in order', async () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange();
-    createMany.mockResolvedValue(['x', 'y']);
+    createMany.mockResolvedValue(['x']);
 
-    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2);
+    await addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
     expect(createLogEntry).toHaveBeenCalledWith({
       encounter_id: ENCOUNTER_ID,
       kind: 'added',
-      payload: { queueItemIds: ['x', 'y'] },
+      payload: { queueItemIds: ['x'] },
     });
     expect(createMany.mock.invocationCallOrder[0]).toBeLessThan(
       createLogEntry.mock.invocationCallOrder[0],
@@ -258,7 +256,7 @@ describe('addEntityCombatants', () => {
     createLogEntry.mockRejectedValue(new Error('log table locked'));
 
     await expect(
-      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 2),
+      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID),
     ).resolves.toBeUndefined();
     expect(createMany).toHaveBeenCalledTimes(1);
   });
@@ -269,36 +267,17 @@ describe('addEntityCombatants', () => {
     createMany.mockRejectedValue(new Error('disk full'));
 
     await expect(
-      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1),
+      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID),
     ).rejects.toMatchObject({ name: 'EncounterQueueAddError' });
     expect(createLogEntry).not.toHaveBeenCalled();
   });
-
-  it.each([0, 100, 1.5])(
-    'rejects quantity %s as EncounterQueueAddError before any db call',
-    async (quantity) => {
-      const { addEntityCombatants } = await import('../encounterQueueService');
-      arrange();
-
-      await expect(
-        addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, quantity),
-      ).rejects.toThrow(
-        new RegExp(
-          `^Failed to add to the encounter queue: Error: Invalid quantity: ${quantity}$`,
-        ),
-      );
-      expect(getBaseEntity).not.toHaveBeenCalled();
-      expect(getAllByEncounter).not.toHaveBeenCalled();
-      expect(createMany).not.toHaveBeenCalled();
-    },
-  );
 
   it('rejects an entity that does not exist without any write', async () => {
     const { addEntityCombatants } = await import('../encounterQueueService');
     arrange({ entity: null });
 
     await expect(
-      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID, 1),
+      addEntityCombatants(ENCOUNTER_ID, 'foes', ENTITY_ID),
     ).rejects.toThrow(
       new RegExp(
         `^Failed to add to the encounter queue: BaseEntityNotFoundError: Foe with id ${ENTITY_ID} not found$`,
@@ -425,9 +404,9 @@ describe('addRandomCombatants', () => {
       }),
     ]);
 
-    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 2);
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null);
 
-    expect(sequenceNumbers()).toEqual([5, 6]);
+    expect(sequenceNumbers()).toEqual([5]);
   });
 
   it('does not count an event, an entity combatant or a random combatant of another name or letter case', async () => {
@@ -460,7 +439,7 @@ describe('addRandomCombatants', () => {
       }),
     ]);
 
-    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 1);
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null);
 
     expect(sequenceNumbers()).toEqual([1]);
   });
@@ -476,18 +455,18 @@ describe('addRandomCombatants', () => {
       }),
     ]);
 
-    await addRandomCombatants(ENCOUNTER_ID, 'Goblin', null, 1);
+    await addRandomCombatants(ENCOUNTER_ID, 'Goblin', null);
 
     expect(sequenceNumbers()).toEqual([3]);
   });
 
-  it('writes the quantity as rows of one createMany call that continue sort_order, with the trimmed name and no entity', async () => {
+  it('writes one row in one createMany call that continues sort_order, with the trimmed name and no entity', async () => {
     const { addRandomCombatants } = await import('../encounterQueueService');
     getAllByEncounter.mockResolvedValue([
       buildEncounterQueueItem({ id: 'a', sort_order: 5 }),
     ]);
 
-    await addRandomCombatants(ENCOUNTER_ID, '  Grunt ', 10, 2);
+    await addRandomCombatants(ENCOUNTER_ID, '  Grunt ', 10);
 
     expect(createMany).toHaveBeenCalledTimes(1);
     expect(createdRows()).toEqual([
@@ -497,12 +476,6 @@ describe('addRandomCombatants', () => {
         sequence_number: 1,
         sort_order: 6,
       },
-      {
-        encounter_id: ENCOUNTER_ID,
-        kind: 'combatant',
-        sequence_number: 2,
-        sort_order: 7,
-      },
     ]);
     expect(sharedFields()).toEqual({ name: 'Grunt', starting_max_hp: 10 });
   });
@@ -510,26 +483,24 @@ describe('addRandomCombatants', () => {
   it('keeps an HP of 0 and leaves starting_max_hp out for no HP', async () => {
     const { addRandomCombatants } = await import('../encounterQueueService');
 
-    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', 0, 1);
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', 0);
     expect(sharedFields()).toEqual({ name: 'Grunt', starting_max_hp: 0 });
 
     createMany.mockClear();
-    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 1);
+    await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null);
     expect(sharedFields()).toEqual({ name: 'Grunt' });
   });
 
   it.each([
-    ['a blank name', ' ', null, 1, /Name is required$/],
-    ['HP -1', 'Grunt', -1, 1, /Invalid HP: -1$/],
-    ['HP 1.5', 'Grunt', 1.5, 1, /Invalid HP: 1.5$/],
-    ['quantity 0', 'Grunt', null, 0, /Invalid quantity: 0$/],
-    ['quantity 100', 'Grunt', null, 100, /Invalid quantity: 100$/],
+    ['a blank name', ' ', null, /Name is required$/],
+    ['HP -1', 'Grunt', -1, /Invalid HP: -1$/],
+    ['HP 1.5', 'Grunt', 1.5, /Invalid HP: 1.5$/],
   ])(
     'rejects %s as EncounterQueueAddError before any db call',
-    async (_label, name, hp, quantity, message) => {
+    async (_label, name, hp, message) => {
       const { addRandomCombatants } = await import('../encounterQueueService');
 
-      const result = addRandomCombatants(ENCOUNTER_ID, name, hp, quantity);
+      const result = addRandomCombatants(ENCOUNTER_ID, name, hp);
 
       await expect(result).rejects.toMatchObject({
         name: 'EncounterQueueAddError',
@@ -587,7 +558,7 @@ describe('the added entry of every add', () => {
       async () => {
         const { addRandomCombatants } =
           await import('../encounterQueueService');
-        await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null, 1);
+        await addRandomCombatants(ENCOUNTER_ID, 'Grunt', null);
       },
     ],
     [
