@@ -85,7 +85,7 @@ Decided during the PRD interview, not left out by accident:
 
 ### Shown item (middle column)
 
-- **V1.** An entity combatant shows its combat name (editable), its combat HP and defeated mark (read-only; changed in the Actions tab), its own notes editor, and then its entity's content sections and description. The entity content is editable exactly as on the entity's screen, and an edit changes the entity itself: for every combatant of that entity, in every encounter, and outside encounters.
+- **V1.** An entity combatant shows its combat name (editable), its combat HP and defeated mark (read-only; changed in the Actions tab), its own notes editor, and then its entity's mention popup content, read-only: the header row, the image and the selected content section's body, without the description.
 - **V2.** An ad-hoc combatant shows its combat name (editable), its combat HP and defeated mark, and its notes editor.
 - **V3.** An encounter event shows its name (editable) and its note editor.
 - **V4.** A combatant whose HP is not set shows why: its entity has no stat block with an HP value, or has more than one stat block. The hint tells the GM to set max HP in the Actions tab.
@@ -144,7 +144,7 @@ Decided during the PRD interview, not left out by accident:
 | One combat state per encounter; it stays as the record after the fight, and a fight is run again by duplicating the encounter | One copy of combat state is the cheapest to build | proposed by Claude, accepted by Simon Schötz, 2026-10-28 |
 | Every encounter is a combat; the screen becomes the combat tracker for all of them | not recorded | Simon Schötz, 2026-10-28 |
 | A PC's HP lives in each encounter only; damage from an earlier fight is not carried over | not recorded | Simon Schötz, 2026-10-28 |
-| A combatant's entity content is editable in the middle column, and edits change the entity itself | not recorded | Simon Schötz, 2026-10-28 |
+| A combatant's entity content is read-only in the middle column, shown as the entity's mention popup shows it | "ok I realize I prefer to have the middle column to be read-only because it's reduced noise" | Simon Schötz, 2026-10-28, changed 2026-11-03 |
 | Turn order is manual drag and drop only; no initiative values | Fits systems without initiative, such as Daggerheart's spotlight | Simon Schötz, 2026-10-28 |
 | No current-turn marker, no "turn done" checkmarks, no round counter; a new round is a typed log message | "Marking turns doesn't make sense for Daggerheart. I'd now say marking a new round is a comment in the combat log for DnD and similar systems." | Simon Schötz, 2026-10-28 |
 | Round-bound reminders (reinforcements in round 3) are encounter events in the queue, like lair actions | "Reminders like Reinforcements in round 3 I consider something like a layer action that I already mentioned as non-combatant queue items" | Simon Schötz, 2026-10-28 |
