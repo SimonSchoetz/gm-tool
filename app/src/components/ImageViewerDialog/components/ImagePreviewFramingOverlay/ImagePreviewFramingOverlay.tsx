@@ -8,12 +8,12 @@ import { computePanDelta } from './helper/computePanDelta';
 import type { FrameState } from './helper/clampFrame';
 import './ImagePreviewFramingOverlay.css';
 import { IpfoBgImg } from './components/IpfoBgImg';
-import { IPFO_FRAME_BORDER_WIDTH } from './ImagePreviewFramingOverlay.constants';
-
-const MAX_ZOOM = 5;
-const ZOOM_STEP = 0.001;
-// The values `ImageById.css` falls back to for an image with no stored frame.
-const DEFAULT_FRAME: FrameState = { x: 50, y: 0, zoom: 1 };
+import {
+  DEFAULT_FRAME,
+  IPFO_FRAME_BORDER_WIDTH,
+  MAX_ZOOM,
+  ZOOM_STEP,
+} from './ImagePreviewFramingOverlay.constants';
 
 type Props = {
   imageId: string;

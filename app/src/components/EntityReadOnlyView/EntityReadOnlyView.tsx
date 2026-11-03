@@ -119,7 +119,7 @@ export const EntityReadOnlyView: FCProps<Props> = ({
         )}
       </EntityPopupBody>
       {isNavVisible && (
-        // Portaled by AnchoredPopup. React computes an unpinned MentionPopup's mouse leave over the React tree, where this popup is a descendant, so moving the pointer into it does not remove the MentionPopup.
+        // The section menu is portaled by AnchoredPopup out of this view's DOM, and React computes mouse leave over the React tree, so a host that closes on leave (an unpinned mention popup) still counts the menu as inside it; the middle column has no such host.
         <ContentSectionNav
           baseEntityId={entityId}
           activeId={selected?.id ?? null}

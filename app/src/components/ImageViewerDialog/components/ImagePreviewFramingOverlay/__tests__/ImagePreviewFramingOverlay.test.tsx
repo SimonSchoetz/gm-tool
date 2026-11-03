@@ -7,6 +7,12 @@ import {
   TanstackQueryClientProvider,
 } from '@/data-access-layer';
 import { ImagePreviewFramingOverlay } from '../ImagePreviewFramingOverlay';
+import {
+  DEFAULT_FRAME,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  ZOOM_STEP,
+} from '../ImagePreviewFramingOverlay.constants';
 
 const getImageById = vi.hoisted(() => vi.fn<typeof service.getImageById>());
 const getImageUrl = vi.hoisted(() => vi.fn<typeof service.getImageUrl>());
@@ -22,8 +28,6 @@ vi.mock('@services/imageService', () => ({
 
 const IMAGE_ID = 'image-1';
 const STORED_FRAME = { x: 30, y: 40, zoom: 2 };
-// The zoom a wheel delta of 1 adds, as the overlay reads it.
-const ZOOM_PER_WHEEL_DELTA = 0.001;
 const setPointerCapture = vi.fn();
 
 const framingPreview = () =>
@@ -32,7 +36,7 @@ const framingPreview = () =>
 const renderOverlay = async () => {
   // The dialog shows the image before framing starts, so its query is cached when the overlay mounts.
   await queryClient.query(imageQueryOptions(IMAGE_ID));
-  render(
+  return render(
     <ImagePreviewFramingOverlay
       imageId={IMAGE_ID}
       dimensions={{ width: 400, height: 300 }}
@@ -66,20 +70,9 @@ describe('ImagePreviewFramingOverlay', () => {
   });
 
   it('zooms in on a scroll up over the preview instead of scrolling the page, and saves the zoomed frame', async () => {
-    // The dialog shows the image before framing starts, so its query is cached when the overlay mounts.
-    await queryClient.query(imageQueryOptions(IMAGE_ID));
-    render(
-      <ImagePreviewFramingOverlay
-        imageId={IMAGE_ID}
-        dimensions={{ width: 400, height: 300 }}
-      />,
-      { wrapper: TanstackQueryClientProvider },
-    );
+    await renderOverlay();
 
-    const scrolledPage = fireEvent.wheel(
-      screen.getByRole('img', { name: 'Framing preview' }),
-      { deltaY: -100 },
-    );
+    const scrolledPage = fireEvent.wheel(framingPreview(), { deltaY: -100 });
     await act(() => vi.runOnlyPendingTimersAsync());
 
     expect(scrolledPage).toBe(false);
@@ -89,15 +82,15 @@ describe('ImagePreviewFramingOverlay', () => {
       expect.objectContaining({ x: STORED_FRAME.x, y: STORED_FRAME.y }),
     );
     expect(updateImageFrame.mock.lastCall?.[1].zoom).toBeCloseTo(
-      STORED_FRAME.zoom + 100 * ZOOM_PER_WHEEL_DELTA,
+      STORED_FRAME.zoom + 100 * ZOOM_STEP,
     );
   });
 
   describe.each([
-    ['a scroll down', 1_000_000, 1],
-    ['a long scroll up', -1_000_000, 5],
+    ['a long scroll down', 1_000_000, MIN_ZOOM],
+    ['a long scroll up', -1_000_000, MAX_ZOOM],
   ])('on %s', (_label, deltaY, expectedZoom) => {
-    it(`keeps the zoom between 1 and 5, saving ${expectedZoom}`, async () => {
+    it(`keeps the zoom between ${MIN_ZOOM} and ${MAX_ZOOM}, saving ${expectedZoom}`, async () => {
       await renderOverlay();
 
       fireEvent.wheel(framingPreview(), { deltaY });
@@ -108,14 +101,7 @@ describe('ImagePreviewFramingOverlay', () => {
   });
 
   it('saves a changed frame for the image the overlay shows now when the image changes', async () => {
-    await queryClient.query(imageQueryOptions(IMAGE_ID));
-    const view = render(
-      <ImagePreviewFramingOverlay
-        imageId={IMAGE_ID}
-        dimensions={{ width: 400, height: 300 }}
-      />,
-      { wrapper: TanstackQueryClientProvider },
-    );
+    const view = await renderOverlay();
 
     await queryClient.query(imageQueryOptions('image-2'));
     view.rerender(
@@ -158,7 +144,7 @@ describe('ImagePreviewFramingOverlay', () => {
 
     expect(updateImageFrame).toHaveBeenCalledWith(
       IMAGE_ID,
-      expect.objectContaining({ x: 50, y: 0 }),
+      expect.objectContaining({ x: DEFAULT_FRAME.x, y: DEFAULT_FRAME.y }),
     );
   });
 

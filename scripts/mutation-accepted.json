@@ -321,7 +321,7 @@
     "lineText": "if (!isDraggingRef.current || lastPointerRef.current === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "isDraggingRef and lastPointerRef change together on a press and on a release, so the guard's operands never differ and no input observes a difference"
+    "reason": "the mutant replaces only the second operand, and a move before a press already returns at the first, since isDraggingRef is false until a press, so no input observes a difference"
   },
   {
     "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
@@ -340,6 +340,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "isDraggingRef and lastPointerRef change together on a press and on a release, so the guard's operands never differ and no input observes a difference"
+  },
+  {
+    "file": "src/components/ImageViewerDialog/ImageViewerDialog.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "setStateResettingMode('closed');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",

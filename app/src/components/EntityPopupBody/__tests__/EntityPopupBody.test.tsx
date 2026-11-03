@@ -30,7 +30,7 @@ const renderBody = (onImageOpen?: () => void) =>
     { wrapper: Providers },
   );
 
-const renderBodyWithoutTitle = (imageId: string | null) =>
+const renderBodyForImage = (imageId: string | null) =>
   render(<EntityPopupBody imageId={imageId} />, { wrapper: Providers });
 
 describe('EntityPopupBody', () => {
@@ -80,7 +80,7 @@ describe('EntityPopupBody', () => {
 
   it('titles the full-screen image with nothing when the entity has no name to give', async () => {
     const user = userEvent.setup();
-    renderBodyWithoutTitle(IMAGE_ID);
+    renderBodyForImage(IMAGE_ID);
 
     await user.click(screen.getByRole('button', { name: 'View image' }));
 
@@ -88,7 +88,7 @@ describe('EntityPopupBody', () => {
   });
 
   it('offers no image to click when the entity has none', () => {
-    renderBodyWithoutTitle(null);
+    renderBodyForImage(null);
 
     expect(
       screen.queryByRole('button', { name: 'View image' }),
