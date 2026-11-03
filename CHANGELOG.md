@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.17.0] - 2026-11-03
+
+### Added
+
+- An encounter can have a cover image: upload it first in the encounter screen's left column; it also shows in the encounter's mention popup
+- Lists show a Cover cell with the placeholder icon of its domain when an entry has no image, and the queue and Add-tab rows show it too
+- The shown combatant's middle column now displays the entity's read-only popup content, and its entity image can be edited beside the content sections
+- An entity's image opens full screen, read-only
+- Revert in the encounter Log is an icon
+
+### Changed
+
+- The encounter screen's left and right columns are 200 px wide, and the right column's tabs fit it
+- The encounter queue's style: tooltip names, crossed swords for defeated combatants, compact HP
+- Adding a combatant is a plus icon and adds one combatant per click, without a quantity field
+- The shown combatant's middle column no longer repeats its HP line, and the Log icons are smaller
+
 ## [v0.16.0] - 2026-11-01
 
 ### Added
