@@ -32,8 +32,12 @@ const IMAGE_ID = 'image-1';
 const uploadFn = vi.fn();
 const deleteFn = vi.fn();
 
-const EditableViewer = () => {
-  const [state, setState] = useState<'open' | 'closed'>('closed');
+const EditableViewer = ({
+  initialState = 'closed',
+}: {
+  initialState?: 'open' | 'closed';
+}) => {
+  const [state, setState] = useState<'open' | 'closed'>(initialState);
   return (
     <>
       <button
@@ -106,6 +110,11 @@ describe('ImageViewerDialog', () => {
 
   it('opens on the image again after it was closed in framing mode', async () => {
     const user = await openViewer();
+
+    expect(
+      screen.getByRole('img', { name: 'Goblin image' }),
+    ).toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: 'Toggle framing' }));
 
     expect(
@@ -116,6 +125,12 @@ describe('ImageViewerDialog', () => {
     ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Close' }));
+
+    // The dialog keeps what it showed while it fades out.
+    expect(
+      screen.getByRole('img', { name: 'Framing preview' }),
+    ).toBeInTheDocument();
+
     await act(() => vi.runOnlyPendingTimersAsync());
     await user.click(screen.getByRole('button', { name: 'Open viewer' }));
 
@@ -124,6 +139,21 @@ describe('ImageViewerDialog', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole('img', { name: 'Goblin image' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the image when it is mounted open', async () => {
+    await queryClient.query(imageQueryOptions(IMAGE_ID));
+    render(<EditableViewer initialState='open' />, {
+      wrapper: ({ children }) => (
+        <TanstackQueryClientProvider>
+          <DeleteDialogProvider>{children}</DeleteDialogProvider>
+        </TanstackQueryClientProvider>
+      ),
+    });
+
+    expect(
+      await screen.findByRole('img', { name: 'Goblin image' }),
     ).toBeInTheDocument();
   });
 

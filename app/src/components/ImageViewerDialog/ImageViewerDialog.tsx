@@ -33,17 +33,16 @@ export const ImageViewerDialog: FCProps<Props> = ({
 }) => {
   const { openDeleteDialog } = useDeleteDialog();
   const [mode, setMode] = useState<'view' | 'framing'>('view');
+  const [previousState, setPreviousState] = useState(state);
 
-  // Every close, Escape and backdrop click included, puts the view mode back, so the next open starts on the image and not on a framing mode left open.
-  const setStateResettingMode: Dispatch<SetStateAction<'open' | 'closed'>> = (
-    next,
-  ) => {
-    setState(next);
-    setMode('view');
-  };
+  // Every open starts on the image, and not on a framing mode left open; the reset waits for the next open so the dialog keeps its content while it fades out.
+  if (state !== previousState) {
+    setPreviousState(state);
+    if (state === 'open') setMode('view');
+  }
 
   const close = () => {
-    setStateResettingMode('closed');
+    setState('closed');
   };
 
   const buildActions = ({ uploadFn, deleteFn }: Editing) => ({
@@ -71,7 +70,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
   });
 
   return createPortal(
-    <PopUpContainer state={state} setState={setStateResettingMode}>
+    <PopUpContainer state={state} setState={setState}>
       <GlassPanel intensity='bright' className='image-viewer-dialog'>
         <ImageViewerDialogHeader
           title={title}

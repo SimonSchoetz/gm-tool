@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { MIN_ZOOM } from '../../ImagePreviewFramingOverlay.constants';
 import { clampFrame } from '../clampFrame';
 
 describe('clampFrame', () => {
@@ -18,8 +19,10 @@ describe('clampFrame', () => {
     expect(clampFrame({ x: 50, y: 200, zoom: 1 }, 5).y).toBe(100);
   });
 
-  it('clamps zoom below 1 to 1', () => {
-    expect(clampFrame({ x: 50, y: 50, zoom: 0.5 }, 5).zoom).toBe(1);
+  it('clamps zoom below the minimum to the minimum', () => {
+    expect(clampFrame({ x: 50, y: 50, zoom: MIN_ZOOM / 2 }, 5).zoom).toBe(
+      MIN_ZOOM,
+    );
   });
 
   it('clamps zoom above maxZoom to maxZoom', () => {
@@ -34,11 +37,11 @@ describe('clampFrame', () => {
     });
   });
 
-  it('returns x=50, y=50, zoom=1 unchanged with maxZoom=5', () => {
-    expect(clampFrame({ x: 50, y: 50, zoom: 1 }, 5)).toEqual({
+  it('returns the minimum zoom unchanged', () => {
+    expect(clampFrame({ x: 50, y: 50, zoom: MIN_ZOOM }, 5)).toEqual({
       x: 50,
       y: 50,
-      zoom: 1,
+      zoom: MIN_ZOOM,
     });
   });
 });
