@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { normalizeQueueItemName } from '@domain';
-import { Button } from '@/components/Button/Button';
 import { Input } from '@/components/Input/Input';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
+import { EncounterAddBtn } from '../EncounterAddBtn/EncounterAddBtn';
 import './EncounterAddEvent.css';
 
 type Props = { hidden: boolean };
@@ -37,10 +37,9 @@ export const EncounterAddEvent: FCProps<Props> = ({ hidden }) => {
           if (event.key === 'Enter' && canAdd) void handleAdd();
         }}
       />
-      <Button
-        label='Add'
+      <EncounterAddBtn
         disabled={!canAdd}
-        onClick={() => {
+        onAdd={() => {
           void handleAdd();
         }}
       />

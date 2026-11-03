@@ -1,10 +1,10 @@
 import { useParams } from '@tanstack/react-router';
 import type { BaseEntity } from '@db/base-entity';
 import { UNNAMED_ENTITY_LABEL, entityTypeLabel } from '@domain';
-import { Button } from '@/components/Button/Button';
 import { useEncounterQueueItems } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { EncounterEntityImage } from '../../../../../../../EncounterEntityImage/EncounterEntityImage';
+import { EncounterAddBtn } from '../../../EncounterAddBtn/EncounterAddBtn';
 import './EncounterAddRow.css';
 
 type Props = {
@@ -34,10 +34,9 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
         </div>
       </div>
 
-      <Button
-        label='Add'
+      <EncounterAddBtn
         disabled={isAdding}
-        onClick={() => {
+        onAdd={() => {
           void addEntityCombatants(baseEntity.entity_type, baseEntity.id);
         }}
       />
