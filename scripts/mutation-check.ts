@@ -1,11 +1,12 @@
 // Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json.
+// A file moved with git (`git mv`, staged or committed) counts only the lines changed after the move (scripts/mutation-check-diff.ts); a moved file git has not seen yet is untracked, and so new as a whole.
 // Each mutant runs the Vitest tests related to its file through Stryker's command runner (scripts/mutation-check-related.ts): Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
 // Only changed files with their own test file (`<dir>/__tests__/<name>.test.ts(x)`) are mutated; the others are listed as skipped.
 // With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, so a fix loop re-runs the files that had survivors; a run without arguments is the gate. `--accept "<reason>"`, with or without files, is described below.
 // Exits non-zero when a mutant survives in one of them and scripts/mutation-accepted.json holds no entry for it: a test that passes with its target logic mutated catches no regression there.
 // A survivor no test can kill (an equivalent mutant) is accepted by an entry of that ledger, which names one mutant by its file, mutator, replacement and the text of the line it starts on (scripts/mutation-check-ledger.ts); a survivor matches one entry, so each of two identical mutants needs its own.
 // An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
-// `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, so only mutants known to be equivalent are accepted. After editing an accepted line, remove its entry and re-run with `--accept`.
+// `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, so only mutants known to be equivalent are accepted. Before Stryker starts, it runs the `test` row (`npx vitest run` in app/) and exits non-zero without writing an entry when a test fails (scripts/mutation-check-test-row.ts). After editing an accepted line, remove its entry and re-run with `--accept`.
 import { execFileSync, spawnSync } from 'child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
@@ -23,6 +24,8 @@ import {
   type MutationReport,
   type SourceLines,
 } from './mutation-check-ledger.ts';
+import { changedLinesAgainst } from './mutation-check-diff.ts';
+import { testRowFailure } from './mutation-check-test-row.ts';
 
 const DEFAULT_BRANCH = 'main';
 const PRODUCTION_DIRECTORIES = [
@@ -128,23 +131,17 @@ const mergeBase = git('merge-base', baseBranch, 'HEAD').trim();
 const untrackedPaths = new Set(
   lines(git('ls-files', '--others', '--exclude-standard')),
 );
-const changedPaths = new Set([
-  ...lines(git('diff', '--name-only', '--diff-filter=d', mergeBase)),
-  ...untrackedPaths,
-]);
-
-// The lines the branch added or changed in a file, so a survivor in logic the branch did not write never fails it; an untracked file is new as a whole.
-const changedLineRanges = (appRelativePath: string) => {
-  if (untrackedPaths.has(`app/${appRelativePath}`)) return 'all' as const;
-  return lines(
-    git('diff', '--unified=0', mergeBase, '--', `app/${appRelativePath}`),
-  )
-    .map((line) => /^@@ -\S+ \+(\d+)(?:,(\d+))? @@/.exec(line))
-    .filter((hunk) => hunk !== null)
-    .map(([, start, count = '1']) => [Number(start), Number(count)])
-    .filter(([, count]) => count > 0)
-    .map(([start, count]) => ({ start, end: start + count - 1 }));
-};
+// The lines the branch added or changed in each file, so a survivor in logic the branch did not write never fails it; an untracked file is new as a whole.
+const changedLines = changedLinesAgainst({
+  cwd: repositoryRoot,
+  base: mergeBase,
+  paths: ['app'],
+});
+const changedPaths = new Set([...changedLines.keys(), ...untrackedPaths]);
+const changedLineRanges = (appRelativePath: string) =>
+  untrackedPaths.has(`app/${appRelativePath}`)
+    ? ('all' as const)
+    : (changedLines.get(`app/${appRelativePath}`) ?? []);
 
 const isProductionSource = (appRelativePath: string) =>
   PRODUCTION_DIRECTORIES.some((directory) =>
@@ -207,7 +204,7 @@ const mutateEntries = testedFiles.flatMap((file) => {
       ? [file]
       : ranges.map(({ start, end }) => `${file}:${start}-${end}`);
   console.log(
-    `\nmutation-check: ${fileEntries.join(', ') || `${file} (lines removed only)`}`,
+    `\nmutation-check: ${fileEntries.join(', ') || `${file} (no line added or changed)`}`,
   );
   if (fileEntries.length > 0) mutatedRanges.set(file, ranges);
   return fileEntries;
@@ -243,6 +240,14 @@ const runStryker = (runEntries: string[], runFiles: string[]) => {
     readFileSync(path.join(appRoot, REPORT_PATH), 'utf8'),
   ) as MutationReport;
 };
+
+if (acceptReason !== null && mutateEntries.length > 0) {
+  const failure = testRowFailure(appRoot);
+  if (failure !== null) {
+    console.error(`\n${failure}`);
+    process.exit(1);
+  }
+}
 
 const survivors =
   mutateEntries.length > 0
