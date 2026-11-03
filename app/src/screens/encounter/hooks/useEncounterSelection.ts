@@ -47,6 +47,8 @@ export const useEncounterSelection = (
   useEffect(
     () => {
       const clearOnEscape = (event: KeyboardEvent) => {
+        // An open modal dialog closes on its own Escape, which must leave the selection alone.
+        if (document.querySelector('[aria-modal="true"]') !== null) return;
         if (
           event.key === 'Escape' &&
           !isEditableWithin(middleColumnRef.current, event.target)

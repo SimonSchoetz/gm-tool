@@ -15,7 +15,7 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
   entityId,
   adventureId,
 }) => {
-  const { zIndex } = useMentionPopupHeader();
+  const { zIndex, onPin } = useMentionPopupHeader();
 
   return (
     <EntityReadOnlyView
@@ -24,6 +24,7 @@ export const BaseEntityPopupContent: FCProps<Props> = ({
       adventureId={adventureId}
       Header={MentionPopupHeader}
       navZIndex={zIndex}
+      onImageOpen={onPin}
     />
   );
 };

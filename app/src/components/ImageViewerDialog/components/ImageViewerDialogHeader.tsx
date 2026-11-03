@@ -6,18 +6,18 @@ import './ImageViewerDialogHeader.css';
 
 type Props = {
   title: string;
-  onDeleteClick: () => void;
-  onReplaceClick: () => void;
-  onSettingsClick: () => void;
   onClose: () => void;
+  actions?: {
+    onDeleteClick: () => void;
+    onReplaceClick: () => void;
+    onSettingsClick: () => void;
+  };
 };
 
 export const ImageViewerDialogHeader: FCProps<Props> = ({
   title,
-  onDeleteClick,
-  onReplaceClick,
-  onSettingsClick,
   onClose,
+  actions,
 }) => {
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -34,25 +34,29 @@ export const ImageViewerDialogHeader: FCProps<Props> = ({
   return (
     <div ref={headerRef} className='image-viewer-dialog-header'>
       <span className='image-viewer-dialog-title'>{title}</span>
-      <ClickableIcon
-        icon={<Trash2Icon />}
-        variant='danger'
-        label='Delete image'
-        title='Delete image'
-        onClick={onDeleteClick}
-      />
-      <ClickableIcon
-        icon={<UploadIcon />}
-        label='Replace image'
-        title='Replace image'
-        onClick={onReplaceClick}
-      />
-      <ClickableIcon
-        icon={<Settings2Icon />}
-        label='Toggle framing'
-        title='Toggle framing'
-        onClick={onSettingsClick}
-      />
+      {actions && (
+        <>
+          <ClickableIcon
+            icon={<Trash2Icon />}
+            variant='danger'
+            label='Delete image'
+            title='Delete image'
+            onClick={actions.onDeleteClick}
+          />
+          <ClickableIcon
+            icon={<UploadIcon />}
+            label='Replace image'
+            title='Replace image'
+            onClick={actions.onReplaceClick}
+          />
+          <ClickableIcon
+            icon={<Settings2Icon />}
+            label='Toggle framing'
+            title='Toggle framing'
+            onClick={actions.onSettingsClick}
+          />
+        </>
+      )}
       <ClickableIcon
         icon={<XIcon />}
         label='Close'

@@ -1,81 +1,93 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FCProps } from '@/types/fcProps.type';
 import { filePicker } from '@/util/filePicker';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { ImageById } from '../ImageById/ImageById';
+import PopUpContainer from '../PopUpContainer/PopUpContainer';
 import { ImageViewerDialogHeader } from './components/ImageViewerDialogHeader';
 import { ImagePreviewFramingOverlay } from './components/ImagePreviewFramingOverlay';
 import './ImageViewerDialog.css';
 
-type Props = {
-  image_id: string;
-  title: string;
-  onClose: () => void;
+type Editing = {
   uploadFn: (filePath: string) => void;
   deleteFn: () => void;
   dimensions: { width: number; height: number };
 };
 
+type Props = {
+  image_id: string;
+  title: string;
+  state: 'open' | 'closed';
+  setState: Dispatch<SetStateAction<'open' | 'closed'>>;
+  editing?: Editing;
+};
+
 export const ImageViewerDialog: FCProps<Props> = ({
   image_id,
   title,
-  onClose,
-  uploadFn,
-  deleteFn,
-  dimensions,
+  state,
+  setState,
+  editing,
 }) => {
   const { openDeleteDialog } = useDeleteDialog();
   const [mode, setMode] = useState<'view' | 'framing'>('view');
 
-  const handleDeleteClick = () => {
-    openDeleteDialog({
-      name: `${title} image`,
-      onDeletionConfirm: () => {
-        deleteFn();
-        onClose();
-      },
-      oneClickConfirm: true,
-    });
+  const close = () => {
+    setState('closed');
   };
 
-  const handleReplaceClick = async () => {
-    const filePath = await filePicker('image');
-    if (filePath !== null) {
-      uploadFn(filePath);
-      onClose();
-    }
-  };
+  const buildActions = ({ uploadFn, deleteFn }: Editing) => ({
+    onDeleteClick: () => {
+      openDeleteDialog({
+        name: `${title} image`,
+        onDeletionConfirm: () => {
+          deleteFn();
+          close();
+        },
+        oneClickConfirm: true,
+      });
+    },
+    onReplaceClick: () => {
+      void filePicker('image').then((filePath) => {
+        if (filePath !== null) {
+          uploadFn(filePath);
+          close();
+        }
+      });
+    },
+    onSettingsClick: () => {
+      setMode((m) => (m === 'view' ? 'framing' : 'view'));
+    },
+  });
 
-  return (
-    <GlassPanel intensity='bright' className='image-viewer-dialog'>
-      <ImageViewerDialogHeader
-        title={title}
-        onDeleteClick={handleDeleteClick}
-        onReplaceClick={() => {
-          void handleReplaceClick();
-        }}
-        onSettingsClick={() => {
-          setMode((m) => (m === 'view' ? 'framing' : 'view'));
-        }}
-        onClose={onClose}
-      />
-      {mode === 'view' && (
-        <div className='image-viewer-dialog-content'>
-          <ImageById
-            imageId={image_id}
-            className='image-viewer-dialog-img'
-            alt={`${title} image`}
-            fullImage
-          />
-        </div>
-      )}
-      {mode === 'framing' && (
-        <ImagePreviewFramingOverlay
-          imageId={image_id}
-          dimensions={dimensions}
+  return createPortal(
+    <PopUpContainer state={state} setState={setState}>
+      <GlassPanel intensity='bright' className='image-viewer-dialog'>
+        <ImageViewerDialogHeader
+          title={title}
+          onClose={close}
+          {...(editing && { actions: buildActions(editing) })}
         />
-      )}
-    </GlassPanel>
+        {mode === 'view' && (
+          <div className='image-viewer-dialog-content'>
+            <ImageById
+              imageId={image_id}
+              className='image-viewer-dialog-img'
+              alt={`${title} image`}
+              fullImage
+            />
+          </div>
+        )}
+        {mode === 'framing' && editing && (
+          <ImagePreviewFramingOverlay
+            imageId={image_id}
+            dimensions={editing.dimensions}
+          />
+        )}
+      </GlassPanel>
+    </PopUpContainer>,
+    document.body,
   );
 };

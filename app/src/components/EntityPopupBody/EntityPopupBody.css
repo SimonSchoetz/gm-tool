@@ -7,3 +7,8 @@
 .entity-popup-body--image {
   border-radius: var(--radius-md);
 }
+
+.entity-popup-body--image-btn {
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+}

@@ -23,6 +23,7 @@ type Props = {
   adventureId: string | null;
   Header: FCProps<HeaderProps>;
   navZIndex: number | null;
+  onImageOpen?: () => void;
 };
 
 export const EntityReadOnlyView: FCProps<Props> = ({
@@ -31,6 +32,7 @@ export const EntityReadOnlyView: FCProps<Props> = ({
   adventureId,
   Header,
   navZIndex,
+  onImageOpen,
 }) => {
   const { baseEntity, loading } = useBaseEntity(
     entityType,
@@ -84,7 +86,11 @@ export const EntityReadOnlyView: FCProps<Props> = ({
   return (
     <>
       <Header {...headerSlots} />
-      <EntityPopupBody imageId={baseEntity.image_id}>
+      <EntityPopupBody
+        imageId={baseEntity.image_id}
+        imageTitle={baseEntity.name ?? ''}
+        {...(onImageOpen && { onImageOpen })}
+      >
         {selected && (
           <SlideTransition
             className='entity-read-only-view-region'
