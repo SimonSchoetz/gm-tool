@@ -49,7 +49,6 @@
 
 .encounter-log-entry-buttons {
   display: flex;
-  gap: var(--spacing-xs);
   visibility: hidden;
 }
 

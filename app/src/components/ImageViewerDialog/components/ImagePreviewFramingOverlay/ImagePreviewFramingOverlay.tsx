@@ -11,7 +11,6 @@ import { IpfoBgImg } from './components/IpfoBgImg';
 import {
   DEFAULT_FRAME,
   IPFO_FRAME_BORDER_WIDTH,
-  MAX_ZOOM,
   ZOOM_STEP,
 } from './ImagePreviewFramingOverlay.constants';
 
@@ -53,10 +52,7 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       setFrameState((prev) =>
-        clampFrame(
-          { ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP },
-          MAX_ZOOM,
-        ),
+        clampFrame({ ...prev, zoom: prev.zoom - e.deltaY * ZOOM_STEP }),
       );
     };
     el.addEventListener('wheel', onWheel, { passive: false });
@@ -86,10 +82,11 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
         dimensions.height,
         prev.zoom,
       );
-      return clampFrame(
-        { ...prev, x: prev.x - delta.dx, y: prev.y - delta.dy },
-        MAX_ZOOM,
-      );
+      return clampFrame({
+        ...prev,
+        x: prev.x - delta.dx,
+        y: prev.y - delta.dy,
+      });
     });
   };
 

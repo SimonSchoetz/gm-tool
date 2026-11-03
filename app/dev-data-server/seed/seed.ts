@@ -164,30 +164,26 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
   await encounterService.updateEncounter(imagelessEncounterId, {
     name: 'Imageless Encounter',
   });
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     singleStatBlockFoeId,
   );
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     singleStatBlockFoeId,
   );
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     twoStatBlockFoeId,
   );
   await encounterQueueService.addEvent(encounterId, 'Seed Event');
-  await encounterQueueService.addEntityCombatants(
+  await encounterQueueService.addEntityCombatant(
     encounterId,
     'foes',
     noStatBlockFoeId,
   );
-  await encounterQueueService.addRandomCombatants(
-    encounterId,
-    'Seed Bandit',
-    9,
-  );
+  await encounterQueueService.addRandomCombatant(encounterId, 'Seed Bandit', 9);
 };

@@ -28,26 +28,26 @@ export type UpdateQueueItemData = Pick<
   'custom_name' | 'name' | 'notes'
 >;
 
-type QueueItemsPlan = (
+type QueueItemPlan = (
   queueItems: EncounterQueueItem[],
-  firstSortOrder: number,
+  sortOrder: number,
 ) => {
-  rows: CreateEncounterQueueItemInput[];
+  row: CreateEncounterQueueItemInput;
   shared: SharedEncounterQueueItemFields;
 };
 
-const appendQueueItems = async (
+const appendQueueItem = async (
   encounterId: string,
-  plan: QueueItemsPlan,
+  plan: QueueItemPlan,
 ): Promise<void> => {
   const queueItems = await queueItemDb.getAllByEncounter(encounterId);
-  const firstSortOrder =
+  const sortOrder =
     Math.max(-1, ...queueItems.map((item) => item.sort_order)) + 1;
-  const { rows, shared } = plan(queueItems, firstSortOrder);
+  const { row, shared } = plan(queueItems, sortOrder);
 
-  const queueItemIds = await queueItemDb.createMany(rows, shared);
+  const queueItemIds = await queueItemDb.createMany([row], shared);
 
-  // The items are stored by now. A failed log write loses only its `added` line, which the derivation does not read, and reporting the add as failed would invite a retry that adds the batch twice.
+  // The item is stored by now. A failed log write loses only its `added` line, which the derivation does not read, and reporting the add as failed would invite a retry that adds the item twice.
   try {
     await logEntryDb.create({
       encounter_id: encounterId,
@@ -77,7 +77,7 @@ export const getQueueItems = async (
   }
 };
 
-export const addEntityCombatants = async (
+export const addEntityCombatant = async (
   encounterId: string,
   entityType: BaseEntityType,
   baseEntityId: string,
@@ -91,8 +91,8 @@ export const addEntityCombatants = async (
     const sections = await sectionDb.getAllByBaseEntity(baseEntityId);
     const startingMaxHp = singleStatBlockHp(sections);
 
-    await appendQueueItems(encounterId, (queueItems, firstSortOrder) => {
-      const firstSequenceNumber =
+    await appendQueueItem(encounterId, (queueItems, sortOrder) => {
+      const sequenceNumber =
         Math.max(
           0,
           ...queueItems
@@ -101,15 +101,13 @@ export const addEntityCombatants = async (
         ) + 1;
 
       return {
-        rows: [
-          {
-            encounter_id: encounterId,
-            kind: 'combatant' as const,
-            base_entity_id: baseEntityId,
-            sequence_number: firstSequenceNumber,
-            sort_order: firstSortOrder,
-          },
-        ],
+        row: {
+          encounter_id: encounterId,
+          kind: 'combatant' as const,
+          base_entity_id: baseEntityId,
+          sequence_number: sequenceNumber,
+          sort_order: sortOrder,
+        },
         shared: {
           ...(baseEntity.name !== null ? { name: baseEntity.name } : {}),
           ...(startingMaxHp !== null ? { starting_max_hp: startingMaxHp } : {}),
@@ -121,7 +119,7 @@ export const addEntityCombatants = async (
   }
 };
 
-export const addRandomCombatants = async (
+export const addRandomCombatant = async (
   encounterId: string,
   name: string,
   startingMaxHp: number | null,
@@ -135,9 +133,9 @@ export const addRandomCombatants = async (
       throw new Error(`Invalid HP: ${startingMaxHp}`);
     }
 
-    await appendQueueItems(encounterId, (queueItems, firstSortOrder) => {
+    await appendQueueItem(encounterId, (queueItems, sortOrder) => {
       // A combatant whose entity was deleted has no base entity and a stored name too, so it counts with the random combatants of that name, as shownCombatantNames keys it.
-      const firstSequenceNumber =
+      const sequenceNumber =
         Math.max(
           0,
           ...queueItems
@@ -151,14 +149,12 @@ export const addRandomCombatants = async (
         ) + 1;
 
       return {
-        rows: [
-          {
-            encounter_id: encounterId,
-            kind: 'combatant' as const,
-            sequence_number: firstSequenceNumber,
-            sort_order: firstSortOrder,
-          },
-        ],
+        row: {
+          encounter_id: encounterId,
+          kind: 'combatant' as const,
+          sequence_number: sequenceNumber,
+          sort_order: sortOrder,
+        },
         shared: {
           name: trimmedName,
           ...(startingMaxHp !== null ? { starting_max_hp: startingMaxHp } : {}),
@@ -177,14 +173,12 @@ export const addEvent = async (
   try {
     const trimmedName = requireQueueItemName(name);
 
-    await appendQueueItems(encounterId, (_queueItems, firstSortOrder) => ({
-      rows: [
-        {
-          encounter_id: encounterId,
-          kind: 'event' as const,
-          sort_order: firstSortOrder,
-        },
-      ],
+    await appendQueueItem(encounterId, (_queueItems, sortOrder) => ({
+      row: {
+        encounter_id: encounterId,
+        kind: 'event' as const,
+        sort_order: sortOrder,
+      },
       shared: { name: trimmedName },
     }));
   } catch (err) {

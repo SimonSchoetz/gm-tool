@@ -9,13 +9,13 @@ import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
 import { EncounterAddRow } from '../EncounterAddRow';
 
 const getQueueItems = vi.hoisted(() => vi.fn<typeof service.getQueueItems>());
-const addEntityCombatants = vi.hoisted(() =>
-  vi.fn<typeof service.addEntityCombatants>(),
+const addEntityCombatant = vi.hoisted(() =>
+  vi.fn<typeof service.addEntityCombatant>(),
 );
 
 vi.mock('@services/encounterQueueService', () => ({
   getQueueItems,
-  addEntityCombatants,
+  addEntityCombatant,
 }));
 
 vi.mock('@tanstack/react-router', async () => {
@@ -38,7 +38,7 @@ describe('EncounterAddRow', () => {
   beforeEach(() => {
     queryClient.clear();
     getQueueItems.mockResolvedValue([]);
-    addEntityCombatants.mockReset().mockResolvedValue();
+    addEntityCombatant.mockReset().mockResolvedValue();
   });
 
   it('adds the entity to the route’s encounter when Add is clicked', async () => {
@@ -48,7 +48,7 @@ describe('EncounterAddRow', () => {
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
     await waitFor(() => {
-      expect(addEntityCombatants).toHaveBeenCalledWith(
+      expect(addEntityCombatant).toHaveBeenCalledWith(
         ROUTE_ENCOUNTER_ID,
         'foes',
         'goblin',
@@ -59,7 +59,7 @@ describe('EncounterAddRow', () => {
   it('disables the Add buttons of every row while an add is pending and enables them again once it resolves', async () => {
     const user = userEvent.setup();
     const pendingAdd: { finish: (() => void) | null } = { finish: null };
-    addEntityCombatants.mockReturnValue(
+    addEntityCombatant.mockReturnValue(
       new Promise<void>((resolve) => {
         pendingAdd.finish = resolve;
       }),

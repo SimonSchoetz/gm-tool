@@ -13,7 +13,7 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const { addRandomCombatants, isAdding } = useEncounterQueueItems(encounterId);
+  const { addRandomCombatant, isAdding } = useEncounterQueueItems(encounterId);
   const [name, setName] = useState('');
   const [hpText, setHpText] = useState('');
   const parsedHp = parseRandomCombatantHp(hpText);
@@ -23,7 +23,7 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
   const handleAdd = async () => {
     // The Add button is disabled and Enter is guarded by `canAdd`, so a call never reaches this guard in an invalid state.
     if (!parsedHp.valid) return;
-    const wasAdded = await addRandomCombatants(name, parsedHp.hp);
+    const wasAdded = await addRandomCombatant(name, parsedHp.hp);
     if (!wasAdded) return;
     setName('');
     setHpText('');

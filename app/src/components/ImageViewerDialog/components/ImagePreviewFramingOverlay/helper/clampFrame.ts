@@ -1,4 +1,4 @@
-import { MIN_ZOOM } from '../ImagePreviewFramingOverlay.constants';
+import { MAX_ZOOM, MIN_ZOOM } from '../ImagePreviewFramingOverlay.constants';
 
 export type FrameState = {
   x: number;
@@ -6,8 +6,8 @@ export type FrameState = {
   zoom: number;
 };
 
-export const clampFrame = (frame: FrameState, maxZoom: number): FrameState => ({
+export const clampFrame = (frame: FrameState): FrameState => ({
   x: Math.min(100, Math.max(0, frame.x)),
   y: Math.min(100, Math.max(0, frame.y)),
-  zoom: Math.min(maxZoom, Math.max(MIN_ZOOM, frame.zoom)),
+  zoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, frame.zoom)),
 });

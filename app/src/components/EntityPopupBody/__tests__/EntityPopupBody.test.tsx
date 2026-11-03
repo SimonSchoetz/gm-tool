@@ -23,15 +23,14 @@ const Providers = ({ children }: { children: ReactNode }) => (
 const renderBody = (onImageOpen?: () => void) =>
   render(
     <EntityPopupBody
-      imageId={IMAGE_ID}
-      imageTitle='Goblin'
+      image={{ id: IMAGE_ID, title: 'Goblin' }}
       {...(onImageOpen && { onImageOpen })}
     />,
     { wrapper: Providers },
   );
 
-const renderBodyForImage = (imageId: string | null) =>
-  render(<EntityPopupBody imageId={imageId} />, { wrapper: Providers });
+const renderBodyWithoutImage = () =>
+  render(<EntityPopupBody image={null} />, { wrapper: Providers });
 
 describe('EntityPopupBody', () => {
   beforeEach(() => {
@@ -78,17 +77,8 @@ describe('EntityPopupBody', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('titles the full-screen image with nothing when the entity has no name to give', async () => {
-    const user = userEvent.setup();
-    renderBodyForImage(IMAGE_ID);
-
-    await user.click(screen.getByRole('button', { name: 'View image' }));
-
-    expect(screen.getByRole('dialog').textContent).toBe('');
-  });
-
   it('offers no image to click when the entity has none', () => {
-    renderBodyForImage(null);
+    renderBodyWithoutImage();
 
     expect(
       screen.queryByRole('button', { name: 'View image' }),

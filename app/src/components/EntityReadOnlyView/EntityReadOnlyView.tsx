@@ -87,8 +87,11 @@ export const EntityReadOnlyView: FCProps<Props> = ({
     <>
       <Header {...headerSlots} />
       <EntityPopupBody
-        imageId={baseEntity.image_id}
-        imageTitle={baseEntity.name ?? ''}
+        image={
+          baseEntity.image_id === null
+            ? null
+            : { id: baseEntity.image_id, title: baseEntity.name ?? '' }
+        }
         {...(onImageOpen && { onImageOpen })}
       >
         {selected && (

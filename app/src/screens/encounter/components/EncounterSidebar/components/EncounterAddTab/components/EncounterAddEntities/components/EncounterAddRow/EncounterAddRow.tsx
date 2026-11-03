@@ -15,7 +15,7 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
   const { encounterId } = useParams({
     from: '/adventure/$adventureId/encounter/$encounterId',
   });
-  const { addEntityCombatants, isAdding } = useEncounterQueueItems(encounterId);
+  const { addEntityCombatant, isAdding } = useEncounterQueueItems(encounterId);
 
   return (
     <li className='encounter-add-row'>
@@ -37,7 +37,7 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
       <EncounterAddBtn
         disabled={isAdding}
         onAdd={() => {
-          void addEntityCombatants(baseEntity.entity_type, baseEntity.id);
+          void addEntityCombatant(baseEntity.entity_type, baseEntity.id);
         }}
       />
     </li>

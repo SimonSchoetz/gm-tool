@@ -8,11 +8,11 @@ type Props = {
 };
 
 export const EntitySectionHeaderLeading: FCProps<Props> = ({
-  controls = null,
+  controls,
   sectionName,
 }) => (
   <span className='entity-section-header-leading'>
-    {controls !== null && <>{controls}</>}
+    {controls}
     {sectionName !== undefined && (
       <span className='label entity-section-header-leading-label'>
         {sectionName}

@@ -8,15 +8,13 @@ import { PanelBody } from '../PanelBody/PanelBody';
 import './EntityPopupBody.css';
 
 type Props = {
-  imageId: string | null;
-  imageTitle?: string;
+  image: { id: string; title: string } | null;
   onImageOpen?: () => void;
   children?: ReactNode;
 };
 
 export const EntityPopupBody: FCProps<Props> = ({
-  imageId,
-  imageTitle = '',
+  image,
   onImageOpen,
   children,
 }) => {
@@ -24,7 +22,7 @@ export const EntityPopupBody: FCProps<Props> = ({
 
   return (
     <PanelBody className='entity-popup-body'>
-      {imageId !== null && (
+      {image !== null && (
         <>
           <ActionContainer
             label='View image'
@@ -41,12 +39,12 @@ export const EntityPopupBody: FCProps<Props> = ({
                 height: 'var(--popup-content-section-height)',
               }}
             >
-              <ImageById imageId={imageId} />
+              <ImageById imageId={image.id} />
             </ImagePlaceholderFrame>
           </ActionContainer>
           <ImageViewerDialog
-            image_id={imageId}
-            title={imageTitle}
+            image_id={image.id}
+            title={image.title}
             state={viewerState}
             setState={setViewerState}
           />

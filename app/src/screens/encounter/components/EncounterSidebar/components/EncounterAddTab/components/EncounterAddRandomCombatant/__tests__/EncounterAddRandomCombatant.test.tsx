@@ -13,13 +13,13 @@ import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
 import { EncounterAddRandomCombatant } from '../EncounterAddRandomCombatant';
 
 const getQueueItems = vi.hoisted(() => vi.fn<typeof service.getQueueItems>());
-const addRandomCombatants = vi.hoisted(() =>
-  vi.fn<typeof service.addRandomCombatants>(),
+const addRandomCombatant = vi.hoisted(() =>
+  vi.fn<typeof service.addRandomCombatant>(),
 );
 
 vi.mock('@services/encounterQueueService', () => ({
   getQueueItems,
-  addRandomCombatants,
+  addRandomCombatant,
 }));
 
 vi.mock('@tanstack/react-router', async () => {
@@ -35,7 +35,7 @@ const addButton = () => screen.getByRole('button', { name: 'Add' });
 
 const withDeferredAdd = () => {
   let release: (() => void) | null = null;
-  addRandomCombatants.mockReturnValue(
+  addRandomCombatant.mockReturnValue(
     new Promise<void>((resolve) => {
       release = resolve;
     }),
@@ -57,7 +57,7 @@ describe('EncounterAddRandomCombatant', () => {
   beforeEach(() => {
     queryClient.clear();
     getQueueItems.mockResolvedValue([]);
-    addRandomCombatants.mockReset().mockResolvedValue();
+    addRandomCombatant.mockReset().mockResolvedValue();
     render(<EncounterAddRandomCombatant hidden={false} />, {
       wrapper: TanstackQueryClientProvider,
     });
@@ -95,7 +95,7 @@ describe('EncounterAddRandomCombatant', () => {
     await user.click(addButton());
 
     await waitFor(() => {
-      expect(addRandomCombatants).toHaveBeenCalledWith(
+      expect(addRandomCombatant).toHaveBeenCalledWith(
         ROUTE_ENCOUNTER_ID,
         'Grunt',
         1000,
@@ -114,7 +114,7 @@ describe('EncounterAddRandomCombatant', () => {
     await user.click(addButton());
 
     await waitFor(() => {
-      expect(addRandomCombatants).toHaveBeenCalledWith(
+      expect(addRandomCombatant).toHaveBeenCalledWith(
         ROUTE_ENCOUNTER_ID,
         'Grunt',
         null,
@@ -134,7 +134,7 @@ describe('EncounterAddRandomCombatant', () => {
       await user.type(field(), '{Enter}');
 
       await waitFor(() => {
-        expect(addRandomCombatants).toHaveBeenCalledTimes(1);
+        expect(addRandomCombatant).toHaveBeenCalledTimes(1);
       });
     },
   );
@@ -150,7 +150,7 @@ describe('EncounterAddRandomCombatant', () => {
 
       await user.type(field(), '{Enter}');
 
-      expect(addRandomCombatants).not.toHaveBeenCalled();
+      expect(addRandomCombatant).not.toHaveBeenCalled();
     },
   );
 
@@ -198,7 +198,7 @@ describe('EncounterAddRandomCombatant', () => {
     await waitFor(() => {
       expect(firstName).toHaveValue('');
     });
-    expect(addRandomCombatants).toHaveBeenCalledTimes(1);
+    expect(addRandomCombatant).toHaveBeenCalledTimes(1);
     expect(secondName).toHaveValue('Brute');
   });
 });
