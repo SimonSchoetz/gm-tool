@@ -16,6 +16,7 @@
   border: var(--border-thin) solid var(--color-border);
   border-radius: var(--radius-lg);
   color: var(--color-fg);
+  flex-wrap: wrap;
 }
 
 .encounter-log-entry-content {
@@ -32,11 +33,7 @@
   text-decoration: inherit;
 }
 
-/* In the 200 px column a message left beside its Delete slot and time stamp gets a strip of a few characters, so the row wraps: the text takes the whole row and the Delete icon and the time stamp sit right-aligned on a second line. */
-.encounter-log-entry--message {
-  flex-wrap: wrap;
-}
-
+/* In the 200 px column a message left beside its Delete slot and time stamp gets a strip of a few characters, so the entry's row wraps (`flex-wrap` above): the text takes the whole row and the Delete icon and the time stamp sit right-aligned on a second line. */
 .encounter-log-entry--message .encounter-log-entry-content {
   flex: 1 1 100%;
 }

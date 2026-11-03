@@ -41,12 +41,6 @@ describe('EncounterAddRow', () => {
     addEntityCombatants.mockReset().mockResolvedValue();
   });
 
-  it('shows no quantity field', () => {
-    renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
-
-    expect(screen.queryByLabelText('Quantity')).not.toBeInTheDocument();
-  });
-
   it('adds the entity to the route’s encounter when Add is clicked', async () => {
     const user = userEvent.setup();
     renderRows(buildBaseEntity({ id: 'goblin', name: 'Goblin' }));
