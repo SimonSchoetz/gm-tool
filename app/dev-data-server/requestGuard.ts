@@ -15,6 +15,7 @@ export const MAX_JSON_BODY_BYTES = 64 * 1024 * 1024;
 
 export const readJsonBody = async (
   req: Readable,
+  // eslint-disable-next-line local/no-constant-argument -- tests probe the cap with a few bytes instead of MAX_JSON_BODY_BYTES
   maxBytes: number,
 ): Promise<{ ok: true; body: unknown } | { ok: false; status: 400 | 413 }> => {
   const chunks: Buffer[] = [];

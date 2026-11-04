@@ -12,6 +12,7 @@ export type BaseEntityType = (typeof BASE_ENTITY_TYPES)[number];
 export const isBaseEntityType = (value: string): value is BaseEntityType =>
   (BASE_ENTITY_TYPES as readonly string[]).includes(value);
 
+// eslint-disable-next-line local/no-unused-exports -- tests iterate every entity type through this list
 export const ENTITY_TYPES = [
   ...BASE_ENTITY_TYPES,
   'sessions',

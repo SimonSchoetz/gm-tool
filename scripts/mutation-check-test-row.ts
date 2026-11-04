@@ -3,6 +3,7 @@
 import { spawnSync } from 'child_process';
 
 // Runs a command in `cwd` with its output shown, and returns its exit status (null when a signal ended it).
+// eslint-disable-next-line local/no-unused-exports -- tests type the command runner they inject
 export type RunCommand = (
   command: string,
   args: string[],
@@ -13,6 +14,7 @@ const runShown: RunCommand = (command, args, cwd) =>
   spawnSync(command, args, { cwd, stdio: 'inherit' }).status;
 
 // The message to refuse `--accept` with, or null when the test row passes.
+// eslint-disable-next-line local/no-constant-argument -- tests inject a runner in place of the real `npx vitest run`
 export const testRowFailure = (appRoot: string, run = runShown) => {
   const status = run('npx', ['vitest', 'run'], appRoot);
   return status === 0

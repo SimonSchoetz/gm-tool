@@ -21,7 +21,13 @@ import ts from 'typescript';
 export const EVERY_EXPORT = '*';
 
 /** @param {string} filePath */
-const toPosix = (filePath) => filePath.split(path.sep).join('/');
+export const toPosix = (filePath) => filePath.split(path.sep).join('/');
+
+/**
+ * Every test file of this repository, and every helper only tests load, lives under a `__tests__/` directory.
+ * @param {string} posixPath
+ */
+export const isTestFile = (posixPath) => posixPath.includes('/__tests__/');
 
 /**
  * @param {readonly import('typescript').SourceFile[]} sourceFiles the files whose imports count as uses
@@ -307,7 +313,35 @@ export const localExportsOf = (program, isImportBinding) => {
   return exports;
 };
 
-/** @type {WeakMap<import('typescript').Program, UsageIndex>} one index per program, so a run over the whole project walks every file once */
+/**
+ * `production` counts only imports from files outside `__tests__/`; `all` counts every file's imports, for the exports test files themselves declare.
+ * @typedef {{ production: UsageIndex, all: UsageIndex }} UsageIndexes
+ */
+
+/**
+ * @param {readonly import('typescript').SourceFile[]} sourceFiles every source file of the program
+ * @param {(specifier: string, importerPath: string) => string | null} resolve as for `buildUsageIndex`
+ * @returns {UsageIndexes}
+ */
+export const buildUsageIndexes = (sourceFiles, resolve) => ({
+  production: buildUsageIndex(
+    sourceFiles.filter(
+      (sourceFile) => !isTestFile(toPosix(sourceFile.fileName)),
+    ),
+    resolve,
+  ),
+  all: buildUsageIndex(sourceFiles, resolve),
+});
+
+/**
+ * @param {string} filePath posix path of the exporting file
+ * @param {UsageIndexes} indexes
+ * @returns {UsageIndex} the index whose imports count as uses of the file's exports: a test file's imports count only for an export a file under `__tests__/` declares, so a production export that only tests import is reported
+ */
+export const usageIndexFor = (filePath, indexes) =>
+  isTestFile(filePath) ? indexes.all : indexes.production;
+
+/** @type {WeakMap<import('typescript').Program, UsageIndexes>} one pair of indexes per program, so a run over the whole project walks every file at most twice */
 const indexCache = new WeakMap();
 
 /** @param {import('typescript').Program} program */
@@ -337,18 +371,16 @@ const usageIndexOf = (program) => {
       ? resolvedModule.resolvedFileName
       : null;
   };
-  const index = buildUsageIndex(
-    program
-      .getSourceFiles()
-      .filter(
-        (sourceFile) =>
-          !sourceFile.isDeclarationFile &&
-          !sourceFile.fileName.includes('/node_modules/'),
-      ),
-    resolve,
-  );
-  indexCache.set(program, index);
-  return index;
+  const sourceFiles = program
+    .getSourceFiles()
+    .filter(
+      (sourceFile) =>
+        !sourceFile.isDeclarationFile &&
+        !sourceFile.fileName.includes('/node_modules/'),
+    );
+  const indexes = buildUsageIndexes(sourceFiles, resolve);
+  indexCache.set(program, indexes);
+  return indexes;
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -357,12 +389,12 @@ export default {
     type: 'problem',
     docs: {
       description:
-        'Disallow exporting a symbol that no file in the TypeScript program imports, directly or through a barrel.',
+        'Disallow exporting a symbol that no file in the TypeScript program imports, directly or through a barrel; an import from a test file counts only for an export declared under `__tests__/`.',
     },
     schema: [],
     messages: {
       unusedExport:
-        "'{{name}}' is exported but imported nowhere. Drop the export keyword, or the symbol itself when nothing in this file uses it either.",
+        "'{{name}}' is exported but no production file imports it. Drop the export keyword, or the symbol itself when nothing in this file uses it either; an export kept only for tests to reach takes `// eslint-disable-next-line local/no-unused-exports -- <reason>`.",
     },
   },
   create(context) {
@@ -374,7 +406,7 @@ export default {
     }
     return {
       Program: (node) => {
-        const index = usageIndexOf(program);
+        const index = usageIndexFor(filename, usageIndexOf(program));
         const scope = context.sourceCode.getScope(node);
         const moduleScope =
           scope.childScopes.find((child) => child.type === 'module') ?? scope;

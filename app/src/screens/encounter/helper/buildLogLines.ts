@@ -9,6 +9,7 @@ import {
 import { nameQueueItems } from './nameQueueItems';
 
 // A `name` part is an entity name the screen shows on one line, cut at the line's width; a `text` part is the label, a separator or a figure, which stays readable.
+// eslint-disable-next-line local/no-unused-exports -- tests type the line parts they join
 export type LogLinePart = { kind: 'text' | 'name'; text: string };
 
 export type LogLine =

@@ -1,3 +1,4 @@
+// eslint-disable-next-line local/no-unused-exports -- tests advance fake timers by this delay
 export const AUTOSAVE_DELAY_MS = 500;
 
 export type AutosaveQueue<Patch> = {

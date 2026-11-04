@@ -1,6 +1,7 @@
 import { PersistedSortState } from '@db/table-config';
 import { useMemo } from 'react';
 
+// eslint-disable-next-line local/no-unused-exports -- tests type the sort state they pass in
 export type SortState<T> = Omit<PersistedSortState, 'column'> & {
   column: keyof T & string;
 };

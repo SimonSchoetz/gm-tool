@@ -1,3 +1,4 @@
+// eslint-disable-next-line local/no-unused-exports -- tests probe both sides of the threshold through this constant
 export const POINTER_MOVE_THRESHOLD_PX = 4;
 
 export const hasPointerMoved = (

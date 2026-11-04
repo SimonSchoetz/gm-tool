@@ -8,15 +8,18 @@ import { mirrorInstalledData } from './devMirror.ts';
 import { resolveAppDataDir } from './installedAppData.ts';
 import { readAppIdentifiers } from './repositoryJson.ts';
 
+// eslint-disable-next-line local/no-unused-exports -- tests assert the question asked through this constant
 export const MIRROR_QUESTION =
   "Replace the dev data with a copy of the installed app's data? [y/N] ";
 
+// eslint-disable-next-line local/no-unused-exports -- tests assert the log lines through this constant
 export const STARTS_ON_OWN_DATA =
   'The dev app starts on the data it already holds.';
 
 const answerAcceptsMirror = (answer: string): boolean =>
   ['y', 'yes'].includes(answer.trim().toLowerCase());
 
+// eslint-disable-next-line local/no-unused-exports -- tests drive the steps with injected streams; mirrorFromProcess is the production entry
 export const startDevMirror = async ({
   platform,
   homeDir,

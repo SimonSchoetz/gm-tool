@@ -25,6 +25,7 @@ export type CommandContext = {
   fixturePaths: readonly string[];
 };
 
+// eslint-disable-next-line local/no-unused-exports -- tests assert the code the pairing command answers with
 export const WEB_MODE_PAIRING_CODE = '123456';
 // The shape of a device id (domain/devices/identity.ts) that no real endpoint has, for a copy whose _system table holds no device row yet.
 const WEB_MODE_DEVICE_ID = '0'.repeat(64);

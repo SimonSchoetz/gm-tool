@@ -5,6 +5,7 @@ import type { SyncChangeRecord } from './schema';
 
 export const getChangesSince = async (
   sinceSeq: number,
+  // eslint-disable-next-line local/no-constant-argument -- the db API takes its batch size; tests page with small limits instead of BATCH_LIMIT rows
   limit: number,
 ): Promise<SyncChangeRecord[]> => {
   const db = await getDatabase();

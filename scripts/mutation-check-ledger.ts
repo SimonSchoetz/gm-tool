@@ -26,6 +26,7 @@ export type MutationReport = {
   files: Record<string, { mutants: ReportedMutant[] }>;
 };
 
+// eslint-disable-next-line local/no-unused-exports -- tests type the ledger entries they build
 export type LedgerEntry = {
   file: string;
   mutator: string;
@@ -36,6 +37,7 @@ export type LedgerEntry = {
   reason: string;
 };
 
+// eslint-disable-next-line local/no-unused-exports -- tests type the survivors they build
 export type Survivor = {
   file: string;
   line: number;
@@ -64,6 +66,7 @@ const ENTRY_KEYS = [
   'reason',
 ] as const;
 
+// eslint-disable-next-line local/no-unused-exports -- tests pin the whitespace normalization entries and source lines share
 export const normalizeText = (text: string) => text.trim().replace(/\s+/g, ' ');
 
 export const parseLedger = (json: string): LedgerEntry[] => {

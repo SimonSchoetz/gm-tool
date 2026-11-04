@@ -7,6 +7,7 @@ import { importX } from 'eslint-plugin-import-x';
 import reactHooks from 'eslint-plugin-react-hooks';
 import { reactRefresh } from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
+import noConstantArgument from './eslint-rules/no-constant-argument.js';
 import noExtensionlessNodeHostImport from './eslint-rules/no-extensionless-node-host-import.js';
 import noImportPastIndex from './eslint-rules/no-import-past-index.js';
 import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-result.js';
@@ -66,6 +67,10 @@ export default defineConfig(
       'reports/**',
     ],
   },
+  {
+    // A disable comment that suppresses nothing fails the lint: a `local/no-unused-exports` or `local/no-constant-argument` exemption turns into an error once a production file imports the export or a call site varies the argument.
+    linterOptions: { reportUnusedDisableDirectives: 'error' },
+  },
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -80,6 +85,7 @@ export default defineConfig(
     plugins: {
       local: {
         rules: {
+          'no-constant-argument': noConstantArgument,
           'no-extensionless-node-host-import': noExtensionlessNodeHostImport,
           'no-import-past-index': noImportPastIndex,
           'no-unnormalized-lookup-result': noUnnormalizedLookupResult,
@@ -117,6 +123,7 @@ export default defineConfig(
       ],
       'local/no-unnormalized-lookup-result': 'error',
       'local/no-unused-exports': 'error',
+      'local/no-constant-argument': 'error',
       // app/dev-data-server/CLAUDE.md — Imports: Vite's config loader and the `dev` script's `node` load these entries and every file their relative imports reach, where Node's type stripping requires the `.ts` extension and Vite 8 warns that its native config loader does.
       'local/no-extensionless-node-host-import': [
         'error',

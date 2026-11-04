@@ -226,3 +226,11 @@ The ref reaches the hook as its own argument, as the entry on a props object ren
 **Citation:** [architect_1: ran `app/node_modules/.bin/eslint --config <probe config> control.tsx call.tsx lookup.tsx final.tsx` from that directory — `control.tsx` (an inline `const Inner = () => <div />`) and `call.tsx` (`const Icon = getIcon(entityType); return <Icon />`) reported `react-hooks/static-components` "Cannot create components during render"; `lookup.tsx` and `final.tsx` (`const Icon = ICONS[entityType ?? 'person']; return <Icon className={className} />`, `ICONS` a module-level object) reported nothing] [implement_15: ran `npx eslint .` from `app/` with `reactHooks.configs.flat.recommended` as `app/eslint.config.js` applies it — observed exit code 0 for `app/src/components/EntityPlaceholderIcon/EntityPlaceholderIcon.tsx`, which renders `const Icon = ENTITY_PLACEHOLDER_ICONS[entityType ?? 'person']; return <Icon className={className} />`]
 
 A component chosen per prop value is written as a lookup into a module-level table, never as a helper that returns the component. The probe used the plugin's `recommended` rule set, not this project's `eslint.config.js`; project-config parity is covered by the lint run over `EntityPlaceholderIcon.tsx`.
+
+## ESLint 10.11.0 reports an unused disable directive as a warning by default, and as an error, failing the run, under `linterOptions.reportUnusedDisableDirectives: 'error'`
+
+**Verified at:** eslint 10.11.0
+
+**Citation:** [feat-leftover-lint_1: `node_modules/eslint/lib/config/default-config.js:62` — `reportUnusedDisableDirectives: 1`] [feat-leftover-lint_2: ran `npx eslint util/zzProbe.ts` from `app/` on a disposable file whose `// eslint-disable-next-line local/no-unused-exports` suppressed nothing, with `reportUnusedDisableDirectives: 'error'` set — observed `error  Unused eslint-disable directive (no problems were reported from 'local/no-unused-exports')` and exit code 1]
+
+Without the option, a disable comment that suppresses nothing yields only a warning, which `npx eslint` without `--max-warnings` lets exit 0. Set to `'error'`, the same comment fails the run.

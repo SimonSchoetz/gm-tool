@@ -7,8 +7,11 @@ import tseslint from 'typescript-eslint';
 import { describe, expect, it } from 'vitest';
 import {
   buildUsageIndex,
+  buildUsageIndexes,
   isExportUsed,
+  isTestFile,
   localExportsOf,
+  usageIndexFor,
 } from '../no-unused-exports.js';
 
 /**
@@ -139,6 +142,58 @@ describe('isExportUsed with buildUsageIndex', () => {
     });
     expect(isExportUsed('/p/a.ts', 'a', index)).toBe(false);
     expect(isExportUsed('/p/b.ts', 'b', index)).toBe(false);
+  });
+});
+
+describe('usageIndexFor with buildUsageIndexes', () => {
+  /** @param {Record<string, string>} files */
+  const indexesOf = (files) =>
+    buildUsageIndexes(
+      Object.entries(files).map(([fileName, text]) =>
+        ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest),
+      ),
+      (specifier, importerPath) =>
+        `${path.posix.resolve(path.posix.dirname(importerPath), specifier)}.ts`,
+    );
+  /** @param {ReturnType<typeof indexesOf>} indexes @param {string} filePath @param {string} name */
+  const isUsed = (indexes, filePath, name) =>
+    isExportUsed(filePath, name, usageIndexFor(filePath, indexes));
+
+  it('counts a test import of a production export as no use, and a production import as one', () => {
+    const indexes = indexesOf({
+      '/p/a.ts': 'export const testOnly = 1; export const used = 2;',
+      '/p/b.ts': "import { used } from './a';",
+      '/p/__tests__/a.test.ts': "import { testOnly, used } from '../a';",
+    });
+    expect(isUsed(indexes, '/p/a.ts', 'testOnly')).toBe(false);
+    expect(isUsed(indexes, '/p/a.ts', 'used')).toBe(true);
+  });
+
+  it('counts a test import of an export declared under __tests__/, and a production import of it too', () => {
+    const indexes = indexesOf({
+      '/p/__tests__/support/build.ts':
+        'export const build = 1; export const shared = 2; export const unused = 3;',
+      '/p/__tests__/a.test.ts': "import { build } from './support/build';",
+      '/p/a.ts': "import { shared } from './__tests__/support/build';",
+    });
+    expect(isUsed(indexes, '/p/__tests__/support/build.ts', 'build')).toBe(
+      true,
+    );
+    expect(isUsed(indexes, '/p/__tests__/support/build.ts', 'shared')).toBe(
+      true,
+    );
+    expect(isUsed(indexes, '/p/__tests__/support/build.ts', 'unused')).toBe(
+      false,
+    );
+  });
+});
+
+describe('isTestFile', () => {
+  it('holds for a path with a __tests__ directory and for no other', () => {
+    expect(isTestFile('/p/src/__tests__/a.test.ts')).toBe(true);
+    expect(isTestFile('/p/src/__tests__/support/build.ts')).toBe(true);
+    expect(isTestFile('/p/src/a.test.ts')).toBe(false);
+    expect(isTestFile('/p/src/my__tests__/a.ts')).toBe(false);
   });
 });
 

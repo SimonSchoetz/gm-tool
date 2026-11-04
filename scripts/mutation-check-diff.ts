@@ -5,6 +5,7 @@ import { execFileSync } from 'child_process';
 type LineRange = { start: number; end: number };
 
 // Each file the diff names on its new side (deleted files are filtered out), mapped to its added or changed lines as inclusive intervals; an empty list for a file with lines removed only, or moved without a change.
+// eslint-disable-next-line local/no-unused-exports -- tests parse diff text without running git
 export const parseChangedLines = (diff: string) => {
   const changedLines = new Map<string, LineRange[]>();
   let currentFile: string | null = null;

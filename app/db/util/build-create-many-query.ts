@@ -7,6 +7,7 @@ type CreateManyQuery = {
 export const buildCreateManyQuery = <
   T extends Record<string, string | number | null>,
 >(
+  // eslint-disable-next-line local/no-constant-argument -- a query builder shared by every table
   tableName: string,
   rows: { id: string; data: T }[],
 ): CreateManyQuery => {

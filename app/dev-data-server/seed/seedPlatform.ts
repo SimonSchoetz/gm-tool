@@ -18,11 +18,13 @@ const seedContext = (): CommandContext => {
 };
 
 // Takes no argument, though db/database.ts passes the file name: the provided database is the one the seed fills, whatever file is asked for.
+// eslint-disable-next-line local/no-unused-exports -- the seed's Vite server aliases `@platform` to this file, so db/database.ts imports it as `@platform`
 export const loadDatabase = (): Promise<Database> =>
   new Promise((resolve) => {
     resolve(seedContext().db);
   });
 
+// eslint-disable-next-line local/no-unused-exports -- the seed's Vite server aliases `@platform` to this file, so db code imports it as `@platform`
 export const invoke = async <T>(
   command: string,
   args: Record<string, unknown> = {},

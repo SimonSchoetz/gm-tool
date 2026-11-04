@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 
+// eslint-disable-next-line local/no-unused-exports -- tests build a fresh client with the app's defaults per test
 export const createQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {

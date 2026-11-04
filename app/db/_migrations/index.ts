@@ -19,6 +19,7 @@ export type Migration = {
   up: (db: Database) => Promise<void>;
 };
 
+// eslint-disable-next-line local/no-unused-exports -- the db test support builds its in-memory database from this list
 export const migrations: Migration[] = [
   initialSchemaMigration,
   seedTableConfigMigration,

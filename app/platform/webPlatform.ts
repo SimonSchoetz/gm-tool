@@ -12,6 +12,7 @@ import {
 } from '../dev-data-server/protocol';
 import type { Platform } from './types';
 
+// eslint-disable-next-line local/no-unused-exports -- tests assert the thrown message through this constant
 export const UNREACHABLE_DEV_DATA_SERVER_MESSAGE =
   "The dev data server is not reachable. Start the app with the `web` launch configuration or run `pnpm run web` from app/ to serve a copy of the dev app's data.";
 
