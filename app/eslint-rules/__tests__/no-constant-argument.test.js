@@ -6,11 +6,16 @@ import { describe, expect, it } from 'vitest';
 import { findConstantArguments } from '../no-constant-argument.js';
 
 /**
- * Analyses an in-memory project: `files` maps absolute posix paths to source text; a relative specifier resolves through the compiler's own bundler resolution, and no default library is loaded.
- * @param {Record<string, string>} files
+ * Analyses an in-memory project: `files` maps absolute posix paths to source text; a relative specifier resolves through the compiler's own bundler resolution, and no default library is loaded, so a declaration file gives `String` the one signature the cases call, typing what it returns as a `string` that cannot be `undefined`.
+ * @param {Record<string, string>} projectFiles
  * @returns {string[]} each finding as `<file>:<messageId>:<function>.<name>` followed by the reported text
  */
-const findingsIn = (files) => {
+const findingsIn = (projectFiles) => {
+  /** @type {Record<string, string>} */
+  const files = {
+    '/p/globals.d.ts': 'declare function String(value: unknown): string;',
+    ...projectFiles,
+  };
   /** @type {import('typescript').CompilerOptions} */
   const options = {
     noLib: true,
@@ -206,6 +211,60 @@ describe('findConstantArguments', () => {
     ).toEqual([
       '/p/f.ts:alwaysSame:pattern.a a',
       '/p/f.ts:alwaysSame:exported.n n: number',
+    ]);
+  });
+
+  it('reads the arguments of a function with a `this` parameter from the first one on, since no argument fills `this`', () => {
+    expect(
+      findingsIn({
+        '/p/f.ts': [
+          'function positional(this: void, n: number, m: number) { return n + m; } positional(1, 5); positional(2, 5);',
+          'function destructured(this: void, { x }: { x: number }, y: number) { return x + y; } destructured({ x: 1 }, 2); destructured({ x: 1 }, 3);',
+        ].join('\n'),
+      }),
+    ).toEqual([
+      '/p/f.ts:alwaysSame:positional.m m: number',
+      '/p/f.ts:alwaysSame:destructured.x x',
+    ]);
+  });
+
+  it('keeps a default an argument whose type admits undefined may leave to apply', () => {
+    expect(
+      findingsIn({
+        '/p/f.ts': [
+          'const maybe = (): number | undefined => 1;',
+          'const sure = (): number => 1;',
+          'const kept = (n: number, d = 3) => n + d; kept(1, maybe()); kept(2, 4);',
+          'const unused = (n: number, d = 3) => n + d; unused(1, sure()); unused(2, 4);',
+          'const prop = ({ d = 3 }: { d?: number }) => d; const o: { d?: number } = {}; prop({ d: o.d }); prop({ d: 4 });',
+        ].join('\n'),
+      }),
+    ).toEqual(['/p/f.ts:defaultNeverUsed:unused.d 3']);
+  });
+
+  it('reads nothing from an object argument with a computed key, which may name any property', () => {
+    expect(
+      findingsIn({
+        '/p/f.ts':
+          "const f = ({ a }: { a?: number }) => a; const k = 'a'; f({ [k]: 1 }); f({ [k]: 2 });",
+      }),
+    ).toEqual([]);
+  });
+
+  it('reads calls of an overloaded function, a named default export and an optional call, and skips a function called with `new`', () => {
+    expect(
+      findingsIn({
+        '/p/o.ts':
+          'function o(n: number): number; function o(n: string): string; function o(n: unknown) { return n; } o(1); o(1);',
+        '/p/d.ts':
+          'export default function d(n: number) { return n; } d(1); d(1);',
+        '/p/q.ts': 'const q = (n: number) => n; q?.(1); q?.(1);',
+        '/p/n.ts': 'function N(n: number) { return n; } new N(1); N(1);',
+      }),
+    ).toEqual([
+      '/p/o.ts:alwaysSame:o.n n: unknown',
+      '/p/d.ts:alwaysSame:d.n n: number',
+      '/p/q.ts:alwaysSame:q.n n: number',
     ]);
   });
 });

@@ -1,7 +1,7 @@
 import { getDatabase } from '../database';
 
 export const update = async (
-  // eslint-disable-next-line local/no-constant-argument -- the raw accessor of the `_system` key-value table, which each typed per-key accessor calls with its key
+  // eslint-disable-next-line local/no-constant-argument -- the raw write of the `_system` key-value table, which app/db/CLAUDE.md — Structure keeps apart from the per-key accessors; device.ts, the only one today, always passes DEVICE_SYSTEM_KEY
   key: string,
   value: string | null,
 ): Promise<void> => {

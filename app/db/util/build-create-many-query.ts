@@ -7,7 +7,7 @@ type CreateManyQuery = {
 export const buildCreateManyQuery = <
   T extends Record<string, string | number | null>,
 >(
-  // eslint-disable-next-line local/no-constant-argument -- a query builder shared by every table
+  // eslint-disable-next-line local/no-constant-argument -- a db/util query builder that takes the table name like its siblings buildCreateQuery and buildUpdateQuery; encounter-queue-item/create-many.ts is its only caller today
   tableName: string,
   rows: { id: string; data: T }[],
 ): CreateManyQuery => {

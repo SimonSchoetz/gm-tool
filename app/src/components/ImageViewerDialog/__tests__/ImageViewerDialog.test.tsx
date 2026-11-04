@@ -17,14 +17,14 @@ const updateImageFrame = vi.hoisted(() =>
   vi.fn<typeof service.updateImageFrame>(),
 );
 
-const filePicker = vi.hoisted(() => vi.fn<() => Promise<string | null>>());
+const pickImageFile = vi.hoisted(() => vi.fn<() => Promise<string | null>>());
 
 vi.mock('@services/imageService', () => ({
   getImageById,
   getImageUrl,
   updateImageFrame,
 }));
-vi.mock('@/util/filePicker', () => ({ filePicker }));
+vi.mock('@/util/pickImageFile', () => ({ pickImageFile }));
 
 const IMAGE_ID = 'image-1';
 const uploadFn = vi.fn();
@@ -78,7 +78,7 @@ describe('ImageViewerDialog', () => {
     updateImageFrame.mockResolvedValue(undefined);
     uploadFn.mockReset();
     deleteFn.mockReset();
-    filePicker.mockReset();
+    pickImageFile.mockReset();
   });
 
   afterEach(() => {
@@ -187,19 +187,19 @@ describe('ImageViewerDialog', () => {
   });
 
   it('replaces the image with the file picked and closes the viewer', async () => {
-    filePicker.mockResolvedValue('/pictures/goblin.png');
+    pickImageFile.mockResolvedValue('/pictures/goblin.png');
     const user = await openViewer();
 
     await user.click(screen.getByRole('button', { name: 'Replace image' }));
     await act(() => vi.runOnlyPendingTimersAsync());
 
-    expect(filePicker).toHaveBeenCalledExactlyOnceWith();
+    expect(pickImageFile).toHaveBeenCalledExactlyOnceWith();
     expect(uploadFn).toHaveBeenCalledExactlyOnceWith('/pictures/goblin.png');
     expectViewerClosed();
   });
 
   it('keeps the image and the viewer when no file is picked', async () => {
-    filePicker.mockResolvedValue(null);
+    pickImageFile.mockResolvedValue(null);
     const user = await openViewer();
 
     await user.click(screen.getByRole('button', { name: 'Replace image' }));

@@ -204,7 +204,7 @@
     "lineText": "if (anchorCenterX - halfWidth < EDGE_PADDING) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "at equality the clamp branch returns the padded edge minus a popup edge equal to it, which is 0, the same value the fall-through returns, so no input tells the strict comparison from the non-strict one"
+    "reason": "when the popup edge lands exactly on the padded viewport edge, the clamp branch shifts the popup by zero and the fall-through also returns zero, so no input can tell < from <="
   },
   {
     "file": "src/components/AnchoredPopup/helper/calculateHorizontalClampOffset.ts",
@@ -213,7 +213,7 @@
     "lineText": "if (anchorCenterX + halfWidth > viewportWidth - EDGE_PADDING) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "at equality the clamp branch returns the padded edge minus a popup edge equal to it, which is 0, the same value the fall-through returns, so no input tells the strict comparison from the non-strict one"
+    "reason": "when the popup edge lands exactly on the padded viewport edge, the clamp branch shifts the popup by zero and the fall-through also returns zero, so no input can tell < from <="
   },
   {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",

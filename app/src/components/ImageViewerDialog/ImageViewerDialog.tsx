@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FCProps } from '@/types/fcProps.type';
-import { filePicker } from '@/util/filePicker';
+import { pickImageFile } from '@/util/pickImageFile';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { ImageById } from '../ImageById/ImageById';
@@ -57,7 +57,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
       });
     },
     onReplaceClick: () => {
-      void filePicker().then((filePath) => {
+      void pickImageFile().then((filePath) => {
         if (filePath !== null) {
           uploadFn(filePath);
           close();

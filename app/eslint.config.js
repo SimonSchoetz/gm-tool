@@ -68,7 +68,7 @@ export default defineConfig(
     ],
   },
   {
-    // A disable comment that suppresses nothing fails the lint: a `local/no-unused-exports` or `local/no-constant-argument` exemption turns into an error once a production file imports the export or a call site varies the argument.
+    // A disable comment that suppresses nothing fails the lint, for every rule: a `local/no-unused-exports` or `local/no-constant-argument` exemption, for one, turns into an error once a production file imports the export or a call site varies the argument.
     linterOptions: { reportUnusedDisableDirectives: 'error' },
   },
   eslint.configs.recommended,

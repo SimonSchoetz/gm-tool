@@ -1,7 +1,7 @@
 import { IMAGE_FILE_EXTENSIONS } from '@domain';
 import { pickFile } from '@platform';
 
-export const filePicker = async () => {
+export const pickImageFile = async () => {
   try {
     const selected = await pickFile({ extensions: IMAGE_FILE_EXTENSIONS });
 

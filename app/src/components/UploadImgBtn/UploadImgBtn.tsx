@@ -1,4 +1,4 @@
-import { filePicker } from '@/util/filePicker';
+import { pickImageFile } from '@/util/pickImageFile';
 import { useState } from 'react';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { HoloImg } from '../HoloImg';
@@ -31,7 +31,7 @@ export const UploadImgBtn = ({
     setIsLoading(true);
 
     try {
-      const filePath = await filePicker();
+      const filePath = await pickImageFile();
       if (filePath === null) {
         return;
       } else {

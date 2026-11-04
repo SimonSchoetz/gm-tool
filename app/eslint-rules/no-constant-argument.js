@@ -3,13 +3,13 @@ import ts from 'typescript';
 import { isTestFile, toPosix } from './no-unused-exports.js';
 
 /**
- * What one call site gives one parameter: nothing (`omitted`, also an explicit `undefined`), a value (`key` names a constant, so two equal keys are the same value, and is `null` for a value computed at run time), or something no reading of the call site can tell (`unknown`, behind a spread).
+ * What one call site gives one parameter: nothing (`omitted`, also an explicit `undefined`), a value (`key` names a constant, so two equal keys are the same value, and is `null` for a value computed at run time), or something no reading of the call site can tell (`unknown`: behind a spread or a computed property key, or a value whose type admits `undefined`, which may leave a default to apply).
  * @typedef {{ state: 'omitted' } | { state: 'passed', key: string | null, text: string } | { state: 'unknown' }} ArgumentValue
  */
 
 /**
- * A parameter, or one property of a destructured parameter, that call sites fill: by position, or by property name inside the argument at `index` (a JSX attribute for a component's props).
- * @typedef {{ kind: 'positional', index: number, name: string, node: import('typescript').Node, initializer: import('typescript').Expression | undefined } | { kind: 'property', index: number, name: string, node: import('typescript').Node, initializer: import('typescript').Expression | undefined }} Slot
+ * A parameter, or one property of a destructured parameter, that call sites fill: by position, or by property name inside the argument at `index` (a JSX attribute for a component's props). `index` counts call arguments, so a `this` parameter, which no argument fills, shifts it; `parameter` is the declaring parameter.
+ * @typedef {{ kind: 'positional' | 'property', index: number, parameter: import('typescript').ParameterDeclaration, name: string, node: import('typescript').Node, initializer: import('typescript').Expression | undefined }} Slot
  */
 
 /**
@@ -48,21 +48,23 @@ const unwrapExpression = (expression) => {
 const slotsOf = (declaration) => {
   /** @type {Slot[]} */
   const slots = [];
-  for (const [index, parameter] of declaration.parameters.entries()) {
+  const argumentParameters = declaration.parameters.filter(
+    ({ name }) => !ts.isIdentifier(name) || name.text !== 'this',
+  );
+  for (const [index, parameter] of argumentParameters.entries()) {
     if (parameter.dotDotDotToken) {
       break;
     }
     const { name } = parameter;
     if (ts.isIdentifier(name)) {
-      if (name.text !== 'this') {
-        slots.push({
-          kind: 'positional',
-          index,
-          name: name.text,
-          node: parameter,
-          initializer: parameter.initializer,
-        });
-      }
+      slots.push({
+        kind: 'positional',
+        index,
+        parameter,
+        name: name.text,
+        node: parameter,
+        initializer: parameter.initializer,
+      });
     } else if (ts.isObjectBindingPattern(name)) {
       for (const element of name.elements) {
         const key = element.propertyName ?? element.name;
@@ -73,6 +75,7 @@ const slotsOf = (declaration) => {
           slots.push({
             kind: 'property',
             index,
+            parameter,
             name: key.text,
             node: element,
             initializer: element.initializer,
@@ -230,6 +233,21 @@ const isSourceConstant = (checker, symbol, visited = new Set()) => {
 };
 
 /**
+ * @param {import('typescript').Type} type
+ * @returns {boolean} whether a value of the type can be `undefined`: `any`, `unknown`, `undefined`, `void`, or a union with one of them as a member
+ */
+const mayBeUndefined = (type) =>
+  (type.isUnion() ? type.types : [type]).some(
+    (member) =>
+      (member.flags &
+        (ts.TypeFlags.Any |
+          ts.TypeFlags.Unknown |
+          ts.TypeFlags.Undefined |
+          ts.TypeFlags.Void)) !==
+      0,
+  );
+
+/**
  * @param {import('typescript').TypeChecker} checker
  * @param {(symbol: import('typescript').Symbol) => number} idOf
  * @param {import('typescript').Expression} argument
@@ -295,7 +313,9 @@ const valueOf = (checker, idOf, argument) => {
       };
     }
   }
-  return { state: 'passed', key: null, text: shown };
+  return mayBeUndefined(checker.getTypeAtLocation(expression))
+    ? { state: 'unknown' }
+    : { state: 'passed', key: null, text: shown };
 };
 
 /**
@@ -361,7 +381,12 @@ const argumentAt = (checker, idOf, site, slot) => {
   const objectArgument = unwrapExpression(argument);
   if (
     !ts.isObjectLiteralExpression(objectArgument) ||
-    objectArgument.properties.some(ts.isSpreadAssignment)
+    objectArgument.properties.some(
+      (property) =>
+        ts.isSpreadAssignment(property) ||
+        (property.name !== undefined &&
+          ts.isComputedPropertyName(property.name)),
+    )
   ) {
     return { state: 'unknown' };
   }
@@ -430,17 +455,15 @@ const findingFor = (slot, values) => {
 
 /**
  * @param {import('typescript').TypeChecker} checker
- * @param {import('typescript').SignatureDeclaration} declaration
  * @param {Slot} slot
  * @returns {boolean} whether the slot is a destructured property only a declaration file declares, such as `className` from the HTML attributes a component forwards to its root element: it belongs to that element's API, not to the function's own
  */
-const isLibraryDeclaredProperty = (checker, declaration, slot) => {
+const isLibraryDeclaredProperty = (checker, slot) => {
   if (slot.kind !== 'property') {
     return false;
   }
-  const parameter = declaration.parameters[slot.index];
   const declarations = checker
-    .getTypeAtLocation(parameter)
+    .getTypeAtLocation(slot.parameter)
     .getProperty(slot.name)?.declarations;
   return (
     declarations !== undefined &&
@@ -451,7 +474,7 @@ const isLibraryDeclaredProperty = (checker, declaration, slot) => {
 
 /**
  * @param {import('typescript').Identifier} name a reference to a candidate function
- * @returns {CallSite | 'other' | 'neutral'} the call site the reference is the callee or JSX tag of; `neutral` for a reference that neither calls nor hands the function on (an import or export specifier, a closing JSX tag, a `typeof` type query); `other` for any reference that hands the function on, after which call sites alone cannot tell what it receives
+ * @returns {CallSite | 'other' | 'neutral'} the call site the reference is the callee or JSX tag of; `neutral` for a reference that neither calls nor hands the function on (an import or export specifier, a closing JSX tag, a `typeof` type query, the name of an overload signature); `other` for any reference that hands the function on, after which call sites alone cannot tell what it receives
  */
 const roleOf = (name) => {
   const { parent } = name;
@@ -462,6 +485,7 @@ const roleOf = (name) => {
     ts.isExportAssignment(parent) ||
     ts.isJsxClosingElement(parent) ||
     ts.isTypeQueryNode(parent) ||
+    (ts.isFunctionDeclaration(parent) && parent.name === name) ||
     (ts.isQualifiedName(parent) && parent.right === name)
   ) {
     return 'neutral';
@@ -532,7 +556,7 @@ export const findConstantArguments = (program) => {
       ) {
         const symbol = referencedSymbolOf(checker, node.name);
         const slots = slotsOf(declaration).filter(
-          (slot) => !isLibraryDeclaredProperty(checker, declaration, slot),
+          (slot) => !isLibraryDeclaredProperty(checker, slot),
         );
         if (symbol && slots.length > 0) {
           /** @type {Candidate} */
