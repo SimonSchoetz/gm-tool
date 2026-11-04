@@ -1,6 +1,6 @@
-import { parseWholeNumberInRange } from './wholeNumberInRange';
+import { parseNonNegativeWholeNumber } from './nonNegativeWholeNumber';
 
 export const parseActionAmount = (raw: string): number | null => {
-  const parsed = parseWholeNumberInRange(raw, 0);
+  const parsed = parseNonNegativeWholeNumber(raw);
   return parsed.valid ? parsed.value : null;
 };

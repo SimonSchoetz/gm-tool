@@ -2,6 +2,9 @@ import { Application, Color, Graphics, RenderTexture } from 'pixi.js';
 import { getPositionOnPath } from './getPositionOnPath';
 import type { Beam } from '../types/beam.type';
 
+// eslint-disable-next-line local/no-unused-exports -- tests assert the fade alpha through this constant
+export const BEAM_TAIL_ALPHA = 0.08;
+
 type TickBeamsArgs = {
   beams: Beam[];
   beamRenderTexture: RenderTexture;
@@ -10,7 +13,6 @@ type TickBeamsArgs = {
   headGraphics: Graphics;
   fadeGraphics: Graphics;
   deltaMS: number;
-  beamTailAlpha: number;
   onIdle: () => void;
 };
 
@@ -22,7 +24,6 @@ export const tickBeams = ({
   headGraphics,
   fadeGraphics,
   deltaMS,
-  beamTailAlpha,
   onIdle,
 }: TickBeamsArgs): void => {
   const brt = beamRenderTexture;
@@ -30,7 +31,7 @@ export const tickBeams = ({
   fadeGraphics
     .clear()
     .rect(0, 0, window.innerWidth, window.innerHeight)
-    .fill({ color: 'black', alpha: beamTailAlpha });
+    .fill({ color: 'black', alpha: BEAM_TAIL_ALPHA });
   app.renderer.render({ container: fadeGraphics, target: brt, clear: false });
 
   headGraphics.clear();

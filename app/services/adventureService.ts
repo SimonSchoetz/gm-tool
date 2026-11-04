@@ -75,12 +75,9 @@ export const removeAdventureImage = async (
   }
 };
 
-export const deleteAdventure = async (
-  id: string,
-  adventure: Adventure | null = null,
-): Promise<void> => {
+export const deleteAdventure = async (id: string): Promise<void> => {
   try {
-    const adventureToDelete = adventure ?? (await getAdventureById(id));
+    const adventureToDelete = await getAdventureById(id);
 
     // The images are deleted before the row because the cascade removes the base entities and encounters, and with them the ids that name their images.
     const baseEntityImageIds = (

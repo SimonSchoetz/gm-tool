@@ -13,23 +13,13 @@ type Props = {
   selectedIds: string[];
 };
 
-const TABS: { id: SidebarTab; label: string }[] = [
-  { id: 'add', label: 'Add' },
-  { id: 'actions', label: 'Actions' },
-  { id: 'log', label: 'Log' },
-];
-
 export const EncounterSidebar: FCProps<Props> = ({
   activeTab,
   onTabChange,
   selectedIds,
 }) => (
   <div className='encounter-sidebar'>
-    <EncounterSidebarTabs
-      tabs={TABS}
-      activeTab={activeTab}
-      onChange={onTabChange}
-    />
+    <EncounterSidebarTabs activeTab={activeTab} onChange={onTabChange} />
     <EncounterSidebarPanel aria-label='Add' hidden={activeTab !== 'add'}>
       <EncounterAddTab />
     </EncounterSidebarPanel>

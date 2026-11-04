@@ -9,6 +9,7 @@ import {
   openTestDatabase,
 } from '@db/__tests__/support/sqlite-test-database';
 import { backupDatabase } from '@db/database-backup';
+import { DATABASE_FILE } from '@domain';
 
 const invoke = vi.hoisted(() =>
   vi.fn<
@@ -17,7 +18,6 @@ const invoke = vi.hoisted(() =>
 );
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
-const DATABASE_FILE = 'gm_tool.db';
 const LEDGER_HEAD = '1789304154994';
 const BACKUP_REQUEST = { databaseFile: DATABASE_FILE, ledgerHead: LEDGER_HEAD };
 
@@ -65,7 +65,7 @@ describe('backupDatabase', () => {
       return Promise.resolve(null);
     });
 
-    await backupDatabase(db, DATABASE_FILE, LEDGER_HEAD);
+    await backupDatabase(db, LEDGER_HEAD);
 
     expect(invoke.mock.calls).toEqual([
       ['prepare_database_backup', BACKUP_REQUEST],
@@ -80,7 +80,7 @@ describe('backupDatabase', () => {
     const db = openTestDatabase();
     invoke.mockResolvedValue(null);
 
-    await backupDatabase(db, DATABASE_FILE, LEDGER_HEAD);
+    await backupDatabase(db, LEDGER_HEAD);
 
     expect(invoke.mock.calls).toEqual([
       ['prepare_database_backup', BACKUP_REQUEST],
@@ -91,7 +91,7 @@ describe('backupDatabase', () => {
   it('neither asks the backend nor copies anything for an empty ledger', async () => {
     const db = openTestDatabase();
 
-    await backupDatabase(db, DATABASE_FILE, null);
+    await backupDatabase(db, null);
 
     expect(invoke).not.toHaveBeenCalled();
     expect(db.callCount()).toBe(0);
@@ -101,9 +101,7 @@ describe('backupDatabase', () => {
     const db = openTestDatabase();
     invoke.mockResolvedValue(join(backupDir, 'missing-directory', 'copy'));
 
-    await expect(
-      backupDatabase(db, DATABASE_FILE, LEDGER_HEAD),
-    ).rejects.toThrow();
+    await expect(backupDatabase(db, LEDGER_HEAD)).rejects.toThrow();
 
     expect(invoke.mock.calls).toEqual([
       ['prepare_database_backup', BACKUP_REQUEST],
@@ -126,7 +124,7 @@ describe('backupDatabase', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => null);
 
-    await backupDatabase(db, DATABASE_FILE, LEDGER_HEAD);
+    await backupDatabase(db, LEDGER_HEAD);
 
     expect(invoke.mock.calls.map(([command]) => command)).toEqual([
       'prepare_database_backup',

@@ -22,7 +22,7 @@ export const initDatabase = async () => {
       const database = await loadDatabase(DATABASE_FILE);
       console.log('Database loaded successfully');
       await runMigrations(database, (ledgerHead) =>
-        backupDatabase(database, DATABASE_FILE, ledgerHead),
+        backupDatabase(database, ledgerHead),
       );
 
       db = database;

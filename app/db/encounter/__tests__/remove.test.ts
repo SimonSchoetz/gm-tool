@@ -41,15 +41,18 @@ describe('remove', () => {
     const keptId = await create(adventureId);
     const baseEntityId = await createBaseEntity('foes', adventureId);
     for (const encounterId of [removedId, keptId]) {
-      const queueItemIds = await createMany([
-        {
-          encounter_id: encounterId,
-          kind: 'combatant',
-          base_entity_id: baseEntityId,
-          sequence_number: 1,
-          sort_order: 0,
-        },
-      ]);
+      const queueItemIds = await createMany(
+        [
+          {
+            encounter_id: encounterId,
+            kind: 'combatant',
+            base_entity_id: baseEntityId,
+            sequence_number: 1,
+            sort_order: 0,
+          },
+        ],
+        {},
+      );
       await createLogEntry({
         encounter_id: encounterId,
         kind: 'added',

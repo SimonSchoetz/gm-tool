@@ -185,7 +185,7 @@ describe('addEntityCombatant', () => {
 
     await addEntityCombatant(ENCOUNTER_ID, 'foes', ENTITY_ID);
 
-    expect(sharedFields()?.starting_max_hp).toBe(0);
+    expect(sharedFields().starting_max_hp).toBe(0);
   });
 
   it.each([

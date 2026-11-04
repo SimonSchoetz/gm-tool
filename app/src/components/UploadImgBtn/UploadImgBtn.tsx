@@ -31,7 +31,7 @@ export const UploadImgBtn = ({
     setIsLoading(true);
 
     try {
-      const filePath = await filePicker('image');
+      const filePath = await filePicker();
       if (filePath === null) {
         return;
       } else {

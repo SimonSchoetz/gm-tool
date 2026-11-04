@@ -5,19 +5,23 @@ import type { SidebarTab } from '../../../../hooks/useEncounterSelection';
 // Imported after ActionContainer so this stylesheet wins the equal-specificity ties with .action-container (border: none, transparent background): an edit that moves it above leaves the tabs without their border.
 import './EncounterSidebarTabs.css';
 
+const TABS: { id: SidebarTab; label: string }[] = [
+  { id: 'add', label: 'Add' },
+  { id: 'actions', label: 'Actions' },
+  { id: 'log', label: 'Log' },
+];
+
 type Props = {
-  tabs: { id: SidebarTab; label: string }[];
   activeTab: SidebarTab;
   onChange: (tab: SidebarTab) => void;
 };
 
 export const EncounterSidebarTabs: FCProps<Props> = ({
-  tabs,
   activeTab,
   onChange,
 }) => (
   <div role='tablist' className='encounter-sidebar-tabs'>
-    {tabs.map(({ id, label }) => (
+    {TABS.map(({ id, label }) => (
       <ActionContainer
         key={id}
         label={label}

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { BackgroundSettings, SettingsValueMap } from '../schema';
+import type { SettingsValueMap } from '../schema';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -31,7 +31,7 @@ describe('updateSetting', () => {
     await expect(
       updateSetting('background', {
         animation_enabled: 'yes',
-      } as unknown as BackgroundSettings),
+      } as unknown as SettingsValueMap['background']),
     ).rejects.toThrow();
 
     expect(await getSetting('background')).toEqual({

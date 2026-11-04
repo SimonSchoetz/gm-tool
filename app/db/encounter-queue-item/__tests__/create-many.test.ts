@@ -44,22 +44,25 @@ describe('createMany', () => {
     const { createMany } = await import('../create-many');
     const { encounterId, baseEntityId } = await seedEncounterAndEntity();
 
-    const ids = await createMany([
-      {
-        encounter_id: encounterId,
-        kind: 'combatant',
-        base_entity_id: baseEntityId,
-        sequence_number: 4,
-        sort_order: 7,
-      },
-      {
-        encounter_id: encounterId,
-        kind: 'combatant',
-        base_entity_id: baseEntityId,
-        sequence_number: 5,
-        sort_order: 8,
-      },
-    ]);
+    const ids = await createMany(
+      [
+        {
+          encounter_id: encounterId,
+          kind: 'combatant',
+          base_entity_id: baseEntityId,
+          sequence_number: 4,
+          sort_order: 7,
+        },
+        {
+          encounter_id: encounterId,
+          kind: 'combatant',
+          base_entity_id: baseEntityId,
+          sequence_number: 5,
+          sort_order: 8,
+        },
+      ],
+      {},
+    );
 
     expect(ids).toHaveLength(2);
     expect(await readItems()).toEqual([
@@ -202,16 +205,19 @@ describe('createMany', () => {
       const { encounterId, baseEntityId } = await seedEncounterAndEntity();
 
       await expect(
-        createMany([
-          {
-            encounter_id: encounterId,
-            kind: 'combatant',
-            base_entity_id: baseEntityId,
-            sequence_number: 1,
-            sort_order: 0,
-            ...override,
-          },
-        ]),
+        createMany(
+          [
+            {
+              encounter_id: encounterId,
+              kind: 'combatant',
+              base_entity_id: baseEntityId,
+              sequence_number: 1,
+              sort_order: 0,
+              ...override,
+            },
+          ],
+          {},
+        ),
       ).rejects.toThrow(message);
 
       expect(await readItems()).toEqual([]);

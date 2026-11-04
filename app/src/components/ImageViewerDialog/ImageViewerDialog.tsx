@@ -57,7 +57,7 @@ export const ImageViewerDialog: FCProps<Props> = ({
       });
     },
     onReplaceClick: () => {
-      void filePicker('image').then((filePath) => {
+      void filePicker().then((filePath) => {
         if (filePath !== null) {
           uploadFn(filePath);
           close();

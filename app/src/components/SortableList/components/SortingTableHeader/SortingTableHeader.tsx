@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useState, useRef, useMemo } from 'react';
 import { ChevronUpIcon } from 'lucide-react';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
+import { FCProps } from '@/types/fcProps.type';
 import './SortingTableHeader.css';
 import { cn } from '@/util/className';
 import { buildGridTemplate } from '../../helper/buildGridTemplate';
@@ -9,17 +10,15 @@ import { DEFAULT_COLUMN_WIDTH } from '../../SortableList.constants';
 
 const MIN_COLUMN_WIDTH = 60;
 
-type SortingTableHeaderProps = {
+type Props = {
   tableConfigId: string;
-  className?: string;
   onDragWidthsChange: (widths: Record<string, number>) => void;
 };
 
-export const SortingTableHeader = ({
+export const SortingTableHeader: FCProps<Props> = ({
   tableConfigId,
-  className = '',
   onDragWidthsChange,
-}: SortingTableHeaderProps) => {
+}) => {
   const { config, updateColumnWidths, updateSortState } =
     useTableConfig(tableConfigId);
 
@@ -138,7 +137,7 @@ export const SortingTableHeader = ({
 
   return (
     <div
-      className={cn('sorting-table-header', className)}
+      className='sorting-table-header'
       style={{ gridTemplateColumns: gridTemplate }}
     >
       {columns.map((column) => {

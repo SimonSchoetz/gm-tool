@@ -32,16 +32,13 @@ const createNamedBaseEntity = async (
   return id;
 };
 
-const addBasicStatBlock = async (
-  baseEntityId: string,
-  hp: number,
-): Promise<void> => {
+const addBasicStatBlock = async (baseEntityId: string): Promise<void> => {
   const sectionId = await baseEntityContentSectionService.createSection(
     baseEntityId,
     'basic-stat-block',
   );
   await baseEntityContentSectionService.updateSection(sectionId, {
-    content: patchBasicStatBlockContent(null, { hp }),
+    content: patchBasicStatBlockContent(null, { hp: 12 }),
   });
 };
 
@@ -142,7 +139,7 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
     adventureId,
     'Two Stat Block Foe',
   );
-  await addBasicStatBlock(twoStatBlockFoeId, 12);
+  await addBasicStatBlock(twoStatBlockFoeId);
   await addFiveEStatBlock(twoStatBlockFoeId, 30);
 
   const noStatBlockFoeId = await createNamedBaseEntity(

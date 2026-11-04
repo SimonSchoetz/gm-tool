@@ -17,9 +17,7 @@ const updateImageFrame = vi.hoisted(() =>
   vi.fn<typeof service.updateImageFrame>(),
 );
 
-const filePicker = vi.hoisted(() =>
-  vi.fn<(fileType: 'image' | 'document') => Promise<string | null>>(),
-);
+const filePicker = vi.hoisted(() => vi.fn<() => Promise<string | null>>());
 
 vi.mock('@services/imageService', () => ({
   getImageById,
@@ -195,7 +193,7 @@ describe('ImageViewerDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Replace image' }));
     await act(() => vi.runOnlyPendingTimersAsync());
 
-    expect(filePicker).toHaveBeenCalledExactlyOnceWith('image');
+    expect(filePicker).toHaveBeenCalledExactlyOnceWith();
     expect(uploadFn).toHaveBeenCalledExactlyOnceWith('/pictures/goblin.png');
     expectViewerClosed();
   });

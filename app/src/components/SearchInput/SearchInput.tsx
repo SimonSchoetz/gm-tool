@@ -8,15 +8,12 @@ import './SearchInput.css';
 
 type Props = {
   onSearch: (term: string) => void;
-  placeholder?: string;
-  debounceMs?: number;
+  placeholder: string;
 };
 
-export const SearchInput: FCProps<Props> = ({
-  onSearch,
-  placeholder = 'Search...',
-  debounceMs = 300,
-}) => {
+const DEBOUNCE_MS = 300;
+
+export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => {
   const [value, setValue] = useState('');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -24,7 +21,7 @@ export const SearchInput: FCProps<Props> = ({
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       onSearch(term);
-    }, debounceMs);
+    }, DEBOUNCE_MS);
   };
 
   useEffect(() => {

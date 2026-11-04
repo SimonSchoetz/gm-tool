@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSortable } from '@/hooks/useSortable';
 import { useListFilter } from '@/hooks/useListFilter';
 import { useTableConfig } from '@/data-access-layer';
-import { cn } from '@/util/className';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { SearchInput } from '../SearchInput/SearchInput';
 import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
@@ -18,8 +17,7 @@ type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   items: T[];
   onRowClick: (item: T) => void;
   onCreateNew?: () => void;
-  className?: string;
-  searchPlaceholder?: string;
+  searchPlaceholder: string;
   entityType?: ImagePlaceholderEntityType | null;
 };
 
@@ -30,8 +28,7 @@ export const SortableList = <
   items,
   onRowClick,
   onCreateNew,
-  className,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder,
   entityType = null,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,7 +97,7 @@ export const SortableList = <
   };
 
   return (
-    <GlassPanel className={cn('sortable-list', className)}>
+    <GlassPanel className='sortable-list'>
       <div className='sortable-list--header'>
         <SearchInput onSearch={setSearchTerm} placeholder={searchPlaceholder} />
 

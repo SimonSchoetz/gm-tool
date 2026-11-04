@@ -1,22 +1,16 @@
 import { ReactNode } from 'react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
+import { FCProps } from '@/types/fcProps.type';
 import { ErrorFallback } from './components/ErrorFallback/ErrorFallback';
 
-type ErrorBoundaryProps = {
+type Props = {
   children: ReactNode;
-  onReset?: () => void;
 };
 
-export const ErrorBoundary = ({ children, onReset }: ErrorBoundaryProps) => {
+export const ErrorBoundary: FCProps<Props> = ({ children }) => {
   return (
     <ReactErrorBoundary
       FallbackComponent={ErrorFallback}
-      onReset={
-        onReset ??
-        (() => {
-          /* noop */
-        })
-      }
       onError={(error, errorInfo) => {
         // Log to console in development
         if (import.meta.env.DEV) {

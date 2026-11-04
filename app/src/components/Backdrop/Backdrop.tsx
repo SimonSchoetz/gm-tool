@@ -22,7 +22,6 @@ import type { Grid } from './types/grid.type';
 import './Backdrop.css';
 
 const AMOUNT_BEAMS = 5;
-const BEAM_TAIL_ALPHA = 0.08;
 const IDLE_RESPAWN_DELAY_MS = 1000;
 const BASE_DELAY_BETWEEN_BEAMS = 10000;
 const FPS = 60;
@@ -135,7 +134,6 @@ export const Backdrop = () => {
           headGraphics,
           fadeGraphics,
           deltaMS: ticker.deltaMS,
-          beamTailAlpha: BEAM_TAIL_ALPHA,
           onIdle: () => {
             pixiApp.ticker.stop();
             idleTimeoutId = setTimeout(spawnAllBeams, IDLE_RESPAWN_DELAY_MS);

@@ -3,17 +3,14 @@ import { FCProps } from '@/types/fcProps.type';
 import './LoadingIcon.css';
 
 type Props = {
-  size?: number;
   beamLengthPercent?: number;
 };
 
+const SIZE = 16;
 const STROKE_WIDTH = 1;
 
-export const LoadingIcon: FCProps<Props> = ({
-  size = 16,
-  beamLengthPercent = 50,
-}) => {
-  const sideLength = size - STROKE_WIDTH;
+export const LoadingIcon: FCProps<Props> = ({ beamLengthPercent = 50 }) => {
+  const sideLength = SIZE - STROKE_WIDTH;
   const perimeter = 4 * sideLength;
   const beamLength = sideLength * 4 * (beamLengthPercent / 100);
   const gap = perimeter - beamLength;
@@ -21,8 +18,8 @@ export const LoadingIcon: FCProps<Props> = ({
   return (
     <svg
       className='loading-icon'
-      width={size}
-      height={size}
+      width={SIZE}
+      height={SIZE}
       style={{ '--loading-icon-perimeter': `${perimeter}px` } as CSSProperties}
     >
       <rect

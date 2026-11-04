@@ -12,7 +12,7 @@ import {
   imageUpdateFrameError,
 } from '@domain';
 
-export const createImage = async (filePath: string): Promise<string> => {
+const createImage = async (filePath: string): Promise<string> => {
   try {
     return await imageDb.create({ filePath });
   } catch (cause) {
@@ -36,7 +36,7 @@ export const deleteImage = async (id: string): Promise<void> => {
   }
 };
 
-export const replaceImage = async (
+const replaceImage = async (
   oldId: string,
   filePath: string,
 ): Promise<string> => {

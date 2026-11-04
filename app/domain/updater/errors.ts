@@ -6,8 +6,8 @@ export type UpdateCheckError = Error & {
 };
 
 export const updateCheckError = (
-  cause?: unknown,
-  reason: UpdateCheckErrorReason = 'server',
+  cause: unknown,
+  reason: UpdateCheckErrorReason,
 ): UpdateCheckError => {
   const error = new Error(
     `Failed to check for updates: ${String(cause)}`,

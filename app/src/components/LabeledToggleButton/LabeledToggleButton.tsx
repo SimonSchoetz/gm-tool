@@ -13,14 +13,12 @@ type Props<T extends string> = {
   options: [Option<T>, Option<T>];
   value: T;
   onChange: (value: T) => void;
-  className?: string;
 };
 
 export const LabeledToggleButton = <T extends string>({
   options,
   value,
   onChange,
-  className,
 }: Props<T>) => {
   const activeIndex = options[0].value === value ? 0 : 1;
   const [displayIndex, setDisplayIndex] = useState(activeIndex);
@@ -72,7 +70,7 @@ export const LabeledToggleButton = <T extends string>({
     <ActionContainer
       onClick={handleClick}
       label={options[1 - displayIndex].label}
-      className={cn('labeled-toggle-btn', className)}
+      className='labeled-toggle-btn'
     >
       <GlassPanel className='labeled-toggle-panel'>
         <div ref={sliderRef} className='labeled-toggle-slider' />

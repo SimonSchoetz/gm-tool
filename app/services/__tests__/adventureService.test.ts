@@ -8,6 +8,7 @@ import { BASE_ENTITY_TYPES } from '@domain';
 import { buildBaseEntity } from './support/encounterQueueFixtures';
 import { buildEncounter } from './support/encounterFixtures';
 
+const getAdventure = vi.hoisted(() => vi.fn<typeof adventureDb.get>());
 const removeAdventure = vi.hoisted(() => vi.fn<typeof adventureDb.remove>());
 const updateAdventureRow = vi.hoisted(() => vi.fn<typeof adventureDb.update>());
 const getAllBaseEntities = vi.hoisted(() =>
@@ -19,6 +20,7 @@ const createImage = vi.hoisted(() => vi.fn<typeof imageDb.create>());
 const replaceImage = vi.hoisted(() => vi.fn<typeof imageDb.replace>());
 
 vi.mock('@db/adventure', () => ({
+  get: getAdventure,
   remove: removeAdventure,
   update: updateAdventureRow,
 }));
@@ -79,10 +81,11 @@ describe('deleteAdventure', () => {
   it("deletes the images of the adventure's base entities of every type, its encounters' covers and its own cover, then removes the adventure", async () => {
     const { deleteAdventure } = await import('../adventureService');
 
-    await deleteAdventure(
-      ADVENTURE_ID,
+    getAdventure.mockResolvedValue(
       buildAdventure({ image_id: 'adventure-cover' }),
     );
+
+    await deleteAdventure(ADVENTURE_ID);
 
     expect(removeImage.mock.calls.map(([imageId]) => imageId).sort()).toEqual(
       [
@@ -100,7 +103,9 @@ describe('deleteAdventure', () => {
   it('deletes no image of another adventure and none for a row or an adventure without an image', async () => {
     const { deleteAdventure } = await import('../adventureService');
 
-    await deleteAdventure(ADVENTURE_ID, buildAdventure());
+    getAdventure.mockResolvedValue(buildAdventure());
+
+    await deleteAdventure(ADVENTURE_ID);
 
     for (const [imageId] of removeImage.mock.calls) {
       expect(imageId).not.toMatch(/^other-/);
@@ -114,14 +119,14 @@ describe('deleteAdventure', () => {
 
   it('rejects as AdventureDeleteError, deletes no later image and removes no adventure when an image delete fails', async () => {
     const { deleteAdventure } = await import('../adventureService');
+    getAdventure.mockResolvedValue(
+      buildAdventure({ image_id: 'adventure-cover' }),
+    );
     removeImage.mockRejectedValueOnce(new Error('disk locked'));
 
-    await expect(
-      deleteAdventure(
-        ADVENTURE_ID,
-        buildAdventure({ image_id: 'adventure-cover' }),
-      ),
-    ).rejects.toMatchObject({ name: 'AdventureDeleteError' });
+    await expect(deleteAdventure(ADVENTURE_ID)).rejects.toMatchObject({
+      name: 'AdventureDeleteError',
+    });
 
     expect(removeImage).toHaveBeenCalledTimes(1);
     expect(removeAdventure).not.toHaveBeenCalled();

@@ -23,15 +23,18 @@ const seedAdventureWithChildren = async () => {
   await createSessionStep({ session_id: sessionId, sort_order: 0 });
   const encounterId = await createEncounter(id);
   const baseEntityId = await createBaseEntity('npcs', id);
-  const queueItemIds = await createQueueItems([
-    {
-      encounter_id: encounterId,
-      kind: 'combatant',
-      base_entity_id: baseEntityId,
-      sequence_number: 1,
-      sort_order: 0,
-    },
-  ]);
+  const queueItemIds = await createQueueItems(
+    [
+      {
+        encounter_id: encounterId,
+        kind: 'combatant',
+        base_entity_id: baseEntityId,
+        sequence_number: 1,
+        sort_order: 0,
+      },
+    ],
+    {},
+  );
   await createLogEntry({
     encounter_id: encounterId,
     kind: 'added',

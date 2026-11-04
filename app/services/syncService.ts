@@ -16,7 +16,7 @@ import {
   type SyncChange,
 } from '@domain';
 
-export type SyncMessageOutcome =
+type SyncMessageOutcome =
   | { kind: 'ignored' }
   | { kind: 'compat'; compat: 'compatible' | 'incompatible' }
   | { kind: 'applied' }

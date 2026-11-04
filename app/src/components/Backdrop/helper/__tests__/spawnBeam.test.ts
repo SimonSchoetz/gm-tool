@@ -40,13 +40,13 @@ describe('spawnBeam', () => {
 
   it('resets headDistance to 0', () => {
     const beam = makeBeam();
-    spawnBeam(beam, gridRef);
+    spawnBeam(beam, gridRef, 0);
     expect(beam.headDistance).toBe(0);
   });
 
   it('sets path from generateZigzagPath', () => {
     const beam = makeBeam();
-    spawnBeam(beam, gridRef);
+    spawnBeam(beam, gridRef, 0);
     expect(beam.path).toEqual([
       { x: 0, y: 0 },
       { x: 60, y: 120 },
@@ -55,7 +55,7 @@ describe('spawnBeam', () => {
 
   it('sets cumulativeLengths from getCumulativeLengths', () => {
     const beam = makeBeam();
-    spawnBeam(beam, gridRef);
+    spawnBeam(beam, gridRef, 0);
     expect(beam.cumulativeLengths).toEqual([0, 134]);
   });
 
@@ -75,7 +75,7 @@ describe('spawnBeam', () => {
 
   it('sets a positive speed', () => {
     const beam = makeBeam();
-    spawnBeam(beam, gridRef);
+    spawnBeam(beam, gridRef, 0);
     expect(beam.speed).toBeGreaterThan(0);
   });
 });

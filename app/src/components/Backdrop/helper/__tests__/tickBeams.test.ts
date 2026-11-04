@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Graphics } from 'pixi.js';
 import type { Application, RenderTexture } from 'pixi.js';
-import { tickBeams } from '../tickBeams';
+import { BEAM_TAIL_ALPHA, tickBeams } from '../tickBeams';
 import type { Beam } from '../../types/beam.type';
 
 const makeApp = (): Application =>
@@ -28,7 +28,6 @@ const makeArgs = (beams: Beam[], onIdle = vi.fn()) => ({
   headGraphics: new Graphics(),
   fadeGraphics: new Graphics(),
   deltaMS: 16,
-  beamTailAlpha: 0.05,
   onIdle,
 });
 
@@ -76,5 +75,14 @@ describe('tickBeams', () => {
     const beam = makeBeam({ active: true, headDistance: 115, speed: 0.5 });
     tickBeams(makeArgs([beam]));
     expect(beam.active).toBe(false);
+  });
+  it('fades the trail with black at the beam tail alpha', () => {
+    const args = makeArgs([makeBeam()]);
+    const fill = vi.spyOn(args.fadeGraphics, 'fill');
+    tickBeams(args);
+    expect(fill).toHaveBeenCalledWith({
+      color: 'black',
+      alpha: BEAM_TAIL_ALPHA,
+    });
   });
 });

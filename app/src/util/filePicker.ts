@@ -1,14 +1,9 @@
 import { IMAGE_FILE_EXTENSIONS } from '@domain';
 import { pickFile } from '@platform';
 
-const fileTypes = {
-  image: IMAGE_FILE_EXTENSIONS,
-  document: ['pdf', 'md'],
-} as const satisfies Record<string, readonly string[]>;
-
-export const filePicker = async (fileType: keyof typeof fileTypes) => {
+export const filePicker = async () => {
   try {
-    const selected = await pickFile({ extensions: fileTypes[fileType] });
+    const selected = await pickFile({ extensions: IMAGE_FILE_EXTENSIONS });
 
     return selected;
   } catch (err) {

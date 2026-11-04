@@ -9,7 +9,7 @@ const BEAM_SPEED = 0.8;
 export const spawnBeam = (
   beam: Beam,
   gridRef: RefObject<Grid>,
-  delay = 0,
+  delay: number,
 ): void => {
   beam.path = generateZigzagPath(gridRef);
   beam.cumulativeLengths = getCumulativeLengths(beam.path);

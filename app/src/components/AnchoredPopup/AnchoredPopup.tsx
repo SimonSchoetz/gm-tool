@@ -7,8 +7,6 @@ import { calculateHorizontalClampOffset } from './helper/calculateHorizontalClam
 import { calculateVerticalPlacement } from './helper/calculateVerticalPlacement';
 import './AnchoredPopup.css';
 
-const EDGE_PADDING = 12;
-
 type Props = {
   getAnchorRect: () => DOMRect | null;
   children: ReactNode;
@@ -55,14 +53,12 @@ export const AnchoredPopup: FCProps<Props> = ({
           anchorCenterX: rect.left + rect.width / 2,
           popupWidth: popupRect.width,
           viewportWidth: window.innerWidth,
-          edgePadding: EDGE_PADDING,
         }),
       );
       setPlacement(
         calculateVerticalPlacement({
           anchorTop: rect.top,
           popupHeight: popupRect.height,
-          edgePadding: EDGE_PADDING,
         }),
       );
     });

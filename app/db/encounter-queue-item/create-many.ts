@@ -12,7 +12,7 @@ import type {
 
 export const createMany = async (
   rows: CreateEncounterQueueItemInput[],
-  shared: SharedEncounterQueueItemFields = {},
+  shared: SharedEncounterQueueItemFields,
 ): Promise<string[]> => {
   rows.forEach((row) => {
     assertValidId(row.encounter_id, 'Encounter');

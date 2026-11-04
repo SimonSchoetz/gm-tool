@@ -17,5 +17,3 @@ export type SettingsValueMap = {
 export const settingsSchemas: {
   [K in SettingsKey]: z.ZodType<SettingsValueMap[K]>;
 } = SETTINGS_SCHEMAS;
-
-export type BackgroundSettings = SettingsValueMap['background'];

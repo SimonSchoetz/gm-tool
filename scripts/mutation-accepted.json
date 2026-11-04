@@ -171,7 +171,7 @@
     "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
-    "file": "domain/encounters/wholeNumberInRange.ts",
+    "file": "domain/encounters/nonNegativeWholeNumber.ts",
     "mutator": "ConditionalExpression",
     "replacement": "false",
     "lineText": "if (!parsed.valid) return parsed;",
@@ -196,6 +196,24 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the code comment at this statement states why no test can observe this change"
+  },
+  {
+    "file": "src/components/AnchoredPopup/helper/calculateHorizontalClampOffset.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "anchorCenterX - halfWidth <= EDGE_PADDING",
+    "lineText": "if (anchorCenterX - halfWidth < EDGE_PADDING) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "at equality the clamp branch returns the padded edge minus a popup edge equal to it, which is 0, the same value the fall-through returns, so no input tells the strict comparison from the non-strict one"
+  },
+  {
+    "file": "src/components/AnchoredPopup/helper/calculateHorizontalClampOffset.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "anchorCenterX + halfWidth >= viewportWidth - EDGE_PADDING",
+    "lineText": "if (anchorCenterX + halfWidth > viewportWidth - EDGE_PADDING) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "at equality the clamp branch returns the padded edge minus a popup edge equal to it, which is 0, the same value the fall-through returns, so no input tells the strict comparison from the non-strict one"
   },
   {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",

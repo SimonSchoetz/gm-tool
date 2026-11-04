@@ -1,12 +1,12 @@
+import { EDGE_PADDING } from './AnchoredPopup.constants';
+
 type CalculateVerticalPlacementParams = {
   anchorTop: number;
   popupHeight: number;
-  edgePadding: number;
 };
 
 export const calculateVerticalPlacement = ({
   anchorTop,
   popupHeight,
-  edgePadding,
 }: CalculateVerticalPlacementParams): 'above' | 'below' =>
-  anchorTop - popupHeight < edgePadding ? 'below' : 'above';
+  anchorTop - popupHeight < EDGE_PADDING ? 'below' : 'above';

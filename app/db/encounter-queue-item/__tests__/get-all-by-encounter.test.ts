@@ -30,13 +30,16 @@ describe('getAllByEncounter', () => {
       sort_order,
     });
 
-    const [second, firstOfTie, secondOfTie, first] = await createMany([
-      row(encounterId, 2),
-      row(encounterId, 1),
-      row(encounterId, 1),
-      row(encounterId, 0),
-    ]);
-    await createMany([row(otherEncounterId, 0)]);
+    const [second, firstOfTie, secondOfTie, first] = await createMany(
+      [
+        row(encounterId, 2),
+        row(encounterId, 1),
+        row(encounterId, 1),
+        row(encounterId, 0),
+      ],
+      {},
+    );
+    await createMany([row(otherEncounterId, 0)], {});
 
     const tieByIdOrder = [firstOfTie, secondOfTie].sort();
     expect(
