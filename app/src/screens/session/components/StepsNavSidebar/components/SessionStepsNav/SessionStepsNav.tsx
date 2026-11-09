@@ -10,7 +10,8 @@ export const SessionStepsNav = () => {
   });
   const { session } = useSession(sessionId, adventureId);
 
-  const { steps, createStep, bulkReorder } = useSessionSteps(sessionId);
+  const { steps, createStep, bulkReorder, updateStep } =
+    useSessionSteps(sessionId);
 
   return (
     <ReorderableNavList
@@ -21,6 +22,10 @@ export const SessionStepsNav = () => {
       }))}
       activeId={null}
       onSelect={(stepId) => {
+        const step = steps.find((s) => s.id === stepId) ?? null;
+        if (session?.active_view === 'ingame' && step?.collapsed === 1) {
+          updateStep(stepId, { collapsed: 0 });
+        }
         document.getElementById(stepSectionElementId(stepId))?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',

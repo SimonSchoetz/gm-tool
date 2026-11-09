@@ -754,5 +754,14 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "a content string that is not an editor state parses to no state, exactly as the empty string does (parseSafeEditorState), so the change shows in no text or saved value"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "OptionalChaining",
+    "replacement": "step.collapsed",
+    "lineText": "if (session?.active_view === 'ingame' && step?.collapsed === 1) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the nav delivers only the ids of the steps it lists, so the lookup never finds no step and the optional chain never meets null"
   }
 ]
