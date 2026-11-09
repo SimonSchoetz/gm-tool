@@ -100,7 +100,7 @@ Never open a response with a positive affirmation directed at the user or a team
 
   **Build Command:** `pnpm run build:frontend`, from `app/`.
 
-  **Package Manager:** `pnpm` — lockfile `pnpm-lock.yaml`, regenerated via `pnpm install`.
+  **Package Manager:** `pnpm` — lockfile `pnpm-lock.yaml`, regenerated via `pnpm install`. A fresh git worktree has neither `node_modules` nor the gitignored `app/src/routeTree.gen.ts`: before its first commit run `pnpm install` at the repository root and in `app/`, and copy `app/src/routeTree.gen.ts` from the main checkout, or the `pre-commit` hook fails (`tsc` missing, then route type errors).
 
   **Baseline failures — Minor/Major triage:** Minor (mechanical, no design judgment) — fix and commit autonomously (`chore(<branch>): fix pre-existing test fixture errors`), no surfacing. Major (a choice between valid alternatives, or an ambiguous cause) — surface to the user with a proposed fix before applying.
 
