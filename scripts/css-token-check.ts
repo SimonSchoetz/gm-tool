@@ -58,7 +58,7 @@ for (const file of stylesheets) {
 
 if (hitCount > 0) {
   console.error(
-    `css-token-check: ${hitCount} raw value(s) equal a design token of the same family — use the token, or mark the line with a /* one-off */ comment.`,
+    `css-token-check: ${hitCount} raw value(s) equal a design token of the same family — use the token; a /* one-off */ marker is the user's decision.`,
   );
   process.exit(1);
 }

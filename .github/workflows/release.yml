@@ -69,6 +69,10 @@ jobs:
         run: pnpm run markdown-lint
         working-directory: .
 
+      - name: css-token-check
+        run: node scripts/css-token-check.ts
+        working-directory: .
+
       - name: test
         run: npx vitest run
 
