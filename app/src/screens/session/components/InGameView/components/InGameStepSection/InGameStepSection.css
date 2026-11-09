@@ -1,20 +1,51 @@
 .in-game-step-section {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   gap: 8px;
 }
 
-.in-game-step-header {
+.in-game-step-section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  min-height: var(--spacing-lg);
 }
 
-.in-game-step-checkbox {
-  flex-shrink: 0;
+.in-game-step-section-chevron {
+  margin-left: auto;
+  width: var(--spacing-lg);
+  height: var(--spacing-lg);
+  color: #399cbb;
+  transform: rotate(90deg);
+  transition: transform var(--transition-fast);
 }
 
-.in-game-step-name {
-  font-weight: 600;
-  font-size: 0.9375rem;
+.in-game-step-section-header:hover .in-game-step-section-chevron {
+  color: #f8ffff;
+}
+
+.in-game-step-section--collapsed .in-game-step-section-chevron {
+  transform: rotate(0deg);
+}
+
+.in-game-step-section-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--transition-fast);
+}
+
+.in-game-step-section--collapsed .in-game-step-section-body {
+  grid-template-rows: 0fr;
+}
+
+.in-game-step-section-body-inner {
+  overflow: hidden;
+  min-height: 0;
+  transition: visibility var(--transition-fast);
+}
+
+.in-game-step-section--collapsed .in-game-step-section-body-inner {
+  visibility: hidden;
 }

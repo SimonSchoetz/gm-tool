@@ -10,6 +10,8 @@ import * as baseEntityContentSectionService from '@services/baseEntityContentSec
 import * as baseEntityService from '@services/baseEntityService';
 import * as encounterQueueService from '@services/encounterQueueService';
 import * as encounterService from '@services/encounterService';
+import * as sessionService from '@services/sessionService';
+import * as sessionStepService from '@services/sessionStepService';
 import type { CommandContext } from '../commands';
 import { provideSeedContext } from './seedPlatform';
 
@@ -21,6 +23,40 @@ const SQUARE_FIXTURE = 'square.webp';
 // A name with no space or hyphen, so no browser can break it: the fit checks of a narrow column read it.
 const UNBROKEN_NAME_FOE_NAME =
   'UnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoeUnbrokenNameFoe';
+
+// A step's content is a Lexical editor state; this one holds one paragraph with the given text, in the shape the text editor saves.
+const paragraphState = (text: string): string =>
+  JSON.stringify({
+    root: {
+      children: [
+        {
+          children: [
+            {
+              detail: 0,
+              format: 0,
+              mode: 'normal',
+              style: '',
+              text,
+              type: 'text',
+              version: 1,
+            },
+          ],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          type: 'paragraph',
+          version: 1,
+          textFormat: 0,
+          textStyle: '',
+        },
+      ],
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      type: 'root',
+      version: 1,
+    },
+  });
 
 const createNamedBaseEntity = async (
   entityType: BaseEntityType,
@@ -183,4 +219,22 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
     noStatBlockFoeId,
   );
   await encounterQueueService.addRandomCombatant(encounterId, 'Seed Bandit', 9);
+  // createSession adds one step per default step, each with its default title; createCustomStep adds a last step with neither a name nor a default step, so its header has no title.
+  const sessionId = await sessionService.createSession(adventureId);
+  await sessionService.updateSession(sessionId, {
+    name: 'Seed Session',
+    active_view: 'ingame',
+  });
+  await sessionStepService.createCustomStep(sessionId);
+  const contentByStepKey = new Map([
+    ['strong_start', 'Seed Strong Start content'],
+    ['potential_scenes', 'Seed Potential Scenes content'],
+  ]);
+  for (const step of await sessionStepService.getStepsBySessionId(sessionId)) {
+    const text = contentByStepKey.get(step.default_step_key ?? '') ?? null;
+    if (text === null) continue;
+    await sessionStepService.updateStep(step.id, {
+      content: paragraphState(text),
+    });
+  }
 };
