@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .in-game-step-section-header {
@@ -17,13 +17,13 @@
   margin-left: auto;
   width: var(--spacing-lg);
   height: var(--spacing-lg);
-  color: #399cbb;
+  color: var(--color-primary);
   transform: rotate(90deg);
   transition: transform var(--transition-fast);
 }
 
 .in-game-step-section-header:hover .in-game-step-section-chevron {
-  color: #f8ffff;
+  color: var(--color-fg);
 }
 
 .in-game-step-section--collapsed .in-game-step-section-chevron {

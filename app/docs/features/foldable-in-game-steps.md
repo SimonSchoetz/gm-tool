@@ -10,7 +10,7 @@ Happy path:
 
 1. In the in-game view, each step section has a header row with the step's title and a chevron at its right edge. The chevron points down while the step is unfolded and right while it is folded.
 2. A click anywhere on the header folds an unfolded step and unfolds a folded one. The chevron rotates between the two directions over 0.2 s, and the step's content height animates between full and zero over the same 0.2 s; folded content is not visible.
-3. Hovering anywhere on the header turns the chevron from blue (`#399CBB`) to white (`#f8ffff`) and shows a pointer cursor; the header's background does not change. This is the text editor toggle's chevron look.
+3. Hovering anywhere on the header turns the chevron from the primary colour (`--color-primary`) to the foreground colour (`--color-fg`) and shows a pointer cursor; the header's background does not change. This is the text editor toggle's chevron look.
 4. A step whose header shows no title text (no name and no default step) still has the header row with its chevron, so it folds like the others.
 5. The steps nav at the left, in the in-game view, unfolds a folded step on a click, saves it as unfolded, and smooth-scrolls to it; a click on an unfolded step only scrolls. In the prep view the nav only scrolls.
 6. A new step, and every step that existed before this feature, starts unfolded. Duplicating a session gives each step of the duplicate the fold state of its original.
