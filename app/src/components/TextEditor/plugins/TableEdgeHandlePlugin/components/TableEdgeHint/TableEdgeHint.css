@@ -15,7 +15,7 @@
 }
 
 .table-edge-hint--icon {
-  z-index: 1000;
+  z-index: var(--most-front);
   position: relative;
   color: transparent;
   min-width: var(--table-hint-width);

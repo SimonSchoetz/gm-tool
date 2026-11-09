@@ -2,6 +2,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { LAZY_DM_STEPS } from '@domain';
 import { runMigrations } from '../../../db/_migrations';
 import {
   openTestDatabase,
@@ -36,6 +37,39 @@ const sectionsOf = async (name: string): Promise<SectionRow[]> =>
     'SELECT type, content FROM base_entity_content_sections WHERE base_entity_id = $1 ORDER BY sort_order',
     [(await baseEntityNamed(name)).id],
   );
+
+// The editor state of one paragraph holding the text, as the text editor saves it.
+const paragraphStateOf = (text: string) => ({
+  root: {
+    children: [
+      {
+        children: [
+          {
+            detail: 0,
+            format: 0,
+            mode: 'normal',
+            style: '',
+            text,
+            type: 'text',
+            version: 1,
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        type: 'paragraph',
+        version: 1,
+        textFormat: 0,
+        textStyle: '',
+      },
+    ],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    type: 'root',
+    version: 1,
+  },
+});
 
 type StatBlockContent = {
   basicStatBlock?: { hp: unknown };
@@ -255,6 +289,54 @@ describe('runSeed', () => {
         [encounters[0]?.id],
       ),
     ).toEqual(Array.from({ length: 6 }, () => ({ kind: 'added' })));
+  });
+
+  it('creates Seed Session in Seed Adventure, in the in-game view, with every default step unfolded, Strong Start and Potential Scenes carrying content, and an untitled step last', async () => {
+    const sessions = await db.select<
+      { id: string; name: string; active_view: string; adventure_id: string }[]
+    >('SELECT id, name, active_view, adventure_id FROM sessions');
+    const seedAdventureId = (
+      await db.select<{ id: string }[]>(
+        "SELECT id FROM adventures WHERE name = 'Seed Adventure'",
+      )
+    )[0]?.id;
+    expect(sessions).toEqual([
+      {
+        id: sessions[0]?.id,
+        name: 'Seed Session',
+        active_view: 'ingame',
+        adventure_id: seedAdventureId,
+      },
+    ]);
+
+    const steps = await db.select<
+      {
+        default_step_key: string | null;
+        name: string | null;
+        collapsed: number;
+        content: string | null;
+      }[]
+    >(
+      'SELECT default_step_key, name, collapsed, content FROM session_steps WHERE session_id = $1 ORDER BY sort_order',
+      [sessions[0]?.id],
+    );
+    expect(steps.map(({ default_step_key }) => default_step_key)).toEqual([
+      ...LAZY_DM_STEPS.map(({ key }) => key),
+      null,
+    ]);
+    expect(steps.at(-1)?.name).toBeNull();
+    expect(steps.every(({ collapsed }) => collapsed === 0)).toBe(true);
+    expect(
+      steps
+        .filter(({ content }) => content !== null)
+        .map(({ default_step_key, content }) => [
+          default_step_key,
+          JSON.parse(String(content)) as unknown,
+        ]),
+    ).toEqual([
+      ['strong_start', paragraphStateOf('Seed Strong Start content')],
+      ['potential_scenes', paragraphStateOf('Seed Potential Scenes content')],
+    ]);
   });
 
   it('rejects naming a missing fixture image before writing any row', async () => {

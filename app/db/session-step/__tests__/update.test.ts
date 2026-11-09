@@ -42,6 +42,17 @@ describe('update', () => {
     expect(await readStep(id)).toMatchObject({ checked: 0, sort_order: 0 });
   });
 
+  it('writes collapsed 1, then writes collapsed 0 over it', async () => {
+    const { update } = await import('../update');
+    const id = await createStep();
+
+    await update(id, { collapsed: 1 });
+    expect(await readStep(id)).toMatchObject({ collapsed: 1 });
+
+    await update(id, { collapsed: 0 });
+    expect(await readStep(id)).toMatchObject({ collapsed: 0 });
+  });
+
   it('clears name and content when they are set to null', async () => {
     const { update } = await import('../update');
     const id = await createStep();

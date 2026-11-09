@@ -47,6 +47,7 @@ describe('create', () => {
         content: null,
         default_step_key: null,
         checked: 0,
+        collapsed: 0,
         sort_order: 3,
         created_at: CREATED_AT,
         updated_at: CREATED_AT,

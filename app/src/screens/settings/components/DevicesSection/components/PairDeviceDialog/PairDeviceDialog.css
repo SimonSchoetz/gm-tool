@@ -50,7 +50,7 @@
   width: calc(var(--font-size-xl) * 6);
   align-self: center;
   padding: var(--spacing-sm);
-  border: solid 1px var(--color-primary);
+  border: solid var(--border-thin) var(--color-primary);
   border-radius: var(--radius-md);
   font-family: var(--font-family-mono);
   font-size: var(--font-size-xl);

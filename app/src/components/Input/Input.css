@@ -4,7 +4,7 @@
   font-family: inherit;
   color: inherit;
   border: none;
-  border-bottom: 1px solid transparent;
+  border-bottom: var(--border-thin) solid transparent;
   background-color: transparent;
   line-height: 0;
   padding: 0;
