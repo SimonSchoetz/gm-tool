@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { buildTokenIndex, findRawValueHits } from '../css-token-check-find.ts';
+import {
+  buildTokenIndex,
+  findRawValueHits,
+  isComponentStylesheet,
+} from '../css-token-check-find.ts';
 
 const VARIABLES = `:root {
   --color-primary-rgb: 57, 156, 187;
@@ -7,13 +11,14 @@ const VARIABLES = `:root {
   --color-primary-muted: rgb(var(--color-primary-rgb), 0.5);
   --color-text: var(--color-primary);
   --spacing-sm: 0.5rem; /* eight pixels */
-  --line: 24px;
+  --spacing-lg: 24px;
+  --radius-md: 0.5rem;
+  --border-thin: 1px;
   --most-front: 1000;
-  --font-weight-normal: 400;
   --shadow: 0 0.125rem 0.375rem rgb(0, 0, 0, 0.3);
-  --dangling: var(--missing);
-  --loop-a: var(--loop-b);
-  --loop-b: var(--loop-a);
+  --color-dangling: var(--missing);
+  --color-loop-a: var(--color-loop-b);
+  --color-loop-b: var(--color-loop-a);
 }`;
 
 const index = buildTokenIndex([VARIABLES]);
@@ -41,7 +46,9 @@ describe('colour comparison', () => {
   });
 
   it('expands short hex', () => {
-    const shortHexIndex = buildTokenIndex([':root { --white: #ffffff; }']);
+    const shortHexIndex = buildTokenIndex([
+      ':root { --color-white: #ffffff; }',
+    ]);
     expect(findRawValueHits(inRule('color: #fff'), shortHexIndex)).toHaveLength(
       1,
     );
@@ -63,12 +70,6 @@ describe('colour comparison', () => {
   it('does not report a token colour at another alpha', () => {
     expect(hitValues(inRule('color: rgb(57, 156, 187, 0.4)'))).toEqual([]);
   });
-
-  it('reports a bare triplet declared on a custom property', () => {
-    expect(hitValues(inRule('--local-rgb: 57, 156, 187'))).toEqual([
-      '57, 156, 187',
-    ]);
-  });
 });
 
 describe('length comparison', () => {
@@ -79,9 +80,9 @@ describe('length comparison', () => {
   });
 
   it('reports 1.5rem as equal to a token written in px', () => {
-    expect(findRawValueHits(inRule('height: 1.5rem'), index)[0].tokens).toEqual(
-      ['--line'],
-    );
+    expect(findRawValueHits(inRule('gap: 1.5rem'), index)[0].tokens).toEqual([
+      '--spacing-lg',
+    ]);
   });
 
   it('finds each matching value of a compound declaration', () => {
@@ -89,7 +90,7 @@ describe('length comparison', () => {
   });
 
   it('finds a value inside calc()', () => {
-    expect(hitValues(inRule('width: calc(100% - 8px)'))).toEqual(['8px']);
+    expect(hitValues(inRule('margin-top: calc(100% - 8px)'))).toEqual(['8px']);
   });
 
   it('does not report a negative value, which has no token of its own', () => {
@@ -97,8 +98,8 @@ describe('length comparison', () => {
   });
 
   it('does not read a digit run inside a longer number', () => {
-    expect(hitValues(inRule('width: 18px'))).toEqual([]);
-    expect(hitValues(inRule('width: 1.8px'))).toEqual([]);
+    expect(hitValues(inRule('gap: 18px'))).toEqual([]);
+    expect(hitValues(inRule('gap: 1.8px'))).toEqual([]);
   });
 });
 
@@ -109,12 +110,85 @@ describe('z-index comparison', () => {
     ]);
   });
 
-  it('does not compare a z-index with a font weight', () => {
-    expect(hitValues(inRule('z-index: 400'))).toEqual([]);
-  });
-
   it('does not treat an integer on another property as a z-index', () => {
     expect(hitValues(inRule('order: 1000'))).toEqual([]);
+  });
+});
+
+describe('token family matching', () => {
+  it.each([
+    ['gap', '--spacing-sm'],
+    ['row-gap', '--spacing-sm'],
+    ['padding-left', '--spacing-sm'],
+    ['margin-block-end', '--spacing-sm'],
+    ['border-radius', '--radius-md'],
+    ['border-top-left-radius', '--radius-md'],
+  ])('compares %s only with its own family', (property, token) => {
+    expect(
+      findRawValueHits(inRule(`${property}: 8px`), index)[0].tokens,
+    ).toEqual([token]);
+  });
+
+  it.each(['border-width', 'border', 'border-top', 'border-left-width'])(
+    'compares %s with border tokens',
+    (property) => {
+      expect(
+        findRawValueHits(inRule(`${property}: 1px`), index)[0].tokens,
+      ).toEqual(['--border-thin']);
+    },
+  );
+
+  it.each([
+    'color',
+    'background',
+    'background-color',
+    'border-color',
+    'border-top-color',
+    'fill',
+    'stroke',
+  ])('compares %s with colour tokens', (property) => {
+    expect(hitValues(inRule(`${property}: #399cbb`))).toEqual(['#399cbb']);
+  });
+
+  it('finds both the width and the colour of a border shorthand', () => {
+    expect(hitValues(inRule('border: 1px solid #399cbb'))).toEqual([
+      '1px',
+      '#399cbb',
+    ]);
+  });
+
+  it.each([
+    'width: 8px',
+    'font-size: 8px',
+    'border-spacing: 8px',
+    'box-shadow: 0 0 8px #399cbb',
+    '--local: 8px',
+    '--local-rgb: 57, 156, 187',
+  ])('does not flag %s, whose property is in no family', (declaration) => {
+    expect(hitValues(inRule(declaration))).toEqual([]);
+  });
+
+  it('does not flag a length that equals only another family', () => {
+    expect(hitValues(inRule('border-radius: 24px'))).toEqual([]);
+    expect(hitValues(inRule('gap: 1px'))).toEqual([]);
+    expect(hitValues(inRule('border-width: 8px'))).toEqual([]);
+  });
+
+  it('skips a token in no family', () => {
+    const noFamily = buildTokenIndex([':root { --blur: 8px; }']);
+    expect(findRawValueHits(inRule('gap: 8px'), noFamily)).toEqual([]);
+  });
+});
+
+describe('isComponentStylesheet', () => {
+  it.each([
+    ['app/src/components/Button/Button.css', true],
+    ['app/src/styles/variables/color-variables.css', false],
+    ['app/src/styles/global.css', false],
+    ['app/src/components/Button/Button.tsx', false],
+    ['app/public/page.css', false],
+  ])('classifies %s', (file, expected) => {
+    expect(isComponentStylesheet(file)).toBe(expected);
   });
 });
 
@@ -150,15 +224,15 @@ describe('what is not a raw value', () => {
   });
 
   it('skips a token whose value is compound', () => {
-    expect(hitValues(inRule('box-shadow: rgb(0, 0, 0, 0.3)'))).toEqual([]);
+    expect(hitValues(inRule('background: rgb(0, 0, 0, 0.3)'))).toEqual([]);
   });
 
   it('skips tokens that cannot be resolved', () => {
     expect([...index.values()].flat()).not.toEqual(
-      expect.arrayContaining(['--dangling']),
+      expect.arrayContaining(['--color-dangling']),
     );
     expect([...index.values()].flat()).not.toEqual(
-      expect.arrayContaining(['--loop-a']),
+      expect.arrayContaining(['--color-loop-a']),
     );
   });
 });
@@ -176,7 +250,7 @@ describe('one-off exemption', () => {
 
   it('does not exempt a value on another line', () => {
     expect(
-      hitValues('.a {\n  /* one-off */\n  gap: 8px;\n  height: 24px; }'),
+      hitValues('.a {\n  /* one-off */\n  gap: 8px;\n  padding: 24px; }'),
     ).toEqual(['8px', '24px']);
   });
 

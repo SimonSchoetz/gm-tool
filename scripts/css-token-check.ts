@@ -1,12 +1,16 @@
-// Reports every raw value in a component stylesheet under `app/src/` that equals what a token in `app/src/styles/variables/` resolves to, and exits 1 when there is one.
+// Reports every raw value in a component stylesheet under `app/src/` that equals a token of its property's family in `app/src/styles/variables/`, and exits 1 when there is one. `--staged` limits the report to the stylesheets staged for commit.
+import { execFileSync } from 'child_process';
 import { readdirSync, readFileSync } from 'fs';
 import path from 'path';
-import { buildTokenIndex, findRawValueHits } from './css-token-check-find.ts';
+import {
+  buildTokenIndex,
+  findRawValueHits,
+  isComponentStylesheet,
+} from './css-token-check-find.ts';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
 const sourceRoot = path.join(repositoryRoot, 'app/src');
-const stylesRoot = path.join(sourceRoot, 'styles');
-const variablesRoot = path.join(stylesRoot, 'variables');
+const variablesRoot = path.join(sourceRoot, 'styles/variables');
 
 const cssFilesUnder = (directory: string) =>
   readdirSync(directory, { recursive: true, encoding: 'utf8' })
@@ -16,9 +20,31 @@ const cssFilesUnder = (directory: string) =>
 const read = (file: string) => readFileSync(file, 'utf8');
 
 const index = buildTokenIndex(cssFilesUnder(variablesRoot).map(read));
-const stylesheets = cssFilesUnder(sourceRoot).filter(
-  (file) => !file.startsWith(stylesRoot + path.sep),
-);
+
+const stagedPaths = () =>
+  execFileSync(
+    'git',
+    [
+      'diff',
+      '--cached',
+      '--name-only',
+      '--no-renames',
+      '--diff-filter=d',
+      '-z',
+    ],
+    { cwd: repositoryRoot, encoding: 'utf8' },
+  )
+    .split('\0')
+    .filter(Boolean);
+
+const allSourcePaths = () =>
+  cssFilesUnder(sourceRoot).map((file) => path.relative(repositoryRoot, file));
+
+const stylesheets = (
+  process.argv.includes('--staged') ? stagedPaths() : allSourcePaths()
+)
+  .filter(isComponentStylesheet)
+  .map((file) => path.join(repositoryRoot, file));
 
 let hitCount = 0;
 for (const file of stylesheets) {
@@ -32,7 +58,7 @@ for (const file of stylesheets) {
 
 if (hitCount > 0) {
   console.error(
-    `css-token-check: ${hitCount} raw value(s) equal a design token — use the token, or mark the line with a /* one-off */ comment.`,
+    `css-token-check: ${hitCount} raw value(s) equal a design token of the same family — use the token, or mark the line with a /* one-off */ comment.`,
   );
   process.exit(1);
 }

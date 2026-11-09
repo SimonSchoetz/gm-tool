@@ -1,5 +1,5 @@
 // Finds raw values in a stylesheet that equal what a design token resolves to, comparing canonical forms: colours as `r,g,b,a` whether written as hex, `rgb()` or a bare `r, g, b` triplet, lengths as px at a 16px root.
-// Only the value categories `.claude/rules/src-css.md` bans are compared: colours, px/rem lengths, and unitless z-index integers. A token whose value is compound (a shadow, a `calc()`) has no single value to compare and is skipped.
+// A value is compared only with the token family its property belongs to, so `border-radius: 8px` matches `--radius-md` and never `--spacing-sm`: an exact match inside a family is a real duplicate, one across families a numeric coincidence. A property in no family is not checked. A token in no family, or whose value is compound (a shadow, a `calc()`), is skipped.
 
 type TokenIndex = Map<string, string[]>;
 
@@ -14,6 +14,50 @@ const ROOT_FONT_SIZE_PX = 16;
 const ONE_OFF_MARKER = 'one-off';
 const OPAQUE_ALPHA = 1;
 
+const STYLESHEETS_ROOT = 'app/src/';
+const NON_COMPONENT_STYLES_ROOT = 'app/src/styles/';
+
+const BORDER_SIDE =
+  '(?:-(?:top|right|bottom|left|block|inline)(?:-start|-end)?)?';
+
+const TOKEN_FAMILIES = {
+  colour: {
+    tokenPrefix: '--color-',
+    // A border shorthand carries a colour as well as a width, so its name is in both families.
+    property: new RegExp(
+      `^(?:color|fill|stroke|background|[a-z-]+-color|border${BORDER_SIDE})$`,
+    ),
+  },
+  spacing: {
+    tokenPrefix: '--spacing-',
+    property: /^(?:(?:row-|column-)?gap|(?:padding|margin)(?:-[a-z-]+)?)$/,
+  },
+  border: {
+    tokenPrefix: '--border-',
+    property: new RegExp(`^border${BORDER_SIDE}(?:-width)?$`),
+  },
+  radius: {
+    tokenPrefix: '--radius-',
+    property: /^border(?:-[a-z]+-[a-z]+)?-radius$/,
+  },
+  zIndex: { tokenPrefix: '--most-front', property: /^z-index$/ },
+};
+
+const familiesOfProperty = (property: string) =>
+  Object.values(TOKEN_FAMILIES).filter((family) =>
+    family.property.test(property),
+  );
+
+const familyOfToken = (name: string) =>
+  Object.values(TOKEN_FAMILIES).find((family) =>
+    name.startsWith(family.tokenPrefix),
+  ) ?? null;
+
+export const isComponentStylesheet = (repositoryPath: string) =>
+  repositoryPath.endsWith('.css') &&
+  repositoryPath.startsWith(STYLESHEETS_ROOT) &&
+  !repositoryPath.startsWith(NON_COMPONENT_STYLES_ROOT);
+
 const NON_DECLARATION_TEXT =
   /\/\*[\s\S]*?\*\/|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|url\([^)]*\)/g;
 const DECLARATION = /(?:^|[;{}])\s*([-\w]+)\s*:\s*([^;{}]*)(?=[;}])/g;
@@ -26,8 +70,6 @@ const CHANNEL_SEPARATOR = /[\s,/]+/;
 const LENGTH = /^(\d*\.?\d+)(px|rem)$/i;
 const INTEGER = /^\d+$/;
 const VAR_REFERENCE = /var\(\s*(--[-\w]+)\s*\)/g;
-
-const zIndexKey = (integer: string) => `z-index:${Number(integer)}`;
 
 const colourKey = (red: number, green: number, blue: number, alpha: number) =>
   `colour:${red},${green},${blue},${Number(alpha.toFixed(2))}`;
@@ -57,6 +99,7 @@ const rgbFunctionKey = (args: string) => {
 
 const canonicalKey = (value: string) => {
   const trimmed = value.trim();
+  if (INTEGER.test(trimmed)) return `integer:${Number(trimmed)}`;
   if (HEX.test(trimmed)) return hexColourKey(trimmed);
   if (TRIPLET.test(trimmed)) return rgbFunctionKey(trimmed);
   const rgbArgs = RGB_FUNCTION.exec(trimmed)?.[1];
@@ -119,8 +162,8 @@ const resolveVarReferences = (
   return resolved;
 };
 
-// A z-index compared against a font weight would report two unrelated scales as duplicates.
-const isZIndexToken = (name: string) => !name.startsWith('--font-weight');
+const keyInFamily = (tokenPrefix: string, key: string) =>
+  `${tokenPrefix}|${key}`;
 
 export const buildTokenIndex = (variableSheets: string[]): TokenIndex => {
   const definitions = new Map<string, string>();
@@ -139,21 +182,18 @@ export const buildTokenIndex = (variableSheets: string[]): TokenIndex => {
       new Set([name]),
     );
     if (resolved === null) continue;
-    const key =
-      INTEGER.test(resolved) && isZIndexToken(name)
-        ? zIndexKey(resolved)
-        : canonicalKey(resolved);
-    if (key !== null) index.set(key, [...(index.get(key) ?? []), name]);
+    const family = familyOfToken(name);
+    const key = canonicalKey(resolved);
+    if (family === null || key === null) continue;
+    const familyKey = keyInFamily(family.tokenPrefix, key);
+    index.set(familyKey, [...(index.get(familyKey) ?? []), name]);
   }
   return index;
 };
 
 const rawValuesOf = (property: string, value: string) => {
   const trimmed = value.trim();
-  if (property === 'z-index' && INTEGER.test(trimmed)) {
-    return [{ raw: trimmed, offset: 0, key: zIndexKey(trimmed) }];
-  }
-  if (property.startsWith('--') && TRIPLET.test(trimmed)) {
+  if (TOKEN_FAMILIES.zIndex.property.test(property) && INTEGER.test(trimmed)) {
     return [{ raw: trimmed, offset: 0, key: canonicalKey(trimmed) }];
   }
   return [...value.matchAll(RAW_VALUE)].map((match) => ({
@@ -163,6 +203,11 @@ const rawValuesOf = (property: string, value: string) => {
   }));
 };
 
+const tokensEqualTo = (property: string, key: string, index: TokenIndex) =>
+  familiesOfProperty(property).flatMap(
+    (family) => index.get(keyInFamily(family.tokenPrefix, key)) ?? [],
+  );
+
 export const findRawValueHits = (
   css: string,
   index: TokenIndex,
@@ -170,10 +215,10 @@ export const findRawValueHits = (
   const { text, oneOffLines } = blankNonDeclarationText(css);
   return declarationsOf(text).flatMap(({ property, value, valueOffset }) =>
     rawValuesOf(property, value).flatMap(({ raw, offset, key }) => {
-      const tokens = key === null ? null : (index.get(key) ?? null);
+      const tokens = key === null ? [] : tokensEqualTo(property, key, index);
       const position = valueOffset + offset;
       const line = lineAt(text, position);
-      if (tokens === null || oneOffLines.has(line)) return [];
+      if (tokens.length === 0 || oneOffLines.has(line)) return [];
       return [{ line, column: columnAt(text, position), value: raw, tokens }];
     }),
   );
