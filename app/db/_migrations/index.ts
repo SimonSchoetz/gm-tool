@@ -13,6 +13,7 @@ import { addBaseEntitiesMigration } from './1789304154994_add_base_entities.ts';
 import { addBaseEntityContentSectionsMigration } from './1789743068849_add_base_entity_content_sections.ts';
 import { addEncounterQueueAndLogMigration } from './1793213621920_add_encounter_queue_and_log.ts';
 import { addEncounterCoverImageMigration } from './1793634141188_add_encounter_cover_image.ts';
+import { addSessionStepCollapsedMigration } from './1794237574685_add_session_step_collapsed.ts';
 
 export type Migration = {
   id: string;
@@ -35,6 +36,7 @@ export const migrations: Migration[] = [
   addBaseEntityContentSectionsMigration,
   addEncounterQueueAndLogMigration,
   addEncounterCoverImageMigration,
+  addSessionStepCollapsedMigration,
 ];
 
 // Equals the applied migration head after init; read here (not from the DB) to avoid an import cycle through database.ts.

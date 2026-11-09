@@ -41,8 +41,8 @@ const seedSourceAndEmptyTarget = async () => {
     name: 'Step B',
     default_step_key: 'secrets_clues',
   });
-  await update(first, { content: 'c', checked: 1 });
-  await update(second, { content: 'c', checked: 1 });
+  await update(first, { content: 'c', checked: 1, collapsed: 1 });
+  await update(second, { content: 'c', checked: 1, collapsed: 1 });
   return { sourceSessionId, targetSessionId };
 };
 
@@ -74,6 +74,7 @@ describe('duplicateBySession', () => {
         content: 'c',
         default_step_key: 'secrets_clues',
         checked: 1,
+        collapsed: 1,
         sort_order: 3,
         created_at: T2,
         updated_at: T2,
@@ -84,6 +85,7 @@ describe('duplicateBySession', () => {
         content: 'c',
         default_step_key: 'strong_start',
         checked: 1,
+        collapsed: 1,
         sort_order: 7,
         created_at: T2,
         updated_at: T2,

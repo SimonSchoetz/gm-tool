@@ -26,6 +26,7 @@ const stepRow = (sessionId: string): SessionStep => ({
   content: null,
   default_step_key: null,
   checked: 0,
+  collapsed: 0,
   sort_order: 0,
   created_at: '2026-01-10T09:00:00.000Z',
   updated_at: '2026-01-10T09:00:00.000Z',

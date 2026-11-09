@@ -38,6 +38,12 @@ export const sessionStepTable = defineTable({
       default: '0',
       zod: z.number(),
     },
+    collapsed: {
+      type: 'INTEGER',
+      notNull: true,
+      default: '0',
+      zod: z.number(),
+    },
     sort_order: {
       type: 'INTEGER',
       notNull: true,
