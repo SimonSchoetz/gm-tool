@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LabeledToggleButton } from '@/components/LabeledToggleButton/LabeledToggleButton';
+import { LabeledToggleButton } from '@/components/LabeledToggleButton';
 import { EncounterAddEntities } from './components/EncounterAddEntities';
 import { EncounterAddEvent } from './components/EncounterAddEvent/EncounterAddEvent';
 import { EncounterAddRandomCombatant } from './components/EncounterAddRandomCombatant/EncounterAddRandomCombatant';

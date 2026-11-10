@@ -5,8 +5,8 @@ import type { BaseEntityType } from '@domain';
 import { cn } from '@/util/className';
 import { EncounterEntityImage } from '../../../EncounterEntityImage/EncounterEntityImage';
 import type { SelectionModifiers } from '../../../../helper/applySelectionClick';
-import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
-import { describeQueueEntryImage } from './helper/describeQueueEntryImage';
+import { buildHpLostStyle } from './helper/buildHpLostStyle';
+import { describeQueueEntryLook } from './helper/describeQueueEntryLook';
 import { getAriaCurrent } from './helper/getAriaCurrent';
 import { getImageAriaLabel } from './helper/getImageAriaLabel';
 import { QUEUE_ENTRY_IMAGE_SIZE } from './EncounterQueueEntry.constants';
@@ -43,12 +43,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
     transform,
     transition,
   } = useSortable({ id });
-  const hp = props.kind === 'combatant' ? describeQueueEntryHp(props) : null;
-  const imageLook =
-    // An event has no defeated flag and no HP, so `describeQueueEntryImage` would return plain for it too.
-    props.kind === 'combatant'
-      ? describeQueueEntryImage(hp, props.defeated)
-      : 'plain';
+  const { hp, imageLook } = describeQueueEntryLook(props);
   const imageClassName = cn(
     'encounter-queue-entry-image',
     `encounter-queue-entry-image--${imageLook}`,
@@ -57,7 +52,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    ...(hp ? { '--rt-encounter-queue-entry-hp-lost': hp.lostShare } : {}),
+    ...buildHpLostStyle(hp),
   } as React.CSSProperties;
 
   const ariaCurrent = getAriaCurrent(selected);

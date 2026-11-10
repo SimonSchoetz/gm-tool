@@ -134,6 +134,23 @@ describe('classifyJsxValue', () => {
     ['a conditional', 'on ? 1 : 2', 'derived'],
     ['an object', '{ a: 1 }', 'derived'],
     ['an array', '[1, 2]', 'derived'],
+    [
+      'a template literal embedding a conditional',
+      '`a-${on ? 1 : 2}`',
+      'derived',
+    ],
+    ['a template literal embedding a call', '`a-${b}-${make(1)}`', 'derived'],
+    [
+      'a template literal embedding an inline function',
+      '`a${() => go()}`',
+      'derived',
+    ],
+    ['a template literal behind as', '`a${on ? 1 : 2}` as Id', 'derived'],
+    [
+      'a template literal nested in a template literal',
+      '`a${`b${on ? 1 : 2}`}`',
+      'derived',
+    ],
   ])('reports %s', (_name, expression, kind) => {
     expect(classifyJsxValue(valueOf(expression))).toBe(kind);
   });
@@ -145,6 +162,12 @@ describe('classifyJsxValue', () => {
     ['a number literal', '3'],
     ['a string literal', "'a'"],
     ['a template literal', '`a${b}`'],
+    ['a template literal without expressions', '`a`'],
+    [
+      'a template literal embedding only reads and ?? expressions',
+      '`a${b.c}-${d ?? f()}`',
+    ],
+    ['a template literal nesting one that embeds only a read', '`a${`b${c}`}`'],
     ['an || expression', 'a || f()'],
     ['an && expression', 'a && f()'],
     ['a ?? expression', 'a ?? f()'],
@@ -324,6 +347,8 @@ ruleTester.run('no-inline-jsx-values', rule, {
     'const x = xs.map((item) => { const label = format(item); return <A onClick={() => onSelect(label)} />; });',
     'const x = xs.map((outer) => ys.map((inner) => <A onClick={() => onSelect(outer.id)} />));',
     'const x = xs.map(({ id, name }) => <A value={name ? { id } : null} />);',
+    'const x = xs.map((item) => <A id={`row-${item.open ? "open" : "closed"}`} />);',
+    'const x = <A className={`a ${on ? "b" : ""}`} style={`${f(a)}`} />;',
   ]),
   invalid: asInvalid([
     ['const x = <A onClick={() => go()} />;', 'handler'],
@@ -339,6 +364,15 @@ ruleTester.run('no-inline-jsx-values', rule, {
     ['const x = <A options={[1, 2]} />;', 'derived'],
     ['const x = <A buttonStyle={pick(a)} />;', 'derived'],
     ['const x = <A classNames={cn("a")} />;', 'derived'],
+    [
+      'const x = <A id={`x-${id}-${readOnly ? "read" : "edit"}`} />;',
+      'derived',
+    ],
+    ['const x = <A label={`${format(count)} items`} />;', 'derived'],
+    [
+      'const x = xs.map((item) => <A id={`row-${outside ? "a" : "b"}`} />);',
+      'derived',
+    ],
     ['const x = xs.map((item) => <A onClick={() => go()} />);', 'handler'],
     [
       'const x = xs.map((item) => <A onClick={(event) => go(event)} />);',

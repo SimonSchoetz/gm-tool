@@ -2,6 +2,7 @@ import { type ReactNode } from 'react';
 import type { ImagePlaceholderEntityType } from '../../../../EntityPlaceholderIcon';
 import { CoverCell } from '../components/CoverCell/CoverCell';
 import { formatDateValue } from './formatDateValue';
+import { readStringField } from './readStringField';
 
 const DATE_KEYS = new Set(['created_at', 'updated_at']);
 
@@ -11,7 +12,7 @@ export const renderCell = (
   entityType: ImagePlaceholderEntityType | null,
 ): ReactNode => {
   if (key === 'image_id') {
-    const imageId = typeof item.image_id === 'string' ? item.image_id : '';
+    const imageId = readStringField(item, 'image_id');
     return <CoverCell imageId={imageId} entityType={entityType} />;
   }
   if (DATE_KEYS.has(key)) return formatDateValue(item[key]);

@@ -57,6 +57,8 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
     });
   };
 
+  const deleteLabel = `Delete ${entityTypeLabel(entityType)}`;
+
   return (
     <ScreensSidebar>
       <UploadImgBtn
@@ -70,7 +72,7 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
       <ScreensDuplicateBtn entityType={entityType} />
 
       <Button
-        label={`Delete ${entityTypeLabel(entityType)}`}
+        label={deleteLabel}
         onClick={onDeleteClick}
         buttonStyle={'danger'}
       />

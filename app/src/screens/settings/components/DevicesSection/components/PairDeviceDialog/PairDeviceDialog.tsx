@@ -6,6 +6,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { usePairing } from '@/data-access-layer';
 import type { FCProps } from '@/types/fcProps.type';
 import './PairDeviceDialog.css';
+import { getPairDialogMode } from './helper/getPairDialogMode';
 import { PDDCandidatesList } from './components/PDDCandidatesList/PDDCandidatesList';
 import { H2 } from '../../../H2/H2';
 
@@ -37,12 +38,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
     }
   }, [succeeded, onClose]);
 
-  const mode: 'list' | 'entering-code' | 'showing-code' =
-    codeRequest !== null
-      ? 'showing-code'
-      : requestedCandidateId !== null
-        ? 'entering-code'
-        : 'list';
+  const mode = getPairDialogMode(codeRequest, requestedCandidateId);
 
   const DialogHeader = (
     <h1 className='pair-device-dialog-title'>Pair a new device</h1>

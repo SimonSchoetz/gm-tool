@@ -6,6 +6,7 @@ import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
 import { isItemPinned } from '../../helper/isItemPinned';
 import { buildItemGridTemplate } from './helper/buildItemGridTemplate';
+import { readStringField } from './helper/readStringField';
 import { renderCell } from './helper/renderCell';
 import { RowActionsMenu } from './components/RowActionsMenu';
 import { cn } from '@/util/className';
@@ -30,8 +31,8 @@ export const SortableListItem: FCProps<Props> = ({
 
   const gridTemplateColumns = buildItemGridTemplate(columns, dragWidths);
 
-  const name = typeof item.name === 'string' ? item.name : '';
-  const itemId = typeof item.id === 'string' ? item.id : '';
+  const name = readStringField(item, 'name');
+  const itemId = readStringField(item, 'id');
 
   const isItemWithImage = 'image_id' in item;
 

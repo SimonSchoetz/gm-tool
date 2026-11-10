@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Outlet } from '@tanstack/react-router';
 import { Backdrop } from '@/components/Backdrop';
-import LightSource from '@/components/LightSource/LightSource';
+import LightSource from '@/components/LightSource';
 import { SideBarNav } from '@/components/SideBarNav';
 import { Header } from '@/components/Header';
 import { ErrorBoundary } from '@/components/ErrorBoundary';

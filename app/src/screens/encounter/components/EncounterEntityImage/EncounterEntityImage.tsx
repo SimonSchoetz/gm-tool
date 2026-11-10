@@ -1,6 +1,6 @@
 import type { BaseEntityType } from '@domain';
 import { EntityPlaceholderIcon } from '@/components/EntityPlaceholderIcon';
-import { ImageById } from '@/components/ImageById/ImageById';
+import { ImageById } from '@/components/ImageById';
 import { ImagePlaceholderFrame } from '@/components/ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { FCProps } from '@/types/fcProps.type';
 import './EncounterEntityImage.css';

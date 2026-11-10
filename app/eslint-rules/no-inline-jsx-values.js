@@ -56,12 +56,19 @@ export const unwrapValueExpression = (node) => {
 
 /**
  * @param {AstNode} value the braced expression of a JSX attribute
- * @returns {'handler' | 'derived' | null} `handler` for an arrow or function expression, `derived` for a call, a `?:`, an object or an array, `null` for every other expression (a bare read, a literal, a template literal, a `||`/`&&`/`??` expression, a JSX element, a `new` expression)
+ * @returns {'handler' | 'derived' | null} `handler` for an arrow or function expression, `derived` for a call, a `?:`, an object or an array, and for a template literal one of whose embedded expressions is any of these or such a template literal itself (`` `x-${on ? 'a' : 'b'}` ``), `null` for every other expression (a bare read, a literal, a template literal embedding only such expressions, a `||`/`&&`/`??` expression, a JSX element, a `new` expression)
  */
 export const classifyJsxValue = (value) => {
   const unwrapped = unwrapValueExpression(value);
   if (FUNCTION_TYPES.has(unwrapped.type)) {
     return 'handler';
+  }
+  if (unwrapped.type === 'TemplateLiteral') {
+    return unwrapped.expressions.some(
+      (/** @type {AstNode} */ embedded) => classifyJsxValue(embedded) !== null,
+    )
+      ? 'derived'
+      : null;
   }
   return DERIVED_VALUE_TYPES.has(unwrapped.type) ? 'derived' : null;
 };
@@ -153,7 +160,7 @@ export default {
     type: 'problem',
     docs: {
       description:
-        'Disallow an inline function, call, conditional, object or array as a JSX attribute value outside `className` and `style`, except where it reads a `.map()` or `.flatMap()` callback variable.',
+        'Disallow an inline function, call, conditional, object or array, or a template literal embedding one, as a JSX attribute value outside `className` and `style`, except where it reads a `.map()` or `.flatMap()` callback variable.',
     },
     schema: [],
     messages: {

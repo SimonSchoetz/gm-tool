@@ -10,6 +10,8 @@ export const OwnDevice = () => {
 
   if (!ownDevice) return;
 
+  const placeholder = `Device ID: ${getShortenedDeviceId(ownDevice.id)}`;
+
   return (
     <div className='own-device'>
       <H3 heading='This device' />
@@ -17,7 +19,7 @@ export const OwnDevice = () => {
         className='own-device--input'
         initValue={ownDevice.name ?? ''}
         onCommit={renameOwnDevice}
-        placeholder={`Device ID: ${getShortenedDeviceId(ownDevice.id)}`}
+        placeholder={placeholder}
       />
     </div>
   );
