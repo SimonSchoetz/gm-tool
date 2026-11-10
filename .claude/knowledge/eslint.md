@@ -234,3 +234,10 @@ A component chosen per prop value is written as a lookup into a module-level tab
 **Citation:** [feat-leftover-lint_1: `node_modules/eslint/lib/config/default-config.js:62` — `reportUnusedDisableDirectives: 1`] [feat-leftover-lint_2: ran `npx eslint util/zzProbe.ts` from `app/` on a disposable file whose `// eslint-disable-next-line local/no-unused-exports` suppressed nothing, with `reportUnusedDisableDirectives: 'error'` set — observed `error  Unused eslint-disable directive (no problems were reported from 'local/no-unused-exports')` and exit code 1]
 
 Without the option, a disable comment that suppresses nothing yields only a warning, which `npx eslint` without `--max-warnings` lets exit 0. Set to `'error'`, the same comment fails the run.
+
+## ESLint 10.11.0 prints "File ignored because no matching configuration was supplied" as a warning, with exit code 0, for a file no config object matches, and `--no-warn-ignored` removes it
+
+**Verified at:** eslint 10.11.0, installed in `app/`, run 2026-11-10
+**Citation:** [implement_1: ran `npx eslint src/styles/global.css` from `app/` — observed `0:0  warning  File ignored because no matching configuration was supplied`, `✖ 1 problem (0 errors, 1 warning)` and exit code 0; ran `npx eslint --no-warn-ignored src/styles/global.css` — observed no output and exit code 0]
+
+A hook that passes staged paths to ESLint without an extension filter needs the flag to stay quiet on a `.css` or `.md` file.
