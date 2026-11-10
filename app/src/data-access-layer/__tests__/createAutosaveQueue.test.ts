@@ -166,4 +166,22 @@ describe('createAutosaveQueue', () => {
 
     expect(write).toHaveBeenCalledTimes(2);
   });
+
+  it('keeps a patch that a flush write scheduled for the same key on its own full delay', () => {
+    const queue = createAutosaveQueue<Patch>(merge, (key, pending) => {
+      write(key, pending);
+      if (write.mock.calls.length === 1) queue.schedule(key, { name: 'again' });
+    });
+    queue.schedule('x', { name: 'first' });
+    vi.advanceTimersByTime(AUTOSAVE_DELAY_MS / 5);
+    queue.flushAll();
+    expect(write).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(AUTOSAVE_DELAY_MS - AUTOSAVE_DELAY_MS / 5 + 1);
+    expect(write).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(AUTOSAVE_DELAY_MS / 5);
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenLastCalledWith('x', { name: 'again' });
+  });
 });

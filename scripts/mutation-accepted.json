@@ -1602,6 +1602,186 @@
     "reason": "a hover request that fires after the click finds the click-open entry and changes nothing"
   },
   {
+    "file": "src/data-access-layer/adventures/useAdventure.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/base-entities/useBaseEntity.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/base-entity-content-sections/useBaseEntityContentSections.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "createMutation.mutateAsync(name !== undefined ? { type, name } : { type });",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a missing name passes as an absent property or as one set to undefined, and the service reads both as no name, so the condition changes no call"
+  },
+  {
+    "file": "src/data-access-layer/createAutosaveQueue.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!entry) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a timer fires only for a key whose entry exists, since a write or a flush that removes the entry also clears its timer, so the entry is always found"
+  },
+  {
+    "file": "src/data-access-layer/devices/useOwnDevice.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "saveQueue.schedule('own-device', name);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the key only names the one pending rename, and any other text names it as well, so its text changes no result"
+  },
+  {
+    "file": "src/data-access-layer/encounters/useEncounter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/sessions/useSession.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/useAutosaveQueue.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[]",
+    "lineText": "}, [saveQueue]);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the queue is created once by useState and never changes, so the dependency list holds one value that never differs and an empty list runs the effect as often"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "MethodExpression",
+    "replacement": "config.searchableColumns",
+    "lineText": "const secondaryColumns = config.searchableColumns.filter(",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(col) => col !== 'name',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "(col) => col !== 'name',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "} else if (name.includes(primaryTerm)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the branch after it adds the item to the same list when the name contains any term, the first one included, so skipping this branch gives the same list"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "if (typeof value !== 'string') return false;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item reaches the field search only when every term matched one of its columns and none matched its name, so a column that is no text never decides the some() result"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (matchesSecondary) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item reaches this check only when every term matched one of its columns and none matched its name, so some secondary column always matches"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "typeof aVal === 'string' || typeof bVal === 'string'",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "compareFn(a, b) / directionMultiplier",
+    "lineText": "return [...items].sort((a, b) => compareFn(a, b) * directionMultiplier);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the multiplier is 1 or -1, and dividing by either gives the same number as multiplying by it"
+  },
+  {
+    "file": "src/hooks/useTypographicInput/helper/applyTypographicRuleAtCaret.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (caret === null) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a null caret makes the slice below empty, which no rule pattern matches, so the function returns null anyway"
+  },
+  {
+    "file": "src/hooks/useTypographicInput/useTypographicInput.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "lineText": "const previousValueRef = useRef('');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the initial text matters only to a first change event on a field that already holds text when the hook mounts, which the hook does not read; whether a first keystroke there should substitute is undecided and reported to the lead, so no test pins it"
+  },
+  {
     "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
     "mutator": "StringLiteral",
     "replacement": "\"\"",

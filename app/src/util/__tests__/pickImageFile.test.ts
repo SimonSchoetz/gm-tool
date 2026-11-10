@@ -41,4 +41,11 @@ describe('pickImageFile', () => {
       /^Failed to open file picker: 404$/,
     );
   });
+
+  it('keeps the failure the platform raised as the cause of the error it throws', async () => {
+    const failure = new Error('Dialog failed');
+    pickFile.mockRejectedValueOnce(failure);
+
+    await expect(pickImageFile()).rejects.toMatchObject({ cause: failure });
+  });
 });

@@ -1,5 +1,6 @@
 import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Encounter } from '@db/encounter';
 import type * as service from '@services/encounterService';
 import { buildEncounter } from '@/__tests__/support/buildEncounter';
 import { AUTOSAVE_DELAY_MS } from '../../createAutosaveQueue';
@@ -20,10 +21,19 @@ const removeEncounterImage = vi.hoisted(() =>
   vi.fn<typeof service.removeEncounterImage>(),
 );
 
+const deleteEncounter = vi.hoisted(() =>
+  vi.fn<typeof service.deleteEncounter>(),
+);
+const duplicateEncounter = vi.hoisted(() =>
+  vi.fn<typeof service.duplicateEncounter>(),
+);
+
 vi.mock('@services/encounterService', () => ({
   getEncounterById,
   updateEncounter,
   removeEncounterImage,
+  deleteEncounter,
+  duplicateEncounter,
 }));
 
 const renderEncounter = async () => {
@@ -153,5 +163,78 @@ describe('useEncounter', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: encounterKeys.list('adventure-1'),
     });
+  });
+});
+
+describe('useEncounter data', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    getEncounterById.mockImplementation((id) =>
+      Promise.resolve(buildEncounter({ id })),
+    );
+    updateEncounter.mockReset().mockResolvedValue(undefined);
+    removeEncounterImage.mockReset().mockResolvedValue(undefined);
+    deleteEncounter.mockReset().mockResolvedValue(undefined);
+    duplicateEncounter.mockReset().mockResolvedValue('copied-encounter');
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('deletes the encounter and invalidates the list of its adventure', async () => {
+    const { result, invalidateQueries } = await renderEncounter();
+
+    await act(async () => {
+      await result.current.deleteEncounter();
+    });
+
+    expect(deleteEncounter).toHaveBeenCalledWith('encounter-1');
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: encounterKeys.list('adventure-1'),
+    });
+  });
+
+  it('duplicates the encounter, resolves the id of the copy and invalidates only the list', async () => {
+    const { result, invalidateQueries } = await renderEncounter();
+
+    let copyId = '';
+    await act(async () => {
+      copyId = await result.current.duplicateEncounter();
+    });
+
+    expect(copyId).toBe('copied-encounter');
+    expect(duplicateEncounter).toHaveBeenCalledWith('encounter-1');
+    expect(invalidateQueries.mock.calls).toEqual([
+      [{ queryKey: encounterKeys.list('adventure-1') }],
+    ]);
+  });
+
+  it('schedules no save before the encounter has loaded', async () => {
+    getEncounterById.mockImplementation(
+      () => new Promise<Encounter>(() => undefined),
+    );
+    const { result } = renderHookWithQueryClient(
+      ({
+        encounterId,
+        adventureId,
+      }: {
+        encounterId: string;
+        adventureId: string;
+      }) => useEncounter(encounterId, adventureId),
+      {
+        initialProps: {
+          encounterId: 'encounter-1',
+          adventureId: 'adventure-1',
+        },
+      },
+    );
+
+    act(() => {
+      result.current.updateEncounter({ name: 'x' });
+    });
+    await settle(AUTOSAVE_DELAY_MS);
+
+    expect(updateEncounter).not.toHaveBeenCalled();
   });
 });

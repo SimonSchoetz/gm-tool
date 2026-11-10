@@ -55,4 +55,66 @@ describe('useListFilter', () => {
   it('matches case-insensitively', () => {
     expect(filterBy('GOBLIN').nameMatches).toEqual([GOBLIN_CHIEF, HOBGOBLIN]);
   });
+
+  it('lists an item as a name match when its name holds a later term and another column holds the first one', () => {
+    const { nameMatches, fieldMatches } = filterBy('raid, chief');
+
+    expect(nameMatches).toEqual([GOBLIN_CHIEF]);
+    expect(fieldMatches).not.toContain(GOBLIN_CHIEF);
+  });
+
+  it('lists an item as a field match when its terms are found in different other columns', () => {
+    const rows = [
+      { id: 'zed', name: 'Zed', notes: 'leads the raid', role: 'goblin' },
+      { id: 'elf', name: 'Elf', notes: 'peaceful', role: 'archer' },
+    ];
+
+    const { nameMatches, fieldMatches } = renderHook(() =>
+      useListFilter(rows, 'goblin, raid', {
+        searchableColumns: ['name', 'notes', 'role'],
+      }),
+    ).result.current;
+
+    expect(nameMatches).toEqual([]);
+    expect(fieldMatches).toEqual([rows[0]]);
+  });
+
+  it('lists an item that matches in one of two other columns as a field match', () => {
+    const rows = [
+      { id: 'zed', name: 'Zed', notes: 'allied with a goblin', role: 'scout' },
+    ];
+
+    const { fieldMatches } = renderHook(() =>
+      useListFilter(rows, 'goblin', {
+        searchableColumns: ['name', 'notes', 'role'],
+      }),
+    ).result.current;
+
+    expect(fieldMatches).toEqual(rows);
+  });
+
+  it('skips a searchable column whose value is no text when looking for a field match', () => {
+    const rows = [
+      { id: 'zed', name: 'Zed', notes: null, role: 'goblin scout' },
+    ];
+
+    const { fieldMatches } = renderHook(() =>
+      useListFilter(rows, 'goblin', {
+        searchableColumns: ['name', 'notes', 'role'],
+      }),
+    ).result.current;
+
+    expect(fieldMatches).toEqual(rows);
+  });
+
+  it('treats an item without a text name as having no name, so it can only match in other columns', () => {
+    const rows = [{ id: 'anon', name: null, notes: 'camps here' }];
+
+    const { nameMatches, fieldMatches } = renderHook(() =>
+      useListFilter(rows, 'here', { searchableColumns: ['name', 'notes'] }),
+    ).result.current;
+
+    expect(nameMatches).toEqual([]);
+    expect(fieldMatches).toEqual(rows);
+  });
 });
