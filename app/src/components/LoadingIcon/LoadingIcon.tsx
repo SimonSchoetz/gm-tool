@@ -18,6 +18,8 @@ export const LoadingIcon: FCProps<Props> = ({ beamLengthPercent = 50 }) => {
   return (
     <svg
       className='loading-icon'
+      role='img'
+      aria-label='Loading'
       width={SIZE}
       height={SIZE}
       style={{ '--loading-icon-perimeter': `${perimeter}px` } as CSSProperties}
