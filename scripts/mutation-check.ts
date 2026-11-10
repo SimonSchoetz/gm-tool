@@ -1,8 +1,8 @@
-// Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json.
+// Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json. `--all` mutates every production file under app/ with its own test as a whole instead, for an audit of code no branch changed; which files are production sources and which of their lines run is scripts/mutation-check-selection.ts.
 // A file moved with git (`git mv`, staged or committed) counts only the lines changed after the move (scripts/mutation-check-diff.ts); a moved file git has not seen yet is untracked, and so new as a whole.
 // Each mutant runs the Vitest tests related to its file through Stryker's command runner (scripts/mutation-check-related.ts): Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
-// Only changed files with their own test file (`<dir>/__tests__/<name>.test.ts(x)`) are mutated; the others are listed as skipped.
-// With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, so a fix loop re-runs the files that had survivors; a run without arguments is the gate. `--accept "<reason>"`, with or without files, is described below.
+// Only files with their own test file (`<dir>/__tests__/<name>.test.ts(x)`, `.test.js` for `eslint-rules/`) are mutated; the others are listed as skipped.
+// With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, among the changed ones or, with `--all`, among all production sources, so a fix loop re-runs the files that had survivors; a run without arguments is the gate. `--accept "<reason>"`, with or without files, is described below.
 // Exits non-zero when a mutant survives in one of them and scripts/mutation-accepted.json holds no entry for it: a test that passes with its target logic mutated catches no regression there.
 // A survivor no test can kill (an equivalent mutant) is accepted by an entry of that ledger, which names one mutant by its file, mutator, replacement and the text of the line it starts on (scripts/mutation-check-ledger.ts); a survivor matches one entry, so each of two identical mutants needs its own.
 // An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
@@ -25,18 +25,14 @@ import {
   type SourceLines,
 } from './mutation-check-ledger.ts';
 import { changedLinesAgainst } from './mutation-check-diff.ts';
+import {
+  lineRangesFor,
+  selectFiles,
+  testFileCandidates,
+} from './mutation-check-selection.ts';
 import { testRowFailure } from './mutation-check-test-row.ts';
 
 const DEFAULT_BRANCH = 'main';
-const PRODUCTION_DIRECTORIES = [
-  'src',
-  'services',
-  'domain',
-  'db',
-  'dev-data-server',
-  'platform',
-  'util',
-];
 const REPORT_PATH = 'reports/mutation/mutation.json';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
@@ -54,7 +50,7 @@ try {
   console.error(`mutation-check: ${(error as Error).message}`);
   process.exit(2);
 }
-const { files: requestedFiles, acceptReason } = parsedArguments;
+const { files: requestedFiles, all, acceptReason } = parsedArguments;
 
 let ledger: ReturnType<typeof parseLedger>;
 try {
@@ -126,79 +122,78 @@ const baseBranch =
   lines(git('branch', '--list', DEFAULT_BRANCH)).length > 0
     ? DEFAULT_BRANCH
     : `origin/${DEFAULT_BRANCH}`;
-const mergeBase = git('merge-base', baseBranch, 'HEAD').trim();
-
 const untrackedPaths = new Set(
   lines(git('ls-files', '--others', '--exclude-standard')),
 );
-// The lines the branch added or changed in each file, so a survivor in logic the branch did not write never fails it; an untracked file is new as a whole.
-const changedLines = changedLinesAgainst({
-  cwd: repositoryRoot,
-  base: mergeBase,
-  paths: ['app'],
+// The lines the branch added or changed in each file, so a survivor in logic the branch did not write never fails it; an untracked file is new as a whole. With `all` every file is mutated as a whole and no diff is read.
+const changedLines = all
+  ? new Map<string, { start: number; end: number }[]>()
+  : changedLinesAgainst({
+      cwd: repositoryRoot,
+      base: git('merge-base', baseBranch, 'HEAD').trim(),
+      paths: ['app'],
+    });
+const appRelativePaths = (repositoryPaths: Iterable<string>) =>
+  [...repositoryPaths]
+    .filter((repositoryPath) => repositoryPath.startsWith('app/'))
+    .map((repositoryPath) => repositoryPath.slice('app/'.length));
+
+const {
+  candidates,
+  selected: selectedFiles,
+  unknown,
+} = selectFiles({
+  all,
+  changedPaths: all
+    ? []
+    : appRelativePaths([...changedLines.keys(), ...untrackedPaths]),
+  trackedPaths: all
+    ? appRelativePaths(
+        lines(
+          git('ls-files', '--cached', '--others', '--exclude-standard', 'app'),
+        ),
+      )
+    : [],
+  requestedFiles,
 });
-const changedPaths = new Set([...changedLines.keys(), ...untrackedPaths]);
-const changedLineRanges = (appRelativePath: string) =>
-  untrackedPaths.has(`app/${appRelativePath}`)
-    ? ('all' as const)
-    : (changedLines.get(`app/${appRelativePath}`) ?? []);
+const scope = all
+  ? 'production source under app/'
+  : `changed production source under app/ against ${baseBranch}`;
 
-const isProductionSource = (appRelativePath: string) =>
-  PRODUCTION_DIRECTORIES.some((directory) =>
-    appRelativePath.startsWith(`${directory}/`),
-  ) &&
-  /\.tsx?$/.test(appRelativePath) &&
-  !appRelativePath.endsWith('.d.ts') &&
-  !appRelativePath.includes('__tests__/') &&
-  appRelativePath !== 'src/routeTree.gen.ts';
-
-const filesToMutate = [...changedPaths]
-  .filter((repositoryPath) => repositoryPath.startsWith('app/'))
-  .map((repositoryPath) => repositoryPath.slice('app/'.length))
-  .filter(isProductionSource)
-  .sort();
-
-if (filesToMutate.length === 0) {
+if (candidates.length === 0) {
   console.log(
-    `mutation-check: no production source under app/ changed against ${baseBranch}; nothing to mutate.`,
+    `mutation-check: no production source under app/${all ? '' : ` changed against ${baseBranch}`}; nothing to mutate.`,
   );
   process.exit(0);
 }
 
-const hasOwnTestFile = (appRelativePath: string) => {
-  const { dir, name } = path.parse(appRelativePath);
-  return ['.test.ts', '.test.tsx'].some((suffix) =>
-    existsSync(path.join(appRoot, dir, '__tests__', `${name}${suffix}`)),
+const hasOwnTestFile = (appRelativePath: string) =>
+  testFileCandidates(appRelativePath).some((candidate) =>
+    existsSync(path.join(appRoot, candidate)),
   );
-};
 
-const unknownRequestedFiles = requestedFiles.filter(
-  (file) => !filesToMutate.includes(file),
-);
-if (unknownRequestedFiles.length > 0) {
-  console.error(
-    `mutation-check: not a changed production source under app/ against ${baseBranch}:\n  ${unknownRequestedFiles.join('\n  ')}`,
-  );
+if (unknown.length > 0) {
+  console.error(`mutation-check: not a ${scope}:\n  ${unknown.join('\n  ')}`);
   process.exit(2);
 }
-const selectedFiles =
-  requestedFiles.length > 0
-    ? filesToMutate.filter((file) => requestedFiles.includes(file))
-    : filesToMutate;
-
 const testedFiles = selectedFiles.filter(hasOwnTestFile);
 const untestedFiles = selectedFiles.filter((file) => !hasOwnTestFile(file));
 
 if (untestedFiles.length > 0) {
   console.log(
-    `mutation-check: skipping ${untestedFiles.length} changed file(s) without their own test file:\n  ${untestedFiles.join('\n  ')}`,
+    `mutation-check: skipping ${untestedFiles.length} ${all ? '' : 'changed '}file(s) without their own test file:\n  ${untestedFiles.join('\n  ')}`,
   );
 }
 
 // One Stryker run for all files: its sandbox, processes and initial test run are paid once, and the command in app/stryker.config.json (scripts/mutation-check-related.ts) runs for each mutant only the tests related to the mutant's own file.
 const mutatedRanges: MutatedRanges = new Map();
 const mutateEntries = testedFiles.flatMap((file) => {
-  const ranges = changedLineRanges(file);
+  const ranges = lineRangesFor({
+    all,
+    appRelativePath: file,
+    untrackedPaths,
+    changedLines,
+  });
   const fileEntries =
     ranges === 'all'
       ? [file]
@@ -287,5 +282,5 @@ if (stale.length > 0) {
 }
 if (unmatched.length > 0 || stale.length > 0) process.exit(1);
 console.log(
-  `\nmutation-check: passed — every mutant that survived in the ${testedFiles.length} changed file(s) with their own tests is accepted in scripts/mutation-accepted.json, and every entry whose line this run mutated still survives.`,
+  `\nmutation-check: passed — every mutant that survived in the ${testedFiles.length} ${all ? '' : 'changed '}file(s) with their own tests is accepted in scripts/mutation-accepted.json, and every entry whose line this run mutated still survives.`,
 );

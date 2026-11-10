@@ -233,11 +233,16 @@ export const matchSurvivors = ({
 
 export const parseArguments = (argv: string[]) => {
   const files: string[] = [];
+  let all = false;
   let acceptReason: string | null = null;
   // pnpm may forward the `--` separator as an argument.
   const rest = argv.filter((argument) => argument !== '--');
   for (let index = 0; index < rest.length; index += 1) {
     const argument = rest[index];
+    if (argument === '--all') {
+      all = true;
+      continue;
+    }
     if (argument !== '--accept') {
       files.push(argument.replace(/^(\.\/)?app\//, ''));
       continue;
@@ -251,7 +256,7 @@ export const parseArguments = (argv: string[]) => {
     acceptReason = reason.trim();
     index += 1;
   }
-  return { files, acceptReason };
+  return { files, all, acceptReason };
 };
 
 // The line number is left out when the entry's line no longer resolves.

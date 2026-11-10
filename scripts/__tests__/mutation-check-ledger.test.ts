@@ -334,6 +334,22 @@ describe('parseArguments', () => {
       parseArguments(['--', './app/src/a.ts', 'app/src/b.ts', 'src/c.ts']),
     ).toEqual({
       files: ['src/a.ts', 'src/b.ts', 'src/c.ts'],
+      all: false,
+      acceptReason: null,
+    });
+  });
+
+  it('reads --all in any position, without taking it as a file or as the reason of --accept', () => {
+    expect(
+      parseArguments(['src/a.ts', '--all', '--accept', 'unreachable guard']),
+    ).toEqual({
+      files: ['src/a.ts'],
+      all: true,
+      acceptReason: 'unreachable guard',
+    });
+    expect(parseArguments(['--', '--all'])).toEqual({
+      files: [],
+      all: true,
       acceptReason: null,
     });
   });
@@ -348,6 +364,7 @@ describe('parseArguments', () => {
       ]),
     ).toEqual({
       files: ['src/a.ts', 'src/b.ts'],
+      all: false,
       acceptReason: 'unreachable guard',
     });
   });
