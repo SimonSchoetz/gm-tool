@@ -7,7 +7,7 @@ import { useTableConfig } from '@/data-access-layer';
 import { isItemPinned } from '../../helper/isItemPinned';
 import { buildItemGridTemplate } from './helper/buildItemGridTemplate';
 import { renderCell } from './helper/renderCell';
-import { RowActionsMenu } from './components/RowActionsMenu/RowActionsMenu';
+import { RowActionsMenu } from './components/RowActionsMenu';
 import { cn } from '@/util/className';
 
 type Props = {

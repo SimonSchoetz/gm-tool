@@ -1,28 +1,18 @@
 import { useRef, useState } from 'react';
-import {
-  EllipsisVerticalIcon,
-  PinIcon,
-  PinOffIcon,
-  LucideIcon,
-} from 'lucide-react';
+import { EllipsisVerticalIcon } from 'lucide-react';
 import { FCProps } from '@/types/fcProps.type';
 import { useTableConfig, useSetPinnedOrder } from '@/data-access-layer';
 import { AnchoredPopup } from '../../../../../AnchoredPopup';
 import { PopupSurface } from '../../../../../PopupSurface/PopupSurface';
 import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
 import { ClickableIcon } from '../../../../../ClickableIcon/ClickableIcon';
+import { getRowActionOptions } from './helper/getRowActionOptions';
 import './RowActionsMenu.css';
 
 type Props = {
   tableConfigId: string;
   itemId: string;
   isPinned: boolean;
-};
-
-type MenuOption = {
-  key: string;
-  Icon: LucideIcon;
-  label: string;
 };
 
 export const RowActionsMenu: FCProps<Props> = ({
@@ -48,9 +38,7 @@ export const RowActionsMenu: FCProps<Props> = ({
     setIsOpen(false);
   };
 
-  const options: MenuOption[] = isPinned
-    ? [{ key: 'unpin', Icon: PinOffIcon, label: 'Unpin' }]
-    : [{ key: 'pin', Icon: PinIcon, label: 'Pin' }];
+  const options = getRowActionOptions(isPinned);
 
   const onToggle = () => {
     setIsOpen((prev) => !prev);

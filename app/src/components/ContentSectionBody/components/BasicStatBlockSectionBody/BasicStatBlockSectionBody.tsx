@@ -14,6 +14,8 @@ import {
 import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from '../../ContentSectionBody.constants';
 import type { SectionBodyProps } from '../../types';
 import { readSaveableWholeNumber } from '../../helper/readSaveableWholeNumber';
+import { buildSectionTextEditorId } from '../../helper/buildSectionTextEditorId';
+import { formatSavedHpText } from './helper/formatSavedHpText';
 import './BasicStatBlockSectionBody.css';
 
 type Props = SectionBodyProps;
@@ -27,7 +29,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
   const { updateSectionContent } = useBaseEntityContentSections(baseEntityId);
   const content = parseBasicStatBlockContent(section.content);
   const savedHp = content.basicStatBlock.hp;
-  const savedHpText = savedHp === null ? '' : String(savedHp);
+  const savedHpText = formatSavedHpText(savedHp);
 
   const {
     value: hpText,
@@ -36,7 +38,11 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
   } = useSyncedInputValue(savedHpText);
   const [hpInputRevision, setHpInputRevision] = useState(0);
 
-  const textEditorId = `basic-stat-block-${section.id}-${readOnly ? 'read' : 'edit'}`;
+  const textEditorId = buildSectionTextEditorId(
+    'basic-stat-block',
+    section.id,
+    readOnly,
+  );
 
   const onHpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHpText(event.currentTarget.value);
