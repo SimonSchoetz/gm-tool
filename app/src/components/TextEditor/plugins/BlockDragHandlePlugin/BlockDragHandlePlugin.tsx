@@ -4,8 +4,8 @@ import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggab
 import { BlockDragHandle } from './components/BlockDragHandle/BlockDragHandle';
 import { BlockDropHighlight } from './components/BlockDropHighlight/BlockDropHighlight';
 import { BlockDropIndicator } from './components/BlockDropIndicator/BlockDropIndicator';
+import { getAnchorHeight } from './helper/getAnchorHeight';
 import { getDragOverTargetElement } from './helper/getDragOverTargetElement';
-import { getTargetCalculateHeight } from './helper/getTargetCalculateHeight';
 import { isOnMenu } from './helper/isOnMenu';
 import { FCProps } from '@/types/fcProps.type';
 
@@ -27,9 +27,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
   );
   const [dragOverRect, setDragOverRect] = useState<DragOverRect | null>(null);
   const barHeight = hoveredElement?.getBoundingClientRect().height ?? null;
-  const anchorHeight = hoveredElement
-    ? getTargetCalculateHeight(hoveredElement)
-    : null;
+  const anchorHeight = getAnchorHeight(hoveredElement);
 
   // Pushes the drop target away from the node below it to read as the document making room — a direct inline-style write on a Lexical-managed node, safe because Lexical's reconciler skips a node's DOM entirely when it isn't dirty (Lexical.dev.mjs:3414), so this survives as long as nobody edits this exact block mid-drag. Bottom margin only: DraggableBlockPlugin_EXPERIMENTAL's own $onDrop calls insertBefore only when the cursor is above the very first top-level node in the document — getBlockElement's hit-test otherwise only ever returns a block whose own top is at or above the cursor, so pageY >= targetBlockElemTop is true in every other case and insertAfter always wins. currentTarget is a plain closure variable scoped to this effect (not React state), so react-hooks/immutability has nothing to flag when its .style is mutated.
   useEffect(() => {

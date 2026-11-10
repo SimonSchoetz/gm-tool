@@ -3,7 +3,7 @@ import {
   EntityPlaceholderIcon,
   type ImagePlaceholderEntityType,
 } from '../../../../../EntityPlaceholderIcon';
-import { ImageById } from '../../../../../ImageById/ImageById';
+import { ImageById } from '../../../../../ImageById';
 import { ImagePlaceholderFrame } from '../../../../../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import './CoverCell.css';
 

@@ -4,7 +4,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { pickImageFile } from '@/util/pickImageFile';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { ImageById } from '../ImageById/ImageById';
+import { ImageById } from '../ImageById';
 import PopUpContainer from '../PopUpContainer/PopUpContainer';
 import { ImageViewerDialogHeader } from './components/ImageViewerDialogHeader';
 import { ImagePreviewFramingOverlay } from './components/ImagePreviewFramingOverlay';

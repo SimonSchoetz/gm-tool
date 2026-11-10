@@ -1,9 +1,10 @@
-import { ImageById } from '../../../../ImageById/ImageById';
+import { ImageById } from '../../../../../ImageById';
 import { FCProps } from '@/types/fcProps.type';
 import { useState } from 'react';
 import './IpfoBgImg.css';
-import { FrameState } from '../helper/clampFrame';
-import { IPFO_FRAME_BORDER_WIDTH } from '../ImagePreviewFramingOverlay.constants';
+import { FrameState } from '../../helper/clampFrame';
+import { IPFO_FRAME_BORDER_WIDTH } from '../../ImagePreviewFramingOverlay.constants';
+import { getBgImageOffset } from './helper/getBgImageOffset';
 
 type Props = {
   imageId: string;
@@ -32,10 +33,9 @@ export const IpfoBgImg: FCProps<Props> = ({
   const borderOffset = IPFO_FRAME_BORDER_WIDTH * 2;
   const offsetX = imageWidth * coverScale - dimensions.width + borderOffset;
   const offsetY = imageHeight * coverScale - dimensions.height + borderOffset;
-  const xOffset =
-    naturalSize !== null ? offsetX / 2 - (frameState.x / 100) * offsetX : 0;
-  const yOffset =
-    naturalSize !== null ? offsetY / 2 - (frameState.y / 100) * offsetY : 0;
+  const isImageLoaded = naturalSize !== null;
+  const xOffset = getBgImageOffset(isImageLoaded, offsetX, frameState.x);
+  const yOffset = getBgImageOffset(isImageLoaded, offsetY, frameState.y);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     setNaturalSize({

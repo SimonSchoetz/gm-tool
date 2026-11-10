@@ -2,6 +2,7 @@ import { useImage } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import { HtmlProps } from '@/types/htmlProps.type';
 import { cn } from '@/util/className';
+import { buildFrameStyles } from './helper/buildFrameStyles';
 import './ImageById.css';
 
 type Props = {
@@ -21,14 +22,7 @@ export const ImageById: FCProps<Props> = ({
   if (loading) return <div className='image-by-id image-by-id--pending' />;
   if (!imageUrl) return;
 
-  const frameStyles =
-    !fullImage && frame !== null
-      ? ({
-          '--rt-holo-img-frame-x': `${frame.x}%`,
-          '--rt-holo-img-frame-y': `${frame.y}%`,
-          '--rt-holo-img-frame-zoom': frame.zoom,
-        } as React.CSSProperties)
-      : {};
+  const frameStyles = buildFrameStyles(frame, fullImage);
 
   return (
     <img

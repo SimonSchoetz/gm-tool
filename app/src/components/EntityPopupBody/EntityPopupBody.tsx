@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
-import { ImageById } from '../ImageById/ImageById';
+import { ImageById } from '../ImageById';
 import ImagePlaceholderFrame from '../ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { ImageViewerDialog } from '../ImageViewerDialog';
 import { PanelBody } from '../PanelBody/PanelBody';

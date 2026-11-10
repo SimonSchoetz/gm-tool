@@ -12,6 +12,7 @@ import type { PopupPlacement } from '../../../MentionPopup';
 import { buildMentionTextDecoration } from './helper/buildMentionTextDecoration';
 import { hasPointerMoved } from './helper/hasPointerMoved';
 import { isPrimaryButtonDown } from './helper/isPrimaryButtonDown';
+import { resolveMentionName } from './helper/resolveMentionName';
 import './MentionBadge.css';
 
 type Props = {
@@ -45,7 +46,7 @@ export const MentionBadge: FCProps<Props> = ({
   const tableConfig =
     tableConfigs.find((c) => c.table_name === entityType) ?? null;
   const resolvedColor = tableConfig?.color ?? null;
-  const resolvedName = !loading && liveName !== null ? liveName : displayName;
+  const resolvedName = resolveMentionName(loading, liveName, displayName);
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

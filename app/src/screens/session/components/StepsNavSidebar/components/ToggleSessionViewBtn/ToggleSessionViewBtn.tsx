@@ -1,4 +1,4 @@
-import { LabeledToggleButton } from '@/components/LabeledToggleButton/LabeledToggleButton';
+import { LabeledToggleButton } from '@/components/LabeledToggleButton';
 import { useSession } from '@/data-access-layer';
 import type { Session } from '@db/session';
 import { useParams } from '@tanstack/react-router';
