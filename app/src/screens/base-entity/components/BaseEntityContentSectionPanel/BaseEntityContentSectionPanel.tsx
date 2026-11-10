@@ -113,6 +113,7 @@ export const BaseEntityContentSectionPanel = () => {
     setTypeMenuAnchor(null);
   };
 
+  // The name input renders only while a section is selected, so the `''` fallback below is never shown.
   const namePlaceholder = selected && contentSectionTypeLabel(selected.type);
 
   const leading = isNavAvailable ? (

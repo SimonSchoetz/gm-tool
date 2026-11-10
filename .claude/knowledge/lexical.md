@@ -329,12 +329,19 @@ An Escape pressed in an editor with no open menu was not traced to the `document
 
 An `onQueryChange` whose identity changes on every render re-runs that effect, so `useCallback` on it has a named consumer.
 
-## `LexicalMenu` lists `onSelectOption` in `selectOptionAndCleanUp`'s dependencies, and its key-handler effect lists `selectOptionAndCleanUp`
+## `LexicalMenu` lists `onSelectOption` in the dependencies of its `selectOptionAndCleanUp` callback
 
 **Verified at:** @lexical/react 0.52.0
-**Citation:** [implement_12: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:369` — `onSelectOption` is in the `selectOptionAndCleanUp` `useCallback` dependencies], [implement_13: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:593-602` — `selectOptionAndCleanUp` is in the dependencies of the effect registering the key listeners]
+**Citation:** [implement_12: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:369` — `onSelectOption` is in the `selectOptionAndCleanUp` `useCallback` dependencies]
 
-An `onSelectOption` whose identity changes on every render therefore re-runs that effect, so `useCallback` on it has a named consumer.
+An `onSelectOption` whose identity changes on every render therefore changes `selectOptionAndCleanUp` on every render.
+
+## `LexicalMenu`'s key-handler effect lists `selectOptionAndCleanUp` in its dependencies
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [implement_13: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:593-602` — `selectOptionAndCleanUp` is in the dependencies of the effect registering the key listeners]
+
+A `selectOptionAndCleanUp` that changes identity re-runs that effect, so `useCallback` on `onSelectOption` has a named consumer.
 
 ## `LexicalMenu` calls `menuRenderFn` while rendering and lists it in no dependency array
 

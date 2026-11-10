@@ -1,10 +1,9 @@
-import type { ScreenNavBtn } from './components/ScreenNavBtn/ScreenNavBtn';
+import type { TableNavItem } from './components/TableNavItem/TableNavItem';
 
-type TableNavItemConfig = {
-  label: string;
-  to: React.ComponentProps<typeof ScreenNavBtn>['to'];
-  tableName: string;
-};
+type TableNavItemConfig = Omit<
+  React.ComponentProps<typeof TableNavItem>,
+  'isDisabled'
+>;
 
 export const TABLE_NAV_ITEMS: TableNavItemConfig[] = [
   {
