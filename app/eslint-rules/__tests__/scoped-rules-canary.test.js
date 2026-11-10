@@ -37,6 +37,12 @@ const srcToThrowTestPath = path.join(
   '__tests__',
   'toThrowMatchers.test.ts',
 );
+const srcInlineHandlerPath = path.join(srcCanaryDir, 'InlineHandler.tsx');
+const srcInlineHandlerTestPath = path.join(
+  srcCanaryDir,
+  '__tests__',
+  'InlineHandler.test.tsx',
+);
 
 const useContextSource = `import { createContext, useContext } from 'react';\n\nconst CanaryContext = createContext<number | null>(null);\n\nexport const readCanary = (): number | null => useContext(CanaryContext);\n`;
 const writesUndefinedSource = `export const value = (flag: boolean): string | null =>\n  flag ? 'set' : null;\nexport const sentinel = undefined;\n`;
@@ -45,6 +51,7 @@ const addedLookupSource = `type Getter = { get: (key: string) => string };\n\nex
 const tauriImportSource = `import { invoke } from '@tauri-apps/api/core';\n\nexport const callsTauri = (): Promise<unknown> => invoke('ping');\n`;
 const tauriTypeImportSource = `import type { InvokeArgs } from '@tauri-apps/api/core';\n\nexport const describesArgs = (args: InvokeArgs): InvokeArgs => args;\n`;
 const toThrowMatchersSource = `import { expect } from 'vitest';\n\nconst fail = (): never => {\n  throw new Error('boom: disk full');\n};\n\nexpect(fail).toThrow('boom');\nexpect(fail).toThrow(/^boom/);\nexpect(fail).toThrow(/^boom: disk full$/);\nexpect(fail).toThrow();\nexpect(fail).not.toThrow(TypeError);\nexport enum Canary {\n  A,\n}\n`;
+const inlineHandlerSource = `export const InlineHandler = ({ go }: { go: () => void }) => (\n  <button onClick={() => { go(); }}>x</button>\n);\n`;
 const devDataServerImportSource = `import { devDataServer } from '../../dev-data-server/vitePlugin';\nimport { DEV_DATA_SERVER_PREFIX } from '../../dev-data-server/protocol';\n\nexport const devDataServerCanary = [devDataServer, DEV_DATA_SERVER_PREFIX];\n`;
 
 /** @type {Map<string, import('eslint').Linter.LintMessage[]>} */
@@ -68,6 +75,8 @@ beforeAll(async () => {
   fs.writeFileSync(srcTauriTypeImportPath, tauriTypeImportSource);
   fs.writeFileSync(srcDevDataServerImportPath, devDataServerImportSource);
   fs.writeFileSync(srcToThrowTestPath, toThrowMatchersSource);
+  fs.writeFileSync(srcInlineHandlerPath, inlineHandlerSource);
+  fs.writeFileSync(srcInlineHandlerTestPath, inlineHandlerSource);
 
   const eslint = new ESLint({ cwd: appDir });
   const results = await eslint.lintFiles([
@@ -179,5 +188,16 @@ describe('the loose toThrow matcher selectors under the project eslint.config.js
     expect(linesReportedBy(srcToThrowTestPath, 'no-restricted-syntax')).toEqual(
       [7, 8, 12],
     );
+  });
+});
+
+describe('local/no-inline-jsx-values under the project eslint.config.js', () => {
+  it('reports an inline arrow function as a JSX attribute value in a src component file and not the same code in a src __tests__ file', () => {
+    expect(
+      linesReportedBy(srcInlineHandlerPath, 'local/no-inline-jsx-values'),
+    ).toEqual([2]);
+    expect(
+      linesReportedBy(srcInlineHandlerTestPath, 'local/no-inline-jsx-values'),
+    ).toEqual([]);
   });
 });

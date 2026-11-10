@@ -187,6 +187,12 @@ export default defineConfig(
     },
   },
   {
+    // .claude/rules/src-components.md — Component Internals: a derived value or an event handler a component's JSX uses is a named const above the return, so a JSX attribute value is never an inline function, call, conditional, object or array outside `className`, `style` and what reads a `.map()` or `.flatMap()` callback's variable. The generated routeTree is a `.ts` file and a test's own JSX is out of the rule's scope.
+    files: ['src/**/*.tsx'],
+    ignores: ['src/**/__tests__/**'],
+    rules: { 'local/no-inline-jsx-values': 'error' },
+  },
+  {
     // The non-UI layers, the platform module and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
     files: [
       'db/**/*.ts',
