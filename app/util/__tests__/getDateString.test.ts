@@ -2,10 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { getDateString } from '@util/getDateString';
 
 describe('getDateString', () => {
-  it('formats to en-US date pattern', () => {
-    const result = getDateString('2024-03-15T10:30:00');
-    // en-US: "Month Day, Year"
-    expect(result).toMatch(/[A-Za-z]+ \d{1,2}, \d{4}/);
+  it.each([
+    ['2024-03-15T10:30:00', 'March 15, 2024'],
+    ['2024-12-01T00:00:00', 'December 1, 2024'],
+  ])('formats %s as long month, day and year', (dateString, expected) => {
+    expect(getDateString(dateString)).toBe(expected);
   });
 
   it('fails gracefully', () => {
