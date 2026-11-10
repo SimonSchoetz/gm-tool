@@ -22,7 +22,6 @@ import {
 } from '@domain';
 import { ContentSectionTypeMenu } from './components/ContentSectionTypeMenu/ContentSectionTypeMenu';
 import { getIdAfterRemoval } from './helper/getIdAfterRemoval';
-import { getSectionNamePlaceholder } from './helper/getSectionNamePlaceholder';
 import './BaseEntityContentSectionPanel.css';
 
 export const BaseEntityContentSectionPanel = () => {
@@ -114,7 +113,7 @@ export const BaseEntityContentSectionPanel = () => {
     setTypeMenuAnchor(null);
   };
 
-  const namePlaceholder = getSectionNamePlaceholder(selected?.type ?? null);
+  const namePlaceholder = selected && contentSectionTypeLabel(selected.type);
 
   const leading = isNavAvailable ? (
     <>
@@ -150,7 +149,7 @@ export const BaseEntityContentSectionPanel = () => {
       key={selected.id}
       className='base-entity-content-section-panel-name-input'
       initValue={selected.name ?? ''}
-      placeholder={namePlaceholder}
+      placeholder={namePlaceholder ?? ''}
       onCommit={onNameCommit}
     />
   ) : (

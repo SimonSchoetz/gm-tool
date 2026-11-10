@@ -14,6 +14,11 @@ type Props = {
   children?: ReactNode;
 };
 
+const IMAGE_DIMENSIONS = {
+  width: 'var(--popup-content-section-height)',
+  height: 'var(--popup-content-section-height)',
+};
+
 export const EntityPopupBody: FCProps<Props> = ({
   imageId,
   imageTitle,
@@ -27,11 +32,6 @@ export const EntityPopupBody: FCProps<Props> = ({
     setViewerState('open');
   };
 
-  const imageDimensions = {
-    width: 'var(--popup-content-section-height)',
-    height: 'var(--popup-content-section-height)',
-  };
-
   return (
     <PanelBody className='entity-popup-body'>
       {imageId !== null && (
@@ -43,7 +43,7 @@ export const EntityPopupBody: FCProps<Props> = ({
           >
             <ImagePlaceholderFrame
               className='entity-popup-body--image'
-              dimensions={imageDimensions}
+              dimensions={IMAGE_DIMENSIONS}
             >
               <ImageById imageId={imageId} />
             </ImagePlaceholderFrame>

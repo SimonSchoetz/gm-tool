@@ -5,6 +5,14 @@ import { useParams } from '@tanstack/react-router';
 
 type SessionView = Session['active_view'];
 
+const VIEW_OPTIONS: [
+  { value: SessionView; label: string },
+  { value: SessionView; label: string },
+] = [
+  { value: 'prep', label: 'Prep' },
+  { value: 'ingame', label: 'In Game' },
+];
+
 export const ToggleSessionViewBtn = () => {
   const { sessionId, adventureId } = useParams({
     from: '/adventure/$adventureId/session/$sessionId',
@@ -13,21 +21,13 @@ export const ToggleSessionViewBtn = () => {
 
   if (!session) return;
 
-  const viewOptions: [
-    { value: SessionView; label: string },
-    { value: SessionView; label: string },
-  ] = [
-    { value: 'prep', label: 'Prep' },
-    { value: 'ingame', label: 'In Game' },
-  ];
-
   const onViewChange = (newView: SessionView) => {
     updateSession({ active_view: newView });
   };
 
   return (
     <LabeledToggleButton
-      options={viewOptions}
+      options={VIEW_OPTIONS}
       value={session.active_view}
       onChange={onViewChange}
     />

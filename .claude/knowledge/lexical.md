@@ -322,16 +322,23 @@ A listener that dereferences `event` unguarded throws on that dispatch.
 
 An Escape pressed in an editor with no open menu was not traced to the `document`.
 
-## `LexicalTypeaheadMenuPlugin` lists `onQueryChange` in its editor-update effect's dependencies, and `LexicalMenu` lists `onSelectOption` in `selectOptionAndCleanUp`'s dependencies, which its `KEY_ENTER_COMMAND` effect lists in turn
+## `LexicalTypeaheadMenuPlugin` lists `onQueryChange` in the dependencies of the effect that registers its editor-update listener
 
 **Verified at:** @lexical/react 0.52.0
-**Citation:** [implement_11: `app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx:262-275` — the effect that registers the update listener calling `onQueryChange` has `onQueryChange` in its dependency array; `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:369` — `onSelectOption` is in the `selectOptionAndCleanUp` `useCallback` dependencies, and :593-602 — `selectOptionAndCleanUp` is in the dependencies of the effect registering the key listeners]
+**Citation:** [implement_11: `app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx:262-275` — the effect that registers the update listener calling `onQueryChange` has `onQueryChange` in its dependency array]
 
-An `onQueryChange` or `onSelectOption` whose identity changes on every render therefore re-runs those effects, so `useCallback` on each of them has a named consumer.
+An `onQueryChange` whose identity changes on every render re-runs that effect, so `useCallback` on it has a named consumer.
+
+## `LexicalMenu` lists `onSelectOption` in `selectOptionAndCleanUp`'s dependencies, and its key-handler effect lists `selectOptionAndCleanUp`
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [implement_12: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:369` — `onSelectOption` is in the `selectOptionAndCleanUp` `useCallback` dependencies], [implement_13: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:593-602` — `selectOptionAndCleanUp` is in the dependencies of the effect registering the key listeners]
+
+An `onSelectOption` whose identity changes on every render therefore re-runs that effect, so `useCallback` on it has a named consumer.
 
 ## `LexicalMenu` calls `menuRenderFn` while rendering and lists it in no dependency array
 
 **Verified at:** @lexical/react 0.52.0
-**Citation:** [implement_12: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:614-619` — `menuRenderFnProp(anchorElementRef, listItemProps, …)` is returned from the render body; `grep -n menuRenderFn app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx` — found at :134,:159,:297 and :315,:327,:438,:442,:614,:615 only, none inside a dependency array]
+**Citation:** [implement_14: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:614-619` — `menuRenderFnProp(anchorElementRef, listItemProps, …)` is returned from the render body; `grep -n menuRenderFn app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx` — found at :134,:159,:297 and :315,:327,:438,:442,:614,:615 only, none inside a dependency array]
 
 A `menuRenderFn` that changes identity on every render re-runs no effect, so `useCallback` on it has no consumer.

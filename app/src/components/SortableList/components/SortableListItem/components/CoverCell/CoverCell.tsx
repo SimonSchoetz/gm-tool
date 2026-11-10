@@ -12,11 +12,11 @@ type Props = {
   entityType: ImagePlaceholderEntityType | null;
 };
 
-export const CoverCell: FCProps<Props> = ({ imageId, entityType }) => {
-  const dimensions = { width: 100, height: 100 };
+const COVER_DIMENSIONS = { width: 100, height: 100 };
 
+export const CoverCell: FCProps<Props> = ({ imageId, entityType }) => {
   return (
-    <ImagePlaceholderFrame className='cover-cell' dimensions={dimensions}>
+    <ImagePlaceholderFrame className='cover-cell' dimensions={COVER_DIMENSIONS}>
       {imageId ? (
         <ImageById imageId={imageId} />
       ) : (

@@ -253,18 +253,9 @@
   },
   {
     "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "const [viewerState, setViewerState] = useState<'open' | 'closed'>('closed');",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
-  },
-  {
-    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
     "mutator": "ObjectLiteral",
     "replacement": "{}",
-    "lineText": "const imageDimensions = {",
+    "lineText": "const IMAGE_DIMENSIONS = {",
     "occurrence": 0,
     "lines": 4,
     "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
@@ -286,6 +277,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
+  },
+  {
+    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const [viewerState, setViewerState] = useState<'open' | 'closed'>('closed');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
   },
   {
     "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
