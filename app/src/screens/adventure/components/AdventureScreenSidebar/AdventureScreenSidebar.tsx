@@ -3,10 +3,7 @@ import { Button } from '@/components/Button/Button';
 import { useAdventure } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { useRouter, useParams } from '@tanstack/react-router';
-import {
-  ADVENTURE_PREVIEW_HEIGHT,
-  PREVIEW_WIDTH,
-} from '../../../screens.constants';
+import { ADVENTURE_PREVIEW_DIMENSIONS } from '../../../screens.constants';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 
@@ -26,11 +23,6 @@ export const AdventureScreenSidebar = () => {
   const handleAdventureDelete = async () => {
     await deleteAdventure();
     void router.navigate({ to: '/adventures' });
-  };
-
-  const dimensions = {
-    width: PREVIEW_WIDTH,
-    height: ADVENTURE_PREVIEW_HEIGHT,
   };
 
   const onUpload = (filePath: string) => {
@@ -57,7 +49,7 @@ export const AdventureScreenSidebar = () => {
   return (
     <ScreensSidebar>
       <UploadImgBtn
-        dimensions={dimensions}
+        dimensions={ADVENTURE_PREVIEW_DIMENSIONS}
         image_id={adventure.image_id}
         uploadFn={onUpload}
         deleteFn={onImageDelete}

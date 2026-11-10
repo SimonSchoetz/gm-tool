@@ -4,6 +4,7 @@ import { useEncounterQueueItems } from '@/data-access-layer';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { useTypographicInput } from '@/hooks/useTypographicInput';
 import { FCProps } from '@/types/fcProps.type';
+import { blurOnEnter } from '@/util/blurOnEnter';
 import { useEncounterCombatantEntry } from '../../../../../../hooks/useEncounterCombatantEntry';
 import { resolveCustomName } from './helper/resolveCustomName';
 
@@ -35,10 +36,6 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
     setValue(shownName);
   };
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') event.currentTarget.blur();
-  };
-
   return (
     <Input
       ref={inputRef}
@@ -48,7 +45,7 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
       onChange={handleChange}
       onFocus={focusProps.onFocus}
       onBlur={onBlur}
-      onKeyDown={onKeyDown}
+      onKeyDown={blurOnEnter}
     />
   );
 };

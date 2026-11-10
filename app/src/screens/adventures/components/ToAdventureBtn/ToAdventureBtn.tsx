@@ -6,21 +6,13 @@ import { FCProps } from '@/types/fcProps.type';
 import { HoloImg } from '@/components/HoloImg';
 import { Adventure } from '@db/adventure';
 import { buildEntityPath } from '@domain';
-import {
-  PREVIEW_WIDTH,
-  ADVENTURE_PREVIEW_HEIGHT,
-} from '../../../screens.constants';
+import { ADVENTURE_PREVIEW_DIMENSIONS } from '../../../screens.constants';
 
 type Props = {
   adventure: Adventure;
 };
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
   const route = buildEntityPath('adventures', adventure.id, null);
-
-  const dimensions = {
-    width: PREVIEW_WIDTH,
-    height: ADVENTURE_PREVIEW_HEIGHT,
-  };
 
   return (
     <Link
@@ -31,7 +23,7 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
       <HoloImg
         image_id={adventure.image_id}
         title={adventure.name ?? ''}
-        dimensions={dimensions}
+        dimensions={ADVENTURE_PREVIEW_DIMENSIONS}
       />
     </Link>
   );

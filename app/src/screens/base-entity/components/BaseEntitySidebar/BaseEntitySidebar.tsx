@@ -8,7 +8,7 @@ import {
   type BaseEntityType,
 } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
-import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
+import { PREVIEW_DIMENSIONS } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
@@ -36,8 +36,6 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
     });
   };
 
-  const dimensions = { width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT };
-
   const onUpload = (filePath: string) => {
     updateBaseEntity({
       imgFilePath: filePath,
@@ -62,7 +60,7 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
   return (
     <ScreensSidebar>
       <UploadImgBtn
-        dimensions={dimensions}
+        dimensions={PREVIEW_DIMENSIONS}
         image_id={baseEntity.image_id}
         title=''
         uploadFn={onUpload}
