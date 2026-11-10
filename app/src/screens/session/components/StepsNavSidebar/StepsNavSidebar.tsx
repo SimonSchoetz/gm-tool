@@ -8,6 +8,7 @@ import { useSession } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
+import { getTooltipsButtonLabel } from './helper/getTooltipsButtonLabel';
 
 type Props = {
   areTooltipsVisible: boolean;
@@ -24,6 +25,8 @@ export const StepsNavSidebar: FCProps<Props> = ({
   });
   const { session } = useSession(sessionId, adventureId);
 
+  const tooltipsButtonLabel = getTooltipsButtonLabel(areTooltipsVisible);
+
   return (
     <ScreensSidebar className='steps-sidebar' {...props}>
       <ToggleSessionViewBtn />
@@ -32,10 +35,7 @@ export const StepsNavSidebar: FCProps<Props> = ({
 
       {session?.active_view === 'prep' && (
         <>
-          <Button
-            onClick={onToggleAllTooltips}
-            label={areTooltipsVisible ? 'Hide tooltips' : 'Show tooltips'}
-          />
+          <Button onClick={onToggleAllTooltips} label={tooltipsButtonLabel} />
           <ScreensDuplicateBtn entityType='sessions' />
 
           <DeleteSessionBtn />

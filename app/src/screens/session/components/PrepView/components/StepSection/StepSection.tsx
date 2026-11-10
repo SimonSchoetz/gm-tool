@@ -29,12 +29,14 @@ export const StepSection: FCProps<Props> = ({
 
   if (!step) return;
 
+  const elementId = stepSectionElementId(stepId);
+
+  const onContentChange = (content: string) => {
+    updateStep(step.id, { content });
+  };
+
   return (
-    <GlassPanel
-      intensity='bright'
-      id={stepSectionElementId(stepId)}
-      className='step-section'
-    >
+    <GlassPanel intensity='bright' id={elementId} className='step-section'>
       <div className='step-section--header-section'>
         <StepSectionHeader
           stepId={stepId}
@@ -54,9 +56,7 @@ export const StepSection: FCProps<Props> = ({
         textEditorId={`step-${step.id}`}
         value={step.content ?? ''}
         placeholder={findLazyDmStep(step.default_step_key)?.placeholder ?? ''}
-        onChange={(content) => {
-          updateStep(step.id, { content });
-        }}
+        onChange={onContentChange}
       />
     </GlassPanel>
   );

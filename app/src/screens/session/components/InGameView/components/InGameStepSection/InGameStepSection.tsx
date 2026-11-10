@@ -23,9 +23,19 @@ export const InGameStepSection: FCProps<Props> = ({ stepId }) => {
 
   const isCollapsed = step.collapsed === 1;
 
+  const elementId = stepSectionElementId(step.id);
+
+  const onHeaderClick = () => {
+    updateStep(step.id, { collapsed: isCollapsed ? 0 : 1 });
+  };
+
+  const onContentChange = (content: string) => {
+    updateStep(step.id, { content });
+  };
+
   return (
     <div
-      id={stepSectionElementId(step.id)}
+      id={elementId}
       className={cn(
         'in-game-step-section',
         isCollapsed && 'in-game-step-section--collapsed',
@@ -35,9 +45,7 @@ export const InGameStepSection: FCProps<Props> = ({ stepId }) => {
         role='button'
         aria-expanded={!isCollapsed}
         className='in-game-step-section-header'
-        onClick={() => {
-          updateStep(step.id, { collapsed: isCollapsed ? 0 : 1 });
-        }}
+        onClick={onHeaderClick}
       >
         <InGameStepSectionTitle stepId={step.id} />
         <ChevronRightIcon className='in-game-step-section-chevron' />
@@ -48,9 +56,7 @@ export const InGameStepSection: FCProps<Props> = ({ stepId }) => {
             textEditorId={`in-game-step-${step.id}`}
             value={step.content ?? ''}
             readOnly
-            onChange={(content) => {
-              updateStep(step.id, { content });
-            }}
+            onChange={onContentChange}
           />
         </div>
       </div>
