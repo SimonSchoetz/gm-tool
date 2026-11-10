@@ -9,6 +9,10 @@ import { buildBaseEntity } from './support/encounterQueueFixtures';
 import { buildEncounter } from './support/encounterFixtures';
 
 const getAdventure = vi.hoisted(() => vi.fn<typeof adventureDb.get>());
+const getAllAdventureRows = vi.hoisted(() =>
+  vi.fn<typeof adventureDb.getAll>(),
+);
+const createAdventureRow = vi.hoisted(() => vi.fn<typeof adventureDb.create>());
 const removeAdventure = vi.hoisted(() => vi.fn<typeof adventureDb.remove>());
 const updateAdventureRow = vi.hoisted(() => vi.fn<typeof adventureDb.update>());
 const getAllBaseEntities = vi.hoisted(() =>
@@ -21,6 +25,8 @@ const replaceImage = vi.hoisted(() => vi.fn<typeof imageDb.replace>());
 
 vi.mock('@db/adventure', () => ({
   get: getAdventure,
+  getAll: getAllAdventureRows,
+  create: createAdventureRow,
   remove: removeAdventure,
   update: updateAdventureRow,
 }));
@@ -171,5 +177,157 @@ describe('updateAdventure', () => {
     expect(updateAdventureRow).toHaveBeenCalledWith(ADVENTURE_ID, {
       image_id: 'created-image',
     });
+  });
+});
+
+describe('getAllAdventures', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    getAllAdventureRows.mockReset().mockResolvedValue([]);
+  });
+
+  it('returns every adventure', async () => {
+    const { getAllAdventures } = await import('../adventureService');
+    const adventures = [
+      buildAdventure({ id: 'a' }),
+      buildAdventure({ id: 'b' }),
+    ];
+    getAllAdventureRows.mockResolvedValue(adventures);
+
+    await expect(getAllAdventures()).resolves.toEqual(adventures);
+  });
+
+  it('rejects as AdventureLoadError when the load fails', async () => {
+    const { getAllAdventures } = await import('../adventureService');
+    getAllAdventureRows.mockRejectedValue(new Error('disk'));
+
+    await expect(getAllAdventures()).rejects.toMatchObject({
+      name: 'AdventureLoadError',
+    });
+  });
+});
+
+describe('getAdventureById', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    getAdventure.mockReset().mockResolvedValue(null);
+  });
+
+  it('returns the adventure', async () => {
+    const { getAdventureById } = await import('../adventureService');
+    const adventure = buildAdventure({ id: 'found' });
+    getAdventure.mockResolvedValue(adventure);
+
+    await expect(getAdventureById('found')).resolves.toEqual(adventure);
+    expect(getAdventure).toHaveBeenCalledWith('found');
+  });
+
+  it('rejects as AdventureNotFoundError when there is no such adventure', async () => {
+    const { getAdventureById } = await import('../adventureService');
+
+    await expect(getAdventureById('missing')).rejects.toMatchObject({
+      name: 'AdventureNotFoundError',
+    });
+  });
+});
+
+describe('createAdventure', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    createAdventureRow.mockReset().mockResolvedValue('new-adventure');
+  });
+
+  it('resolves the id of the created adventure', async () => {
+    const { createAdventure } = await import('../adventureService');
+
+    await expect(createAdventure()).resolves.toBe('new-adventure');
+  });
+
+  it('rejects as AdventureCreateError when the creation fails', async () => {
+    const { createAdventure } = await import('../adventureService');
+    createAdventureRow.mockRejectedValue(new Error('disk'));
+
+    await expect(createAdventure()).rejects.toMatchObject({
+      name: 'AdventureCreateError',
+    });
+  });
+});
+
+describe('updateAdventure without a chosen file', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    updateAdventureRow.mockReset().mockResolvedValue();
+    createImage.mockReset().mockResolvedValue('created-image');
+    replaceImage.mockReset().mockResolvedValue('replacement-image');
+  });
+
+  it('writes the data unchanged, keeping the existing image_id and touching no image', async () => {
+    const { updateAdventure } = await import('../adventureService');
+
+    await updateAdventure(ADVENTURE_ID, { name: 'Renamed', image_id: 'kept' });
+
+    expect(updateAdventureRow).toHaveBeenCalledWith(ADVENTURE_ID, {
+      name: 'Renamed',
+      image_id: 'kept',
+    });
+    expect(createImage).not.toHaveBeenCalled();
+    expect(replaceImage).not.toHaveBeenCalled();
+  });
+
+  it('rejects as AdventureUpdateError and writes nothing when the image save fails', async () => {
+    const { updateAdventure } = await import('../adventureService');
+    createImage.mockRejectedValue(new Error('disk'));
+
+    await expect(
+      updateAdventure(ADVENTURE_ID, { imgFilePath: '/pick/map.png' }),
+    ).rejects.toMatchObject({ name: 'AdventureUpdateError' });
+
+    expect(updateAdventureRow).not.toHaveBeenCalled();
+  });
+});
+
+describe('removeAdventureImage', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    getAdventure
+      .mockReset()
+      .mockResolvedValue(buildAdventure({ image_id: 'adventure-cover' }));
+    removeImage.mockReset().mockResolvedValue();
+    updateAdventureRow.mockReset().mockResolvedValue();
+  });
+
+  it('deletes the cover image, then clears image_id', async () => {
+    const { removeAdventureImage } = await import('../adventureService');
+
+    await removeAdventureImage(ADVENTURE_ID);
+
+    expect(removeImage).toHaveBeenCalledWith('adventure-cover');
+    expect(updateAdventureRow).toHaveBeenCalledWith(ADVENTURE_ID, {
+      image_id: null,
+    });
+    expect(removeImage.mock.invocationCallOrder[0]).toBeLessThan(
+      updateAdventureRow.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('deletes nothing and writes nothing when the adventure has no cover', async () => {
+    const { removeAdventureImage } = await import('../adventureService');
+    getAdventure.mockResolvedValue(buildAdventure({ image_id: null }));
+
+    await removeAdventureImage(ADVENTURE_ID);
+
+    expect(removeImage).not.toHaveBeenCalled();
+    expect(updateAdventureRow).not.toHaveBeenCalled();
+  });
+
+  it('rejects as AdventureUpdateError and keeps image_id when the image delete fails', async () => {
+    const { removeAdventureImage } = await import('../adventureService');
+    removeImage.mockRejectedValue(new Error('disk locked'));
+
+    await expect(removeAdventureImage(ADVENTURE_ID)).rejects.toMatchObject({
+      name: 'AdventureUpdateError',
+    });
+
+    expect(updateAdventureRow).not.toHaveBeenCalled();
   });
 });

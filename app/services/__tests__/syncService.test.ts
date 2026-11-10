@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
+  SYNC_PROTOCOL_VERSION,
+  buildFileChunkMessage,
   buildFileRequestMessage,
   buildSyncBatchMessage,
+  buildSyncHelloMessage,
+  buildSyncRequestMessage,
   type SyncChange,
 } from '@domain';
 import type * as syncDb from '@db/_sync';
@@ -13,6 +17,14 @@ const applyDelete = vi.hoisted(() => vi.fn<typeof syncDb.applyDelete>());
 const setPeerWatermark = vi.hoisted(() =>
   vi.fn<typeof syncDb.setPeerWatermark>(),
 );
+const getPeerWatermark = vi.hoisted(() =>
+  vi.fn<typeof syncDb.getPeerWatermark>(),
+);
+const getChangesSince = vi.hoisted(() =>
+  vi.fn<typeof syncDb.getChangesSince>(),
+);
+const getRowById = vi.hoisted(() => vi.fn<typeof syncDb.getRowById>());
+const getMaxSeq = vi.hoisted(() => vi.fn<typeof syncDb.getMaxSeq>());
 const invoke = vi.hoisted(() =>
   vi.fn<
     (command: string, args?: Record<string, unknown>) => Promise<unknown>
@@ -29,6 +41,10 @@ vi.mock('@db/_sync', () => ({
   applyUpsert,
   applyDelete,
   setPeerWatermark,
+  getPeerWatermark,
+  getChangesSince,
+  getRowById,
+  getMaxSeq,
 }));
 vi.mock('@db/_migrations', () => ({ migrationHead: 'head' }));
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
@@ -349,5 +365,674 @@ describe('handleSyncMessage with a sync-batch message', () => {
       'start adventure-b',
       'end adventure-b',
     ]);
+  });
+});
+
+// Every module-level cursor and file buffer of the service lives in the module instance, so each test starts from a fresh import.
+const armDefaults = () => {
+  vi.resetModules();
+  getDevice.mockReset().mockResolvedValue({ id: OWN_DEVICE_ID, name: null });
+  applyUpsert.mockReset().mockResolvedValue('applied');
+  applyDelete.mockReset().mockResolvedValue('applied');
+  setPeerWatermark.mockReset().mockResolvedValue(undefined);
+  getPeerWatermark.mockReset().mockResolvedValue(0);
+  getChangesSince.mockReset().mockResolvedValue([]);
+  getRowById.mockReset().mockResolvedValue(null);
+  getMaxSeq.mockReset().mockResolvedValue(0);
+  invoke.mockReset().mockResolvedValue(undefined);
+};
+
+type HandleSyncMessage = (
+  endpointId: string,
+  rawEnvelope: string,
+) => Promise<unknown>;
+
+// The pushes a sync-request or pushNewChanges starts run on the module's queue; an empty batch from another peer resolves only after everything queued before it.
+const settleQueue = (handleSyncMessage: HandleSyncMessage) =>
+  handleSyncMessage('settle-peer', rawBatch([], 0));
+
+const MIGRATION_HEAD = 'head';
+
+const rawHello = (overrides: {
+  syncProtocolVersion?: number;
+  migrationHead?: string;
+  isReply?: boolean;
+}): string =>
+  JSON.stringify({
+    ...buildSyncHelloMessage(MIGRATION_HEAD, false),
+    payload: {
+      syncProtocolVersion: SYNC_PROTOCOL_VERSION,
+      migrationHead: MIGRATION_HEAD,
+      ...overrides,
+    },
+  });
+
+const rawRequest = (sinceSeq: number): string =>
+  JSON.stringify(buildSyncRequestMessage(sinceSeq));
+
+const changeRecord = (seq: number, deleted = 0, tableName = 'adventures') => ({
+  table_name: tableName,
+  row_id: `row-${String(seq)}`,
+  seq,
+  deleted,
+  deleted_at: deleted === 1 ? DELETED_AT : null,
+});
+
+describe('sendSyncHello', () => {
+  beforeEach(armDefaults);
+
+  it("sends this build's hello, not marked as a reply, to the peer", async () => {
+    const { sendSyncHello } = await import('../syncService');
+
+    await sendSyncHello(PEER_ID);
+
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(sentMessages()).toEqual([
+      {
+        endpointId: PEER_ID,
+        message: buildSyncHelloMessage(MIGRATION_HEAD, false),
+      },
+    ]);
+  });
+
+  it('rejects as SyncHandshakeError when the send fails', async () => {
+    const { sendSyncHello } = await import('../syncService');
+    invoke.mockRejectedValue(new Error('peer unreachable'));
+
+    await expect(sendSyncHello(PEER_ID)).rejects.toMatchObject({
+      name: 'SyncHandshakeError',
+    });
+  });
+});
+
+describe('handleSyncMessage with an envelope it cannot use', () => {
+  beforeEach(armDefaults);
+
+  it.each([
+    ['text that is not JSON', 'not json'],
+    [
+      'JSON of an unknown message type',
+      JSON.stringify({ v: 1, type: 'other' }),
+    ],
+    [
+      'a file-request with an image id that is not a safe id',
+      JSON.stringify(buildFileRequestMessage('../escape', 'png')),
+    ],
+  ])('ignores %s and does nothing', async (_name, raw) => {
+    const { handleSyncMessage } = await import('../syncService');
+
+    await expect(handleSyncMessage(PEER_ID, raw)).resolves.toEqual({
+      kind: 'ignored',
+    });
+
+    expect(invoke).not.toHaveBeenCalled();
+  });
+});
+
+describe('handleSyncMessage with a sync-hello message', () => {
+  beforeEach(armDefaults);
+
+  it('answers a compatible initial hello with a sync-request from the stored watermark, then with a reply hello', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getPeerWatermark.mockResolvedValue(42);
+
+    await expect(
+      handleSyncMessage(PEER_ID, rawHello({ isReply: false })),
+    ).resolves.toEqual({ kind: 'compat', compat: 'compatible' });
+
+    expect(getPeerWatermark).toHaveBeenCalledWith(PEER_ID);
+    expect(sentMessages()).toEqual([
+      { endpointId: PEER_ID, message: buildSyncRequestMessage(42) },
+      {
+        endpointId: PEER_ID,
+        message: buildSyncHelloMessage(MIGRATION_HEAD, true),
+      },
+    ]);
+  });
+
+  it('treats a hello without isReply as an initial one and replies to it', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+
+    await handleSyncMessage(PEER_ID, rawHello({}));
+
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncRequestMessage(0),
+      buildSyncHelloMessage(MIGRATION_HEAD, true),
+    ]);
+  });
+
+  it('answers a compatible reply hello with the sync-request only, so the handshake does not loop', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+
+    await handleSyncMessage(PEER_ID, rawHello({ isReply: true }));
+
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncRequestMessage(0),
+    ]);
+  });
+
+  it.each([
+    [
+      'another protocol version',
+      { syncProtocolVersion: SYNC_PROTOCOL_VERSION + 1 },
+    ],
+    ['another migration head', { migrationHead: 'other-head' }],
+    [
+      'another protocol version and another migration head',
+      {
+        syncProtocolVersion: SYNC_PROTOCOL_VERSION + 1,
+        migrationHead: 'other-head',
+      },
+    ],
+  ])(
+    'reports a hello with %s as incompatible and sends nothing',
+    async (_name, overrides) => {
+      const { handleSyncMessage } = await import('../syncService');
+
+      await expect(
+        handleSyncMessage(PEER_ID, rawHello(overrides)),
+      ).resolves.toEqual({ kind: 'compat', compat: 'incompatible' });
+
+      expect(getPeerWatermark).not.toHaveBeenCalled();
+      expect(invoke).not.toHaveBeenCalled();
+    },
+  );
+
+  it('still reports compatible and sends no reply hello when the sync-request cannot be sent', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    invoke.mockRejectedValue(new Error('peer unreachable'));
+
+    await expect(
+      handleSyncMessage(PEER_ID, rawHello({ isReply: false })),
+    ).resolves.toEqual({ kind: 'compat', compat: 'compatible' });
+
+    expect(invoke).toHaveBeenCalledTimes(1);
+  });
+
+  it('still reports compatible and sends nothing when the watermark cannot be read', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getPeerWatermark.mockRejectedValue(new Error('disk'));
+
+    await expect(handleSyncMessage(PEER_ID, rawHello({}))).resolves.toEqual({
+      kind: 'compat',
+      compat: 'compatible',
+    });
+
+    expect(invoke).not.toHaveBeenCalled();
+  });
+});
+
+describe('handleSyncMessage with a sync-request message and pushNewChanges', () => {
+  beforeEach(armDefaults);
+
+  it('confirms the peer compatible and pushes the changes after sinceSeq as one batch, live rows read at push time and tombstones as they are', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const row = { id: 'row-6', updated_at: UPDATED_AT };
+    getChangesSince.mockResolvedValueOnce([
+      changeRecord(6),
+      changeRecord(8, 1),
+    ]);
+    getRowById.mockResolvedValue(row);
+
+    await expect(handleSyncMessage(PEER_ID, rawRequest(5))).resolves.toEqual({
+      kind: 'compat',
+      compat: 'compatible',
+    });
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince.mock.calls).toEqual([[5, 200]]);
+    expect(getRowById).toHaveBeenCalledTimes(1);
+    expect(getRowById).toHaveBeenCalledWith('adventures', 'row-6');
+    expect(sentMessages()).toEqual([
+      {
+        endpointId: PEER_ID,
+        message: buildSyncBatchMessage(
+          [
+            {
+              tableName: 'adventures',
+              rowId: 'row-6',
+              seq: 6,
+              deleted: false,
+              deletedAt: null,
+              row,
+            },
+            {
+              tableName: 'adventures',
+              rowId: 'row-8',
+              seq: 8,
+              deleted: true,
+              deletedAt: DELETED_AT,
+              row: null,
+            },
+          ],
+          8,
+        ),
+      },
+    ]);
+  });
+
+  it('leaves out a change whose row was deleted since it was read and still reports the batch up to the last seq', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getChangesSince.mockResolvedValueOnce([changeRecord(1), changeRecord(2)]);
+    getRowById.mockImplementation((_table, rowId) =>
+      Promise.resolve(rowId === 'row-2' ? { id: 'row-2' } : null),
+    );
+
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+    await settleQueue(handleSyncMessage);
+
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncBatchMessage(
+        [
+          {
+            tableName: 'adventures',
+            rowId: 'row-2',
+            seq: 2,
+            deleted: false,
+            deletedAt: null,
+            row: { id: 'row-2' },
+          },
+        ],
+        2,
+      ),
+    ]);
+  });
+
+  it('sends nothing when there are no changes after sinceSeq', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+
+    await handleSyncMessage(PEER_ID, rawRequest(3));
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince.mock.calls).toEqual([[3, 200]]);
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it('asks for the next batch from the last seq while a batch comes back full, and stops at the first short one', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const fullBatch = Array.from({ length: 200 }, (_, index) =>
+      changeRecord(index + 1, 1),
+    );
+    getChangesSince
+      .mockResolvedValueOnce(fullBatch)
+      .mockResolvedValueOnce([changeRecord(201, 1)]);
+
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince.mock.calls).toEqual([
+      [0, 200],
+      [200, 200],
+    ]);
+    expect(
+      sentMessages().map(
+        ({ message }) =>
+          (message as { payload: { maxSeq: number } }).payload.maxSeq,
+      ),
+    ).toEqual([200, 201]);
+  });
+
+  it('does not ask again after a batch one change short of full', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getChangesSince.mockResolvedValueOnce(
+      Array.from({ length: 199 }, (_, index) => changeRecord(index + 1, 1)),
+    );
+
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince).toHaveBeenCalledTimes(1);
+    expect(sentMessages()).toHaveLength(1);
+  });
+
+  it('keeps the peer behind when a batch cannot be sent, so the next push starts again from the same cursor', async () => {
+    const { handleSyncMessage, pushNewChanges } =
+      await import('../syncService');
+    getChangesSince.mockResolvedValue([changeRecord(7, 1)]);
+    invoke.mockRejectedValue(new Error('peer dropped'));
+    getMaxSeq.mockResolvedValue(7);
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+    await settleQueue(handleSyncMessage);
+    getChangesSince.mockClear();
+
+    await pushNewChanges();
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince.mock.calls).toEqual([[0, 200]]);
+  });
+
+  it('records the sent seq as the peer cursor, so the next push does not send the batch again', async () => {
+    const { handleSyncMessage, pushNewChanges } =
+      await import('../syncService');
+    getChangesSince.mockResolvedValueOnce([changeRecord(7, 1)]);
+    getMaxSeq.mockResolvedValue(7);
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+    await settleQueue(handleSyncMessage);
+    getChangesSince.mockClear();
+
+    await pushNewChanges();
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince).not.toHaveBeenCalled();
+  });
+
+  it('pushes only to the peers whose cursor is behind the newest seq', async () => {
+    const { handleSyncMessage, pushNewChanges } =
+      await import('../syncService');
+    await handleSyncMessage('peer-behind', rawRequest(3));
+    await handleSyncMessage('peer-level', rawRequest(5));
+    await handleSyncMessage('peer-ahead', rawRequest(9));
+    await settleQueue(handleSyncMessage);
+    getChangesSince.mockClear();
+    getMaxSeq.mockResolvedValue(5);
+
+    await pushNewChanges();
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince.mock.calls).toEqual([[3, 200]]);
+  });
+
+  it('rejects pushNewChanges as SyncPushError when the newest seq cannot be read', async () => {
+    const { pushNewChanges } = await import('../syncService');
+    getMaxSeq.mockRejectedValue(new Error('disk'));
+
+    await expect(pushNewChanges()).rejects.toMatchObject({
+      name: 'SyncPushError',
+    });
+  });
+
+  it('keeps applying batches after a push failed', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getChangesSince.mockRejectedValueOnce(new Error('disk'));
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+
+    await expect(
+      handleSyncMessage(PEER_ID, rawBatch([upsert('adventures', 'a', 1)], 1)),
+    ).resolves.toEqual({ kind: 'applied' });
+
+    expect(applyUpsert).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('resetPeerSession', () => {
+  beforeEach(armDefaults);
+
+  it('forgets the peer cursor, so pushNewChanges no longer pushes to it, and keeps the cursors of other peers', async () => {
+    const { handleSyncMessage, pushNewChanges, resetPeerSession } =
+      await import('../syncService');
+    await handleSyncMessage('peer-gone', rawRequest(1));
+    await handleSyncMessage('peer-kept', rawRequest(2));
+    await settleQueue(handleSyncMessage);
+    getChangesSince.mockClear();
+    getMaxSeq.mockResolvedValue(10);
+
+    resetPeerSession('peer-gone');
+    await pushNewChanges();
+    await settleQueue(handleSyncMessage);
+
+    expect(getChangesSince.mock.calls).toEqual([[2, 200]]);
+  });
+
+  it('drops the file chunks received so far, so a later transfer saves only its own chunks', async () => {
+    const { handleSyncMessage, resetPeerSession } =
+      await import('../syncService');
+    await handleSyncMessage(
+      PEER_ID,
+      JSON.stringify(
+        buildFileChunkMessage('image-a', 'png', 0, 'STALE', false),
+      ),
+    );
+
+    resetPeerSession(PEER_ID);
+    await handleSyncMessage(
+      PEER_ID,
+      JSON.stringify(buildFileChunkMessage('image-a', 'png', 0, 'FRESH', true)),
+    );
+
+    expect(invoke).toHaveBeenCalledWith('save_image_bytes', {
+      id: 'image-a',
+      extension: 'png',
+      dataBase64: 'FRESH',
+    });
+  });
+});
+
+describe('handleSyncMessage with a file-request message', () => {
+  beforeEach(armDefaults);
+
+  const rawFileRequest = JSON.stringify(
+    buildFileRequestMessage('image-a', 'png'),
+  );
+
+  const stubFile = (base64: string) =>
+    invoke.mockImplementation((command) =>
+      command === 'read_image_bytes'
+        ? Promise.resolve(base64)
+        : Promise.resolve(undefined),
+    );
+
+  const sentChunks = () =>
+    sentMessages().map(
+      ({ message }) =>
+        (
+          message as {
+            payload: { seqNo: number; dataBase64: string; last: boolean };
+          }
+        ).payload,
+    );
+
+  it('reads the image file by id and extension and sends it as one last chunk when it is small', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    stubFile('SMALL');
+
+    await expect(handleSyncMessage(PEER_ID, rawFileRequest)).resolves.toEqual({
+      kind: 'none',
+    });
+
+    expect(invoke).toHaveBeenCalledWith('read_image_bytes', {
+      id: 'image-a',
+      extension: 'png',
+    });
+    expect(sentMessages()).toEqual([
+      {
+        endpointId: PEER_ID,
+        message: buildFileChunkMessage('image-a', 'png', 0, 'SMALL', true),
+      },
+    ]);
+  });
+
+  it('sends an empty file as one empty last chunk', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    stubFile('');
+
+    await handleSyncMessage(PEER_ID, rawFileRequest);
+
+    expect(sentChunks()).toEqual([
+      {
+        imageId: 'image-a',
+        extension: 'png',
+        seqNo: 0,
+        dataBase64: '',
+        last: true,
+      },
+    ]);
+  });
+
+  // The largest multiple of three source bytes that fits in 256 KiB, so every chunk but the last decodes without base64 padding.
+  const CHUNK_SOURCE_BYTES = 256 * 1024 - 1;
+
+  it('splits a large file into numbered chunks of the largest padding-free size within 256 KiB that join back to the file, only the final one marked last', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const source = Uint8Array.from(
+      { length: 600_000 },
+      (_, index) => index % 251,
+    );
+    stubFile(Buffer.from(source).toString('base64'));
+
+    await handleSyncMessage(PEER_ID, rawFileRequest);
+
+    const chunks = sentChunks();
+    expect(chunks.map((chunk) => chunk.seqNo)).toEqual([0, 1, 2]);
+    expect(chunks.map((chunk) => chunk.last)).toEqual([false, false, true]);
+    expect(
+      chunks.map((chunk) => Buffer.from(chunk.dataBase64, 'base64').length),
+    ).toEqual([
+      CHUNK_SOURCE_BYTES,
+      CHUNK_SOURCE_BYTES,
+      600_000 - 2 * CHUNK_SOURCE_BYTES,
+    ]);
+    expect(
+      Buffer.concat(
+        chunks.map((chunk) => Buffer.from(chunk.dataBase64, 'base64')),
+      ),
+    ).toEqual(Buffer.from(source));
+  });
+
+  it('sends a file of exactly one chunk as a single last chunk, with no empty chunk after it', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    stubFile(Buffer.alloc(CHUNK_SOURCE_BYTES, 7).toString('base64'));
+
+    await handleSyncMessage(PEER_ID, rawFileRequest);
+
+    expect(sentChunks().map((chunk) => chunk.last)).toEqual([true]);
+  });
+
+  it('sends nothing when the file cannot be read', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    invoke.mockRejectedValue(new Error('no such file'));
+
+    await expect(handleSyncMessage(PEER_ID, rawFileRequest)).resolves.toEqual({
+      kind: 'none',
+    });
+
+    expect(invoke).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops after the first chunk that cannot be sent', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    invoke.mockImplementation((command) =>
+      command === 'read_image_bytes'
+        ? Promise.resolve(Buffer.alloc(600_000).toString('base64'))
+        : Promise.reject(new Error('peer dropped')),
+    );
+
+    await expect(handleSyncMessage(PEER_ID, rawFileRequest)).resolves.toEqual({
+      kind: 'none',
+    });
+
+    expect(sentMessages()).toHaveLength(1);
+  });
+});
+
+describe('handleSyncMessage with a file-chunk message', () => {
+  beforeEach(armDefaults);
+
+  const rawChunk = (
+    imageId: string,
+    extension: string,
+    seqNo: number,
+    data: string,
+    last: boolean,
+  ) =>
+    JSON.stringify(
+      buildFileChunkMessage(imageId, extension, seqNo, data, last),
+    );
+
+  it("saves nothing until the last chunk, then saves the chunks in the order received under the first chunk's extension", async () => {
+    const { handleSyncMessage } = await import('../syncService');
+
+    await expect(
+      handleSyncMessage(PEER_ID, rawChunk('image-a', 'png', 0, 'AAA', false)),
+    ).resolves.toEqual({ kind: 'none' });
+    await handleSyncMessage(
+      PEER_ID,
+      rawChunk('image-a', 'jpg', 1, 'BBB', false),
+    );
+    expect(invoke).not.toHaveBeenCalled();
+
+    await handleSyncMessage(
+      PEER_ID,
+      rawChunk('image-a', 'jpg', 2, 'CCC', true),
+    );
+
+    expect(invoke.mock.calls).toEqual([
+      [
+        'save_image_bytes',
+        { id: 'image-a', extension: 'png', dataBase64: 'AAABBBCCC' },
+      ],
+    ]);
+  });
+
+  it('keeps the chunks of two images apart', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+
+    await handleSyncMessage(
+      PEER_ID,
+      rawChunk('image-a', 'png', 0, 'A1', false),
+    );
+    await handleSyncMessage(
+      PEER_ID,
+      rawChunk('image-b', 'png', 0, 'B1', false),
+    );
+    await handleSyncMessage(PEER_ID, rawChunk('image-a', 'png', 1, 'A2', true));
+    await handleSyncMessage(PEER_ID, rawChunk('image-b', 'png', 1, 'B2', true));
+
+    expect(invoke.mock.calls.map(([, args]) => args)).toEqual([
+      { id: 'image-a', extension: 'png', dataBase64: 'A1A2' },
+      { id: 'image-b', extension: 'png', dataBase64: 'B1B2' },
+    ]);
+  });
+
+  it('starts a second transfer of the same image from nothing once the first was saved', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    await handleSyncMessage(
+      PEER_ID,
+      rawChunk('image-a', 'png', 0, 'ONE', true),
+    );
+    invoke.mockClear();
+
+    await handleSyncMessage(
+      PEER_ID,
+      rawChunk('image-a', 'png', 0, 'TWO', true),
+    );
+
+    expect(invoke.mock.calls).toEqual([
+      [
+        'save_image_bytes',
+        { id: 'image-a', extension: 'png', dataBase64: 'TWO' },
+      ],
+    ]);
+  });
+
+  it('still resolves when the image cannot be saved', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    invoke.mockRejectedValue(new Error('disk full'));
+
+    await expect(
+      handleSyncMessage(PEER_ID, rawChunk('image-a', 'png', 0, 'AAA', true)),
+    ).resolves.toEqual({ kind: 'none' });
+  });
+});
+
+describe('handleSyncMessage with a sync-batch from a peer whose id equals this device id', () => {
+  beforeEach(armDefaults);
+
+  it('passes force false, since only a peer id greater than this device id forces', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const change = upsert('adventures', 'adventure-a', 1);
+
+    await handleSyncMessage(OWN_DEVICE_ID, rawBatch([change], 1));
+
+    expect(applyUpsert).toHaveBeenCalledWith('adventures', change.row, false);
+  });
+
+  it('passes force true for a peer id that sorts below the text a missing identity could be replaced by', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    getDevice.mockResolvedValue(null);
+    const change = upsert('adventures', 'adventure-a', 1);
+
+    await handleSyncMessage('A', rawBatch([change], 1));
+
+    expect(applyUpsert).toHaveBeenCalledWith('adventures', change.row, true);
   });
 });
