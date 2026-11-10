@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as baseEntityService from '@services/baseEntityService';
 import type * as encounterService from '@services/encounterService';
 import type * as logEntryService from '@services/encounterLogEntryService';
+import type { EncounterQueueItem } from '@db/encounter-queue-item';
 import type * as queueService from '@services/encounterQueueService';
 import { buildEncounter } from '@/__tests__/support/buildEncounter';
 import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
@@ -117,6 +118,46 @@ describe('EncounterQueue', () => {
       'item-3',
       'item-5',
     ]);
+  });
+
+  it('shows the loading icon and no entry until the queue has loaded', async () => {
+    let resolveQueue: (items: EncounterQueueItem[]) => void = () => undefined;
+    getQueueItems.mockReturnValue(
+      new Promise<EncounterQueueItem[]>((resolve) => {
+        resolveQueue = resolve;
+      }),
+    );
+    render(<EncounterQueue selectedIds={[]} onSelect={vi.fn()} />, {
+      wrapper: TanstackQueryClientProvider,
+    });
+
+    expect(screen.getByRole('img', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.queryByTitle('Goblin')).toBeNull();
+
+    await act(async () => {
+      resolveQueue(
+        COMBATANTS.map(({ id, name }, index) =>
+          buildEncounterQueueItem({ id, name, sort_order: index }),
+        ),
+      );
+      await Promise.resolve();
+    });
+
+    expect(await screen.findByTitle('Goblin')).toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Loading' })).toBeNull();
+  });
+
+  it('saves nothing when an entry is released where it was picked up', async () => {
+    const user = userEvent.setup();
+    await renderQueue([]);
+
+    const handle = await holdHandle(user, 'Goblin');
+    await user.pointer({ keys: '[/MouseLeft]', target: handle });
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20);
+    });
+
+    expect(reorderQueueItems).not.toHaveBeenCalled();
   });
 
   it('moves only an unselected entry when it is dragged and never reports a selection', async () => {

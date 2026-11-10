@@ -187,4 +187,33 @@ describe('InGameStepSection', () => {
     expect(stepId).toBe(STEP.id);
     expect(data.content).toContain('"checked":true');
   });
+
+  it('shows the step it is given by id among the steps of the session', async () => {
+    const other: SessionStep = {
+      ...STEP,
+      id: 'step-0',
+      name: 'Player Characters',
+    };
+    getStepsBySessionId.mockResolvedValue([other, STEP]);
+    await queryClient.query(sessionStepListQueryOptions(SESSION_ID));
+
+    render(<InGameStepSection stepId={STEP.id} />, {
+      wrapper: TanstackQueryClientProvider,
+    });
+
+    expect(stepHeader()).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Player Characters' }),
+    ).toBeNull();
+  });
+
+  it('shows nothing for a step that is not among the steps of the session', async () => {
+    await queryClient.query(sessionStepListQueryOptions(SESSION_ID));
+
+    render(<InGameStepSection stepId='no-such-step' />, {
+      wrapper: TanstackQueryClientProvider,
+    });
+
+    expect(screen.queryByRole('button')).toBeNull();
+  });
 });

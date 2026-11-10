@@ -1782,6 +1782,15 @@
     "reason": "the initial text matters only to a first change event on a field that already holds text when the hook mounts, which the hook does not read; whether a first keystroke there should substitute is undecided and reported to the lead, so no test pins it"
   },
   {
+    "file": "src/screens/encounter/components/EncounterActions/EncounterActions.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "buttonStyle={'danger'}",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
     "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
@@ -1798,6 +1807,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "useSensor(KeyboardSensor, {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the keyboard coordinate getter moves a dragged entry by the measured positions of the entries, which jsdom does not compute"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
@@ -2122,6 +2140,33 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "a content string that is not an editor state parses to no state, exactly as the empty string does (parseSafeEditorState), so the change shows in no text or saved value"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "isChecked: step.checked === 1,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checked state only selects the checked class of the nav item, so no test can observe it without asserting a class name; class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "isChecked: step.checked === 1,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checked state only selects the checked class of the nav item, so no test can observe it without asserting a class name; class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "EqualityOperator",
+    "replacement": "step.checked !== 1",
+    "lineText": "isChecked: step.checked === 1,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checked state only selects the checked class of the nav item, so no test can observe it without asserting a class name; class names only; jsdom computes no style and component tests may not assert a class name"
   },
   {
     "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
