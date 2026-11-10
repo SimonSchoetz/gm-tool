@@ -21,12 +21,9 @@ export const EncounterDuplicateBtn: FCProps<Props> = ({ label }) => {
     });
   };
 
-  return (
-    <Button
-      label={label}
-      onClick={() => {
-        void handleDuplicate();
-      }}
-    />
-  );
+  const onClick = () => {
+    void handleDuplicate();
+  };
+
+  return <Button label={label} onClick={onClick} />;
 };

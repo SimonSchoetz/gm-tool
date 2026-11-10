@@ -29,15 +29,21 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
     );
   }
 
+  const onNameCommit = (name: string) => {
+    updateBaseEntity({ name });
+  };
+
+  const onDescriptionChange = (description: string) => {
+    updateBaseEntity({ description });
+  };
+
   return (
     <ScreensTextEditorLayout
       header={
         <ScreensNameInput
           placeholder={`${label} Name`}
           initValue={baseEntity.name ?? ''}
-          onCommit={(name) => {
-            updateBaseEntity({ name });
-          }}
+          onCommit={onNameCommit}
         />
       }
       sideBar={<BaseEntitySidebar entityType={entityType} />}
@@ -49,9 +55,7 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
         <TextEditor
           value={baseEntity.description ?? ''}
           textEditorId={`${entityType}_${baseEntity.id}_description`}
-          onChange={(description) => {
-            updateBaseEntity({ description });
-          }}
+          onChange={onDescriptionChange}
         />
       }
     />

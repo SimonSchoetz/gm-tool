@@ -41,18 +41,22 @@ export const EncountersScreen = () => {
     throw tableConfigNotFoundError('encounters');
   }
 
+  const onRowClick = (encounter: Encounter) => {
+    void router.navigate({
+      to: buildEntityPath('encounters', encounter.id, adventureId),
+    });
+  };
+
+  const onCreateNew = () => {
+    void handleEncounterCreation();
+  };
+
   return (
     <SortableList<Encounter>
       tableConfigId={encountersTableConfig.id}
       items={encounters}
-      onRowClick={(encounter) => {
-        void router.navigate({
-          to: buildEntityPath('encounters', encounter.id, adventureId),
-        });
-      }}
-      onCreateNew={() => {
-        void handleEncounterCreation();
-      }}
+      onRowClick={onRowClick}
+      onCreateNew={onCreateNew}
       searchPlaceholder='e.g. "name, some text in description"'
       entityType='encounters'
     />

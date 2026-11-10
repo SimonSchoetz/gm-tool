@@ -27,12 +27,9 @@ export const BaseEntityDuplicateBtn: FCProps<Props> = ({
     });
   };
 
-  return (
-    <Button
-      label={label}
-      onClick={() => {
-        void handleDuplicate();
-      }}
-    />
-  );
+  const onClick = () => {
+    void handleDuplicate();
+  };
+
+  return <Button label={label} onClick={onClick} />;
 };

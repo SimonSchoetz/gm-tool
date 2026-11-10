@@ -12,14 +12,16 @@ export const AdventureScreenHeader = () => {
   const { adventure, updateAdventure } = useAdventure(adventureId);
   if (!adventure) return;
 
+  const onNameCommit = (name: string) => {
+    updateAdventure({ name });
+  };
+
   return (
     <div>
       <SyncedInput
         placeholder='Adventure Title'
         initValue={adventure.name ?? ''}
-        onCommit={(name) => {
-          updateAdventure({ name });
-        }}
+        onCommit={onNameCommit}
         className='adventure-title-input'
       />
 

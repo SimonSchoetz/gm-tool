@@ -47,18 +47,22 @@ export const BaseEntitiesScreen: FCProps<Props> = ({ entityType }) => {
     throw tableConfigNotFoundError(entityType);
   }
 
+  const onRowClick = (baseEntity: BaseEntity) => {
+    void router.navigate({
+      to: buildEntityPath(entityType, baseEntity.id, adventureId),
+    });
+  };
+
+  const onCreateNew = () => {
+    void handleBaseEntityCreation();
+  };
+
   return (
     <SortableList<BaseEntity>
       tableConfigId={baseEntitiesTableConfig.id}
       items={baseEntities}
-      onRowClick={(baseEntity) => {
-        void router.navigate({
-          to: buildEntityPath(entityType, baseEntity.id, adventureId),
-        });
-      }}
-      onCreateNew={() => {
-        void handleBaseEntityCreation();
-      }}
+      onRowClick={onRowClick}
+      onCreateNew={onCreateNew}
       searchPlaceholder={`e.g. "name, ${baseEntitySearchHint(entityType)}, some text in description"`}
       entityType={entityType}
     />

@@ -17,6 +17,11 @@ type Props = {
 export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
   const route = buildEntityPath('adventures', adventure.id, null);
 
+  const dimensions = {
+    width: PREVIEW_WIDTH,
+    height: ADVENTURE_PREVIEW_HEIGHT,
+  };
+
   return (
     <Link
       to={route}
@@ -26,10 +31,7 @@ export const ToAdventureBtn: FCProps<Props> = ({ adventure }) => {
       <HoloImg
         image_id={adventure.image_id}
         title={adventure.name ?? ''}
-        dimensions={{
-          width: PREVIEW_WIDTH,
-          height: ADVENTURE_PREVIEW_HEIGHT,
-        }}
+        dimensions={dimensions}
       />
     </Link>
   );

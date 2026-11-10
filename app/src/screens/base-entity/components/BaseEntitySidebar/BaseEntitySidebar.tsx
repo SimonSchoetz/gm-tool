@@ -36,36 +36,44 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
     });
   };
 
+  const dimensions = { width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT };
+
+  const onUpload = (filePath: string) => {
+    updateBaseEntity({
+      imgFilePath: filePath,
+      image_id: baseEntity.image_id,
+    });
+  };
+
+  const onImageDelete = () => {
+    if (baseEntity.image_id) void removeBaseEntityImage();
+  };
+
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: baseEntity.name ?? '',
+      onDeletionConfirm: () => {
+        void handleBaseEntityDelete();
+      },
+      oneClickConfirm: false,
+    });
+  };
+
   return (
     <ScreensSidebar>
       <UploadImgBtn
-        dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
+        dimensions={dimensions}
         image_id={baseEntity.image_id}
         title=''
-        uploadFn={(filePath) => {
-          updateBaseEntity({
-            imgFilePath: filePath,
-            image_id: baseEntity.image_id,
-          });
-        }}
-        deleteFn={() => {
-          if (baseEntity.image_id) void removeBaseEntityImage();
-        }}
+        uploadFn={onUpload}
+        deleteFn={onImageDelete}
       />
 
       <ScreensDuplicateBtn entityType={entityType} />
 
       <Button
         label={`Delete ${entityTypeLabel(entityType)}`}
-        onClick={() => {
-          openDeleteDialog({
-            name: baseEntity.name ?? '',
-            onDeletionConfirm: () => {
-              void handleBaseEntityDelete();
-            },
-            oneClickConfirm: false,
-          });
-        }}
+        onClick={onDeleteClick}
         buttonStyle={'danger'}
       />
     </ScreensSidebar>

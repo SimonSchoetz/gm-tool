@@ -27,37 +27,46 @@ export const AdventureScreenSidebar = () => {
     await deleteAdventure();
     void router.navigate({ to: '/adventures' });
   };
+
+  const dimensions = {
+    width: PREVIEW_WIDTH,
+    height: ADVENTURE_PREVIEW_HEIGHT,
+  };
+
+  const onUpload = (filePath: string) => {
+    updateAdventure({
+      imgFilePath: filePath,
+      image_id: adventure.image_id,
+    });
+  };
+
+  const onImageDelete = () => {
+    if (adventure.image_id) void removeAdventureImage();
+  };
+
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: adventure.name ?? '',
+      onDeletionConfirm: () => {
+        void handleAdventureDelete();
+      },
+      oneClickConfirm: false,
+    });
+  };
+
   return (
     <ScreensSidebar>
       <UploadImgBtn
-        dimensions={{
-          width: PREVIEW_WIDTH,
-          height: ADVENTURE_PREVIEW_HEIGHT,
-        }}
+        dimensions={dimensions}
         image_id={adventure.image_id}
-        uploadFn={(filePath) => {
-          updateAdventure({
-            imgFilePath: filePath,
-            image_id: adventure.image_id,
-          });
-        }}
-        deleteFn={() => {
-          if (adventure.image_id) void removeAdventureImage();
-        }}
+        uploadFn={onUpload}
+        deleteFn={onImageDelete}
       />
       <ScreensDuplicateBtn entityType='adventures' />
 
       <Button
         label='Delete Adventure'
-        onClick={() => {
-          openDeleteDialog({
-            name: adventure.name ?? '',
-            onDeletionConfirm: () => {
-              void handleAdventureDelete();
-            },
-            oneClickConfirm: false,
-          });
-        }}
+        onClick={onDeleteClick}
         buttonStyle={'danger'}
       />
     </ScreensSidebar>

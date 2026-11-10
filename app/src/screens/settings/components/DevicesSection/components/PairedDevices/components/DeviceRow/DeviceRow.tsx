@@ -30,6 +30,16 @@ export const DeviceRow: FCProps<Props> = ({ device }) => {
   const displayName =
     (!!device.name && device.name) || getShortenedDeviceId(device.id);
 
+  const onForgetClick = () => {
+    openDeleteDialog({
+      name: displayName,
+      onDeletionConfirm: () => {
+        void forgetDevice(device.id);
+      },
+      oneClickConfirm: true,
+    });
+  };
+
   return (
     <li className='device-row'>
       <StatusIndicator status={status} />
@@ -39,15 +49,7 @@ export const DeviceRow: FCProps<Props> = ({ device }) => {
         variant='danger'
         label='Forget device'
         title='Forget device'
-        onClick={() => {
-          openDeleteDialog({
-            name: displayName,
-            onDeletionConfirm: () => {
-              void forgetDevice(device.id);
-            },
-            oneClickConfirm: true,
-          });
-        }}
+        onClick={onForgetClick}
       />
     </li>
   );

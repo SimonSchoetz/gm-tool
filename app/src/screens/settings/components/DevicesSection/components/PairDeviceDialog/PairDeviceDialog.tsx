@@ -65,6 +65,21 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
     );
   }
 
+  const onCandidateClick = (id: string) => {
+    clearSubmitError();
+    requestCode(id);
+  };
+
+  const onCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCodeInput(e.target.value);
+  };
+
+  const onConfirm = () => {
+    if (requestedCandidateId !== null) {
+      submitCode(requestedCandidateId, codeInput);
+    }
+  };
+
   return (
     <GlassPanel className='pair-device-dialog'>
       {DialogHeader}
@@ -101,10 +116,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
           ) : (
             <PDDCandidatesList
               candidates={candidates}
-              onClick={(id) => {
-                clearSubmitError();
-                requestCode(id);
-              }}
+              onClick={onCandidateClick}
             />
           )}
         </>
@@ -120,18 +132,10 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
           <Input
             className='pair-device-dialog--code-input'
             value={codeInput}
-            onChange={(e) => {
-              setCodeInput(e.target.value);
-            }}
+            onChange={onCodeChange}
           />
 
-          <Button
-            label='Confirm'
-            disabled={isSubmitting}
-            onClick={() => {
-              submitCode(requestedCandidateId, codeInput);
-            }}
-          />
+          <Button label='Confirm' disabled={isSubmitting} onClick={onConfirm} />
         </div>
       )}
     </GlassPanel>
