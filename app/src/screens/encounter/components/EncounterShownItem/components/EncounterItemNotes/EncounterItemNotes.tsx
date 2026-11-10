@@ -20,15 +20,17 @@ export const EncounterItemNotes: FCProps<Props> = ({
 
   if (item === null) return;
 
+  const onNotesChange = (notes: string) => {
+    updateQueueItem(item.id, { notes });
+  };
+
   return (
     <GlassPanel intensity='bright' className='encounter-item-notes'>
       <TextEditor
         placeholder={placeholder}
         textEditorId={`ENCOUNTER_QUEUE_ITEM_${item.id}_notes`}
         value={item.notes ?? ''}
-        onChange={(notes) => {
-          updateQueueItem(item.id, { notes });
-        }}
+        onChange={onNotesChange}
       />
     </GlassPanel>
   );

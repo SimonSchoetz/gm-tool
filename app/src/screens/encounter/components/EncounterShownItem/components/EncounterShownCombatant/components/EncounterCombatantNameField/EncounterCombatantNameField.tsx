@@ -30,6 +30,15 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
 
   if (entry === null) return;
 
+  const onBlur = () => {
+    focusProps.onBlur();
+    setValue(shownName);
+  };
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') event.currentTarget.blur();
+  };
+
   return (
     <Input
       ref={inputRef}
@@ -38,13 +47,8 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
       value={value}
       onChange={handleChange}
       onFocus={focusProps.onFocus}
-      onBlur={() => {
-        focusProps.onBlur();
-        setValue(shownName);
-      }}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter') event.currentTarget.blur();
-      }}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
     />
   );
 };

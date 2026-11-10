@@ -14,23 +14,27 @@ export const EncounterCombatantActionRow: FCProps<Props> = ({
   hpText,
   amountText,
   onAmountChange,
-}) => (
-  <div className='encounter-combatant-action-row'>
-    <div className='encounter-combatant-action-row-text'>
-      <div className='clip-text'>{name}</div>
-      <div className='encounter-combatant-action-row-hp'>{hpText}</div>
-    </div>
+}) => {
+  const onAmountInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onAmountChange(event.currentTarget.value);
+  };
 
-    <Input
-      className='encounter-combatant-action-row-amount number-input'
-      type='number'
-      min={0}
-      aria-label={`Amount for ${name}`}
-      placeholder='Amount'
-      value={amountText}
-      onChange={(event) => {
-        onAmountChange(event.currentTarget.value);
-      }}
-    />
-  </div>
-);
+  return (
+    <div className='encounter-combatant-action-row'>
+      <div className='encounter-combatant-action-row-text'>
+        <div className='clip-text'>{name}</div>
+        <div className='encounter-combatant-action-row-hp'>{hpText}</div>
+      </div>
+
+      <Input
+        className='encounter-combatant-action-row-amount number-input'
+        type='number'
+        min={0}
+        aria-label={`Amount for ${name}`}
+        placeholder='Amount'
+        value={amountText}
+        onChange={onAmountInputChange}
+      />
+    </div>
+  );
+};

@@ -96,6 +96,8 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
     (entry) => !(blockDrag?.folded && blockDrag.otherIds.includes(entry.id)),
   );
 
+  const shownIds = shownEntries.map((entry) => entry.id);
+
   return (
     <GlassPanel className='encounter-queue' intensity='off'>
       <DndContext
@@ -106,7 +108,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={shownEntries.map((entry) => entry.id)}
+          items={shownIds}
           strategy={verticalListSortingStrategy}
         >
           <div className='encounter-queue-list'>

@@ -17,6 +17,10 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
   });
   const { addEntityCombatant, isAdding } = useEncounterQueueItems(encounterId);
 
+  const onAdd = () => {
+    void addEntityCombatant(baseEntity.entity_type, baseEntity.id);
+  };
+
   return (
     <li className='encounter-add-row'>
       <EncounterEntityImage
@@ -34,12 +38,7 @@ export const EncounterAddRow: FCProps<Props> = ({ baseEntity }) => {
         </div>
       </div>
 
-      <EncounterAddBtn
-        disabled={isAdding}
-        onAdd={() => {
-          void addEntityCombatant(baseEntity.entity_type, baseEntity.id);
-        }}
-      />
+      <EncounterAddBtn disabled={isAdding} onAdd={onAdd} />
     </li>
   );
 };

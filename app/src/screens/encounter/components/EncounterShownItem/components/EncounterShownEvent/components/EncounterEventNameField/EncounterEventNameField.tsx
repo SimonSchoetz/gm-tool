@@ -25,6 +25,10 @@ export const EncounterEventNameField: FCProps<Props> = ({ shownItemId }) => {
 
   if (item === null) return;
 
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') event.currentTarget.blur();
+  };
+
   // The fallback is a placeholder, never the field's text: putting it in as text would store `Untitled Eventx` on the next keystroke. Blur restores nothing.
   return (
     <Input
@@ -36,9 +40,7 @@ export const EncounterEventNameField: FCProps<Props> = ({ shownItemId }) => {
       onChange={handleChange}
       onFocus={focusProps.onFocus}
       onBlur={focusProps.onBlur}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter') event.currentTarget.blur();
-      }}
+      onKeyDown={onKeyDown}
     />
   );
 };

@@ -33,15 +33,25 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
     if (event.key === 'Enter' && canAdd) void handleAdd();
   };
 
+  const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
+  };
+
+  const onHpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setHpText(event.currentTarget.value);
+  };
+
+  const onAdd = () => {
+    void handleAdd();
+  };
+
   return (
     <div className='encounter-add-random-combatant' hidden={hidden}>
       <Input
         aria-label='Combatant name to add'
         placeholder='Name'
         value={name}
-        onChange={(event) => {
-          setName(event.currentTarget.value);
-        }}
+        onChange={onNameChange}
         onKeyDown={addOnEnter}
       />
 
@@ -52,17 +62,10 @@ export const EncounterAddRandomCombatant: FCProps<Props> = ({ hidden }) => {
           aria-label='HP'
           placeholder='HP'
           value={hpText}
-          onChange={(event) => {
-            setHpText(event.currentTarget.value);
-          }}
+          onChange={onHpChange}
           onKeyDown={addOnEnter}
         />
-        <EncounterAddBtn
-          disabled={!canAdd}
-          onAdd={() => {
-            void handleAdd();
-          }}
-        />
+        <EncounterAddBtn disabled={!canAdd} onAdd={onAdd} />
       </div>
     </div>
   );

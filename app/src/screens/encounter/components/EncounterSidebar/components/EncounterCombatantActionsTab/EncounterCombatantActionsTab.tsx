@@ -75,6 +75,10 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
     void recordLogEntry(plan.kind, plan.payload);
   };
 
+  const onSharedAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSharedText(event.currentTarget.value);
+  };
+
   return (
     <div className='encounter-combatant-actions-tab'>
       {combatantEntries.length > 1 && (
@@ -85,9 +89,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
           aria-label='Shared amount'
           placeholder='Amount for all'
           value={sharedText}
-          onChange={(event) => {
-            setSharedText(event.currentTarget.value);
-          }}
+          onChange={onSharedAmountChange}
         />
       )}
 

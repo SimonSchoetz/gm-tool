@@ -15,21 +15,27 @@ export const EncounterCover = () => {
 
   if (!encounter) return;
 
+  const dimensions = { width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT };
+
+  const onUpload = (filePath: string) => {
+    updateEncounter({
+      imgFilePath: filePath,
+      image_id: encounter.image_id,
+    });
+  };
+
+  const onImageDelete = () => {
+    if (encounter.image_id) void removeEncounterImage();
+  };
+
   return (
     <div className='encounter-cover'>
       <UploadImgBtn
-        dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
+        dimensions={dimensions}
         image_id={encounter.image_id}
         title=''
-        uploadFn={(filePath) => {
-          updateEncounter({
-            imgFilePath: filePath,
-            image_id: encounter.image_id,
-          });
-        }}
-        deleteFn={() => {
-          if (encounter.image_id) void removeEncounterImage();
-        }}
+        uploadFn={onUpload}
+        deleteFn={onImageDelete}
       />
     </div>
   );

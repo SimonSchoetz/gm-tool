@@ -10,13 +10,15 @@ export const EncounterHeader = () => {
 
   if (!encounter) return;
 
+  const onNameCommit = (name: string) => {
+    updateEncounter({ name });
+  };
+
   return (
     <ScreensNameInput
       placeholder='Encounter Name'
       initValue={encounter.name ?? ''}
-      onCommit={(name) => {
-        updateEncounter({ name });
-      }}
+      onCommit={onNameCommit}
     />
   );
 };
