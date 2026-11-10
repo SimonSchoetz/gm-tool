@@ -24,3 +24,22 @@ describe('buildEntityPath', () => {
     );
   });
 });
+
+describe('buildEntityPath for every entity type', () => {
+  it.each([
+    ['npcs', 'npc'],
+    ['foes', 'foe'],
+    ['pcs', 'pc'],
+    ['factions', 'faction'],
+    ['locations', 'location'],
+    ['items', 'item'],
+    ['sessions', 'session'],
+    ['encounters', 'encounter'],
+    ['adventures', 'adventure'],
+  ])('builds the %s path with the segment %s', (entityType, segment) => {
+    expect(buildEntityPath(entityType, 'id-1', 'adv-1')).toBe(
+      `/adventure/adv-1/${segment}/id-1`,
+    );
+    expect(buildEntityPath(entityType, 'id-1', null)).toBe(`/${segment}/id-1`);
+  });
+});

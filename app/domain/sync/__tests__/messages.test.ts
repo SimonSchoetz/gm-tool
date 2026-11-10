@@ -165,3 +165,51 @@ describe('syncMessageSchema', () => {
     expect(result.success).toBe(true);
   });
 });
+
+describe('syncMessageSchema payload shapes', () => {
+  it.each([
+    ['a sync-hello', buildSyncHelloMessage('1784365870026', true)],
+    ['a sync-request', buildSyncRequestMessage(7)],
+    [
+      'a sync-batch',
+      buildSyncBatchMessage(
+        [
+          {
+            tableName: 'npcs',
+            rowId: 'npc-1',
+            seq: 1,
+            deleted: false,
+            deletedAt: null,
+            row: { id: 'npc-1' },
+          },
+        ],
+        1,
+      ),
+    ],
+    ['a file-request', buildFileRequestMessage('img-1', 'png')],
+    ['a file-chunk', buildFileChunkMessage('img-1', 'png', 2, 'data', false)],
+  ])('keeps every field of %s when it parses', (_name, message) => {
+    expect(syncMessageSchema.parse(message)).toEqual(message);
+  });
+
+  it('rejects a sync-request whose sinceSeq is not a number', () => {
+    const result = syncMessageSchema.safeParse({
+      v: 1,
+      type: 'sync-request',
+      payload: { sinceSeq: 'zero' },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an imageId that starts like an id and carries a path separator after it', () => {
+    expect(
+      syncMessageSchema.safeParse(buildFileRequestMessage('img-1/../x', 'png'))
+        .success,
+    ).toBe(false);
+    expect(
+      syncMessageSchema.safeParse(
+        buildFileChunkMessage('img-1/../x', 'png', 0, '', true),
+      ).success,
+    ).toBe(false);
+  });
+});

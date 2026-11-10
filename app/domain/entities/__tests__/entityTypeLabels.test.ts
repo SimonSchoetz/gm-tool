@@ -14,3 +14,9 @@ describe('entityTypeLabel', () => {
     expect(entityTypeLabel('stories')).toBe('Entity');
   });
 });
+
+describe('entityTypeLabel text', () => {
+  it.each(ENTITY_TYPES)('gives %s a label to show', (entityType) => {
+    expect(entityTypeLabel(entityType)).not.toBe('');
+  });
+});
