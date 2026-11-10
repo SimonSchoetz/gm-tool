@@ -43,13 +43,13 @@ In `src/`, two layer roots keep an `index.ts`, because each leaves files out of 
 A function belongs in `/src/util/` only when **both** conditions are met:
 
 1. It is consumed by more than one component or module
-2. It is generic — no coupling to a specific domain concept, named without domain nouns
+2. It is generic — no coupling to a specific domain concept, named without domain nouns (a term of the Domain Glossary in `app/CLAUDE.md` is one, so a name holding "Image" or "Encounter" is not generic)
 
 A function that fails either condition stays local to its consumer in that module directory's `helper/` — `ComponentName/helper/`, or `data-access-layer/<module>/helper/` for a DAL hook. When a helper is later needed by more than one consumer, apply in order:
 
 1. **Sibling components within the same parent module** — promote to the parent module's `helper/`. Never import across sibling boundaries (`../SiblingComponent/helper/...` is always wrong).
 2. **Several data-access-layer modules, and nothing outside the layer** — promote to the layer root, `data-access-layer/<name>.ts` (as `mergeUpdate.ts` and `createAutosaveQueue.ts` are), generic or not; a helper function or data module there is tested like any other (`.claude/rules/src-unit-tests.md` — Testing Policy). Not `/src/util/`: that directory belongs to the Frontend layer, which sits above the data-access layer (`app/docs/CLAUDE.md` — Layered breakdown), so a data-access-layer file importing from it would import upward.
-3. **Unrelated components, or the helper is generic** — promote to `/src/util/` only when both util conditions are met and no data-access-layer file consumes it, for the reason in rung 2.
+3. **Unrelated components, or the helper is generic** — promote to `/src/util/` only when both util conditions are met and no data-access-layer file consumes it, for the reason in rung 2. A non-generic value that only unrelated Frontend components share is not promoted: the component whose prop shape it fits derives it from the raw values its callers hold (`EntityPopupBody` takes `imageId` and `imageTitle` raw and builds its own image value).
 
 4. **Consumers in more than one layer** — a generic helper imported by `db/` and `src/` alike lives in the app-root `util/` (`@util`), as `getDateTimeString` does; its test scope is in `.claude/rules/util-unit-tests.md`, which loads when a path under `app/util/` is read.
 
