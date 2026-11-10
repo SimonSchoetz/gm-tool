@@ -57,13 +57,15 @@ export const BaseEntitiesScreen: FCProps<Props> = ({ entityType }) => {
     void handleBaseEntityCreation();
   };
 
+  const searchPlaceholder = `e.g. "name, ${baseEntitySearchHint(entityType)}, some text in description"`;
+
   return (
     <SortableList<BaseEntity>
       tableConfigId={baseEntitiesTableConfig.id}
       items={baseEntities}
       onRowClick={onRowClick}
       onCreateNew={onCreateNew}
-      searchPlaceholder={`e.g. "name, ${baseEntitySearchHint(entityType)}, some text in description"`}
+      searchPlaceholder={searchPlaceholder}
       entityType={entityType}
     />
   );
