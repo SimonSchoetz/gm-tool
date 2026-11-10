@@ -1,4 +1,5 @@
 // Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json. `--all` mutates every production file under app/ with its own test as a whole instead, for an audit of code no branch changed; which files are production sources and which of their lines run is scripts/mutation-check-selection.ts.
+// The Rust lines the branch changed under app/src-tauri/src/ (every Rust mutant with `--all`) are mutated by `cargo mutants` first (scripts/mutation-check-rust.ts), the networking glue left out (app/src-tauri/.cargo/mutants.toml); a missed mutant with no entry in scripts/mutation-accepted-rust.json fails the run like a TypeScript survivor, and `--accept` writes the reason into that ledger. A branch that changes no Rust runs no cargo command, and Rust is skipped when file arguments are given.
 // A file moved with git (`git mv`, staged or committed) counts only the lines changed after the move (scripts/mutation-check-diff.ts); a moved file git has not seen yet is untracked, and so new as a whole.
 // Each mutant runs the Vitest tests related to its file through Stryker's command runner (scripts/mutation-check-related.ts): Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
 // Only files with their own test file (`<dir>/__tests__/<name>.test.ts(x)`, `.test.js` for `eslint-rules/`) are mutated; the others are listed as skipped.
@@ -30,6 +31,12 @@ import {
   selectFiles,
   testFileCandidates,
 } from './mutation-check-selection.ts';
+import {
+  parseRustLedger,
+  rustSourcePaths,
+  runRustMutation,
+  serializeRustLedger,
+} from './mutation-check-rust.ts';
 import { testRowFailure } from './mutation-check-test-row.ts';
 
 const DEFAULT_BRANCH = 'main';
@@ -51,6 +58,22 @@ try {
   process.exit(2);
 }
 const { files: requestedFiles, all, acceptReason } = parsedArguments;
+
+const RUST_LEDGER_PATH = path.join(
+  repositoryRoot,
+  'scripts',
+  'mutation-accepted-rust.json',
+);
+
+let rustLedger: ReturnType<typeof parseRustLedger>;
+try {
+  rustLedger = parseRustLedger(readFileSync(RUST_LEDGER_PATH, 'utf8'));
+} catch (error) {
+  console.error(
+    `mutation-check: cannot read ${path.relative(repositoryRoot, RUST_LEDGER_PATH)}: ${(error as Error).message}`,
+  );
+  process.exit(2);
+}
 
 let ledger: ReturnType<typeof parseLedger>;
 try {
@@ -126,13 +149,15 @@ const untrackedPaths = new Set(
   lines(git('ls-files', '--others', '--exclude-standard')),
 );
 // The lines the branch added or changed in each file, so a survivor in logic the branch did not write never fails it; an untracked file is new as a whole. With `all` every file is mutated as a whole and no diff is read.
-const changedLines = all
-  ? new Map<string, { start: number; end: number }[]>()
-  : changedLinesAgainst({
-      cwd: repositoryRoot,
-      base: git('merge-base', baseBranch, 'HEAD').trim(),
-      paths: ['app'],
-    });
+const mergeBase = all ? null : git('merge-base', baseBranch, 'HEAD').trim();
+const changedLines =
+  mergeBase === null
+    ? new Map<string, { start: number; end: number }[]>()
+    : changedLinesAgainst({
+        cwd: repositoryRoot,
+        base: mergeBase,
+        paths: ['app'],
+      });
 const appRelativePaths = (repositoryPaths: Iterable<string>) =>
   [...repositoryPaths]
     .filter((repositoryPath) => repositoryPath.startsWith('app/'))
@@ -160,11 +185,45 @@ const scope = all
   ? 'production source under app/'
   : `changed production source under app/ against ${baseBranch}`;
 
+// The Rust lines the branch changed (every Rust mutant with `all`) are mutated by cargo-mutants before anything else can end the run; a per-file re-run is the TypeScript fix loop, so Rust waits for a run without files.
+let rustFailed = false;
+const rustChanged = rustSourcePaths([
+  ...changedLines.keys(),
+  ...untrackedPaths,
+]);
+if (requestedFiles.length > 0) {
+  console.log(
+    '\nmutation-check: Rust is not mutated when files are given; a run without files covers it.',
+  );
+} else if (all || rustChanged.length > 0) {
+  console.log(
+    `\nmutation-check: cargo mutants over ${all ? 'all of app/src-tauri/src/' : `${rustChanged.length} changed Rust file(s)`}`,
+  );
+  const rust = runRustMutation({
+    repositoryRoot,
+    base: mergeBase,
+    ledger: rustLedger,
+    acceptReason,
+  });
+  if (rust.newEntries.length > 0) {
+    writeFileSync(
+      RUST_LEDGER_PATH,
+      serializeRustLedger([...rustLedger, ...rust.newEntries]),
+    );
+    console.log(
+      `\nmutation-check: accepted ${rust.newEntries.length} Rust mutant(s) into scripts/mutation-accepted-rust.json with the reason "${acceptReason}".`,
+    );
+  }
+  rustFailed = rust.failures.length > 0;
+  for (const failure of rust.failures)
+    console.error(`\nmutation-check: FAILED — ${failure}`);
+}
+
 if (candidates.length === 0) {
   console.log(
     `mutation-check: no production source under app/${all ? '' : ` changed against ${baseBranch}`}; nothing to mutate.`,
   );
-  process.exit(0);
+  process.exit(rustFailed ? 1 : 0);
 }
 
 const hasOwnTestFile = (appRelativePath: string) =>
@@ -280,7 +339,7 @@ if (stale.length > 0) {
     `\nmutation-check: FAILED — ${stale.length} ledger entr(y/ies) in scripts/mutation-accepted.json accept a mutant that no longer survives; a test now kills it or the code changed, so remove each:\n  ${stale.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
   );
 }
-if (unmatched.length > 0 || stale.length > 0) process.exit(1);
+if (unmatched.length > 0 || stale.length > 0 || rustFailed) process.exit(1);
 console.log(
   `\nmutation-check: passed — every mutant that survived in the ${testedFiles.length} ${all ? '' : 'changed '}file(s) with their own tests is accepted in scripts/mutation-accepted.json, and every entry whose line this run mutated still survives.`,
 );
