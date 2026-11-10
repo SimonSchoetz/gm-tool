@@ -154,7 +154,7 @@ A module that imports several names from a partially mocked package loads as lon
 
 A test can therefore run a Node entry script as a child process against a temporary home directory and read its exit status and output.
 
-## Vitest 5.0.2 `vitest related --run <path>` exits 0 with "No test files found, exiting with code 0" for a path no test imports, with or without `--passWithNoTests`; a `scripts/` path reaches its test through the `../scripts/**/*.test.ts` include
+## Vitest 5.0.2 `vitest related --run <path>` exits 0 with "No test files found, exiting with code 0" for a path no test imports, with or without `--passWithNoTests`
 
 **Verified at:** vitest 5.0.2, installed in `app/`, run 2026-11-10
-**Citation:** [implement_2: ran `npx vitest related --run src/styles/global.css` from `app/` — observed `No test files found, exiting with code 0` and exit code 0; ran it again with `--passWithNoTests` — observed the same output and exit code 0; ran `npx vitest related --run --passWithNoTests ../scripts/css-token-check-find.ts` — observed `Test Files  1 passed (1)`, `Tests  70 passed (70)`]
+**Citation:** [implement_2: ran `npx vitest related --run src/styles/global.css` from `app/` — observed `No test files found, exiting with code 0` and exit code 0; ran it again with `--passWithNoTests` — observed the same output and exit code 0]

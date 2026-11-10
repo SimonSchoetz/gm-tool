@@ -241,3 +241,10 @@ Without the option, a disable comment that suppresses nothing yields only a warn
 **Citation:** [implement_1: ran `npx eslint src/styles/global.css` from `app/` — observed `0:0  warning  File ignored because no matching configuration was supplied`, `✖ 1 problem (0 errors, 1 warning)` and exit code 0; ran `npx eslint --no-warn-ignored src/styles/global.css` — observed no output and exit code 0]
 
 A hook that passes staged paths to ESLint without an extension filter needs the flag to stay quiet on a `.css` or `.md` file.
+
+## ESLint 10.11.0 run with no path argument lints the working directory
+
+**Verified at:** eslint 10.11.0, installed in `app/`, run 2026-11-10
+**Citation:** [implement_4: ran `app/node_modules/.bin/eslint` with no arguments in a disposable directory holding an `eslint.config.js` that enables `no-debugger` for `**/*.js` and a `probe.js` containing `debugger;` — observed `1:1  error  Unexpected 'debugger' statement  no-debugger` for that file and exit code 1]
+
+A hook that builds a path list for ESLint must skip the run when the list is empty, or ESLint checks the whole directory instead of nothing.

@@ -1,8 +1,6 @@
 #!/bin/sh
 
-# The commit-time checks, run by both pre-commit and pre-merge-commit from the
-# repository root, where git starts a hook. ESLint, Prettier and Vitest check
-# only the staged files; whole-project ESLint and Prettier run at push.
+# The commit-time checks, run by both pre-commit and pre-merge-commit from the repository root, where git starts a hook. ESLint, Prettier and Vitest check only the staged files; whole-project ESLint and Prettier run at push.
 
 staged=$(git diff --cached --name-only --no-renames)
 
@@ -11,18 +9,15 @@ printf '%s\n' "$staged" | grep -qE '^(app|scripts)/|^\.prettierrc$' || exit 0
 
 (cd app && npx tsc --noEmit && npx tsc --noEmit -p ../scripts) || exit 1
 
-# The list holds the staged paths under app/ and scripts/ that still exist.
-# Each gets a "../" prefix because the tools run from app/. There is no
-# extension filter: --no-warn-ignored and --ignore-unknown make ESLint and
-# Prettier skip a file type they do not handle instead of failing on it. An
-# empty list is skipped, since ESLint without a path lints the working
-# directory.
+# The list holds the staged paths under app/ and scripts/ that still exist, each with a "../" prefix because the tools run from app/. There is no extension filter: --no-warn-ignored and --ignore-unknown make ESLint and Prettier skip a file type they do not handle instead of failing on it. An empty list is skipped, since ESLint without a path lints the working directory.
+# No globbing and a newline-only IFS keep a path with a space or a glob character one argument.
 set -f
 IFS='
 '
 set -- $(git -c core.quotePath=false diff --cached --name-only --no-renames --diff-filter=ACMR -- app scripts | sed 's|^|../|')
 unset IFS
 if [ $# -gt 0 ]; then
+  # Vitest 5.0.2 exits 0 for a run that finds no related test even without --passWithNoTests; the flag states the pass the commit relies on.
   (cd app && npx eslint --no-warn-ignored "$@" && npx prettier --check --ignore-unknown "$@" && npx vitest related --run --passWithNoTests "$@") || exit 1
 fi
 
