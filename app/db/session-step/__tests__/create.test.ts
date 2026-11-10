@@ -85,3 +85,13 @@ describe('create', () => {
     expect(await readSteps()).toEqual([]);
   });
 });
+
+describe('create input guards', () => {
+  it('rejects a blank id, naming session in its message', async () => {
+    const { create } = await import('../create');
+
+    await expect(create({ session_id: '', sort_order: 0 })).rejects.toThrow(
+      /^Valid session ID is required$/,
+    );
+  });
+});

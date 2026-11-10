@@ -50,3 +50,11 @@ describe('get', () => {
     expect(await get('missing-encounter')).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming Encounter in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('')).rejects.toThrow(/^Valid Encounter ID is required$/);
+  });
+});

@@ -42,3 +42,13 @@ describe('getAll', () => {
     ]);
   });
 });
+
+describe('getAll input guards', () => {
+  it('rejects a blank id, naming Adventure in its message', async () => {
+    const { getAll } = await import('../get-all');
+
+    await expect(getAll('')).rejects.toThrow(
+      /^Valid Adventure ID is required$/,
+    );
+  });
+});

@@ -110,3 +110,22 @@ describe('duplicateByBaseEntity', () => {
     expect(await readSections(sourceEntityId)).toEqual(before);
   });
 });
+
+describe('duplicateByBaseEntity input guards', () => {
+  it('rejects a blank id for the source, naming Base entity in its message', async () => {
+    const { duplicateByBaseEntity } =
+      await import('../duplicate-by-base-entity');
+
+    await expect(duplicateByBaseEntity('', 'target-1')).rejects.toThrow(
+      /^Valid Base entity ID is required$/,
+    );
+  });
+  it('rejects a blank id for the target, naming Base entity in its message', async () => {
+    const { duplicateByBaseEntity } =
+      await import('../duplicate-by-base-entity');
+
+    await expect(duplicateByBaseEntity('source-1', '')).rejects.toThrow(
+      /^Valid Base entity ID is required$/,
+    );
+  });
+});

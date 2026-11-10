@@ -100,3 +100,13 @@ describe('duplicate', () => {
     );
   });
 });
+
+describe('duplicate input guards', () => {
+  it('rejects a blank id, naming Encounter in its message', async () => {
+    const { duplicate } = await import('../duplicate');
+
+    await expect(duplicate('', null)).rejects.toThrow(
+      /^Valid Encounter ID is required$/,
+    );
+  });
+});

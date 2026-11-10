@@ -41,3 +41,13 @@ describe('get', () => {
     expect(await get('missing-config')).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming table config in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('')).rejects.toThrow(
+      /^Valid table config ID is required$/,
+    );
+  });
+});

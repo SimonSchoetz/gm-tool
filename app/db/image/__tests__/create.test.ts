@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { CreateImageInput } from '../types';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -79,5 +80,16 @@ describe('create', () => {
     );
 
     expect(await readImages()).toEqual([]);
+  });
+
+  it('rejects a file path that is not a string before saving anything', async () => {
+    const { create } = await import('../create');
+    invoke.mockClear();
+
+    await expect(
+      create({ filePath: 42 } as unknown as CreateImageInput),
+    ).rejects.toThrow(/^filePath must be a string$/);
+
+    expect(invoke).not.toHaveBeenCalled();
   });
 });

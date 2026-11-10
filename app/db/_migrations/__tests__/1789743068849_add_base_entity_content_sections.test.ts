@@ -225,3 +225,36 @@ describe('addBaseEntityContentSectionsMigration.up', () => {
     }
   });
 });
+
+describe('addBaseEntityContentSectionsMigration.up on layouts that list summary', () => {
+  it.each([
+    ['locations', 'desc'],
+    ['npcs', 'asc'],
+  ] as const)(
+    'removes summary from the %s layout and keeps its %s sort direction',
+    async (table, direction) => {
+      const db = await seedDatabase();
+      const layouts = await readLayouts(db);
+      const sortState = { column: 'name', direction };
+      await db.execute(
+        'UPDATE table_config SET layout = $1 WHERE table_name = $2',
+        [
+          JSON.stringify({
+            ...layouts[table],
+            searchable_columns: ['name', 'summary'],
+            sort_state: sortState,
+          }),
+          table,
+        ],
+      );
+
+      await addBaseEntityContentSectionsMigration.up(db);
+
+      expect((await readLayouts(db))[table]).toEqual({
+        ...layouts[table],
+        searchable_columns: ['name'],
+        sort_state: sortState,
+      });
+    },
+  );
+});

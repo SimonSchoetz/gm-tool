@@ -49,3 +49,11 @@ describe('get', () => {
     expect(await get('missing-adventure')).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming adventure in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('')).rejects.toThrow(/^Valid adventure ID is required$/);
+  });
+});

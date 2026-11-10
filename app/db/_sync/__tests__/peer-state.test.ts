@@ -44,9 +44,15 @@ describe('peer state', () => {
     const { getDatabase } = await import('@db/database');
     await setPeerWatermark(PEER, 3);
 
-    await expect(getPeerWatermark('not-hex')).rejects.toThrow();
-    await expect(setPeerWatermark('not-hex', 1)).rejects.toThrow();
-    await expect(removePeerState('not-hex')).rejects.toThrow();
+    await expect(getPeerWatermark('not-hex')).rejects.toThrow(
+      /^Valid peer ID is required: not-hex$/,
+    );
+    await expect(setPeerWatermark('not-hex', 1)).rejects.toThrow(
+      /^Valid peer ID is required: not-hex$/,
+    );
+    await expect(removePeerState('not-hex')).rejects.toThrow(
+      /^Valid peer ID is required: not-hex$/,
+    );
 
     const db = await getDatabase();
     expect(

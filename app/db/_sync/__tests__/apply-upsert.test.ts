@@ -1,10 +1,22 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { TestDatabase } from '@db/__tests__/support/sqlite-test-database';
+
+const opened = vi.hoisted(() => ({
+  current: null as TestDatabase | null,
+}));
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
     await import('@db/__tests__/support/sqlite-test-database');
-  return { default: { load: () => Promise.resolve(openTestDatabase()) } };
+  return {
+    default: {
+      load: () => {
+        opened.current = openTestDatabase();
+        return Promise.resolve(opened.current);
+      },
+    },
+  };
 });
 
 const LOCAL_UPDATED_AT = '2026-03-01T00:00:00.000Z';
@@ -394,5 +406,171 @@ describe('applyUpsert', () => {
 
     expect(result).toBe('skipped');
     expect(await countRows('paired_devices')).toBe(0);
+  });
+});
+
+describe('applyUpsert with rows from another schema version and table configs', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(LOCAL_UPDATED_AT));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('keeps the stored value of a column the incoming row leaves out', async () => {
+    const { create, update } = await import('@db/adventure');
+    const { applyUpsert } = await import('../apply-upsert');
+    const id = await create();
+    await update(id, { description: 'stored description' });
+    const complete = await peerRowLike('adventures', id, {
+      name: 'peer name',
+      updated_at: NEWER,
+    });
+    const withoutDescription = Object.fromEntries(
+      Object.entries(complete).filter(([column]) => column !== 'description'),
+    );
+
+    const result = await applyUpsert('adventures', withoutDescription, false);
+
+    expect(result).toBe('applied');
+    expect(await readRow('adventures', id)).toMatchObject({
+      name: 'peer name',
+      description: 'stored description',
+    });
+  });
+
+  it('breaks a timestamp tie between table configs in favor of the incoming one only when force is set', async () => {
+    const { applyUpsert } = await import('../apply-upsert');
+    const seededId = await readSeededConfigId('npcs');
+    const stored = await readRow('table_config', seededId);
+    const tied = await peerRowLike('table_config', seededId, {
+      id: 'tied-npcs-config',
+      color: 'tied color',
+      updated_at: stored?.updated_at,
+    });
+
+    expect(await applyUpsert('table_config', tied, false)).toBe('skipped');
+    expect((await countNpcsConfigs()).map((config) => config.id)).toEqual([
+      seededId,
+    ]);
+
+    expect(await applyUpsert('table_config', tied, true)).toBe('applied');
+    expect(await countNpcsConfigs()).toEqual([
+      { id: 'tied-npcs-config', color: 'tied color' },
+    ]);
+  });
+
+  it('stores an incoming config for a table that has none yet', async () => {
+    const { applyUpsert } = await import('../apply-upsert');
+    const { getDatabase } = await import('@db/database');
+    const seededId = await readSeededConfigId('npcs');
+    const incoming = await peerRowLike('table_config', seededId, {
+      id: 'first-npcs-config',
+      color: 'first color',
+      updated_at: NEWER,
+    });
+    const db = await getDatabase();
+    await db.execute("DELETE FROM table_config WHERE table_name = 'npcs'");
+
+    const result = await applyUpsert('table_config', incoming, false);
+
+    expect(result).toBe('applied');
+    expect(await countNpcsConfigs()).toEqual([
+      { id: 'first-npcs-config', color: 'first color' },
+    ]);
+  });
+
+  it('updates a config in place when the incoming one has the local id, bumping the change counter once and leaving no tombstone', async () => {
+    const { applyUpsert } = await import('../apply-upsert');
+    const { getMaxSeq } = await import('../get-max-seq');
+    const seededId = await readSeededConfigId('npcs');
+    const incoming = await peerRowLike('table_config', seededId, {
+      color: 'updated color',
+      updated_at: NEWER,
+    });
+    const seqBefore = await getMaxSeq();
+
+    const result = await applyUpsert('table_config', incoming, false);
+
+    expect(result).toBe('applied');
+    expect(await countNpcsConfigs()).toEqual([
+      { id: seededId, color: 'updated color' },
+    ]);
+    expect(await getMaxSeq()).toBe(seqBefore + 1);
+    expect(
+      await readRow('_sync_changes', `table_config:${seededId}`),
+    ).toMatchObject({ deleted: 0 });
+  });
+});
+
+describe('applyUpsert when force is set and the local row is newer, or the config delete fails', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    opened.current = null;
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(LOCAL_UPDATED_AT));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('keeps a local row that is strictly newer than the incoming one even when force is set', async () => {
+    const { create, update } = await import('@db/adventure');
+    const { applyUpsert } = await import('../apply-upsert');
+    const id = await create();
+    await update(id, { name: 'Local name' });
+    const incoming = await peerRowLike('adventures', id, {
+      name: 'Incoming name',
+      updated_at: OLDER,
+    });
+
+    const result = await applyUpsert('adventures', incoming, true);
+
+    expect(result).toBe('skipped');
+    expect(await readRow('adventures', id)).toMatchObject({
+      name: 'Local name',
+    });
+  });
+
+  it('keeps a table config that is strictly newer than the incoming one even when force is set', async () => {
+    const { applyUpsert } = await import('../apply-upsert');
+    const seededId = await readSeededConfigId('npcs');
+    const older = await peerRowLike('table_config', seededId, {
+      id: 'older-npcs-config',
+      color: 'older color',
+      updated_at: OLDER,
+    });
+
+    const result = await applyUpsert('table_config', older, true);
+
+    expect(result).toBe('skipped');
+    expect((await countNpcsConfigs()).map((config) => config.id)).toEqual([
+      seededId,
+    ]);
+  });
+
+  it('skips an incoming config and keeps the local one when deleting the local config fails', async () => {
+    const { applyUpsert } = await import('../apply-upsert');
+    const seededId = await readSeededConfigId('npcs');
+    const incoming = await peerRowLike('table_config', seededId, {
+      id: 'incoming-npcs-config',
+      color: 'incoming color',
+      updated_at: '2030-01-01T00:00:00.000Z',
+    });
+    // Two calls follow: the read of the local config and its delete.
+    const database = opened.current;
+    if (database === null) throw new Error('The test database was not opened');
+    database.failOnCall(database.callCount() + 2);
+
+    const result = await applyUpsert('table_config', incoming, false);
+
+    expect(result).toBe('skipped');
+    expect((await countNpcsConfigs()).map((config) => config.id)).toEqual([
+      seededId,
+    ]);
   });
 });

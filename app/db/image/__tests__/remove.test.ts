@@ -70,3 +70,11 @@ describe('remove', () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 });
+
+describe('remove input guards', () => {
+  it('rejects a blank id, naming image in its message', async () => {
+    const { remove } = await import('../remove');
+
+    await expect(remove('')).rejects.toThrow(/^Valid image ID is required$/);
+  });
+});

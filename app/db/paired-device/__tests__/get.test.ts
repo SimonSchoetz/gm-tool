@@ -38,3 +38,13 @@ describe('get', () => {
     expect(await get(UNKNOWN_DEVICE)).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming paired device in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('')).rejects.toThrow(
+      /^Valid paired device ID is required$/,
+    );
+  });
+});

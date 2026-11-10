@@ -93,3 +93,13 @@ describe('duplicate', () => {
     );
   });
 });
+
+describe('duplicate input guards', () => {
+  it('rejects a blank id, naming Base entity in its message', async () => {
+    const { duplicate } = await import('../duplicate');
+
+    await expect(duplicate('npcs', '', null)).rejects.toThrow(
+      /^Valid Base entity ID is required$/,
+    );
+  });
+});

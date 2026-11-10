@@ -38,3 +38,11 @@ describe('get', () => {
     expect(await get('missing-image')).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming image in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('')).rejects.toThrow(/^Valid image ID is required$/);
+  });
+});

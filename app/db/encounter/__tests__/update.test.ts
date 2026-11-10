@@ -95,3 +95,21 @@ describe('update', () => {
     expect(await readEncounter(id)).toEqual(before);
   });
 });
+
+describe('update input guards', () => {
+  it('rejects a blank id, naming Encounter in its message', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('', { name: 'x' })).rejects.toThrow(
+      /^Valid Encounter ID is required$/,
+    );
+  });
+
+  it('rejects an update that carries no field', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('encounter-1', {})).rejects.toThrow(
+      /^At least one field must be provided for update$/,
+    );
+  });
+});

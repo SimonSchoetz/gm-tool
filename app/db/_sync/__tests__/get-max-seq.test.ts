@@ -21,4 +21,13 @@ describe('getMaxSeq', () => {
 
     expect(await getMaxSeq()).toBe(seqBefore + 1);
   });
+
+  it('reads 0 when the counter row is missing', async () => {
+    const { getMaxSeq } = await import('../get-max-seq');
+    const { getDatabase } = await import('@db/database');
+    const db = await getDatabase();
+    await db.execute("DELETE FROM _sync_meta WHERE id = 'seq'");
+
+    expect(await getMaxSeq()).toBe(0);
+  });
 });

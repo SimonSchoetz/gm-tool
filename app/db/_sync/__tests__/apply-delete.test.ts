@@ -160,3 +160,38 @@ describe('applyDelete', () => {
     expect(await readChange('paired_devices', deviceId)).toBeUndefined();
   });
 });
+
+describe('applyDelete change counter', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(LOCAL_UPDATED_AT));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('advances the counter once when it deletes a local row, which its delete trigger already bumps', async () => {
+    const { create } = await import('@db/adventure');
+    const { applyDelete } = await import('../apply-delete');
+    const { getMaxSeq } = await import('../get-max-seq');
+    const id = await create();
+    const seqBefore = await getMaxSeq();
+
+    await applyDelete('adventures', id, DELETED_AT);
+
+    expect(await getMaxSeq()).toBe(seqBefore + 1);
+    expect((await readChange('adventures', id))?.seq).toBe(seqBefore + 1);
+  });
+
+  it('advances the counter once when it records a tombstone for a row it never had', async () => {
+    const { applyDelete } = await import('../apply-delete');
+    const { getMaxSeq } = await import('../get-max-seq');
+    const seqBefore = await getMaxSeq();
+
+    await applyDelete('adventures', 'never-stored', DELETED_AT);
+
+    expect(await getMaxSeq()).toBe(seqBefore + 1);
+  });
+});

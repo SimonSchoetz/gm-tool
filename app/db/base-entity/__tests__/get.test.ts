@@ -52,3 +52,13 @@ describe('get', () => {
     expect(await get('npcs', 'missing-entity')).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming Base entity in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('npcs', '')).rejects.toThrow(
+      /^Valid Base entity ID is required$/,
+    );
+  });
+});

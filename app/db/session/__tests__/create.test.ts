@@ -60,3 +60,13 @@ describe('create', () => {
     expect(await readSessions()).toEqual([]);
   });
 });
+
+describe('create input guards', () => {
+  it('rejects a blank id, naming adventure in its message', async () => {
+    const { create } = await import('../create');
+
+    await expect(create('')).rejects.toThrow(
+      /^Valid adventure ID is required$/,
+    );
+  });
+});

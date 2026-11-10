@@ -40,3 +40,13 @@ describe('remove', () => {
     ).toEqual([keptId]);
   });
 });
+
+describe('remove input guards', () => {
+  it('rejects a blank id, naming Base entity content section in its message', async () => {
+    const { remove } = await import('../remove');
+
+    await expect(remove('')).rejects.toThrow(
+      /^Valid Base entity content section ID is required$/,
+    );
+  });
+});

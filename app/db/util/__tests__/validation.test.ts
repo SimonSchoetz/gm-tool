@@ -46,3 +46,14 @@ describe('assertHasUpdateFields', () => {
     }).not.toThrow();
   });
 });
+
+describe('assertValidId with a value that is not a string', () => {
+  it.each([[42], [{}], [null]])(
+    'throws the required-id message for %j rather than failing on a missing string method',
+    (value) => {
+      expect(() => {
+        assertValidId(value as unknown as string, 'Adventure');
+      }).toThrow(/^Valid Adventure ID is required$/);
+    },
+  );
+});
