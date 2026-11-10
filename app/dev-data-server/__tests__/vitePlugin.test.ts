@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { DATABASE_FILE } from '../../domain/database';
 import { readRepositoryJson } from '../repositoryJson';
 import type { createRequestHandler as createRequestHandlerType } from '../requestHandler';
+import type { seedDatabase as seedDatabaseType } from '../seedDatabase';
 import { devDataServer } from '../vitePlugin';
 import { appDataDirectories } from './support/appDataDirectories';
 import { createTempDirectory } from './support/tempDirectory';
@@ -18,6 +19,14 @@ const createRequestHandler = vi.hoisted(() =>
   vi.fn<typeof createRequestHandlerType>(() => () => undefined),
 );
 vi.mock('../requestHandler', () => ({ createRequestHandler }));
+
+// The real seed by default; a test that needs a seed holding no image replaces it for one start.
+const seedDatabase = vi.hoisted(() => vi.fn<typeof seedDatabaseType>());
+vi.mock('../seedDatabase', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../seedDatabase')>();
+  seedDatabase.mockImplementation(actual.seedDatabase);
+  return { seedDatabase };
+});
 
 describe('devDataServer configResolved', () => {
   const resolvedConfig = (
@@ -211,6 +220,24 @@ describe('devDataServer configureServer and closeServer', () => {
     );
     await close();
     expect(webModeDirs()).toEqual([]);
+  });
+
+  it('in the seeded mode, hands the request handler an images folder that exists even when the seed saves no image', async () => {
+    vi.stubEnv('GM_TOOL_WEB_DATA', 'seed');
+    seedDatabase.mockImplementationOnce(() => Promise.resolve());
+    const webServerConfig = await resolveConfig(
+      {
+        configFile: resolve(import.meta.dirname, '../../vite.config.ts'),
+        mode: 'web',
+      },
+      'serve',
+    );
+
+    const { close } = await startServer('web', webServerConfig);
+
+    const [[context]] = createRequestHandler.mock.calls;
+    expect(readdirSync(context.imagesDir)).toEqual([]);
+    await close();
   });
 
   it('refuses to start without the dev database, naming it, though the installed release data exists, and leaves no copy', async () => {

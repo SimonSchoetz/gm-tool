@@ -186,6 +186,64 @@ describe('mirrorInstalledData', () => {
     ]);
   });
 
+  it('keeps the dev value of a column whose name contains a double quote', () => {
+    writeAppDatabase(releaseDir, {
+      pairedDevices: [{ id: 'release-device', name: 'Release phone' }],
+    });
+    mkdirSync(devDir);
+    writeAppDatabase(devDir, {
+      pairedDevices: [{ id: 'dev-device', name: 'Dev phone' }],
+    });
+    for (const dir of [releaseDir, devDir]) {
+      const db = new DatabaseSync(join(dir, DATABASE_FILE));
+      db.exec('ALTER TABLE paired_devices ADD COLUMN "we""ird" TEXT');
+      db.close();
+    }
+    const devDb = new DatabaseSync(join(devDir, DATABASE_FILE));
+    devDb.exec('UPDATE paired_devices SET "we""ird" = \'dev value\'');
+    devDb.close();
+
+    mirror();
+
+    expect(
+      readAppDatabaseRows(
+        devDir,
+        'SELECT id, "we""ird" AS quoted FROM paired_devices',
+      ),
+    ).toEqual([{ id: 'dev-device', quoted: 'dev value' }]);
+  });
+
+  it('mirrors over a staging folder an interrupted run left behind, and leaves no staging folder', () => {
+    writeAppDatabase(releaseDir, { notes: [{ id: 'one', body: 'release' }] });
+    mkdirSync(join(devDir, '.mirror-staging', 'images'), { recursive: true });
+    writeFileSync(join(devDir, '.mirror-staging', 'stale.txt'), 'stale');
+
+    expect(mirror()).toBe('mirrored');
+
+    expect(readAppDatabaseRows(devDir, 'SELECT id FROM notes')).toEqual([
+      { id: 'one' },
+    ]);
+    expect(listing(devDir)).toEqual([DATABASE_FILE, 'images']);
+  });
+
+  it('applies the dev identity rows to a release database whose header says WAL mode and leaves no -wal or -shm beside the mirrored database', () => {
+    writeAppDatabase(releaseDir, {
+      pairedDevices: [{ id: 'release-device', name: 'Release phone' }],
+    });
+    // Closing the last connection removes the -wal and keeps WAL mode in the header, so the byte copy of the database is a WAL database too.
+    const releaseDb = new DatabaseSync(join(releaseDir, DATABASE_FILE));
+    releaseDb.exec('PRAGMA journal_mode = WAL');
+    releaseDb.close();
+    expect(existsSync(join(releaseDir, `${DATABASE_FILE}-wal`))).toBe(false);
+
+    mirror();
+
+    expect(listing(devDir)).toEqual([DATABASE_FILE, 'images']);
+    expect(
+      readAppDatabaseRows(devDir, 'SELECT id FROM paired_devices'),
+    ).toEqual([]);
+  });
+
   it('leaves the release directory as it was and the dev connectivity key and database backups in place', () => {
     writeAppDatabase(releaseDir, { notes: [{ id: 'one', body: 'release' }] });
     writeImage(releaseDir, 'release.png', 'release image');
