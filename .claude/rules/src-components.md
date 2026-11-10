@@ -19,7 +19,6 @@ Conventions for a file that renders JSX and for the `helper/` directories compon
 ## Component Library
 
 - Each component has its own folder.
-- A component has its own `.css` file only when it owns styles of its own — see `app/src/CLAUDE.md` — Styles for the full rule and the sub-component CSS-extraction convention.
 - Functions that support a component must live in `ComponentName/helper/`, one file per function — never co-located in the component file itself, pure (transformations, formatters, predicates) or not (DOM/canvas mutation drivers). The exception is a function that reads the component's props or state directly, or calls a state setter, touches a ref or calls a hook (an event handler, a callback passed to JSX or a hook): it stays in the component file, but a computation inside it that produces a value and writes nothing (calls no state setter, touches no ref, calls no hook) moves to `helper/` once it has more than one statement or any branch, even at a single occurrence, taking the props, state and other values it reads as arguments (an `onDragEnd` handler deriving the reordered id list from `items`, `active` and `over` passes them as arguments and hands the result on). A branch is an `if`, a `switch`, an early return or a conditional expression (`?:`), the last counting inside a single expression too; `||`, `&&`, `??` and `?.` are not a branch, so a computation using only them stays inline unless it has more than one statement, while a `?:` inside one makes it a branch. Code that stays inline — a single expression without a branch, a bare read of props or state, or code that writes (the setter, ref and hook calls above) — is extracted to `helper/` only at 2+ occurrences within the same component's file — list every occurrence as a call site to update. Structure mirrors the hooks pattern: `helper/helperA.ts` + `helper/__tests__/helperA.test.ts`.
 - **Sub-component ownership**: near-identical JSX repeated 2+ times within a component, with only data-level variance between occurrences, is extracted to a sub-component. A sub-component (a function returning JSX, used exclusively within one parent) belongs in `ComponentName/components/`, where `ComponentName` is its immediate JSX parent — not any ancestor, at every nesting depth (a sub-component's sub-component belongs to its own `components/`, never the screen or top-level module's). When two or more unrelated parents render the same sub-component, it belongs to neither — place it as a peer module directory at the nearest shared ancestor (a standalone `components/SubComponentName/`, not nested under either consumer). **Exception — provider modules**: a component rendered exclusively by a provider still belongs in `components/`, not the provider's own module directory; `providers/` is infrastructure, and its `components/` (if any) holds only provider-internal structural fragments, not domain UI.
 - A module's own `ComponentName/index.ts`, when it has one, never re-exports the contents of its `helper/` or `components/` folders — they are internal to the module.
@@ -28,8 +27,6 @@ Conventions for a file that renders JSX and for the `helper/` directories compon
 ## Context scoped to one component
 
 **A React context whose Provider is rendered by one component, for its own subtree, lives in that component's module directory — never in `providers/`.** The criterion is where the Provider renders: `providers/` holds contexts whose Provider wraps the app root (`.claude/rules/src-providers.md` — providers/). The shape is two files, with `X` a name for what the context carries: `XContext.ts` beside the providing component's main file, declaring `createContext<Value | null>(null)`, and `hooks/useX.ts` in the same module directory (a function-grouping folder, so no `index.ts` — `app/CLAUDE.md` — Directory Structure (all TypeScript layers)), which reads the context with `useContext`, throws when the value is `null`, and names the providing component in the error message. The context file imports nothing from the providing component or its sub-components, so a sub-component that imports the hook (which imports the context file) never closes an `import-x/no-cycle` cycle.
-
-- ✅ `MentionPopup/MentionPopupHeaderContext.ts` + `MentionPopup/hooks/useMentionPopupHeader.ts` (`X` = `MentionPopupHeader`), provided by `MentionPopup/MentionPopup.tsx` and consumed by `MentionPopup/components/MentionPopupHeader/MentionPopupHeader.tsx`
 
 ## Component Internals
 
@@ -56,7 +53,6 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
    - ✅ `type Props = { buttonStyle?: 'danger' } & React.ComponentProps<typeof ActionContainer>`
 
 3. Neither of the above? → `FCProps<Props>` — closed API. Always declare the props as a named `type Props = { ... }` and type the component assignment as `FCProps<Props>`.
-   - ✅ `type Props = { onSearch: (term: string) => void; placeholder?: string }; export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => { ... }`
    - ❌ `const SearchInput = ({ onSearch }: { onSearch: () => void }) => { ... }` — inline destructuring without FCProps
    - ❌ `const SearchInput: React.FC<Props> = ...` — use FCProps, not React.FC
    - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely (✅ `export const AdventureCrumb = () => { ... }`) — do not write `type Props = object`, `type Props = Record<string, never>`, or keep an empty/placeholder `FCProps<Props>`.
@@ -85,9 +81,6 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
 When a CSS value cannot use a global token from `styles/variables/`, declare it as a CSS custom property on the component's root element — the prefix identifies its source. DB-sourced values (known only at runtime) are applied via an inline `style` prop, never as a direct inline style property, and prefixed `--rt-[component-name]-`; the CSS file then consumes the custom property via `var()`. When a component needs both a runtime custom property and a standard CSS property in the same `style` prop, both go in a single object cast — never split across two props or two casts. Static component-scoped values (e.g. a computed layout value set via JavaScript, or an intermediate calculation shared between CSS rules within the same component) are prefixed `--[component-name]-` (kebab-cased, no `rt` segment).
 
 - ✅ `style={{ '--rt-component-xyz-color': color, width: size } as React.CSSProperties}` + CSS: `color: var(--rt-component-xyz-color)`
-- ❌ `style={{ color: color }}` — raw runtime value applied directly as a style property
-- ✅ `--card-flip-duration: 0.4s` (set in CSS) or `--floating-toolbar-offset: 0px` (set in JS as a style prop) — static values, consumed via `var(...)` within the same component
-- ❌ `--rt-toolbar-position: 8px` — `--rt-` signals DB-sourced; never use it for a static or JS-computed value
 
 ## Stylesheet import order
 
@@ -106,5 +99,4 @@ When a CSS value cannot use a global token from `styles/variables/`, declare it 
 
 Never relay a value as a prop when the receiving component can obtain it directly from a framework-managed context. This prohibition covers data-fetching results, data-fetching callbacks, and routing context (URL params via `useParams`). Props are reserved for state that genuinely belongs to a parent: cross-component coordination such as tooltip visibility, modal open/close, or selection state shared between siblings. Pass a callback down only when the parent owns the coordination state and the child reports events up. If a component has a button, that component owns the button's action — it does not receive a callback from two levels up.
 
-- ❌ BAD: `SessionScreen` fetches session data and relays it through `PrepView` and `StepSection` to `StepSectionHeader`; or passes `sessionId` and `adventureId` as props to `SessionHeader` only to feed `useSession`
 - ✅ GOOD: `StepSectionHeader` calls `useSession(sessionId)` directly (TanStack Query serves the cached value); `SessionHeader` calls `useParams()` directly and passes the result to `useSession`
