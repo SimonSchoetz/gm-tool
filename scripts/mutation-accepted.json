@@ -1,5 +1,131 @@
 [
   {
+    "file": "db/_sync/apply-delete.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (recordedDeletedAt !== null && recordedDeletedAt >= deletedAt) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "comparing null with a deletion time is false in JavaScript, so the null test in front of the comparison changes no result"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "MethodExpression",
+    "replacement": "columns",
+    "lineText": "const updateSet = columns",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "the update list then also sets id to excluded.id, which on a conflict on id writes the value the row already holds, so the filter changes no row"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": ".filter((column) => column !== 'id')",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the update list then also sets id to excluded.id, which on a conflict on id writes the value the row already holds, so the filter changes no row"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": ".filter((column) => column !== 'id')",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the update list then also sets id to excluded.id, which on a conflict on id writes the value the row already holds, so the filter changes no row"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (typeof tableName !== 'string' || !isEntityType(tableName))",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a value that is no string is no entity type either, so the second test already skips it"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "} catch {",
+    "occurrence": 1,
+    "lines": 3,
+    "reason": "after a failed delete the upsert that follows meets the unique index on table_config.table_name held by the config that was not deleted and is skipped there, so the result is 'skipped' either way"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "typeof updatedAt !== 'string' ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a non-string updated_at fails the column's schema check a few lines below and is skipped there, so the type test changes no result"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (recordedDeletedAt !== null && recordedDeletedAt > updatedAt) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "comparing null with a deletion time is false in JavaScript, so the null test in front of the comparison changes no result"
+  },
+  {
+    "file": "db/base-entity-content-section/duplicate-by-base-entity.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (sourceSections.length === 0) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the loop over an empty list does nothing, and getting the database handle first has no effect, so returning early changes no result"
+  },
+  {
+    "file": "db/image/create.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "filePath.split('.').pop().toLowerCase",
+    "lineText": "const extension = filePath.split('.').pop()?.toLowerCase() ?? null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "split always returns at least one element, so pop never returns undefined and the optional chain is never needed"
+  },
+  {
+    "file": "db/image/update.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "assertHasUpdateFields(data);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the input type requires all three frame fields, each a number or null, and a null counts as a given field, so no typed call reaches the check without one"
+  },
+  {
+    "file": "db/pinned-order.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "rows[0].max_order",
+    "lineText": "return rows[0]?.max_order ?? null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an aggregate query returns exactly one row, so the optional chain is never needed"
+  },
+  {
+    "file": "db/pinned-order.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "rows[0].max_order",
+    "lineText": "return rows[0]?.max_order ?? null;",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "an aggregate query returns exactly one row, so the optional chain is never needed"
+  },
+  {
+    "file": "db/session-step/duplicate-by-session.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (sourceSteps.length === 0) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the loop over an empty list does nothing, and getting the database handle first has no effect, so returning early changes no result"
+  },
+  {
     "file": "dev-data-server/devMirror.ts",
     "mutator": "ArrayDeclaration",
     "replacement": "[\"Stryker was here\"]",
@@ -216,6 +342,15 @@
     "reason": "runMigrations awaits the callback's result, and awaiting undefined continues just as awaiting a resolved promise does"
   },
   {
+    "file": "domain/base-entity-content-sections/basicStatBlockContent.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "export const BASIC_STAT_BLOCK_HP_LABEL = 'HP';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a label constant whose only observable use is the text it holds, so a test could only assert the text it copies from the source"
+  },
+  {
     "file": "domain/base-entity-content-sections/fiveEStatBlockContent.ts",
     "mutator": "BlockStatement",
     "replacement": "{}",
@@ -241,6 +376,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the code comment at this statement states why no test can observe this change"
+  },
+  {
+    "file": "domain/encounters/nonNegativeWholeNumber.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (parsed.value === null) return parsed;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "null >= 0 is true in JavaScript, so the comparison that follows returns the same parsed value"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -1195,6 +1339,69 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the code comment at this statement states why no test can observe this change"
+  },
+  {
+    "file": "services/devicesService.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "} catch {",
+    "occurrence": 2,
+    "lines": 4,
+    "reason": "without the early return the unparsed value is undefined, which the schema check right below rejects, so the frame is ignored either way"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "() => null,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the queue only chains the next batch behind this one and the value it resolves to is never read, so null and undefined sequence the batches the same"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "() => null,",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the queue only chains the next batch behind this one and the value it resolves to is never read, so null and undefined sequence the batches the same"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (changes.length === 0) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "with no changes the line that reads the last change's seq throws, the caller's catch swallows that rejection, and no message is sent either way"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "const appliedImageChanges: SyncChange[] = [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra element is a string with no row, and the loop that reads each applied change takes its extension through an optional chain on row, so it skips the element"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "change.row.file_extension",
+    "lineText": "const extension = change.row?.file_extension;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an applied image change always carries its row, since a change without one is skipped before it is applied, so the optional chain is never needed"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "} catch {",
+    "occurrence": 6,
+    "lines": 3,
+    "reason": "the block holds only a comment, so emptying it changes nothing"
   },
   {
     "file": "src/components/AnchoredPopup/helper/calculateHorizontalClampOffset.ts",
