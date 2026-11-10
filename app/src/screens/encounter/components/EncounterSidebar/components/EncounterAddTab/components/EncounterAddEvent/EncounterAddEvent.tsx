@@ -23,6 +23,18 @@ export const EncounterAddEvent: FCProps<Props> = ({ hidden }) => {
     setName('');
   };
 
+  const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
+  };
+
+  const onNameKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && canAdd) void handleAdd();
+  };
+
+  const onAdd = () => {
+    void handleAdd();
+  };
+
   return (
     <div className='encounter-add-event' hidden={hidden}>
       <Input
@@ -30,19 +42,10 @@ export const EncounterAddEvent: FCProps<Props> = ({ hidden }) => {
         aria-label='Event name to add'
         placeholder='Name'
         value={name}
-        onChange={(event) => {
-          setName(event.currentTarget.value);
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && canAdd) void handleAdd();
-        }}
+        onChange={onNameChange}
+        onKeyDown={onNameKeyDown}
       />
-      <EncounterAddBtn
-        disabled={!canAdd}
-        onAdd={() => {
-          void handleAdd();
-        }}
-      />
+      <EncounterAddBtn disabled={!canAdd} onAdd={onAdd} />
     </div>
   );
 };

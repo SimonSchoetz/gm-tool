@@ -25,6 +25,7 @@ export const MentionTypeaheadPlugin = () => {
   const triggerFn = useBasicTypeaheadTriggerMatch('@', { minLength: 0 });
   const queryGenerationRef = useRef(0);
 
+  // Consumer: LexicalTypeaheadMenuPlugin lists `onQueryChange` in the dependency array of its editor-update effect (`.claude/knowledge/lexical.md`).
   const onQueryChange = useCallback(
     (matchingString: string | null) => {
       if (matchingString === null) {
@@ -48,6 +49,7 @@ export const MentionTypeaheadPlugin = () => {
     [adventureId, tableConfigs],
   );
 
+  // Consumer: LexicalMenu lists `onSelectOption` in the dependencies of `selectOptionAndCleanUp`, which its key-handler effect lists (`.claude/knowledge/lexical.md`).
   const onSelectOption = useCallback(
     (
       option: MentionMenuOption,
@@ -71,40 +73,39 @@ export const MentionTypeaheadPlugin = () => {
     [editor],
   );
 
-  const menuRenderFn = useCallback(
-    (
-      anchorElementRef: React.RefObject<HTMLElement | null>,
-      {
-        options: menuOptions,
-        selectedIndex,
-        selectOptionAndCleanUp,
-        setHighlightedIndex,
-      }: {
-        options: MentionMenuOption[];
-        selectedIndex: number | null;
-        selectOptionAndCleanUp: (option: MentionMenuOption) => void;
-        setHighlightedIndex: (index: number) => void;
-      },
-    ) => {
-      if (anchorElementRef.current === null || menuOptions.length === 0) {
-        return null;
-      }
-
-      return (
-        <AnchoredPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
-          <GlassPanel className='mention-typeahead-popup'>
-            <MentionOptionList
-              menuOptions={menuOptions}
-              selectedIndex={selectedIndex}
-              selectOptionAndCleanUp={selectOptionAndCleanUp}
-              setHighlightedIndex={setHighlightedIndex}
-            />
-          </GlassPanel>
-        </AnchoredPopup>
-      );
+  const menuRenderFn = (
+    anchorElementRef: React.RefObject<HTMLElement | null>,
+    {
+      options: menuOptions,
+      selectedIndex,
+      selectOptionAndCleanUp,
+      setHighlightedIndex,
+    }: {
+      options: MentionMenuOption[];
+      selectedIndex: number | null;
+      selectOptionAndCleanUp: (option: MentionMenuOption) => void;
+      setHighlightedIndex: (index: number) => void;
     },
-    [editor],
-  );
+  ) => {
+    if (anchorElementRef.current === null || menuOptions.length === 0) {
+      return null;
+    }
+
+    const getAnchorRect = () => getSelectionRangeRect(editor);
+
+    return (
+      <AnchoredPopup getAnchorRect={getAnchorRect}>
+        <GlassPanel className='mention-typeahead-popup'>
+          <MentionOptionList
+            menuOptions={menuOptions}
+            selectedIndex={selectedIndex}
+            selectOptionAndCleanUp={selectOptionAndCleanUp}
+            setHighlightedIndex={setHighlightedIndex}
+          />
+        </GlassPanel>
+      </AnchoredPopup>
+    );
+  };
 
   return (
     <LexicalTypeaheadMenuPlugin

@@ -17,6 +17,12 @@ export const ColorInput: FCProps<Props> = ({ label, value, onChange }) => {
     inputRef.current?.setAttribute('color-space', 'display-p3');
   }, []);
 
+  const hexValue = rgbToHex(value);
+
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(hexToRgb(e.target.value));
+  };
+
   return (
     <label
       className='color-input-wrapper'
@@ -26,10 +32,8 @@ export const ColorInput: FCProps<Props> = ({ label, value, onChange }) => {
         ref={inputRef}
         type='color'
         className='color-input-hidden'
-        value={rgbToHex(value)}
-        onChange={(e) => {
-          onChange(hexToRgb(e.target.value));
-        }}
+        value={hexValue}
+        onChange={onInputChange}
       />
       <span className='color-input-label'>{label}</span>
     </label>

@@ -9,6 +9,9 @@ export const EncounterLogComposer = () => {
   });
   const { recordLogEntry } = useEncounterLogEntries(encounterId);
 
+  const onSubmit = (editorState: string) =>
+    recordLogEntry('message', { editorState });
+
   return (
     <div className='encounter-log-composer'>
       <TextEditor
@@ -16,7 +19,7 @@ export const EncounterLogComposer = () => {
         textEditorId={`encounter-log-composer-${encounterId}`}
         value=''
         placeholder='Write a message...'
-        onSubmit={(editorState) => recordLogEntry('message', { editorState })}
+        onSubmit={onSubmit}
       />
     </div>
   );

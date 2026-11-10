@@ -21,6 +21,10 @@ export const AdventureScreen = () => {
     );
   }
 
+  const onDescriptionChange = (description: string) => {
+    updateAdventure({ description });
+  };
+
   return (
     <ScreensTextEditorLayout
       header={<AdventureScreenHeader />}
@@ -29,9 +33,7 @@ export const AdventureScreen = () => {
         <TextEditor
           value={adventure.description ?? ''}
           textEditorId={`ADVENTURE_${adventure.id}`}
-          onChange={(description) => {
-            updateAdventure({ description });
-          }}
+          onChange={onDescriptionChange}
         />
       }
     />

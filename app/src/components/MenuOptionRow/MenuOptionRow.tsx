@@ -3,6 +3,7 @@ import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/util/className';
+import { getIconIntensity } from './helper/getIconIntensity';
 import './MenuOptionRow.css';
 
 type Props = {
@@ -19,6 +20,8 @@ export const MenuOptionRow: FCProps<Props> = ({
   isSelected,
   ...props
 }) => {
+  const iconIntensity = getIconIntensity(isActive);
+
   return (
     <ActionContainer
       label={label}
@@ -32,10 +35,7 @@ export const MenuOptionRow: FCProps<Props> = ({
       {...props}
     >
       {Icon && (
-        <GlassPanel
-          intensity={isActive ? 'bright' : 'dim'}
-          className='menu-option-row-icon'
-        >
+        <GlassPanel intensity={iconIntensity} className='menu-option-row-icon'>
           <Icon />
         </GlassPanel>
       )}

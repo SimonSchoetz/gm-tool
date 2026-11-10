@@ -1,14 +1,14 @@
 import './SortableListItem.css';
-import { useMemo } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import type { ImagePlaceholderEntityType } from '../../../EntityPlaceholderIcon';
 import { GlassPanel } from '../../../GlassPanel/GlassPanel';
 import { ActionContainer } from '../../../ActionContainer/ActionContainer';
 import { useTableConfig } from '@/data-access-layer';
-import { buildGridTemplate } from '../../helper/buildGridTemplate';
 import { isItemPinned } from '../../helper/isItemPinned';
+import { buildItemGridTemplate } from './helper/buildItemGridTemplate';
+import { readStringField } from './helper/readStringField';
 import { renderCell } from './helper/renderCell';
-import { RowActionsMenu } from './components/RowActionsMenu/RowActionsMenu';
+import { RowActionsMenu } from './components/RowActionsMenu';
 import { cn } from '@/util/className';
 
 type Props = {
@@ -29,18 +29,18 @@ export const SortableListItem: FCProps<Props> = ({
   const { config } = useTableConfig(tableConfigId);
   const columns = config?.layout.columns ?? [];
 
-  const gridTemplateColumns = useMemo(() => {
-    const cols = config?.layout.columns ?? [];
-    const keys = cols.map((c) => c.key);
-    const widths =
-      dragWidths ?? Object.fromEntries(cols.map((c) => [c.key, c.width]));
-    return buildGridTemplate(keys, widths);
-  }, [config?.layout.columns, dragWidths]);
+  const gridTemplateColumns = buildItemGridTemplate(columns, dragWidths);
 
-  const name = typeof item.name === 'string' ? item.name : '';
-  const itemId = typeof item.id === 'string' ? item.id : '';
+  const name = readStringField(item, 'name');
+  const itemId = readStringField(item, 'id');
 
   const isItemWithImage = 'image_id' in item;
+
+  const isPinned = isItemPinned(item);
+
+  const onItemClick = () => {
+    onClick(item);
+  };
 
   return (
     <li className='sortable-list-item'>
@@ -49,9 +49,7 @@ export const SortableListItem: FCProps<Props> = ({
           label={`Go to ${name}`}
           className='sortable-list-item--content'
           style={{ gridTemplateColumns }}
-          onClick={() => {
-            onClick(item);
-          }}
+          onClick={onItemClick}
         >
           {columns.map((col) => (
             <div
@@ -75,7 +73,7 @@ export const SortableListItem: FCProps<Props> = ({
         <RowActionsMenu
           tableConfigId={tableConfigId}
           itemId={itemId}
-          isPinned={isItemPinned(item)}
+          isPinned={isPinned}
         />
       </GlassPanel>
     </li>

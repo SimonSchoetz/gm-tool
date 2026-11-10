@@ -253,18 +253,9 @@
   },
   {
     "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "const [viewerState, setViewerState] = useState<'open' | 'closed'>('closed');",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
-  },
-  {
-    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
     "mutator": "ObjectLiteral",
     "replacement": "{}",
-    "lineText": "dimensions={{",
+    "lineText": "const IMAGE_DIMENSIONS = {",
     "occurrence": 0,
     "lines": 4,
     "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
@@ -286,6 +277,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "inline style only; jsdom computes no layout and component tests may not assert inline styles"
+  },
+  {
+    "file": "src/components/EntityPopupBody/EntityPopupBody.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const [viewerState, setViewerState] = useState<'open' | 'closed'>('closed');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
   },
   {
     "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
@@ -378,6 +378,15 @@
     "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
   },
   {
+    "file": "src/components/MentionPopup/MentionPopup.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "zIndex && null",
+    "lineText": "zIndex: zIndex ?? null,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the value reaches only AnchoredPopup's inline z-index through the section menu, which component tests may not assert"
+  },
+  {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
     "mutator": "ConditionalExpression",
     "replacement": "true",
@@ -394,24 +403,6 @@
     "occurrence": 2,
     "lines": 1,
     "reason": "a hover request that fires after the click finds the click-open entry and changes nothing"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "props.kind === 'combatant'",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": ": 'plain';",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
@@ -444,7 +435,7 @@
     "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
     "mutator": "ArrowFunction",
     "replacement": "() => undefined",
-    "lineText": "items={shownEntries.map((entry) => entry.id)}",
+    "lineText": "const shownIds = shownEntries.map((entry) => entry.id);",
     "occurrence": 0,
     "lines": 1,
     "reason": "the sorting strategy reads items only for transforms from measured rects, which jsdom does not compute"

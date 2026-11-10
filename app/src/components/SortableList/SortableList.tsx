@@ -10,7 +10,7 @@ import type { ImagePlaceholderEntityType } from '../EntityPlaceholderIcon';
 import './SortableList.css';
 import { SortableListItem } from './components/SortableListItem';
 import { SortingTableHeader } from './components/SortingTableHeader/SortingTableHeader';
-import { partitionPinnedItems } from './helper/partitionPinnedItems';
+import { partitionVisibleItems } from './helper/partitionVisibleItems';
 
 type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   tableConfigId: string;
@@ -88,9 +88,10 @@ export const SortableList = <
     sortedNameMatches.length === 0 &&
     sortedFieldMatches.length === 0;
   const showCreateNewBtn = !!onCreateNew && (!isSearching || hasNothingToShow);
-  const { pinnedItems, unpinnedItems } = isSearching
-    ? { pinnedItems: [], unpinnedItems: sortedNameMatches }
-    : partitionPinnedItems(sortedNameMatches);
+  const { pinnedItems, unpinnedItems } = partitionVisibleItems(
+    sortedNameMatches,
+    isSearching,
+  );
 
   const handleRowClick = (item: Record<string, unknown>) => {
     onRowClick(item as T);

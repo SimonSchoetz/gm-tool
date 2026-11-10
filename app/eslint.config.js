@@ -10,6 +10,7 @@ import tseslint from 'typescript-eslint';
 import noConstantArgument from './eslint-rules/no-constant-argument.js';
 import noExtensionlessNodeHostImport from './eslint-rules/no-extensionless-node-host-import.js';
 import noImportPastIndex from './eslint-rules/no-import-past-index.js';
+import noInlineJsxValues from './eslint-rules/no-inline-jsx-values.js';
 import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-result.js';
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
@@ -88,6 +89,7 @@ export default defineConfig(
           'no-constant-argument': noConstantArgument,
           'no-extensionless-node-host-import': noExtensionlessNodeHostImport,
           'no-import-past-index': noImportPastIndex,
+          'no-inline-jsx-values': noInlineJsxValues,
           'no-unnormalized-lookup-result': noUnnormalizedLookupResult,
           'no-unused-exports': noUnusedExports,
           'no-wrapped-line-comments': noWrappedLineComments,
@@ -183,6 +185,12 @@ export default defineConfig(
         },
       ],
     },
+  },
+  {
+    // .claude/rules/src-components.md — Component Internals: a derived value or an event handler a component's JSX uses is a named const above the return, so a JSX attribute value is never an inline function, call, conditional, object or array outside `className`, `style` and what reads a `.map()` or `.flatMap()` callback's variable. The generated routeTree is a `.ts` file and a test's own JSX is out of the rule's scope.
+    files: ['src/**/*.tsx'],
+    ignores: ['src/**/__tests__/**'],
+    rules: { 'local/no-inline-jsx-values': 'error' },
   },
   {
     // The non-UI layers, the platform module and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.

@@ -32,14 +32,26 @@ export const StepSectionHeader: FCProps<Props> = ({
 
   const stepName = sessionStepName(step.name, step.default_step_key);
 
+  const onCheckedChange = () => {
+    updateStep(step.id, { checked: step.checked ? 0 : 1 });
+  };
+
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: `Step: ${stepName}`,
+      onDeletionConfirm: () => {
+        void deleteStep(step.id);
+      },
+      oneClickConfirm: true,
+    });
+  };
+
   return (
     <div className='step-section-header'>
       <Checkbox
         id={`step-checkbox-${step.id}`}
         checked={step.checked === 1}
-        onChange={() => {
-          updateStep(step.id, { checked: step.checked ? 0 : 1 });
-        }}
+        onChange={onCheckedChange}
       />
 
       <StepSectionHeaderTitle stepId={step.id} />
@@ -61,15 +73,7 @@ export const StepSectionHeader: FCProps<Props> = ({
         variant='danger'
         title='Delete step'
         label='Delete step'
-        onClick={() => {
-          openDeleteDialog({
-            name: `Step: ${stepName}`,
-            onDeletionConfirm: () => {
-              void deleteStep(step.id);
-            },
-            oneClickConfirm: true,
-          });
-        }}
+        onClick={onDeleteClick}
       />
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/util/className';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
+import { getActiveIndex } from './helper/getActiveIndex';
 import './LabeledToggleButton.css';
 
 type Option<T extends string> = {
@@ -20,7 +21,7 @@ export const LabeledToggleButton = <T extends string>({
   value,
   onChange,
 }: Props<T>) => {
-  const activeIndex = options[0].value === value ? 0 : 1;
+  const activeIndex = getActiveIndex(options, value);
   const [displayIndex, setDisplayIndex] = useState(activeIndex);
   const [prevActiveIndex, setPrevActiveIndex] = useState(activeIndex);
 

@@ -25,6 +25,10 @@ export const InGameView = () => {
     );
   }
 
+  const onSummaryChange = (summary: string) => {
+    updateSession({ summary });
+  };
+
   return (
     <div className='in-game-view'>
       <GlassPanel intensity='bright' className='in-game-view--summary'>
@@ -32,9 +36,7 @@ export const InGameView = () => {
           className='in-game-view--summary-text-editor'
           textEditorId={`session-summary-${sessionId}`}
           value={session?.summary ?? ''}
-          onChange={(summary) => {
-            updateSession({ summary });
-          }}
+          onChange={onSummaryChange}
           placeholder='Ingame notes and session summary...'
         />
       </GlassPanel>

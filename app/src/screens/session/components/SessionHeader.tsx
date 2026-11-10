@@ -25,6 +25,15 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
 
   if (!session) return;
 
+  const onNameCommit = (name: string) => {
+    updateSession({ name });
+  };
+
+  const onDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSessionDate(e.target.value);
+    updateSession({ session_date: e.target.value });
+  };
+
   return (
     <header className='session-header'>
       <SyncedInput
@@ -32,9 +41,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
         className='session-name-input'
         placeholder='Session name, i. e. ingame date'
         initValue={session.name ?? ''}
-        onCommit={(name) => {
-          updateSession({ name });
-        }}
+        onCommit={onNameCommit}
       />
 
       <label className='session-date'>
@@ -43,10 +50,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
         <DateInput
           className='session-date-input'
           value={sessionDate}
-          onChange={(e) => {
-            setSessionDate(e.target.value);
-            updateSession({ session_date: e.target.value });
-          }}
+          onChange={onDateChange}
           {...dateFocusProps}
         />
       </label>

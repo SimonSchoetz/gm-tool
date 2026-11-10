@@ -17,6 +17,11 @@ export const SlideTransition: FCProps<Props> = ({
   className,
   children,
 }) => {
+  const onAnimationEnd = (event: React.AnimationEvent<HTMLDivElement>) => {
+    // The target === currentTarget check keeps an animation inside the children from ending the slide early, which would remove the outgoing content mid-animation.
+    if (event.target === event.currentTarget) onEnd();
+  };
+
   return (
     <div className={cn('slide-transition', className)}>
       <div
@@ -24,10 +29,7 @@ export const SlideTransition: FCProps<Props> = ({
           'slide-transition-incoming',
           slide && `slide-transition-incoming--${slide.direction}`,
         )}
-        onAnimationEnd={(event) => {
-          // The target === currentTarget check keeps an animation inside the children from ending the slide early, which would remove the outgoing content mid-animation.
-          if (event.target === event.currentTarget) onEnd();
-        }}
+        onAnimationEnd={onAnimationEnd}
       >
         {children}
       </div>

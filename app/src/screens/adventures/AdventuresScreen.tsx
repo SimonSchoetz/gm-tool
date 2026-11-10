@@ -31,15 +31,17 @@ export const AdventuresScreen = () => {
     '--adventure-preview-height': `${ADVENTURE_PREVIEW_HEIGHT}px`,
   } as React.CSSProperties;
 
+  const onCreateClick = () => {
+    void handleAdventureCreation();
+  };
+
   return (
     <ul className='content-center adventure-list-container'>
       <li key='new-adventure'>
         <NewItemBtn
           className='new-adventure-btn'
           label={'Create new adventure'}
-          onClick={() => {
-            void handleAdventureCreation();
-          }}
+          onClick={onCreateClick}
           style={adventurePreviewDimensions}
         />
       </li>

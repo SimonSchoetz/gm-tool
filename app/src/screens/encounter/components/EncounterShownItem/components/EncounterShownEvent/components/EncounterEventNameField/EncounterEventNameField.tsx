@@ -5,6 +5,7 @@ import { useEncounterQueueItems } from '@/data-access-layer';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { useTypographicInput } from '@/hooks/useTypographicInput';
 import { FCProps } from '@/types/fcProps.type';
+import { blurOnEnter } from '@/util/blurOnEnter';
 
 type Props = { shownItemId: string };
 
@@ -36,9 +37,7 @@ export const EncounterEventNameField: FCProps<Props> = ({ shownItemId }) => {
       onChange={handleChange}
       onFocus={focusProps.onFocus}
       onBlur={focusProps.onBlur}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter') event.currentTarget.blur();
-      }}
+      onKeyDown={blurOnEnter}
     />
   );
 };

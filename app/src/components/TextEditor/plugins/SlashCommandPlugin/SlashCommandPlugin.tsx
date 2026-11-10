@@ -24,10 +24,12 @@ export const SlashCommandPlugin = () => {
     allowWhitespace: false,
   });
 
+  // Consumer: LexicalTypeaheadMenuPlugin lists `onQueryChange` in the dependency array of its editor-update effect (`.claude/knowledge/lexical.md`).
   const onQueryChange = useCallback((matchingString: string | null) => {
     setQuery(matchingString);
   }, []);
 
+  // Consumer: LexicalMenu lists `options` in the dependency array of its key-handler effect (`.claude/knowledge/lexical.md`).
   const options = useMemo(() => {
     if (query === null) {
       return [];
@@ -38,6 +40,7 @@ export const SlashCommandPlugin = () => {
     );
   }, [query]);
 
+  // Consumer: LexicalMenu lists `onSelectOption` in the dependencies of `selectOptionAndCleanUp`, which its key-handler effect lists (`.claude/knowledge/lexical.md`).
   const onSelectOption = useCallback(
     (
       option: SlashCommandOption,
@@ -53,55 +56,54 @@ export const SlashCommandPlugin = () => {
     [editor],
   );
 
-  const menuRenderFn = useCallback(
-    (
-      anchorElementRef: React.RefObject<HTMLElement | null>,
-      {
-        options: menuOptions,
-        selectedIndex,
-        selectOptionAndCleanUp,
-        setHighlightedIndex,
-      }: {
-        options: SlashCommandOption[];
-        selectedIndex: number | null;
-        selectOptionAndCleanUp: (option: SlashCommandOption) => void;
-        setHighlightedIndex: (index: number) => void;
-      },
-    ) => {
-      if (anchorElementRef.current === null || menuOptions.length === 0) {
-        return null;
-      }
-
-      let activeOptionKeys = new Set<string>();
-      editor.getEditorState().read(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          const anchorNode = selection.anchor.getNode();
-          const element = resolveTopLevelBlock(anchorNode);
-          activeOptionKeys = new Set(
-            menuOptions
-              .filter((option) => option.isActive(element))
-              .map((option) => option.key),
-          );
-        }
-      });
-
-      return (
-        <AnchoredPopup getAnchorRect={() => getSelectionRangeRect(editor)}>
-          <PopupSurface>
-            <SlashCommandOptionList
-              menuOptions={menuOptions}
-              selectedIndex={selectedIndex}
-              activeOptionKeys={activeOptionKeys}
-              selectOptionAndCleanUp={selectOptionAndCleanUp}
-              setHighlightedIndex={setHighlightedIndex}
-            />
-          </PopupSurface>
-        </AnchoredPopup>
-      );
+  const menuRenderFn = (
+    anchorElementRef: React.RefObject<HTMLElement | null>,
+    {
+      options: menuOptions,
+      selectedIndex,
+      selectOptionAndCleanUp,
+      setHighlightedIndex,
+    }: {
+      options: SlashCommandOption[];
+      selectedIndex: number | null;
+      selectOptionAndCleanUp: (option: SlashCommandOption) => void;
+      setHighlightedIndex: (index: number) => void;
     },
-    [editor],
-  );
+  ) => {
+    if (anchorElementRef.current === null || menuOptions.length === 0) {
+      return null;
+    }
+
+    let activeOptionKeys = new Set<string>();
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const anchorNode = selection.anchor.getNode();
+        const element = resolveTopLevelBlock(anchorNode);
+        activeOptionKeys = new Set(
+          menuOptions
+            .filter((option) => option.isActive(element))
+            .map((option) => option.key),
+        );
+      }
+    });
+
+    const getAnchorRect = () => getSelectionRangeRect(editor);
+
+    return (
+      <AnchoredPopup getAnchorRect={getAnchorRect}>
+        <PopupSurface>
+          <SlashCommandOptionList
+            menuOptions={menuOptions}
+            selectedIndex={selectedIndex}
+            activeOptionKeys={activeOptionKeys}
+            selectOptionAndCleanUp={selectOptionAndCleanUp}
+            setHighlightedIndex={setHighlightedIndex}
+          />
+        </PopupSurface>
+      </AnchoredPopup>
+    );
+  };
 
   return (
     <LexicalTypeaheadMenuPlugin

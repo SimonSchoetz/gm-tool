@@ -28,13 +28,15 @@ export const StepSectionHeaderTitle: FCProps<Props> = ({ stepId }) => {
     );
   }
 
+  const onNameCommit = (name: string) => {
+    updateStep(step.id, { name });
+  };
+
   return (
     <SyncedInput
       className='step-name'
       initValue={step.name ?? ''}
-      onCommit={(name) => {
-        updateStep(step.id, { name });
-      }}
+      onCommit={onNameCommit}
       placeholder='Step name'
     />
   );

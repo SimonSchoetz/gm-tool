@@ -1,28 +1,18 @@
 import { useRef, useState } from 'react';
-import {
-  EllipsisVerticalIcon,
-  PinIcon,
-  PinOffIcon,
-  LucideIcon,
-} from 'lucide-react';
+import { EllipsisVerticalIcon } from 'lucide-react';
 import { FCProps } from '@/types/fcProps.type';
 import { useTableConfig, useSetPinnedOrder } from '@/data-access-layer';
 import { AnchoredPopup } from '../../../../../AnchoredPopup';
 import { PopupSurface } from '../../../../../PopupSurface/PopupSurface';
 import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
 import { ClickableIcon } from '../../../../../ClickableIcon/ClickableIcon';
+import { getRowActionOptions } from './helper/getRowActionOptions';
 import './RowActionsMenu.css';
 
 type Props = {
   tableConfigId: string;
   itemId: string;
   isPinned: boolean;
-};
-
-type MenuOption = {
-  key: string;
-  Icon: LucideIcon;
-  label: string;
 };
 
 export const RowActionsMenu: FCProps<Props> = ({
@@ -48,9 +38,22 @@ export const RowActionsMenu: FCProps<Props> = ({
     setIsOpen(false);
   };
 
-  const options: MenuOption[] = isPinned
-    ? [{ key: 'unpin', Icon: PinOffIcon, label: 'Unpin' }]
-    : [{ key: 'pin', Icon: PinIcon, label: 'Pin' }];
+  const options = getRowActionOptions(isPinned);
+
+  const onToggle = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const getAnchorRect = () =>
+    triggerRef.current?.getBoundingClientRect() ?? null;
+
+  const onClickOutside = () => {
+    setIsOpen(false);
+  };
+
+  const onOptionClick = () => {
+    void handlePinToggle();
+  };
 
   return (
     <>
@@ -59,20 +62,14 @@ export const RowActionsMenu: FCProps<Props> = ({
           ref={triggerRef}
           icon={<EllipsisVerticalIcon />}
           label='Row actions'
-          onClick={() => {
-            setIsOpen((prev) => !prev);
-          }}
+          onClick={onToggle}
         />
       </div>
 
       {isOpen && (
         <AnchoredPopup
-          getAnchorRect={() =>
-            triggerRef.current?.getBoundingClientRect() ?? null
-          }
-          onClickOutside={() => {
-            setIsOpen(false);
-          }}
+          getAnchorRect={getAnchorRect}
+          onClickOutside={onClickOutside}
         >
           <PopupSurface className='row-actions-menu-popup'>
             <ul>
@@ -81,9 +78,7 @@ export const RowActionsMenu: FCProps<Props> = ({
                   <MenuOptionRow
                     Icon={option.Icon}
                     label={option.label}
-                    onClick={() => {
-                      void handlePinToggle();
-                    }}
+                    onClick={onOptionClick}
                   />
                 </li>
               ))}

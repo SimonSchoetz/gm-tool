@@ -13,6 +13,10 @@ export const EncounterNotes = () => {
 
   if (!encounter) return;
 
+  const onDescriptionChange = (description: string) => {
+    updateEncounter({ description });
+  };
+
   return (
     <GlassPanel
       intensity='bright'
@@ -27,9 +31,7 @@ export const EncounterNotes = () => {
         className='encounter-notes-text-editor'
         textEditorId={`ENCOUNTER_${encounter.id}_description`}
         value={encounter.description ?? ''}
-        onChange={(description) => {
-          updateEncounter({ description });
-        }}
+        onChange={onDescriptionChange}
         placeholder='Global combat notes...'
       />
     </GlassPanel>

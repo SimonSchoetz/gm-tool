@@ -6,6 +6,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { usePairing } from '@/data-access-layer';
 import type { FCProps } from '@/types/fcProps.type';
 import './PairDeviceDialog.css';
+import { getPairDialogMode } from './helper/getPairDialogMode';
 import { PDDCandidatesList } from './components/PDDCandidatesList/PDDCandidatesList';
 import { H2 } from '../../../H2/H2';
 
@@ -37,12 +38,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
     }
   }, [succeeded, onClose]);
 
-  const mode: 'list' | 'entering-code' | 'showing-code' =
-    codeRequest !== null
-      ? 'showing-code'
-      : requestedCandidateId !== null
-        ? 'entering-code'
-        : 'list';
+  const mode = getPairDialogMode(codeRequest, requestedCandidateId);
 
   const DialogHeader = (
     <h1 className='pair-device-dialog-title'>Pair a new device</h1>
@@ -64,6 +60,21 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
       </GlassPanel>
     );
   }
+
+  const onCandidateClick = (id: string) => {
+    clearSubmitError();
+    requestCode(id);
+  };
+
+  const onCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCodeInput(e.target.value);
+  };
+
+  const onConfirm = () => {
+    if (requestedCandidateId !== null) {
+      submitCode(requestedCandidateId, codeInput);
+    }
+  };
 
   return (
     <GlassPanel className='pair-device-dialog'>
@@ -101,10 +112,7 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
           ) : (
             <PDDCandidatesList
               candidates={candidates}
-              onClick={(id) => {
-                clearSubmitError();
-                requestCode(id);
-              }}
+              onClick={onCandidateClick}
             />
           )}
         </>
@@ -120,18 +128,10 @@ export const PairDeviceDialog: FCProps<Props> = ({ onClose }) => {
           <Input
             className='pair-device-dialog--code-input'
             value={codeInput}
-            onChange={(e) => {
-              setCodeInput(e.target.value);
-            }}
+            onChange={onCodeChange}
           />
 
-          <Button
-            label='Confirm'
-            disabled={isSubmitting}
-            onClick={() => {
-              submitCode(requestedCandidateId, codeInput);
-            }}
-          />
+          <Button label='Confirm' disabled={isSubmitting} onClick={onConfirm} />
         </div>
       )}
     </GlassPanel>

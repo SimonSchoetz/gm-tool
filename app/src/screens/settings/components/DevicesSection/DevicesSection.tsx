@@ -32,6 +32,15 @@ export const DevicesSection = () => {
     }
   }, [pairDialogState]);
 
+  const onOpenDialog = () => {
+    setPairDialogState('open');
+    setDialogMounted(true);
+  };
+
+  const onCloseDialog = () => {
+    setPairDialogState('closed');
+  };
+
   return (
     <Section>
       <H2 heading='Devices' />
@@ -50,10 +59,7 @@ export const DevicesSection = () => {
         <Button
           className='devices-section--open-dialog-btn'
           label='Pair devices'
-          onClick={() => {
-            setPairDialogState('open');
-            setDialogMounted(true);
-          }}
+          onClick={onOpenDialog}
         />
 
         {dialogMounted &&
@@ -62,11 +68,7 @@ export const DevicesSection = () => {
               state={pairDialogState}
               setState={setPairDialogState}
             >
-              <PairDeviceDialog
-                onClose={() => {
-                  setPairDialogState('closed');
-                }}
-              />
+              <PairDeviceDialog onClose={onCloseDialog} />
             </PopUpContainer>,
             document.body,
           )}

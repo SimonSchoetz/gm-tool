@@ -1,6 +1,6 @@
 import type { BaseEntityType } from '@domain';
 import { EntityPlaceholderIcon } from '@/components/EntityPlaceholderIcon';
-import { ImageById } from '@/components/ImageById/ImageById';
+import { ImageById } from '@/components/ImageById';
 import { ImagePlaceholderFrame } from '@/components/ImagePlaceholderFrame/ImagePlaceholderFrame';
 import { FCProps } from '@/types/fcProps.type';
 import './EncounterEntityImage.css';
@@ -15,18 +15,22 @@ export const EncounterEntityImage: FCProps<Props> = ({
   imageId,
   entityType,
   size,
-}) => (
-  <ImagePlaceholderFrame
-    className='encounter-entity-image'
-    dimensions={{ width: size, height: size }}
-  >
-    {imageId !== null ? (
-      <ImageById imageId={imageId} />
-    ) : (
-      <EntityPlaceholderIcon
-        entityType={entityType}
-        className='encounter-entity-image-icon'
-      />
-    )}
-  </ImagePlaceholderFrame>
-);
+}) => {
+  const dimensions = { width: size, height: size };
+
+  return (
+    <ImagePlaceholderFrame
+      className='encounter-entity-image'
+      dimensions={dimensions}
+    >
+      {imageId !== null ? (
+        <ImageById imageId={imageId} />
+      ) : (
+        <EntityPlaceholderIcon
+          entityType={entityType}
+          className='encounter-entity-image-icon'
+        />
+      )}
+    </ImagePlaceholderFrame>
+  );
+};

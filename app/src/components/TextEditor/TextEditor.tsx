@@ -18,7 +18,6 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LinkNode } from '@lexical/link';
 import { TableNode, TableRowNode, TableCellNode } from '@lexical/table';
@@ -44,7 +43,7 @@ import {
   EXTERNAL_SYNC_TAG,
   TEXT_EDITOR_GUTTER_WIDTH,
 } from './TextEditor.constants';
-import { TYPOGRAPHIC_TRANSFORMERS } from './typographicTransformers';
+import { getMarkdownTransformers } from './helper/getMarkdownTransformers';
 import { cn } from '@/util/className';
 
 type Props = {
@@ -140,6 +139,8 @@ export const TextEditor: FCProps<Props> = ({
     }
   };
 
+  const markdownTransformers = getMarkdownTransformers(isDocument);
+
   return (
     <div className={cn('text-editor-container', className)}>
       {/* key={textEditorId} forces a full remount when the caller renders a different entity's field at the same call site (e.g. TanStack Router reusing a screen component across /foe/$foeId param changes) — without it, ExternalValueSyncPlugin's focus-skip guard (correctly there to protect active typing during a same-entity peer sync) can also skip adopting the new entity's value, since a click on an in-text mention link doesn't necessarily blur the contentEditable, leaving the previous entity's content in place and then saving it over the newly-navigated entity on the next selection-driven change. */}
@@ -178,18 +179,7 @@ export const TextEditor: FCProps<Props> = ({
           {isDocument && <TabIndentationPlugin />}
           {isDocument && <LinkPlugin />}
           {isDocument && <EmbeddedLinkPlugin />}
-          <MarkdownShortcutPlugin
-            transformers={
-              isDocument
-                ? [
-                    UNORDERED_LIST,
-                    ORDERED_LIST,
-                    CHECK_LIST,
-                    ...TYPOGRAPHIC_TRANSFORMERS,
-                  ]
-                : TYPOGRAPHIC_TRANSFORMERS
-            }
-          />
+          <MarkdownShortcutPlugin transformers={markdownTransformers} />
 
           {onChange && <OnChangePlugin onChange={handleChange} />}
           <ExternalValueSyncPlugin value={value} />

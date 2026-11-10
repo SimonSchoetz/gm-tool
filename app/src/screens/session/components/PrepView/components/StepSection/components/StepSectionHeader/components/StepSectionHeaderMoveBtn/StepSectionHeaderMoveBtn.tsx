@@ -21,18 +21,22 @@ export const StepSectionHeaderMoveBtn: FCProps<Props> = ({ stepId }) => {
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === steps.length - 1;
 
+  const onUp = () => {
+    reorderSteps(step.id, 'up');
+  };
+
+  const onDown = () => {
+    reorderSteps(step.id, 'down');
+  };
+
   return (
     <UpDownBtns
       upLabel='Move up'
       downLabel='Move down'
       isUpDisabled={isFirst}
       isDownDisabled={isLast}
-      onUp={() => {
-        reorderSteps(step.id, 'up');
-      }}
-      onDown={() => {
-        reorderSteps(step.id, 'down');
-      }}
+      onUp={onUp}
+      onDown={onDown}
     />
   );
 };

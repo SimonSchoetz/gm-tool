@@ -32,18 +32,22 @@ export const SessionsScreen = () => {
     );
   }
 
+  const onRowClick = (session: Session) => {
+    void router.navigate({
+      to: buildEntityPath('sessions', session.id, adventureId),
+    });
+  };
+
+  const onCreateNew = () => {
+    void handleSessionCreation();
+  };
+
   return (
     <SortableList<Session>
       tableConfigId={sessionsTableConfig.id}
       items={sessions}
-      onRowClick={(session) => {
-        void router.navigate({
-          to: buildEntityPath('sessions', session.id, adventureId),
-        });
-      }}
-      onCreateNew={() => {
-        void handleSessionCreation();
-      }}
+      onRowClick={onRowClick}
+      onCreateNew={onCreateNew}
       searchPlaceholder='e.g. "session name, description"'
     />
   );

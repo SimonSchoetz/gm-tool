@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { useImage, useUpdateImageFrame } from '@/data-access-layer';
-import { ImageById } from '../../../ImageById/ImageById';
+import { ImageById } from '../../../ImageById';
 import { clampFrame } from './helper/clampFrame';
 import { computePanDelta } from './helper/computePanDelta';
 import type { FrameState } from './helper/clampFrame';

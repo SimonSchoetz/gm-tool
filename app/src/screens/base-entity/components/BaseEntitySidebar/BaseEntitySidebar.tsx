@@ -8,7 +8,7 @@ import {
   type BaseEntityType,
 } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
-import { PREVIEW_HEIGHT, PREVIEW_WIDTH } from '../../../screens.constants';
+import { PREVIEW_DIMENSIONS } from '../../../screens.constants';
 import { useRouter, useParams } from '@tanstack/react-router';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
@@ -36,36 +36,44 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
     });
   };
 
+  const onUpload = (filePath: string) => {
+    updateBaseEntity({
+      imgFilePath: filePath,
+      image_id: baseEntity.image_id,
+    });
+  };
+
+  const onImageDelete = () => {
+    if (baseEntity.image_id) void removeBaseEntityImage();
+  };
+
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: baseEntity.name ?? '',
+      onDeletionConfirm: () => {
+        void handleBaseEntityDelete();
+      },
+      oneClickConfirm: false,
+    });
+  };
+
+  const deleteLabel = `Delete ${entityTypeLabel(entityType)}`;
+
   return (
     <ScreensSidebar>
       <UploadImgBtn
-        dimensions={{ width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT }}
+        dimensions={PREVIEW_DIMENSIONS}
         image_id={baseEntity.image_id}
         title=''
-        uploadFn={(filePath) => {
-          updateBaseEntity({
-            imgFilePath: filePath,
-            image_id: baseEntity.image_id,
-          });
-        }}
-        deleteFn={() => {
-          if (baseEntity.image_id) void removeBaseEntityImage();
-        }}
+        uploadFn={onUpload}
+        deleteFn={onImageDelete}
       />
 
       <ScreensDuplicateBtn entityType={entityType} />
 
       <Button
-        label={`Delete ${entityTypeLabel(entityType)}`}
-        onClick={() => {
-          openDeleteDialog({
-            name: baseEntity.name ?? '',
-            onDeletionConfirm: () => {
-              void handleBaseEntityDelete();
-            },
-            oneClickConfirm: false,
-          });
-        }}
+        label={deleteLabel}
+        onClick={onDeleteClick}
         buttonStyle={'danger'}
       />
     </ScreensSidebar>

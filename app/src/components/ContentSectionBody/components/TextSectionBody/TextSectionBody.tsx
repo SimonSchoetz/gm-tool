@@ -3,6 +3,7 @@ import { TextEditor } from '@/components/TextEditor';
 import { FCProps } from '@/types/fcProps.type';
 import type { SectionBodyProps } from '../../types';
 import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from '../../ContentSectionBody.constants';
+import { buildSectionTextEditorId } from '../../helper/buildSectionTextEditorId';
 
 type Props = SectionBodyProps;
 
@@ -14,10 +15,15 @@ export const TextSectionBody: FCProps<Props> = ({
 }) => {
   const { updateSection } = useBaseEntityContentSections(baseEntityId);
 
+  const textEditorId = buildSectionTextEditorId(
+    'content-section',
+    section.id,
+    readOnly,
+  );
+
   return (
-    // The id includes the section id and the mode, so switching sections remounts TextEditor (it keys on textEditorId) instead of keeping the previous section's content.
     <TextEditor
-      textEditorId={`content-section-${section.id}-${readOnly ? 'read' : 'edit'}`}
+      textEditorId={textEditorId}
       value={section.content ?? ''}
       readOnly={readOnly}
       {...(!readOnly && {

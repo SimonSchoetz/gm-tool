@@ -33,6 +33,19 @@ export const TableEdgeHint: FCProps<Props> = ({
   onClick,
 }) => {
   const { top, left } = calculateHintPosition(direction, cellRect);
+
+  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
+  const onHintMouseEnter = () => {
+    onMouseEnter(direction);
+  };
+
+  const onHintClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    onClick(type, e.currentTarget);
+  };
+
   return (
     <div
       className={cn(
@@ -49,16 +62,10 @@ export const TableEdgeHint: FCProps<Props> = ({
           display: show ? undefined : 'none',
         } as React.CSSProperties
       }
-      onMouseDown={(e) => {
-        e.stopPropagation();
-      }}
-      onMouseEnter={() => {
-        onMouseEnter(direction);
-      }}
+      onMouseDown={onMouseDown}
+      onMouseEnter={onHintMouseEnter}
       onMouseLeave={onMouseLeave}
-      onClick={(e) => {
-        onClick(type, e.currentTarget);
-      }}
+      onClick={onHintClick}
     >
       {axisClass === 'horizontal' ? (
         <EllipsisIcon className='table-edge-hint--icon' />

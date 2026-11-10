@@ -19,6 +19,10 @@ export const ListConfigRow: FCProps<ListConfigRowProps> = ({
     void updateTableConfig({ tagging_enabled: isTaggingEnabled ? 0 : 1 });
   };
 
+  const onColorChange = (value: string) => {
+    void updateTableConfig({ color: value });
+  };
+
   const capitalizedTableName =
     config.table_name.charAt(0).toUpperCase() + config.table_name.slice(1);
 
@@ -29,9 +33,7 @@ export const ListConfigRow: FCProps<ListConfigRowProps> = ({
           <ColorInput
             label={capitalizedTableName}
             value={config.color}
-            onChange={(value) => {
-              void updateTableConfig({ color: value });
-            }}
+            onChange={onColorChange}
           />
         </label>
 

@@ -14,6 +14,8 @@ import {
 import { CONTENT_SECTION_EDITOR_PLACEHOLDER } from '../../ContentSectionBody.constants';
 import type { SectionBodyProps } from '../../types';
 import { readSaveableWholeNumber } from '../../helper/readSaveableWholeNumber';
+import { buildSectionTextEditorId } from '../../helper/buildSectionTextEditorId';
+import { formatSavedHpText } from './helper/formatSavedHpText';
 import './BasicStatBlockSectionBody.css';
 
 type Props = SectionBodyProps;
@@ -27,7 +29,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
   const { updateSectionContent } = useBaseEntityContentSections(baseEntityId);
   const content = parseBasicStatBlockContent(section.content);
   const savedHp = content.basicStatBlock.hp;
-  const savedHpText = savedHp === null ? '' : String(savedHp);
+  const savedHpText = formatSavedHpText(savedHp);
 
   const {
     value: hpText,
@@ -36,7 +38,35 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
   } = useSyncedInputValue(savedHpText);
   const [hpInputRevision, setHpInputRevision] = useState(0);
 
-  const textEditorId = `basic-stat-block-${section.id}-${readOnly ? 'read' : 'edit'}`;
+  const textEditorId = buildSectionTextEditorId(
+    'basic-stat-block',
+    section.id,
+    readOnly,
+  );
+
+  const onHpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setHpText(event.currentTarget.value);
+    // Saves and reverts go through `readSaveableWholeNumber`, never `parseWholeNumberInput(value)` alone: a number input holding text it cannot convert (`1.` while typing `1.5`, a lone `-`) reports `value` as `''`, and reading that as a cleared field would save an empty HP.
+    const hpInput = readSaveableWholeNumber(event.currentTarget);
+    if (!hpInput.valid) return;
+    const { value: hp } = hpInput;
+    updateSectionContent(section.id, (current) =>
+      patchBasicStatBlockContent(current, { hp }),
+    );
+  };
+
+  const onHpBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    focusProps.onBlur();
+    if (readSaveableWholeNumber(event.currentTarget).valid) return;
+    setHpText(savedHpText);
+    setHpInputRevision((revision) => revision + 1);
+  };
+
+  const onTextEditorChange = (textEditor: string) => {
+    updateSectionContent(section.id, (current) =>
+      patchBasicStatBlockContent(current, { textEditor }),
+    );
+  };
 
   return (
     <div
@@ -61,23 +91,9 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
           key={hpInputRevision}
           type='number'
           value={hpText}
-          onChange={(event) => {
-            setHpText(event.currentTarget.value);
-            // Saves and reverts go through `readSaveableWholeNumber`, never `parseWholeNumberInput(value)` alone: a number input holding text it cannot convert (`1.` while typing `1.5`, a lone `-`) reports `value` as `''`, and reading that as a cleared field would save an empty HP.
-            const hpInput = readSaveableWholeNumber(event.currentTarget);
-            if (!hpInput.valid) return;
-            const { value: hp } = hpInput;
-            updateSectionContent(section.id, (current) =>
-              patchBasicStatBlockContent(current, { hp }),
-            );
-          }}
+          onChange={onHpChange}
           onFocus={focusProps.onFocus}
-          onBlur={(event) => {
-            focusProps.onBlur();
-            if (readSaveableWholeNumber(event.currentTarget).valid) return;
-            setHpText(savedHpText);
-            setHpInputRevision((revision) => revision + 1);
-          }}
+          onBlur={onHpBlur}
           readOnly={readOnly}
         />
       </label>
@@ -87,13 +103,7 @@ export const BasicStatBlockSectionBody: FCProps<Props> = ({
         placeholder={CONTENT_SECTION_EDITOR_PLACEHOLDER}
         readOnly={readOnly}
         // Passed only when editable: OnChangePlugin mounts whenever onChange is passed and fires on selection-only updates, and CheckboxReadOnlyPlugin toggles checklist items in a read-only editor, so a passed onChange would save a popup checkbox tick.
-        {...(!readOnly && {
-          onChange: (textEditor: string) => {
-            updateSectionContent(section.id, (current) =>
-              patchBasicStatBlockContent(current, { textEditor }),
-            );
-          },
-        })}
+        {...(!readOnly && { onChange: onTextEditorChange })}
       />
     </div>
   );

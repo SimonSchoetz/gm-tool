@@ -2,3 +2,12 @@ export const ADVENTURE_PREVIEW_HEIGHT = 350;
 
 export const PREVIEW_WIDTH = 200;
 export const PREVIEW_HEIGHT = 200;
+
+export const PREVIEW_DIMENSIONS = {
+  width: PREVIEW_WIDTH,
+  height: PREVIEW_HEIGHT,
+};
+export const ADVENTURE_PREVIEW_DIMENSIONS = {
+  width: PREVIEW_WIDTH,
+  height: ADVENTURE_PREVIEW_HEIGHT,
+};

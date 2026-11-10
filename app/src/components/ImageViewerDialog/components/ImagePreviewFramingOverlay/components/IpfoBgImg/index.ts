@@ -1,0 +1,1 @@
+export { IpfoBgImg } from './IpfoBgImg';

@@ -3,10 +3,7 @@ import { Button } from '@/components/Button/Button';
 import { useAdventure } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { useRouter, useParams } from '@tanstack/react-router';
-import {
-  ADVENTURE_PREVIEW_HEIGHT,
-  PREVIEW_WIDTH,
-} from '../../../screens.constants';
+import { ADVENTURE_PREVIEW_DIMENSIONS } from '../../../screens.constants';
 import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 
@@ -27,37 +24,41 @@ export const AdventureScreenSidebar = () => {
     await deleteAdventure();
     void router.navigate({ to: '/adventures' });
   };
+
+  const onUpload = (filePath: string) => {
+    updateAdventure({
+      imgFilePath: filePath,
+      image_id: adventure.image_id,
+    });
+  };
+
+  const onImageDelete = () => {
+    if (adventure.image_id) void removeAdventureImage();
+  };
+
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: adventure.name ?? '',
+      onDeletionConfirm: () => {
+        void handleAdventureDelete();
+      },
+      oneClickConfirm: false,
+    });
+  };
+
   return (
     <ScreensSidebar>
       <UploadImgBtn
-        dimensions={{
-          width: PREVIEW_WIDTH,
-          height: ADVENTURE_PREVIEW_HEIGHT,
-        }}
+        dimensions={ADVENTURE_PREVIEW_DIMENSIONS}
         image_id={adventure.image_id}
-        uploadFn={(filePath) => {
-          updateAdventure({
-            imgFilePath: filePath,
-            image_id: adventure.image_id,
-          });
-        }}
-        deleteFn={() => {
-          if (adventure.image_id) void removeAdventureImage();
-        }}
+        uploadFn={onUpload}
+        deleteFn={onImageDelete}
       />
       <ScreensDuplicateBtn entityType='adventures' />
 
       <Button
         label='Delete Adventure'
-        onClick={() => {
-          openDeleteDialog({
-            name: adventure.name ?? '',
-            onDeletionConfirm: () => {
-              void handleAdventureDelete();
-            },
-            oneClickConfirm: false,
-          });
-        }}
+        onClick={onDeleteClick}
         buttonStyle={'danger'}
       />
     </ScreensSidebar>

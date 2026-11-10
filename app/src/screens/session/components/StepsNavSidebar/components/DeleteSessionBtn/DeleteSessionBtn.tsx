@@ -19,18 +19,20 @@ export const DeleteSessionBtn = () => {
 
   if (session?.active_view !== 'prep') return;
 
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: session.name ?? '',
+      onDeletionConfirm: () => {
+        void handleSessionDelete();
+      },
+      oneClickConfirm: false,
+    });
+  };
+
   return (
     <Button
       label='Delete Session'
-      onClick={() => {
-        openDeleteDialog({
-          name: session.name ?? '',
-          onDeletionConfirm: () => {
-            void handleSessionDelete();
-          },
-          oneClickConfirm: false,
-        });
-      }}
+      onClick={onDeleteClick}
       buttonStyle={'danger'}
     />
   );

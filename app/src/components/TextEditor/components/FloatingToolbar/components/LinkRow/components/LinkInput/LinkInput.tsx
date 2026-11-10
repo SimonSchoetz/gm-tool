@@ -22,19 +22,23 @@ export const LinkInput: FCProps<Props> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
+  const onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') onApply();
+  };
+
   return (
     <div className='link-input'>
       <Input
         ref={inputRef}
         value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-        }}
+        onChange={onInputChange}
         disabled={disabled}
         placeholder='https://...'
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') onApply();
-        }}
+        onKeyDown={onInputKeyDown}
         className='link-input--input'
       />
 

@@ -24,17 +24,29 @@ export const EncounterActions = () => {
     void router.navigate({ to: `/adventure/${adventureId}/encounters` });
   };
 
+  const onHideDefeatedChange = () => {
+    updateEncounter({
+      hide_defeated: encounter.hide_defeated === 1 ? 0 : 1,
+    });
+  };
+
+  const onDeleteClick = () => {
+    openDeleteDialog({
+      name: encounter.name ?? '',
+      onDeletionConfirm: () => {
+        void handleEncounterDelete();
+      },
+      oneClickConfirm: false,
+    });
+  };
+
   return (
     <>
       <div className='encounter-actions-hide-defeated'>
         <Checkbox
           id='encounter-hide-defeated'
           checked={encounter.hide_defeated === 1}
-          onChange={() => {
-            updateEncounter({
-              hide_defeated: encounter.hide_defeated === 1 ? 0 : 1,
-            });
-          }}
+          onChange={onHideDefeatedChange}
         />
         <label htmlFor='encounter-hide-defeated'>Hide defeated</label>
       </div>
@@ -43,15 +55,7 @@ export const EncounterActions = () => {
 
       <Button
         label='Delete Encounter'
-        onClick={() => {
-          openDeleteDialog({
-            name: encounter.name ?? '',
-            onDeletionConfirm: () => {
-              void handleEncounterDelete();
-            },
-            oneClickConfirm: false,
-          });
-        }}
+        onClick={onDeleteClick}
         buttonStyle={'danger'}
       />
     </>

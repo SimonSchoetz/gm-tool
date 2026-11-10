@@ -14,11 +14,8 @@ export const EntityPlaceholderIcon: FCProps<Props> = ({
   entityType,
   className,
 }) => {
-  const Icon = ENTITY_PLACEHOLDER_ICONS[entityType ?? 'person'];
-  return (
-    <Icon
-      className={className}
-      aria-label={`${entityTypeLabel(entityType ?? 'person')} image placeholder`}
-    />
-  );
+  const shownEntityType = entityType ?? 'person';
+  const Icon = ENTITY_PLACEHOLDER_ICONS[shownEntityType];
+  const ariaLabel = `${entityTypeLabel(shownEntityType)} image placeholder`;
+  return <Icon className={className} aria-label={ariaLabel} />;
 };

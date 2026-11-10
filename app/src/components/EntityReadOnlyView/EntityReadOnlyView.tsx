@@ -83,34 +83,32 @@ export const EntityReadOnlyView: FCProps<Props> = ({
         }
       : {};
 
+  const slide =
+    transition === null
+      ? null
+      : {
+          direction: transition.direction,
+          outgoing: (
+            <ContentSectionBody
+              section={transition.from}
+              baseEntityId={entityId}
+              readOnly
+            />
+          ),
+        };
+
   return (
     <>
       <Header {...headerSlots} />
       <EntityPopupBody
-        image={
-          baseEntity.image_id === null
-            ? null
-            : { id: baseEntity.image_id, title: baseEntity.name ?? '' }
-        }
+        imageId={baseEntity.image_id}
+        imageTitle={baseEntity.name}
         {...(onImageOpen && { onImageOpen })}
       >
         {selected && (
           <SlideTransition
             className='entity-read-only-view-region'
-            slide={
-              transition === null
-                ? null
-                : {
-                    direction: transition.direction,
-                    outgoing: (
-                      <ContentSectionBody
-                        section={transition.from}
-                        baseEntityId={entityId}
-                        readOnly
-                      />
-                    ),
-                  }
-            }
+            slide={slide}
             onEnd={endTransition}
           >
             <ContentSectionBody

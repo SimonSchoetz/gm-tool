@@ -38,9 +38,11 @@ export const DeleteDialogProvider: FCProps<Props> = ({ children }) => {
     }
   }, [popupState]);
 
+  const contextValue = { openDeleteDialog };
+
   return (
     <>
-      <DeleteDialogContext.Provider value={{ openDeleteDialog }}>
+      <DeleteDialogContext.Provider value={contextValue}>
         {children}
       </DeleteDialogContext.Provider>
       {dialog !== null &&

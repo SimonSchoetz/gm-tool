@@ -1,4 +1,4 @@
-import LightSource from '../LightSource/LightSource';
+import LightSource from '../LightSource';
 import { HtmlProps } from '@/types/htmlProps.type';
 import { cn } from '@/util/className';
 import './GlassPanel.css';

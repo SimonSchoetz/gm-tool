@@ -1,6 +1,7 @@
 import { HtmlProps } from '@/types/htmlProps.type';
 import './LightSource.css';
 import { cn } from '@/util/className';
+import { getIntensityClass } from './helper/getIntensityClass';
 
 type LightSourceProps = {
   intensity: 'bright' | 'dim' | 'off';
@@ -11,10 +12,9 @@ const LightSource = ({
   className = '',
   ...props
 }: Readonly<LightSourceProps>) => {
-  const intensityClass =
-    intensity === 'bright' ? 'light-source-bright' : 'light-source-dim';
-
   if (intensity === 'off') return <></>;
+
+  const intensityClass = getIntensityClass(intensity);
 
   return (
     <div

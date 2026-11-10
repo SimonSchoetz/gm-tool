@@ -25,6 +25,12 @@ const renderField = (savedValue: number | null) => {
 };
 
 describe('FiveEStatBlockNumberField', () => {
+  it('shows its placeholder hint in an editable field', () => {
+    renderField(null);
+
+    expect(screen.getByPlaceholderText('000')).toBeInTheDocument();
+  });
+
   it('saves a typed whole number under the field key as a number', () => {
     const { saveField, input } = renderField(null);
 

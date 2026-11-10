@@ -20,11 +20,8 @@ export const EncounterPopupContent: FCProps<Props> = ({
 
   return (
     <EntityPopupBody
-      image={
-        encounter.image_id === null
-          ? null
-          : { id: encounter.image_id, title: encounter.name ?? '' }
-      }
+      imageId={encounter.image_id}
+      imageTitle={encounter.name}
       onImageOpen={onPin}
     >
       <EntityPopupBodyText

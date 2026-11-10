@@ -75,93 +75,123 @@ export const BaseEntityContentSectionPanel = () => {
     select(id);
   };
 
+  const onAddClick = () => {
+    setTypeMenuAnchor('menu-bar');
+  };
+
+  const onNameCommit = (name: string) => {
+    if (selected) updateSection(selected.id, { name });
+  };
+
+  const onDeleteSelected = () => {
+    if (selected) handleDelete(selected);
+  };
+
+  const onNavClose = () => {
+    // The type picker anchors to a button inside this popup, so a click in the picker must not close the popup under it.
+    if (typeMenuAnchor === null) closeNav();
+  };
+
+  const newItem = {
+    label: 'Add section',
+    onClick: () => {
+      setTypeMenuAnchor('nav');
+    },
+  };
+
+  const getTypeMenuAnchorRect = () =>
+    (typeMenuAnchor === 'nav'
+      ? newItemButtonRef
+      : addButtonRef
+    ).current?.getBoundingClientRect() ?? null;
+
+  const onTypeSelect = (type: BaseEntityContentSectionType) => {
+    void handleCreate(type);
+  };
+
+  const onTypeMenuClose = () => {
+    setTypeMenuAnchor(null);
+  };
+
+  // The name input renders only while a section is selected, so the `''` fallback below is never shown.
+  const namePlaceholder = selected && contentSectionTypeLabel(selected.type);
+
+  const leading = isNavAvailable ? (
+    <>
+      <ContentSectionNavToggle
+        ref={burgerRef}
+        isOpen={isNavVisible}
+        onToggle={toggleNav}
+      />
+      <div>
+        <UpDownBtns
+          upLabel='Previous section'
+          downLabel='Next section'
+          isUpDisabled={!hasPrevious}
+          isDownDisabled={!hasNext}
+          onUp={stepPrevious}
+          onDown={stepNext}
+        />
+      </div>
+    </>
+  ) : (
+    <ClickableIcon
+      ref={addButtonRef}
+      icon={<PlusIcon />}
+      label='Add content section'
+      title='Add section'
+      onClick={onAddClick}
+    />
+  );
+
+  const title = selected ? (
+    // Keyed by section id, so switching sections resets the input's local value.
+    <SyncedInput
+      key={selected.id}
+      className='base-entity-content-section-panel-name-input'
+      initValue={selected.name ?? ''}
+      placeholder={namePlaceholder ?? ''}
+      onCommit={onNameCommit}
+    />
+  ) : (
+    'Popup Content'
+  );
+
+  const slide =
+    transition === null
+      ? null
+      : {
+          direction: transition.direction,
+          outgoing: (
+            <ContentSectionBody
+              section={transition.from}
+              baseEntityId={baseEntityId}
+              readOnly
+              className='base-entity-content-section-panel-body'
+            />
+          ),
+        };
+
   return (
     <GlassPanel
       intensity='bright'
       className='base-entity-content-section-panel'
     >
-      <PanelMenuBar
-        leading={
-          isNavAvailable ? (
-            <>
-              <ContentSectionNavToggle
-                ref={burgerRef}
-                isOpen={isNavVisible}
-                onToggle={toggleNav}
-              />
-              <div>
-                <UpDownBtns
-                  upLabel='Previous section'
-                  downLabel='Next section'
-                  isUpDisabled={!hasPrevious}
-                  isDownDisabled={!hasNext}
-                  onUp={stepPrevious}
-                  onDown={stepNext}
-                />
-              </div>
-            </>
-          ) : (
-            <ClickableIcon
-              ref={addButtonRef}
-              icon={<PlusIcon />}
-              label='Add content section'
-              title='Add section'
-              onClick={() => {
-                setTypeMenuAnchor('menu-bar');
-              }}
-            />
-          )
-        }
-        title={
-          selected ? (
-            // Keyed by section id, so switching sections resets the input's local value.
-            <SyncedInput
-              key={selected.id}
-              className='base-entity-content-section-panel-name-input'
-              initValue={selected.name ?? ''}
-              placeholder={contentSectionTypeLabel(selected.type)}
-              onCommit={(name) => {
-                updateSection(selected.id, { name });
-              }}
-            />
-          ) : (
-            'Popup Content'
-          )
-        }
-      >
+      <PanelMenuBar leading={leading} title={title}>
         {selected && (
           <ClickableIcon
             icon={<Trash2Icon />}
             variant='danger'
             label='Delete section'
             title='Delete section'
-            onClick={() => {
-              handleDelete(selected);
-            }}
+            onClick={onDeleteSelected}
           />
         )}
       </PanelMenuBar>
 
       {selected && (
         <PanelBody>
-          <SlideTransition
-            slide={
-              transition === null
-                ? null
-                : {
-                    direction: transition.direction,
-                    outgoing: (
-                      <ContentSectionBody
-                        section={transition.from}
-                        baseEntityId={baseEntityId}
-                        readOnly
-                        className='base-entity-content-section-panel-body'
-                      />
-                    ),
-                  }
-            }
-            onEnd={endTransition}
-          >
+          <SlideTransition slide={slide} onEnd={endTransition}>
             <ContentSectionBody
               section={selected}
               baseEntityId={baseEntityId}
@@ -179,34 +209,17 @@ export const BaseEntityContentSectionPanel = () => {
           anchorRef={burgerRef}
           popupZIndex={null}
           onSelect={select}
-          onClose={() => {
-            // The type picker anchors to a button inside this popup, so a click in the picker must not close the popup under it.
-            if (typeMenuAnchor === null) closeNav();
-          }}
-          newItem={{
-            label: 'Add section',
-            onClick: () => {
-              setTypeMenuAnchor('nav');
-            },
-          }}
+          onClose={onNavClose}
+          newItem={newItem}
           newItemRef={newItemButtonRef}
         />
       )}
 
       {typeMenuAnchor !== null && (
         <ContentSectionTypeMenu
-          getAnchorRect={() =>
-            (typeMenuAnchor === 'nav'
-              ? newItemButtonRef
-              : addButtonRef
-            ).current?.getBoundingClientRect() ?? null
-          }
-          onSelect={(type) => {
-            void handleCreate(type);
-          }}
-          onClose={() => {
-            setTypeMenuAnchor(null);
-          }}
+          getAnchorRect={getTypeMenuAnchorRect}
+          onSelect={onTypeSelect}
+          onClose={onTypeMenuClose}
         />
       )}
     </GlassPanel>

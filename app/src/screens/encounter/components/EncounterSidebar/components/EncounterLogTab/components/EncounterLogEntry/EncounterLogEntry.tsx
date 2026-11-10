@@ -41,21 +41,25 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
       );
       content = line.isReverted ? <del>{parts}</del> : parts;
       if (line.isRevertible) {
+        const onRevert = () => {
+          void recordLogEntry('revert', { entryId: line.id });
+        };
         actionButton = (
           <ClickableIcon
             icon={<Undo2Icon size={LOG_ICON_SIZE} />}
             label='Revert'
             title='Revert'
             disabled={isWriting}
-            onClick={() => {
-              void recordLogEntry('revert', { entryId: line.id });
-            }}
+            onClick={onRevert}
           />
         );
       }
       break;
     }
-    case 'message':
+    case 'message': {
+      const onDelete = () => {
+        void deleteLogMessage(line.id);
+      };
       content = (
         <TextEditor
           value={line.editorState}
@@ -70,12 +74,11 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
           label='Delete'
           title='Delete'
           disabled={isWriting}
-          onClick={() => {
-            void deleteLogMessage(line.id);
-          }}
+          onClick={onDelete}
         />
       );
       break;
+    }
     case 'unreadable':
       content = 'Unreadable entry';
       break;
