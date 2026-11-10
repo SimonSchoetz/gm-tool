@@ -44,17 +44,13 @@ export const ReorderableNavList: FCProps<Props> = ({
     }),
   );
 
+  const itemIds = items.map((item) => item.id);
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    onReorder(
-      reorderIds(
-        items.map((item) => item.id),
-        String(active.id),
-        String(over.id),
-      ),
-    );
+    onReorder(reorderIds(itemIds, String(active.id), String(over.id)));
   };
 
   return (
@@ -64,10 +60,7 @@ export const ReorderableNavList: FCProps<Props> = ({
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext
-          items={items.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
-        >
+        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
           {items.map((item) => (
             <ReorderableNavListItem
               key={item.id}

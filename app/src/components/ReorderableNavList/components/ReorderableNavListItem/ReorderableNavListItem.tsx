@@ -26,6 +26,10 @@ export const ReorderableNavListItem: FCProps<Props> = ({
     transition,
   };
 
+  const onItemSelect = () => {
+    onSelect(id);
+  };
+
   return (
     <ActionContainer
       ref={setNodeRef}
@@ -35,9 +39,7 @@ export const ReorderableNavListItem: FCProps<Props> = ({
         variant && `reorderable-nav-list-item--${variant}`,
       )}
       label={label}
-      onClick={() => {
-        onSelect(id);
-      }}
+      onClick={onItemSelect}
       {...attributes}
     >
       <span className='reorderable-nav-list-item-drag-handle' {...listeners}>

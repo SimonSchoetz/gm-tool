@@ -1,5 +1,6 @@
 import { FCProps } from '@/types/fcProps.type';
 import { useEncounter } from '@/data-access-layer';
+import { buildTitledImage } from '@/util/buildTitledImage';
 import { EntityPopupBody } from '../../../../../EntityPopupBody/EntityPopupBody';
 import { useMentionPopupHeader } from '../../../../hooks/useMentionPopupHeader';
 import { EntityPopupBodyText } from '../EntityPopupBodyText/EntityPopupBodyText';
@@ -18,15 +19,10 @@ export const EncounterPopupContent: FCProps<Props> = ({
 
   if (loading || !encounter) return;
 
+  const popupImage = buildTitledImage(encounter.image_id, encounter.name);
+
   return (
-    <EntityPopupBody
-      image={
-        encounter.image_id === null
-          ? null
-          : { id: encounter.image_id, title: encounter.name ?? '' }
-      }
-      onImageOpen={onPin}
-    >
+    <EntityPopupBody image={popupImage} onImageOpen={onPin}>
       <EntityPopupBodyText
         text={encounter.description ?? null}
         textEditorId={`encounter-popup-${entityId}`}

@@ -5,6 +5,7 @@ import {
   useBaseEntityContentSections,
 } from '@/data-access-layer';
 import { useListNavigation } from '@/hooks/useListNavigation';
+import { buildTitledImage } from '@/util/buildTitledImage';
 import type { BaseEntityType } from '@domain/entities';
 import { ContentSectionBody } from '../ContentSectionBody';
 import { ContentSectionNav } from '../ContentSectionNav/ContentSectionNav';
@@ -83,34 +84,30 @@ export const EntityReadOnlyView: FCProps<Props> = ({
         }
       : {};
 
+  const popupImage = buildTitledImage(baseEntity.image_id, baseEntity.name);
+
+  const slide =
+    transition === null
+      ? null
+      : {
+          direction: transition.direction,
+          outgoing: (
+            <ContentSectionBody
+              section={transition.from}
+              baseEntityId={entityId}
+              readOnly
+            />
+          ),
+        };
+
   return (
     <>
       <Header {...headerSlots} />
-      <EntityPopupBody
-        image={
-          baseEntity.image_id === null
-            ? null
-            : { id: baseEntity.image_id, title: baseEntity.name ?? '' }
-        }
-        {...(onImageOpen && { onImageOpen })}
-      >
+      <EntityPopupBody image={popupImage} {...(onImageOpen && { onImageOpen })}>
         {selected && (
           <SlideTransition
             className='entity-read-only-view-region'
-            slide={
-              transition === null
-                ? null
-                : {
-                    direction: transition.direction,
-                    outgoing: (
-                      <ContentSectionBody
-                        section={transition.from}
-                        baseEntityId={entityId}
-                        readOnly
-                      />
-                    ),
-                  }
-            }
+            slide={slide}
             onEnd={endTransition}
           >
             <ContentSectionBody

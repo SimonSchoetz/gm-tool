@@ -52,6 +52,21 @@ export const RowActionsMenu: FCProps<Props> = ({
     ? [{ key: 'unpin', Icon: PinOffIcon, label: 'Unpin' }]
     : [{ key: 'pin', Icon: PinIcon, label: 'Pin' }];
 
+  const onToggle = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const getAnchorRect = () =>
+    triggerRef.current?.getBoundingClientRect() ?? null;
+
+  const onClickOutside = () => {
+    setIsOpen(false);
+  };
+
+  const onOptionClick = () => {
+    void handlePinToggle();
+  };
+
   return (
     <>
       <div className='row-actions-menu-trigger'>
@@ -59,20 +74,14 @@ export const RowActionsMenu: FCProps<Props> = ({
           ref={triggerRef}
           icon={<EllipsisVerticalIcon />}
           label='Row actions'
-          onClick={() => {
-            setIsOpen((prev) => !prev);
-          }}
+          onClick={onToggle}
         />
       </div>
 
       {isOpen && (
         <AnchoredPopup
-          getAnchorRect={() =>
-            triggerRef.current?.getBoundingClientRect() ?? null
-          }
-          onClickOutside={() => {
-            setIsOpen(false);
-          }}
+          getAnchorRect={getAnchorRect}
+          onClickOutside={onClickOutside}
         >
           <PopupSurface className='row-actions-menu-popup'>
             <ul>
@@ -81,9 +90,7 @@ export const RowActionsMenu: FCProps<Props> = ({
                   <MenuOptionRow
                     Icon={option.Icon}
                     label={option.label}
-                    onClick={() => {
-                      void handlePinToggle();
-                    }}
+                    onClick={onOptionClick}
                   />
                 </li>
               ))}

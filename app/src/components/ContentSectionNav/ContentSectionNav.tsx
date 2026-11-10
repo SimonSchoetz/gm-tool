@@ -30,23 +30,30 @@ export const ContentSectionNav: FCProps<Props> = ({
 }) => {
   const { sections, bulkReorder } = useBaseEntityContentSections(baseEntityId);
 
+  const getAnchorRect = () =>
+    anchorRef.current?.getBoundingClientRect() ?? null;
+
+  const onClickOutside = (event: MouseEvent) => {
+    // The anchor's own click toggles the nav, so closing on its mousedown would reopen it on the click.
+    if (anchorRef.current?.contains(event.target as Node)) return;
+    onClose();
+  };
+
+  const mappedSections = sections.map((section) => ({
+    id: section.id,
+    label: contentSectionLabel(section.name, section.type),
+    isChecked: false,
+  }));
+
   return (
     <AnchoredPopup
-      getAnchorRect={() => anchorRef.current?.getBoundingClientRect() ?? null}
+      getAnchorRect={getAnchorRect}
       zIndex={popupZIndex}
-      onClickOutside={(event) => {
-        // The anchor's own click toggles the nav, so closing on its mousedown would reopen it on the click.
-        if (anchorRef.current?.contains(event.target as Node)) return;
-        onClose();
-      }}
+      onClickOutside={onClickOutside}
     >
       <PopupSurface className='content-section-nav'>
         <ReorderableNavList
-          items={sections.map((section) => ({
-            id: section.id,
-            label: contentSectionLabel(section.name, section.type),
-            isChecked: false,
-          }))}
+          items={mappedSections}
           activeId={activeId}
           onSelect={onSelect}
           onReorder={bulkReorder}

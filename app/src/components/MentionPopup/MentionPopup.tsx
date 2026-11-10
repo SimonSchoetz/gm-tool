@@ -98,6 +98,16 @@ export const MentionPopup: FCProps<Props> = ({
     }
   };
 
+  const headerContextValue = {
+    name,
+    isPinned: mode === 'pinned',
+    zIndex: zIndex ?? null,
+    draggableProps,
+    onPin: handlePin,
+    onRemove,
+    onNavigate: handleNavigate,
+  };
+
   return (
     <GlassPanel
       ref={popupRef}
@@ -118,17 +128,7 @@ export const MentionPopup: FCProps<Props> = ({
       {deleted ? (
         <DeletedMentionContent entityType={entityType} />
       ) : (
-        <MentionPopupHeaderContext.Provider
-          value={{
-            name,
-            isPinned: mode === 'pinned',
-            zIndex: zIndex ?? null,
-            draggableProps,
-            onPin: handlePin,
-            onRemove,
-            onNavigate: handleNavigate,
-          }}
-        >
+        <MentionPopupHeaderContext.Provider value={headerContextValue}>
           <ErrorBoundary
             fallback={
               <>

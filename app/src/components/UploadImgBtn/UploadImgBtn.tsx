@@ -1,3 +1,4 @@
+import { FCProps } from '@/types/fcProps.type';
 import { pickImageFile } from '@/util/pickImageFile';
 import { useState } from 'react';
 import { ActionContainer } from '../ActionContainer/ActionContainer';
@@ -15,13 +16,13 @@ type Props = {
   deleteFn: () => void;
 };
 
-export const UploadImgBtn = ({
+export const UploadImgBtn: FCProps<Props> = ({
   image_id,
   title = '',
   dimensions,
   uploadFn,
   deleteFn,
-}: Props) => {
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [popupState, setPopupState] = useState<'open' | 'closed'>('closed');
@@ -44,14 +45,19 @@ export const UploadImgBtn = ({
     }
   };
 
+  const onViewImage = () => {
+    setPopupState('open');
+  };
+
+  const onUploadClick = () => {
+    void handleClick();
+  };
+
+  const editing = { uploadFn, deleteFn, dimensions };
+
   return image_id ? (
     <>
-      <ActionContainer
-        onClick={() => {
-          setPopupState('open');
-        }}
-        label='View image'
-      >
+      <ActionContainer onClick={onViewImage} label='View image'>
         <HoloImg image_id={image_id} title={title} dimensions={dimensions} />
       </ActionContainer>
       <ImageViewerDialog
@@ -59,15 +65,13 @@ export const UploadImgBtn = ({
         title={title}
         state={popupState}
         setState={setPopupState}
-        editing={{ uploadFn, deleteFn, dimensions }}
+        editing={editing}
       />
     </>
   ) : (
     <ActionContainer
       className='upload-adventure-img-btn'
-      onClick={() => {
-        void handleClick();
-      }}
+      onClick={onUploadClick}
       label='Upload cover image'
     >
       <ImagePlaceholderFrame dimensions={dimensions}>

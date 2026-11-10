@@ -11,6 +11,10 @@ type DateInputProps = Omit<HtmlProps<'input'>, 'type'>;
 export const DateInput: FCProps<DateInputProps> = ({ className, ...props }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const onOpenPicker = () => {
+    inputRef.current?.showPicker();
+  };
+
   return (
     <div className={cn('date-input-wrapper', className)}>
       <input ref={inputRef} type='date' className='date-input' {...props} />
@@ -18,9 +22,7 @@ export const DateInput: FCProps<DateInputProps> = ({ className, ...props }) => {
         icon={<CalendarIcon className='date-input-icon' />}
         label='Open date picker'
         title='Open date picker'
-        onClick={() => {
-          inputRef.current?.showPicker();
-        }}
+        onClick={onOpenPicker}
       />
     </div>
   );

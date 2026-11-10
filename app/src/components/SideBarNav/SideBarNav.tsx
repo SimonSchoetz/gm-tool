@@ -3,8 +3,8 @@ import { HtmlProps } from '@/types/htmlProps.type';
 import './SideBarNav.css';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { ScreenNavBtn } from './components/ScreenNavBtn/ScreenNavBtn';
+import { TableNavItem } from './components/TableNavItem/TableNavItem';
 import { useRouterState } from '@tanstack/react-router';
-import { useTableConfigs } from '@/data-access-layer';
 import { cn } from '@/util/className';
 
 type Props = HtmlProps<'aside'>;
@@ -12,18 +12,13 @@ type Props = HtmlProps<'aside'>;
 export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   const router = useRouterState();
 
-  const { tableConfigs } = useTableConfigs();
-
   // Extract adventureId from URL if it exists
   const adventureIdMatch = /\/adventure\/([^/]+)/.exec(
     router.location.pathname,
   );
   const adventureId = adventureIdMatch?.[1];
 
-  const getTableColor = (tableName: string): string => {
-    const table = tableConfigs.find((t) => t.table_name === tableName) ?? null;
-    return table?.color ?? '';
-  };
+  const isDisabled = !adventureId;
 
   return (
     <aside className={cn('sidebar-nav', className)} {...props}>
@@ -33,67 +28,67 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
             <ScreenNavBtn label='Adventures' to='/adventures' />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='Sessions'
               to='/adventure/$adventureId/sessions'
-              isDisabled={!adventureId}
-              configColor={getTableColor('sessions')}
+              tableName='sessions'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='Encounters'
               to='/adventure/$adventureId/encounters'
-              isDisabled={!adventureId}
-              configColor={getTableColor('encounters')}
+              tableName='encounters'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='PCs'
               to='/adventure/$adventureId/pcs'
-              isDisabled={!adventureId}
-              configColor={getTableColor('pcs')}
+              tableName='pcs'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='NPCs'
               to='/adventure/$adventureId/npcs'
-              isDisabled={!adventureId}
-              configColor={getTableColor('npcs')}
+              tableName='npcs'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='Factions'
               to='/adventure/$adventureId/factions'
-              isDisabled={!adventureId}
-              configColor={getTableColor('factions')}
+              tableName='factions'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='Locations'
               to='/adventure/$adventureId/locations'
-              isDisabled={!adventureId}
-              configColor={getTableColor('locations')}
+              tableName='locations'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='Foes'
               to='/adventure/$adventureId/foes'
-              isDisabled={!adventureId}
-              configColor={getTableColor('foes')}
+              tableName='foes'
+              isDisabled={isDisabled}
             />
           </li>
           <li>
-            <ScreenNavBtn
+            <TableNavItem
               label='Items'
               to='/adventure/$adventureId/items'
-              isDisabled={!adventureId}
-              configColor={getTableColor('items')}
+              tableName='items'
+              isDisabled={isDisabled}
             />
           </li>
         </ul>

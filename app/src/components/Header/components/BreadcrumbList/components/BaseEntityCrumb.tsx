@@ -11,9 +11,7 @@ export const BaseEntityCrumb: FCProps<Props> = ({ entityType }) => {
   const adventureId = params.adventureId ?? '';
   const { baseEntity } = useBaseEntity(entityType, baseEntityId, adventureId);
 
-  return (
-    <Link to={buildEntityPath(entityType, baseEntityId, adventureId)}>
-      {baseEntity?.name ?? '…'}
-    </Link>
-  );
+  const entityPath = buildEntityPath(entityType, baseEntityId, adventureId);
+
+  return <Link to={entityPath}>{baseEntity?.name ?? '…'}</Link>;
 };

@@ -25,6 +25,10 @@ export const FiveEStatBlockTextField: FCProps<Props> = ({
 }) => {
   if (isHiddenTextField(readOnly, savedValue)) return null;
 
+  const onCommit = (text: string) => {
+    saveField(field, text);
+  };
+
   return (
     <label className={className}>
       <span className='label'>{label}</span>
@@ -33,9 +37,7 @@ export const FiveEStatBlockTextField: FCProps<Props> = ({
       ) : (
         <SyncedInput
           initValue={savedValue}
-          onCommit={(text) => {
-            saveField(field, text);
-          }}
+          onCommit={onCommit}
           placeholder={placeholder}
         />
       )}

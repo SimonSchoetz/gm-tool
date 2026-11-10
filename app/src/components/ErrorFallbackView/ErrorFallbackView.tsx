@@ -16,6 +16,10 @@ export const ErrorFallbackView: FCProps<Props> = ({
 }) => {
   const isDevelopment = import.meta.env.DEV;
 
+  const onGoHome = () => {
+    window.location.href = '/';
+  };
+
   return (
     <GlassPanel className='error-fallback-view-panel' intensity='bright'>
       <h1 className='error-fallback-view-title'>Something went wrong</h1>
@@ -31,7 +35,7 @@ export const ErrorFallbackView: FCProps<Props> = ({
 
       <div className='error-fallback-view-actions'>
         <Button label='Try again' onClick={onReset} />
-        <Button label='Go home' onClick={() => (window.location.href = '/')} />
+        <Button label='Go home' onClick={onGoHome} />
       </div>
     </GlassPanel>
   );

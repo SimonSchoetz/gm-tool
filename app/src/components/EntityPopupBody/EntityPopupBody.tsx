@@ -20,6 +20,16 @@ export const EntityPopupBody: FCProps<Props> = ({
 }) => {
   const [viewerState, setViewerState] = useState<'open' | 'closed'>('closed');
 
+  const onViewImage = () => {
+    onImageOpen?.();
+    setViewerState('open');
+  };
+
+  const imageDimensions = {
+    width: 'var(--popup-content-section-height)',
+    height: 'var(--popup-content-section-height)',
+  };
+
   return (
     <PanelBody className='entity-popup-body'>
       {image !== null && (
@@ -27,17 +37,11 @@ export const EntityPopupBody: FCProps<Props> = ({
           <ActionContainer
             label='View image'
             className='entity-popup-body--image-btn'
-            onClick={() => {
-              onImageOpen?.();
-              setViewerState('open');
-            }}
+            onClick={onViewImage}
           >
             <ImagePlaceholderFrame
               className='entity-popup-body--image'
-              dimensions={{
-                width: 'var(--popup-content-section-height)',
-                height: 'var(--popup-content-section-height)',
-              }}
+              dimensions={imageDimensions}
             >
               <ImageById imageId={image.id} />
             </ImagePlaceholderFrame>

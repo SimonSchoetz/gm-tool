@@ -2,14 +2,14 @@ import { Link, useParams } from '@tanstack/react-router';
 import { useAdventure } from '@/data-access-layer';
 
 export const AdventureCrumb = () => {
-  const { adventureId } = useParams({ strict: false });
-  const { adventure } = useAdventure(adventureId ?? '');
+  const params = useParams({ strict: false });
+  const adventureId = params.adventureId ?? '';
+  const { adventure } = useAdventure(adventureId);
+
+  const linkParams = { adventureId };
 
   return (
-    <Link
-      to='/adventure/$adventureId'
-      params={{ adventureId: adventureId ?? '' }}
-    >
+    <Link to='/adventure/$adventureId' params={linkParams}>
       {adventure?.name ?? '…'}
     </Link>
   );
