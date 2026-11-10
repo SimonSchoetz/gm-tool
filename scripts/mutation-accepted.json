@@ -1,5 +1,59 @@
 [
   {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ".flatMap(({ name }) => (typeof name === 'string' ? [name] : []));",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "SQLite returns the name column of pragma_table_info as text, so the branch for a value that is no string, which only narrows the type, never runs"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": ".flatMap(({ name }) => (typeof name === 'string' ? [name] : []));",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "SQLite returns the name column of pragma_table_info as text, so the branch for a value that is no string, which only narrows the type, never runs"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (existsSync(devPath)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "attaching a dev database that does not exist creates an empty file in the target, which the removal loop and the rename below replace, so the target ends the same"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "StringLiteral",
+    "replacement": "``",
+    "lineText": "db.exec(`DETACH DATABASE ${DEV_SCHEMA}`);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the connection is closed in the finally block right after, which detaches every attached database, so the statement changes no state"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "rmSync(staging, { recursive: true, force: true });",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the staging folder exists at this point on every path, since it is created before the try block, so removing it with or without force ends the same"
+  },
+  {
+    "file": "dev-data-server/repositoryJson.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "readFileSync(resolve(import.meta.dirname, relativePath), 'utf8'),",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "JSON.parse reads a Buffer as the text a string read with an encoding gives, so the encoding argument changes no result"
+  },
+  {
     "file": "dev-data-server/requestGuard.ts",
     "mutator": "ConditionalExpression",
     "replacement": "true",
@@ -187,6 +241,942 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the code comment at this statement states why no test can observe this change"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "} else if (ts.isObjectBindingPattern(name)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an array binding pattern yields slots whose argument is never an object literal, so each reads as unknown and gives no finding either way"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (ts.isFunctionDeclaration(node) && node.name && node.body) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the collector accepts only function and variable declarations, so a node of another kind with a name and a body never reaches this check"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isFunctionDeclaration(node) || node.name",
+    "lineText": "if (ts.isFunctionDeclaration(node) && node.name && node.body) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the collector accepts only function and variable declarations, so a node of another kind with a name and a body never reaches this check"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "ts.isVariableDeclaration(node) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "the parent of a node that is no variable declaration is never a variable declaration list, so the test after it already rejects such a node"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isVariableDeclaration(node) || ts.isVariableDeclarationList(node.parent)",
+    "lineText": "ts.isVariableDeclaration(node) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "the parent of a node that is no variable declaration is never a variable declaration list, so the test after it already rejects such a node"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "? { state: 'unknown' }",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "? { state: 'unknown' }",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "ts.isJsxAttribute(property) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX attribute name is an identifier or a namespaced name, and the text comparison that follows fails for a namespaced one, so the tests ahead of it change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isJsxAttribute(property) || ts.isIdentifier(property.name)",
+    "lineText": "ts.isJsxAttribute(property) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX attribute name is an identifier or a namespaced name, and the text comparison that follows fails for a namespaced one, so the tests ahead of it change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'passed', key: null, text: 'children' };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the text of a passed value is shown only for a finding with a key, and children carry no key, so the text changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "EqualityOperator",
+    "replacement": "firstSpread < slot.index",
+    "lineText": "if (firstSpread !== -1 && firstSpread <= slot.index) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a spread element at the position of the slot reads as a value that ends in no finding, as the unknown state does, so the boundary changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 2,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 2,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(property.name !== undefined &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a spread assignment is tested in front of this and is the only property without a name, so the test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 3,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 3,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "candidate.name !== undefined &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "candidate.name !== undefined &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "candidate.name !== undefined || ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)",
+    "lineText": "candidate.name !== undefined &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)) &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an object argument property named by a number is read as omitted and the parameter named by a string key is then reported, a result that looks wrong and is reported to the lead rather than pinned"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (ts.isShorthandPropertyAssignment(property)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the property kinds left at this point are shorthand properties, methods and accessors, and the shorthand test only changes the text of a value that gives no finding for a method"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "values.length === 0 && values.some(({ state }) => state === 'unknown')",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "MethodExpression",
+    "replacement": "values.every(({ state }) => state === 'unknown')",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "declarations.length > 0 &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checker returns the declarations of a property as undefined or with at least one entry, never as an empty list, so the length test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "EqualityOperator",
+    "replacement": "declarations.length >= 0",
+    "lineText": "declarations.length > 0 &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checker returns the declarations of a property as undefined or with at least one entry, never as an empty list, so the length test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isFunctionDeclaration(parent) && parent.name === name) ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the name of a function declaration is its declaration name, which the collector registers as no reference, so the test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { kind: 'call', node: holder };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the kind of a call site is read only as 'jsx' or not, so its text changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder) || holder.tagName === callee",
+    "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "holder.tagName === callee",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (known !== undefined) {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "symbols are numbered in the order they are first met, and two sites of one slot that name one constant are never separated by another constant being numbered, so every mutated numbering compares equal"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (known !== undefined) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "symbols are numbered in the order they are first met, and two sites of one slot that name one constant are never separated by another constant being numbered, so every mutated numbering compares equal"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isFunctionDeclaration(node) || ts.isVariableDeclaration(node)) &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "functionDeclaredBy returns a declaration only for those two kinds, so the test in front of the name check changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "EqualityOperator",
+    "replacement": "slots.length >= 0",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "symbol || slots.length > 0",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isIdentifier(node) || candidateNames.has(node.text)",
+    "lineText": "ts.isIdentifier(node) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a node whose text is a candidate name and that is no identifier has no symbol of a candidate, so the identifier test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (candidate.escaped || candidate.sites.length === 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'suggestion',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow a parameter, destructured property or default value that every call site outside test files fills the same way.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ": []) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a file already loaded is read as no source file, and the loop over the replacement list destructures a string as no specifier and no loadsModule, so it follows nothing either way"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "const relativeResolutionOptions = {",
+    "occurrence": 0,
+    "lines": 6,
+    "reason": "the compile options only change whether an import that names a .ts extension is allowed, and every specifier here resolves to the same file with the defaults"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "allowImportingTsExtensions: true,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "allowImportingTsExtensions only gates the diagnostic for an import that names a .ts extension, and the resolution of the specifier to its file is the same with it off"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "noEmit: true,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "noEmit only matters to compiling a program, and this options object is passed to module resolution alone"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const key = entries.join('\\u0000');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the entries are absolute paths of existing files, so no two different lists join to the same text even with an empty separator"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Require the file extension on every relative import of a file that a host without bundler resolution loads: the files the configured entries reach through imports that load a module.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "\"Disallow importing a file behind another folder's index.ts; import that index.ts instead.\",",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "const passThroughDirs = options.passThroughDirs ?? [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a default list holding a string that equals no folder skips no folder, like the empty list"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "attribute.name.type === 'JSXIdentifier' &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a namespaced attribute name has an object as its name, which no exempt name equals, so the identifier test ahead of the lookup changes no result"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "OptionalChaining",
+    "replacement": "call.type",
+    "lineText": "if (!FUNCTION_TYPES.has(node.type) || call?.type !== 'CallExpression') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function node always has a parent, so the optional chain on the parent is never needed"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "const isWithin = (inner, outer) => inner[0] >= outer[0] && inner[1] <= outer[1];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "no declaring identifier ends exactly where the callback or the expression it is compared with ends, so <= and < agree on every input"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "EqualityOperator",
+    "replacement": "inner[1] < outer[1]",
+    "lineText": "const isWithin = (inner, outer) => inner[0] >= outer[0] && inner[1] <= outer[1];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "no declaring identifier ends exactly where the callback or the expression it is compared with ends, so <= and < agree on every input"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "MethodExpression",
+    "replacement": "variable.identifiers.every(identifier => isWithin(identifier.range, callbackRange) && !isWithin(identifier.range, expressionRange))",
+    "lineText": "variable.identifiers.some(",
+    "occurrence": 0,
+    "lines": 5,
+    "reason": "a variable of the scopes the rule reads has one declaring identifier, so some and every agree"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow an inline function, call, conditional, object or array, or a template literal embedding one, as a JSX attribute value outside `className` and `style`, except where it reads a `.map()` or `.flatMap()` callback variable.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "return (type.types ?? []).some(",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a union type always has its member list, so the empty default is never read"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(parent.type === 'MemberExpression' && parent.object === carrier) ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "only a member expression has an object child that can be a call, so the type test in front of the comparison adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(parent.type === 'LogicalExpression' &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "only a logical expression has the ?? operator, so the type test in front of the operator test adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return parent.init === carrier ? 'stored' : null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the only child of a variable declarator that can be a call is its initializer, so the comparison always holds"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return parent.right === carrier ? 'stored' : null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the only child of an assignment that can be a call is its right side, so the comparison always holds"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return parent.body === carrier ? 'returned' : null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the only child of an arrow function that can be a call is its body, so the comparison always holds"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow storing, returning or passing a possibly-undefined `.at()`, `.find()`, `.findLast()`, `.pop()`, `.shift()` or `.get()` result without normalising it with `??` first.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "export const EVERY_EXPORT = '*';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the marker is compared only with itself inside this module, and no export is named by an empty string, so its text changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (target === null) {",
+    "occurrence": 1,
+    "lines": 3,
+    "reason": "a re-export of an external module is stored under a null key that no lookup reads, so skipping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (target === null) {",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "a re-export of an external module is stored under a null key that no lookup reads, so skipping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "kind: 'named',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the barrel kind is compared only with 'star' and 'namespace', so the text of the third kind changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (target !== null) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an import() or import type of an external module is stored under a null key that no lookup reads, so storing it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (target !== null) {",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "an import() or import type of an external module is stored under a null key that no lookup reads, so storing it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isElementAccessExpression(parent) || parent.expression === node",
+    "lineText": "ts.isElementAccessExpression(parent) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "an identifier that is not the indexed expression is the index itself, which a string literal condition on the index rules out, so the comparison with the node adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "parent.expression === node &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an identifier that is not the indexed expression is the index itself, which a string literal condition on the index rules out, so the comparison with the node adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "default:",
+    "lineText": "default:",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a binding pattern holds identifiers, object, array, rest and assignment patterns only, so the default case never runs"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a binding pattern holds identifiers, object, array, rest and assignment patterns only, so the default case never runs"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "OptionalChaining",
+    "replacement": "declaration.id.type",
+    "lineText": "return declaration.id?.type === 'Identifier' ? [declaration.id] : [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "every declaration an export statement can hold has an id, so the optional chain is never needed"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "specifier.local.type === 'Identifier' &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the local name of an export specifier without a source is always an identifier, so the type test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "? (fileName) => fileName",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "this branch runs only on a case-sensitive file system, and the tests run on the case-insensitive one of the machine that runs them, so no input reaches it"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "MethodExpression",
+    "replacement": "fileName.toUpperCase()",
+    "lineText": ": (fileName) => fileName.toLowerCase(),",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the cache key only has to be the same for the same file, and upper case does that as well as lower case does"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return resolvedModule && !resolvedModule.isExternalLibraryImport",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a module resolved into node_modules is marked used under a path that no export lookup asks for, so keeping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "LogicalOperator",
+    "replacement": "resolvedModule || !resolvedModule.isExternalLibraryImport",
+    "lineText": "return resolvedModule && !resolvedModule.isExternalLibraryImport",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a module resolved into node_modules is marked used under a path that no export lookup asks for, so keeping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow exporting a symbol that no file in the TypeScript program imports, directly or through a barrel; an import from a test file counts only for an export declared under `__tests__/`.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "scope.childScopes.find((child) => child.type === 'module') ?? scope;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the module scope is the only child scope of the global scope of a file that exports, so the first child is the module scope"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "MethodExpression",
+    "replacement": "moduleScope.set.get(name)?.defs.every(definition => definition.type === 'ImportBinding')",
+    "lineText": "moduleScope.set",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "a name bound at module scope has one definition, so some and every agree"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "exportNode.type === 'ExportDefaultDeclaration'",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the first token of an identifier node is the identifier itself, so reporting at the first token or at the node gives the same range"
   },
   {
     "file": "platform/webPlatform.ts",
