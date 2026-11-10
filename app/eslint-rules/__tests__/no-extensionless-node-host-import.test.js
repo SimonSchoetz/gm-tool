@@ -322,7 +322,7 @@ describe('rule', () => {
   });
 
   it('reports nothing for an import() of a number, and creates no visitors that read a missing parser service', () => {
-    write('entry.ts', 'export const lazy = () => import(42 as never);\n');
+    write('entry.ts', 'export const lazy = () => import(42);\n');
 
     expect(lint(at('entry.ts'), [at('entry.ts')])).toEqual([]);
     expect(
