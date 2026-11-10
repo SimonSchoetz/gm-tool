@@ -1,12 +1,5 @@
 import { FCProps } from '@/types/fcProps.type';
-import {
-  Table2Icon,
-  ArrowUpFromLineIcon,
-  ArrowDownFromLineIcon,
-  ArrowLeftFromLineIcon,
-  ArrowRightFromLineIcon,
-  Trash2Icon,
-} from 'lucide-react';
+import { Table2Icon } from 'lucide-react';
 import './TableHandleMenu.css';
 import { PopupState } from '../../types';
 import {
@@ -17,6 +10,7 @@ import {
   $deleteTableRowAtSelection,
   $deleteTableColumnAtSelection,
 } from '@lexical/table';
+import { getTableMenu, type TableCellMutation } from './helper/getTableMenu';
 import { runTableCellMutation } from './helper/runTableCellMutation';
 import { MenuOptionRow } from '../../../../../MenuOptionRow/MenuOptionRow';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -38,15 +32,7 @@ export const TableHandleMenu: FCProps<Props> = ({
 
   const { type, isHeader } = popupState;
 
-  const handleTableCellMutation = (
-    mutation:
-      | 'insertRowAbove'
-      | 'insertRowBelow'
-      | 'deleteRow'
-      | 'insertColumnLeft'
-      | 'insertColumnRight'
-      | 'deleteColumn',
-  ): void => {
+  const handleTableCellMutation = (mutation: TableCellMutation): void => {
     runTableCellMutation(
       editor,
       popupState.cellX,
@@ -112,60 +98,29 @@ export const TableHandleMenu: FCProps<Props> = ({
     );
   };
 
+  const { toggleHeaderLabel, actions } = getTableMenu(type);
+
   return (
     <div className='table-handle-menu'>
       <MenuOptionRow
         Icon={Table2Icon}
-        label={type === 'row' ? 'Toggle header row' : 'Toggle header column'}
-        onClick={() => {
-          handleToggleHeader();
-        }}
+        label={toggleHeaderLabel}
+        onClick={handleToggleHeader}
         isActive={isHeader}
       />
 
       <div className='table-handle-menu--divider' />
 
-      <MenuOptionRow
-        Icon={type === 'row' ? ArrowUpFromLineIcon : ArrowLeftFromLineIcon}
-        label={type === 'row' ? 'Insert above' : 'Insert left'}
-        onClick={
-          popupState.type === 'row'
-            ? () => {
-                handleTableCellMutation('insertRowAbove');
-              }
-            : () => {
-                handleTableCellMutation('insertColumnLeft');
-              }
-        }
-      />
-
-      <MenuOptionRow
-        Icon={type === 'row' ? ArrowDownFromLineIcon : ArrowRightFromLineIcon}
-        label={type === 'row' ? 'Insert below' : 'Insert right'}
-        onClick={
-          popupState.type === 'row'
-            ? () => {
-                handleTableCellMutation('insertRowBelow');
-              }
-            : () => {
-                handleTableCellMutation('insertColumnRight');
-              }
-        }
-      />
-
-      <MenuOptionRow
-        Icon={Trash2Icon}
-        label={type === 'row' ? 'Delete row' : 'Delete column'}
-        onClick={
-          popupState.type === 'row'
-            ? () => {
-                handleTableCellMutation('deleteRow');
-              }
-            : () => {
-                handleTableCellMutation('deleteColumn');
-              }
-        }
-      />
+      {actions.map((action) => (
+        <MenuOptionRow
+          key={action.mutation}
+          Icon={action.Icon}
+          label={action.label}
+          onClick={() => {
+            handleTableCellMutation(action.mutation);
+          }}
+        />
+      ))}
     </div>
   );
 };

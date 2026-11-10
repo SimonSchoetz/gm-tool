@@ -51,6 +51,7 @@ export const TableEdgeHandlePlugin = () => {
     setHintState(null);
   };
 
+  // Consumer: the mousemove effect below lists `scheduleHide` in its dependency array.
   const scheduleHide = useCallback(() => {
     if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
@@ -60,6 +61,7 @@ export const TableEdgeHandlePlugin = () => {
     }, 150);
   }, []);
 
+  // Consumer: the mousemove effect below lists `cancelHide` in its dependency array.
   const cancelHide = useCallback(() => {
     if (hideTimerRef.current !== null) {
       clearTimeout(hideTimerRef.current);
@@ -195,6 +197,9 @@ export const TableEdgeHandlePlugin = () => {
     scheduleHide();
   };
 
+  const getPopupAnchorRect = () =>
+    popupState?.hintElement.getBoundingClientRect() ?? null;
+
   return (
     <>
       {hintState &&
@@ -232,10 +237,8 @@ export const TableEdgeHandlePlugin = () => {
         )}
       {popupState && (
         <AnchoredPopup
-          getAnchorRect={() => popupState.hintElement.getBoundingClientRect()}
-          onClickOutside={() => {
-            closePopup();
-          }}
+          getAnchorRect={getPopupAnchorRect}
+          onClickOutside={closePopup}
         >
           <PopupSurface>
             <TableHandleMenu

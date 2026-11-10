@@ -5,6 +5,7 @@ import { LinkInput } from './components/LinkInput/LinkInput';
 import './LinkRow.css';
 import { useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { getLinkPanelIntensity } from './helper/getLinkPanelIntensity';
 import { getSelectionLinkUrl } from './helper/getSelectionLinkUrl';
 
 export const LinkRow = () => {
@@ -42,24 +43,25 @@ export const LinkRow = () => {
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     }
   };
+
+  const onMouseDown = (e: React.MouseEvent<HTMLSpanElement>) => {
+    e.preventDefault();
+  };
+
+  const linkPanelIntensity = getLinkPanelIntensity(linkInputEnabled);
+
   return (
     <div className='floating-toolbar-link-row'>
-      <span
-        onMouseDown={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <span onMouseDown={onMouseDown}>
         <LinkBtn isActive={linkInputEnabled} onClick={handleLinkBtnClick} />
       </span>
       <GlassPanel
-        intensity={linkInputEnabled ? 'bright' : 'dim'}
+        intensity={linkPanelIntensity}
         className='link-input-container'
       >
         <LinkInput
           value={linkUrl}
-          onChange={(url) => {
-            setLinkUrl(url);
-          }}
+          onChange={setLinkUrl}
           disabled={!linkInputEnabled}
           isApplyEnabled={linkUrl !== linkInitialUrl}
           onApply={handleLinkApply}

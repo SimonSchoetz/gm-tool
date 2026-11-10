@@ -98,14 +98,22 @@ export const EmbeddedLinkPlugin = () => {
 
   if (linkUrl === null) return;
 
+  const getAnchorRect = () =>
+    linkElementRef.current?.getBoundingClientRect() ?? null;
+
+  const onClickOutside = () => {
+    setLinkUrl(null);
+  };
+
+  const onOpenLink = () => {
+    void openUrl(linkUrl);
+    setLinkUrl(null);
+  };
+
   return (
     <AnchoredPopup
-      getAnchorRect={() =>
-        linkElementRef.current?.getBoundingClientRect() ?? null
-      }
-      onClickOutside={() => {
-        setLinkUrl(null);
-      }}
+      getAnchorRect={getAnchorRect}
+      onClickOutside={onClickOutside}
     >
       <GlassPanel intensity='bright' className='link-popup'>
         <span className='link-popup--url clip-text'>{linkUrl}</span>
@@ -114,10 +122,7 @@ export const EmbeddedLinkPlugin = () => {
           className='link-popup--icon'
           icon={<ExternalLinkIcon />}
           label='Open in browser'
-          onClick={() => {
-            void openUrl(linkUrl);
-            setLinkUrl(null);
-          }}
+          onClick={onOpenLink}
         />
       </GlassPanel>
     </AnchoredPopup>

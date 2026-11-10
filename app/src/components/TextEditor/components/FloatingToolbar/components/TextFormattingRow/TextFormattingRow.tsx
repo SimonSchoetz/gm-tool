@@ -6,13 +6,12 @@ import { headingBtns, listBtns, textFormatBtns } from './textFormattingConfig';
 import './TextFormattingRow.css';
 
 export const TextFormattingRow = () => {
+  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
   return (
-    <div
-      className='text-formatting-row'
-      onMouseDown={(e) => {
-        e.preventDefault();
-      }}
-    >
+    <div className='text-formatting-row' onMouseDown={onMouseDown}>
       {headingBtns.map((btn) => (
         <HeadingBtn
           key={btn.headingType}

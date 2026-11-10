@@ -3,6 +3,7 @@ import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
 import { FCProps } from '@/types/fcProps.type';
 import { cn } from '@/util/className';
 import { LucideIcon } from 'lucide-react';
+import { getBtnIntensity } from './helper/getBtnIntensity';
 import './BaseBtn.css';
 
 type Props = {
@@ -19,10 +20,12 @@ export const BaseBtn: FCProps<Props> = ({
   icon: Icon,
   ...props
 }) => {
+  const intensity = getBtnIntensity(isActive);
+
   return (
     <GlassPanel
       data-active={isActive}
-      intensity={isActive ? 'bright' : 'off'}
+      intensity={intensity}
       className={cn(
         'global-btn-styles',
         'base-btn-container',
