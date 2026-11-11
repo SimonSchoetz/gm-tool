@@ -174,7 +174,7 @@
     "file": "../scripts/mutation-check-rust.ts",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
-    "lineText": "{ cwd: rustRoot, stdio: 'inherit' },",
+    "lineText": "stdio: 'inherit',",
     "occurrence": 0,
     "lines": 1,
     "reason": "the stdio setting only decides whether the cargo-mutants progress is shown, which no test reads"
@@ -196,15 +196,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "an outcome entry that is no object has no status, file or change, so it matches and names nothing"
-  },
-  {
-    "file": "../scripts/mutation-check-rust.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "match: status === 0 || status === 2 ? judged : null,",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a status other than 0 and 2 fails in rustFailures before the match is read"
   },
   {
     "file": "../scripts/mutation-check-rust.ts",

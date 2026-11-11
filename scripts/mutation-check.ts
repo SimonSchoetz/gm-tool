@@ -1,5 +1,5 @@
 // Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json. `--all` mutates every production file under app/ with its own test as a whole instead, for an audit of code no branch changed; which files are production sources and which of their lines run is scripts/mutation-check-selection.ts.
-// The Rust lines the branch changed under app/src-tauri/src/ (every Rust mutant with `--all`) are mutated by `cargo mutants` first (scripts/mutation-check-rust.ts), the networking glue left out (app/src-tauri/.cargo/mutants.toml); a missed mutant with no entry in scripts/mutation-accepted-rust.json fails the run like a TypeScript survivor, and `--accept` writes the reason into that ledger. A branch that changes no Rust runs no cargo command, and Rust is skipped when file arguments are given.
+// The Rust lines the branch changed under app/src-tauri/src/ (every Rust mutant with `--all`) are mutated by `cargo mutants` first (scripts/mutation-check-rust.ts), the networking glue left out (app/src-tauri/.cargo/mutants.toml); a missed mutant with no entry in scripts/mutation-accepted-rust.json fails the run like a TypeScript survivor, and `--accept` writes the reason into that ledger; a timed-out one with no entry in scripts/mutation-hangs-rust.json fails it like a TypeScript timeout, `--accept-hang` writes into that ledger, and `--timeout-ms` sets cargo-mutants' test timeout. A branch that changes no Rust runs no cargo command, and Rust is skipped when file arguments are given.
 // A file moved with git (`git mv`, staged or committed) counts only the lines changed after the move (scripts/mutation-check-diff.ts); a moved file git has not seen yet is untracked, and so new as a whole.
 // Each mutant runs the Vitest tests related to its file through Stryker's command runner (scripts/mutation-check-related.ts): Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
 // Only files with their own test file (`<dir>/__tests__/<name>.test.ts(x)`, `.test.js` for `eslint-rules/`) are mutated; the others are listed as skipped.
@@ -76,16 +76,24 @@ const RUST_LEDGER_PATH = path.join(
   'scripts',
   'mutation-accepted-rust.json',
 );
+const RUST_HANG_LEDGER_PATH = path.join(
+  repositoryRoot,
+  'scripts',
+  'mutation-hangs-rust.json',
+);
 
-let rustLedger: ReturnType<typeof parseRustLedger>;
-try {
-  rustLedger = parseRustLedger(readFileSync(RUST_LEDGER_PATH, 'utf8'));
-} catch (error) {
-  console.error(
-    `mutation-check: cannot read ${path.relative(repositoryRoot, RUST_LEDGER_PATH)}: ${(error as Error).message}`,
-  );
-  process.exit(2);
-}
+const readRustLedger = (ledgerPath: string) => {
+  try {
+    return parseRustLedger(readFileSync(ledgerPath, 'utf8'));
+  } catch (error) {
+    console.error(
+      `mutation-check: cannot read ${path.relative(repositoryRoot, ledgerPath)}: ${(error as Error).message}`,
+    );
+    process.exit(2);
+  }
+};
+const rustLedger = readRustLedger(RUST_LEDGER_PATH);
+const rustHangLedger = readRustLedger(RUST_HANG_LEDGER_PATH);
 
 const readLedger = (ledgerPath: string) => {
   try {
@@ -222,17 +230,35 @@ if (requestedFiles.length > 0) {
     repositoryRoot,
     base: mergeBase,
     ledger: rustLedger,
+    hangLedger: rustHangLedger,
     acceptReason,
+    hangReason,
+    timeoutMS,
   });
-  if (rust.newEntries.length > 0) {
-    writeFileSync(
-      RUST_LEDGER_PATH,
-      serializeRustLedger([...rustLedger, ...rust.newEntries]),
-    );
+  const writeRustEntries = (
+    ledgerPath: string,
+    entries: typeof rustLedger,
+    added: typeof rustLedger,
+    recorded: string,
+  ) => {
+    if (added.length === 0) return;
+    writeFileSync(ledgerPath, serializeRustLedger([...entries, ...added]));
     console.log(
-      `\nmutation-check: accepted ${rust.newEntries.length} Rust mutant(s) into scripts/mutation-accepted-rust.json with the reason "${acceptReason}".`,
+      `\nmutation-check: recorded ${added.length} ${recorded} into ${path.relative(repositoryRoot, ledgerPath)} with the reason "${added[0].reason}".`,
     );
-  }
+  };
+  writeRustEntries(
+    RUST_LEDGER_PATH,
+    rustLedger,
+    rust.newEntries,
+    'missed Rust mutant(s)',
+  );
+  writeRustEntries(
+    RUST_HANG_LEDGER_PATH,
+    rustHangLedger,
+    rust.newHangEntries,
+    'confirmed Rust hang(s)',
+  );
   rustFailed = rust.failures.length > 0;
   for (const failure of rust.failures)
     console.error(`\nmutation-check: FAILED — ${failure}`);
