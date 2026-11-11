@@ -1774,6 +1774,24 @@
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the cleanup's own hidePopup call already removes this entity's hover popup, and the uncleared hide timer only repeats that call after its 0 ms delay; a new hover popup of the entity needs a badge's 500 ms hover delay, which starts no earlier than this badge's mouseleave because the pointer leaves one badge before it enters another, so the repeated call finds no hover popup to remove, and it leaves a clicked or pinned popup open"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the cleanup's own hidePopup call already removes this entity's hover popup, and the uncleared hide timer only repeats that call after its 0 ms delay; a new hover popup of the entity needs a badge's 500 ms hover delay, which starts no earlier than this badge's mouseleave because the pointer leaves one badge before it enters another, so the repeated call finds no hover popup to remove, and it leaves a clicked or pinned popup open"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
     "mutator": "ConditionalExpression",
     "replacement": "true",
     "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
