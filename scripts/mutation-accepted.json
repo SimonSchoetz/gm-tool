@@ -64,15 +64,6 @@
   },
   {
     "file": "../scripts/css-token-check-find.ts",
-    "mutator": "LogicalOperator",
-    "replacement": "TOKEN_FAMILIES.zIndex.property.test(property) || INTEGER.test(trimmed)",
-    "lineText": "if (TOKEN_FAMILIES.zIndex.property.test(property) && INTEGER.test(trimmed)) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "stays: the property test is not redundant, because without it a bare integer in any property would be read as a raw value, and `margin: 0` would then match a spacing token worth 0; no test pins that, and a test written only to kill this mutant is out of scope"
-  },
-  {
-    "file": "../scripts/css-token-check-find.ts",
     "mutator": "ConditionalExpression",
     "replacement": "false",
     "lineText": "const tokens = key === null ? [] : tokensEqualTo(property, key, index);",
@@ -865,15 +856,6 @@
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (candidate.escaped || candidate.sites.length === 0) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "stays: this test alone stops a function no call site reaches from reporting every parameter as always omitted; no test pins it, and a test written only to kill this mutant is out of scope"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
     "lineText": "type: 'suggestion',",
@@ -1087,15 +1069,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "stays: ESTree's WithStatement also has an `object` child, which the published types permit, so the type test keeps `with (m.get(k))` from reading as a member access"
-  },
-  {
-    "file": "eslint-rules/no-unnormalized-lookup-result.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "return parent.right === carrier ? 'stored' : null;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "stays: the left side of an assignment can be a member expression holding the call (`m.get(k).field = 1`), which discards the value; the comparison tells the sides apart, and no test pins it"
   },
   {
     "file": "eslint-rules/no-unnormalized-lookup-result.js",

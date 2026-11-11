@@ -113,6 +113,11 @@ describe('z-index comparison', () => {
   it('does not treat an integer on another property as a z-index', () => {
     expect(hitValues(inRule('order: 1000'))).toEqual([]);
   });
+
+  it('reads a bare zero in a spacing property as no raw value even when a spacing token is worth zero', () => {
+    const zeroSpacingIndex = buildTokenIndex([':root { --spacing-none: 0; }']);
+    expect(findRawValueHits(inRule('margin: 0'), zeroSpacingIndex)).toEqual([]);
+  });
 });
 
 describe('token family matching', () => {

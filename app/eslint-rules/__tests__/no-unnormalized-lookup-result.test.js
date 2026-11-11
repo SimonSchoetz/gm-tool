@@ -201,6 +201,11 @@ describe('classifyEscape of the value carrier', () => {
     expect(classifyEscape({ type: 'CallExpression', parent: null })).toBeNull();
   });
 
+  it('passes a property assigned on a looked-up object, which discards the lookup result itself', () => {
+    expect(escapesIn('map.get(k).field = 1;')).toEqual([null]);
+    expect(escapesIn('x = map.get(k).field;')).toEqual(['stored']);
+  });
+
   it('passes a result whose method result is only called for its effect', () => {
     expect(escapesIn('arr.find(f)?.dispose();')).toEqual([null]);
   });

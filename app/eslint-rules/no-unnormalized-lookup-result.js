@@ -94,7 +94,6 @@ export const classifyEscape = (carrier) => {
     case 'ArrayExpression':
       return 'stored';
     case 'ReturnStatement':
-      return 'returned';
     case 'ArrowFunctionExpression':
       return 'returned';
     case 'CallExpression':
