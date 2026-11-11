@@ -135,3 +135,10 @@ Whether the same holds for a literal in another position under `as const` was no
 **Citation:** [implement_1: ran `stryker run --mutate scripts/mutation-check-test-row.ts` in a scratch folder holding copies `app/` and `scripts/` as siblings, a command runner that ran `npx vitest related ../scripts/<file>` in `app/`, and a symlink `app/node_modules` — observed `Found 1 of 2636 file(s) to be mutated` and an initial test run that failed with `Cannot find package 'vitest'`; after adding a symlink `node_modules` at the scratch root beside `app/`, observed `Initial test run succeeded` and 11 of 14 mutants `Killed`]
 
 The sandbox copy keeps the layout of the working directory; a `node_modules` symlink nested under `app/` was not carried over, so a test run in `app/` found no `vitest`.
+
+## `stryker run --timeoutMS <number>` overrides the absolute per-mutant test timeout for that run
+
+**Verified at:** @stryker-mutator/core 10.0.0
+**Citation:** [implement_1: `app/node_modules/@stryker-mutator/core/dist/src/stryker-cli.js:127`]
+
+The CLI parses the value with `parseInt` and describes the option as the absolute timeout used to wait for a test runner to complete.

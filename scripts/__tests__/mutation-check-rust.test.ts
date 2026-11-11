@@ -175,19 +175,16 @@ describe('parseOutcomes', () => {
     ]);
   });
 
-  it.each([
-    ['Timeout', 'timeout'],
-    ['Unviable', 'unviable'],
-  ])('reads %s as %s', (summary, status) => {
+  it('reads Unviable as unviable', () => {
     const json = outcomesJson([
       {
         scenario: {
           Mutant: jsonMutant('src/a.rs', 7, 9, 'replace == with != in check'),
         },
-        summary,
+        summary: 'Unviable',
       },
     ]);
-    expect(parseOutcomes(json, listed)[0].status).toBe(status);
+    expect(parseOutcomes(json, listed)[0].status).toBe('unviable');
   });
 
   it('rejects an unknown summary and a mutant missing from the list', () => {
@@ -331,7 +328,7 @@ describe('matchRustMutants', () => {
       outcomes: [],
     });
     expect(notRun.stale).toEqual([]);
-    for (const status of ['missed', 'timeout', 'unviable'] as const) {
+    for (const status of ['missed', 'unviable'] as const) {
       expect(
         matchRustMutants({
           ledger: [entry()],

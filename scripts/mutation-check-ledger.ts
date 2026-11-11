@@ -1,5 +1,5 @@
-// The ledger of accepted survivors behind scripts/mutation-check.ts: reading and writing scripts/mutation-accepted.json, and matching a Stryker run's survivors against it.
-// An entry names one mutant by its file, mutator, replacement and the normalized text of the line that holds its start; `occurrence` counts the earlier lines of the file with the same text, so two identical lines stay apart, and identical mutants on one line are repeated entries, matched one survivor per entry.
+// The ledgers behind scripts/mutation-check.ts: reading and writing scripts/mutation-accepted.json (accepted survivors) and scripts/mutation-hangs.json (timed-out mutants confirmed to hang, which count as caught), and matching a Stryker run's mutants of one status against one of them.
+// An entry names one mutant by its file, mutator, replacement and the normalized text of the line that holds its start; `occurrence` counts the earlier lines of the file with the same text, so two identical lines stay apart, and identical mutants on one line are repeated entries, matched one mutant per entry.
 // Pure: the script reads and writes the files and passes their contents in.
 
 type MutantStatus =
@@ -37,8 +37,9 @@ export type LedgerEntry = {
   reason: string;
 };
 
-// eslint-disable-next-line local/no-unused-exports -- tests type the survivors they build
-export type Survivor = {
+// A mutant of a run with the status a ledger judges: `Survived` for scripts/mutation-accepted.json, `Timeout` for scripts/mutation-hangs.json.
+// eslint-disable-next-line local/no-unused-exports -- tests type the mutants they build
+export type LocatedMutant = {
   file: string;
   line: number;
   column: number;
@@ -151,10 +152,13 @@ export const serializeLedger = (
   return `${JSON.stringify(sorted, null, 2)}\n`;
 };
 
-export const survivorsOf = (report: MutationReport): Survivor[] =>
+export const mutantsOf = (
+  report: MutationReport,
+  wanted: Extract<MutantStatus, 'Survived' | 'Timeout'>,
+): LocatedMutant[] =>
   Object.entries(report.files).flatMap(([file, { mutants }]) =>
     mutants
-      .filter(({ status }) => status === 'Survived')
+      .filter(({ status }) => status === wanted)
       .map(({ mutatorName, replacement, location }) => ({
         file,
         line: location.start.line,
@@ -166,19 +170,19 @@ export const survivorsOf = (report: MutationReport): Survivor[] =>
   );
 
 export const entryFor = (
-  survivor: Survivor,
+  mutant: LocatedMutant,
   sourceLines: SourceLines,
   reason: string,
 ): LedgerEntry => {
-  const fileLines = sourceLines(survivor.file) ?? [];
-  const lineText = normalizeText(fileLines[survivor.line - 1] ?? '');
+  const fileLines = sourceLines(mutant.file) ?? [];
+  const lineText = normalizeText(fileLines[mutant.line - 1] ?? '');
   return {
-    file: survivor.file,
-    mutator: survivor.mutator,
-    replacement: survivor.replacement,
+    file: mutant.file,
+    mutator: mutant.mutator,
+    replacement: mutant.replacement,
     lineText,
-    occurrence: linesWithText(fileLines, lineText).indexOf(survivor.line),
-    lines: survivor.endLine - survivor.line + 1,
+    occurrence: linesWithText(fileLines, lineText).indexOf(mutant.line),
+    lines: mutant.endLine - mutant.line + 1,
     reason,
   };
 };
@@ -197,15 +201,15 @@ const keyOf = ({
 }: Omit<LedgerEntry, 'lines' | 'reason'>) =>
   JSON.stringify([file, mutator, replacement, lineText, occurrence]);
 
-// An accepted mutant still runs: a survivor consumes one entry with its key, a survivor left over is unmatched, and an entry left over whose whole span this run mutated is stale, since its mutant was created and did not survive.
-export const matchSurvivors = ({
+// A ledgered mutant still runs: a mutant of the ledger's status consumes one entry with its key, a mutant left over is unmatched, and an entry left over whose whole span this run mutated is stale, since its mutant was created and no longer has that status.
+export const matchLedger = ({
   entries,
-  survivors,
+  mutants,
   sourceLines,
   mutatedRanges,
 }: {
   entries: LedgerEntry[];
-  survivors: Survivor[];
+  mutants: LocatedMutant[];
   sourceLines: SourceLines;
   mutatedRanges: MutatedRanges;
 }) => {
@@ -214,9 +218,9 @@ export const matchSurvivors = ({
     const key = keyOf(entry);
     unconsumed.set(key, [...(unconsumed.get(key) ?? []), entry]);
   }
-  const unmatched = survivors.filter((survivor) => {
+  const unmatched = mutants.filter((mutant) => {
     const candidates =
-      unconsumed.get(keyOf(entryFor(survivor, sourceLines, ''))) ?? [];
+      unconsumed.get(keyOf(entryFor(mutant, sourceLines, ''))) ?? [];
     return candidates.shift() === undefined;
   });
   const stale = [...unconsumed.values()].flat().filter((entry) => {
@@ -231,32 +235,60 @@ export const matchSurvivors = ({
   return { unmatched, stale };
 };
 
+// The reason an option takes as its next argument, which it describes as `<placeholder>`.
+const REASON_OPTIONS = {
+  '--accept': 'why no test can observe the mutant',
+  '--accept-hang': 'which loop the mutant makes endless',
+} as const;
+
 export const parseArguments = (argv: string[]) => {
   const files: string[] = [];
   let all = false;
-  let acceptReason: string | null = null;
+  const reasons: Record<keyof typeof REASON_OPTIONS, string | null> = {
+    '--accept': null,
+    '--accept-hang': null,
+  };
+  let timeoutMS: number | null = null;
   // pnpm may forward the `--` separator as an argument.
   const rest = argv.filter((argument) => argument !== '--');
   for (let index = 0; index < rest.length; index += 1) {
     const argument = rest[index];
+    const value = rest.at(index + 1) ?? null;
     if (argument === '--all') {
       all = true;
       continue;
     }
-    if (argument !== '--accept') {
+    if (argument === '--timeout-ms') {
+      if (timeoutMS !== null) throw new Error('--timeout-ms is given twice');
+      const milliseconds = Number(value);
+      if (!Number.isSafeInteger(milliseconds) || milliseconds < 1)
+        throw new Error(
+          '--timeout-ms needs a whole number of milliseconds: --timeout-ms <n>',
+        );
+      timeoutMS = milliseconds;
+      index += 1;
+      continue;
+    }
+    if (!Object.hasOwn(REASON_OPTIONS, argument)) {
       files.push(argument.replace(/^(\.\/)?app\//, ''));
       continue;
     }
-    if (acceptReason !== null) throw new Error('--accept is given twice');
-    const reason = rest.at(index + 1) ?? null;
-    if (reason === null || reason.trim() === '' || reason.startsWith('--'))
+    const option = argument as keyof typeof REASON_OPTIONS;
+    if (reasons[option] !== null) throw new Error(`${option} is given twice`);
+    if (value === null || value.trim() === '' || value.startsWith('--'))
       throw new Error(
-        '--accept needs a reason: --accept "<why no test can observe the mutant>"',
+        `${option} needs a reason: ${option} "<${REASON_OPTIONS[option]}>"`,
       );
-    acceptReason = reason.trim();
+    reasons[option] = value.trim();
     index += 1;
   }
-  return { files, all, acceptReason };
+  return {
+    files,
+    all,
+    acceptReason: reasons['--accept'],
+    hangReason: reasons['--accept-hang'],
+    timeoutMS,
+  };
 };
 
 // The line number is left out when the entry's line no longer resolves.
@@ -265,10 +297,11 @@ export const describeEntry = (entry: LedgerEntry, sourceLines: SourceLines) => {
   return `app/${entry.file}${line === null ? '' : `:${line}`}  ${entry.mutator}  → ${entry.replacement}  on "${entry.lineText}"${entry.occurrence > 0 ? ` (occurrence ${entry.occurrence})` : ''}`;
 };
 
-export const describeSurvivor = ({
+export const describeMutant = ({
   file,
   line,
   column,
   mutator,
   replacement,
-}: Survivor) => `app/${file}:${line}:${column}  ${mutator}  → ${replacement}`;
+}: LocatedMutant) =>
+  `app/${file}:${line}:${column}  ${mutator}  → ${replacement}`;

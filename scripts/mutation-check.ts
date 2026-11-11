@@ -7,20 +7,21 @@
 // Exits non-zero when a mutant survives in one of them and scripts/mutation-accepted.json holds no entry for it: a test that passes with its target logic mutated catches no regression there.
 // A survivor no test can kill (an equivalent mutant) is accepted by an entry of that ledger, which names one mutant by its file, mutator, replacement and the text of the line it starts on (scripts/mutation-check-ledger.ts); a survivor matches one entry, so each of two identical mutants needs its own.
 // An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
+// A mutant Stryker reports as `Timeout` (its tests ran past `timeoutMS` in app/stryker.config.json) fails the run too, listed apart from survivors, unless scripts/mutation-hangs.json holds an entry for it; that ledger has the entry shape and the stale and missing checks of scripts/mutation-accepted.json. A timeout counts as caught only when the mutant hangs, turning a loop's condition or update into one that never ends, since a test run observes a hang; `--accept-hang "<reason>"` records every unmatched timeout with that reason, so run it only once each one left is a confirmed hang. Any other timeout is re-run with a longer limit, `--timeout-ms <n>`, which overrides `timeoutMS` for one run, and is resolved by that run's result.
 // `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, so only mutants known to be equivalent are accepted. Before Stryker starts, it runs the `test` row (`npx vitest run` in app/) and exits non-zero without writing an entry when a test fails (scripts/mutation-check-test-row.ts). After editing an accepted line, remove its entry and re-run with `--accept`.
 import { execFileSync, spawnSync } from 'child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 import {
   describeEntry,
-  describeSurvivor,
+  describeMutant,
   entryFor,
   findMissingEntries,
-  matchSurvivors,
+  matchLedger,
+  mutantsOf,
   parseArguments,
   parseLedger,
   serializeLedger,
-  survivorsOf,
   type MutatedRanges,
   type MutationReport,
   type SourceLines,
@@ -49,6 +50,11 @@ const LEDGER_PATH = path.join(
   'scripts',
   'mutation-accepted.json',
 );
+const HANG_LEDGER_PATH = path.join(
+  repositoryRoot,
+  'scripts',
+  'mutation-hangs.json',
+);
 
 let parsedArguments: ReturnType<typeof parseArguments>;
 try {
@@ -57,7 +63,13 @@ try {
   console.error(`mutation-check: ${(error as Error).message}`);
   process.exit(2);
 }
-const { files: requestedFiles, all, acceptReason } = parsedArguments;
+const {
+  files: requestedFiles,
+  all,
+  acceptReason,
+  hangReason,
+  timeoutMS,
+} = parsedArguments;
 
 const RUST_LEDGER_PATH = path.join(
   repositoryRoot,
@@ -75,15 +87,18 @@ try {
   process.exit(2);
 }
 
-let ledger: ReturnType<typeof parseLedger>;
-try {
-  ledger = parseLedger(readFileSync(LEDGER_PATH, 'utf8'));
-} catch (error) {
-  console.error(
-    `mutation-check: cannot read ${path.relative(repositoryRoot, LEDGER_PATH)}: ${(error as Error).message}`,
-  );
-  process.exit(2);
-}
+const readLedger = (ledgerPath: string) => {
+  try {
+    return parseLedger(readFileSync(ledgerPath, 'utf8'));
+  } catch (error) {
+    console.error(
+      `mutation-check: cannot read ${path.relative(repositoryRoot, ledgerPath)}: ${(error as Error).message}`,
+    );
+    process.exit(2);
+  }
+};
+const ledger = readLedger(LEDGER_PATH);
+const hangLedger = readLedger(HANG_LEDGER_PATH);
 
 const sourceCache = new Map<string, string[] | null>();
 const sourceLines: SourceLines = (file) => {
@@ -104,8 +119,14 @@ if (missingEntries.length > 0) {
   console.error(
     `mutation-check: FAILED — ${missingEntries.length} ledger entr(y/ies) in scripts/mutation-accepted.json name a file or line that no longer exists; remove each, and re-run with --accept "<reason>" if its mutant still survives:\n  ${missingEntries.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
   );
-  process.exit(1);
 }
+const missingHangEntries = findMissingEntries(hangLedger, sourceLines);
+if (missingHangEntries.length > 0) {
+  console.error(
+    `mutation-check: FAILED — ${missingHangEntries.length} ledger entr(y/ies) in scripts/mutation-hangs.json name a file or line that no longer exists; remove each, and re-run with --accept-hang "<reason>" if its mutant still hangs:\n  ${missingHangEntries.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
+  );
+}
+if (missingEntries.length > 0 || missingHangEntries.length > 0) process.exit(1);
 
 // Stryker honours a directive comment on its own, so a re-added one would hide mutants from this check.
 const directiveScan = spawnSync(
@@ -267,7 +288,13 @@ const runStryker = (runEntries: string[], runFiles: string[]) => {
   rmSync(path.join(appRoot, REPORT_PATH), { force: true });
   const stryker = spawnSync(
     'npx',
-    ['stryker', 'run', '--mutate', runEntries.join(',')],
+    [
+      'stryker',
+      'run',
+      '--mutate',
+      runEntries.join(','),
+      ...(timeoutMS === null ? [] : ['--timeoutMS', String(timeoutMS)]),
+    ],
     {
       cwd: appRoot,
       stdio: 'inherit',
@@ -301,35 +328,76 @@ if (acceptReason !== null && mutateEntries.length > 0) {
   }
 }
 
-const survivors =
+const report =
   mutateEntries.length > 0
-    ? survivorsOf(runStryker(mutateEntries, [...mutatedRanges.keys()]))
-    : [];
-const matched = matchSurvivors({
-  entries: ledger,
-  survivors,
-  sourceLines,
-  mutatedRanges,
-});
-const { stale } = matched;
+    ? runStryker(mutateEntries, [...mutatedRanges.keys()])
+    : null;
+const judge = (
+  entries: typeof ledger,
+  status: Parameters<typeof mutantsOf>[1],
+) =>
+  matchLedger({
+    entries,
+    mutants: report === null ? [] : mutantsOf(report, status),
+    sourceLines,
+    mutatedRanges,
+  });
+const survivorMatch = judge(ledger, 'Survived');
+const timeoutMatch = judge(hangLedger, 'Timeout');
 
-if (acceptReason !== null && matched.unmatched.length > 0) {
-  const accepted = matched.unmatched.map((survivor) =>
-    entryFor(survivor, sourceLines, acceptReason),
+// Writes an entry with `reason` for every mutant no entry matched, and returns the mutants that still fail the run: none once they are written.
+const recordUnmatched = ({
+  match,
+  entries,
+  ledgerPath,
+  reason,
+  recorded,
+}: {
+  match: ReturnType<typeof matchLedger>;
+  entries: typeof ledger;
+  ledgerPath: string;
+  reason: string | null;
+  recorded: string;
+}) => {
+  if (reason === null) return match.unmatched;
+  if (match.unmatched.length === 0) return [];
+  const added = match.unmatched.map((mutant) =>
+    entryFor(mutant, sourceLines, reason),
   );
   writeFileSync(
-    LEDGER_PATH,
-    serializeLedger([...ledger, ...accepted], sourceLines),
+    ledgerPath,
+    serializeLedger([...entries, ...added], sourceLines),
   );
   console.log(
-    `\nmutation-check: accepted ${accepted.length} survivor(s) into scripts/mutation-accepted.json with the reason "${acceptReason}":\n  ${accepted.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
+    `\nmutation-check: recorded ${added.length} ${recorded} into ${path.relative(repositoryRoot, ledgerPath)} with the reason "${reason}":\n  ${added.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
   );
-}
-const unmatched = acceptReason === null ? matched.unmatched : [];
+  return [];
+};
+const unmatched = recordUnmatched({
+  match: survivorMatch,
+  entries: ledger,
+  ledgerPath: LEDGER_PATH,
+  reason: acceptReason,
+  recorded: 'survivor(s)',
+});
+const timedOut = recordUnmatched({
+  match: timeoutMatch,
+  entries: hangLedger,
+  ledgerPath: HANG_LEDGER_PATH,
+  reason: hangReason,
+  recorded: 'confirmed hang(s)',
+});
+const stale = survivorMatch.stale;
+const staleHangs = timeoutMatch.stale;
 
 if (unmatched.length > 0) {
   console.error(
-    `\nmutation-check: FAILED — ${unmatched.length} mutant(s) survived in files with their own tests; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  ${unmatched.map(describeSurvivor).join('\n  ')}`,
+    `\nmutation-check: FAILED — ${unmatched.length} mutant(s) survived in files with their own tests; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  ${unmatched.map(describeMutant).join('\n  ')}`,
+  );
+}
+if (timedOut.length > 0) {
+  console.error(
+    `\nmutation-check: FAILED — ${timedOut.length} mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n> (app/stryker.config.json sets timeoutMS), and resolve it by that result:\n  ${timedOut.map(describeMutant).join('\n  ')}`,
   );
 }
 if (stale.length > 0) {
@@ -337,7 +405,19 @@ if (stale.length > 0) {
     `\nmutation-check: FAILED — ${stale.length} ledger entr(y/ies) in scripts/mutation-accepted.json accept a mutant that no longer survives; a test now kills it or the code changed, so remove each:\n  ${stale.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
   );
 }
-if (unmatched.length > 0 || stale.length > 0 || rustFailed) process.exit(1);
+if (staleHangs.length > 0) {
+  console.error(
+    `\nmutation-check: FAILED — ${staleHangs.length} ledger entr(y/ies) in scripts/mutation-hangs.json record a hang whose mutant no longer times out; a test now kills it or the code changed, so remove each:\n  ${staleHangs.map((entry) => describeEntry(entry, sourceLines)).join('\n  ')}`,
+  );
+}
+if (
+  unmatched.length > 0 ||
+  timedOut.length > 0 ||
+  stale.length > 0 ||
+  staleHangs.length > 0 ||
+  rustFailed
+)
+  process.exit(1);
 console.log(
-  `\nmutation-check: passed — every mutant that survived in the ${testedFiles.length} ${all ? '' : 'changed '}file(s) with their own tests is accepted in scripts/mutation-accepted.json, and every entry whose line this run mutated still survives.`,
+  `\nmutation-check: passed — in the ${testedFiles.length} ${all ? '' : 'changed '}file(s) with their own tests, every mutant that survived is accepted in scripts/mutation-accepted.json and every one that timed out is a hang recorded in scripts/mutation-hangs.json, and every entry of either whose line this run mutated still has that outcome.`,
 );

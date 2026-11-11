@@ -1,20 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import {
   describeEntry,
-  describeSurvivor,
+  describeMutant,
   entryFor,
   findMissingEntries,
-  matchSurvivors,
+  matchLedger,
   normalizeText,
   parseArguments,
   parseLedger,
   serializeLedger,
-  survivorsOf,
+  mutantsOf,
   type LedgerEntry,
   type MutatedRanges,
   type MutationReport,
   type SourceLines,
-  type Survivor,
+  type LocatedMutant,
 } from '../mutation-check-ledger.ts';
 
 // The same guard line in two functions, and a catch block spanning three lines.
@@ -40,7 +40,7 @@ const sourcesOf =
 
 const sourceLines = sourcesOf({ 'src/NameField.tsx': NAME_FIELD });
 
-const survivor = (overrides: Partial<Survivor> = {}): Survivor => ({
+const survivor = (overrides: Partial<LocatedMutant> = {}): LocatedMutant => ({
   file: 'src/NameField.tsx',
   line: 2,
   column: 30,
@@ -195,11 +195,11 @@ describe('findMissingEntries', () => {
   });
 });
 
-describe('matchSurvivors', () => {
+describe('matchLedger', () => {
   it('accepts a survivor its entry names and reports nothing', () => {
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [entry()],
-      survivors: [survivor()],
+      mutants: [survivor()],
       sourceLines,
       mutatedRanges: ranges('src/NameField.tsx', [{ start: 2, end: 2 }]),
     });
@@ -210,9 +210,9 @@ describe('matchSurvivors', () => {
   it('lets one entry accept one survivor only, so a second identical mutant on the line is unmatched', () => {
     const twin = survivor({ column: 40 });
 
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [entry()],
-      survivors: [survivor(), twin],
+      mutants: [survivor(), twin],
       sourceLines,
       mutatedRanges: ranges('src/NameField.tsx', [{ start: 2, end: 2 }]),
     });
@@ -229,9 +229,9 @@ describe('matchSurvivors', () => {
     (_name, overrides) => {
       const other = survivor(overrides);
 
-      const result = matchSurvivors({
+      const result = matchLedger({
         entries: [entry()],
-        survivors: [other],
+        mutants: [other],
         sourceLines,
         mutatedRanges: ranges('src/NameField.tsx', [{ start: 2, end: 6 }]),
       });
@@ -241,9 +241,9 @@ describe('matchSurvivors', () => {
   );
 
   it('reports an entry as stale when the run mutated its line and its mutant did not survive', () => {
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [entry()],
-      survivors: [],
+      mutants: [],
       sourceLines,
       mutatedRanges: ranges('src/NameField.tsx', [{ start: 1, end: 3 }]),
     });
@@ -252,9 +252,9 @@ describe('matchSurvivors', () => {
   });
 
   it('reports an entry as stale in a file the run mutated as a whole', () => {
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [entry()],
-      survivors: [],
+      mutants: [],
       sourceLines,
       mutatedRanges: ranges('src/NameField.tsx', 'all'),
     });
@@ -269,9 +269,9 @@ describe('matchSurvivors', () => {
     ],
     ['its file was not mutated', ranges('src/Other.tsx', 'all')],
   ])('does not report an entry as stale when %s', (_name, mutatedRanges) => {
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [entry()],
-      survivors: [],
+      mutants: [],
       sourceLines,
       mutatedRanges,
     });
@@ -291,9 +291,9 @@ describe('matchSurvivors', () => {
       'r',
     );
     const staleUnder = (mutatedRanges: MutatedRanges) =>
-      matchSurvivors({
+      matchLedger({
         entries: [catchBlock],
-        survivors: [],
+        mutants: [],
         sourceLines,
         mutatedRanges,
       }).stale;
@@ -317,9 +317,9 @@ describe('matchSurvivors', () => {
   it('never reports an entry whose line no longer resolves as stale, since it is missing instead', () => {
     const edited = entry({ lineText: 'const gone = 1;' });
 
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [edited],
-      survivors: [],
+      mutants: [],
       sourceLines,
       mutatedRanges: ranges('src/NameField.tsx', 'all'),
     });
@@ -336,6 +336,8 @@ describe('parseArguments', () => {
       files: ['src/a.ts', 'src/b.ts', 'src/c.ts'],
       all: false,
       acceptReason: null,
+      hangReason: null,
+      timeoutMS: null,
     });
   });
 
@@ -346,11 +348,15 @@ describe('parseArguments', () => {
       files: ['src/a.ts'],
       all: true,
       acceptReason: 'unreachable guard',
+      hangReason: null,
+      timeoutMS: null,
     });
     expect(parseArguments(['--', '--all'])).toEqual({
       files: [],
       all: true,
       acceptReason: null,
+      hangReason: null,
+      timeoutMS: null,
     });
   });
 
@@ -366,6 +372,8 @@ describe('parseArguments', () => {
       files: ['src/a.ts', 'src/b.ts'],
       all: false,
       acceptReason: 'unreachable guard',
+      hangReason: null,
+      timeoutMS: null,
     });
   });
 
@@ -383,6 +391,59 @@ describe('parseArguments', () => {
     expect(() => parseArguments(['--accept', 'a', '--accept', 'b'])).toThrow(
       /^--accept is given twice$/,
     );
+  });
+
+  it('reads --accept-hang and --timeout-ms with their values in any position, apart from --accept and the files', () => {
+    expect(
+      parseArguments([
+        '--timeout-ms',
+        '30000',
+        'src/a.ts',
+        '--accept-hang',
+        ' the loop never advances its index ',
+        '--accept',
+        'unreachable guard',
+      ]),
+    ).toEqual({
+      files: ['src/a.ts'],
+      all: false,
+      acceptReason: 'unreachable guard',
+      hangReason: 'the loop never advances its index',
+      timeoutMS: 30000,
+    });
+  });
+
+  it.each([
+    ['no reason', ['--accept-hang']],
+    ['an option instead of a reason', ['--accept-hang', '--all']],
+  ])('rejects --accept-hang with %s', (_name, argv) => {
+    expect(() => parseArguments(argv)).toThrow(
+      /^--accept-hang needs a reason: --accept-hang "<which loop the mutant makes endless>"$/,
+    );
+  });
+
+  it('rejects --accept-hang given twice', () => {
+    expect(() =>
+      parseArguments(['--accept-hang', 'a', '--accept-hang', 'b']),
+    ).toThrow(/^--accept-hang is given twice$/);
+  });
+
+  it.each([
+    ['no value', ['--timeout-ms']],
+    ['zero', ['--timeout-ms', '0']],
+    ['a fraction', ['--timeout-ms', '1.5']],
+    ['a word', ['--timeout-ms', 'long']],
+    ['a number with a unit', ['--timeout-ms', '30s']],
+  ])('rejects --timeout-ms with %s', (_name, argv) => {
+    expect(() => parseArguments(argv)).toThrow(
+      /^--timeout-ms needs a whole number of milliseconds: --timeout-ms <n>$/,
+    );
+  });
+
+  it('rejects --timeout-ms given twice', () => {
+    expect(() =>
+      parseArguments(['--timeout-ms', '1', '--timeout-ms', '2']),
+    ).toThrow(/^--timeout-ms is given twice$/);
   });
 });
 
@@ -425,8 +486,8 @@ describe('serializeLedger', () => {
   });
 });
 
-describe('survivorsOf', () => {
-  it('returns only the surviving mutants, with their replacement normalized', () => {
+describe('mutantsOf', () => {
+  it('returns only the mutants of the status asked for, with their replacement normalized, so a timed-out mutant is judged apart from survivors', () => {
     const location = {
       start: { line: 2, column: 30 },
       end: { line: 2, column: 32 },
@@ -473,7 +534,7 @@ describe('survivorsOf', () => {
       },
     };
 
-    expect(survivorsOf(report)).toEqual([
+    expect(mutantsOf(report, 'Survived')).toEqual([
       survivor(),
       survivor({
         line: 5,
@@ -483,12 +544,15 @@ describe('survivorsOf', () => {
         replacement: 'a && b',
       }),
     ]);
+    expect(mutantsOf(report, 'Timeout')).toEqual([
+      survivor({ mutator: 'ConditionalExpression', replacement: 'false' }),
+    ]);
   });
 });
 
-describe('describeEntry and describeSurvivor', () => {
+describe('describeEntry and describeMutant', () => {
   it('prints a survivor as the app-relative path, position, mutator and replacement', () => {
-    expect(describeSurvivor(survivor())).toBe(
+    expect(describeMutant(survivor())).toBe(
       'app/src/NameField.tsx:2:30  StringLiteral  → "Stryker was here!"',
     );
   });
@@ -537,7 +601,7 @@ describe('mutation-check-ledger boundaries', () => {
       },
     } as unknown as MutationReport;
 
-    expect(survivorsOf(report)[0].replacement).toBe('');
+    expect(mutantsOf(report, 'Survived')[0].replacement).toBe('');
   });
 
   it('records an empty line text for a file that cannot be read and for a line past its end', () => {
@@ -551,9 +615,9 @@ describe('mutation-check-ledger boundaries', () => {
   });
 
   it('reports an entry as stale when one of several mutated ranges holds its whole span', () => {
-    const result = matchSurvivors({
+    const result = matchLedger({
       entries: [entry()],
-      survivors: [],
+      mutants: [],
       sourceLines,
       mutatedRanges: ranges('src/NameField.tsx', [
         { start: 8, end: 12 },

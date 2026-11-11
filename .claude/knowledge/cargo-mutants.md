@@ -5,6 +5,13 @@
 **Verified at:** cargo-mutants 27.1.0
 **Citation:** [architect_1: `https://mutants.rs/exit-codes.html`]
 
+## cargo-mutants' `exit_code` returns the timeout code (3) whenever a mutant timed out, ahead of the missed code (2), so 2 means some mutants were missed and none timed out
+
+**Verified at:** cargo-mutants 27.1.0
+**Citation:** [implement_1: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/outcome.rs:110`]
+
+`exit_code` checks a failed baseline first, then `self.timeout > 0`, then `self.missed > 0`; no run with both a timed-out and a missed mutant was observed.
+
 ## `cargo mutants --in-diff <file>` tests only the mutants that overlap a changed line, which for a changed line inside a function includes that function's whole-body replacements
 
 **Verified at:** cargo-mutants 27.1.0

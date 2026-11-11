@@ -38,7 +38,7 @@ export type RustMutant = {
 
 // eslint-disable-next-line local/no-unused-exports -- tests type the outcomes they build
 export type RustOutcome = RustMutant & {
-  status: 'caught' | 'missed' | 'timeout' | 'unviable';
+  status: 'caught' | 'missed' | 'unviable';
 };
 
 // eslint-disable-next-line local/no-unused-exports -- tests type the ledger entries they build
@@ -94,10 +94,10 @@ export const parseListedMutants = (json: string): RustMutant[] => {
   });
 };
 
+// No `Timeout`: cargo-mutants exits 3 whenever a mutant timed out, ahead of 2 for a missed one, and `runRustMutation` reads outcomes only at exit 0 or 2, so a timeout fails the gate through `rustFailures` and a `Timeout` read here is an error.
 const STATUS_OF_SUMMARY = new Map<string, RustOutcome['status']>([
   ['CaughtMutant', 'caught'],
   ['MissedMutant', 'missed'],
-  ['Timeout', 'timeout'],
   ['Unviable', 'unviable'],
 ]);
 

@@ -138,7 +138,7 @@
     "file": "../scripts/mutation-check-ledger.ts",
     "mutator": "StringLiteral",
     "replacement": "\"Stryker was here!\"",
-    "lineText": "unconsumed.get(keyOf(entryFor(survivor, sourceLines, ''))) ?? [];",
+    "lineText": "unconsumed.get(keyOf(entryFor(mutant, sourceLines, ''))) ?? [];",
     "occurrence": 0,
     "lines": 1,
     "reason": "the key reads the entry's file, mutator, replacement, line text and occurrence, never its reason"
