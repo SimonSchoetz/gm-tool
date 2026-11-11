@@ -23,10 +23,6 @@ export const useListFilter = <T extends Record<string, unknown>>(
       return { nameMatches: items, fieldMatches: [] };
     }
 
-    const secondaryColumns = config.searchableColumns.filter(
-      (col) => col !== 'name',
-    );
-
     const startsWithName: T[] = [];
     const includesName: T[] = [];
     const fieldMatches: T[] = [];
@@ -43,24 +39,10 @@ export const useListFilter = <T extends Record<string, unknown>>(
 
       if (name.startsWith(primaryTerm)) {
         startsWithName.push(item);
-      } else if (name.includes(primaryTerm)) {
+      } else if (terms.some((term) => name.includes(term))) {
         includesName.push(item);
       } else {
-        const nameMatchesAnyTerm = terms.some((term) => name.includes(term));
-
-        if (nameMatchesAnyTerm) {
-          includesName.push(item);
-        } else {
-          const matchesSecondary = secondaryColumns.some((col) => {
-            const value = item[col];
-            if (typeof value !== 'string') return false;
-            return terms.some((term) => value.toLowerCase().includes(term));
-          });
-
-          if (matchesSecondary) {
-            fieldMatches.push(item);
-          }
-        }
+        fieldMatches.push(item);
       }
     }
 

@@ -2166,7 +2166,7 @@
     "lineText": "if (!old) return old;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+    "reason": "stays: the cache updater's argument is Adventure | undefined and the merge takes a defined value, so removing the test type-checks only through a non-null assertion; returning the unset value also leaves an absent cache entry absent"
   },
   {
     "file": "src/data-access-layer/base-entities/useBaseEntity.ts",
@@ -2175,7 +2175,7 @@
     "lineText": "if (!old) return old;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+    "reason": "stays: the cache updater's argument is BaseEntity | undefined and the merge takes a defined value, so removing the test type-checks only through a non-null assertion; returning the unset value also leaves an absent cache entry absent"
   },
   {
     "file": "src/data-access-layer/base-entity-content-sections/useBaseEntityContentSections.ts",
@@ -2184,7 +2184,7 @@
     "lineText": "createMutation.mutateAsync(name !== undefined ? { type, name } : { type });",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a missing name passes as an absent property or as one set to undefined, and the service reads both as no name, so the condition changes no call"
+    "reason": "stays: with exactOptionalPropertyTypes an optional `name?: string` rejects an argument that may be undefined, so passing `{ type, name }` unconditionally fails the type-check"
   },
   {
     "file": "src/data-access-layer/createAutosaveQueue.ts",
@@ -2193,7 +2193,7 @@
     "lineText": "if (!entry) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a timer fires only for a key whose entry exists, since a write or a flush that removes the entry also clears its timer, so the entry is always found"
+    "reason": "stays: `entries.get(key) ?? null` is Entry | null, so removing the test makes `entry.pending` a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/data-access-layer/devices/useOwnDevice.ts",
@@ -2211,7 +2211,7 @@
     "lineText": "if (!old) return old;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+    "reason": "stays: the cache updater's argument is Encounter | undefined and the merge takes a defined value, so removing the test type-checks only through a non-null assertion; returning the unset value also leaves an absent cache entry absent"
   },
   {
     "file": "src/data-access-layer/sessions/useSession.ts",
@@ -2220,7 +2220,7 @@
     "lineText": "if (!old) return old;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+    "reason": "stays: the cache updater's argument is Session | undefined and the merge takes a defined value, so removing the test type-checks only through a non-null assertion; returning the unset value also leaves an absent cache entry absent"
   },
   {
     "file": "src/data-access-layer/useAutosaveQueue.ts",
@@ -2232,58 +2232,13 @@
     "reason": "the queue is created once by useState and never changes, so the dependency list holds one value that never differs and an empty list runs the effect as often"
   },
   {
-    "file": "src/hooks/useListFilter/useListFilter.ts",
-    "mutator": "MethodExpression",
-    "replacement": "config.searchableColumns",
-    "lineText": "const secondaryColumns = config.searchableColumns.filter(",
-    "occurrence": 0,
-    "lines": 3,
-    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
-  },
-  {
-    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "file": "src/hooks/useSortable.ts",
     "mutator": "ConditionalExpression",
     "replacement": "true",
-    "lineText": "(col) => col !== 'name',",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
-  },
-  {
-    "file": "src/hooks/useListFilter/useListFilter.ts",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "(col) => col !== 'name',",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
-  },
-  {
-    "file": "src/hooks/useListFilter/useListFilter.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "} else if (name.includes(primaryTerm)) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the branch after it adds the item to the same list when the name contains any term, the first one included, so skipping this branch gives the same list"
-  },
-  {
-    "file": "src/hooks/useListFilter/useListFilter.ts",
-    "mutator": "BooleanLiteral",
-    "replacement": "true",
-    "lineText": "if (typeof value !== 'string') return false;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an item reaches the field search only when every term matched one of its columns and none matched its name, so a column that is no text never decides the some() result"
-  },
-  {
-    "file": "src/hooks/useListFilter/useListFilter.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "if (matchesSecondary) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an item reaches this check only when every term matched one of its columns and none matched its name, so some secondary column always matches"
+    "reason": "stays: the values are of an unknown column type, and the typeof tests narrow them to string for localeCompare, which type-checks only through them"
   },
   {
     "file": "src/hooks/useSortable.ts",
@@ -2292,16 +2247,7 @@
     "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
-  },
-  {
-    "file": "src/hooks/useSortable.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+    "reason": "stays: the values are of an unknown column type, and the typeof tests narrow them to string for localeCompare, which type-checks only through them"
   },
   {
     "file": "src/hooks/useSortable.ts",
@@ -2310,7 +2256,7 @@
     "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+    "reason": "stays: the values are of an unknown column type, and the typeof tests narrow them to string for localeCompare, which type-checks only through them"
   },
   {
     "file": "src/hooks/useSortable.ts",
@@ -2328,7 +2274,7 @@
     "lineText": "if (caret === null) return null;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a null caret makes the slice below empty, which no rule pattern matches, so the function returns null anyway"
+    "reason": "stays: `selectionStart` is declared nullable in the DOM types, and slice(0, null) type-checks only through a coercion to 0 that this test states"
   },
   {
     "file": "src/screens/encounter/components/EncounterActions/EncounterActions.tsx",
@@ -2373,7 +2319,7 @@
     "lineText": "if (otherIds.length === 0) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: a block drag with no other entries would be stored and acted on by the drag handlers of a browser, a layout-driven effect no test here runs, so its redundancy cannot be shown"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
@@ -2427,7 +2373,7 @@
     "lineText": "if (!parsedHp.valid) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the parse result is a union whose `hp` exists only when valid, so removing the test makes `parsedHp.hp` a type error"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterCombatantActionsTab/EncounterCombatantActionsTab.tsx",
@@ -2436,7 +2382,7 @@
     "lineText": "if (plan === null) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the plan is GroupActionPlan | null, so removing the test makes `plan.kind` a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/components/EncounterSidebar/components/EncounterLogTab/components/EncounterLogEntry/EncounterLogEntry.tsx",
@@ -2463,7 +2409,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the guard is a type predicate over ReadEntry | null, so removing the null test makes `entry.kind` a type error"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -2472,7 +2418,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the guard is a type predicate over ReadEntry | null, so removing the null test makes `entry.kind` a type error"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -2481,7 +2427,7 @@
     "lineText": "entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the guard is a type predicate over ReadEntry | null, so removing the null test makes `entry.kind` a type error"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -2517,7 +2463,7 @@
     "lineText": "if (state === null) return false;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: `combatState.get(...) ?? null` is State | null, so removing the test makes `state.removed` a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -2535,7 +2481,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: both map lookups are `?? null`, so removing the tests makes the reads of their fields a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -2544,7 +2490,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: both map lookups are `?? null`, so removing the tests makes the reads of their fields a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -2553,7 +2499,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: both map lookups are `?? null`, so removing the tests makes the reads of their fields a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/helper/buildQueueEntries.ts",
@@ -2562,7 +2508,7 @@
     "lineText": "if (itemNames === null || state === null) return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: both map lookups are `?? null`, so removing the tests makes the reads of their fields a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/helper/nameQueueItems.ts",
@@ -2580,7 +2526,7 @@
     "lineText": "encounter?.hide_defeated === 1,",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the encounter is Encounter | null while it loads, so removing the optional chain makes the read a type error that only a non-null assertion would clear"
   },
   {
     "file": "src/screens/encounter/hooks/useEncounterSelection.ts",
@@ -2688,6 +2634,6 @@
     "lineText": "if (session?.active_view === 'ingame' && step?.collapsed === 1) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the nav delivers only the ids of the steps it lists, so the lookup never finds no step and the optional chain never meets null"
+    "reason": "stays: the session and the step are looked up and typed as possibly null, so removing the optional chains makes the reads type errors that only non-null assertions would clear"
   }
 ]
