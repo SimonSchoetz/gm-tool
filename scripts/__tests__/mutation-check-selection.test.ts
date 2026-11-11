@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   isProductionSource,
   lineRangesFor,
@@ -55,30 +55,57 @@ describe('testFileCandidates', () => {
 });
 
 describe('selectFiles', () => {
-  const candidatePaths = [
-    'util/b.ts',
+  const changedPaths = ['util/b.ts', 'util/a.ts', 'util/__tests__/a.test.ts'];
+  const trackedPaths = [
     'util/a.ts',
-    'util/__tests__/a.test.ts',
+    'util/b.ts',
     'util/c.ts',
     'util/c.ts',
     'src/types/x.d.ts',
   ];
+  const lists = (all: boolean) => {
+    const listChangedPaths = vi.fn(() => changedPaths);
+    const listTrackedPaths = vi.fn(() => trackedPaths);
+    return {
+      all,
+      listChangedPaths,
+      listTrackedPaths,
+    };
+  };
 
-  it('selects every candidate that is a production source once, sorted', () => {
-    expect(
-      selectFiles({ candidatePaths, requestedFiles: [] }).selected,
-    ).toEqual(['util/a.ts', 'util/b.ts', 'util/c.ts']);
+  it('without all, selects only the changed production sources, sorted, and never lists the tracked ones', () => {
+    const input = lists(false);
+
+    expect(selectFiles({ ...input, requestedFiles: [] }).selected).toEqual([
+      'util/a.ts',
+      'util/b.ts',
+    ]);
+    expect(input.listTrackedPaths).not.toHaveBeenCalled();
   });
 
-  it('selects the requested files among the candidates', () => {
+  it('with all, selects every tracked production source once and never lists the changed ones', () => {
+    const input = lists(true);
+
+    expect(selectFiles({ ...input, requestedFiles: [] }).selected).toEqual([
+      'util/a.ts',
+      'util/b.ts',
+      'util/c.ts',
+    ]);
+    expect(input.listChangedPaths).not.toHaveBeenCalled();
+  });
+
+  it('selects the requested files among the candidates, with all too', () => {
     expect(
-      selectFiles({ candidatePaths, requestedFiles: ['util/c.ts'] }).selected,
+      selectFiles({ ...lists(true), requestedFiles: ['util/c.ts'] }).selected,
     ).toEqual(['util/c.ts']);
+    expect(
+      selectFiles({ ...lists(false), requestedFiles: ['util/a.ts'] }).selected,
+    ).toEqual(['util/a.ts']);
   });
 
   it('returns a requested file that is no candidate as unknown', () => {
     const result = selectFiles({
-      candidatePaths: ['util/a.ts', 'util/b.ts'],
+      ...lists(false),
       requestedFiles: ['util/a.ts', 'util/c.ts', 'src/types/x.d.ts'],
     });
     expect(result.unknown).toEqual(['util/c.ts', 'src/types/x.d.ts']);

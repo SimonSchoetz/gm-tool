@@ -168,13 +168,15 @@ const {
   selected: selectedFiles,
   unknown,
 } = selectFiles({
-  candidatePaths: all
-    ? appRelativePaths(
-        lines(
-          git('ls-files', '--cached', '--others', '--exclude-standard', 'app'),
-        ),
-      )
-    : appRelativePaths([...changedLines.keys(), ...untrackedPaths]),
+  all,
+  listChangedPaths: () =>
+    appRelativePaths([...changedLines.keys(), ...untrackedPaths]),
+  listTrackedPaths: () =>
+    appRelativePaths(
+      lines(
+        git('ls-files', '--cached', '--others', '--exclude-standard', 'app'),
+      ),
+    ),
   requestedFiles,
 });
 const scope = all

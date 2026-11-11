@@ -1560,7 +1560,7 @@
     "file": "eslint-rules/no-wrapped-line-comments.js",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
-    "lineText": "'Disallow a single sentence or paragraph manually split across consecutive `//` comment lines — each comment must be one continuous line per root CLAUDE.md.',",
+    "lineText": "'Disallow a single sentence or paragraph manually split across consecutive `//` comment lines — each comment must be one continuous line per the shared Code Style rule.',",
     "occurrence": 0,
     "lines": 1,
     "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
@@ -1573,15 +1573,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the extra iteration reads no comment, forms a group of one undefined entry that nothing reports, and ends the loop, so the condition changes no result"
-  },
-  {
-    "file": "eslint-rules/no-wrapped-line-comments.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "sourceCode.getTokenBefore(candidate, {",
-    "occurrence": 0,
-    "lines": 3,
-    "reason": "a comment on the line after another comment, in the same column, has only whitespace before it, so no token can sit between the two and the test changes no result"
   },
   {
     "file": "eslint-rules/no-wrapped-line-comments.js",

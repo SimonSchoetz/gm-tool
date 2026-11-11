@@ -12,7 +12,7 @@ import {
 } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import { MAX_GIT_OUTPUT_BYTES } from './mutation-check-diff.ts';
+import { MAX_COMMAND_OUTPUT_BYTES } from './mutation-check-diff.ts';
 
 const RUST_ROOT = 'app/src-tauri';
 const RUST_SOURCE_PREFIX = `${RUST_ROOT}/src/`;
@@ -214,7 +214,7 @@ const describeEntry = (
 const describeMutant = (mutant: RustMutant) =>
   `${RUST_ROOT}/${mutant.file}:${mutant.line}:${mutant.column}  ${mutant.mutant}${mutant.occurrence > 0 ? ` (occurrence ${mutant.occurrence})` : ''}`;
 
-// A missed mutant with no entry is unmatched; an entry whose mutant ran and was not missed is stale (a test now kills it, or the code changed); an entry whose mutant is not in the full list is missing (its code is gone).
+// A missed mutant with no entry is unmatched; an entry whose mutant ran and was caught is stale (a test now kills it, or the code changed); an entry whose mutant is not in the full list is missing (its code is gone).
 // eslint-disable-next-line local/no-unused-exports -- tests pin the matching apart from the cargo run
 export const matchRustMutants = ({
   ledger,
@@ -286,7 +286,7 @@ const git = (cwd: string, args: string[], okStatus = 0) => {
   const result = spawnSync('git', ['-c', 'core.quotePath=false', ...args], {
     cwd,
     encoding: 'utf8',
-    maxBuffer: MAX_GIT_OUTPUT_BYTES,
+    maxBuffer: MAX_COMMAND_OUTPUT_BYTES,
   });
   if (result.status !== okStatus)
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`);
@@ -365,7 +365,7 @@ export const runRustMutation = ({
     execFileSync('cargo', ['mutants', '--list', '--json'], {
       cwd: rustRoot,
       encoding: 'utf8',
-      maxBuffer: MAX_GIT_OUTPUT_BYTES,
+      maxBuffer: MAX_COMMAND_OUTPUT_BYTES,
     }),
   );
   const scratch = mkdtempSync(path.join(tmpdir(), 'mutation-check-rust-'));

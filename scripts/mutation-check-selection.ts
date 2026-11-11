@@ -1,5 +1,5 @@
 // Which files under app/ scripts/mutation-check.ts mutates, and which of their lines.
-// Pure: the script lists the candidate paths, checks which candidate test files exist, and passes them in. Every path is relative to app/.
+// Pure: the script passes in how to list the changed and the tracked paths, and checks which candidate test files exist. Every path is relative to app/.
 import path from 'path';
 import type { MutatedRanges } from './mutation-check-ledger.ts';
 
@@ -48,15 +48,19 @@ export const testFileCandidates = (appRelativePath: string) => {
   );
 };
 
-// The production sources to mutate among `candidatePaths` (the caller lists the changed paths, or with `--all` every tracked one). File arguments select among them, and an argument that is none of them is returned as unknown.
+// The production sources to mutate: with `all`, every tracked source, otherwise the changed ones; the caller passes how to list each, and only the list that applies is read. File arguments select among them, and an argument that is none of them is returned as unknown.
 export const selectFiles = ({
-  candidatePaths,
+  all,
+  listChangedPaths,
+  listTrackedPaths,
   requestedFiles,
 }: {
-  candidatePaths: string[];
+  all: boolean;
+  listChangedPaths: () => string[];
+  listTrackedPaths: () => string[];
   requestedFiles: string[];
 }) => {
-  const candidates = [...new Set(candidatePaths)]
+  const candidates = [...new Set(all ? listTrackedPaths() : listChangedPaths())]
     .filter(isProductionSource)
     .sort();
   return {

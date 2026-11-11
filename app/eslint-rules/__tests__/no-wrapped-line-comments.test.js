@@ -18,6 +18,8 @@ ruleTester.run('no-wrapped-line-comments', rule, {
     // Two closing characters before the punctuation count, and so does space after it.
     '// (He said "stop.")\n// Last line\nconst a = 1; // x\n',
     '// Terminated.   \n// Last line\nconst a = 1;',
+    // Trailing comments of two lines of code are no run: code sits between them.
+    'const a = 1; // a wrapped\nconst b = 2; // sentence\n',
     // A blank line, a token or another column ends a run.
     '// a wrapped\n\n// sentence\nconst a = 1;',
     'const a = 1; // a wrapped\n// sentence\nconst b = 2;',
@@ -39,7 +41,7 @@ ruleTester.run('no-wrapped-line-comments', rule, {
       errors: [
         {
           message:
-            'This comment appears to be a single sentence manually wrapped across 2 lines. Root CLAUDE.md requires each comment to be one continuous line — join these into a single `//` line, or confirm each line is an independently complete statement.',
+            'This comment appears to be a single sentence manually wrapped across 2 lines. The shared Code Style rule requires each comment to be one continuous line — join these into a single `//` line, or confirm each line is an independently complete statement.',
         },
       ],
     },

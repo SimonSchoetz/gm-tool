@@ -2,8 +2,8 @@
 
 /**
  * Flags runs of 2+ consecutive same-indentation `//` line comments that read as one
- * sentence/paragraph manually split across physical lines — the pattern root CLAUDE.md's
- * "Never introduce manual line breaks in code comments anywhere in the codebase" rule bans.
+ * sentence/paragraph manually split across physical lines — the pattern the shared Code Style rule
+ * "No manual line breaks within a single logical unit" bans.
  * Heuristic: within a qualifying run, every comment except the last one must end in
  * terminal punctuation (. ! ? or a colon introducing a continuation) for the run to be
  * treated as independently-complete stacked comments rather than a wrapped sentence.
@@ -37,12 +37,12 @@ export default {
     type: 'suggestion',
     docs: {
       description:
-        'Disallow a single sentence or paragraph manually split across consecutive `//` comment lines — each comment must be one continuous line per root CLAUDE.md.',
+        'Disallow a single sentence or paragraph manually split across consecutive `//` comment lines — each comment must be one continuous line per the shared Code Style rule.',
     },
     schema: [],
     messages: {
       wrappedComment:
-        'This comment appears to be a single sentence manually wrapped across {{count}} lines. Root CLAUDE.md requires each comment to be one continuous line — join these into a single `//` line, or confirm each line is an independently complete statement.',
+        'This comment appears to be a single sentence manually wrapped across {{count}} lines. The shared Code Style rule requires each comment to be one continuous line — join these into a single `//` line, or confirm each line is an independently complete statement.',
     },
   },
   create(context) {
