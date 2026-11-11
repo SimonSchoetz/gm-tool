@@ -78,21 +78,19 @@ export default {
             next += 1;
           }
 
-          if (group.length >= 2) {
-            const nonLastLinesAllTerminated = group
-              .slice(0, -1)
-              .every((comment) => endsWithTerminalPunctuation(comment.value));
+          const nonLastLinesAllTerminated = group
+            .slice(0, -1)
+            .every((comment) => endsWithTerminalPunctuation(comment.value));
 
-            if (!nonLastLinesAllTerminated) {
-              context.report({
-                loc: {
-                  start: group[0].loc.start,
-                  end: group[group.length - 1].loc.end,
-                },
-                messageId: 'wrappedComment',
-                data: { count: String(group.length) },
-              });
-            }
+          if (!nonLastLinesAllTerminated) {
+            context.report({
+              loc: {
+                start: group[0].loc.start,
+                end: group[group.length - 1].loc.end,
+              },
+              messageId: 'wrappedComment',
+              data: { count: String(group.length) },
+            });
           }
 
           index = next;

@@ -65,9 +65,7 @@ export const findValueCarrier = (node) => {
       parent.type === 'ChainExpression' ||
       parent.type === 'TSAsExpression' ||
       parent.type === 'TSSatisfiesExpression' ||
-      (parent.type === 'LogicalExpression' &&
-        parent.operator === '??' &&
-        parent.right === carrier) ||
+      (parent.operator === '??' && parent.right === carrier) ||
       (parent.type === 'ConditionalExpression' && parent.test !== carrier);
     if (!forwards) {
       return carrier;
@@ -87,7 +85,7 @@ export const classifyEscape = (carrier) => {
   }
   switch (parent.type) {
     case 'VariableDeclarator':
-      return parent.init === carrier ? 'stored' : null;
+      return 'stored';
     case 'AssignmentExpression':
       return parent.right === carrier ? 'stored' : null;
     case 'Property':
@@ -98,7 +96,7 @@ export const classifyEscape = (carrier) => {
     case 'ReturnStatement':
       return 'returned';
     case 'ArrowFunctionExpression':
-      return parent.body === carrier ? 'returned' : null;
+      return 'returned';
     case 'CallExpression':
     case 'NewExpression':
       return parent.arguments.includes(carrier) ? 'passed' : null;

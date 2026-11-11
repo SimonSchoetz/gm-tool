@@ -145,6 +145,15 @@
   },
   {
     "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ": [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an outcome entry that is no object has no status, file or change, so it matches and names nothing"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
     "lineText": "encoding: 'utf8',",
@@ -169,15 +178,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "without an encoding the read returns a Buffer, which JSON.parse reads through its string form"
-  },
-  {
-    "file": "../scripts/mutation-check-rust.ts",
-    "mutator": "ArrayDeclaration",
-    "replacement": "[\"Stryker was here\"]",
-    "lineText": ": [];",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an outcome entry that is no object has no status, file or change, so it matches and names nothing"
   },
   {
     "file": "../scripts/mutation-check-rust.ts",
@@ -609,7 +609,7 @@
     "lineText": "} else if (ts.isObjectBindingPattern(name)) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an array binding pattern yields slots whose argument is never an object literal, so each reads as unknown and gives no finding either way"
+    "reason": "stays: a binding name is an identifier, an object pattern or an array pattern in the published TypeScript types, so the test states the object case; without it an array pattern's omitted elements would reach `.propertyName`, which type-checks only through an assertion"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -618,7 +618,7 @@
     "lineText": "if (ts.isFunctionDeclaration(node) && node.name && node.body) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the collector accepts only function and variable declarations, so a node of another kind with a name and a body never reaches this check"
+    "reason": "stays: the published TypeScript type of a function declaration's name and body is optional (`export default function () {}` has no name), and the kind test narrows the node so both can be read"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -627,7 +627,7 @@
     "lineText": "if (ts.isFunctionDeclaration(node) && node.name && node.body) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the collector accepts only function and variable declarations, so a node of another kind with a name and a body never reaches this check"
+    "reason": "stays: the published TypeScript type of a function declaration's name and body is optional (`export default function () {}` has no name), and the kind test narrows the node so both can be read"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -636,7 +636,7 @@
     "lineText": "ts.isVariableDeclaration(node) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "the parent of a node that is no variable declaration is never a variable declaration list, so the test after it already rejects such a node"
+    "reason": "stays: a variable declaration's parent is a variable declaration list or a catch clause in the published TypeScript types, and the kind test narrows the node so its parent can be read"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -645,7 +645,7 @@
     "lineText": "ts.isVariableDeclaration(node) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "the parent of a node that is no variable declaration is never a variable declaration list, so the test after it already rejects such a node"
+    "reason": "stays: a variable declaration's parent is a variable declaration list or a catch clause in the published TypeScript types, and the kind test narrows the node so its parent can be read"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -708,7 +708,7 @@
     "lineText": "ts.isJsxAttribute(property) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "a JSX attribute name is an identifier or a namespaced name, and the text comparison that follows fails for a namespaced one, so the tests ahead of it change no result"
+    "reason": "stays: the attributes of a JSX element are attribute or spread-attribute nodes in the published TypeScript types and an attribute's name is an identifier or a namespaced name; the tests narrow them so `.name.text` can be read"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -717,7 +717,7 @@
     "lineText": "ts.isJsxAttribute(property) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "a JSX attribute name is an identifier or a namespaced name, and the text comparison that follows fails for a namespaced one, so the tests ahead of it change no result"
+    "reason": "stays: the attributes of a JSX element are attribute or spread-attribute nodes in the published TypeScript types and an attribute's name is an identifier or a namespaced name; the tests narrow them so `.name.text` can be read"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -762,7 +762,7 @@
     "lineText": "(property.name !== undefined &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a spread assignment is tested in front of this and is the only property without a name, so the test changes no result"
+    "reason": "stays: `name` is optional on an object literal element in the published TypeScript types, so removing the undefined test makes the next call a type error"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -789,7 +789,7 @@
     "lineText": "candidate.name !== undefined &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
+    "reason": "stays: `name` is optional on an object literal element in the published TypeScript types, so removing the undefined test makes the next call a type error"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -798,79 +798,7 @@
     "lineText": "if (ts.isShorthandPropertyAssignment(property)) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the property kinds left at this point are shorthand properties, methods and accessors, and the shorthand test only changes the text of a value that gives no finding for a method"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ArrowFunction",
-    "replacement": "() => undefined",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "BlockStatement",
-    "replacement": "{}",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 3,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "LogicalOperator",
-    "replacement": "values.length === 0 && values.some(({ state }) => state === 'unknown')",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "MethodExpression",
-    "replacement": "values.every(({ state }) => state === 'unknown')",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+    "reason": "stays: the element kinds left after the property-assignment test include methods and accessors in the published TypeScript types, whose name is no expression, so removing the shorthand test is a type error"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -879,7 +807,7 @@
     "lineText": "declarations.length > 0 &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the checker returns the declarations of a property as undefined or with at least one entry, never as an empty list, so the length test changes no result"
+    "reason": "stays: a symbol's declarations come from the TypeScript checker, which may return an empty list, and `every` is true for an empty list"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -888,7 +816,7 @@
     "lineText": "declarations.length > 0 &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the checker returns the declarations of a property as undefined or with at least one entry, never as an empty list, so the length test changes no result"
+    "reason": "stays: a symbol's declarations come from the TypeScript checker, which may return an empty list, and `every` is true for an empty list"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -897,7 +825,7 @@
     "lineText": "(ts.isFunctionDeclaration(parent) && parent.name === name) ||",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the name of a function declaration is its declaration name, which the collector registers as no reference, so the test changes no result"
+    "reason": "stays: the function-declaration test narrows the parent so its `name` can be read, which type-checks only through that test"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -915,7 +843,7 @@
     "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+    "reason": "stays: the kind tests narrow the holder so its `tagName` can be read, which type-checks only through them"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -924,7 +852,7 @@
     "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+    "reason": "stays: the kind tests narrow the holder so its `tagName` can be read, which type-checks only through them"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -933,7 +861,7 @@
     "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+    "reason": "stays: the kind tests narrow the holder so its `tagName` can be read, which type-checks only through them"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -942,7 +870,7 @@
     "lineText": "holder.tagName === callee",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+    "reason": "stays: an identifier directly under a JSX opening element is its tag name, a fact only the grammar of JSX states; the comparison keeps the type test above it from deciding alone, and no test pins either"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -951,7 +879,7 @@
     "lineText": "if (known !== undefined) {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "symbols are numbered in the order they are first met, and two sites of one slot that name one constant are never separated by another constant being numbered, so every mutated numbering compares equal"
+    "reason": "stays: the test returns the id already given to a constant; without it a constant met again after another is numbered like the last one added, which no test pins"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -960,7 +888,7 @@
     "lineText": "if (known !== undefined) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "symbols are numbered in the order they are first met, and two sites of one slot that name one constant are never separated by another constant being numbered, so every mutated numbering compares equal"
+    "reason": "stays: the test returns the id already given to a constant; without it a constant met again after another is numbered like the last one added, which no test pins"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -969,43 +897,16 @@
     "lineText": "(ts.isFunctionDeclaration(node) || ts.isVariableDeclaration(node)) &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "functionDeclaredBy returns a declaration only for those two kinds, so the test in front of the name check changes no result"
+    "reason": "stays: the kind tests narrow the node so its `name` can be read, which type-checks only through them"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
     "mutator": "ConditionalExpression",
     "replacement": "true",
-    "lineText": "if (symbol && slots.length > 0) {",
+    "lineText": "if (symbol) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "if (symbol && slots.length > 0) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "EqualityOperator",
-    "replacement": "slots.length >= 0",
-    "lineText": "if (symbol && slots.length > 0) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "LogicalOperator",
-    "replacement": "symbol || slots.length > 0",
-    "lineText": "if (symbol && slots.length > 0) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+    "reason": "the TypeScript checker may resolve no symbol for a declaration name; registering a candidate under an undefined key leaves it unreachable, since the reference visit looks candidates up only by a defined symbol, so it gets no call site and no finding; removing the test would not type-check without an assertion"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -1014,7 +915,7 @@
     "lineText": "ts.isIdentifier(node) &&",
     "occurrence": 0,
     "lines": 2,
-    "reason": "a node whose text is a candidate name and that is no identifier has no symbol of a candidate, so the identifier test changes no result"
+    "reason": "stays: the identifier test narrows the node so its `text` can be read, which type-checks only through it"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -1023,7 +924,7 @@
     "lineText": "if (candidate.escaped || candidate.sites.length === 0) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+    "reason": "stays: the only test left that stops a function no call site reaches from reporting every parameter as always omitted, since the sibling test in findingFor was removed; no test pins it, and a test written only to kill this mutant is out of scope"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -1167,16 +1068,7 @@
     "lineText": "attribute.name.type === 'JSXIdentifier' &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a namespaced attribute name has an object as its name, which no exempt name equals, so the identifier test ahead of the lookup changes no result"
-  },
-  {
-    "file": "eslint-rules/no-inline-jsx-values.js",
-    "mutator": "OptionalChaining",
-    "replacement": "call.type",
-    "lineText": "if (!FUNCTION_TYPES.has(node.type) || call?.type !== 'CallExpression') {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a function node always has a parent, so the optional chain on the parent is never needed"
+    "reason": "stays: a JSX attribute's name is an identifier or a namespaced name in the published ESTree types, and the lookup reads `.name` as text"
   },
   {
     "file": "eslint-rules/no-inline-jsx-values.js",
@@ -1239,7 +1131,7 @@
     "lineText": "return (type.types ?? []).some(",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a union type always has its member list, so the empty default is never read"
+    "reason": "stays: the TypeScript type reaches this function through a structural parameter type whose `types` is optional, so removing the default type-checks only through an assertion"
   },
   {
     "file": "eslint-rules/no-unnormalized-lookup-result.js",
@@ -1248,25 +1140,7 @@
     "lineText": "(parent.type === 'MemberExpression' && parent.object === carrier) ||",
     "occurrence": 0,
     "lines": 1,
-    "reason": "only a member expression has an object child that can be a call, so the type test in front of the comparison adds nothing"
-  },
-  {
-    "file": "eslint-rules/no-unnormalized-lookup-result.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "(parent.type === 'LogicalExpression' &&",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "only a logical expression has the ?? operator, so the type test in front of the operator test adds nothing"
-  },
-  {
-    "file": "eslint-rules/no-unnormalized-lookup-result.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "return parent.init === carrier ? 'stored' : null;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the only child of a variable declarator that can be a call is its initializer, so the comparison always holds"
+    "reason": "stays: ESTree's WithStatement also has an `object` child, which the published types permit, so the type test keeps `with (m.get(k))` from reading as a member access"
   },
   {
     "file": "eslint-rules/no-unnormalized-lookup-result.js",
@@ -1275,16 +1149,7 @@
     "lineText": "return parent.right === carrier ? 'stored' : null;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the only child of an assignment that can be a call is its right side, so the comparison always holds"
-  },
-  {
-    "file": "eslint-rules/no-unnormalized-lookup-result.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "return parent.body === carrier ? 'returned' : null;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the only child of an arrow function that can be a call is its body, so the comparison always holds"
+    "reason": "stays: the left side of an assignment can be a member expression holding the call (`m.get(k).field = 1`), which discards the value; the comparison tells the sides apart, and no test pins it"
   },
   {
     "file": "eslint-rules/no-unnormalized-lookup-result.js",
@@ -1329,7 +1194,7 @@
     "lineText": "if (target === null) {",
     "occurrence": 1,
     "lines": 3,
-    "reason": "a re-export of an external module is stored under a null key that no lookup reads, so skipping it or not changes no result"
+    "reason": "stays: resolveFrom returns string | null and addReexport takes a string, so removing the test type-checks only through an assertion"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1338,7 +1203,7 @@
     "lineText": "if (target === null) {",
     "occurrence": 1,
     "lines": 1,
-    "reason": "a re-export of an external module is stored under a null key that no lookup reads, so skipping it or not changes no result"
+    "reason": "stays: resolveFrom returns string | null and addReexport takes a string, so removing the test type-checks only through an assertion"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1356,7 +1221,7 @@
     "lineText": "if (target !== null) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an import() or import type of an external module is stored under a null key that no lookup reads, so storing it or not changes no result"
+    "reason": "stays: resolveFrom returns string | null and markImported takes a string, so removing the test type-checks only through an assertion"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1365,25 +1230,7 @@
     "lineText": "if (target !== null) {",
     "occurrence": 1,
     "lines": 1,
-    "reason": "an import() or import type of an external module is stored under a null key that no lookup reads, so storing it or not changes no result"
-  },
-  {
-    "file": "eslint-rules/no-unused-exports.js",
-    "mutator": "LogicalOperator",
-    "replacement": "ts.isElementAccessExpression(parent) || parent.expression === node",
-    "lineText": "ts.isElementAccessExpression(parent) &&",
-    "occurrence": 0,
-    "lines": 2,
-    "reason": "an identifier that is not the indexed expression is the index itself, which a string literal condition on the index rules out, so the comparison with the node adds nothing"
-  },
-  {
-    "file": "eslint-rules/no-unused-exports.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "parent.expression === node &&",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an identifier that is not the indexed expression is the index itself, which a string literal condition on the index rules out, so the comparison with the node adds nothing"
+    "reason": "stays: resolveFrom returns string | null and markImported takes a string, so removing the test type-checks only through an assertion"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1392,7 +1239,7 @@
     "lineText": "default:",
     "occurrence": 0,
     "lines": 2,
-    "reason": "a binding pattern holds identifiers, object, array, rest and assignment patterns only, so the default case never runs"
+    "reason": "stays: the published ESTree Pattern type also includes member expressions, so the default case states what a pattern of that type may hold"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1401,16 +1248,7 @@
     "lineText": "return [];",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a binding pattern holds identifiers, object, array, rest and assignment patterns only, so the default case never runs"
-  },
-  {
-    "file": "eslint-rules/no-unused-exports.js",
-    "mutator": "OptionalChaining",
-    "replacement": "declaration.id.type",
-    "lineText": "return declaration.id?.type === 'Identifier' ? [declaration.id] : [];",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "every declaration an export statement can hold has an id, so the optional chain is never needed"
+    "reason": "stays: the published ESTree Pattern type also includes member expressions, so the default case states what a pattern of that type may hold"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1419,7 +1257,7 @@
     "lineText": "specifier.local.type === 'Identifier' &&",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the local name of an export specifier without a source is always an identifier, so the type test changes no result"
+    "reason": "stays: the published ESTree type of an export specifier's local is Identifier | Literal, and the type test narrows it so `name` can be read"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1428,7 +1266,7 @@
     "lineText": "? (fileName) => fileName",
     "occurrence": 0,
     "lines": 1,
-    "reason": "this branch runs only on a case-sensitive file system, and the tests run on the case-insensitive one of the machine that runs them, so no input reaches it"
+    "reason": "stays: ts.sys.useCaseSensitiveFileNames describes the host file system, so which branch runs depends on the machine, and the tests run on a case-insensitive one"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1446,7 +1284,7 @@
     "lineText": "return resolvedModule && !resolvedModule.isExternalLibraryImport",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a module resolved into node_modules is marked used under a path that no export lookup asks for, so keeping it or not changes no result"
+    "reason": "stays: ts.resolveModuleName returns external tool output, a resolved module that may be undefined or an external library import; removing the first test fails the type-check, and the second keeps node_modules files out of the usage index"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1455,7 +1293,7 @@
     "lineText": "return resolvedModule && !resolvedModule.isExternalLibraryImport",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a module resolved into node_modules is marked used under a path that no export lookup asks for, so keeping it or not changes no result"
+    "reason": "stays: ts.resolveModuleName returns external tool output, a resolved module that may be undefined or an external library import; removing the first test fails the type-check, and the second keeps node_modules files out of the usage index"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1491,7 +1329,7 @@
     "lineText": "scope.childScopes.find((child) => child.type === 'module') ?? scope;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the module scope is the only child scope of the global scope of a file that exports, so the first child is the module scope"
+    "reason": "stays: a file with no module scope, a script, has other child scopes first, so the predicate is what picks the module scope; no test pins it"
   },
   {
     "file": "eslint-rules/no-unused-exports.js",
@@ -1501,15 +1339,6 @@
     "occurrence": 0,
     "lines": 3,
     "reason": "a name bound at module scope has one definition, so some and every agree"
-  },
-  {
-    "file": "eslint-rules/no-unused-exports.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "exportNode.type === 'ExportDefaultDeclaration'",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the first token of an identifier node is the identifier itself, so reporting at the first token or at the node gives the same range"
   },
   {
     "file": "eslint-rules/no-wrapped-line-comments.js",
@@ -1546,15 +1375,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the extra iteration reads no comment, forms a group of one undefined entry that nothing reports, and ends the loop, so the condition changes no result"
-  },
-  {
-    "file": "eslint-rules/no-wrapped-line-comments.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "if (group.length >= 2) {",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a group of one comment has no non-last line, so the terminated test passes for it and nothing is reported either way"
   },
   {
     "file": "platform/webPlatform.ts",

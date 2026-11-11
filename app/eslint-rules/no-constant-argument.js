@@ -417,9 +417,6 @@ const argumentAt = (checker, idOf, site, slot) => {
  * @returns {Omit<Finding, 'start' | 'end'> & { node: import('typescript').Node } | null}
  */
 const findingFor = (slot, values) => {
-  if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {
-    return null;
-  }
   if (values.every(({ state }) => state === 'omitted')) {
     return {
       node: slot.node,
@@ -561,7 +558,7 @@ export const findConstantArguments = (program) => {
         const slots = slotsOf(declaration).filter(
           (slot) => !isLibraryDeclaredProperty(checker, slot),
         );
-        if (symbol && slots.length > 0) {
+        if (symbol) {
           /** @type {Candidate} */
           const candidate = {
             name: node.name.text,

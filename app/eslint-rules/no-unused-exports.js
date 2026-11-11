@@ -162,7 +162,6 @@ export const buildUsageIndex = (sourceFiles, resolve) => {
           markImported(target, parent.right.text);
         } else if (
           ts.isElementAccessExpression(parent) &&
-          parent.expression === node &&
           ts.isStringLiteralLike(parent.argumentExpression)
         ) {
           markImported(target, parent.argumentExpression.text);
@@ -269,7 +268,7 @@ const declaredIdentifiersOf = (declaration) => {
       bindingIdentifiersOf(declarator.id),
     );
   }
-  return declaration.id?.type === 'Identifier' ? [declaration.id] : [];
+  return declaration.id.type === 'Identifier' ? [declaration.id] : [];
 };
 
 /**
@@ -423,12 +422,9 @@ export default {
         )) {
           if (!isExportUsed(filename, name, index)) {
             context.report({
-              node:
-                exportNode.type === 'ExportDefaultDeclaration'
-                  ? /** @type {any} */ (
-                      context.sourceCode.getFirstToken(exportNode)
-                    )
-                  : exportNode,
+              node: /** @type {any} */ (
+                context.sourceCode.getFirstToken(exportNode)
+              ),
               messageId: 'unusedExport',
               data: { name },
             });

@@ -87,7 +87,7 @@ export const isExemptAttributeName = (attribute) =>
  */
 const isItemCallback = (node) => {
   const call = node.parent;
-  if (!FUNCTION_TYPES.has(node.type) || call?.type !== 'CallExpression') {
+  if (!FUNCTION_TYPES.has(node.type) || call.type !== 'CallExpression') {
     return false;
   }
   const callee = call.callee;
