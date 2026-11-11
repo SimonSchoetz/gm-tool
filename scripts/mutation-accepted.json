@@ -303,7 +303,7 @@
     "lineText": ".flatMap(({ name }) => (typeof name === 'string' ? [name] : []));",
     "occurrence": 0,
     "lines": 1,
-    "reason": "SQLite returns the name column of pragma_table_info as text, so the branch for a value that is no string, which only narrows the type, never runs"
+    "reason": "stays: the name comes from a SQLite pragma_table_info row, so the static type may not hold at run time, and the test narrows the type to string"
   },
   {
     "file": "dev-data-server/devMirror.ts",
@@ -312,7 +312,7 @@
     "lineText": "if (existsSync(devPath)) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "attaching a dev database that does not exist creates an empty file in the target, which the removal loop and the rename below replace, so the target ends the same"
+    "reason": "stays: the file system decides whether the dev database exists, a result at the boundary; attaching a missing file would create an empty one in the target"
   },
   {
     "file": "dev-data-server/devMirror.ts",
@@ -348,7 +348,7 @@
     "lineText": "const bytes = typeof chunk === 'string' ? Buffer.from(chunk) : chunk;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "converting a Buffer chunk with Buffer.from copies the same bytes"
+    "reason": "stays: the chunks come from an HTTP request stream, so a chunk may be text or bytes at run time"
   },
   {
     "file": "dev-data-server/requestGuard.ts",
@@ -357,7 +357,7 @@
     "lineText": "if (total <= maxBytes) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "keeping chunks past the cap only costs memory, since the request is answered 413 before the chunks are read"
+    "reason": "stays: the size of an HTTP request body is outside input, and the test is what keeps the bytes past the cap out of memory while the rest is drained"
   },
   {
     "file": "dev-data-server/requestGuard.ts",
@@ -366,7 +366,7 @@
     "lineText": "typeof sourcePath === 'string' && fixturePaths.includes(sourcePath);",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: sourcePath comes from a parsed HTTP request body, so the static type may not hold at run time, and includes() takes a string"
   },
   {
     "file": "dev-data-server/requestGuard.ts",
@@ -456,7 +456,7 @@
     "lineText": "if (counts === null) {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the row comes from SQLite and get() types it as possibly undefined, so removing the test makes the reads of its columns a type error"
   },
   {
     "file": "dev-data-server/sqliteDatabase.ts",
@@ -465,7 +465,7 @@
     "lineText": "if (counts === null) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "stays: the row comes from SQLite and get() types it as possibly undefined, so removing the test makes the reads of its columns a type error"
   },
   {
     "file": "dev-data-server/sqliteDatabase.ts",
