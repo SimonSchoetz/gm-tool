@@ -43,4 +43,25 @@ mod tests {
         assert_eq!(exists_in(dir.path(), "abc", "jpg"), Ok(false));
         assert_eq!(exists_in(dir.path(), "other", "png"), Ok(false));
     }
+
+    #[test]
+    fn rejects_an_invalid_id_or_extension_even_when_its_file_exists() {
+        let dir = TestDir::new("images-exists-invalid");
+        // The files the invalid requests would reach: `images/../x.png` and `images/abc.exe`.
+        fs::write(dir.path().join("x.png"), b"x").unwrap();
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.exe"), b"x").unwrap();
+
+        assert_eq!(
+            exists_in(dir.path(), "../x", "png"),
+            Err("Invalid image id: ../x".to_string())
+        );
+        assert_eq!(
+            exists_in(dir.path(), "abc", "exe"),
+            Err("Invalid file extension: exe".to_string())
+        );
+        assert_eq!(fs::read(dir.path().join("x.png")).unwrap(), b"x");
+        assert_eq!(fs::read(images.join("abc.exe")).unwrap(), b"x");
+    }
 }

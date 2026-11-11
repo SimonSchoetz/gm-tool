@@ -72,4 +72,25 @@ mod tests {
                 .starts_with("Failed to read file: ")
         );
     }
+
+    #[test]
+    fn rejects_an_invalid_id_or_extension_without_reading_its_file() {
+        let dir = TestDir::new("images-read-invalid");
+        // The files the invalid requests would reach: `images/../x.png` and `images/abc.exe`.
+        fs::write(dir.path().join("x.png"), b"x").unwrap();
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.exe"), b"x").unwrap();
+
+        assert_eq!(
+            read_in(dir.path(), "../x", "png"),
+            Err("Invalid image id: ../x".to_string())
+        );
+        assert_eq!(
+            read_in(dir.path(), "abc", "exe"),
+            Err("Invalid file extension: exe".to_string())
+        );
+        assert_eq!(fs::read(dir.path().join("x.png")).unwrap(), b"x");
+        assert_eq!(fs::read(images.join("abc.exe")).unwrap(), b"x");
+    }
 }
