@@ -349,3 +349,10 @@ A `selectOptionAndCleanUp` that changes identity re-runs that effect, so `useCal
 **Citation:** [implement_14: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:614-619` — `menuRenderFnProp(anchorElementRef, listItemProps, …)` is returned from the render body; `grep -n menuRenderFn app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx` — found at :134,:159,:297 and :315,:327,:438,:442,:614,:615 only, none inside a dependency array]
 
 A `menuRenderFn` that changes identity on every render re-runs no effect, so `useCallback` on it has no consumer.
+
+## `LexicalEditor.read(mode, callback)` flushes pending updates only for `'force-commit'`, reads the pending state for `'pending'`, and reads the committed state for every other mode text
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: `app/node_modules/lexical/src/LexicalEditor.ts:1892-1905` — `if (mode === 'force-commit') { $commitPendingUpdates(this); }`, then `mode === 'pending' ? this._pendingEditorState || this._editorState : this.getEditorState()`], [implement_1: ran `npx vitest run` on `getDragOverTargetElement.test.ts` with `editor.read('force-commit', …)` and with `editor.read('', …)` in the helper — observed 1 test fail for `'force-commit'` and none for `''`]
+
+The one-argument form `read(callback)` is `'force-commit'`, so it flushes a queued update; `'latest'` and a mode text no branch names behave the same.

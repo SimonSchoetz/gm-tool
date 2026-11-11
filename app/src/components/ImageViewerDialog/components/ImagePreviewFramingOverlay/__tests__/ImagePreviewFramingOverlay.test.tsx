@@ -100,6 +100,19 @@ describe('ImagePreviewFramingOverlay', () => {
     });
   });
 
+  it('stops listening for the wheel on the preview when it is removed', async () => {
+    const removeListener = vi.spyOn(
+      HTMLElement.prototype,
+      'removeEventListener',
+    );
+    const view = await renderOverlay();
+
+    view.unmount();
+
+    expect(removeListener.mock.calls.map(([type]) => type)).toContain('wheel');
+    removeListener.mockRestore();
+  });
+
   it('saves a changed frame for the image the overlay shows now when the image changes', async () => {
     const view = await renderOverlay();
 

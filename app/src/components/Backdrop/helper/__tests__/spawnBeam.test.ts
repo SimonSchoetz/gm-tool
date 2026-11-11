@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { spawnBeam } from '../spawnBeam';
 import type { Beam } from '../../types/beam.type';
 import type { Grid } from '../../types/grid.type';
@@ -77,5 +77,25 @@ describe('spawnBeam', () => {
     const beam = makeBeam();
     spawnBeam(beam, gridRef, 0);
     expect(beam.speed).toBeGreaterThan(0);
+  });
+});
+
+describe('spawnBeam speed', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const speedFor = (random: number) => {
+    vi.spyOn(Math, 'random').mockReturnValue(random);
+    const beam = makeBeam();
+    spawnBeam(beam, gridRef, 0);
+    return beam.speed;
+  };
+
+  it('scales the base speed by 0.5 plus 0.6 times the random draw', () => {
+    const slowest = speedFor(0);
+    expect(slowest).toBeGreaterThan(0);
+    expect(speedFor(0.5)).toBeCloseTo(slowest * (0.8 / 0.5));
+    expect(speedFor(1)).toBeCloseTo(slowest * (1.1 / 0.5));
   });
 });

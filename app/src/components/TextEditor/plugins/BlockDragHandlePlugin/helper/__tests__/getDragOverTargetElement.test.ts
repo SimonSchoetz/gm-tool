@@ -97,4 +97,56 @@ describe('getDragOverTargetElement', () => {
 
     expect(result).toBe(null);
   });
+
+  it.each([
+    ['top edge of the first block', 50, 0, 0],
+    ['bottom edge of the first block, which the next block shares', 50, 20, 0],
+    ['bottom edge of the last block', 50, 60, 2],
+    ['left edge of the anchor element', 0, 25, 1],
+    ['right edge of the anchor element', 100, 25, 1],
+  ])('counts a point on the %s as inside', (_edge, x, y, blockIndex) => {
+    const { editor, rootElement, blocks } = makeEditorWithBlocks([20, 20, 20]);
+
+    const result = getDragOverTargetElement(editor, rootElement, x, y);
+
+    expect(result).toBe(blocks[blockIndex]);
+  });
+
+  it.each([
+    ['above every block', 50, -1],
+    ['left of the anchor element', -1, 25],
+    ['right of the anchor element', 101, 25],
+    ['below every block', 50, 61],
+  ])('returns null for a point %s', (_where, x, y) => {
+    const { editor, rootElement } = makeEditorWithBlocks([20, 20, 20]);
+
+    expect(getDragOverTargetElement(editor, rootElement, x, y)).toBe(null);
+  });
+
+  it('skips a block that has no element and finds the block below it', () => {
+    const { editor, rootElement, blocks } = makeEditorWithBlocks([20, 20, 20]);
+    const [firstKey] = editor.read('latest', () =>
+      $getRoot().getChildrenKeys(),
+    );
+    const getElementByKey = editor.getElementByKey.bind(editor);
+    editor.getElementByKey = (key) =>
+      key === firstKey ? null : getElementByKey(key);
+
+    const result = getDragOverTargetElement(editor, rootElement, 50, 25);
+
+    expect(result).toBe(blocks[1]);
+  });
+
+  it('hit-tests the blocks that are committed, not a change that is still pending', () => {
+    const { editor, rootElement, blocks } = makeEditorWithBlocks([20]);
+    stubRect(blocks[0], { top: 10, bottom: 30, left: 20, right: 40 });
+    editor.update(() => {
+      $getRoot().append($createParagraphNode().append($createTextNode('new')));
+    });
+
+    // The pending block would get an empty rectangle at the origin once committed, and the committed block starts at y = 10.
+    const result = getDragOverTargetElement(editor, rootElement, 50, 0);
+
+    expect(result).toBe(null);
+  });
 });

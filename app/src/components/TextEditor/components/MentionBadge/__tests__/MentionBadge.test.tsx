@@ -7,6 +7,10 @@ const HOVER_DELAY_MS = 500;
 const DELETED_ENTITY_ID = 'gone';
 
 const navigateSpy = vi.hoisted(() => vi.fn());
+const prefetchMentionEntity = vi.hoisted(() => vi.fn());
+const tableConfigs = vi.hoisted(() => ({
+  value: [] as { table_name: string; color: string }[],
+}));
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => navigateSpy,
@@ -19,8 +23,8 @@ vi.mock('@/data-access-layer', () => ({
     deleted: entityId === DELETED_ENTITY_ID,
     loading: false,
   }),
-  useTableConfigs: () => ({ tableConfigs: [] }),
-  usePrefetchMentionEntity: () => ({ prefetchMentionEntity: vi.fn() }),
+  useTableConfigs: () => ({ tableConfigs: tableConfigs.value }),
+  usePrefetchMentionEntity: () => ({ prefetchMentionEntity }),
 }));
 
 vi.mock(
@@ -79,6 +83,8 @@ describe('MentionBadge popup opening', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     navigateSpy.mockClear();
+    prefetchMentionEntity.mockClear();
+    tableConfigs.value = [];
   });
 
   afterEach(() => {
@@ -215,5 +221,195 @@ describe('MentionBadge popup opening', () => {
     expect(popup?.style.getPropertyValue('--rt-mention-pop-up-y')).toBe(
       expectedY,
     );
+  });
+});
+
+const renderOne = (entityId = 'goblin', format: ('bold' | 'italic')[] = []) => {
+  const rendered = render(
+    <PinnedPopupsProvider>
+      <MentionBadge
+        entityId={entityId}
+        entityType='npc'
+        displayName={`Display of ${entityId}`}
+        adventureId={null}
+        format={format}
+      />
+    </PinnedPopupsProvider>,
+  );
+  return {
+    ...rendered,
+    badge: screen.getByText(
+      entityId === DELETED_ENTITY_ID
+        ? `Display of ${entityId}`
+        : `Name of ${entityId}`,
+    ),
+  };
+};
+
+describe('MentionBadge hover and popup bridge', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    navigateSpy.mockClear();
+    prefetchMentionEntity.mockClear();
+    tableConfigs.value = [];
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const hoverOpen = () => {
+    const { badge, ...rest } = renderOne();
+    fireEvent.mouseEnter(badge);
+    advanceTimers(HOVER_DELAY_MS);
+    return { badge, popup: screen.getByText('popup of goblin'), ...rest };
+  };
+
+  it('prefetches the entity when the pointer enters the badge, and not while the primary button is held', () => {
+    const { badge } = renderOne();
+
+    fireEvent.mouseEnter(badge, { buttons: 1 });
+    expect(prefetchMentionEntity).not.toHaveBeenCalled();
+
+    fireEvent.mouseEnter(badge);
+    expect(prefetchMentionEntity).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes a hover popup when the pointer leaves the badge and is not on the popup', () => {
+    const { badge } = hoverOpen();
+
+    fireEvent.mouseLeave(badge);
+    advanceTimers(0);
+
+    expect(popupOf('goblin')).toBeNull();
+  });
+
+  it('keeps the popup open while the pointer moves from the badge onto it, and closes it when the pointer leaves the popup', () => {
+    const { badge, popup } = hoverOpen();
+
+    fireEvent.mouseLeave(badge);
+    fireEvent.mouseEnter(popup);
+    advanceTimers(HOVER_DELAY_MS);
+    expect(popupOf('goblin')).not.toBeNull();
+
+    fireEvent.mouseLeave(popup);
+    expect(popupOf('goblin')).toBeNull();
+  });
+
+  it('keeps the popup open when the pointer leaves the badge while it is on the popup', () => {
+    const { badge, popup } = hoverOpen();
+    fireEvent.mouseEnter(popup);
+
+    fireEvent.mouseLeave(badge);
+    advanceTimers(HOVER_DELAY_MS);
+
+    expect(popupOf('goblin')).not.toBeNull();
+  });
+
+  it('closes a later hover popup when the pointer leaves the badge without ever entering it, after an earlier popup was entered and left', () => {
+    const { badge, popup } = hoverOpen();
+    fireEvent.mouseEnter(popup);
+    fireEvent.mouseLeave(popup);
+    expect(popupOf('goblin')).toBeNull();
+
+    fireEvent.mouseLeave(badge);
+    fireEvent.mouseEnter(badge);
+    advanceTimers(HOVER_DELAY_MS);
+    expect(popupOf('goblin')).not.toBeNull();
+    fireEvent.mouseLeave(badge);
+    advanceTimers(0);
+
+    expect(popupOf('goblin')).toBeNull();
+  });
+
+  it('opens no second hover popup for a badge whose popup a click already opened', () => {
+    const { badge } = renderOne();
+    fireEvent.click(badge);
+
+    fireEvent.mouseEnter(badge);
+    advanceTimers(HOVER_DELAY_MS);
+    fireEvent.mouseLeave(badge);
+    advanceTimers(0);
+
+    expect(prefetchMentionEntity).not.toHaveBeenCalled();
+    expect(popupOf('goblin')).not.toBeNull();
+  });
+
+  it('keeps a popup that a click opened open when the delay of the hover before it runs out', () => {
+    const { badge } = renderOne();
+    fireEvent.mouseEnter(badge);
+
+    fireEvent.click(badge);
+    advanceTimers(HOVER_DELAY_MS);
+    fireEvent.mouseLeave(badge);
+    advanceTimers(0);
+
+    expect(popupOf('goblin')).not.toBeNull();
+  });
+
+  it('opens no popup for a badge that was removed while its hover delay was running', () => {
+    const { badge, rerender } = renderOne();
+    fireEvent.mouseEnter(badge);
+
+    rerender(<PinnedPopupsProvider>{null}</PinnedPopupsProvider>);
+    advanceTimers(HOVER_DELAY_MS);
+
+    expect(popupOf('goblin')).toBeNull();
+  });
+
+  it('opens a popup above the badge only when the badge is below the middle of the window', () => {
+    const { badge } = renderOne();
+    badge.getBoundingClientRect = () =>
+      ({
+        top: window.innerHeight / 2,
+        bottom: window.innerHeight / 2 + 20,
+        left: 10,
+        right: 60,
+      }) as DOMRect;
+
+    fireEvent.click(badge);
+
+    const popup = screen
+      .getByText('popup of goblin')
+      .closest<HTMLElement>('[style]');
+    expect(popup?.style.getPropertyValue('--rt-mention-pop-up-y')).toBe(
+      `${String(window.innerHeight / 2 + 20)}px`,
+    );
+  });
+});
+
+describe('MentionBadge table color', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    tableConfigs.value = [
+      { table_name: 'foes', color: '9, 9, 9' },
+      { table_name: 'npc', color: '1, 2, 3' },
+    ];
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    tableConfigs.value = [];
+  });
+
+  it('takes the color of the table config of its entity type', () => {
+    const { badge } = renderOne();
+
+    expect(badge.style.getPropertyValue('--rt-mention-badge-color')).toBe(
+      '1, 2, 3',
+    );
+  });
+
+  it('carries no table color when no config matches its entity type', () => {
+    tableConfigs.value = [{ table_name: 'foes', color: '9, 9, 9' }];
+    const { badge } = renderOne();
+
+    expect(badge.style.getPropertyValue('--rt-mention-badge-color')).toBe('');
+  });
+
+  it('carries no table color when its entity was deleted', () => {
+    const { badge } = renderOne(DELETED_ENTITY_ID);
+
+    expect(badge.style.getPropertyValue('--rt-mention-badge-color')).toBe('');
   });
 });

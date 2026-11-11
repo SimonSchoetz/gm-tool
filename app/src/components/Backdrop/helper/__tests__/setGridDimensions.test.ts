@@ -43,3 +43,21 @@ describe('setGridDimensions', () => {
     expect(gridRef.current?.rows).toBe(900 / 120 + 1);
   });
 });
+
+describe('setGridDimensions offsets', () => {
+  afterEach(() => {
+    setWindowSize(1024, 768);
+  });
+
+  it('shifts the grid left and up by half a square on both axes', () => {
+    setWindowSize(1200, 900);
+    const gridRef = makeGridRef();
+    setGridDimensions(gridRef);
+    expect(gridRef.current?.offsetX).toBe(
+      -(gridRef.current?.squareSize ?? 0) / 2,
+    );
+    expect(gridRef.current?.offsetY).toBe(
+      -(gridRef.current?.squareSize ?? 0) / 2,
+    );
+  });
+});

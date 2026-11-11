@@ -1422,6 +1422,96 @@
     "reason": "when the popup edge lands exactly on the padded viewport edge, the clamp branch shifts the popup by zero and the fall-through also returns zero, so no input can tell < from <="
   },
   {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const startSide = Math.random() < 0.5 ? 'left' : 'right';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the side is compared with 'left' only, so any other text puts the path on the right side"
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "currentRow / squareSize",
+    "lineText": "y: offsetY + currentRow * squareSize,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the first point is in row 0, where adding, subtracting and dividing by the square size all give the offset"
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "offsetY - currentRow * squareSize",
+    "lineText": "y: offsetY + currentRow * squareSize,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the first point is in row 0, where adding, subtracting and dividing by the square size all give the offset"
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (current !== Direction.DOWN) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a direction that is not down is turned down, and a direction that is down stays down, so the test returns down either way"
+  },
+  {
+    "file": "src/components/Backdrop/helper/getPositionOnPath.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "path.length + 1",
+    "lineText": "for (let i = 0; i < path.length - 1; i++) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra iteration reads a segment past the end of the path, where the comparison with an undefined length is false, so it returns nothing and the loop ends"
+  },
+  {
+    "file": "src/components/Backdrop/helper/getPositionOnPath.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "i <= path.length - 1",
+    "lineText": "for (let i = 0; i < path.length - 1; i++) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra iteration reads a segment past the end of the path, where the comparison with an undefined length is false, so it returns nothing and the loop ends"
+  },
+  {
+    "file": "src/components/Backdrop/helper/getPositionOnPath.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "cumulativeLengths[i + 1] > distance",
+    "lineText": "if (cumulativeLengths[i + 1] >= distance) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "at a segment boundary the end of one segment is the start of the next, so both give the same point"
+  },
+  {
+    "file": "src/components/Backdrop/helper/tickBeams.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (pos && prevPos) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a path with fewer than two points has a total length of 0, which ends its beam before this line, so both positions exist here"
+  },
+  {
+    "file": "src/components/Backdrop/helper/tickBeams.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "pos || prevPos",
+    "lineText": "if (pos && prevPos) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a path with fewer than two points has a total length of 0, which ends its beam before this line, so both positions exist here"
+  },
+  {
+    "file": "src/components/Backdrop/helper/tickBeams.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "k <= beam.path.length",
+    "lineText": "for (let k = 1; k < beam.path.length; k++) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a corner read past the end of the path is undefined, and no comparison with undefined holds"
+  },
+  {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",
     "mutator": "StringLiteral",
     "replacement": "\"Stryker was here!\"",
@@ -1485,6 +1575,69 @@
     "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
   },
   {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "match.routeId === '__root__' && match.routeId === '/'",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/HoloImg/hooks/useTiltFX.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[]",
+    "lineText": "}, [containerRef]);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "containerRef is a ref object that never changes between renders, so the effect runs once either way"
+  },
+  {
     "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
     "mutator": "BooleanLiteral",
     "replacement": "true",
@@ -1507,24 +1660,6 @@
     "mutator": "ObjectLiteral",
     "replacement": "{}",
     "lineText": "el.addEventListener('wheel', onWheel, { passive: false });",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
-  },
-  {
-    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
-    "mutator": "BlockStatement",
-    "replacement": "{}",
-    "lineText": "return () => {",
-    "occurrence": 0,
-    "lines": 3,
-    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
-  },
-  {
-    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "el.removeEventListener('wheel', onWheel);",
     "occurrence": 0,
     "lines": 1,
     "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
@@ -1576,12 +1711,66 @@
   },
   {
     "file": "src/components/MentionPopup/MentionPopup.tsx",
-    "mutator": "LogicalOperator",
-    "replacement": "zIndex && null",
-    "lineText": "zIndex: zIndex ?? null,",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!popupRef.current) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the value reaches only AnchoredPopup's inline z-index through the section menu, which component tests may not assert"
+    "reason": "the popup element is set whenever the layout effect runs, so the guard changes no result"
+  },
+  {
+    "file": "src/components/MentionPopup/MentionPopup.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "className={cn('mention-popup', `mention-popup--${placement}`)}",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/MentionPopup/MentionPopup.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "``",
+    "lineText": "className={cn('mention-popup', `mention-popup--${placement}`)}",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/SortableList/helper/partitionPinnedItems.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "const aOrder = typeof a.pinned_order === 'number' ? a.pinned_order : 0;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item is pinned only when its pinned_order is a number (isItemPinned), so the fallback of 0 is never taken"
+  },
+  {
+    "file": "src/components/SortableList/helper/partitionPinnedItems.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "const bOrder = typeof b.pinned_order === 'number' ? b.pinned_order : 0;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item is pinned only when its pinned_order is a number (isItemPinned), so the fallback of 0 is never taken"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "const isMouseOnBadgeRef = useRef(false);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "rect.top > window.innerHeight / 2 ? 'above' : 'below';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the placement text only reaches the popup's placement class, and the position it selects is asserted; class names only; jsdom computes no style and component tests may not assert a class name"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
@@ -1594,12 +1783,399 @@
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (hideTimerRef.current) {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (hideTimerRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (hideTimerRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "isMouseOnBadgeRef.current",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "hidePopup(entityId);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "isMouseOnBadgeRef.current = true;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "isMouseOnBadgeRef.current = false;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
     "mutator": "CallExpression",
     "replacement": ";",
     "lineText": "clearHoverTimer();",
     "occurrence": 2,
     "lines": 1,
     "reason": "a hover request that fires after the click finds the click-open entry and changes nothing"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "clearTimeout on a null id does nothing, so the guard only skips a call that changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "whether the pending hide of a hover popup still runs after its badge was removed is undecided (reported to the lead); no test pins either outcome"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "whether the pending hide of a hover popup still runs after its badge was removed is undecided (reported to the lead); no test pins either outcome"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "whether the pending hide of a hover popup still runs after its badge was removed is undecided (reported to the lead); no test pins either outcome"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "}, []);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the effect has no value to depend on"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'mention-badge',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'mention-badge--deleted',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('bold') || 'mention-badge--bold'",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('italic') || 'mention-badge--italic'",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'mention-badge',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('bold') || 'mention-badge--bold'",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('italic') || 'mention-badge--italic'",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/helper/parseSafeEditorState.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "state.root?.children.length",
+    "lineText": "if ((state.root?.children?.length ?? 0) === 0) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the TypeError of the missing property is thrown inside the try block, whose catch returns null as well"
+  },
+  {
+    "file": "src/components/TextEditor/helper/parseSafeEditorState.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "state.root.children",
+    "lineText": "if ((state.root?.children?.length ?? 0) === 0) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the TypeError of the missing property is thrown inside the try block, whose catch returns null as well"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/getDragOverTargetElement.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return editor.read('latest', () => {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "editor.read treats any mode text other than 'force-commit' and 'pending' as 'latest' (.claude/knowledge/lexical.md)"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/resolveHeaderToggleForRemoval.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (selection.isCollapsed()) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a collapsed selection sits inside one node, so either no header toggle is found or the one found contains the start, and the function returns null as well"
   },
   {
     "file": "src/data-access-layer/adventures/useAdventure.ts",

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { formatDateValue } from '../formatDateValue';
 import { renderCell } from '../renderCell';
 
 vi.mock('../../components/CoverCell/CoverCell', () => ({
@@ -97,6 +98,34 @@ describe('renderCell', () => {
 
     it('returns empty string for a missing key', () => {
       expect(renderCell('name', {}, null)).toBe('');
+    });
+  });
+
+  describe('date keys against the raw value', () => {
+    it.each(['created_at', 'updated_at'])(
+      'shows %s through formatDateValue, not as the stored text',
+      (key) => {
+        const stored = '2024-03-15T10:30:00';
+
+        const result = renderCell(key, { [key]: stored }, null);
+
+        expect(result).toBe(formatDateValue(stored));
+        expect(result).not.toBe(stored);
+      },
+    );
+  });
+
+  describe('default key with values that are not text', () => {
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+    ])('returns an empty string for a %s value', (_name, value) => {
+      expect(renderCell('notes', { notes: value }, null)).toBe('');
+    });
+
+    it('writes an object or an array value as JSON', () => {
+      expect(renderCell('layout', { layout: { a: 1 } }, null)).toBe('{"a":1}');
+      expect(renderCell('tags', { tags: ['x', 'y'] }, null)).toBe('["x","y"]');
     });
   });
 });
