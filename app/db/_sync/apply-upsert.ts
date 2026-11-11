@@ -35,7 +35,6 @@ const executeUpsert = async (
   const columns = Object.keys(filtered);
   const placeholders = columns.map((_, index) => `$${index + 1}`);
   const updateSet = columns
-    .filter((column) => column !== 'id')
     .map((column) => `${column} = excluded.${column}`)
     .join(', ');
   const values = columns.map((column) => filtered[column]);

@@ -1,9 +1,5 @@
 import { getDatabase } from '../database';
-import {
-  assertValidId,
-  assertHasUpdateFields,
-  buildUpdateQuery,
-} from '../util';
+import { assertValidId, buildUpdateQuery } from '../util';
 import { imageTable } from './schema';
 import type { UpdateImageFrameInput } from './types';
 
@@ -12,7 +8,6 @@ export const update = async (
   data: UpdateImageFrameInput,
 ): Promise<void> => {
   assertValidId(id, 'image');
-  assertHasUpdateFields(data);
 
   const validated = imageTable.updateSchema.parse(data);
   const db = await getDatabase();

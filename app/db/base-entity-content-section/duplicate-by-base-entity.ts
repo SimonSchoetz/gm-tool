@@ -10,8 +10,6 @@ export const duplicateByBaseEntity = async (
   assertValidId(targetBaseEntityId, 'Base entity');
 
   const sourceSections = await getAllByBaseEntity(sourceBaseEntityId);
-  if (sourceSections.length === 0) return;
-
   const db = await getDatabase();
 
   for (const section of sourceSections) {

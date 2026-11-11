@@ -10,8 +10,6 @@ export const duplicateBySession = async (
   assertValidId(targetSessionId, 'Session');
 
   const sourceSteps = await getAllBySession(sourceSessionId);
-  if (sourceSteps.length === 0) return;
-
   const db = await getDatabase();
 
   for (const step of sourceSteps) {
