@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useEffectEvent } from 'react';
 import type { TextFormatType } from 'lexical';
 import { usePinnedPopups } from '@/providers/PinnedPopupsContext';
 import { FCProps } from '@/types/fcProps.type';
@@ -139,10 +139,17 @@ export const MentionBadge: FCProps<Props> = ({
     });
   };
 
+  // An Effect Event, so the unmount cleanup below needs no dependency on `hidePopup`: the provider re-creates it on every render, and as a dependency it would run the cleanup — and close the popup — on each of them.
+  const hideHoverPopupOnRemoval = useEffectEvent(() => {
+    hidePopup(entityId);
+  });
+
+  // A removed badge gets no mouseleave, and its pending hide timer is cleared here, so it closes its hover popup itself; `hidePopup` leaves a clicked or pinned popup open.
   useEffect(() => {
     return () => {
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      hideHoverPopupOnRemoval();
     };
   }, []);
 
