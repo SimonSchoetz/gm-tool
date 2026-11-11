@@ -22,7 +22,7 @@ export const EncounterCombatantNameField: FCProps<Props> = ({
   const shownName = entry?.name ?? '';
   const automaticName = entry?.automaticName ?? '';
   const { value, setValue, focusProps } = useSyncedInputValue(shownName);
-  const { inputRef, handleChange } = useTypographicInput((typed) => {
+  const { inputRef, handleChange } = useTypographicInput(value, (typed) => {
     setValue(typed);
     updateQueueItem(shownItemId, {
       custom_name: resolveCustomName(typed, automaticName),

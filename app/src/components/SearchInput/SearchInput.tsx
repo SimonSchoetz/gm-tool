@@ -30,7 +30,7 @@ export const SearchInput: FCProps<Props> = ({ onSearch, placeholder }) => {
     };
   }, []);
 
-  const { inputRef, handleChange } = useTypographicInput((newValue) => {
+  const { inputRef, handleChange } = useTypographicInput(value, (newValue) => {
     setValue(newValue);
     debouncedSearch(newValue);
   });

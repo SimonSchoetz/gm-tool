@@ -34,10 +34,13 @@ export const DeleteDialog: FCProps<Props> = ({
     }
   };
 
-  const { inputRef, handleChange } = useTypographicInput((newValue) => {
-    setConfirmInput(newValue);
-    handleInputChange(newValue);
-  });
+  const { inputRef, handleChange } = useTypographicInput(
+    confirmInput,
+    (newValue) => {
+      setConfirmInput(newValue);
+      handleInputChange(newValue);
+    },
+  );
 
   return (
     <GlassPanel

@@ -18,7 +18,7 @@ export const SyncedInput: FCProps<Props> = ({
   ...props
 }) => {
   const { value, setValue, focusProps } = useSyncedInputValue(initValue);
-  const { inputRef, handleChange } = useTypographicInput((newValue) => {
+  const { inputRef, handleChange } = useTypographicInput(value, (newValue) => {
     setValue(newValue);
     onCommit(newValue);
   });
