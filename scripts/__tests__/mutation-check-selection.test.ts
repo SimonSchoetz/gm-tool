@@ -5,6 +5,13 @@ import {
   selectFiles,
   testFileCandidates,
 } from '../mutation-check-selection.ts';
+import {
+  entryFor,
+  entrySpan,
+  matchLedger,
+  type MutatedRanges,
+  type SourceLines,
+} from '../mutation-check-ledger.ts';
 
 describe('isProductionSource', () => {
   it.each([
@@ -120,14 +127,27 @@ describe('lineRangesFor', () => {
   ]);
   const untrackedPaths = new Set(['app/util/new.ts']);
   const rangesOf = (appRelativePath: string, all = false) =>
-    lineRangesFor({ all, appRelativePath, untrackedPaths, changedLines });
+    lineRangesFor({
+      all,
+      appRelativePath,
+      untrackedPaths,
+      changedLines,
+      ledgerSpans: () => [{ start: 20, end: 21 }],
+    });
 
-  it('gives the changed lines of a changed file', () => {
-    expect(rangesOf('util/a.ts')).toEqual([{ start: 3, end: 5 }]);
+  it('joins the ledger spans of a changed file to its changed lines', () => {
+    expect(rangesOf('util/a.ts')).toEqual([
+      { start: 3, end: 5 },
+      { start: 20, end: 21 },
+    ]);
   });
 
-  it('gives no line for a file the branch did not change', () => {
+  it('gives no line for a file the branch did not change, though it has ledger entries', () => {
     expect(rangesOf('util/other.ts')).toEqual([]);
+  });
+
+  it('gives only the ledger spans for a changed file with no line added or changed', () => {
+    expect(rangesOf('util/untouched.ts')).toEqual([{ start: 20, end: 21 }]);
   });
 
   it('gives the whole file for an untracked file', () => {
@@ -145,5 +165,142 @@ describe('isProductionSource in the JavaScript directory', () => {
     expect(isProductionSource('eslint-rules/no-thing.js')).toBe(true);
     expect(isProductionSource('eslint-rules/README')).toBe(false);
     expect(isProductionSource('eslint-rules/no-thing.json')).toBe(false);
+  });
+});
+
+describe('lineRangesFor joining ranges', () => {
+  const rangesWith = (
+    changed: { start: number; end: number }[],
+    spans: { start: number; end: number }[],
+  ) =>
+    lineRangesFor({
+      all: false,
+      appRelativePath: 'util/a.ts',
+      untrackedPaths: new Set(),
+      changedLines: new Map([['app/util/a.ts', changed]]),
+      ledgerSpans: () => spans,
+    });
+
+  it('joins a ledger span that crosses a changed range into one range, so the stale check sees its whole span mutated', () => {
+    expect(rangesWith([{ start: 5, end: 8 }], [{ start: 3, end: 6 }])).toEqual([
+      { start: 3, end: 8 },
+    ]);
+  });
+
+  it('keeps the end of a range that contains the next one', () => {
+    expect(rangesWith([{ start: 2, end: 10 }], [{ start: 4, end: 5 }])).toEqual(
+      [{ start: 2, end: 10 }],
+    );
+  });
+
+  it('joins adjacent ranges and keeps ranges with a line between them apart, in line order', () => {
+    expect(
+      rangesWith(
+        [
+          { start: 11, end: 11 },
+          { start: 6, end: 7 },
+        ],
+        [{ start: 8, end: 9 }],
+      ),
+    ).toEqual([
+      { start: 6, end: 9 },
+      { start: 11, end: 11 },
+    ]);
+  });
+
+  it("leaves the caller's changed lines as they were when it joins a span into them", () => {
+    const changed = [{ start: 5, end: 8 }];
+
+    rangesWith(changed, [{ start: 8, end: 12 }]);
+
+    expect(changed).toEqual([{ start: 5, end: 8 }]);
+  });
+});
+
+describe('lineRangesFor with matchLedger: ledger entries in the files a branch touched', () => {
+  // A guard on line 2 accepted as equivalent, and a change on line 5 the branch made.
+  const GUARDED = [
+    'export const label = (value: string | null) => {',
+    "  if (value === null) return '';",
+    '  return value;',
+    '};',
+    'export const changed = 1;',
+  ];
+  const sourceLines: SourceLines = (file) =>
+    file === 'util/touched.ts' || file === 'util/untouched.ts' ? GUARDED : null;
+  const guardEntry = (file: string) =>
+    entryFor(
+      {
+        file,
+        line: 2,
+        column: 30,
+        endLine: 2,
+        mutator: 'StringLiteral',
+        replacement: '"Stryker was here!"',
+      },
+      sourceLines,
+      'the label renders nothing while the value is null',
+    );
+  const ledger = [
+    guardEntry('util/touched.ts'),
+    guardEntry('util/untouched.ts'),
+  ];
+  const changedLines = new Map([
+    ['app/util/touched.ts', [{ start: 5, end: 5 }]],
+  ]);
+  // What scripts/mutation-check.ts mutates for the changed files: their changed lines and their entries' spans.
+  const mutatedRanges: MutatedRanges = new Map(
+    ['util/touched.ts', 'util/untouched.ts'].map((file) => [
+      file,
+      lineRangesFor({
+        all: false,
+        appRelativePath: file,
+        untrackedPaths: new Set(),
+        changedLines,
+        ledgerSpans: (spanFile) =>
+          ledger
+            .filter((entry) => entry.file === spanFile)
+            .map((entry) => entrySpan(entry, sourceLines))
+            .filter((span) => span !== null),
+      }),
+    ]),
+  );
+  const survivorOn = (file: string) => ({
+    file,
+    line: 2,
+    column: 30,
+    endLine: 2,
+    mutator: 'StringLiteral',
+    replacement: '"Stryker was here!"',
+  });
+
+  it('fails an entry in a touched file whose mutant no longer survives as stale, though the branch changed another line', () => {
+    const result = matchLedger({
+      entries: ledger,
+      mutants: [survivorOn('util/untouched.ts')],
+      sourceLines,
+      mutatedRanges,
+    });
+
+    expect(result.stale).toEqual([guardEntry('util/touched.ts')]);
+  });
+
+  it('does not mutate an entry in a file the branch did not touch, so it is never stale', () => {
+    expect(mutatedRanges.get('util/untouched.ts')).toEqual([]);
+    expect(
+      matchLedger({ entries: ledger, mutants: [], sourceLines, mutatedRanges })
+        .stale,
+    ).not.toContainEqual(guardEntry('util/untouched.ts'));
+  });
+
+  it('passes an entry in a touched file whose mutant still survives', () => {
+    const result = matchLedger({
+      entries: ledger,
+      mutants: [survivorOn('util/touched.ts')],
+      sourceLines,
+      mutatedRanges,
+    });
+
+    expect(result).toEqual({ unmatched: [], stale: [] });
   });
 });

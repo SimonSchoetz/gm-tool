@@ -136,6 +136,12 @@ const resolveLine = (entry: LedgerEntry, sourceLines: SourceLines) => {
   return linesWithText(fileLines, entry.lineText)[entry.occurrence] ?? null;
 };
 
+// The lines an entry's mutant spans, or null when the file or the entry's line is missing.
+export const entrySpan = (entry: LedgerEntry, sourceLines: SourceLines) => {
+  const line = resolveLine(entry, sourceLines);
+  return line === null ? null : { start: line, end: line + entry.lines - 1 };
+};
+
 export const serializeLedger = (
   entries: LedgerEntry[],
   sourceLines: SourceLines,
@@ -226,11 +232,12 @@ export const matchLedger = ({
   const stale = [...unconsumed.values()].flat().filter((entry) => {
     const ranges = mutatedRanges.get(entry.file) ?? null;
     if (ranges === null) return false;
-    const line = resolveLine(entry, sourceLines);
-    if (line === null) return false;
+    const span = entrySpan(entry, sourceLines);
+    if (span === null) return false;
     if (ranges === 'all') return true;
-    const lastLine = line + entry.lines - 1;
-    return ranges.some(({ start, end }) => start <= line && lastLine <= end);
+    return ranges.some(
+      ({ start, end }) => start <= span.start && span.end <= end,
+    );
   });
   return { unmatched, stale };
 };

@@ -73,18 +73,37 @@ export const selectFiles = ({
   };
 };
 
-// "all" for a file mutated as a whole (every file under `all`, and an untracked file); otherwise the lines the branch changed.
+type LineRange = { start: number; end: number };
+
+// Sorted, with overlapping and adjacent ranges joined, so a ledger span that crosses a changed range lies inside one range.
+const joinRanges = (ranges: LineRange[]) =>
+  [...ranges]
+    .sort((a, b) => a.start - b.start)
+    .reduce<LineRange[]>((joined, range) => {
+      const last = joined.at(-1) ?? null;
+      if (last !== null && range.start <= last.end + 1)
+        last.end = Math.max(last.end, range.end);
+      else joined.push({ ...range });
+      return joined;
+    }, []);
+
+// "all" for a file mutated as a whole (every file under `all`, and an untracked file); otherwise, for a file the branch changed, the lines it changed joined with the span of every ledger entry in that file, so a change elsewhere in the file that makes an accepted mutant killable fails the run as stale; a file the branch did not change gets no line.
 export const lineRangesFor = ({
   all,
   appRelativePath,
   untrackedPaths,
   changedLines,
+  ledgerSpans,
 }: {
   all: boolean;
   appRelativePath: string;
   untrackedPaths: ReadonlySet<string>;
-  changedLines: ReadonlyMap<string, { start: number; end: number }[]>;
-}): FileRanges =>
-  all || untrackedPaths.has(`app/${appRelativePath}`)
-    ? 'all'
-    : (changedLines.get(`app/${appRelativePath}`) ?? []);
+  changedLines: ReadonlyMap<string, LineRange[]>;
+  ledgerSpans: (appRelativePath: string) => LineRange[];
+}): FileRanges => {
+  if (all || untrackedPaths.has(`app/${appRelativePath}`)) return 'all';
+  const changed = changedLines.get(`app/${appRelativePath}`) ?? null;
+  return changed === null
+    ? []
+    : joinRanges([...changed, ...ledgerSpans(appRelativePath)]);
+};

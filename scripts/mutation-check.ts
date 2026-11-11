@@ -1,4 +1,4 @@
-// Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), using app/stryker.config.json. `--all` mutates every production file under app/ with its own test as a whole instead, for an audit of code no branch changed; which files are production sources and which of their lines run is scripts/mutation-check-selection.ts.
+// Mutation-tests only the lines of production files under app/ that the current branch added or changed against main (committed, staged, unstaged and untracked), together with, in each file it changed, the span of every entry of scripts/mutation-accepted.json and scripts/mutation-hangs.json, using app/stryker.config.json. `--all` mutates every production file under app/ with its own test as a whole instead, for an audit of code no branch changed; which files are production sources and which of their lines run is scripts/mutation-check-selection.ts.
 // The Rust lines the branch changed under app/src-tauri/src/ (every Rust mutant with `--all`) are mutated by `cargo mutants` first (scripts/mutation-check-rust.ts), the networking glue left out (app/src-tauri/.cargo/mutants.toml); a missed mutant with no entry in scripts/mutation-accepted-rust.json fails the run like a TypeScript survivor, and `--accept` writes the reason into that ledger; a timed-out one with no entry in scripts/mutation-hangs-rust.json fails it like a TypeScript timeout, `--accept-hang` writes into that ledger, and `--timeout-ms` sets cargo-mutants' test timeout. A branch that changes no Rust runs no cargo command, and Rust is skipped when file arguments are given.
 // A file moved with git (`git mv`, staged or committed) counts only the lines changed after the move (scripts/mutation-check-diff.ts); a moved file git has not seen yet is untracked, and so new as a whole.
 // Each mutant runs the Vitest tests related to its file through Stryker's command runner (scripts/mutation-check-related.ts): Stryker's Vitest runner 10.0.0 runs no test per mutant under Vitest 5, so it reports every mutant as surviving.
@@ -6,7 +6,7 @@
 // With file arguments (`pnpm run mutation-check -- <file>…`, repository-root- or app-relative), only those files are mutated, among the changed ones or, with `--all`, among all production sources, so a fix loop re-runs the files that had survivors; a run without arguments is the gate. `--accept "<reason>"`, with or without files, is described below.
 // Exits non-zero when a mutant survives in one of them and scripts/mutation-accepted.json holds no entry for it: a test that passes with its target logic mutated catches no regression there.
 // A survivor no test can kill (an equivalent mutant) is accepted by an entry of that ledger, which names one mutant by its file, mutator, replacement and the text of the line it starts on (scripts/mutation-check-ledger.ts); a survivor matches one entry, so each of two identical mutants needs its own.
-// An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
+// An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. Since every entry in a file the branch changed is mutated, a change on any line of that file that makes an entry's mutant killable, or another mutant on its lines observable, fails the run; only an entry in a file the branch did not change waits for an `--all` audit. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
 // A mutant Stryker reports as `Timeout` (its tests ran past `timeoutMS` in app/stryker.config.json) fails the run too, listed apart from survivors, unless scripts/mutation-hangs.json holds an entry for it; that ledger has the entry shape and the stale and missing checks of scripts/mutation-accepted.json. A timeout counts as caught only when the mutant hangs, turning a loop's condition or update into one that never ends, since a test run observes a hang; `--accept-hang "<reason>"` records every unmatched timeout with that reason, so run it only once each one left is a confirmed hang. Any other timeout is re-run with a longer limit, `--timeout-ms <n>`, which overrides `timeoutMS` for one run, and is resolved by that run's result.
 // `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, and run it last, once every survivor still unmatched is known to be equivalent, since it accepts them all. Each entry it adds carries the one reason given, so where the mutants differ, edit each entry's reason in the ledger afterwards. Before Stryker starts, it runs the `test` row (`npx vitest run` in app/) and exits non-zero without writing an entry when a test fails (scripts/mutation-check-test-row.ts). After editing an accepted line, remove its entry and re-run with `--accept`.
 import { execFileSync, spawnSync } from 'child_process';
@@ -16,6 +16,7 @@ import {
   describeEntry,
   describeMutant,
   entryFor,
+  entrySpan,
   findMissingEntries,
   matchLedger,
   mutantsOf,
@@ -291,12 +292,18 @@ if (untestedFiles.length > 0) {
 
 // One Stryker run for all files: its sandbox, processes and initial test run are paid once, and the command in app/stryker.config.json (scripts/mutation-check-related.ts) runs for each mutant only the tests related to the mutant's own file.
 const mutatedRanges: MutatedRanges = new Map();
+const ledgerSpans = (file: string) =>
+  [...ledger, ...hangLedger]
+    .filter((entry) => entry.file === file)
+    .map((entry) => entrySpan(entry, sourceLines))
+    .filter((span) => span !== null);
 const mutateEntries = testedFiles.flatMap((file) => {
   const ranges = lineRangesFor({
     all,
     appRelativePath: file,
     untrackedPaths,
     changedLines,
+    ledgerSpans,
   });
   const fileEntries =
     ranges === 'all'
