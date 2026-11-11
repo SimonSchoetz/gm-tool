@@ -1,5 +1,248 @@
 [
   {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "Regex",
+    "replacement": "/(?<![-\\w.#])(?:#[0-9a-f]{3,8}\\b|rgba?\\([^()]*\\)|\\d*\\.?\\d(?:px|rem)\\b)/gi",
+    "lineText": "/(?<![-\\w.#])(?:#[0-9a-f]{3,8}\\b|rgba?\\([^()]*\\)|\\d*\\.?\\d+(?:px|rem)\\b)/gi;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a length that follows a dot is matched whole from its first digit, so a dot among the characters that must not precede a match changes no result"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "Regex",
+    "replacement": "/^(\\d*\\.?\\d)(px|rem)$/i",
+    "lineText": "const LENGTH = /^(\\d*\\.?\\d+)(px|rem)$/i;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "backtracking lets the single digit after the optional dot take the last digit of a longer number, so the pattern accepts the same texts"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "MethodExpression",
+    "replacement": "value",
+    "lineText": "const trimmed = value.trim();",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "every caller of canonicalKey passes text that is already trimmed: a stored definition, a raw value with no surrounding space, or the trimmed z-index value"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "offset + 1",
+    "lineText": "offset - text.lastIndexOf('\\n', offset - 1);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a raw value is three or more characters of digits, letters, # or parentheses, so no newline sits at its first character or the next, which is all the later start of the search can reach"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (inner === null) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a null inner result makes the replaced text the word null, which no canonical key reads, so the value is left out of the index either way"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "MethodExpression",
+    "replacement": "value",
+    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[]",
+    "lineText": "new Set([name]),",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the set only stops a self-reference: starting empty, the first expansion adds the name before the cycle repeats, so the result is null either way"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "TOKEN_FAMILIES.zIndex.property.test(property) || INTEGER.test(trimmed)",
+    "lineText": "if (TOKEN_FAMILIES.zIndex.property.test(property) && INTEGER.test(trimmed)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a non-integer z-index value gives raw values whose keys no z-index token holds, and an integer in another family finds no token of that family, so the hits are the same"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "const tokens = key === null ? [] : tokensEqualTo(property, key, index);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a null key looks up an index key no entry holds, so the tokens are empty either way"
+  },
+  {
+    "file": "../scripts/mutation-check-diff.ts",
+    "mutator": "Regex",
+    "replacement": "/^(?:rename to |\\+\\+\\+ b\\/)(.+)/",
+    "lineText": "? /^(?:rename to |\\+\\+\\+ b\\/)(.+)$/.exec(line)?.[1]",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the greedy group takes the rest of the line, so the end anchor changes no match"
+  },
+  {
+    "file": "../scripts/mutation-check-diff.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (hunk === null || currentFile === null) continue;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "with no file named yet, the push below reaches the ranges of no file and does nothing, so the guard changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-diff.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "changedLines.get(currentFile).push",
+    "lineText": "changedLines",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the guard above leaves only a current file that changedLines already holds, so the optional chain is never needed"
+  },
+  {
+    "file": "../scripts/mutation-check-ledger.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (typeof fieldValue !== 'number' || !Number.isInteger(fieldValue))",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "Number.isInteger is false for every value that is no number, so the typeof test changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-ledger.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "lineText": "unconsumed.get(keyOf(entryFor(survivor, sourceLines, ''))) ?? [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the key reads the entry's file, mutator, replacement, line text and occurrence, never its reason"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "typeof occurrence !== 'number' ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "Number.isInteger is false for every value that is no number, so the typeof test changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "`cargo mutants exited with ${status ?? 'a signal'}${status !== null && status in FAILURE_EXIT_CODES ? `: ${FAILURE_EXIT_CODES[status]}` : ''}.`,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "null is no key of the exit-code table, so the null test in front of the lookup changes no message"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "encoding: 'utf8',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "without an encoding the call returns a Buffer, which JSON.parse reads through its string form"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "{ cwd: rustRoot, stdio: 'inherit' },",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the stdio setting only decides whether the cargo-mutants progress is shown, which no test reads"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "? parseOutcomes(readFileSync(outcomesFile, 'utf8'), listed)",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "without an encoding the read returns a Buffer, which JSON.parse reads through its string form"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ": [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an outcome entry that is no object has no status, file or change, so it matches and names nothing"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "match: status === 0 || status === 2 ? judged : null,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a status other than 0 and 2 fails in rustFailures before the match is read"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "rmSync(scratch, { recursive: true, force: true });",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the scratch folder exists when it is removed, so forcing the removal changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-test-row.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "const runShown: RunCommand = (command, args, cwd) =>",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "runShown starts the real `npx vitest run` of the whole app, which no test of the row's decision can start; the tests inject a runner instead"
+  },
+  {
+    "file": "../scripts/mutation-check-test-row.ts",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "spawnSync(command, args, { cwd, stdio: 'inherit' }).status;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "runShown starts the real `npx vitest run` of the whole app, which no test of the row's decision can start; the tests inject a runner instead"
+  },
+  {
+    "file": "../scripts/mutation-check-test-row.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "spawnSync(command, args, { cwd, stdio: 'inherit' }).status;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "runShown starts the real `npx vitest run` of the whole app, which no test of the row's decision can start; the tests inject a runner instead"
+  },
+  {
     "file": "db/_sync/apply-delete.ts",
     "mutator": "ConditionalExpression",
     "replacement": "true",

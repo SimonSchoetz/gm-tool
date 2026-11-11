@@ -502,3 +502,71 @@ describe('describeEntry and describeSurvivor', () => {
     );
   });
 });
+
+describe('mutation-check-ledger boundaries', () => {
+  it('words a malformed entry with its index, its field and the problem', () => {
+    const thrownBy = (run: () => unknown) => {
+      try {
+        run();
+      } catch (error) {
+        return error;
+      }
+      return null;
+    };
+
+    expect(thrownBy(() => parseLedger('[1]'))).toEqual(
+      new Error('ledger entry 0: entry is not an object'),
+    );
+    expect(thrownBy(() => parseLedger('[{"extra": 1}]'))).toEqual(
+      new Error('ledger entry 0: extra is not a ledger field'),
+    );
+  });
+
+  it('reads a survivor whose mutant has no replacement text as an empty replacement', () => {
+    const location = {
+      start: { line: 2, column: 1 },
+      end: { line: 2, column: 2 },
+    };
+    const report = {
+      files: {
+        'src/NameField.tsx': {
+          mutants: [
+            { mutatorName: 'BlockStatement', status: 'Survived', location },
+          ],
+        },
+      },
+    } as unknown as MutationReport;
+
+    expect(survivorsOf(report)[0].replacement).toBe('');
+  });
+
+  it('records an empty line text for a file that cannot be read and for a line past its end', () => {
+    expect(
+      entryFor(survivor({ file: 'src/missing.ts', line: 1 }), sourceLines, 'r')
+        .lineText,
+    ).toBe('');
+    expect(
+      entryFor(survivor({ line: 99, endLine: 99 }), sourceLines, 'r').lineText,
+    ).toBe('');
+  });
+
+  it('reports an entry as stale when one of several mutated ranges holds its whole span', () => {
+    const result = matchSurvivors({
+      entries: [entry()],
+      survivors: [],
+      sourceLines,
+      mutatedRanges: ranges('src/NameField.tsx', [
+        { start: 8, end: 12 },
+        { start: 1, end: 3 },
+      ]),
+    });
+
+    expect(result.stale).toEqual([entry()]);
+  });
+
+  it('keeps an app/ in the middle of a file argument', () => {
+    expect(
+      parseArguments(['src/app/Thing.tsx', 'app/db/get.ts']).files,
+    ).toEqual(['src/app/Thing.tsx', 'db/get.ts']);
+  });
+});

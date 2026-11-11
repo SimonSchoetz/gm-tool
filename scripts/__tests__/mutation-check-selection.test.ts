@@ -144,3 +144,11 @@ describe('lineRangesFor', () => {
     expect(rangesOf('util/other.ts', true)).toBe('all');
   });
 });
+
+describe('isProductionSource in the JavaScript directory', () => {
+  it('accepts a .js rule file and refuses a file with no extension or another one', () => {
+    expect(isProductionSource('eslint-rules/no-thing.js')).toBe(true);
+    expect(isProductionSource('eslint-rules/README')).toBe(false);
+    expect(isProductionSource('eslint-rules/no-thing.json')).toBe(false);
+  });
+});

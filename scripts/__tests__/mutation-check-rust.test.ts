@@ -1,6 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { execFileSync } from 'child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
 import {
@@ -10,6 +19,7 @@ import {
   parseRustLedger,
   installFailure,
   rustDiff,
+  runRustMutation,
   rustFailures,
   rustSourcePaths,
   serializeRustLedger,
@@ -474,5 +484,473 @@ describe('rustDiff', () => {
     const diff = rustDiff({ repositoryRoot: repository, base: start });
     expect(diff).toContain('+++ b/src/a.rs');
     expect(diff).toContain('+++ b/src/b.rs');
+  });
+});
+
+describe('mutation-check-rust parsing and wording', () => {
+  it('lists mutants of one line in column order whatever order cargo gave them', () => {
+    const listed = parseListedMutants(
+      JSON.stringify([
+        jsonMutant('src/lib.rs', 4, 12, 'replace b with ()'),
+        jsonMutant('src/lib.rs', 4, 5, 'replace a with ()'),
+      ]),
+    );
+
+    expect(listed.map(({ column }) => column)).toEqual([5, 12]);
+  });
+
+  it('finds the listed mutant of an outcome by file, line, column and change together', () => {
+    const listed = parseListedMutants(
+      JSON.stringify([
+        jsonMutant('src/a.rs', 1, 1, 'replace x with ()'),
+        jsonMutant('src/a.rs', 3, 3, 'replace x with ()'),
+        jsonMutant('src/b.rs', 3, 3, 'replace x with ()'),
+        jsonMutant('src/b.rs', 4, 3, 'replace x with ()'),
+        jsonMutant('src/b.rs', 4, 9, 'replace x with ()'),
+        jsonMutant('src/b.rs', 4, 9, 'replace y with ()'),
+      ]),
+    );
+    const outcomeOf = (
+      file: string,
+      line: number,
+      column: number,
+      change: string,
+    ) =>
+      JSON.stringify({
+        outcomes: [
+          {
+            scenario: { Mutant: jsonMutant(file, line, column, change) },
+            summary: 'MissedMutant',
+          },
+        ],
+      });
+
+    expect(
+      parseOutcomes(outcomeOf('src/b.rs', 3, 3, 'replace x with ()'), listed)[0]
+        .occurrence,
+    ).toBe(0);
+    expect(
+      parseOutcomes(outcomeOf('src/b.rs', 4, 3, 'replace x with ()'), listed)[0]
+        .occurrence,
+    ).toBe(1);
+    expect(
+      parseOutcomes(outcomeOf('src/b.rs', 4, 9, 'replace x with ()'), listed)[0]
+        .occurrence,
+    ).toBe(2);
+    expect(
+      parseOutcomes(outcomeOf('src/b.rs', 4, 9, 'replace y with ()'), listed)[0]
+        .occurrence,
+    ).toBe(0);
+  });
+
+  const thrownBy = (run: () => unknown) => {
+    try {
+      run();
+    } catch (error) {
+      return error;
+    }
+    return null;
+  };
+
+  it.each([
+    ['a number', '[1]'],
+    ['a string', '["x"]'],
+    ['null', '[null]'],
+    ['an array', '[[]]'],
+  ])('refuses a ledger entry that is %s, naming its index', (_name, json) => {
+    expect(thrownBy(() => parseRustLedger(json))).toEqual(
+      new Error('Rust ledger entry 0: entry is not an object'),
+    );
+  });
+
+  it('names the field of an entry that is not a ledger field', () => {
+    expect(thrownBy(() => parseRustLedger('[{"extra": 1}]'))).toEqual(
+      new Error('Rust ledger entry 0: extra is not a ledger field'),
+    );
+  });
+
+  it('sorts the serialized entries by file, then change, then occurrence', () => {
+    const text = serializeRustLedger([
+      entry({ file: 'src/z.rs' }),
+      entry({ file: 'src/a.rs', mutant: 'replace b with ()' }),
+      entry({ file: 'src/a.rs', mutant: 'replace a with ()', occurrence: 1 }),
+      entry({ file: 'src/a.rs', mutant: 'replace a with ()', occurrence: 0 }),
+    ]);
+
+    expect(
+      (JSON.parse(text) as RustLedgerEntry[]).map(
+        ({ file, mutant, occurrence }) => `${file} ${mutant} ${occurrence}`,
+      ),
+    ).toEqual([
+      'src/a.rs replace a with () 0',
+      'src/a.rs replace a with () 1',
+      'src/a.rs replace b with () 0',
+      'src/z.rs replace run with () 0',
+    ]);
+  });
+
+  it('leaves a caught mutant with no entry out of the unmatched ones', () => {
+    const result = matchRustMutants({
+      ledger: [],
+      listed: [mutant()],
+      outcomes: [outcome('caught')],
+    });
+
+    expect(result.unmatched).toEqual([]);
+  });
+
+  it('words the three failure messages exactly, with the occurrence only when it is above 0', () => {
+    const failures = rustFailures({
+      status: 2,
+      match: {
+        unmatched: [
+          outcome('missed', { line: 12, column: 3 }),
+          outcome('missed', { line: 14, column: 3, occurrence: 2 }),
+        ],
+        stale: [
+          entry({ occurrence: 1 }),
+          entry({ mutant: 'replace old with ()' }),
+        ],
+        missing: [
+          entry({ mutant: 'replace removed with ()' }),
+          entry({ file: 'src/other.rs', mutant: 'replace gone with ()' }),
+        ],
+      },
+    });
+
+    expect(failures).toEqual([
+      '2 Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  app/src-tauri/src/lib.rs:12:3  replace run with ()\n  app/src-tauri/src/lib.rs:14:3  replace run with () (occurrence 2)',
+      '2 entr(y/ies) in scripts/mutation-accepted-rust.json accept a mutant that no longer survives; a test now kills it or the code changed, so remove each:\n  app/src-tauri/src/lib.rs  replace run with () (occurrence 1)\n  app/src-tauri/src/lib.rs  replace old with ()',
+      '2 entr(y/ies) in scripts/mutation-accepted-rust.json name a mutant that no longer exists; remove each, and re-run with --accept "<reason>" if the code still has the mutant under another change:\n  app/src-tauri/src/lib.rs  replace removed with ()\n  app/src-tauri/src/other.rs  replace gone with ()',
+    ]);
+  });
+
+  it('fails an exit status that is no key of the known failures without a meaning, and with no match to judge for it', () => {
+    expect(rustFailures({ status: 99, match: null })).toEqual([
+      'cargo mutants exited with 99.',
+    ]);
+    expect(rustFailures({ status: 2, match: null })).toEqual([]);
+  });
+});
+
+describe('rustDiff failure and assembly', () => {
+  let repository: string;
+  const git = (...args: string[]) =>
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=test',
+        '-c',
+        'user.email=test@example.com',
+        '-c',
+        'commit.gpgsign=false',
+        ...args,
+      ],
+      { cwd: repository, encoding: 'utf8' },
+    );
+  const write = (file: string, lines: string[]) => {
+    mkdirSync(path.dirname(path.join(repository, file)), { recursive: true });
+    writeFileSync(path.join(repository, file), `${lines.join('\n')}\n`);
+  };
+
+  beforeEach(() => {
+    repository = mkdtempSync(path.join(tmpdir(), 'mutation-check-rust-'));
+    git('init', '--quiet');
+    write('app/src-tauri/src/a.rs', ['one', 'two']);
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'base');
+  });
+
+  afterEach(() => {
+    rmSync(repository, { recursive: true, force: true });
+  });
+
+  it('throws the git command and its message for a base that does not exist', () => {
+    expect(() =>
+      rustDiff({ repositoryRoot: repository, base: 'no-such-ref' }),
+    ).toThrow(
+      /^git diff -M --relative --unified=0 --no-color --no-ext-diff --diff-filter=d no-such-ref -- src failed: fatal: [\s\S]*$/,
+    );
+  });
+
+  it('reads a diff of more than a few hundred bytes whole', () => {
+    const manyLines = Array.from(
+      { length: 200 },
+      (_, index) => `fn item_${index}() {}`,
+    );
+    write('app/src-tauri/src/a.rs', manyLines);
+
+    const diff = rustDiff({
+      repositoryRoot: repository,
+      base: git('rev-parse', 'HEAD').trim(),
+    });
+
+    expect(diff.length).toBeGreaterThan(3000);
+    expect(diff).toContain('+fn item_199() {}');
+  });
+
+  it('joins the changes of tracked and untracked files with nothing between them', () => {
+    write('app/src-tauri/src/a.rs', ['one', 'changed']);
+    write('app/src-tauri/src/new.rs', ['fn one() {}']);
+
+    const diff = rustDiff({
+      repositoryRoot: repository,
+      base: git('rev-parse', 'HEAD').trim(),
+    });
+
+    for (const line of diff.split('\n')) {
+      expect(line).toMatch(
+        /^(diff --git |index |--- |\+\+\+ |@@ |\+|-|new file mode|$)/,
+      );
+    }
+    expect(diff).toContain('+++ b/src/a.rs');
+    expect(diff).toContain('+++ b/src/new.rs');
+  });
+});
+
+describe('runRustMutation with a stand-in cargo', () => {
+  let repository: string;
+  let toolDirectory: string;
+  let rustRoot: string;
+  const LISTED = JSON.stringify([
+    jsonMutant('src/lib.rs', 10, 5, 'replace run with ()'),
+    jsonMutant('src/lib.rs', 20, 3, 'replace stop with ()'),
+  ]);
+  const outcomesJson = (...summaries: [string, string][]) =>
+    JSON.stringify({
+      outcomes: [
+        { scenario: 'Baseline', summary: 'Success' },
+        ...summaries.map(([change, summary]) => ({
+          scenario: {
+            Mutant: change.includes('run')
+              ? jsonMutant('src/lib.rs', 10, 5, change)
+              : jsonMutant('src/lib.rs', 20, 3, change),
+          },
+          summary,
+        })),
+      ],
+    });
+  const log = () =>
+    readFileSync(path.join(toolDirectory, 'cargo.log'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => line.replace(`${realpathSync(rustRoot)}|`, 'ROOT|'));
+
+  const standIn = [
+    '#!/bin/sh',
+    'printf "%s|%s\\n" "$PWD" "$*" >> "$FAKE_LOG"',
+    'case "$2" in',
+    '  --version) exit "${FAKE_VERSION_STATUS:-0}" ;;',
+    '  --list) cat "$FAKE_LIST_FILE"; exit 0 ;;',
+    'esac',
+    'if [ "$2" = "--in-diff" ]; then cp "$3" "$FAKE_DIFF_COPY"; printf "%s" "$3" > "$FAKE_DIFF_PATH"; fi',
+    'if [ -n "$FAKE_OUTCOMES_FILE" ]; then mkdir -p mutants.out; cp "$FAKE_OUTCOMES_FILE" mutants.out/outcomes.json; fi',
+    'exit "${FAKE_RUN_STATUS:-0}"',
+    '',
+  ].join('\n');
+
+  beforeEach(() => {
+    repository = mkdtempSync(path.join(tmpdir(), 'mutation-check-rust-test-'));
+    rustRoot = path.join(repository, 'app', 'src-tauri');
+    mkdirSync(path.join(rustRoot, 'src'), { recursive: true });
+    writeFileSync(path.join(rustRoot, 'src', 'lib.rs'), 'fn run() {}\n');
+    toolDirectory = mkdtempSync(path.join(tmpdir(), 'fake-cargo-'));
+    writeFileSync(path.join(toolDirectory, 'cargo'), standIn);
+    chmodSync(path.join(toolDirectory, 'cargo'), 0o755);
+    writeFileSync(path.join(toolDirectory, 'list.json'), LISTED);
+    vi.stubEnv('PATH', `${toolDirectory}:${process.env.PATH ?? ''}`);
+    vi.stubEnv('FAKE_LOG', path.join(toolDirectory, 'cargo.log'));
+    vi.stubEnv('FAKE_LIST_FILE', path.join(toolDirectory, 'list.json'));
+    vi.stubEnv('FAKE_DIFF_COPY', path.join(toolDirectory, 'diff.copy'));
+    vi.stubEnv('FAKE_DIFF_PATH', path.join(toolDirectory, 'diff.path'));
+    vi.stubEnv('FAKE_OUTCOMES_FILE', '');
+    vi.stubEnv('FAKE_RUN_STATUS', '0');
+    vi.stubEnv('FAKE_VERSION_STATUS', '0');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    rmSync(repository, { recursive: true, force: true });
+    rmSync(toolDirectory, { recursive: true, force: true });
+  });
+
+  const withOutcomes = (json: string, status = 2) => {
+    writeFileSync(path.join(toolDirectory, 'outcomes.json'), json);
+    vi.stubEnv('FAKE_OUTCOMES_FILE', path.join(toolDirectory, 'outcomes.json'));
+    vi.stubEnv('FAKE_RUN_STATUS', String(status));
+  };
+
+  const run = (
+    overrides: Partial<Parameters<typeof runRustMutation>[0]> = {},
+  ) =>
+    runRustMutation({
+      repositoryRoot: repository,
+      base: null,
+      ledger: [],
+      acceptReason: null,
+      ...overrides,
+    });
+
+  it('stops with the install message, running nothing else, when cargo-mutants does not run', () => {
+    vi.stubEnv('FAKE_VERSION_STATUS', '1');
+
+    const result = run();
+
+    expect(result.failures).toEqual([
+      'cargo-mutants is not installed, and the mutation check of app/src-tauri/src/ needs it; install it with `cargo install --locked cargo-mutants`.',
+    ]);
+    expect(result.newEntries).toEqual([]);
+    expect(log()).toEqual(['ROOT|mutants --version']);
+  });
+
+  it('lists the mutants, then runs every one of them from app/src-tauri when there is no base', () => {
+    run();
+
+    expect(log()).toEqual([
+      'ROOT|mutants --version',
+      'ROOT|mutants --list --json',
+      'ROOT|mutants',
+    ]);
+  });
+
+  it('fails the missed mutants that have no entry, and passes them with one', () => {
+    withOutcomes(
+      outcomesJson(
+        ['replace run with ()', 'MissedMutant'],
+        ['replace stop with ()', 'CaughtMutant'],
+      ),
+    );
+
+    const missed = run();
+    expect(missed.failures).toHaveLength(1);
+    expect(missed.failures[0]).toMatch(/^1 Rust mutant\(s\) were missed/);
+    expect(missed.failures[0]).toContain(
+      'src/lib.rs:10:5  replace run with ()',
+    );
+    expect(missed.newEntries).toEqual([]);
+
+    const accepted = run({
+      ledger: [
+        {
+          file: 'src/lib.rs',
+          mutant: 'replace run with ()',
+          occurrence: 0,
+          reason: 'no test starts run',
+        },
+      ],
+    });
+    expect(accepted.failures).toEqual([]);
+  });
+
+  it('writes an entry with the reason for each missed mutant without one and fails none of them when asked to accept', () => {
+    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']));
+
+    const result = run({ acceptReason: 'no test starts run' });
+
+    expect(result.failures).toEqual([]);
+    expect(result.newEntries).toEqual([
+      {
+        file: 'src/lib.rs',
+        mutant: 'replace run with ()',
+        occurrence: 0,
+        reason: 'no test starts run',
+      },
+    ]);
+  });
+
+  it('reports an entry as stale when its mutant was caught and as missing when its mutant is not listed', () => {
+    withOutcomes(outcomesJson(['replace run with ()', 'CaughtMutant']));
+
+    const result = run({
+      ledger: [
+        {
+          file: 'src/lib.rs',
+          mutant: 'replace run with ()',
+          occurrence: 0,
+          reason: 'r',
+        },
+        {
+          file: 'src/lib.rs',
+          mutant: 'replace gone with ()',
+          occurrence: 0,
+          reason: 'r',
+        },
+      ],
+    });
+
+    expect(result.failures).toHaveLength(2);
+    expect(result.failures[0]).toMatch(
+      /accept a mutant that no longer survives/,
+    );
+    expect(result.failures[1]).toMatch(/name a mutant that no longer exists/);
+  });
+
+  it.each([
+    [0, 'Caught'],
+    [2, 'Missed'],
+  ])('reads the outcomes after exit status %s', (status) => {
+    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']), status);
+
+    expect(run().failures).toHaveLength(1);
+  });
+
+  it('fails an exit status other than 0 and 2 on its own and reads no outcomes for it', () => {
+    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']), 3);
+
+    expect(run().failures).toEqual([
+      'cargo mutants exited with 3: a mutant timed out.',
+    ]);
+  });
+
+  it('writes no entry for a run that ended with another exit status than 0 and 2', () => {
+    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']), 3);
+
+    expect(run({ acceptReason: 'no test starts run' }).newEntries).toEqual([]);
+  });
+
+  it('passes a clean run that left no outcomes file', () => {
+    expect(run().failures).toEqual([]);
+  });
+
+  it('runs only the diff against the base from a scratch folder that it removes afterwards', () => {
+    execFileSync('git', ['init', '--quiet'], { cwd: repository });
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=t',
+        '-c',
+        'user.email=t@e.x',
+        '-c',
+        'commit.gpgsign=false',
+        'commit',
+        '--quiet',
+        '--allow-empty',
+        '-m',
+        'base',
+      ],
+      { cwd: repository },
+    );
+    const baseRef = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: repository,
+      encoding: 'utf8',
+    }).trim();
+
+    run({ base: baseRef });
+
+    const diffPath = readFileSync(
+      path.join(toolDirectory, 'diff.path'),
+      'utf8',
+    );
+    expect(log().at(-1)).toBe(`ROOT|mutants --in-diff ${diffPath}`);
+    expect(path.basename(diffPath)).toBe('changes.diff');
+    expect(path.basename(path.dirname(diffPath))).toMatch(
+      /^mutation-check-rust-/,
+    );
+    expect(
+      readFileSync(path.join(toolDirectory, 'diff.copy'), 'utf8'),
+    ).toContain('+++ b/src/lib.rs');
+    expect(existsSync(path.dirname(diffPath))).toBe(false);
   });
 });
