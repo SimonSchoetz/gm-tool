@@ -109,4 +109,20 @@ mod tests {
         assert!(prepare_in(dir.path(), ".hidden", "1").is_err());
         assert_eq!(dir.file_names(), [".hidden.bak-1.partial"]);
     }
+
+    #[test]
+    fn fails_when_an_unfinished_backup_cannot_be_removed_for_a_reason_other_than_being_absent() {
+        let dir = TestDir::new("prepare-unremovable");
+        fs::write(dir.path().join("gm_tool.db"), b"database").unwrap();
+        // A directory where the staging file belongs: remove_file fails on it, and not with NotFound.
+        fs::create_dir(staging_path(dir.path(), "gm_tool.db", "1789743068849")).unwrap();
+
+        let result = prepare_in(dir.path(), "gm_tool.db", "1789743068849");
+
+        assert!(
+            result
+                .unwrap_err()
+                .starts_with("Failed to remove an unfinished backup: ")
+        );
+    }
 }

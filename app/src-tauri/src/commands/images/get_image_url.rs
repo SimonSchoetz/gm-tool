@@ -1,6 +1,6 @@
-use tauri::Manager;
+use std::path::Path;
 
-use super::{VALID_EXTENSIONS, is_valid_image_id};
+use super::{app_data_dir, image_path};
 
 /// Gets a URL for an image that can be used in frontend <img> tags.
 ///
@@ -18,24 +18,11 @@ pub async fn get_image_url(
     id: String,
     extension: String,
 ) -> Result<String, String> {
-    if !is_valid_image_id(&id) {
-        return Err(format!("Invalid image id: {id}"));
-    }
+    url_in(&app_data_dir(&app_handle)?, &id, &extension)
+}
 
-    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
-        return Err(format!("Invalid file extension: {extension}"));
-    }
-
-    // Get app data directory
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-
-    // Construct image path
-    let image_path = app_data_dir
-        .join("images")
-        .join(format!("{}.{}", id, extension));
+fn url_in(app_data_dir: &Path, id: &str, extension: &str) -> Result<String, String> {
+    let image_path = image_path(app_data_dir, id, extension)?;
 
     // Check if file exists
     if !image_path.exists() {
@@ -44,4 +31,49 @@ pub async fn get_image_url(
 
     // Returns the raw path rather than a URL: the frontend passes it through convertFileSrc, which is what produces the asset-protocol URL an <img> tag can load.
     Ok(image_path.to_string_lossy().to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::IMAGES_DIR;
+    use super::*;
+    use crate::commands::database_backup::test_dir::TestDir;
+    use std::fs;
+
+    #[test]
+    fn returns_the_path_of_the_stored_file() {
+        let dir = TestDir::new("images-url");
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.webp"), b"x").unwrap();
+
+        assert_eq!(
+            url_in(dir.path(), "abc", "webp"),
+            Ok(images.join("abc.webp").to_string_lossy().to_string())
+        );
+    }
+
+    #[test]
+    fn names_the_file_when_it_is_not_stored() {
+        let dir = TestDir::new("images-url-missing");
+
+        assert_eq!(
+            url_in(dir.path(), "abc", "png"),
+            Err("Image file not found: abc.png".to_string())
+        );
+    }
+
+    #[test]
+    fn rejects_an_invalid_id_or_extension_with_the_error_naming_it() {
+        let dir = TestDir::new("images-url-invalid");
+
+        assert_eq!(
+            url_in(dir.path(), "a/b", "png"),
+            Err("Invalid image id: a/b".to_string())
+        );
+        assert_eq!(
+            url_in(dir.path(), "abc", "bmp"),
+            Err("Invalid file extension: bmp".to_string())
+        );
+    }
 }
