@@ -393,7 +393,10 @@ const argumentAt = (checker, idOf, site, slot) => {
   const property = objectArgument.properties.find(
     (candidate) =>
       candidate.name !== undefined &&
-      (ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)) &&
+      // TypeScript keeps a numeric literal's text in the canonical form JavaScript keys the property by: `1.0` and `0x1` both read `1`.
+      (ts.isIdentifier(candidate.name) ||
+        ts.isStringLiteral(candidate.name) ||
+        ts.isNumericLiteral(candidate.name)) &&
       candidate.name.text === slot.name,
   );
   if (!property) {

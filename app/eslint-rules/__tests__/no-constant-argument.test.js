@@ -893,14 +893,20 @@ describe('rule', () => {
     );
   });
 
-  it('reads an object argument property written as a number as a property of no name, so a slot keyed by the same text reads as omitted', () => {
-    // JavaScript names the property `1` either way; this pins what the rule does today for the numeric form.
+  it('reads an object argument property written as a number as the property its canonical string names', () => {
     expect(
       findingsIn({
         '/p/f.ts': [
           "const numbered = ({ '1': one }: { '1': number }) => one; numbered({ 1: 5 }); numbered({ 1: 6 });",
+          "const fractional = ({ '1': one }: { '1': number }) => one; fractional({ 1.0: 5 }); fractional({ 0x1: 5 });",
+          "const padded = ({ '01': one }: { '01'?: number }) => one; padded({ 1: 5 } as { '01'?: number }); padded({ 1: 6 } as { '01'?: number });",
+          "const big = ({ '1n': one }: { '1n'?: number }) => one; big({ 1n: 5 } as { '1n'?: number }); big({ 1n: 6 } as { '1n'?: number });",
         ].join('\n'),
       }),
-    ).toEqual(["/p/f.ts:alwaysOmitted:numbered.1 '1': one"]);
+    ).toEqual([
+      "/p/f.ts:alwaysSame:fractional.1 '1': one",
+      "/p/f.ts:alwaysOmitted:padded.01 '01': one",
+      "/p/f.ts:alwaysOmitted:big.1n '1n': one",
+    ]);
   });
 });
