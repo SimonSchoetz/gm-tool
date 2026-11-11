@@ -852,7 +852,7 @@
     "lineText": "if (symbol) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the TypeScript checker may resolve no symbol for a declaration name; registering a candidate under an undefined key leaves it unreachable, since the reference visit looks candidates up only by a defined symbol, so it gets no call site and no finding; removing the test would not type-check without an assertion"
+    "reason": "stays: the TypeScript checker may resolve no symbol for a declaration name, and registering a candidate under an undefined key leaves it unreachable, since the reference visit looks candidates up only by a defined symbol; removing the test would not type-check without an assertion"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -1644,7 +1644,7 @@
     "lineText": "const aOrder = typeof a.pinned_order === 'number' ? a.pinned_order : 0;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an item is pinned only when its pinned_order is a number (isItemPinned), so the fallback of 0 is never taken"
+    "reason": "stays: the item type's pinned_order is unknown, so the typeof test narrows it to number for the comparison"
   },
   {
     "file": "src/components/SortableList/helper/partitionPinnedItems.ts",
@@ -1653,7 +1653,7 @@
     "lineText": "const bOrder = typeof b.pinned_order === 'number' ? b.pinned_order : 0;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "an item is pinned only when its pinned_order is a number (isItemPinned), so the fallback of 0 is never taken"
+    "reason": "stays: the item type's pinned_order is unknown, so the typeof test narrows it to number for the comparison"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
@@ -2031,7 +2031,7 @@
     "lineText": "if ((state.root?.children?.length ?? 0) === 0) return null;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the TypeError of the missing property is thrown inside the try block, whose catch returns null as well"
+    "reason": "stays: the text is stored editor content parsed from JSON, so its shape may not match the declared type at run time"
   },
   {
     "file": "src/components/TextEditor/helper/parseSafeEditorState.ts",
@@ -2040,7 +2040,7 @@
     "lineText": "if ((state.root?.children?.length ?? 0) === 0) return null;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the TypeError of the missing property is thrown inside the try block, whose catch returns null as well"
+    "reason": "stays: the text is stored editor content parsed from JSON, so its shape may not match the declared type at run time"
   },
   {
     "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/getDragOverTargetElement.ts",
