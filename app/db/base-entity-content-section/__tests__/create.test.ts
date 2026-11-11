@@ -84,3 +84,13 @@ describe('create', () => {
     expect(await readSections()).toEqual([]);
   });
 });
+
+describe('create input guards', () => {
+  it('rejects a blank id, naming Base entity in its message', async () => {
+    const { create } = await import('../create');
+
+    await expect(
+      create({ base_entity_id: '', type: 'text', sort_order: 0 }),
+    ).rejects.toThrow(/^Valid Base entity ID is required$/);
+  });
+});

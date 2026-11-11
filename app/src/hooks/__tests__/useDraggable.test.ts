@@ -66,4 +66,30 @@ describe('useDraggable', () => {
     });
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it('captures the pointer of the press on the element that was pressed', () => {
+    const setPointerCapture = vi.fn();
+    const { result } = renderHook(() => useDraggable({ x: 0, y: 0 }));
+
+    act(() => {
+      result.current.draggableProps.onPointerDown(
+        makePointerEvent(0, 0, { setPointerCapture }),
+      );
+    });
+
+    expect(setPointerCapture).toHaveBeenCalledWith(1);
+  });
+
+  it('ends a drag without a change handler without failing', () => {
+    const { result } = renderHook(() => useDraggable({ x: 0, y: 0 }));
+    act(() => {
+      result.current.draggableProps.onPointerDown(makePointerEvent(0, 0));
+    });
+
+    expect(() => {
+      act(() => {
+        result.current.draggableProps.onPointerUp(makePointerEvent(0, 0));
+      });
+    }).not.toThrow();
+  });
 });

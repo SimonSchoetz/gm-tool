@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 // @ts-check
-import { RuleTester } from 'eslint';
+import { Linter, RuleTester } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, expect, it } from 'vitest';
 import rule, {
@@ -225,6 +225,10 @@ describe('itemCallbackOf', () => {
     ['a filter callback', 'xs.filter((x) => <A a={1} />)'],
     ['a bare function', '(() => <A a={1} />)'],
     ['a function that is the callee of a call', '(() => <A a={1} />)()'],
+    [
+      'a call of a private method named map',
+      'class { #map() {} render() { return this.#map((x) => <A a={1} />); } }',
+    ],
     ['no function', '<A a={1} />'],
   ])('returns null inside %s', (_name, code) => {
     expect(callbackFor(code)).toBeNull();
@@ -295,6 +299,16 @@ describe('readsVariableDeclaredInside', () => {
 
   it('is false when the expression reads only variables declared outside the callback', () => {
     expect(verdictFor('xs.map((item) => <A a={() => f(outside)} />)')).toBe(
+      false,
+    );
+  });
+
+  it('is true for a read of a callback parameter written without parentheses', () => {
+    expect(verdictFor('xs.map(item => <A a={() => f(item.id)} />)')).toBe(true);
+  });
+
+  it('is false when the only variable read is the own parameter of an arrow function written without parentheses', () => {
+    expect(verdictFor('xs.map((item) => <A a={event => f(event)} />)')).toBe(
       false,
     );
   });
@@ -391,4 +405,58 @@ ruleTester.run('no-inline-jsx-values', rule, {
       'handler',
     ],
   ]),
+});
+
+describe('report messages', () => {
+  /** @param {string} code */
+  const messagesFor = (code) =>
+    new Linter()
+      .verify(
+        code,
+        [
+          {
+            files: ['**/*.tsx'],
+            languageOptions: {
+              parser: tseslint.parser,
+              parserOptions: { ecmaFeatures: { jsx: true } },
+            },
+            plugins: { local: { rules: { 'no-inline-jsx-values': rule } } },
+            rules: { 'local/no-inline-jsx-values': 'error' },
+          },
+        ],
+        { filename: 'probe.tsx' },
+      )
+      .map(({ line, column, message }) => [line, column, message]);
+
+  it('words a report of an inline function and of a derived value, each at its attribute', () => {
+    expect(
+      messagesFor('const a = <A onClick={() => go()} label={format(x)} />;'),
+    ).toEqual([
+      [
+        1,
+        14,
+        'Declare this inline function as a named const above the return and pass it by name (.claude/rules/src-components.md — Component Internals).',
+      ],
+      [
+        1,
+        35,
+        'Declare this derived value as a named const above the return and pass it by name (.claude/rules/src-components.md — Component Internals).',
+      ],
+    ]);
+  });
+
+  it('accepts no option', () => {
+    expect(() =>
+      new Linter().verify('', [
+        {
+          plugins: { local: { rules: { 'no-inline-jsx-values': rule } } },
+          rules: { 'local/no-inline-jsx-values': ['error', {}] },
+        },
+      ]),
+    ).toThrow(
+      new Error(
+        'Key "rules": Key "local/no-inline-jsx-values":\n\tValue [{}] should NOT have more than 0 items.\n',
+      ),
+    );
+  });
 });

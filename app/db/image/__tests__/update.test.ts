@@ -44,3 +44,13 @@ describe('update', () => {
     });
   });
 });
+
+describe('update input guards', () => {
+  it('rejects a blank id, naming image in its message', async () => {
+    const { update } = await import('../update');
+
+    await expect(
+      update('', { frame_x: 0, frame_y: 0, frame_zoom: 1 }),
+    ).rejects.toThrow(/^Valid image ID is required$/);
+  });
+});

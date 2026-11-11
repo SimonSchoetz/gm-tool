@@ -43,3 +43,39 @@ describe('getPositionOnPath', () => {
     });
   });
 });
+
+describe('getPositionOnPath on other shapes', () => {
+  it('finds a point on a path of exactly two points', () => {
+    const twoPoints = [
+      { x: 0, y: 0 },
+      { x: 0, y: 40 },
+    ];
+
+    expect(
+      getPositionOnPath(twoPoints, getCumulativeLengths(twoPoints), 10),
+    ).toEqual({ x: 0, y: 10 });
+  });
+
+  it('moves up along a segment that goes from a larger y to a smaller one', () => {
+    const rising = [
+      { x: 0, y: 100 },
+      { x: 0, y: 0 },
+    ];
+
+    expect(getPositionOnPath(rising, getCumulativeLengths(rising), 25)).toEqual(
+      { x: 0, y: 75 },
+    );
+  });
+
+  it('moves along a segment that starts below the origin', () => {
+    const offset = [
+      { x: 0, y: 0 },
+      { x: 0, y: 60 },
+      { x: 60, y: 60 },
+    ];
+
+    expect(getPositionOnPath(offset, getCumulativeLengths(offset), 90)).toEqual(
+      { x: 30, y: 60 },
+    );
+  });
+});

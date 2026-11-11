@@ -27,3 +27,21 @@ describe('update', () => {
     expect(await get(DEVICE_ID)).toMatchObject({ name: null });
   });
 });
+
+describe('update input guards', () => {
+  it('rejects a blank id, naming paired device in its message', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('', { name: 'x' })).rejects.toThrow(
+      /^Valid paired device ID is required$/,
+    );
+  });
+
+  it('rejects an update that carries no field', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('device-1', {})).rejects.toThrow(
+      /^At least one field must be provided for update$/,
+    );
+  });
+});

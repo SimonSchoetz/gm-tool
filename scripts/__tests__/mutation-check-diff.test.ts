@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { execFileSync } from 'child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
@@ -7,6 +7,13 @@ import {
   changedLinesAgainst,
   parseChangedLines,
 } from '../mutation-check-diff.ts';
+import { unsetGitEnvironment } from './support/isolated-git.ts';
+
+// A hook-run test inherits the hook's GIT_* variables, which would point the scratch repositories' git commands at the real repository (./support/isolated-git.ts).
+beforeEach(unsetGitEnvironment);
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe('parseChangedLines', () => {
   it('maps each hunk to its new-side lines and skips removal-only hunks', () => {
@@ -157,5 +164,48 @@ describe('changedLinesAgainst', () => {
     expect(
       changedLinesAgainst({ cwd: repository, base: 'main', paths: ['app'] }),
     ).toEqual(new Map());
+  });
+});
+
+describe('parseChangedLines headers and hunks', () => {
+  it('reads no path from a +++ line that no diff --git header precedes', () => {
+    expect(parseChangedLines('+++ b/orphan.ts\n@@ -1 +1 @@\n+x').size).toBe(0);
+  });
+
+  it('reads a path only from the start of a header line', () => {
+    const diff = [
+      'diff --git a/a.ts b/a.ts',
+      'index 1..2 100644',
+      '--- a/a.ts',
+      'prefix +++ b/evil.ts',
+      '+++ b/a.ts',
+      '@@ -1 +1 @@',
+      '+x',
+    ].join('\n');
+
+    expect([...parseChangedLines(diff).keys()]).toEqual(['a.ts']);
+  });
+
+  it('ignores a hunk header written inside an added line', () => {
+    const diff = [
+      'diff --git a/a.ts b/a.ts',
+      '+++ b/a.ts',
+      '@@ -1 +1 @@',
+      '+see @@ -1 +9,4 @@ in the docs',
+    ].join('\n');
+
+    expect(parseChangedLines(diff).get('a.ts')).toEqual([{ start: 1, end: 1 }]);
+  });
+
+  it('reads a hunk of ten or more lines whole', () => {
+    const diff = [
+      'diff --git a/a.ts b/a.ts',
+      '+++ b/a.ts',
+      '@@ -1,12 +5,12 @@',
+    ].join('\n');
+
+    expect(parseChangedLines(diff).get('a.ts')).toEqual([
+      { start: 5, end: 16 },
+    ]);
   });
 });

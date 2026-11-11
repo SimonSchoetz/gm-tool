@@ -70,6 +70,15 @@ describe('update', () => {
     expect(await readSection(id)).toMatchObject({ checked: 0, content: null });
   });
 
+  it('renames a stat block section without validating content it was not given', async () => {
+    const { update } = await import('../update');
+    const id = await createSection('basic-stat-block');
+
+    await update(id, { name: 'Renamed' });
+
+    expect(await readSection(id)).toMatchObject({ name: 'Renamed' });
+  });
+
   it('writes valid stat block content to a basic stat block row', async () => {
     const { update } = await import('../update');
     const id = await createSection('basic-stat-block');
@@ -124,5 +133,23 @@ describe('update', () => {
     await expect(
       update('no-such-section', { content: 'not json' }),
     ).resolves.toBeUndefined();
+  });
+});
+
+describe('update input guards', () => {
+  it('rejects a blank id, naming Base entity content section in its message', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('', { name: 'x' })).rejects.toThrow(
+      /^Valid Base entity content section ID is required$/,
+    );
+  });
+
+  it('rejects an update that carries no field', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('section-1', {})).rejects.toThrow(
+      /^At least one field must be provided for update$/,
+    );
   });
 });

@@ -2,6 +2,9 @@
 // One `git diff` over every given path, with rename detection forced on (`-M`) so it holds whatever `diff.renames` is set to: a file moved with `git mv` is diffed against its old path, so it contributes only the lines changed after the move rather than counting as new as a whole. A diff limited to the new path alone would see no rename source and report every line as added.
 import { execFileSync } from 'child_process';
 
+// The largest output of a command a script of mutation-check reads, such as the diff of a whole branch or the list of every mutant; Node's `execFileSync` and `spawnSync` allow far less by default.
+export const MAX_COMMAND_OUTPUT_BYTES = 256 * 1024 * 1024;
+
 type LineRange = { start: number; end: number };
 
 // Each file the diff names on its new side (deleted files are filtered out), mapped to its added or changed lines as inclusive intervals; an empty list for a file with lines removed only, or moved without a change.
@@ -64,6 +67,6 @@ export const changedLinesAgainst = ({
         '--',
         ...paths,
       ],
-      { cwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 },
+      { cwd, encoding: 'utf8', maxBuffer: MAX_COMMAND_OUTPUT_BYTES },
     ),
   );

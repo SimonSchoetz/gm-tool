@@ -66,4 +66,20 @@ describe('getSelectionLinkUrl', () => {
     const result = editor.getEditorState().read(getSelectionLinkUrl);
     expect(result).toBe('https://parent.com');
   });
+
+  it('an element selection that covers only the link node returns its URL', () => {
+    const editor = createEditor({ nodes: [LinkNode] });
+    editor.update(
+      () => {
+        const paragraph = $createParagraphNode();
+        const linkNode = $createLinkNode('https://example.com/only');
+        paragraph.append($createTextNode('before'), linkNode);
+        $getRoot().append(paragraph);
+        paragraph.select(1, 2);
+      },
+      { discrete: true },
+    );
+    const result = editor.getEditorState().read(getSelectionLinkUrl);
+    expect(result).toBe('https://example.com/only');
+  });
 });

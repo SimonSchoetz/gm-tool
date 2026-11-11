@@ -68,4 +68,15 @@ describe('getSelectionRangeRect', () => {
     );
     expect(getSelectionRangeRect(makeEditor(rootElement))).toBe(rect);
   });
+
+  it('returns null for a selection with no ranges even when its anchor is inside the editor', () => {
+    const root = document.createElement('div');
+    const anchorNode = document.createElement('span');
+    root.append(anchorNode);
+    vi.spyOn(window, 'getSelection').mockReturnValue(
+      makeSelection(0, anchorNode, makeRect()),
+    );
+
+    expect(getSelectionRangeRect(makeEditor(root))).toBe(null);
+  });
 });

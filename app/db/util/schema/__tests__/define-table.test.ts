@@ -57,3 +57,31 @@ describe('defineTable', () => {
     expect(table.updateSchema.safeParse({ level: 2 }).success).toBe(false);
   });
 });
+
+describe('defineTable createTableSQL', () => {
+  const child = defineTable({
+    name: 'child_table',
+    columns: {
+      id: { type: 'TEXT', primaryKey: true, zod: z.string() },
+      parent_id: {
+        type: 'TEXT',
+        notNull: true,
+        zod: z.string(),
+        foreignKey: { table: 'parents', column: 'id', onDelete: 'CASCADE' },
+      },
+      other_id: {
+        type: 'TEXT',
+        zod: z.string(),
+        foreignKey: { table: 'others', column: 'key' },
+      },
+      status: { type: 'TEXT', default: "'open'", zod: z.string() },
+      note: { type: 'TEXT', zod: z.string() },
+    },
+  });
+
+  it('lists the columns in order, each with only the constraints it declares, then the foreign keys', () => {
+    expect(child.createTableSQL.replace(/\s+/g, ' ').trim()).toBe(
+      "CREATE TABLE IF NOT EXISTS child_table ( id TEXT PRIMARY KEY, parent_id TEXT NOT NULL, other_id TEXT, status TEXT DEFAULT 'open', note TEXT, FOREIGN KEY (parent_id) REFERENCES parents(id) ON DELETE CASCADE, FOREIGN KEY (other_id) REFERENCES others(key) )",
+    );
+  });
+});

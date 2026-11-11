@@ -184,6 +184,21 @@ mod tests {
     }
 
     #[test]
+    fn no_connection_is_preferred_between_equal_ids() {
+        let id = test_endpoint_id(1);
+        assert!(!is_preferred_direction(
+            ConnectionRole::Dialer,
+            Some(id),
+            id
+        ));
+        assert!(!is_preferred_direction(
+            ConnectionRole::Acceptor,
+            Some(id),
+            id
+        ));
+    }
+
+    #[test]
     fn no_connection_is_preferred_without_an_own_id() {
         let remote = test_endpoint_id(1);
         assert!(!is_preferred_direction(

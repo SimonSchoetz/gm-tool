@@ -6,24 +6,23 @@ type TypographicInput = {
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-// Gives a controlled text input the typographic rule table's behavior. Spread the returned `inputRef` onto the input as its `ref` and wire `handleChange` as its `onChange`; `onValueChange` receives the substituted value when a rule fired and the raw value otherwise.
+// Gives a controlled text input the typographic rule table's behavior. Pass the input's current controlled `value`, spread the returned `inputRef` onto the input as its `ref` and wire `handleChange` as its `onChange`; `onValueChange` receives the substituted value when a rule fired and the raw value otherwise. Each keystroke is judged against `value`, so text the field held before the first keystroke, or adopted from outside, counts as what was there before it.
 export const useTypographicInput = (
+  value: string,
   onValueChange: (value: string) => void,
 ): TypographicInput => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const previousValueRef = useRef('');
   const pendingCaretRef = useRef<number | null>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value;
     const substitution = applyTypographicRuleAtCaret(
       rawValue,
-      previousValueRef.current,
+      value,
       event.target.selectionStart,
     );
     const nextValue = substitution ? substitution.value : rawValue;
 
-    previousValueRef.current = nextValue;
     if (substitution) pendingCaretRef.current = substitution.caret;
 
     onValueChange(nextValue);

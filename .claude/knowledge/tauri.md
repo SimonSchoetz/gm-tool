@@ -196,3 +196,10 @@ None of the five modules touches `window.__TAURI_INTERNALS__` while it loads, so
 **Citation:** [code-reviewer_5: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-opener-2.7.0/permissions/default.toml — `opener:default` is `allow-open-url`, `allow-reveal-item-in-dir` and `allow-default-urls`; permissions/allow-default-urls.toml — scope `mailto:*`, `tel:*`, `http://*`, `https://*`; app/src-tauri/capabilities/default.json:10 — the app grants `"opener:default"`]
 
 With only the default permission granted, `openUrl` from `@tauri-apps/plugin-opener` opens URLs of those four schemes and refuses any other, so a second implementation of the same operation matches it by allowing exactly that set.
+
+## A `#[tauri::command]` whose parameter is `tauri::AppHandle` takes the `Wry` runtime's handle, which `tauri::test::mock_app()` cannot produce
+
+**Verified at:** tauri 2.12.0
+**Citation:** [implement_1: `~/.cargo/registry/src/*/tauri-2.12.0/src/app.rs:385-387` — `#[default_runtime(crate::Wry, wry)] pub struct AppHandle<R: Runtime>`; `~/.cargo/registry/src/*/tauri-2.12.0/src/test/mod.rs:185` — `pub fn mock_app() -> App<MockRuntime>`, behind the `test = []` feature of `Cargo.toml:123`]
+
+A command declared with `tauri::AppHandle` therefore cannot be called with the handle of a mock app, whose type is `AppHandle<MockRuntime>`; only a command generic over `R: Runtime` could.

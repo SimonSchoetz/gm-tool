@@ -72,3 +72,11 @@ A controlled `<input type='number'>` bound to `''` while it shows unconvertible 
 **Citation:** [spec-writer_5: `app/node_modules/react-dom/cjs/react-dom-client.development.js:21886-21899` — the `contentEditable` case calls `domElement.setAttribute(key, value)` unless `value` is `null`, a function or a symbol, and `removeAttribute(key)` otherwise]; [spec-writer_6: `app/node_modules/@lexical/react/dist/LexicalContentEditable.dev.js:122` — `contentEditable: isEditable` among the props `ContentEditable` renders]
 
 A selector `[contenteditable="true"]` therefore matches an editable Lexical root, and an editor rendered with `readOnly` carries `contenteditable="false"`.
+
+## An Effect Event from `useEffectEvent` can be called from a `useEffect` cleanup at unmount, and `eslint-plugin-react-hooks` accepts it without listing it as a dependency
+
+**Verified at:** react 19.3.0, eslint-plugin-react-hooks 7.1.1
+
+**Citation:** [fix_1: ran `npx vitest run src/components/TextEditor` in `app/` — observed `MentionBadge`'s `[]`-dependency effect cleanup calling an Effect Event that calls `hidePopup(entityId)` closed the hover popup when the badge unmounted; ran `npx eslint src/components/TextEditor/components/MentionBadge` in `app/` — observed no finding]
+
+An Effect Event called from an effect's cleanup runs when the component unmounts, and the effect need not list it in its dependency array. This lets an empty-dependency effect's unmount cleanup call a function that is re-created on every render, such as a context value that is not memoized, without the cleanup re-running on each of those renders.

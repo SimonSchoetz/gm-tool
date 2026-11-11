@@ -1,6 +1,6 @@
-use tauri::Manager;
+use std::path::Path;
 
-use super::{VALID_EXTENSIONS, is_valid_image_id};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Checks whether a stored image file exists in the app's data directory.
 ///
@@ -18,22 +18,29 @@ pub async fn check_image_file_exists(
     id: String,
     extension: String,
 ) -> Result<bool, String> {
-    if !is_valid_image_id(&id) {
-        return Err(format!("Invalid image id: {id}"));
+    validate_image_request(&id, &extension)?;
+    exists_in(&app_data_dir(&app_handle)?, &id, &extension)
+}
+
+fn exists_in(app_data_dir: &Path, id: &str, extension: &str) -> Result<bool, String> {
+    Ok(image_path(app_data_dir, id, extension)?.exists())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::IMAGES_DIR;
+    use super::*;
+    use crate::commands::database_backup::test_dir::TestDir;
+    use std::fs;
+
+    #[test]
+    fn reports_whether_the_file_of_the_id_and_extension_is_stored() {
+        let dir = TestDir::new("images-exists");
+        fs::create_dir(dir.path().join(IMAGES_DIR)).unwrap();
+        fs::write(dir.path().join(IMAGES_DIR).join("abc.png"), b"x").unwrap();
+
+        assert_eq!(exists_in(dir.path(), "abc", "png"), Ok(true));
+        assert_eq!(exists_in(dir.path(), "abc", "jpg"), Ok(false));
+        assert_eq!(exists_in(dir.path(), "other", "png"), Ok(false));
     }
-
-    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
-        return Err(format!("Invalid file extension: {}", extension));
-    }
-
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-
-    let image_path = app_data_dir
-        .join("images")
-        .join(format!("{}.{}", id, extension));
-
-    Ok(image_path.exists())
 }

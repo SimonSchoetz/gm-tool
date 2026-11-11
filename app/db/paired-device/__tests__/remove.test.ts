@@ -27,3 +27,13 @@ describe('remove', () => {
     expect((await getAll()).map((device) => device.id)).toEqual([KEPT_DEVICE]);
   });
 });
+
+describe('remove input guards', () => {
+  it('rejects a blank id, naming paired device in its message', async () => {
+    const { remove } = await import('../remove');
+
+    await expect(remove('')).rejects.toThrow(
+      /^Valid paired device ID is required$/,
+    );
+  });
+});

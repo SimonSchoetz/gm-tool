@@ -108,3 +108,20 @@ describe('duplicateBySession', () => {
     expect(await readSteps(sourceSessionId)).toEqual(before);
   });
 });
+
+describe('duplicateBySession input guards', () => {
+  it('rejects a blank id for the source, naming Session in its message', async () => {
+    const { duplicateBySession } = await import('../duplicate-by-session');
+
+    await expect(duplicateBySession('', 'target-1')).rejects.toThrow(
+      /^Valid Session ID is required$/,
+    );
+  });
+  it('rejects a blank id for the target, naming Session in its message', async () => {
+    const { duplicateBySession } = await import('../duplicate-by-session');
+
+    await expect(duplicateBySession('source-1', '')).rejects.toThrow(
+      /^Valid Session ID is required$/,
+    );
+  });
+});

@@ -51,3 +51,13 @@ describe('getAllByBaseEntity', () => {
     ]);
   });
 });
+
+describe('getAllByBaseEntity input guards', () => {
+  it('rejects a blank id, naming Base entity in its message', async () => {
+    const { getAllByBaseEntity } = await import('../get-all-by-base-entity');
+
+    await expect(getAllByBaseEntity('')).rejects.toThrow(
+      /^Valid Base entity ID is required$/,
+    );
+  });
+});

@@ -50,3 +50,11 @@ describe('get', () => {
     expect(await get('missing-session')).toBeNull();
   });
 });
+
+describe('get input guards', () => {
+  it('rejects a blank id, naming session in its message', async () => {
+    const { get } = await import('../get');
+
+    await expect(get('')).rejects.toThrow(/^Valid session ID is required$/);
+  });
+});

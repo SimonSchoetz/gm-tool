@@ -22,9 +22,15 @@ describe('formatDateValue', () => {
     expect(formatDateValue({})).toBe('');
   });
 
-  it('returns a formatted en-US date-time string for a valid date string', () => {
-    const result = formatDateValue('2024-03-15T10:30:00');
-    expect(result).toContain('2024');
-    expect(result).toMatch(/[A-Za-z]+ \d{1,2}, \d{4} \d{1,2}:\d{2} (AM|PM)/);
+  it('returns the en-US long date and 12-hour time for a valid date string', () => {
+    expect(formatDateValue('2024-03-15T10:30:00')).toBe(
+      'March 15, 2024 10:30 AM',
+    );
+  });
+
+  it('formats a string that is no date as the text "Invalid Date Invalid Date", not as the stored string', () => {
+    expect(formatDateValue('no proper date string')).toBe(
+      'Invalid Date Invalid Date',
+    );
   });
 });

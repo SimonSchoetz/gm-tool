@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useTypographicInput } from '../useTypographicInput';
@@ -7,9 +8,17 @@ const typed = (value: string, caret: number) =>
     target: { value, selectionStart: caret },
   }) as React.ChangeEvent<HTMLInputElement>;
 
-const renderTypographicInput = () => {
+// Holds the field's value in state the way every call site does, so each keystroke is judged against the value the field holds; `setValue` stands in for a change from outside the field, such as a synced edit.
+const renderTypographicInput = (initialValue = '') => {
   const onValueChange = vi.fn();
-  const rendered = renderHook(() => useTypographicInput(onValueChange));
+  const rendered = renderHook(() => {
+    const [value, setValue] = useState(initialValue);
+    const typographicInput = useTypographicInput(value, (nextValue) => {
+      setValue(nextValue);
+      onValueChange(nextValue);
+    });
+    return { ...typographicInput, setValue };
+  });
   return { ...rendered, onValueChange };
 };
 
@@ -84,5 +93,29 @@ describe('useTypographicInput', () => {
     rerender();
 
     expect(setSelectionRange).not.toHaveBeenCalled();
+  });
+
+  it('substitutes at the first keystroke into a field that already held text', () => {
+    const { result, onValueChange } =
+      renderTypographicInput('abcdefghijklmnop-');
+
+    act(() => {
+      result.current.handleChange(typed('abcdefghijklmnop->', 18));
+    });
+
+    expect(onValueChange).toHaveBeenCalledWith('abcdefghijklmnop→');
+  });
+
+  it('substitutes at the first keystroke after the value changed from outside the field', () => {
+    const { result, onValueChange } = renderTypographicInput();
+    act(() => {
+      result.current.setValue('a-');
+    });
+
+    act(() => {
+      result.current.handleChange(typed('a--', 3));
+    });
+
+    expect(onValueChange).toHaveBeenCalledWith('a—');
   });
 });

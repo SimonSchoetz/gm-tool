@@ -1,0 +1,146 @@
+[
+  {
+    "file": "src/commands/database_backup/finish_database_backup.rs",
+    "mutant": "replace finish_database_backup -> Result<(), String> with Ok(())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls finish_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/database_backup/mod.rs",
+    "mutant": "replace database_dir -> Result<PathBuf, String> with Ok(Default::default())",
+    "occurrence": 0,
+    "reason": "the function reads a directory from the path resolver of the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes); the tests hand the directory to the _in functions that use it"
+  },
+  {
+    "file": "src/commands/database_backup/prepare_database_backup.rs",
+    "mutant": "replace prepare_database_backup -> Result<Option<String>, String> with Ok(None)",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls prepare_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/database_backup/prepare_database_backup.rs",
+    "mutant": "replace prepare_database_backup -> Result<Option<String>, String> with Ok(Some(\"xyzzy\".into()))",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls prepare_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/database_backup/prepare_database_backup.rs",
+    "mutant": "replace prepare_database_backup -> Result<Option<String>, String> with Ok(Some(String::new()))",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls prepare_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/database_backup/prune_database_backups.rs",
+    "mutant": "replace prune_database_backups -> Result<(), String> with Ok(())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls prune_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/check_image_file_exists.rs",
+    "mutant": "replace check_image_file_exists -> Result<bool, String> with Ok(false)",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls exists_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/check_image_file_exists.rs",
+    "mutant": "replace check_image_file_exists -> Result<bool, String> with Ok(true)",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls exists_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/delete_image.rs",
+    "mutant": "replace delete_image -> Result<(), String> with Ok(())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls delete_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/get_image_url.rs",
+    "mutant": "replace get_image_url -> Result<String, String> with Ok(\"xyzzy\".into())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls url_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/get_image_url.rs",
+    "mutant": "replace get_image_url -> Result<String, String> with Ok(String::new())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls url_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/mod.rs",
+    "mutant": "replace app_data_dir -> Result<PathBuf, String> with Ok(Default::default())",
+    "occurrence": 0,
+    "reason": "the function reads a directory from the path resolver of the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes); the tests hand the directory to the _in functions that use it"
+  },
+  {
+    "file": "src/commands/images/read_image_bytes.rs",
+    "mutant": "replace read_image_bytes -> Result<String, String> with Ok(\"xyzzy\".into())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls read_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/read_image_bytes.rs",
+    "mutant": "replace read_image_bytes -> Result<String, String> with Ok(String::new())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls read_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/save_image.rs",
+    "mutant": "replace save_image -> Result<u64, String> with Ok(0)",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls save_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/save_image.rs",
+    "mutant": "replace save_image -> Result<u64, String> with Ok(1)",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls save_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/images/save_image_bytes.rs",
+    "mutant": "replace save_image_bytes -> Result<(), String> with Ok(())",
+    "occurrence": 0,
+    "reason": "the command only takes the directory from the AppHandle and calls save_bytes_in, whose logic the tests cover; the AppHandle the command takes is the Wry runtime's, and the mock runtime of tauri::test makes a handle of another type, so no test can pass one to the command"
+  },
+  {
+    "file": "src/commands/updater/check_update.rs",
+    "mutant": "replace check_update -> Result<Option<String>, String> with Ok(None)",
+    "occurrence": 0,
+    "reason": "the command asks the Tauri updater plugin through the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes), and the plugin needs a release server"
+  },
+  {
+    "file": "src/commands/updater/check_update.rs",
+    "mutant": "replace check_update -> Result<Option<String>, String> with Ok(Some(\"xyzzy\".into()))",
+    "occurrence": 0,
+    "reason": "the command asks the Tauri updater plugin through the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes), and the plugin needs a release server"
+  },
+  {
+    "file": "src/commands/updater/check_update.rs",
+    "mutant": "replace check_update -> Result<Option<String>, String> with Ok(Some(String::new()))",
+    "occurrence": 0,
+    "reason": "the command asks the Tauri updater plugin through the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes), and the plugin needs a release server"
+  },
+  {
+    "file": "src/commands/updater/download_update.rs",
+    "mutant": "replace download_update -> Result<(), String> with Ok(())",
+    "occurrence": 0,
+    "reason": "the command asks the Tauri updater plugin through the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes), and the plugin needs a release server"
+  },
+  {
+    "file": "src/commands/updater/install_and_relaunch.rs",
+    "mutant": "replace install_and_relaunch -> Result<(), String> with Ok(())",
+    "occurrence": 0,
+    "reason": "the command asks the Tauri updater plugin through the AppHandle, of the Wry runtime (the mock runtime of tauri::test makes a handle of another type, so no test can build the one the command takes), and the plugin needs a release server"
+  },
+  {
+    "file": "src/lib.rs",
+    "mutant": "replace run with ()",
+    "occurrence": 0,
+    "reason": "run starts the Tauri event loop, which blocks until the window closes and which no test starts"
+  },
+  {
+    "file": "src/main.rs",
+    "mutant": "replace main with ()",
+    "occurrence": 0,
+    "reason": "main only calls run, which starts the Tauri event loop that no test starts"
+  }
+]

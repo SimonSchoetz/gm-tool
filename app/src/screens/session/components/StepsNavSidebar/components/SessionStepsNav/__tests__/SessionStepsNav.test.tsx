@@ -16,11 +16,15 @@ const getStepsBySessionId = vi.hoisted(() =>
   vi.fn<typeof stepService.getStepsBySessionId>(),
 );
 const updateStep = vi.hoisted(() => vi.fn<typeof stepService.updateStep>());
+const createCustomStep = vi.hoisted(() =>
+  vi.fn<typeof stepService.createCustomStep>(),
+);
 
 vi.mock('@services/sessionService', () => ({ getSessionById }));
 vi.mock('@services/sessionStepService', () => ({
   getStepsBySessionId,
   updateStep,
+  createCustomStep,
 }));
 
 const SESSION_ID = 'session-1';
@@ -96,6 +100,7 @@ describe('SessionStepsNav', () => {
     queryClient.clear();
     scrollIntoView.mockReset();
     updateStep.mockReset().mockResolvedValue();
+    createCustomStep.mockReset().mockResolvedValue('new-step');
   });
 
   afterEach(() => {
@@ -142,5 +147,58 @@ describe('SessionStepsNav', () => {
 
     expect(updateStep).not.toHaveBeenCalled();
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
+  });
+
+  it('scrolls the clicked step to the top of the page, smoothly', async () => {
+    await clickStepInNav(
+      Promise.resolve(buildSession('ingame')),
+      buildStep({ collapsed: 0 }),
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  });
+
+  it('does nothing when the section of the clicked step is not on the page', async () => {
+    const user = userEvent.setup();
+    getSessionById.mockReturnValue(Promise.resolve(buildSession('ingame')));
+    getStepsBySessionId.mockResolvedValue([buildStep({ collapsed: 0 })]);
+    render(<SessionStepsNav />, { wrapper: TanstackQueryClientProvider });
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Strong Start' }),
+    );
+    await act(() => vi.runOnlyPendingTimersAsync());
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    expect(updateStep).not.toHaveBeenCalled();
+  });
+
+  it('offers an Add step button in the prep view that adds a step to the session', async () => {
+    const user = userEvent.setup();
+    getSessionById.mockReturnValue(Promise.resolve(buildSession('prep')));
+    getStepsBySessionId.mockResolvedValue([buildStep({})]);
+    render(<SessionStepsNav />, { wrapper: TanstackQueryClientProvider });
+
+    await user.click(await screen.findByRole('button', { name: 'Add step' }));
+    await act(() => vi.runOnlyPendingTimersAsync());
+
+    expect(createCustomStep).toHaveBeenCalledWith(SESSION_ID, undefined);
+  });
+
+  it.each([
+    ['the in-game view', Promise.resolve(buildSession('ingame'))],
+    ['a session that has not loaded', new Promise<Session>(() => undefined)],
+  ])('offers no Add step button in %s', async (_name, session) => {
+    getSessionById.mockReturnValue(session);
+    getStepsBySessionId.mockResolvedValue([buildStep({})]);
+    render(<SessionStepsNav />, { wrapper: TanstackQueryClientProvider });
+
+    await screen.findByRole('button', { name: 'Strong Start' });
+    await act(() => vi.runOnlyPendingTimersAsync());
+
+    expect(screen.queryByRole('button', { name: 'Add step' })).toBeNull();
   });
 });

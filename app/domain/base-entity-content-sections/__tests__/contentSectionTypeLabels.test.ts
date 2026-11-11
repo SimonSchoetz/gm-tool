@@ -16,3 +16,11 @@ describe('contentSectionLabel', () => {
     expect(contentSectionLabel(null, '5e-stat-block')).toBe('5e Stat Block');
   });
 });
+
+describe('contentSectionLabel for a basic stat block', () => {
+  it('falls back to the basic stat block type label for a missing name', () => {
+    expect(contentSectionLabel(null, 'basic-stat-block')).toBe(
+      'Basic Stat Block',
+    );
+  });
+});

@@ -128,3 +128,17 @@ The configuration schema names no option that turns the comments off, so the com
 **Citation:** [implementer_3: ran `node scripts/mutation-check.ts` on `util/getDateString.ts:5-6` with the line `month: 'long' as const,` under a `Stryker disable next-line StringLiteral` comment — observed `Instrumented 1 source file(s) with 0 mutant(s)` in both the real run and the run with the comment switched off, where `month: 'long', // changed` yielded the `StringLiteral → ""` mutant]
 
 Whether the same holds for a literal in another position under `as const` was not established.
+
+## A Stryker run can mutate a file outside the folder its tests run in, but only a `node_modules` symlink at the Stryker working directory itself reaches the sandbox
+
+**Verified at:** `@stryker-mutator/core` 10.0.0, pnpm 12.4.2 — 2026-11-11
+**Citation:** [implement_1: ran `stryker run --mutate scripts/mutation-check-test-row.ts` in a scratch folder holding copies `app/` and `scripts/` as siblings, a command runner that ran `npx vitest related ../scripts/<file>` in `app/`, and a symlink `app/node_modules` — observed `Found 1 of 2636 file(s) to be mutated` and an initial test run that failed with `Cannot find package 'vitest'`; after adding a symlink `node_modules` at the scratch root beside `app/`, observed `Initial test run succeeded` and 11 of 14 mutants `Killed`]
+
+The sandbox copy keeps the layout of the working directory; a `node_modules` symlink nested under `app/` was not carried over, so a test run in `app/` found no `vitest`.
+
+## `stryker run --timeoutMS <number>` overrides the absolute per-mutant test timeout for that run
+
+**Verified at:** @stryker-mutator/core 10.0.0
+**Citation:** [implement_1: `app/node_modules/@stryker-mutator/core/dist/src/stryker-cli.js:127`]
+
+The CLI parses the value with `parseInt` and describes the option as the absolute timeout used to wait for a test runner to complete.

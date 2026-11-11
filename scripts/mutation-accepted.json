@@ -1,5 +1,419 @@
 [
   {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "Regex",
+    "replacement": "/(?<![-\\w.#])(?:#[0-9a-f]{3,8}\\b|rgba?\\([^()]*\\)|\\d*\\.?\\d(?:px|rem)\\b)/gi",
+    "lineText": "/(?<![-\\w.#])(?:#[0-9a-f]{3,8}\\b|rgba?\\([^()]*\\)|\\d*\\.?\\d+(?:px|rem)\\b)/gi;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a length that follows a dot is matched whole from its first digit, so a dot among the characters that must not precede a match changes no result"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "Regex",
+    "replacement": "/^(\\d*\\.?\\d)(px|rem)$/i",
+    "lineText": "const LENGTH = /^(\\d*\\.?\\d+)(px|rem)$/i;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "backtracking lets the single digit after the optional dot take the last digit of a longer number, so the pattern accepts the same texts"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "MethodExpression",
+    "replacement": "value",
+    "lineText": "const trimmed = value.trim();",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "every caller of canonicalKey passes text that is already trimmed: a stored definition, a raw value with no surrounding space, or the trimmed z-index value"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "offset + 1",
+    "lineText": "offset - text.lastIndexOf('\\n', offset - 1);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a raw value is three or more characters of digits, letters, # or parentheses, so no newline sits at its first character or the next, which is all the later start of the search can reach"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (inner === null) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a null inner result makes the replaced text the word null, which no canonical key reads, so the value is left out of the index either way"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "MethodExpression",
+    "replacement": "value",
+    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[]",
+    "lineText": "new Set([name]),",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the set only stops a self-reference: starting empty, the first expansion adds the name before the cycle repeats, so the result is null either way"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "TOKEN_FAMILIES.zIndex.property.test(property) || INTEGER.test(trimmed)",
+    "lineText": "if (TOKEN_FAMILIES.zIndex.property.test(property) && INTEGER.test(trimmed)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a non-integer z-index value gives raw values whose keys no z-index token holds, and an integer in another family finds no token of that family, so the hits are the same"
+  },
+  {
+    "file": "../scripts/css-token-check-find.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "const tokens = key === null ? [] : tokensEqualTo(property, key, index);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a null key looks up an index key no entry holds, so the tokens are empty either way"
+  },
+  {
+    "file": "../scripts/mutation-check-diff.ts",
+    "mutator": "Regex",
+    "replacement": "/^(?:rename to |\\+\\+\\+ b\\/)(.+)/",
+    "lineText": "? /^(?:rename to |\\+\\+\\+ b\\/)(.+)$/.exec(line)?.[1]",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the greedy group takes the rest of the line, so the end anchor changes no match"
+  },
+  {
+    "file": "../scripts/mutation-check-diff.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (hunk === null || currentFile === null) continue;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "with no file named yet, the push below reaches the ranges of no file and does nothing, so the guard changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-diff.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "changedLines.get(currentFile).push",
+    "lineText": "changedLines",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the guard above leaves only a current file that changedLines already holds, so the optional chain is never needed"
+  },
+  {
+    "file": "../scripts/mutation-check-ledger.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (typeof fieldValue !== 'number' || !Number.isInteger(fieldValue))",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "Number.isInteger is false for every value that is no number, so the typeof test changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-ledger.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "lineText": "unconsumed.get(keyOf(entryFor(mutant, sourceLines, ''))) ?? [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the key reads the entry's file, mutator, replacement, line text and occurrence, never its reason"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "typeof occurrence !== 'number' ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "Number.isInteger is false for every value that is no number, so the typeof test changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "`cargo mutants exited with ${status ?? 'a signal'}${status !== null && status in FAILURE_EXIT_CODES ? `: ${FAILURE_EXIT_CODES[status]}` : ''}.`,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "null is no key of the exit-code table, so the null test in front of the lookup changes no message"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "encoding: 'utf8',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "without an encoding the call returns a Buffer, which JSON.parse reads through its string form"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "stdio: 'inherit',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the stdio setting only decides whether the cargo-mutants progress is shown, which no test reads"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "? parseOutcomes(readFileSync(outcomesFile, 'utf8'), listed)",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "without an encoding the read returns a Buffer, which JSON.parse reads through its string form"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ": [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an outcome entry that is no object has no status, file or change, so it matches and names nothing"
+  },
+  {
+    "file": "../scripts/mutation-check-rust.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "rmSync(scratch, { recursive: true, force: true });",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the scratch folder exists when it is removed, so forcing the removal changes no result"
+  },
+  {
+    "file": "../scripts/mutation-check-test-row.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "const runShown: RunCommand = (command, args, cwd) =>",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "runShown starts the real `npx vitest run` of the whole app, which no test of the row's decision can start; the tests inject a runner instead"
+  },
+  {
+    "file": "../scripts/mutation-check-test-row.ts",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "spawnSync(command, args, { cwd, stdio: 'inherit' }).status;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "runShown starts the real `npx vitest run` of the whole app, which no test of the row's decision can start; the tests inject a runner instead"
+  },
+  {
+    "file": "../scripts/mutation-check-test-row.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "spawnSync(command, args, { cwd, stdio: 'inherit' }).status;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "runShown starts the real `npx vitest run` of the whole app, which no test of the row's decision can start; the tests inject a runner instead"
+  },
+  {
+    "file": "db/_sync/apply-delete.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (recordedDeletedAt !== null && recordedDeletedAt >= deletedAt) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "comparing null with a deletion time is false in JavaScript, so the null test in front of the comparison changes no result"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "MethodExpression",
+    "replacement": "columns",
+    "lineText": "const updateSet = columns",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "the update list then also sets id to excluded.id, which on a conflict on id writes the value the row already holds, so the filter changes no row"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": ".filter((column) => column !== 'id')",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the update list then also sets id to excluded.id, which on a conflict on id writes the value the row already holds, so the filter changes no row"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": ".filter((column) => column !== 'id')",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the update list then also sets id to excluded.id, which on a conflict on id writes the value the row already holds, so the filter changes no row"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (typeof tableName !== 'string' || !isEntityType(tableName))",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a value that is no string is no entity type either, so the second test already skips it"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "} catch {",
+    "occurrence": 1,
+    "lines": 3,
+    "reason": "after a failed delete the upsert that follows meets the unique index on table_config.table_name held by the config that was not deleted and is skipped there, so the result is 'skipped' either way"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "typeof updatedAt !== 'string' ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a non-string updated_at fails the column's schema check a few lines below and is skipped there, so the type test changes no result"
+  },
+  {
+    "file": "db/_sync/apply-upsert.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (recordedDeletedAt !== null && recordedDeletedAt > updatedAt) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "comparing null with a deletion time is false in JavaScript, so the null test in front of the comparison changes no result"
+  },
+  {
+    "file": "db/base-entity-content-section/duplicate-by-base-entity.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (sourceSections.length === 0) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the loop over an empty list does nothing, and getting the database handle first has no effect, so returning early changes no result"
+  },
+  {
+    "file": "db/image/create.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "filePath.split('.').pop().toLowerCase",
+    "lineText": "const extension = filePath.split('.').pop()?.toLowerCase() ?? null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "split always returns at least one element, so pop never returns undefined and the optional chain is never needed"
+  },
+  {
+    "file": "db/image/update.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "assertHasUpdateFields(data);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the input type requires all three frame fields, each a number or null, and a null counts as a given field, so no typed call reaches the check without one"
+  },
+  {
+    "file": "db/pinned-order.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "rows[0].max_order",
+    "lineText": "return rows[0]?.max_order ?? null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an aggregate query returns exactly one row, so the optional chain is never needed"
+  },
+  {
+    "file": "db/pinned-order.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "rows[0].max_order",
+    "lineText": "return rows[0]?.max_order ?? null;",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "an aggregate query returns exactly one row, so the optional chain is never needed"
+  },
+  {
+    "file": "db/session-step/duplicate-by-session.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (sourceSteps.length === 0) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the loop over an empty list does nothing, and getting the database handle first has no effect, so returning early changes no result"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ".flatMap(({ name }) => (typeof name === 'string' ? [name] : []));",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "SQLite returns the name column of pragma_table_info as text, so the branch for a value that is no string, which only narrows the type, never runs"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": ".flatMap(({ name }) => (typeof name === 'string' ? [name] : []));",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "SQLite returns the name column of pragma_table_info as text, so the branch for a value that is no string, which only narrows the type, never runs"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (existsSync(devPath)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "attaching a dev database that does not exist creates an empty file in the target, which the removal loop and the rename below replace, so the target ends the same"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "StringLiteral",
+    "replacement": "``",
+    "lineText": "db.exec(`DETACH DATABASE ${DEV_SCHEMA}`);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the connection is closed in the finally block right after, which detaches every attached database, so the statement changes no state"
+  },
+  {
+    "file": "dev-data-server/devMirror.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "rmSync(staging, { recursive: true, force: true });",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the staging folder exists at this point on every path, since it is created before the try block, so removing it with or without force ends the same"
+  },
+  {
+    "file": "dev-data-server/repositoryJson.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "readFileSync(resolve(import.meta.dirname, relativePath), 'utf8'),",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "JSON.parse reads a Buffer as the text a string read with an encoding gives, so the encoding argument changes no result"
+  },
+  {
     "file": "dev-data-server/requestGuard.ts",
     "mutator": "ConditionalExpression",
     "replacement": "true",
@@ -162,6 +576,15 @@
     "reason": "runMigrations awaits the callback's result, and awaiting undefined continues just as awaiting a resolved promise does"
   },
   {
+    "file": "domain/base-entity-content-sections/basicStatBlockContent.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "export const BASIC_STAT_BLOCK_HP_LABEL = 'HP';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a label constant whose only observable use is the text it holds, so a test could only assert the text it copies from the source"
+  },
+  {
     "file": "domain/base-entity-content-sections/fiveEStatBlockContent.ts",
     "mutator": "BlockStatement",
     "replacement": "{}",
@@ -177,7 +600,7 @@
     "lineText": "} catch {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "without the early return the unparsed value is undefined, which the schema rejects as it does the null the function returns; the comment above the function states the null case"
   },
   {
     "file": "domain/encounters/nonNegativeWholeNumber.ts",
@@ -187,6 +610,969 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "the code comment at this statement states why no test can observe this change"
+  },
+  {
+    "file": "domain/encounters/nonNegativeWholeNumber.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (parsed.value === null) return parsed;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "null >= 0 is true in JavaScript, so the comparison that follows returns the same parsed value"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "} else if (ts.isObjectBindingPattern(name)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an array binding pattern yields slots whose argument is never an object literal, so each reads as unknown and gives no finding either way"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (ts.isFunctionDeclaration(node) && node.name && node.body) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the collector accepts only function and variable declarations, so a node of another kind with a name and a body never reaches this check"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isFunctionDeclaration(node) || node.name",
+    "lineText": "if (ts.isFunctionDeclaration(node) && node.name && node.body) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the collector accepts only function and variable declarations, so a node of another kind with a name and a body never reaches this check"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "ts.isVariableDeclaration(node) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "the parent of a node that is no variable declaration is never a variable declaration list, so the test after it already rejects such a node"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isVariableDeclaration(node) || ts.isVariableDeclarationList(node.parent)",
+    "lineText": "ts.isVariableDeclaration(node) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "the parent of a node that is no variable declaration is never a variable declaration list, so the test after it already rejects such a node"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "? { state: 'unknown' }",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "? { state: 'unknown' }",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "ts.isJsxAttribute(property) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX attribute name is an identifier or a namespaced name, and the text comparison that follows fails for a namespaced one, so the tests ahead of it change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isJsxAttribute(property) || ts.isIdentifier(property.name)",
+    "lineText": "ts.isJsxAttribute(property) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX attribute name is an identifier or a namespaced name, and the text comparison that follows fails for a namespaced one, so the tests ahead of it change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'passed', key: null, text: 'children' };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the text of a passed value is shown only for a finding with a key, and children carry no key, so the text changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "EqualityOperator",
+    "replacement": "firstSpread < slot.index",
+    "lineText": "if (firstSpread !== -1 && firstSpread <= slot.index) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a spread element at the position of the slot reads as a value that ends in no finding, as the unknown state does, so the boundary changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 2,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 2,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(property.name !== undefined &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a spread assignment is tested in front of this and is the only property without a name, so the test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 3,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { state: 'unknown' };",
+    "occurrence": 3,
+    "lines": 1,
+    "reason": "the unknown state is read only as 'neither omitted nor passed', and a state of any other shape also ends in no finding, so changing the literal changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "candidate.name !== undefined &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (ts.isShorthandPropertyAssignment(property)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the property kinds left at this point are shorthand properties, methods and accessors, and the shorthand test only changes the text of a value that gives no finding for a method"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "values.length === 0 && values.some(({ state }) => state === 'unknown')",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "MethodExpression",
+    "replacement": "values.every(({ state }) => state === 'unknown')",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (values.length === 0 || values.some(({ state }) => state === 'unknown')) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "declarations.length > 0 &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checker returns the declarations of a property as undefined or with at least one entry, never as an empty list, so the length test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "EqualityOperator",
+    "replacement": "declarations.length >= 0",
+    "lineText": "declarations.length > 0 &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checker returns the declarations of a property as undefined or with at least one entry, never as an empty list, so the length test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isFunctionDeclaration(parent) && parent.name === name) ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the name of a function declaration is its declaration name, which the collector registers as no reference, so the test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return { kind: 'call', node: holder };",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the kind of a call site is read only as 'jsx' or not, so its text changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder) || holder.tagName === callee",
+    "lineText": "(ts.isJsxOpeningElement(holder) || ts.isJsxSelfClosingElement(holder)) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "holder.tagName === callee",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a JSX element holder whose tag name differs from the callee has the identifier in an attribute or a child, which the holder test already separates, so the tests change no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (known !== undefined) {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "symbols are numbered in the order they are first met, and two sites of one slot that name one constant are never separated by another constant being numbered, so every mutated numbering compares equal"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (known !== undefined) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "symbols are numbered in the order they are first met, and two sites of one slot that name one constant are never separated by another constant being numbered, so every mutated numbering compares equal"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(ts.isFunctionDeclaration(node) || ts.isVariableDeclaration(node)) &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "functionDeclaredBy returns a declaration only for those two kinds, so the test in front of the name check changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "EqualityOperator",
+    "replacement": "slots.length >= 0",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "symbol || slots.length > 0",
+    "lineText": "if (symbol && slots.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function whose parameter list yields no slot has no finding to report, so a candidate with zero slots, or one whose symbol is missing, changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isIdentifier(node) || candidateNames.has(node.text)",
+    "lineText": "ts.isIdentifier(node) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a node whose text is a candidate name and that is no identifier has no symbol of a candidate, so the identifier test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (candidate.escaped || candidate.sites.length === 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a candidate without a call site is skipped before this runs, and a value of the unknown state ends in no finding further down as well, so this guard changes no result"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'suggestion',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-constant-argument.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow a parameter, destructured property or default value that every call site outside test files fills the same way.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": ": []) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a file already loaded is read as no source file, and the loop over the replacement list destructures a string as no specifier and no loadsModule, so it follows nothing either way"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "const relativeResolutionOptions = {",
+    "occurrence": 0,
+    "lines": 6,
+    "reason": "the compile options only change whether an import that names a .ts extension is allowed, and every specifier here resolves to the same file with the defaults"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "allowImportingTsExtensions: true,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "allowImportingTsExtensions only gates the diagnostic for an import that names a .ts extension, and the resolution of the specifier to its file is the same with it off"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "noEmit: true,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "noEmit only matters to compiling a program, and this options object is passed to module resolution alone"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const key = entries.join('\\u0000');",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the entries are absolute paths of existing files, so no two different lists join to the same text even with an empty separator"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-extensionless-node-host-import.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Require the file extension on every relative import of a file that a host without bundler resolution loads: the files the configured entries reach through imports that load a module.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "\"Disallow importing a file behind another folder's index.ts; import that index.ts instead.\",",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-import-past-index.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "const passThroughDirs = options.passThroughDirs ?? [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a default list holding a string that equals no folder skips no folder, like the empty list"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "attribute.name.type === 'JSXIdentifier' &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a namespaced attribute name has an object as its name, which no exempt name equals, so the identifier test ahead of the lookup changes no result"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "OptionalChaining",
+    "replacement": "call.type",
+    "lineText": "if (!FUNCTION_TYPES.has(node.type) || call?.type !== 'CallExpression') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a function node always has a parent, so the optional chain on the parent is never needed"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "const isWithin = (inner, outer) => inner[0] >= outer[0] && inner[1] <= outer[1];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "no declaring identifier ends exactly where the callback or the expression it is compared with ends, so <= and < agree on every input"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "EqualityOperator",
+    "replacement": "inner[1] < outer[1]",
+    "lineText": "const isWithin = (inner, outer) => inner[0] >= outer[0] && inner[1] <= outer[1];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "no declaring identifier ends exactly where the callback or the expression it is compared with ends, so <= and < agree on every input"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "MethodExpression",
+    "replacement": "variable.identifiers.every(identifier => isWithin(identifier.range, callbackRange) && !isWithin(identifier.range, expressionRange))",
+    "lineText": "variable.identifiers.some(",
+    "occurrence": 0,
+    "lines": 5,
+    "reason": "a variable of the scopes the rule reads has one declaring identifier, so some and every agree"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-inline-jsx-values.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow an inline function, call, conditional, object or array, or a template literal embedding one, as a JSX attribute value outside `className` and `style`, except where it reads a `.map()` or `.flatMap()` callback variable.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "return (type.types ?? []).some(",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a union type always has its member list, so the empty default is never read"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(parent.type === 'MemberExpression' && parent.object === carrier) ||",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "only a member expression has an object child that can be a call, so the type test in front of the comparison adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(parent.type === 'LogicalExpression' &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "only a logical expression has the ?? operator, so the type test in front of the operator test adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return parent.init === carrier ? 'stored' : null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the only child of a variable declarator that can be a call is its initializer, so the comparison always holds"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return parent.right === carrier ? 'stored' : null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the only child of an assignment that can be a call is its right side, so the comparison always holds"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return parent.body === carrier ? 'returned' : null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the only child of an arrow function that can be a call is its body, so the comparison always holds"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unnormalized-lookup-result.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow storing, returning or passing a possibly-undefined `.at()`, `.find()`, `.findLast()`, `.pop()`, `.shift()` or `.get()` result without normalising it with `??` first.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "export const EVERY_EXPORT = '*';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the marker is compared only with itself inside this module, and no export is named by an empty string, so its text changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (target === null) {",
+    "occurrence": 1,
+    "lines": 3,
+    "reason": "a re-export of an external module is stored under a null key that no lookup reads, so skipping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (target === null) {",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "a re-export of an external module is stored under a null key that no lookup reads, so skipping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "kind: 'named',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the barrel kind is compared only with 'star' and 'namespace', so the text of the third kind changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (target !== null) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an import() or import type of an external module is stored under a null key that no lookup reads, so storing it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (target !== null) {",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "an import() or import type of an external module is stored under a null key that no lookup reads, so storing it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "LogicalOperator",
+    "replacement": "ts.isElementAccessExpression(parent) || parent.expression === node",
+    "lineText": "ts.isElementAccessExpression(parent) &&",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "an identifier that is not the indexed expression is the index itself, which a string literal condition on the index rules out, so the comparison with the node adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "parent.expression === node &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an identifier that is not the indexed expression is the index itself, which a string literal condition on the index rules out, so the comparison with the node adds nothing"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "default:",
+    "lineText": "default:",
+    "occurrence": 0,
+    "lines": 2,
+    "reason": "a binding pattern holds identifiers, object, array, rest and assignment patterns only, so the default case never runs"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a binding pattern holds identifiers, object, array, rest and assignment patterns only, so the default case never runs"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "OptionalChaining",
+    "replacement": "declaration.id.type",
+    "lineText": "return declaration.id?.type === 'Identifier' ? [declaration.id] : [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "every declaration an export statement can hold has an id, so the optional chain is never needed"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "specifier.local.type === 'Identifier' &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the local name of an export specifier without a source is always an identifier, so the type test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "? (fileName) => fileName",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "this branch runs only on a case-sensitive file system, and the tests run on the case-insensitive one of the machine that runs them, so no input reaches it"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "MethodExpression",
+    "replacement": "fileName.toUpperCase()",
+    "lineText": ": (fileName) => fileName.toLowerCase(),",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the cache key only has to be the same for the same file, and upper case does that as well as lower case does"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "return resolvedModule && !resolvedModule.isExternalLibraryImport",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a module resolved into node_modules is marked used under a path that no export lookup asks for, so keeping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "LogicalOperator",
+    "replacement": "resolvedModule || !resolvedModule.isExternalLibraryImport",
+    "lineText": "return resolvedModule && !resolvedModule.isExternalLibraryImport",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a module resolved into node_modules is marked used under a path that no export lookup asks for, so keeping it or not changes no result"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'problem',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow exporting a symbol that no file in the TypeScript program imports, directly or through a barrel; an import from a test file counts only for an export declared under `__tests__/`.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "scope.childScopes.find((child) => child.type === 'module') ?? scope;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the module scope is the only child scope of the global scope of a file that exports, so the first child is the module scope"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "MethodExpression",
+    "replacement": "moduleScope.set.get(name)?.defs.every(definition => definition.type === 'ImportBinding')",
+    "lineText": "moduleScope.set",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "a name bound at module scope has one definition, so some and every agree"
+  },
+  {
+    "file": "eslint-rules/no-unused-exports.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "exportNode.type === 'ExportDefaultDeclaration'",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the first token of an identifier node is the identifier itself, so reporting at the first token or at the node gives the same range"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'suggestion',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow a single sentence or paragraph manually split across consecutive `//` comment lines — each comment must be one continuous line per the shared Code Style rule.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "EqualityOperator",
+    "replacement": "index <= lineComments.length",
+    "lineText": "while (index < lineComments.length) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra iteration reads no comment, forms a group of one undefined entry that nothing reports, and ends the loop, so the condition changes no result"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (group.length >= 2) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a group of one comment has no non-last line, so the terminated test passes for it and nothing is reported either way"
   },
   {
     "file": "platform/webPlatform.ts",
@@ -207,6 +1593,69 @@
     "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
+    "file": "services/devicesService.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "} catch {",
+    "occurrence": 2,
+    "lines": 4,
+    "reason": "without the early return the unparsed value is undefined, which the schema check right below rejects, so the frame is ignored either way"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "() => null,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the queue only chains the next batch behind this one and the value it resolves to is never read, so null and undefined sequence the batches the same"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "lineText": "() => null,",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "the queue only chains the next batch behind this one and the value it resolves to is never read, so null and undefined sequence the batches the same"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (changes.length === 0) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "with no changes the line that reads the last change's seq throws, the caller's catch swallows that rejection, and no message is sent either way"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "const appliedImageChanges: SyncChange[] = [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra element is a string with no row, and the loop that reads each applied change takes its extension through an optional chain on row, so it skips the element"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "change.row.file_extension",
+    "lineText": "const extension = change.row?.file_extension;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an applied image change always carries its row, since a change without one is skipped before it is applied, so the optional chain is never needed"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "} catch {",
+    "occurrence": 6,
+    "lines": 3,
+    "reason": "the block holds only a comment, so emptying it changes nothing"
+  },
+  {
     "file": "src/components/AnchoredPopup/helper/calculateHorizontalClampOffset.ts",
     "mutator": "EqualityOperator",
     "replacement": "anchorCenterX - halfWidth <= EDGE_PADDING",
@@ -223,6 +1672,96 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "when the popup edge lands exactly on the padded viewport edge, the clamp branch shifts the popup by zero and the fall-through also returns zero, so no input can tell < from <="
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "const startSide = Math.random() < 0.5 ? 'left' : 'right';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the side is compared with 'left' only, so any other text puts the path on the right side"
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "currentRow / squareSize",
+    "lineText": "y: offsetY + currentRow * squareSize,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the first point is in row 0, where adding, subtracting and dividing by the square size all give the offset"
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "offsetY - currentRow * squareSize",
+    "lineText": "y: offsetY + currentRow * squareSize,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the first point is in row 0, where adding, subtracting and dividing by the square size all give the offset"
+  },
+  {
+    "file": "src/components/Backdrop/helper/generateZigzagPath.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (current !== Direction.DOWN) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a direction that is not down is turned down, and a direction that is down stays down, so the test returns down either way"
+  },
+  {
+    "file": "src/components/Backdrop/helper/getPositionOnPath.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "path.length + 1",
+    "lineText": "for (let i = 0; i < path.length - 1; i++) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra iteration reads a segment past the end of the path, where the comparison with an undefined length is false, so it returns nothing and the loop ends"
+  },
+  {
+    "file": "src/components/Backdrop/helper/getPositionOnPath.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "i <= path.length - 1",
+    "lineText": "for (let i = 0; i < path.length - 1; i++) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra iteration reads a segment past the end of the path, where the comparison with an undefined length is false, so it returns nothing and the loop ends"
+  },
+  {
+    "file": "src/components/Backdrop/helper/getPositionOnPath.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "cumulativeLengths[i + 1] > distance",
+    "lineText": "if (cumulativeLengths[i + 1] >= distance) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "at a segment boundary the end of one segment is the start of the next, so both give the same point"
+  },
+  {
+    "file": "src/components/Backdrop/helper/tickBeams.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (pos && prevPos) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a path with fewer than two points has a total length of 0, which ends its beam before this line, so both positions exist here"
+  },
+  {
+    "file": "src/components/Backdrop/helper/tickBeams.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "pos || prevPos",
+    "lineText": "if (pos && prevPos) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a path with fewer than two points has a total length of 0, which ends its beam before this line, so both positions exist here"
+  },
+  {
+    "file": "src/components/Backdrop/helper/tickBeams.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "k <= beam.path.length",
+    "lineText": "for (let k = 1; k < beam.path.length; k++) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a corner read past the end of the path is undefined, and no comparison with undefined holds"
   },
   {
     "file": "src/components/ContentSectionBody/components/FiveEStatBlockSectionBody/components/FiveEStatBlockNumberField/FiveEStatBlockNumberField.tsx",
@@ -288,6 +1827,69 @@
     "reason": "an empty string closes the viewer exactly as 'closed' does, since PopUpContainer opens only for 'open'"
   },
   {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "match.routeId === '__root__' && match.routeId === '/'",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/Header/helper/buildBreadcrumbs.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "if (match.routeId === '__root__' || match.routeId === '/') return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a match for the root or for '/' reaches the switch below, whose default returns the same empty list, so the guard changes no result"
+  },
+  {
+    "file": "src/components/HoloImg/hooks/useTiltFX.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[]",
+    "lineText": "}, [containerRef]);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "containerRef is a ref object that never changes between renders, so the effect runs once either way"
+  },
+  {
     "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
     "mutator": "BooleanLiteral",
     "replacement": "true",
@@ -310,24 +1912,6 @@
     "mutator": "ObjectLiteral",
     "replacement": "{}",
     "lineText": "el.addEventListener('wheel', onWheel, { passive: false });",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
-  },
-  {
-    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
-    "mutator": "BlockStatement",
-    "replacement": "{}",
-    "lineText": "return () => {",
-    "occurrence": 0,
-    "lines": 3,
-    "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
-  },
-  {
-    "file": "src/components/ImageViewerDialog/components/ImagePreviewFramingOverlay/ImagePreviewFramingOverlay.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "el.removeEventListener('wheel', onWheel);",
     "occurrence": 0,
     "lines": 1,
     "reason": "removing the wheel listener on unmount, and its options, change nothing a test can see: its target is detached by then and jsdom's default for the option is the same"
@@ -379,12 +1963,66 @@
   },
   {
     "file": "src/components/MentionPopup/MentionPopup.tsx",
-    "mutator": "LogicalOperator",
-    "replacement": "zIndex && null",
-    "lineText": "zIndex: zIndex ?? null,",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!popupRef.current) return;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "the value reaches only AnchoredPopup's inline z-index through the section menu, which component tests may not assert"
+    "reason": "the popup element is set whenever the layout effect runs, so the guard changes no result"
+  },
+  {
+    "file": "src/components/MentionPopup/MentionPopup.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "className={cn('mention-popup', `mention-popup--${placement}`)}",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/MentionPopup/MentionPopup.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "``",
+    "lineText": "className={cn('mention-popup', `mention-popup--${placement}`)}",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/SortableList/helper/partitionPinnedItems.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "const aOrder = typeof a.pinned_order === 'number' ? a.pinned_order : 0;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item is pinned only when its pinned_order is a number (isItemPinned), so the fallback of 0 is never taken"
+  },
+  {
+    "file": "src/components/SortableList/helper/partitionPinnedItems.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "const bOrder = typeof b.pinned_order === 'number' ? b.pinned_order : 0;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item is pinned only when its pinned_order is a number (isItemPinned), so the fallback of 0 is never taken"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "const isMouseOnBadgeRef = useRef(false);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "rect.top > window.innerHeight / 2 ? 'above' : 'below';",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the placement text only reaches the popup's placement class, and the position it selects is asserted; class names only; jsdom computes no style and component tests may not assert a class name"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
@@ -397,12 +2035,561 @@
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (hideTimerRef.current) {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (hideTimerRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (hideTimerRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the pending hide timer of the badge's leave does nothing while the pointer is on the popup, since it checks the popup flag the same bridge call sets, so clearing it changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "isMouseOnBadgeRef.current",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (!isMouseOnBadgeRef.current) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "lineText": "hidePopup(entityId);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "lineText": "isMouseOnBadgeRef.current = true;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "isMouseOnBadgeRef.current = false;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the bridge's hide that this flag guards repeats the removal MentionPopup's own mouse-leave handler makes for a hover popup, so the flag changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
     "mutator": "CallExpression",
     "replacement": ";",
     "lineText": "clearHoverTimer();",
     "occurrence": 2,
     "lines": 1,
     "reason": "a hover request that fires after the click finds the click-open entry and changes nothing"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "clearTimeout on a null id does nothing, so the guard only skips a call that changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "clearTimeout on a null id does nothing, so the guard only skips a call that changes no result"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "}, []);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the effect has no value to depend on"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'mention-badge',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'mention-badge--deleted',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('bold') || 'mention-badge--bold'",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('italic') || 'mention-badge--italic'",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'mention-badge',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('bold') || 'mention-badge--bold'",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('bold') && 'mention-badge--bold',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "LogicalOperator",
+    "replacement": "format.includes('italic') || 'mention-badge--italic'",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "format.includes('italic') && 'mention-badge--italic',",
+    "occurrence": 1,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/components/TextEditor/helper/parseSafeEditorState.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "state.root?.children.length",
+    "lineText": "if ((state.root?.children?.length ?? 0) === 0) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the TypeError of the missing property is thrown inside the try block, whose catch returns null as well"
+  },
+  {
+    "file": "src/components/TextEditor/helper/parseSafeEditorState.ts",
+    "mutator": "OptionalChaining",
+    "replacement": "state.root.children",
+    "lineText": "if ((state.root?.children?.length ?? 0) === 0) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the TypeError of the missing property is thrown inside the try block, whose catch returns null as well"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/getDragOverTargetElement.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "return editor.read('latest', () => {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "editor.read treats any mode text other than 'force-commit' and 'pending' as 'latest' (.claude/knowledge/lexical.md)"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/resolveHeaderToggleForRemoval.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (selection.isCollapsed()) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a collapsed selection sits inside one node, so either no header toggle is found or the one found contains the start, and the function returns null as well"
+  },
+  {
+    "file": "src/data-access-layer/adventures/useAdventure.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/base-entities/useBaseEntity.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/base-entity-content-sections/useBaseEntityContentSections.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "createMutation.mutateAsync(name !== undefined ? { type, name } : { type });",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a missing name passes as an absent property or as one set to undefined, and the service reads both as no name, so the condition changes no call"
+  },
+  {
+    "file": "src/data-access-layer/createAutosaveQueue.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!entry) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a timer fires only for a key whose entry exists, since a write or a flush that removes the entry also clears its timer, so the entry is always found"
+  },
+  {
+    "file": "src/data-access-layer/devices/useOwnDevice.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "saveQueue.schedule('own-device', name);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the key only names the one pending rename, and any other text names it as well, so its text changes no result"
+  },
+  {
+    "file": "src/data-access-layer/encounters/useEncounter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/sessions/useSession.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!old) return old;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the early return at the top of the update function runs the updater only for an entity that is cached, so the cached value is always set and the guard changes no result"
+  },
+  {
+    "file": "src/data-access-layer/useAutosaveQueue.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[]",
+    "lineText": "}, [saveQueue]);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the queue is created once by useState and never changes, so the dependency list holds one value that never differs and an empty list runs the effect as often"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "MethodExpression",
+    "replacement": "config.searchableColumns",
+    "lineText": "const secondaryColumns = config.searchableColumns.filter(",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "(col) => col !== 'name',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "(col) => col !== 'name',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the secondary columns are searched only after the name was found to match no term, so a name column kept among them matches no term either"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "} else if (name.includes(primaryTerm)) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the branch after it adds the item to the same list when the name contains any term, the first one included, so skipping this branch gives the same list"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "lineText": "if (typeof value !== 'string') return false;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item reaches the field search only when every term matched one of its columns and none matched its name, so a column that is no text never decides the some() result"
+  },
+  {
+    "file": "src/hooks/useListFilter/useListFilter.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (matchesSecondary) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "an item reaches this check only when every term matched one of its columns and none matched its name, so some secondary column always matches"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "typeof aVal === 'string' || typeof bVal === 'string'",
+    "lineText": "if (typeof aVal === 'string' && typeof bVal === 'string') {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a column holds one kind of value, so two compared values are both text or both not, and the pairs one of the two conditions tells apart, a text value against another kind, do not occur"
+  },
+  {
+    "file": "src/hooks/useSortable.ts",
+    "mutator": "ArithmeticOperator",
+    "replacement": "compareFn(a, b) / directionMultiplier",
+    "lineText": "return [...items].sort((a, b) => compareFn(a, b) * directionMultiplier);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the multiplier is 1 or -1, and dividing by either gives the same number as multiplying by it"
+  },
+  {
+    "file": "src/hooks/useTypographicInput/helper/applyTypographicRuleAtCaret.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (caret === null) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a null caret makes the slice below empty, which no rule pattern matches, so the function returns null anyway"
+  },
+  {
+    "file": "src/screens/encounter/components/EncounterActions/EncounterActions.tsx",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "buttonStyle={'danger'}",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/components/EncounterQueueEntry/EncounterQueueEntry.tsx",
@@ -421,6 +2608,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "useSensor(KeyboardSensor, {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "the keyboard coordinate getter moves a dragged entry by the measured positions of the entries, which jsdom does not compute"
   },
   {
     "file": "src/screens/encounter/components/EncounterQueue/EncounterQueue.tsx",
@@ -511,42 +2707,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "EqualityOperator",
-    "replacement": "activeTab !== 'log'",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",
@@ -745,6 +2905,33 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "a content string that is not an editor state parses to no state, exactly as the empty string does (parseSafeEditorState), so the change shows in no text or saved value"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "isChecked: step.checked === 1,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checked state only selects the checked class of the nav item, so no test can observe it without asserting a class name; class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "isChecked: step.checked === 1,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checked state only selects the checked class of the nav item, so no test can observe it without asserting a class name; class names only; jsdom computes no style and component tests may not assert a class name"
+  },
+  {
+    "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",
+    "mutator": "EqualityOperator",
+    "replacement": "step.checked !== 1",
+    "lineText": "isChecked: step.checked === 1,",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the checked state only selects the checked class of the nav item, so no test can observe it without asserting a class name; class names only; jsdom computes no style and component tests may not assert a class name"
   },
   {
     "file": "src/screens/session/components/StepsNavSidebar/components/SessionStepsNav/SessionStepsNav.tsx",

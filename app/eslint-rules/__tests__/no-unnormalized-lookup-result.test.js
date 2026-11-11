@@ -4,12 +4,13 @@
 import ts from 'typescript';
 import tseslint from 'typescript-eslint';
 import { describe, expect, it } from 'vitest';
-import {
+import rule, {
   classifyEscape,
   findValueCarrier,
   lookupMethodOf,
   typeMayBeUndefined,
 } from '../no-unnormalized-lookup-result.js';
+import { lintInMemory } from './support/lintInMemory.js';
 
 /**
  * @typedef {import('../no-unnormalized-lookup-result.js').AstNode} AstNode
@@ -101,6 +102,14 @@ describe('lookupMethodOf', () => {
       ),
     ).toEqual([]);
   });
+
+  it('ignores a call of a private method that is named like a lookup method', () => {
+    expect(
+      lookupCallsIn(
+        'class Store { #get() {} #find() {} read() { this.#get(); this.#find(); } }',
+      ),
+    ).toEqual([]);
+  });
 });
 
 describe('classifyEscape of the value carrier', () => {
@@ -162,6 +171,36 @@ describe('classifyEscape of the value carrier', () => {
     expect(escapesIn('const s = arr.find(f)?.name;')).toEqual(['stored']);
   });
 
+  it('follows the value through a satisfies expression', () => {
+    expect(escapesIn('const s = arr.at(0) satisfies Foo | undefined;')).toEqual(
+      ['stored'],
+    );
+  });
+
+  it('stops at a result that is only a computed key, a callee, the test of a conditional or the right side of || and &&', () => {
+    expect(escapesIn('const v = obj[arr.pop()];')).toEqual([null]);
+    expect(escapesIn('const o = new (arr.pop())();')).toEqual([null]);
+    expect(escapesIn('const t = arr.find(f) ? a : b;')).toEqual([null]);
+    expect(escapesIn('const z = a || arr.find(f);')).toEqual([null]);
+    expect(escapesIn('const y = a && arr.find(f);')).toEqual([null]);
+    expect(escapesIn('const k = { [arr.pop()]: 1 };')).toEqual([null]);
+    expect(escapesIn('class Holder { [arr.pop()] = 1; }')).toEqual([null]);
+  });
+
+  it('reports a result stored in a class field', () => {
+    expect(escapesIn('class Holder { field = arr.pop(); }')).toEqual([
+      'stored',
+    ]);
+  });
+
+  it('returns the node itself, and no escape, for a node without a parent', () => {
+    const lonely = { type: 'CallExpression' };
+
+    expect(findValueCarrier(lonely)).toBe(lonely);
+    expect(classifyEscape(lonely)).toBeNull();
+    expect(classifyEscape({ type: 'CallExpression', parent: null })).toBeNull();
+  });
+
   it('passes a result whose method result is only called for its effect', () => {
     expect(escapesIn('arr.find(f)?.dispose();')).toEqual([null]);
   });
@@ -189,5 +228,122 @@ describe('typeMayBeUndefined', () => {
     expect(
       typeMayBeUndefined(union([ts.TypeFlags.String, ts.TypeFlags.Null])),
     ).toBe(false);
+  });
+});
+
+describe('rule', () => {
+  /** @param {string} code @param {unknown[]} [options] */
+  const lint = (code, options) =>
+    lintInMemory({
+      rule,
+      files: { '/p/a.ts': code },
+      filename: '/p/a.ts',
+      options,
+    }).map(({ line, column, message }) => [line, column, message]);
+
+  /** @param {string} method @param {string} escape */
+  const unnormalized = (method, escape) =>
+    `'.${method}()' may return undefined, but its result is ${escape} as is. Normalise it with '?? null' first, or branch on it directly.`;
+
+  it.each([
+    ['at', 'items.at(0)'],
+    ['find', "items.find((item) => item === 'a')"],
+    ['findLast', "items.findLast((item) => item === 'a')"],
+    ['pop', 'items.pop()'],
+    ['shift', 'items.shift()'],
+  ])(
+    'reports a stored .%s() of an array, at the method name',
+    (method, call) => {
+      expect(
+        lint(
+          `export const run = (items: string[]) => {\n  const found = ${call};\n  return found;\n};\n`,
+        ),
+      ).toEqual([[2, 23, unnormalized(method, 'stored')]]);
+    },
+  );
+
+  it('reports a .get() of a Map, and none of a .get() whose type cannot be undefined', () => {
+    expect(
+      lint(
+        "export const run = (map: Map<string, string>) => {\n  const found = map.get('a');\n  return found;\n};\n",
+      ),
+    ).toEqual([[2, 21, unnormalized('get', 'stored')]]);
+    expect(
+      lint(
+        "type Reader = { get: (key: string) => string };\nexport const run = (reader: Reader) => {\n  const found = reader.get('a');\n  return found;\n};\n",
+      ),
+    ).toEqual([]);
+  });
+
+  it.each([
+    ['stored', 'const found = items.pop();\n  return found;'],
+    ['returned', 'return items.pop();'],
+    ['passed', 'return String(items.pop());'],
+  ])(
+    'words the report with how the result leaves the expression: %s',
+    (escape, body) => {
+      expect(
+        lint(
+          `declare function String(value: unknown): string;\nexport const run = (items: string[]) => {\n  ${body}\n};\n`,
+        ).map(([, , message]) => message),
+      ).toEqual([unnormalized('pop', escape)]);
+    },
+  );
+
+  it('reports nothing for a result normalised with ??, branched on, compared or discarded', () => {
+    expect(
+      lint(
+        'export const run = (items: string[]) => {\n  const a = items.pop() ?? null;\n  if (items.shift()) {\n    return a;\n  }\n  items.pop();\n  return items.at(0) !== undefined;\n};\n',
+      ),
+    ).toEqual([]);
+  });
+
+  it('reports every lookup of a file, each at its own method name', () => {
+    expect(
+      lint(
+        'export const run = (items: string[]) => {\n  const first = items.at(0);\n  const last = items.at(-1);\n  return [first, last];\n};\n',
+      ).map(([line, column]) => [line, column]),
+    ).toEqual([
+      [2, 23],
+      [3, 22],
+    ]);
+  });
+
+  it('reports nothing for a call that is no lookup, whatever it returns', () => {
+    expect(
+      lint(
+        'declare function maybe(): string | undefined;\nexport const run = () => {\n  const value = maybe();\n  return value;\n};\n',
+      ),
+    ).toEqual([]);
+  });
+
+  it('accepts no option', () => {
+    expect(() => lint('export {};\n', [{}])).toThrow(
+      new Error(
+        'Key "rules": Key "local/rule-under-test":\n\tValue [{}] should NOT have more than 0 items.\n',
+      ),
+    );
+  });
+
+  it('returns no visitors without a program or a node map from the parser', () => {
+    expect(
+      rule.create(
+        /** @type {any} */ ({ sourceCode: { parserServices: undefined } }),
+      ),
+    ).toEqual({});
+    expect(
+      rule.create(
+        /** @type {any} */ ({
+          sourceCode: { parserServices: { program: {} } },
+        }),
+      ),
+    ).toEqual({});
+    expect(
+      rule.create(
+        /** @type {any} */ ({
+          sourceCode: { parserServices: { esTreeNodeToTSNodeMap: new Map() } },
+        }),
+      ),
+    ).toEqual({});
   });
 });

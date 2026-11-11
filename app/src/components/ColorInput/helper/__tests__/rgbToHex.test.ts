@@ -25,4 +25,14 @@ describe('rgbToHex', () => {
   it('returns #000000 for a non-rgb string like a hex value', () => {
     expect(rgbToHex('#f8ffff')).toBe('#000000');
   });
+
+  it.each([
+    ['four components', '1, 2, 3, 4'],
+    ['two components', '1, 2'],
+    ['a first component that is no number', 'x, 2, 3'],
+    ['a second component that is no number', '1, x, 3'],
+    ['a third component that is no number', '1, 2, x'],
+  ])('returns #000000 for %s', (_name, rgb) => {
+    expect(rgbToHex(rgb)).toBe('#000000');
+  });
 });

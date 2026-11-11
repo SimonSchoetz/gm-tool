@@ -43,4 +43,24 @@ describe('partitionPinnedItems', () => {
 
     expect(result.unpinnedItems).toEqual([third, first, second]);
   });
+
+  it('orders five pinned items given in no order by their pinned_order, ascending', () => {
+    const items = [
+      { id: 'c', pinned_order: 3 },
+      { id: 'a', pinned_order: 1 },
+      { id: 'e', pinned_order: 5 },
+      { id: 'b', pinned_order: 2 },
+      { id: 'd', pinned_order: 4 },
+    ];
+
+    const { pinnedItems } = partitionPinnedItems(items);
+
+    expect(pinnedItems.map((item) => item.id)).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+    ]);
+  });
 });

@@ -38,3 +38,11 @@ describe('remove', () => {
     ).toEqual([{ session_id: keptId }]);
   });
 });
+
+describe('remove input guards', () => {
+  it('rejects a blank id, naming session in its message', async () => {
+    const { remove } = await import('../remove');
+
+    await expect(remove('')).rejects.toThrow(/^Valid session ID is required$/);
+  });
+});

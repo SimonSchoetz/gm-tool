@@ -31,3 +31,13 @@ describe('getAllBySession', () => {
     expect(steps.map((step) => step.id)).toEqual([firstId, secondId, thirdId]);
   });
 });
+
+describe('getAllBySession input guards', () => {
+  it('rejects a blank id, naming Session in its message', async () => {
+    const { getAllBySession } = await import('../get-all-by-session');
+
+    await expect(getAllBySession('')).rejects.toThrow(
+      /^Valid Session ID is required$/,
+    );
+  });
+});

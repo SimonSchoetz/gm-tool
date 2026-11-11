@@ -1,7 +1,7 @@
 use std::fs;
-use tauri::Manager;
+use std::path::Path;
 
-use super::{VALID_EXTENSIONS, is_valid_image_id};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Deletes an image file from the app's data directory.
 ///
@@ -19,24 +19,12 @@ pub async fn delete_image(
     id: String,
     extension: String,
 ) -> Result<(), String> {
-    if !is_valid_image_id(&id) {
-        return Err(format!("Invalid image id: {id}"));
-    }
+    validate_image_request(&id, &extension)?;
+    delete_in(&app_data_dir(&app_handle)?, &id, &extension)
+}
 
-    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
-        return Err(format!("Invalid file extension: {extension}"));
-    }
-
-    // Get app data directory
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-
-    // Construct image path
-    let image_path = app_data_dir
-        .join("images")
-        .join(format!("{}.{}", id, extension));
+fn delete_in(app_data_dir: &Path, id: &str, extension: &str) -> Result<(), String> {
+    let image_path = image_path(app_data_dir, id, extension)?;
 
     // Attempt to delete the file
     match fs::remove_file(&image_path) {
@@ -46,5 +34,46 @@ pub async fn delete_image(
             Ok(())
         }
         Err(e) => Err(format!("Failed to delete file: {}", e)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::IMAGES_DIR;
+    use super::*;
+    use crate::commands::database_backup::test_dir::TestDir;
+
+    #[test]
+    fn removes_the_stored_file_and_leaves_the_others() {
+        let dir = TestDir::new("images-delete");
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.png"), b"x").unwrap();
+        fs::write(images.join("abd.png"), b"y").unwrap();
+
+        assert_eq!(delete_in(dir.path(), "abc", "png"), Ok(()));
+
+        assert!(!images.join("abc.png").exists());
+        assert!(images.join("abd.png").exists());
+    }
+
+    #[test]
+    fn succeeds_when_the_file_is_already_gone() {
+        let dir = TestDir::new("images-delete-gone");
+
+        assert_eq!(delete_in(dir.path(), "abc", "png"), Ok(()));
+    }
+
+    #[test]
+    fn fails_when_the_file_cannot_be_removed_for_a_reason_other_than_being_absent() {
+        let dir = TestDir::new("images-delete-unremovable");
+        // A folder where the file belongs: remove_file fails on it, and not with NotFound.
+        fs::create_dir_all(dir.path().join(IMAGES_DIR).join("abc.png")).unwrap();
+
+        assert!(
+            delete_in(dir.path(), "abc", "png")
+                .unwrap_err()
+                .starts_with("Failed to delete file: ")
+        );
     }
 }

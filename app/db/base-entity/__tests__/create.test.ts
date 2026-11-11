@@ -61,3 +61,13 @@ describe('create', () => {
     expect(await readBaseEntities()).toEqual([]);
   });
 });
+
+describe('create input guards', () => {
+  it('rejects a blank id, naming adventure in its message', async () => {
+    const { create } = await import('../create');
+
+    await expect(create('npcs', '')).rejects.toThrow(
+      /^Valid adventure ID is required$/,
+    );
+  });
+});

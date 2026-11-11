@@ -285,3 +285,213 @@ describe('reported position', () => {
     ).toBe(3);
   });
 });
+
+const keysOf = (sheet: string) => [...buildTokenIndex([sheet]).keys()];
+const hitsOf = (sheetIndex: ReturnType<typeof buildTokenIndex>, css: string) =>
+  findRawValueHits(css, sheetIndex);
+
+describe('which properties belong to a token family', () => {
+  const sheet = buildTokenIndex([
+    ':root { --spacing-lg: 24px; --radius-md: 0.5rem; --most-front: 1000; --other: 5; }',
+  ]);
+
+  it.each([
+    'gap',
+    'row-gap',
+    'column-gap',
+    'padding',
+    'padding-left',
+    'margin-block-start',
+  ])('checks 24px in %s against the spacing tokens', (property) => {
+    expect(hitsOf(sheet, inRule(`${property}: 24px`))).toHaveLength(1);
+  });
+
+  it.each(['grid-gap', 'gap-fill', 'margins', 'xpadding'])(
+    'does not check 24px in %s',
+    (property) => {
+      expect(hitsOf(sheet, inRule(`${property}: 24px`))).toHaveLength(0);
+    },
+  );
+
+  it.each(['border-radius', 'border-top-left-radius'])(
+    'checks 8px in %s against the radius tokens',
+    (property) => {
+      expect(hitsOf(sheet, inRule(`${property}: 8px`))).toHaveLength(1);
+    },
+  );
+
+  it.each(['my-border-radius', 'border-radius-x'])(
+    'does not check 8px in %s',
+    (property) => {
+      expect(hitsOf(sheet, inRule(`${property}: 8px`))).toHaveLength(0);
+    },
+  );
+
+  it('checks a whole number in z-index against the z-index token, with a space before the semicolon', () => {
+    expect(hitsOf(sheet, '.a { z-index: 1000 ; }')).toHaveLength(1);
+    expect(hitsOf(sheet, '.a { z-index: 5; }')).toHaveLength(0);
+    expect(hitsOf(sheet, '.a { z-index-x: 1000; }')).toHaveLength(0);
+    expect(hitsOf(sheet, '.a { x-z-index: 1000; }')).toHaveLength(0);
+  });
+
+  it('leaves a token with a name in no family out of the index', () => {
+    expect(keysOf(':root { --other: 5; --text-size: 24px; }')).toEqual([]);
+  });
+});
+
+describe('text that is not a declaration', () => {
+  const sheet = buildTokenIndex([
+    ':root { --color-primary-rgb: 57, 156, 187; }',
+  ]);
+
+  it.each([
+    ['a double-quoted string', '.a { color: "#399cbb"; }'],
+    ['a single-quoted string', ".a { color: '#399cbb'; }"],
+    ['a string with an escaped quote', '.a { color: "a\\" #399cbb"; }'],
+    [
+      'a single-quoted string with an escaped quote',
+      ".a { color: 'a\\' #399cbb'; }",
+    ],
+    ['a url', '.a { background: url(#399cbb); }'],
+    ['a comment', '.a { /* color: #399cbb; */ }'],
+  ])('is not searched inside %s', (_name, css) => {
+    expect(hitsOf(sheet, css)).toHaveLength(0);
+  });
+
+  it('reports the true column of a value after a string on its line', () => {
+    const [hit] = hitsOf(sheet, '.a { content: "xx"; color: #399cbb; }');
+
+    expect(hit.line).toBe(1);
+    expect(hit.column).toBe('.a { content: "xx"; color: '.length + 1);
+  });
+
+  it('reports the column of a value on a later line from that line start', () => {
+    const [hit] = hitsOf(sheet, '.a {\n  color: #399cbb;\n}');
+
+    expect(hit.line).toBe(2);
+    expect(hit.column).toBe('  color: '.length + 1);
+  });
+
+  it('reports the column of a second value within a declaration', () => {
+    const colours = buildTokenIndex([':root { --spacing-lg: 24px; }']);
+
+    const [hit] = hitsOf(colours, '.a { margin: 0 24px; }');
+
+    expect(hit.column).toBe('.a { margin: 0 '.length + 1);
+  });
+
+  it('skips a line a comment marks one-off, also when the comment spans lines and the marker is on a later one', () => {
+    expect(
+      hitsOf(sheet, '.a {\n  /* first\n one-off */ color: #399cbb;\n}'),
+    ).toHaveLength(0);
+    expect(
+      hitsOf(sheet, '.a { content: "one-off"; color: #399cbb; }'),
+    ).toHaveLength(1);
+  });
+
+  it('finds a declaration at the very start of the text and one with spaces before the colon or none after it', () => {
+    expect(hitsOf(sheet, 'color: #399cbb;')).toHaveLength(1);
+    expect(hitsOf(sheet, '.a { color : #399cbb; }')).toHaveLength(1);
+    expect(hitsOf(sheet, '.a { color:#399cbb; }')).toHaveLength(1);
+  });
+
+  it('does not take text after a selector colon for a declaration', () => {
+    expect(hitsOf(sheet, '.a:hover x { color: #399cbb; }')).toHaveLength(1);
+    expect(hitsOf(sheet, 'a:b #399cbb')).toHaveLength(0);
+  });
+
+  it('does not take text before a declaration that no semicolon or brace ends for a declaration', () => {
+    expect(hitsOf(sheet, '.a x color: #399cbb;')).toHaveLength(0);
+  });
+
+  it('does not read a length after a hash as a raw value', () => {
+    const spacing = buildTokenIndex([':root { --spacing-lg: 24px; }']);
+
+    expect(hitsOf(spacing, '.a { margin: #24px; }')).toHaveLength(0);
+  });
+
+  it('does not read a negative length or a length glued to a word as a raw value', () => {
+    const spacing = buildTokenIndex([':root { --spacing-lg: 24px; }']);
+
+    expect(hitsOf(spacing, '.a { margin: -24px; }')).toHaveLength(0);
+    expect(hitsOf(spacing, '.a { margin: a24px; }')).toHaveLength(0);
+    expect(hitsOf(spacing, '.a { margin: 1.24px; }')).toHaveLength(0);
+  });
+
+  it('reports no hit for a colour function whose channels cannot be read', () => {
+    expect(hitsOf(sheet, '.a { color: rgb(1, 2); }')).toHaveLength(0);
+  });
+});
+
+describe('how token values are read', () => {
+  it.each(['57,156,187', '57 , 156 , 187', '57,  156,   187'])(
+    'reads %s as a colour triplet',
+    (triplet) => {
+      expect(keysOf(`:root { --color-a: ${triplet}; }`)).toEqual([
+        '--color-|colour:57,156,187,1',
+      ]);
+    },
+  );
+
+  it.each(['9, 57, 156, 187', '57, 156, 187, 9', '57 156', 'x 57, 156, 187'])(
+    'reads %s as no colour',
+    (value) => {
+      expect(keysOf(`:root { --color-a: ${value}; }`)).toEqual([]);
+    },
+  );
+
+  it.each(['foo #399cbb', '#399cbb foo', '#39', '#399cbbaabb'])(
+    'reads %s as no hex colour',
+    (value) => {
+      expect(keysOf(`:root { --color-a: ${value}; }`)).toEqual([]);
+    },
+  );
+
+  it('reads a four-digit hex with its alpha', () => {
+    const index = buildTokenIndex([':root { --color-a: #fff8; }']);
+
+    expect(findRawValueHits('.a { color: #ffffff88; }', index)).toHaveLength(1);
+  });
+
+  it.each([
+    'foo rgb(1, 2, 3)',
+    'rgb(1, 2, 3) foo',
+    'rgb(1, 2)',
+    'rgb(1, 2, 3, 4, 5)',
+    'rgb(a, 2, 3)',
+    'rgb(1, 2, 3, x)',
+  ])('reads %s as no colour', (value) => {
+    expect(keysOf(`:root { --color-a: ${value}; }`)).toEqual([]);
+  });
+
+  it('reads a colour function with spaces inside its parentheses', () => {
+    expect(keysOf(':root { --color-a: rgb( 57, 156, 187 ); }')).toEqual([
+      '--color-|colour:57,156,187,1',
+    ]);
+  });
+
+  it.each(['12.5px', '100px', '0.5rem'])('reads %s as a length', (value) => {
+    expect(keysOf(`:root { --spacing-a: ${value}; }`)).toHaveLength(1);
+  });
+
+  it.each(['x12px', '12px x', '12.5.5px'])('reads %s as no length', (value) => {
+    expect(keysOf(`:root { --spacing-a: ${value}; }`)).toEqual([]);
+  });
+
+  it('reads var references with spaces inside the parentheses', () => {
+    expect(
+      keysOf(':root { --spacing-a: 24px; --spacing-b: var( --spacing-a ); }'),
+    ).toEqual(['--spacing-|length:24']);
+    expect(
+      buildTokenIndex([
+        ':root { --spacing-a: 24px; --spacing-b: var( --spacing-a ); }',
+      ]).get('--spacing-|length:24'),
+    ).toEqual(['--spacing-a', '--spacing-b']);
+  });
+
+  it('does not read a plain integer as the z-index token of another number', () => {
+    const index = buildTokenIndex([':root { --most-front: 1000; }']);
+
+    expect(findRawValueHits('.a { z-index: 5; }', index)).toHaveLength(0);
+  });
+});

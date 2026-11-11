@@ -1,9 +1,9 @@
 use base64::Engine;
 use base64::prelude::BASE64_STANDARD;
 use std::fs;
-use tauri::Manager;
+use std::path::Path;
 
-use super::{VALID_EXTENSIONS, is_valid_image_id};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Reads a stored image file and returns its contents as a base64-encoded string.
 ///
@@ -21,24 +21,55 @@ pub async fn read_image_bytes(
     id: String,
     extension: String,
 ) -> Result<String, String> {
-    if !is_valid_image_id(&id) {
-        return Err(format!("Invalid image id: {id}"));
-    }
+    validate_image_request(&id, &extension)?;
+    read_in(&app_data_dir(&app_handle)?, &id, &extension)
+}
 
-    if !VALID_EXTENSIONS.contains(&extension.as_str()) {
-        return Err(format!("Invalid file extension: {}", extension));
-    }
-
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-
-    let image_path = app_data_dir
-        .join("images")
-        .join(format!("{}.{}", id, extension));
+fn read_in(app_data_dir: &Path, id: &str, extension: &str) -> Result<String, String> {
+    let image_path = image_path(app_data_dir, id, extension)?;
 
     let bytes = fs::read(&image_path).map_err(|e| format!("Failed to read file: {}", e))?;
 
     Ok(BASE64_STANDARD.encode(bytes))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::IMAGES_DIR;
+    use super::*;
+    use crate::commands::database_backup::test_dir::TestDir;
+
+    #[test]
+    fn returns_the_stored_bytes_base64_encoded() {
+        let dir = TestDir::new("images-read");
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.png"), [0u8, 1, 2, 250, 255]).unwrap();
+
+        assert_eq!(
+            read_in(dir.path(), "abc", "png"),
+            Ok("AAEC+v8=".to_string())
+        );
+    }
+
+    #[test]
+    fn returns_an_empty_string_for_an_empty_file() {
+        let dir = TestDir::new("images-read-empty");
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.png"), b"").unwrap();
+
+        assert_eq!(read_in(dir.path(), "abc", "png"), Ok(String::new()));
+    }
+
+    #[test]
+    fn fails_when_the_file_is_not_stored() {
+        let dir = TestDir::new("images-read-missing");
+
+        assert!(
+            read_in(dir.path(), "abc", "png")
+                .unwrap_err()
+                .starts_with("Failed to read file: ")
+        );
+    }
 }

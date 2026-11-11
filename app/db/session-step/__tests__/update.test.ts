@@ -81,3 +81,21 @@ describe('update', () => {
     expect(await readStep(id)).toEqual(before);
   });
 });
+
+describe('update input guards', () => {
+  it('rejects a blank id, naming SessionStep in its message', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('', { collapsed: 1 })).rejects.toThrow(
+      /^Valid SessionStep ID is required$/,
+    );
+  });
+
+  it('rejects an update that carries no field', async () => {
+    const { update } = await import('../update');
+
+    await expect(update('step-1', {})).rejects.toThrow(
+      /^At least one field must be provided for update$/,
+    );
+  });
+});

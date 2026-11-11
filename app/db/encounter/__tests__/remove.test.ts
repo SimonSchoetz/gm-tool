@@ -75,3 +75,13 @@ describe('remove', () => {
     ).toEqual([{ encounter_id: keptId }]);
   });
 });
+
+describe('remove input guards', () => {
+  it('rejects a blank id, naming Encounter in its message', async () => {
+    const { remove } = await import('../remove');
+
+    await expect(remove('')).rejects.toThrow(
+      /^Valid Encounter ID is required$/,
+    );
+  });
+});

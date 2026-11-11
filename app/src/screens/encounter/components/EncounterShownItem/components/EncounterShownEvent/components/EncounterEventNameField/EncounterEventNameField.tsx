@@ -19,7 +19,7 @@ export const EncounterEventNameField: FCProps<Props> = ({ shownItemId }) => {
     queueItems.find((queueItem) => queueItem.id === shownItemId) ?? null;
   // The field renders nothing while the item is null, so the `''` fallback is never shown.
   const { value, setValue, focusProps } = useSyncedInputValue(item?.name ?? '');
-  const { inputRef, handleChange } = useTypographicInput((typed) => {
+  const { inputRef, handleChange } = useTypographicInput(value, (typed) => {
     setValue(typed);
     updateQueueItem(shownItemId, { name: normalizeQueueItemName(typed) });
   });

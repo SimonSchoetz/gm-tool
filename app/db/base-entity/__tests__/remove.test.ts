@@ -81,3 +81,13 @@ describe('remove', () => {
     ]);
   });
 });
+
+describe('remove input guards', () => {
+  it('rejects a blank id, naming Base entity in its message', async () => {
+    const { remove } = await import('../remove');
+
+    await expect(remove('')).rejects.toThrow(
+      /^Valid Base entity ID is required$/,
+    );
+  });
+});

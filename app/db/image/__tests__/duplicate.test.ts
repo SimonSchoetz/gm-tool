@@ -102,3 +102,11 @@ describe('duplicate', () => {
     );
   });
 });
+
+describe('duplicate input guards', () => {
+  it('rejects a blank id, naming image in its message', async () => {
+    const { duplicate } = await import('../duplicate');
+
+    await expect(duplicate('')).rejects.toThrow(/^Valid image ID is required$/);
+  });
+});

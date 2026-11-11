@@ -7,6 +7,10 @@ import { buildEncounterQueueItem } from './support/encounterQueueFixtures';
 import { buildEncounter } from './support/encounterFixtures';
 
 const getEncounter = vi.hoisted(() => vi.fn<typeof encounterDb.get>());
+const getAllEncounterRows = vi.hoisted(() =>
+  vi.fn<typeof encounterDb.getAll>(),
+);
+const createEncounterRow = vi.hoisted(() => vi.fn<typeof encounterDb.create>());
 const duplicate = vi.hoisted(() => vi.fn<typeof encounterDb.duplicate>());
 const updateEncounterRow = vi.hoisted(() => vi.fn<typeof encounterDb.update>());
 const removeEncounter = vi.hoisted(() => vi.fn<typeof encounterDb.remove>());
@@ -26,6 +30,8 @@ const getAllLogEntries = vi.hoisted(() =>
 
 vi.mock('@db/encounter', () => ({
   get: getEncounter,
+  getAll: getAllEncounterRows,
+  create: createEncounterRow,
   duplicate,
   update: updateEncounterRow,
   remove: removeEncounter,
@@ -47,6 +53,8 @@ vi.mock('@db/base-entity', () => ({}));
 vi.mock('@db/base-entity-content-section', () => ({}));
 
 const resetSpies = () => {
+  getAllEncounterRows.mockReset().mockResolvedValue([]);
+  createEncounterRow.mockReset().mockResolvedValue('created-encounter');
   getEncounter.mockReset().mockResolvedValue(buildEncounter({ id: 'source' }));
   duplicate.mockReset().mockResolvedValue('new-encounter');
   updateEncounterRow.mockReset().mockResolvedValue();
@@ -278,5 +286,92 @@ describe('removeEncounterImage', () => {
     });
 
     expect(updateEncounterRow).not.toHaveBeenCalled();
+  });
+});
+
+describe('getAllEncounters', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    resetSpies();
+  });
+
+  it("returns the adventure's encounters", async () => {
+    const { getAllEncounters } = await import('../encounterService');
+    const encounters = [
+      buildEncounter({ id: 'a' }),
+      buildEncounter({ id: 'b' }),
+    ];
+    getAllEncounterRows.mockResolvedValue(encounters);
+
+    await expect(getAllEncounters('adventure-9')).resolves.toEqual(encounters);
+    expect(getAllEncounterRows).toHaveBeenCalledWith('adventure-9');
+  });
+
+  it('rejects as EncounterLoadError when the load fails', async () => {
+    const { getAllEncounters } = await import('../encounterService');
+    getAllEncounterRows.mockRejectedValue(new Error('disk'));
+
+    await expect(getAllEncounters('adventure-9')).rejects.toMatchObject({
+      name: 'EncounterLoadError',
+    });
+  });
+});
+
+describe('getEncounterById', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    resetSpies();
+  });
+
+  it('returns the encounter', async () => {
+    const { getEncounterById } = await import('../encounterService');
+    const encounter = buildEncounter({ id: 'found' });
+    getEncounter.mockResolvedValue(encounter);
+
+    await expect(getEncounterById('found')).resolves.toEqual(encounter);
+    expect(getEncounter).toHaveBeenCalledWith('found');
+  });
+
+  it('rejects as EncounterNotFoundError when there is no such encounter', async () => {
+    const { getEncounterById } = await import('../encounterService');
+    getEncounter.mockResolvedValue(null);
+
+    await expect(getEncounterById('missing')).rejects.toMatchObject({
+      name: 'EncounterNotFoundError',
+    });
+  });
+
+  it('rejects as EncounterLoadError, not as not found, when the load fails', async () => {
+    const { getEncounterById } = await import('../encounterService');
+    getEncounter.mockRejectedValue(new Error('disk'));
+
+    await expect(getEncounterById('any')).rejects.toMatchObject({
+      name: 'EncounterLoadError',
+    });
+  });
+});
+
+describe('createEncounter', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    resetSpies();
+  });
+
+  it('creates the encounter in the adventure and resolves its id', async () => {
+    const { createEncounter } = await import('../encounterService');
+
+    await expect(createEncounter('adventure-9')).resolves.toBe(
+      'created-encounter',
+    );
+    expect(createEncounterRow).toHaveBeenCalledWith('adventure-9');
+  });
+
+  it('rejects as EncounterCreateError when the creation fails', async () => {
+    const { createEncounter } = await import('../encounterService');
+    createEncounterRow.mockRejectedValue(new Error('disk'));
+
+    await expect(createEncounter('adventure-9')).rejects.toMatchObject({
+      name: 'EncounterCreateError',
+    });
   });
 });
