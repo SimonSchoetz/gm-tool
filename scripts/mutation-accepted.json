@@ -870,7 +870,7 @@
     "lineText": "if (candidate.escaped || candidate.sites.length === 0) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "stays: the only test left that stops a function no call site reaches from reporting every parameter as always omitted, since the sibling test in findingFor was removed; no test pins it, and a test written only to kill this mutant is out of scope"
+    "reason": "stays: this test alone stops a function no call site reaches from reporting every parameter as always omitted; no test pins it, and a test written only to kill this mutant is out of scope"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -2050,6 +2050,15 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "editor.read treats any mode text other than 'force-commit' and 'pending' as 'latest' (.claude/knowledge/lexical.md)"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/resolveHeaderToggleForRemoval.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (selection.isCollapsed()) return null;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "stays: whether a collapsed selection can reach the later parent test rests on how Lexical reports the nodes of a collapsed selection, which no check here shows"
   },
   {
     "file": "src/data-access-layer/adventures/useAdventure.ts",
