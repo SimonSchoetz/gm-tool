@@ -38,11 +38,7 @@ export const generateZigzagPath = (
       return current;
     }
 
-    if (current !== Direction.DOWN) {
-      return Direction.DOWN;
-    }
-
-    return current;
+    return Direction.DOWN;
   };
 
   while (currentRow <= rows + 1) {

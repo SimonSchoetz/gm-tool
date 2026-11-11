@@ -5,8 +5,6 @@ import { resolveTopLevelBlock } from '../../../helper/resolveTopLevelBlock';
 export const resolveHeaderToggleForRemoval = (
   selection: RangeSelection,
 ): ToggleNode | null => {
-  if (selection.isCollapsed()) return null;
-
   const startPoint = selection.isBackward()
     ? selection.focus
     : selection.anchor;

@@ -23,7 +23,6 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
   imageId,
   dimensions,
 }) => {
-  const isDraggingRef = useRef(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
 
   const { frame } = useImage(imageId);
@@ -62,13 +61,12 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    isDraggingRef.current = true;
     lastPointerRef.current = { x: e.clientX, y: e.clientY };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || lastPointerRef.current === null) return;
+    if (lastPointerRef.current === null) return;
 
     const dx = e.clientX - lastPointerRef.current.x;
     const dy = e.clientY - lastPointerRef.current.y;
@@ -91,7 +89,6 @@ export const ImagePreviewFramingOverlay: FCProps<Props> = ({
   };
 
   const handlePointerUp = () => {
-    isDraggingRef.current = false;
     lastPointerRef.current = null;
   };
 

@@ -14,8 +14,6 @@ export const buildBreadcrumbs = (
   matches: AnyRouteMatch[],
 ): BreadcrumbConfig[] =>
   matches.flatMap((match): BreadcrumbConfig[] => {
-    if (match.routeId === '__root__' || match.routeId === '/') return [];
-
     const p = match.params as Record<string, string>;
 
     switch (match.routeId) {
