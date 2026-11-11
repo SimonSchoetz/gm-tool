@@ -76,4 +76,25 @@ mod tests {
                 .starts_with("Failed to delete file: ")
         );
     }
+
+    #[test]
+    fn rejects_an_invalid_id_or_extension_and_deletes_nothing() {
+        let dir = TestDir::new("images-delete-invalid");
+        // The files the invalid requests would reach: `images/../x.png` and `images/abc.exe`.
+        fs::write(dir.path().join("x.png"), b"x").unwrap();
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.exe"), b"x").unwrap();
+
+        assert_eq!(
+            delete_in(dir.path(), "../x", "png"),
+            Err("Invalid image id: ../x".to_string())
+        );
+        assert_eq!(
+            delete_in(dir.path(), "abc", "exe"),
+            Err("Invalid file extension: exe".to_string())
+        );
+        assert!(dir.path().join("x.png").exists());
+        assert!(images.join("abc.exe").exists());
+    }
 }

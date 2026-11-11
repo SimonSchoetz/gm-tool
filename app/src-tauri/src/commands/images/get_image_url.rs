@@ -63,4 +63,25 @@ mod tests {
             Err("Image file not found: abc.png".to_string())
         );
     }
+
+    #[test]
+    fn rejects_an_invalid_id_or_extension_without_returning_a_path() {
+        let dir = TestDir::new("images-url-invalid");
+        // The files the invalid requests would reach: `images/../x.png` and `images/abc.exe`.
+        fs::write(dir.path().join("x.png"), b"x").unwrap();
+        let images = dir.path().join(IMAGES_DIR);
+        fs::create_dir(&images).unwrap();
+        fs::write(images.join("abc.exe"), b"x").unwrap();
+
+        assert_eq!(
+            url_in(dir.path(), "../x", "png"),
+            Err("Invalid image id: ../x".to_string())
+        );
+        assert_eq!(
+            url_in(dir.path(), "abc", "exe"),
+            Err("Invalid file extension: exe".to_string())
+        );
+        assert_eq!(fs::read(dir.path().join("x.png")).unwrap(), b"x");
+        assert_eq!(fs::read(images.join("abc.exe")).unwrap(), b"x");
+    }
 }
