@@ -48,3 +48,11 @@ An input element's `validity.badInput` is typed and readable without a cast, so 
 **Citation:** [architect_24: ran `npx tsc --noEmit --listFilesOnly -p tsconfig.json | grep vite.config` from `app/`, where `vite.config.ts` was reachable only through the `tsconfig.node.json` named in `references` — not found] [implement_3: ran `npx tsc --noEmit --listFilesOnly -p tsconfig.json | grep -c vite.config.ts` from `app/` at 88bc6ddd, where `tsconfig.json`'s `include` names `vite.config.ts` — observed 1]
 
 Such a file is outside the type-check unless the root config's `include` names it, as the second run shows, or the check runs with `--build`.
+
+## A `NumericLiteral` node's `text` holds the number in canonical decimal form, while a `BigIntLiteral` node's `text` keeps its `n` suffix
+
+**Verified at:** typescript 6.0.3
+
+**Citation:** [fix_2: ran `node -e` in `app/` parsing `f({1.0:1,0x1:2,1_0:3,1e3:4,1n:5,1.50:7,0.1e1:8})` with `ts.createSourceFile` and printing each property name's kind and `text` — observed `1.0`, `0x1` and `0.1e1` read `"1"`, `1_0` reads `"10"`, `1e3` reads `"1000"`, `1.50` reads `"1.5"`, and `1n` is a `BigIntLiteral` reading `"1n"`]
+
+For an object literal property named by a number, `name.text` is already the string JavaScript keys the property by, so it compares directly with a string-literal or identifier name. A bigint name such as `1n` is a separate node kind whose `text` is not that key.
