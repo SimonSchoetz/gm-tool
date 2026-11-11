@@ -175,16 +175,19 @@ describe('parseOutcomes', () => {
     ]);
   });
 
-  it('reads Unviable as unviable', () => {
+  it.each([
+    ['Unviable', 'unviable'],
+    ['Timeout', 'timeout'],
+  ])('reads %s as %s', (summary, status) => {
     const json = outcomesJson([
       {
         scenario: {
           Mutant: jsonMutant('src/a.rs', 7, 9, 'replace == with != in check'),
         },
-        summary: 'Unviable',
+        summary,
       },
     ]);
-    expect(parseOutcomes(json, listed)[0].status).toBe('unviable');
+    expect(parseOutcomes(json, listed)[0].status).toBe(status);
   });
 
   it('rejects an unknown summary and a mutant missing from the list', () => {
@@ -297,6 +300,7 @@ describe('matchRustMutants', () => {
   it('reports a missed mutant with no entry as unmatched and accepts one with an entry whatever its line', () => {
     const shifted = outcome('missed', { line: 44 });
     const result = matchRustMutants({
+      status: 'missed',
       ledger: [entry()],
       listed,
       outcomes: [shifted, outcome('missed', { line: 20, occurrence: 1 })],
@@ -308,6 +312,7 @@ describe('matchRustMutants', () => {
 
   it('matches an entry by its occurrence, so the other identical mutant stays unmatched', () => {
     const result = matchRustMutants({
+      status: 'missed',
       ledger: [entry({ occurrence: 1 })],
       listed,
       outcomes: [outcome('missed'), outcome('missed', { occurrence: 1 })],
@@ -317,12 +322,14 @@ describe('matchRustMutants', () => {
 
   it('reports an entry whose mutant was caught as stale, and one whose mutant did not run or did not get caught as not stale', () => {
     const caught = matchRustMutants({
+      status: 'missed',
       ledger: [entry()],
       listed,
       outcomes: [outcome('caught')],
     });
     expect(caught.stale).toEqual([entry()]);
     const notRun = matchRustMutants({
+      status: 'missed',
       ledger: [entry()],
       listed,
       outcomes: [],
@@ -331,6 +338,7 @@ describe('matchRustMutants', () => {
     for (const status of ['missed', 'unviable'] as const) {
       expect(
         matchRustMutants({
+          status: 'missed',
           ledger: [entry()],
           listed,
           outcomes: [outcome(status)],
@@ -342,6 +350,7 @@ describe('matchRustMutants', () => {
   it('reports an entry whose mutant is not in the full list as missing', () => {
     const gone = entry({ mutant: 'replace removed with ()' });
     const result = matchRustMutants({
+      status: 'missed',
       ledger: [entry(), gone],
       listed,
       outcomes: [],
@@ -356,38 +365,41 @@ describe('rustFailures', () => {
   it.each([
     [0, null],
     [2, null],
+    [3, null],
   ])(
     'passes exit status %s when nothing is unmatched, stale or missing',
     (status) => {
-      expect(rustFailures({ status, match: clean })).toEqual([]);
+      expect(rustFailures({ status, accepted: clean, hangs: clean })).toEqual(
+        [],
+      );
     },
   );
 
   it.each([
-    [3, 'a mutant timed out'],
     [4, 'the baseline run of the unmutated tests failed'],
     [5, 'the diff does not match the source tree'],
     [6, 'the diff is invalid'],
     [70, 'cargo-mutants hit an internal error'],
   ])('fails exit status %s on its own, naming it', (status, meaning) => {
-    expect(rustFailures({ status, match: clean })).toEqual([
+    expect(rustFailures({ status, accepted: clean, hangs: clean })).toEqual([
       `cargo mutants exited with ${status}: ${meaning}.`,
     ]);
   });
 
   it('fails an exit status it does not know and a signal', () => {
-    expect(rustFailures({ status: 101, match: clean })).toEqual([
-      'cargo mutants exited with 101.',
-    ]);
-    expect(rustFailures({ status: null, match: null })).toEqual([
-      'cargo mutants exited with a signal.',
-    ]);
+    expect(
+      rustFailures({ status: 101, accepted: clean, hangs: clean }),
+    ).toEqual(['cargo mutants exited with 101.']);
+    expect(rustFailures({ status: null, accepted: null, hangs: null })).toEqual(
+      ['cargo mutants exited with a signal.'],
+    );
   });
 
   it('names each unmatched mutant, stale entry and missing entry with its own message', () => {
     const failures = rustFailures({
       status: 2,
-      match: {
+      hangs: null,
+      accepted: {
         unmatched: [outcome('missed', { line: 12, column: 3 })],
         stale: [entry({ occurrence: 1 })],
         missing: [entry({ mutant: 'replace removed with ()' })],
@@ -597,6 +609,7 @@ describe('mutation-check-rust parsing and wording', () => {
 
   it('leaves a caught mutant with no entry out of the unmatched ones', () => {
     const result = matchRustMutants({
+      status: 'missed',
       ledger: [],
       listed: [mutant()],
       outcomes: [outcome('caught')],
@@ -608,7 +621,8 @@ describe('mutation-check-rust parsing and wording', () => {
   it('words the three failure messages exactly, with the occurrence only when it is above 0', () => {
     const failures = rustFailures({
       status: 2,
-      match: {
+      hangs: null,
+      accepted: {
         unmatched: [
           outcome('missed', { line: 12, column: 3 }),
           outcome('missed', { line: 14, column: 3, occurrence: 2 }),
@@ -632,10 +646,12 @@ describe('mutation-check-rust parsing and wording', () => {
   });
 
   it('fails an exit status that is no key of the known failures without a meaning, and with no match to judge for it', () => {
-    expect(rustFailures({ status: 99, match: null })).toEqual([
+    expect(rustFailures({ status: 99, accepted: null, hangs: null })).toEqual([
       'cargo mutants exited with 99.',
     ]);
-    expect(rustFailures({ status: 2, match: null })).toEqual([]);
+    expect(rustFailures({ status: 2, accepted: null, hangs: null })).toEqual(
+      [],
+    );
   });
 });
 
@@ -794,7 +810,10 @@ describe('runRustMutation with a stand-in cargo', () => {
       repositoryRoot: repository,
       base: null,
       ledger: [],
+      hangLedger: [],
       acceptReason: null,
+      hangReason: null,
+      timeoutMS: null,
       ...overrides,
     });
 
@@ -901,22 +920,95 @@ describe('runRustMutation with a stand-in cargo', () => {
     expect(run().failures).toHaveLength(1);
   });
 
-  it('fails an exit status other than 0 and 2 on its own and reads no outcomes for it', () => {
-    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']), 3);
+  it('fails an exit status other than 0, 2 and 3 on its own and reads no outcomes for it', () => {
+    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']), 4);
 
     expect(run().failures).toEqual([
-      'cargo mutants exited with 3: a mutant timed out.',
+      'cargo mutants exited with 4: the baseline run of the unmutated tests failed.',
     ]);
   });
 
-  it('writes no entry for a run that ended with another exit status than 0 and 2', () => {
-    withOutcomes(outcomesJson(['replace run with ()', 'MissedMutant']), 3);
+  it('writes no entry of either ledger for a run that ended with another exit status than 0, 2 and 3', () => {
+    withOutcomes(
+      outcomesJson(
+        ['replace run with ()', 'MissedMutant'],
+        ['replace stop with ()', 'Timeout'],
+      ),
+      4,
+    );
 
-    expect(run({ acceptReason: 'no test starts run' }).newEntries).toEqual([]);
+    const result = run({
+      acceptReason: 'no test starts run',
+      hangReason: 'stop loops forever',
+    });
+    expect(result.newEntries).toEqual([]);
+    expect(result.newHangEntries).toEqual([]);
   });
 
   it('passes a clean run that left no outcomes file', () => {
     expect(run().failures).toEqual([]);
+  });
+
+  const RUN = 'replace run with ()';
+  const STOP = 'replace stop with ()';
+  const hangEntry: RustLedgerEntry = {
+    file: 'src/lib.rs',
+    mutant: STOP,
+    occurrence: 0,
+    reason: 'stop never returns',
+  };
+  const missedAndTimedOut = () => {
+    withOutcomes(outcomesJson([RUN, 'MissedMutant'], [STOP, 'Timeout']), 3);
+  };
+
+  it('reads the outcomes after exit status 3 and names the timed-out mutant apart from the missed one', () => {
+    missedAndTimedOut();
+
+    const { failures } = run();
+
+    expect(failures).toHaveLength(2);
+    expect(failures[0]).toMatch(/^1 Rust mutant\(s\) were missed/);
+    expect(failures[0]).toContain(`app/src-tauri/src/lib.rs:10:5  ${RUN}`);
+    expect(failures[1]).toMatch(/^1 Rust mutant\(s\) timed out/);
+    expect(failures[1]).toContain(`app/src-tauri/src/lib.rs:20:3  ${STOP}`);
+  });
+
+  it('passes a timed-out mutant that the hang ledger records', () => {
+    missedAndTimedOut();
+
+    const { failures } = run({ hangLedger: [hangEntry] });
+
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toMatch(/were missed/);
+  });
+
+  it('writes a hang entry with the reason for each timed-out mutant without one, fails none of them and writes no accepted entry', () => {
+    missedAndTimedOut();
+
+    const result = run({ hangReason: 'stop never returns' });
+
+    expect(result.newHangEntries).toEqual([hangEntry]);
+    expect(result.newEntries).toEqual([]);
+    expect(result.failures).toHaveLength(1);
+    expect(result.failures[0]).toMatch(/were missed/);
+  });
+
+  it('reports a hang entry as stale when its mutant was caught on a re-run', () => {
+    withOutcomes(outcomesJson([STOP, 'CaughtMutant']), 0);
+
+    expect(run({ hangLedger: [hangEntry] }).failures).toEqual([
+      `1 entr(y/ies) in scripts/mutation-hangs-rust.json record a hang whose mutant no longer times out; a test now kills it or the code changed, so remove each:\n  app/src-tauri/src/lib.rs  ${STOP}`,
+    ]);
+  });
+
+  it('passes the timeout to cargo-mutants in seconds, and none without one', () => {
+    run({ timeoutMS: 90500 });
+    run();
+
+    expect(log().filter((line) => !/--version|--list/.test(line))).toEqual([
+      'ROOT|mutants --timeout 90.5',
+      'ROOT|mutants',
+    ]);
   });
 
   it('runs only the diff against the base from a scratch folder that it removes afterwards', () => {
@@ -958,5 +1050,72 @@ describe('runRustMutation with a stand-in cargo', () => {
       readFileSync(path.join(toolDirectory, 'diff.copy'), 'utf8'),
     ).toContain('+++ b/src/lib.rs');
     expect(existsSync(path.dirname(diffPath))).toBe(false);
+  });
+});
+
+describe('matchRustMutants for the hang ledger', () => {
+  const listed = [mutant()];
+  const match = (outcomes: RustOutcome[], ledger = [entry()]) =>
+    matchRustMutants({ status: 'timeout', ledger, listed, outcomes });
+
+  it('reports a timed-out mutant with no hang entry as unmatched, and leaves a missed one to the other ledger', () => {
+    expect(match([outcome('timeout')], []).unmatched).toEqual([
+      outcome('timeout'),
+    ]);
+    expect(match([outcome('missed')], []).unmatched).toEqual([]);
+    expect(match([outcome('timeout')]).unmatched).toEqual([]);
+  });
+
+  it('reports a hang entry as stale when its mutant ran and was caught or missed, and not when it timed out, was unviable or did not run', () => {
+    expect(match([outcome('caught')]).stale).toEqual([entry()]);
+    expect(match([outcome('missed')]).stale).toEqual([entry()]);
+    expect(match([outcome('timeout')]).stale).toEqual([]);
+    expect(match([outcome('unviable')]).stale).toEqual([]);
+    expect(match([]).stale).toEqual([]);
+  });
+
+  it('reports a hang entry whose mutant is not in the full list as missing', () => {
+    const gone = entry({ mutant: 'replace removed with ()' });
+    expect(match([], [entry(), gone]).missing).toEqual([gone]);
+  });
+
+  it('reports an accepted entry as stale when its mutant now times out', () => {
+    expect(
+      matchRustMutants({
+        status: 'missed',
+        ledger: [entry()],
+        listed,
+        outcomes: [outcome('timeout')],
+      }).stale,
+    ).toEqual([entry()]);
+  });
+});
+
+describe('rustFailures for timed-out mutants', () => {
+  const clean = { unmatched: [], stale: [], missing: [] };
+
+  it('words the timed-out, stale-hang and missing-hang messages exactly, after the missed mutants', () => {
+    const failures = rustFailures({
+      status: 3,
+      accepted: { ...clean, unmatched: [outcome('missed', { line: 12 })] },
+      hangs: {
+        unmatched: [
+          outcome('timeout', {
+            line: 20,
+            column: 9,
+            mutant: 'replace < with <=',
+          }),
+        ],
+        stale: [entry({ mutant: 'replace old with ()' })],
+        missing: [entry({ mutant: 'replace removed with ()', occurrence: 1 })],
+      },
+    });
+
+    expect(failures).toEqual([
+      '1 Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  app/src-tauri/src/lib.rs:12:5  replace run with ()',
+      '1 Rust mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n>, which cargo-mutants receives as its test timeout (`--timeout`, in seconds) in place of the one it derives from the baseline test run, and resolve it by that result:\n  app/src-tauri/src/lib.rs:20:9  replace < with <=',
+      '1 entr(y/ies) in scripts/mutation-hangs-rust.json record a hang whose mutant no longer times out; a test now kills it or the code changed, so remove each:\n  app/src-tauri/src/lib.rs  replace old with ()',
+      '1 entr(y/ies) in scripts/mutation-hangs-rust.json name a mutant that no longer exists; remove each, and re-run with --accept-hang "<reason>" if the code still has the mutant under another change:\n  app/src-tauri/src/lib.rs  replace removed with () (occurrence 1)',
+    ]);
   });
 });

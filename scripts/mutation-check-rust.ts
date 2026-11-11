@@ -1,6 +1,6 @@
-// The Rust half of scripts/mutation-check.ts: `cargo mutants` over the Rust lines a branch added or changed under app/src-tauri/src/, or over all of them with `--all`, judged against scripts/mutation-accepted-rust.json.
+// The Rust half of scripts/mutation-check.ts: `cargo mutants` over the Rust lines a branch added or changed under app/src-tauri/src/, or over all of them with `--all`, judged against scripts/mutation-accepted-rust.json for missed mutants and scripts/mutation-hangs-rust.json for timed-out ones.
 // cargo-mutants is a machine tool (`cargo install --locked cargo-mutants`), not a project dependency; app/src-tauri/.cargo/mutants.toml leaves out the networking glue that app/src-tauri/CLAUDE.md — Testing exempts from unit tests.
-// A ledger entry names one mutant by its file, its change (cargo-mutants' name without the `file:line:col: ` prefix) and `occurrence`, which counts the earlier mutants of that file with the same change, so a line shift never invalidates it.
+// An entry of either ledger names one mutant by its file, its change (cargo-mutants' name without the `file:line:col: ` prefix) and `occurrence`, which counts the earlier mutants of that file with the same change, so a line shift never invalidates it.
 // The parsing and matching functions are pure; `rustDiff` and `runRustMutation` run git and cargo.
 import { execFileSync, spawnSync } from 'child_process';
 import {
@@ -17,10 +17,14 @@ import { MAX_COMMAND_OUTPUT_BYTES } from './mutation-check-diff.ts';
 const RUST_ROOT = 'app/src-tauri';
 const RUST_SOURCE_PREFIX = `${RUST_ROOT}/src/`;
 const INSTALL_COMMAND = 'cargo install --locked cargo-mutants';
+const ACCEPTED_LEDGER = 'scripts/mutation-accepted-rust.json';
+const HANG_LEDGER = 'scripts/mutation-hangs-rust.json';
 
-// cargo-mutants' exit codes other than 0 (every mutant caught) and 2 (some missed), https://mutants.rs/exit-codes.html
+// The exit codes after which mutants.out/outcomes.json says how each mutant ended: 0 (every mutant caught), 2 (some missed) and 3 (some timed out, which cargo-mutants returns ahead of 2), https://mutants.rs/exit-codes.html
+const JUDGED_EXIT_CODES: readonly (number | null)[] = [0, 2, 3];
+
+// cargo-mutants' other exit codes, https://mutants.rs/exit-codes.html
 const FAILURE_EXIT_CODES: Record<number, string> = {
-  3: 'a mutant timed out',
   4: 'the baseline run of the unmutated tests failed',
   5: 'the diff does not match the source tree',
   6: 'the diff is invalid',
@@ -38,7 +42,7 @@ export type RustMutant = {
 
 // eslint-disable-next-line local/no-unused-exports -- tests type the outcomes they build
 export type RustOutcome = RustMutant & {
-  status: 'caught' | 'missed' | 'unviable';
+  status: 'caught' | 'missed' | 'timeout' | 'unviable';
 };
 
 // eslint-disable-next-line local/no-unused-exports -- tests type the ledger entries they build
@@ -94,10 +98,11 @@ export const parseListedMutants = (json: string): RustMutant[] => {
   });
 };
 
-// No `Timeout`: cargo-mutants exits 3 whenever a mutant timed out, ahead of 2 for a missed one, and `runRustMutation` reads outcomes only at exit 0 or 2, so a timeout fails the gate through `rustFailures` and a `Timeout` read here is an error.
+// cargo-mutants' other summaries, `Success` and `Failure`, do not occur for a mutant that ran its tests, so reading one is an error.
 const STATUS_OF_SUMMARY = new Map<string, RustOutcome['status']>([
   ['CaughtMutant', 'caught'],
   ['MissedMutant', 'missed'],
+  ['Timeout', 'timeout'],
   ['Unviable', 'unviable'],
 ]);
 
@@ -214,16 +219,18 @@ const describeEntry = (
 const describeMutant = (mutant: RustMutant) =>
   `${RUST_ROOT}/${mutant.file}:${mutant.line}:${mutant.column}  ${mutant.mutant}${mutant.occurrence > 0 ? ` (occurrence ${mutant.occurrence})` : ''}`;
 
-// A missed mutant with no entry is unmatched; an entry whose mutant ran and was caught is stale (a test now kills it, or the code changed); an entry whose mutant is not in the full list is missing (its code is gone).
+// Matches one ledger against the outcomes of the mutants it records with `status` (`missed` for scripts/mutation-accepted-rust.json, `timeout` for scripts/mutation-hangs-rust.json). A mutant with that status and no entry is unmatched; an entry whose mutant ran and was caught, or ended with the other of the two statuses, is stale (a test now kills it, or the code changed); an entry whose mutant is not in the full list is missing (its code is gone). An unviable mutant leaves its entry neither unmatched nor stale.
 // eslint-disable-next-line local/no-unused-exports -- tests pin the matching apart from the cargo run
 export const matchRustMutants = ({
   ledger,
   listed,
   outcomes,
+  status,
 }: {
   ledger: RustLedgerEntry[];
   listed: RustMutant[];
   outcomes: RustOutcome[];
+  status: 'missed' | 'timeout';
 }) => {
   const entryKeys = new Set(ledger.map(entryKey));
   const listedKeys = new Set(listed.map(entryKey));
@@ -233,10 +240,11 @@ export const matchRustMutants = ({
   return {
     unmatched: outcomes.filter(
       (outcome) =>
-        outcome.status === 'missed' && !entryKeys.has(entryKey(outcome)),
+        outcome.status === status && !entryKeys.has(entryKey(outcome)),
     ),
     stale: ledger.filter((entry) => {
-      return outcomeByKey.get(entryKey(entry))?.status === 'caught';
+      const ran = outcomeByKey.get(entryKey(entry))?.status ?? null;
+      return ran !== null && ran !== status && ran !== 'unviable';
     }),
     missing: ledger.filter((entry) => !listedKeys.has(entryKey(entry))),
   };
@@ -249,36 +257,66 @@ export const installFailure = (versionStatus: number | null) =>
     ? null
     : `cargo-mutants is not installed, and the mutation check of ${RUST_ROOT}/src/ needs it; install it with \`${INSTALL_COMMAND}\`.`;
 
-// The failures that stop the gate, one message each; none means it passes. Only an exit status of 0 or 2 says which mutants were missed, so any other status fails on its own.
+type RustMatch = ReturnType<typeof matchRustMutants>;
+
+// The failures that stop the gate, one message each; none means it passes. Only an exit status of 0, 2 or 3 says how each mutant ended, so any other status fails on its own; `accepted` is the match of the missed mutants and `hangs` that of the timed-out ones.
 // eslint-disable-next-line local/no-unused-exports -- tests pin which exit statuses fail the gate apart from the cargo run
 export const rustFailures = ({
   status,
-  match,
+  accepted,
+  hangs,
 }: {
   status: number | null;
-  match: ReturnType<typeof matchRustMutants> | null;
+  accepted: RustMatch | null;
+  hangs: RustMatch | null;
 }) => {
-  if (status !== 0 && status !== 2)
+  if (!JUDGED_EXIT_CODES.includes(status))
     return [
       `cargo mutants exited with ${status ?? 'a signal'}${status !== null && status in FAILURE_EXIT_CODES ? `: ${FAILURE_EXIT_CODES[status]}` : ''}.`,
     ];
-  if (match === null) return [];
+  const failure = (message: string, lines: string[]) =>
+    lines.length > 0
+      ? [`${lines.length} ${message}:\n  ${lines.join('\n  ')}`]
+      : [];
+  const ledgerFailures = (
+    match: RustMatch | null,
+    {
+      ledgerPath,
+      acceptOption,
+      staleRecord,
+    }: { ledgerPath: string; acceptOption: string; staleRecord: string },
+  ) =>
+    match === null
+      ? []
+      : [
+          ...failure(
+            `entr(y/ies) in ${ledgerPath} ${staleRecord}; a test now kills it or the code changed, so remove each`,
+            match.stale.map(describeEntry),
+          ),
+          ...failure(
+            `entr(y/ies) in ${ledgerPath} name a mutant that no longer exists; remove each, and re-run with ${acceptOption} "<reason>" if the code still has the mutant under another change`,
+            match.missing.map(describeEntry),
+          ),
+        ];
   return [
-    ...(match.unmatched.length > 0
-      ? [
-          `${match.unmatched.length} Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  ${match.unmatched.map(describeMutant).join('\n  ')}`,
-        ]
-      : []),
-    ...(match.stale.length > 0
-      ? [
-          `${match.stale.length} entr(y/ies) in scripts/mutation-accepted-rust.json accept a mutant that no longer survives; a test now kills it or the code changed, so remove each:\n  ${match.stale.map(describeEntry).join('\n  ')}`,
-        ]
-      : []),
-    ...(match.missing.length > 0
-      ? [
-          `${match.missing.length} entr(y/ies) in scripts/mutation-accepted-rust.json name a mutant that no longer exists; remove each, and re-run with --accept "<reason>" if the code still has the mutant under another change:\n  ${match.missing.map(describeEntry).join('\n  ')}`,
-        ]
-      : []),
+    ...failure(
+      'Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>"',
+      (accepted?.unmatched ?? []).map(describeMutant),
+    ),
+    ...failure(
+      `Rust mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n>, which cargo-mutants receives as its test timeout (\`--timeout\`, in seconds) in place of the one it derives from the baseline test run, and resolve it by that result`,
+      (hangs?.unmatched ?? []).map(describeMutant),
+    ),
+    ...ledgerFailures(accepted, {
+      ledgerPath: ACCEPTED_LEDGER,
+      acceptOption: '--accept',
+      staleRecord: 'accept a mutant that no longer survives',
+    }),
+    ...ledgerFailures(hangs, {
+      ledgerPath: HANG_LEDGER,
+      acceptOption: '--accept-hang',
+      staleRecord: 'record a hang whose mutant no longer times out',
+    }),
   ];
 };
 
@@ -343,24 +381,52 @@ export const rustDiff = ({
   return [tracked, ...untracked].join('');
 };
 
-// Runs cargo-mutants for the diff against `base` (every mutant when `base` is null), prints its progress, and returns the failures that stop the gate and the entries `acceptReason` adds for the missed mutants that have none.
+// The arguments of the mutating `cargo mutants` run: the diff against the base when there is one, and `timeoutMS` as cargo-mutants' test timeout, which it takes in seconds.
+const runArguments = (diffFile: string | null, timeoutMS: number | null) => [
+  'mutants',
+  ...(diffFile === null ? [] : ['--in-diff', diffFile]),
+  ...(timeoutMS === null ? [] : ['--timeout', String(timeoutMS / 1000)]),
+];
+
+// The entries `reason` adds for the unmatched mutants of `match`; none without a reason.
+const entriesFor = (match: RustMatch, reason: string | null) =>
+  reason === null
+    ? []
+    : match.unmatched.map(({ file, mutant, occurrence }) => ({
+        file,
+        mutant,
+        occurrence,
+        reason,
+      }));
+
+// Runs cargo-mutants for the diff against `base` (every mutant when `base` is null), prints its progress, and returns the failures that stop the gate, the entries `acceptReason` adds for the missed mutants that have none, and the entries `hangReason` adds for the timed-out mutants that have none.
 export const runRustMutation = ({
   repositoryRoot,
   base,
   ledger,
+  hangLedger,
   acceptReason,
+  hangReason,
+  timeoutMS,
 }: {
   repositoryRoot: string;
   base: string | null;
   ledger: RustLedgerEntry[];
+  hangLedger: RustLedgerEntry[];
   acceptReason: string | null;
+  hangReason: string | null;
+  timeoutMS: number | null;
 }) => {
   const rustRoot = path.join(repositoryRoot, RUST_ROOT);
   const missing = installFailure(
     spawnSync('cargo', ['mutants', '--version'], { cwd: rustRoot }).status,
   );
   if (missing !== null)
-    return { failures: [missing], newEntries: [] as RustLedgerEntry[] };
+    return {
+      failures: [missing],
+      newEntries: [] as RustLedgerEntry[],
+      newHangEntries: [] as RustLedgerEntry[],
+    };
   const listed = parseListedMutants(
     execFileSync('cargo', ['mutants', '--list', '--json'], {
       cwd: rustRoot,
@@ -370,39 +436,48 @@ export const runRustMutation = ({
   );
   const scratch = mkdtempSync(path.join(tmpdir(), 'mutation-check-rust-'));
   try {
-    const diffFile = path.join(scratch, 'changes.diff');
-    if (base !== null)
+    let diffFile: string | null = null;
+    if (base !== null) {
+      diffFile = path.join(scratch, 'changes.diff');
       writeFileSync(diffFile, rustDiff({ repositoryRoot, base }));
-    const status = spawnSync(
-      'cargo',
-      ['mutants', ...(base === null ? [] : ['--in-diff', diffFile])],
-      { cwd: rustRoot, stdio: 'inherit' },
-    ).status;
+    }
+    const status = spawnSync('cargo', runArguments(diffFile, timeoutMS), {
+      cwd: rustRoot,
+      stdio: 'inherit',
+    }).status;
+    const judged = JUDGED_EXIT_CODES.includes(status);
     const outcomesFile = path.join(rustRoot, 'mutants.out', 'outcomes.json');
     const outcomes =
-      (status === 0 || status === 2) && existsSync(outcomesFile)
+      judged && existsSync(outcomesFile)
         ? parseOutcomes(readFileSync(outcomesFile, 'utf8'), listed)
         : [];
-    const match = matchRustMutants({ ledger, listed, outcomes });
-    const newEntries =
-      acceptReason === null
-        ? []
-        : match.unmatched.map(({ file, mutant, occurrence }) => ({
-            file,
-            mutant,
-            occurrence,
-            reason: acceptReason,
-          }));
-    const judged = {
+    const accepted = matchRustMutants({
+      ledger,
+      listed,
+      outcomes,
+      status: 'missed',
+    });
+    const hangs = matchRustMutants({
+      ledger: hangLedger,
+      listed,
+      outcomes,
+      status: 'timeout',
+    });
+    const newEntries = entriesFor(accepted, acceptReason);
+    const newHangEntries = entriesFor(hangs, hangReason);
+    // A mutant an entry is written for fails the run no more.
+    const withoutRecorded = (match: RustMatch, reason: string | null) => ({
       ...match,
-      unmatched: acceptReason === null ? match.unmatched : [],
-    };
+      unmatched: reason === null ? match.unmatched : [],
+    });
     return {
       failures: rustFailures({
         status,
-        match: status === 0 || status === 2 ? judged : null,
+        accepted: judged ? withoutRecorded(accepted, acceptReason) : null,
+        hangs: judged ? withoutRecorded(hangs, hangReason) : null,
       }),
       newEntries,
+      newHangEntries,
     };
   } finally {
     rmSync(scratch, { recursive: true, force: true });

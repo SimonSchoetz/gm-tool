@@ -56,3 +56,17 @@ The vendored `iroh-mdns-address-lookup` crate (`app/src-tauri/vendor/`) and the 
 **Citation:** [implement_1: ran `cargo mutants --in-diff <diff>` in `app/src-tauri/` and read `mutants.out/outcomes.json` — observed 6 `outcomes[]` entries for 5 mutants, the first `{scenario: "Baseline", summary: "Success"}`, the others `{scenario: {Mutant: {name, file, function, span, replacement, genre}}, summary: "CaughtMutant" | "MissedMutant"}`, and the totals `total_mutants`, `missed`, `caught`, `timeout`, `unviable`]
 
 A mutant entry's `summary` also carries `log_path`, `diff_path` and `phase_results`.
+
+## A timed-out mutant's `summary` in `mutants.out/outcomes.json` is `Timeout`, and `outcomes.json` is rewritten after every mutant, so it holds every tested mutant at exit 3
+
+**Verified at:** cargo-mutants 27.1.0
+**Citation:** [implement_1: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/outcome.rs:262-291`], [implement_2: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/outcome.rs:330-338`], [implement_3: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/output.rs:197-225`]
+
+`summary()` checks an unviable build first, then a timeout, then caught and missed (`outcome.rs:262-291`), and `SummaryOutcome` derives `Serialize`, so its unit variants are written by name (`outcome.rs:330-338`). `add_scenario_outcome` calls `write_lab_outcome`, which rewrites `outcomes.json`, for each scenario, and appends a timed-out mutant's name to `timeout.txt` (`output.rs:197-225`).
+
+## `cargo mutants --timeout <seconds>` takes a float and sets the test timeout in place of the one derived from the baseline test run, which is the baseline duration times `--timeout-multiplier` (default 5), at least `--minimum-test-timeout`
+
+**Verified at:** cargo-mutants 27.1.0
+**Citation:** [implement_4: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/main.rs:313-319`], [implement_5: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/options.rs:385-386`], [implement_6: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cargo-mutants-27.1.0/src/timeouts.rs:56-68`]
+
+The flag is `timeout: Option<f64>` and `--timeout-multiplier` is declared `conflicts_with = "timeout"` (`main.rs:313-319`); options map it to `test_timeout` (`options.rs:385-386`), and `test_timeout` returns it when set, else the larger of the minimum test timeout and the baseline test duration times the multiplier, `unwrap_or(5.0)` (`timeouts.rs:56-68`).
