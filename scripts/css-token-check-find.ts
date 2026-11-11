@@ -171,7 +171,7 @@ export const buildTokenIndex = (variableSheets: string[]): TokenIndex => {
     for (const { property, value } of declarationsOf(
       blankNonDeclarationText(sheet).text,
     )) {
-      if (property.startsWith('--')) definitions.set(property, value.trim());
+      definitions.set(property, value.trim());
     }
   }
   const index: TokenIndex = new Map();

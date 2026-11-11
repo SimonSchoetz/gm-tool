@@ -42,34 +42,16 @@
     "lineText": "if (inner === null) return null;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a null inner result makes the replaced text the word null, which no canonical key reads, so the value is left out of the index either way"
-  },
-  {
-    "file": "../scripts/css-token-check-find.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+    "reason": "stays: removing the null test would hand the replacer callback a string | null where it must return a string, which type-checks only through a non-null assertion or by turning null into the text \"null\""
   },
   {
     "file": "../scripts/css-token-check-find.ts",
     "mutator": "MethodExpression",
     "replacement": "value",
-    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
+    "lineText": "definitions.set(property, value.trim());",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
-  },
-  {
-    "file": "../scripts/css-token-check-find.ts",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "if (property.startsWith('--')) definitions.set(property, value.trim());",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "a declaration that is no custom property names no token family, so recording it among the definitions adds no index entry; the trim it skips is repeated by canonicalKey"
+    "reason": "the trim it skips is repeated by canonicalKey"
   },
   {
     "file": "../scripts/css-token-check-find.ts",
@@ -87,7 +69,7 @@
     "lineText": "if (TOKEN_FAMILIES.zIndex.property.test(property) && INTEGER.test(trimmed)) {",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a non-integer z-index value gives raw values whose keys no z-index token holds, and an integer in another family finds no token of that family, so the hits are the same"
+    "reason": "stays: the property test is not redundant, because without it a bare integer in any property would be read as a raw value, and `margin: 0` would then match a spacing token worth 0; no test pins that, and a test written only to kill this mutant is out of scope"
   },
   {
     "file": "../scripts/css-token-check-find.ts",
@@ -96,7 +78,7 @@
     "lineText": "const tokens = key === null ? [] : tokensEqualTo(property, key, index);",
     "occurrence": 0,
     "lines": 1,
-    "reason": "a null key looks up an index key no entry holds, so the tokens are empty either way"
+    "reason": "stays: canonicalKey returns string | null and tokensEqualTo takes a string key, so removing the null test type-checks only through a non-null assertion"
   },
   {
     "file": "../scripts/mutation-check-diff.ts",
@@ -114,7 +96,7 @@
     "lineText": "if (hunk === null || currentFile === null) continue;",
     "occurrence": 0,
     "lines": 1,
-    "reason": "with no file named yet, the push below reaches the ranges of no file and does nothing, so the guard changes no result"
+    "reason": "stays: the git diff text is external tool output, and removing the currentFile test would pass a string | null to Map.get, which type-checks only through a non-null assertion"
   },
   {
     "file": "../scripts/mutation-check-diff.ts",
@@ -123,7 +105,7 @@
     "lineText": "changedLines",
     "occurrence": 0,
     "lines": 3,
-    "reason": "the guard above leaves only a current file that changedLines already holds, so the optional chain is never needed"
+    "reason": "stays: Map.get returns the range list or undefined, so removing the optional chain type-checks only through a non-null assertion"
   },
   {
     "file": "../scripts/mutation-check-ledger.ts",
@@ -132,7 +114,7 @@
     "lineText": "if (typeof fieldValue !== 'number' || !Number.isInteger(fieldValue))",
     "occurrence": 0,
     "lines": 1,
-    "reason": "Number.isInteger is false for every value that is no number, so the typeof test changes no result"
+    "reason": "stays: entry values come from parsed JSON (the ledger file), so the static type may not hold at run time"
   },
   {
     "file": "../scripts/mutation-check-ledger.ts",
@@ -150,7 +132,7 @@
     "lineText": "typeof occurrence !== 'number' ||",
     "occurrence": 0,
     "lines": 1,
-    "reason": "Number.isInteger is false for every value that is no number, so the typeof test changes no result"
+    "reason": "stays: entry values come from parsed JSON (the Rust ledger file), so the static type may not hold at run time"
   },
   {
     "file": "../scripts/mutation-check-rust.ts",
@@ -159,7 +141,7 @@
     "lineText": "`cargo mutants exited with ${status ?? 'a signal'}${status !== null && status in FAILURE_EXIT_CODES ? `: ${FAILURE_EXIT_CODES[status]}` : ''}.`,",
     "occurrence": 0,
     "lines": 1,
-    "reason": "null is no key of the exit-code table, so the null test in front of the lookup changes no message"
+    "reason": "stays: the exit status is external cargo output and status is number | null, so removing the null test makes `status in FAILURE_EXIT_CODES` a type error that only a non-null assertion would clear"
   },
   {
     "file": "../scripts/mutation-check-rust.ts",
