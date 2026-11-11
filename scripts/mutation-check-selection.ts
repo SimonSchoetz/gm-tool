@@ -1,7 +1,10 @@
 // Which files under app/ scripts/mutation-check.ts mutates, and which of their lines.
-// Pure: the script lists the changed and the tracked paths, checks which candidate test files exist, and passes the lists in. Every path is relative to app/.
+// Pure: the script lists the candidate paths, checks which candidate test files exist, and passes them in. Every path is relative to app/.
 import path from 'path';
 import type { MutatedRanges } from './mutation-check-ledger.ts';
+
+// The ESLint rules are plain JavaScript, with their tests beside them in `__tests__/`.
+const JAVASCRIPT_DIRECTORY = 'eslint-rules';
 
 const PRODUCTION_DIRECTORIES = [
   'src',
@@ -11,10 +14,8 @@ const PRODUCTION_DIRECTORIES = [
   'dev-data-server',
   'platform',
   'util',
-  'eslint-rules',
+  JAVASCRIPT_DIRECTORY,
 ];
-// The ESLint rules are plain JavaScript, with their tests beside them in `__tests__/`.
-const JAVASCRIPT_DIRECTORY = 'eslint-rules';
 
 type FileRanges = NonNullable<ReturnType<MutatedRanges['get']>>;
 
@@ -47,19 +48,15 @@ export const testFileCandidates = (appRelativePath: string) => {
   );
 };
 
-// The production sources to mutate: with `all`, every tracked source; otherwise the changed ones. File arguments select among them, and an argument that is none of them is returned as unknown.
+// The production sources to mutate among `candidatePaths` (the caller lists the changed paths, or with `--all` every tracked one). File arguments select among them, and an argument that is none of them is returned as unknown.
 export const selectFiles = ({
-  all,
-  changedPaths,
-  trackedPaths,
+  candidatePaths,
   requestedFiles,
 }: {
-  all: boolean;
-  changedPaths: string[];
-  trackedPaths: string[];
+  candidatePaths: string[];
   requestedFiles: string[];
 }) => {
-  const candidates = [...new Set(all ? trackedPaths : changedPaths)]
+  const candidates = [...new Set(candidatePaths)]
     .filter(isProductionSource)
     .sort();
   return {

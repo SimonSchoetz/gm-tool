@@ -3,7 +3,7 @@ use base64::prelude::BASE64_STANDARD;
 use std::fs;
 use std::path::Path;
 
-use super::{IMAGES_DIR, app_data_dir, image_path};
+use super::{IMAGES_DIR, app_data_dir, image_path, validate_image_request};
 
 /// Writes base64-encoded image bytes to the app's data directory, overwriting any existing file.
 ///
@@ -23,6 +23,7 @@ pub async fn save_image_bytes(
     extension: String,
     data_base64: String,
 ) -> Result<(), String> {
+    validate_image_request(&id, &extension)?;
     save_bytes_in(&app_data_dir(&app_handle)?, &id, &extension, data_base64)
 }
 

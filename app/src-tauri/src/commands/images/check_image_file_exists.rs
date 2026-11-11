@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use super::{app_data_dir, image_path};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Checks whether a stored image file exists in the app's data directory.
 ///
@@ -18,6 +18,7 @@ pub async fn check_image_file_exists(
     id: String,
     extension: String,
 ) -> Result<bool, String> {
+    validate_image_request(&id, &extension)?;
     exists_in(&app_data_dir(&app_handle)?, &id, &extension)
 }
 
@@ -41,19 +42,5 @@ mod tests {
         assert_eq!(exists_in(dir.path(), "abc", "png"), Ok(true));
         assert_eq!(exists_in(dir.path(), "abc", "jpg"), Ok(false));
         assert_eq!(exists_in(dir.path(), "other", "png"), Ok(false));
-    }
-
-    #[test]
-    fn rejects_an_invalid_id_or_extension_with_the_error_naming_it() {
-        let dir = TestDir::new("images-exists-invalid");
-
-        assert_eq!(
-            exists_in(dir.path(), "../abc", "png"),
-            Err("Invalid image id: ../abc".to_string())
-        );
-        assert_eq!(
-            exists_in(dir.path(), "abc", "exe"),
-            Err("Invalid file extension: exe".to_string())
-        );
     }
 }

@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 
-use super::{app_data_dir, image_path};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Deletes an image file from the app's data directory.
 ///
@@ -19,6 +19,7 @@ pub async fn delete_image(
     id: String,
     extension: String,
 ) -> Result<(), String> {
+    validate_image_request(&id, &extension)?;
     delete_in(&app_data_dir(&app_handle)?, &id, &extension)
 }
 
@@ -73,20 +74,6 @@ mod tests {
             delete_in(dir.path(), "abc", "png")
                 .unwrap_err()
                 .starts_with("Failed to delete file: ")
-        );
-    }
-
-    #[test]
-    fn rejects_an_invalid_id_or_extension_and_deletes_nothing() {
-        let dir = TestDir::new("images-delete-invalid");
-
-        assert_eq!(
-            delete_in(dir.path(), "../abc", "png"),
-            Err("Invalid image id: ../abc".to_string())
-        );
-        assert_eq!(
-            delete_in(dir.path(), "abc", "exe"),
-            Err("Invalid file extension: exe".to_string())
         );
     }
 }

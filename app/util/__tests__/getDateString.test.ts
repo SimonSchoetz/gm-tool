@@ -9,7 +9,7 @@ describe('getDateString', () => {
     expect(getDateString(dateString)).toBe(expected);
   });
 
-  it('fails gracefully', () => {
+  it('formats a string that is no date as the text "Invalid Date" instead of throwing', () => {
     const result = getDateString('no proper date string');
     expect(result).toBe('Invalid Date');
   });

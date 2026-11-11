@@ -609,7 +609,7 @@
     "lineText": "} catch {",
     "occurrence": 0,
     "lines": 3,
-    "reason": "the code comment at this statement states why no test can observe this change"
+    "reason": "without the early return the unparsed value is undefined, which the schema rejects as it does the null the function returns; the comment above the function states the null case"
   },
   {
     "file": "domain/encounters/nonNegativeWholeNumber.ts",
@@ -815,35 +815,8 @@
     "replacement": "true",
     "lineText": "candidate.name !== undefined &&",
     "occurrence": 0,
-    "lines": 2,
-    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "candidate.name !== undefined &&",
-    "occurrence": 0,
     "lines": 1,
     "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "LogicalOperator",
-    "replacement": "candidate.name !== undefined || ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)",
-    "lineText": "candidate.name !== undefined &&",
-    "occurrence": 0,
-    "lines": 2,
-    "reason": "a spread assignment is rejected earlier and is the only property without a name, so the name test changes no result"
-  },
-  {
-    "file": "eslint-rules/no-constant-argument.js",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "(ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)) &&",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "an object argument property named by a number is read as omitted and the parameter named by a string key is then reported, a result that looks wrong and is reported to the lead rather than pinned"
   },
   {
     "file": "eslint-rules/no-constant-argument.js",
@@ -1566,6 +1539,60 @@
     "reason": "the first token of an identifier node is the identifier itself, so reporting at the first token or at the node gives the same range"
   },
   {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "type: 'suggestion',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "lineText": "docs: {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "lineText": "'Disallow a single sentence or paragraph manually split across consecutive `//` comment lines — each comment must be one continuous line per root CLAUDE.md.',",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "meta.type, meta.docs and the description text are descriptive rule metadata that no lint result exposes, so a test could only assert the text it copies from the source"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "EqualityOperator",
+    "replacement": "index <= lineComments.length",
+    "lineText": "while (index < lineComments.length) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the extra iteration reads no comment, forms a group of one undefined entry that nothing reports, and ends the loop, so the condition changes no result"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "sourceCode.getTokenBefore(candidate, {",
+    "occurrence": 0,
+    "lines": 3,
+    "reason": "a comment on the line after another comment, in the same column, has only whitespace before it, so no token can sit between the two and the test changes no result"
+  },
+  {
+    "file": "eslint-rules/no-wrapped-line-comments.js",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (group.length >= 2) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "a group of one comment has no non-last line, so the terminated test passes for it and nothing is reported either way"
+  },
+  {
     "file": "platform/webPlatform.ts",
     "mutator": "BlockStatement",
     "replacement": "{}",
@@ -2143,30 +2170,12 @@
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
-    "mutator": "CallExpression",
-    "replacement": ";",
-    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "whether the pending hide of a hover popup still runs after its badge was removed is undecided (reported to the lead); no test pins either outcome"
-  },
-  {
-    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "whether the pending hide of a hover popup still runs after its badge was removed is undecided (reported to the lead); no test pins either outcome"
-  },
-  {
-    "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
     "mutator": "ConditionalExpression",
     "replacement": "true",
     "lineText": "if (hideTimerRef.current) clearTimeout(hideTimerRef.current);",
     "occurrence": 0,
     "lines": 1,
-    "reason": "whether the pending hide of a hover popup still runs after its badge was removed is undecided (reported to the lead); no test pins either outcome"
+    "reason": "clearTimeout on a null id does nothing, so the guard only skips a call that changes no result"
   },
   {
     "file": "src/components/TextEditor/components/MentionBadge/MentionBadge.tsx",
@@ -2592,15 +2601,6 @@
     "reason": "a null caret makes the slice below empty, which no rule pattern matches, so the function returns null anyway"
   },
   {
-    "file": "src/hooks/useTypographicInput/useTypographicInput.ts",
-    "mutator": "StringLiteral",
-    "replacement": "\"Stryker was here!\"",
-    "lineText": "const previousValueRef = useRef('');",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "the initial text matters only to a first change event on a field that already holds text when the hook mounts, which the hook does not read; whether a first keystroke there should substitute is undecided and reported to the lead, so no test pins it"
-  },
-  {
     "file": "src/screens/encounter/components/EncounterActions/EncounterActions.tsx",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
@@ -2725,42 +2725,6 @@
     "occurrence": 0,
     "lines": 1,
     "reason": "class names only; jsdom computes no style and component tests may not assert a class name"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "ConditionalExpression",
-    "replacement": "true",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "EqualityOperator",
-    "replacement": "activeTab !== 'log'",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
-  },
-  {
-    "file": "src/screens/encounter/components/EncounterSidebar/EncounterSidebar.tsx",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "lineText": "<EncounterLogTab isOpen={activeTab === 'log'} />",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "isOpen only decides the scroll to the newest line, and jsdom computes no scroll height"
   },
   {
     "file": "src/screens/encounter/helper/buildLogLines.ts",

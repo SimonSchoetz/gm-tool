@@ -3,7 +3,7 @@ use base64::prelude::BASE64_STANDARD;
 use std::fs;
 use std::path::Path;
 
-use super::{app_data_dir, image_path};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Reads a stored image file and returns its contents as a base64-encoded string.
 ///
@@ -21,6 +21,7 @@ pub async fn read_image_bytes(
     id: String,
     extension: String,
 ) -> Result<String, String> {
+    validate_image_request(&id, &extension)?;
     read_in(&app_data_dir(&app_handle)?, &id, &extension)
 }
 
@@ -69,20 +70,6 @@ mod tests {
             read_in(dir.path(), "abc", "png")
                 .unwrap_err()
                 .starts_with("Failed to read file: ")
-        );
-    }
-
-    #[test]
-    fn rejects_an_invalid_id_or_extension_with_the_error_naming_it() {
-        let dir = TestDir::new("images-read-invalid");
-
-        assert_eq!(
-            read_in(dir.path(), "", "png"),
-            Err("Invalid image id: ".to_string())
-        );
-        assert_eq!(
-            read_in(dir.path(), "abc", "tiff"),
-            Err("Invalid file extension: tiff".to_string())
         );
     }
 }

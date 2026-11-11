@@ -172,4 +172,44 @@ describe('EncounterSidebar', () => {
       screen.getByRole('textbox', { name: 'Combatant name to add' }),
     ).toHaveValue('Grunt');
   });
+
+  describe('the log scroll position', () => {
+    const SCROLL_HEIGHT = 480;
+    const scrollTops = new WeakMap<Element, number>();
+
+    beforeEach(() => {
+      // jsdom computes no layout: give every element a scroll height and a scroll position that keeps what is written to it.
+      Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {
+        configurable: true,
+        get: () => SCROLL_HEIGHT,
+      });
+      Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+        configurable: true,
+        get(this: HTMLElement) {
+          return scrollTops.get(this) ?? 0;
+        },
+        set(this: HTMLElement, value: number) {
+          scrollTops.set(this, value);
+        },
+      });
+    });
+
+    afterEach(() => {
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollHeight');
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollTop');
+    });
+
+    it('scrolls the log to its end when the Log tab opens, and not while another tab is open', async () => {
+      const user = userEvent.setup();
+      await renderSidebar();
+      const logScroller = () =>
+        screen.getByText('No entries yet.', { selector: 'p' }).parentElement;
+      await screen.findByText('No entries yet.', { selector: 'p' });
+      expect(logScroller()?.scrollTop).toBe(0);
+
+      await user.click(screen.getByRole('tab', { name: 'Log' }));
+
+      expect(logScroller()?.scrollTop).toBe(SCROLL_HEIGHT);
+    });
+  });
 });

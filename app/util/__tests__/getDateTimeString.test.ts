@@ -12,7 +12,7 @@ describe('getDateTimeString', () => {
     },
   );
 
-  it('fails gracefully', () => {
+  it('formats a string that is no date as the text "Invalid Date Invalid Date", its date part and its time part, instead of throwing', () => {
     const result = getDateTimeString('no proper date string');
     expect(result).toBe('Invalid Date Invalid Date');
   });

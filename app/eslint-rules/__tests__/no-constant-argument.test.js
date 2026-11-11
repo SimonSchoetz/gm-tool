@@ -892,4 +892,15 @@ describe('rule', () => {
       ),
     );
   });
+
+  it('reads an object argument property written as a number as a property of no name, so a slot keyed by the same text reads as omitted', () => {
+    // JavaScript names the property `1` either way; this pins what the rule does today for the numeric form.
+    expect(
+      findingsIn({
+        '/p/f.ts': [
+          "const numbered = ({ '1': one }: { '1': number }) => one; numbered({ 1: 5 }); numbered({ 1: 6 });",
+        ].join('\n'),
+      }),
+    ).toEqual(["/p/f.ts:alwaysOmitted:numbered.1 '1': one"]);
+  });
 });

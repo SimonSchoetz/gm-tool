@@ -1,5 +1,5 @@
 # cargo-mutants configuration for `pnpm run mutation-check` (scripts/mutation-check-rust.ts).
-# The networking glue `CLAUDE.md` — Testing exempts from unit tests is left out: no test observes it, so a missed mutant there is no gap to close. `pairing.rs` also holds unit-tested logic (`evaluate_code_submit`, `evaluate_code_verdict`) and `mod.rs` holds none of the glue, so those two files stay in scope and only the glue functions of `pairing.rs` are excluded by name.
+# The networking glue `app/src-tauri/CLAUDE.md` — Testing exempts from unit tests is left out: no test observes it, so a missed mutant there is no gap to close. `pairing.rs` also holds unit-tested logic (`evaluate_code_submit`, `evaluate_code_verdict`) and `mod.rs` holds none of the glue, so those two files stay in scope and only the glue functions of `pairing.rs` are excluded by name.
 exclude_globs = [
   "src/commands/connectivity/**",
   "src/connectivity/connections.rs",

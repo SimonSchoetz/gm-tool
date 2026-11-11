@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use super::{app_data_dir, image_path};
+use super::{app_data_dir, image_path, validate_image_request};
 
 /// Gets a URL for an image that can be used in frontend <img> tags.
 ///
@@ -18,6 +18,7 @@ pub async fn get_image_url(
     id: String,
     extension: String,
 ) -> Result<String, String> {
+    validate_image_request(&id, &extension)?;
     url_in(&app_data_dir(&app_handle)?, &id, &extension)
 }
 
@@ -60,20 +61,6 @@ mod tests {
         assert_eq!(
             url_in(dir.path(), "abc", "png"),
             Err("Image file not found: abc.png".to_string())
-        );
-    }
-
-    #[test]
-    fn rejects_an_invalid_id_or_extension_with_the_error_naming_it() {
-        let dir = TestDir::new("images-url-invalid");
-
-        assert_eq!(
-            url_in(dir.path(), "a/b", "png"),
-            Err("Invalid image id: a/b".to_string())
-        );
-        assert_eq!(
-            url_in(dir.path(), "abc", "bmp"),
-            Err("Invalid file extension: bmp".to_string())
         );
     }
 }

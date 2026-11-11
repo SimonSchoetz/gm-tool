@@ -55,62 +55,30 @@ describe('testFileCandidates', () => {
 });
 
 describe('selectFiles', () => {
-  const changedPaths = ['util/b.ts', 'util/a.ts', 'util/__tests__/a.test.ts'];
-  const trackedPaths = [
-    'util/a.ts',
+  const candidatePaths = [
     'util/b.ts',
+    'util/a.ts',
+    'util/__tests__/a.test.ts',
     'util/c.ts',
     'util/c.ts',
     'src/types/x.d.ts',
   ];
 
-  it('without all, selects only the changed production sources, sorted', () => {
+  it('selects every candidate that is a production source once, sorted', () => {
     expect(
-      selectFiles({
-        all: false,
-        changedPaths,
-        trackedPaths,
-        requestedFiles: [],
-      }).selected,
-    ).toEqual(['util/a.ts', 'util/b.ts']);
-  });
-
-  it('with all, selects every tracked production source once and ignores the changed list', () => {
-    expect(
-      selectFiles({
-        all: true,
-        changedPaths: [],
-        trackedPaths,
-        requestedFiles: [],
-      }).selected,
+      selectFiles({ candidatePaths, requestedFiles: [] }).selected,
     ).toEqual(['util/a.ts', 'util/b.ts', 'util/c.ts']);
   });
 
-  it('selects the requested files among the candidates, with all too', () => {
-    const request = ['util/c.ts'];
+  it('selects the requested files among the candidates', () => {
     expect(
-      selectFiles({
-        all: true,
-        changedPaths,
-        trackedPaths,
-        requestedFiles: request,
-      }).selected,
+      selectFiles({ candidatePaths, requestedFiles: ['util/c.ts'] }).selected,
     ).toEqual(['util/c.ts']);
-    expect(
-      selectFiles({
-        all: false,
-        changedPaths,
-        trackedPaths,
-        requestedFiles: ['util/a.ts'],
-      }).selected,
-    ).toEqual(['util/a.ts']);
   });
 
   it('returns a requested file that is no candidate as unknown', () => {
     const result = selectFiles({
-      all: false,
-      changedPaths,
-      trackedPaths,
+      candidatePaths: ['util/a.ts', 'util/b.ts'],
       requestedFiles: ['util/a.ts', 'util/c.ts', 'src/types/x.d.ts'],
     });
     expect(result.unknown).toEqual(['util/c.ts', 'src/types/x.d.ts']);

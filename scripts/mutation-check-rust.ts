@@ -12,11 +12,11 @@ import {
 } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
+import { MAX_GIT_OUTPUT_BYTES } from './mutation-check-diff.ts';
 
 const RUST_ROOT = 'app/src-tauri';
 const RUST_SOURCE_PREFIX = `${RUST_ROOT}/src/`;
 const INSTALL_COMMAND = 'cargo install --locked cargo-mutants';
-const MAX_BUFFER = 256 * 1024 * 1024;
 
 // cargo-mutants' exit codes other than 0 (every mutant caught) and 2 (some missed), https://mutants.rs/exit-codes.html
 const FAILURE_EXIT_CODES: Record<number, string> = {
@@ -236,8 +236,7 @@ export const matchRustMutants = ({
         outcome.status === 'missed' && !entryKeys.has(entryKey(outcome)),
     ),
     stale: ledger.filter((entry) => {
-      const status = outcomeByKey.get(entryKey(entry))?.status ?? null;
-      return status !== null && status !== 'missed';
+      return outcomeByKey.get(entryKey(entry))?.status === 'caught';
     }),
     missing: ledger.filter((entry) => !listedKeys.has(entryKey(entry))),
   };
@@ -287,7 +286,7 @@ const git = (cwd: string, args: string[], okStatus = 0) => {
   const result = spawnSync('git', ['-c', 'core.quotePath=false', ...args], {
     cwd,
     encoding: 'utf8',
-    maxBuffer: MAX_BUFFER,
+    maxBuffer: MAX_GIT_OUTPUT_BYTES,
   });
   if (result.status !== okStatus)
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`);
@@ -366,7 +365,7 @@ export const runRustMutation = ({
     execFileSync('cargo', ['mutants', '--list', '--json'], {
       cwd: rustRoot,
       encoding: 'utf8',
-      maxBuffer: MAX_BUFFER,
+      maxBuffer: MAX_GIT_OUTPUT_BYTES,
     }),
   );
   const scratch = mkdtempSync(path.join(tmpdir(), 'mutation-check-rust-'));

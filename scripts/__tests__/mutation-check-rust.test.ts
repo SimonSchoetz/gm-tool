@@ -311,7 +311,7 @@ describe('matchRustMutants', () => {
     expect(result.unmatched).toEqual([outcome('missed')]);
   });
 
-  it('reports an entry whose mutant ran and was caught as stale, and one whose mutant did not run as neither', () => {
+  it('reports an entry whose mutant was caught as stale, and one whose mutant did not run or did not get caught as not stale', () => {
     const caught = matchRustMutants({
       ledger: [entry()],
       listed,
@@ -324,13 +324,15 @@ describe('matchRustMutants', () => {
       outcomes: [],
     });
     expect(notRun.stale).toEqual([]);
-    expect(
-      matchRustMutants({
-        ledger: [entry()],
-        listed,
-        outcomes: [outcome('missed')],
-      }).stale,
-    ).toEqual([]);
+    for (const status of ['missed', 'timeout', 'unviable'] as const) {
+      expect(
+        matchRustMutants({
+          ledger: [entry()],
+          listed,
+          outcomes: [outcome(status)],
+        }).stale,
+      ).toEqual([]);
+    }
   });
 
   it('reports an entry whose mutant is not in the full list as missing', () => {

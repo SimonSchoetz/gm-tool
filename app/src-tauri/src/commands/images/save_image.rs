@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::{IMAGES_DIR, app_data_dir, image_path};
+use super::{IMAGES_DIR, app_data_dir, image_path, validate_image_request};
 
 /// Saves an image file from the source path to the app's data directory.
 ///
@@ -21,6 +21,7 @@ pub async fn save_image(
     id: String,
     extension: String,
 ) -> Result<u64, String> {
+    validate_image_request(&id, &extension)?;
     save_in(&app_data_dir(&app_handle)?, &source_path, &id, &extension)
 }
 

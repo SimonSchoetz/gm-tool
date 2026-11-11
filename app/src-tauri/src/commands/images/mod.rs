@@ -38,12 +38,8 @@ pub(crate) fn app_data_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, Str
         .map_err(|e| format!("Failed to get app data directory: {e}"))
 }
 
-/// The path of the stored image file `<id>.<extension>` under `app_data_dir`, or the error that names the id or the extension the file name cannot carry.
-pub(crate) fn image_path(
-    app_data_dir: &Path,
-    id: &str,
-    extension: &str,
-) -> Result<PathBuf, String> {
+/// The error that names the id or the extension an image file name cannot carry. Each command runs it before it resolves the app data directory, so a bad request is refused first.
+pub(crate) fn validate_image_request(id: &str, extension: &str) -> Result<(), String> {
     if !is_valid_image_id(id) {
         return Err(format!("Invalid image id: {id}"));
     }
@@ -51,6 +47,17 @@ pub(crate) fn image_path(
     if !VALID_EXTENSIONS.contains(&extension) {
         return Err(format!("Invalid file extension: {extension}"));
     }
+
+    Ok(())
+}
+
+/// The path of the stored image file `<id>.<extension>` under `app_data_dir`, or the error `validate_image_request` gives.
+pub(crate) fn image_path(
+    app_data_dir: &Path,
+    id: &str,
+    extension: &str,
+) -> Result<PathBuf, String> {
+    validate_image_request(id, extension)?;
 
     Ok(app_data_dir
         .join(IMAGES_DIR)

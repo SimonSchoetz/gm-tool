@@ -85,4 +85,14 @@ describe('useTypographicInput', () => {
 
     expect(setSelectionRange).not.toHaveBeenCalled();
   });
+
+  it('does not substitute at the first keystroke into a field that already held text, since it knows no earlier value', () => {
+    const { result, onValueChange } = renderTypographicInput();
+
+    act(() => {
+      result.current.handleChange(typed('abcdefghijklmnop->', 18));
+    });
+
+    expect(onValueChange).toHaveBeenCalledWith('abcdefghijklmnop->');
+  });
 });

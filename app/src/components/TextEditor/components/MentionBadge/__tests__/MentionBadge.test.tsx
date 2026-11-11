@@ -357,6 +357,18 @@ describe('MentionBadge hover and popup bridge', () => {
     expect(popupOf('goblin')).toBeNull();
   });
 
+  it('leaves a hover popup open when its badge is removed after the pointer left it and before the hide delay ran out', () => {
+    const { badge, rerender } = renderOne();
+    fireEvent.mouseEnter(badge);
+    advanceTimers(HOVER_DELAY_MS);
+    fireEvent.mouseLeave(badge);
+
+    rerender(<PinnedPopupsProvider>{null}</PinnedPopupsProvider>);
+    advanceTimers(HOVER_DELAY_MS);
+
+    expect(popupOf('goblin')).not.toBeNull();
+  });
+
   it('opens a popup above the badge only when the badge is below the middle of the window', () => {
     const { badge } = renderOne();
     badge.getBoundingClientRect = () =>

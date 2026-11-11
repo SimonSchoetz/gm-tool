@@ -28,7 +28,7 @@ describe('formatDateValue', () => {
     );
   });
 
-  it('returns the unparseable date text for a string that is no date', () => {
+  it('formats a string that is no date as the text "Invalid Date Invalid Date", not as the stored string', () => {
     expect(formatDateValue('no proper date string')).toBe(
       'Invalid Date Invalid Date',
     );
