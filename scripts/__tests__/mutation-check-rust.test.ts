@@ -27,6 +27,13 @@ import {
   type RustMutant,
   type RustOutcome,
 } from '../mutation-check-rust.ts';
+import { unsetGitEnvironment } from './support/isolated-git.ts';
+
+// A hook-run test inherits the hook's GIT_* variables, which would point the scratch repositories' git commands at the real repository (./support/isolated-git.ts).
+beforeEach(unsetGitEnvironment);
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 const jsonMutant = (
   file: string,

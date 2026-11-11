@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { execFileSync } from 'child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
@@ -7,6 +7,13 @@ import {
   changedLinesAgainst,
   parseChangedLines,
 } from '../mutation-check-diff.ts';
+import { unsetGitEnvironment } from './support/isolated-git.ts';
+
+// A hook-run test inherits the hook's GIT_* variables, which would point the scratch repositories' git commands at the real repository (./support/isolated-git.ts).
+beforeEach(unsetGitEnvironment);
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe('parseChangedLines', () => {
   it('maps each hunk to its new-side lines and skips removal-only hunks', () => {
