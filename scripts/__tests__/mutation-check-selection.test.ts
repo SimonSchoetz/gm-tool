@@ -15,24 +15,27 @@ import {
 
 describe('isProductionSource', () => {
   it.each([
-    'src/screens/adventure/AdventureScreen.tsx',
+    'src/hooks/useSyncedInputValue.ts',
+    'src/data-access-layer/mergeUpdate.ts',
+    'src/screens/adventure/helper/sortSessions.ts',
     'services/adventureService.ts',
     'domain/adventures/validate.ts',
     'db/adventure/create.ts',
-    'dev-data-server/vitePlugin.ts',
     'platform/tauriPlatform.ts',
     'util/getDateString.ts',
-    'eslint-rules/no-import-past-index.js',
-    'eslint-rules/helper.ts',
   ])('accepts %s', (file) => {
     expect(isProductionSource(file)).toBe(true);
   });
 
   it.each([
-    ['a JavaScript file outside eslint-rules', 'src/legacy.js'],
+    ['a component file', 'src/components/Button/Button.tsx'],
+    ['a screen file', 'src/screens/adventure/AdventureScreen.tsx'],
+    ['a dev data server file', 'dev-data-server/vitePlugin.ts'],
+    ['an ESLint rule file', 'eslint-rules/no-import-past-index.js'],
+    ['an ESLint rule helper', 'eslint-rules/helper.ts'],
+    ['a JavaScript file', 'src/legacy.js'],
     ['a declaration file', 'src/types/historyState.d.ts'],
     ['a test file', 'util/__tests__/getDateString.test.ts'],
-    ['a rule test file', 'eslint-rules/__tests__/no-unused-exports.test.js'],
     ['the generated route tree', 'src/routeTree.gen.ts'],
     ['a path outside the production directories', 'docs/example.ts'],
     ['a stylesheet', 'src/App/App.css'],
@@ -42,22 +45,11 @@ describe('isProductionSource', () => {
 });
 
 describe('testFileCandidates', () => {
-  it('names the .test.ts and .test.tsx files in the source folder __tests__ for a TypeScript source', () => {
-    expect(testFileCandidates('src/components/Button/Button.tsx')).toEqual([
-      'src/components/Button/__tests__/Button.test.ts',
-      'src/components/Button/__tests__/Button.test.tsx',
+  it('names the .test.ts and .test.tsx files in the source folder __tests__', () => {
+    expect(testFileCandidates('src/hooks/useThing.ts')).toEqual([
+      'src/hooks/__tests__/useThing.test.ts',
+      'src/hooks/__tests__/useThing.test.tsx',
     ]);
-  });
-
-  it('adds the .test.js file for an eslint-rules source only', () => {
-    expect(testFileCandidates('eslint-rules/no-unused-exports.js')).toEqual([
-      'eslint-rules/__tests__/no-unused-exports.test.ts',
-      'eslint-rules/__tests__/no-unused-exports.test.tsx',
-      'eslint-rules/__tests__/no-unused-exports.test.js',
-    ]);
-    expect(testFileCandidates('util/getDateString.ts')).not.toContain(
-      'util/__tests__/getDateString.test.js',
-    );
   });
 });
 
@@ -157,14 +149,6 @@ describe('lineRangesFor', () => {
   it('gives the whole file for every file under all', () => {
     expect(rangesOf('util/a.ts', true)).toBe('all');
     expect(rangesOf('util/other.ts', true)).toBe('all');
-  });
-});
-
-describe('isProductionSource in the JavaScript directory', () => {
-  it('accepts a .js rule file and refuses a file with no extension or another one', () => {
-    expect(isProductionSource('eslint-rules/no-thing.js')).toBe(true);
-    expect(isProductionSource('eslint-rules/README')).toBe(false);
-    expect(isProductionSource('eslint-rules/no-thing.json')).toBe(false);
   });
 });
 
