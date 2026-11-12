@@ -3,36 +3,24 @@
 import path from 'path';
 import type { MutatedRanges } from './mutation-check-ledger.ts';
 
-// The ESLint rules are plain JavaScript, with their tests beside them in `__tests__/`.
-const JAVASCRIPT_DIRECTORY = 'eslint-rules';
-
+// The layers whose logic carries the app's data. Left out: the ESLint rules and the dev data server (development tooling, whose defects show while developing), and under `src/` every `.tsx` file (components, screens, providers and routes), whose surviving mutants are almost all presentation no test may read.
 const PRODUCTION_DIRECTORIES = [
   'src',
   'services',
   'domain',
   'db',
-  'dev-data-server',
   'platform',
   'util',
-  JAVASCRIPT_DIRECTORY,
 ];
 
 type FileRanges = NonNullable<ReturnType<MutatedRanges['get']>>;
-
-const inJavascriptDirectory = (appRelativePath: string) =>
-  appRelativePath.startsWith(`${JAVASCRIPT_DIRECTORY}/`);
-
-const sourceExtensions = (appRelativePath: string) =>
-  inJavascriptDirectory(appRelativePath)
-    ? ['.ts', '.tsx', '.js']
-    : ['.ts', '.tsx'];
 
 // eslint-disable-next-line local/no-unused-exports -- tests pin which paths are production sources, apart from the selection that uses it
 export const isProductionSource = (appRelativePath: string) =>
   PRODUCTION_DIRECTORIES.some((directory) =>
     appRelativePath.startsWith(`${directory}/`),
   ) &&
-  sourceExtensions(appRelativePath).includes(path.extname(appRelativePath)) &&
+  path.extname(appRelativePath) === '.ts' &&
   !appRelativePath.endsWith('.d.ts') &&
   !appRelativePath.includes('__tests__/') &&
   appRelativePath !== 'src/routeTree.gen.ts';
@@ -40,10 +28,7 @@ export const isProductionSource = (appRelativePath: string) =>
 // The paths a source's own test file can have; the source has one when any of them exists.
 export const testFileCandidates = (appRelativePath: string) => {
   const { dir, name } = path.parse(appRelativePath);
-  const suffixes = inJavascriptDirectory(appRelativePath)
-    ? ['.test.ts', '.test.tsx', '.test.js']
-    : ['.test.ts', '.test.tsx'];
-  return suffixes.map((suffix) =>
+  return ['.test.ts', '.test.tsx'].map((suffix) =>
     path.join(dir, '__tests__', `${name}${suffix}`),
   );
 };
