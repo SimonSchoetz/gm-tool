@@ -87,6 +87,31 @@ describe('registry', () => {
     }
   });
 
+  it("lists each migrated table's foreign keys, every one referencing a row's id, as the table's registry parents", async () => {
+    const db = await openMigratedDatabase();
+
+    for (const table of SYNCED_TABLES) {
+      const references = await db.select<
+        { table: string; from: string; to: string }[]
+      >(`PRAGMA foreign_key_list(${table.name})`);
+      expect(
+        references.map((reference) => reference.to),
+        table.name,
+      ).toEqual(references.map(() => 'id'));
+      expect(
+        [...table.parents].sort((x, y) => x.column.localeCompare(y.column)),
+        table.name,
+      ).toEqual(
+        references
+          .map((reference) => ({
+            column: reference.from,
+            table: reference.table,
+          }))
+          .sort((x, y) => x.column.localeCompare(y.column)),
+      );
+    }
+  });
+
   it('includes id and updated_at in the columns of every synced table', () => {
     for (const table of SYNCED_TABLES) {
       expect(table.columns, table.name).toContain('id');

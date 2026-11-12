@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "file": "services/syncService.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "while (children.length > 0) {",
+    "occurrence": 0,
+    "lines": 43,
+    "reason": "an emptied loop body never replaces children, so the while loop in getParentsSentLater never ends"
+  },
+  {
+    "file": "services/syncService.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "children.length >= 0",
+    "lineText": "while (children.length > 0) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "`>= 0` holds for the empty list the last pass leaves in children, so the while loop in getParentsSentLater never ends"
+  }
+]

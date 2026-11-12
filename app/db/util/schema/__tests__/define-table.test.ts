@@ -84,4 +84,15 @@ describe('defineTable createTableSQL', () => {
       "CREATE TABLE IF NOT EXISTS child_table ( id TEXT PRIMARY KEY, parent_id TEXT NOT NULL, other_id TEXT, status TEXT DEFAULT 'open', note TEXT, FOREIGN KEY (parent_id) REFERENCES parents(id) ON DELETE CASCADE, FOREIGN KEY (other_id) REFERENCES others(key) )",
     );
   });
+
+  it('lists each foreign-key column with the table it references, in column order', () => {
+    expect(child.foreignKeys).toEqual([
+      { column: 'parent_id', table: 'parents' },
+      { column: 'other_id', table: 'others' },
+    ]);
+  });
+
+  it('lists no foreign keys for a table that declares none', () => {
+    expect(table.foreignKeys).toEqual([]);
+  });
 });
