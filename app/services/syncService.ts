@@ -22,7 +22,8 @@ type SyncMessageOutcome =
   | { kind: 'applied' }
   | { kind: 'none' };
 
-const BATCH_LIMIT = 200;
+// eslint-disable-next-line local/no-unused-exports -- tests derive their batch sizes and expected batch counts from it
+export const BATCH_LIMIT = 200;
 const FILE_CHUNK_SOURCE_BYTES = 256 * 1024;
 // 4-char-aligned so every chunk (except possibly the last) is an independently decodable base64 substring representing exactly N source bytes.
 const CHARS_PER_FILE_CHUNK = Math.floor(FILE_CHUNK_SOURCE_BYTES / 3) * 4;
@@ -102,6 +103,67 @@ const handleSyncHello = async (
   return { kind: 'compat', compat };
 };
 
+const rowKey = (tableName: string, rowId: string): string =>
+  `${tableName}:${rowId}`;
+
+// A row whose parent was edited after it has an earlier change seq than the parent, so with BATCH_LIMIT between them the two land in different batches; the receiver applies the child first, fails its foreign key, skips it, and advances its watermark past it for good. So every live parent (and its parents in turn) whose own change is due in a later batch travels in this batch too, where the receiver applies parents first. The later batch sends the parent again, which the receiver's last-write-wins check then skips as already applied.
+const getParentsSentLater = async (
+  batch: SyncChange[],
+  maxSeqInBatch: number,
+): Promise<SyncChange[]> => {
+  const included = new Set(
+    batch.map((change) => rowKey(change.tableName, change.rowId)),
+  );
+  const parents: SyncChange[] = [];
+  let children = batch;
+
+  while (children.length > 0) {
+    const parentIdsByTable = new Map<string, Set<string>>();
+    for (const child of children) {
+      const { row } = child;
+      if (row === null) continue;
+      const table =
+        syncDb.SYNCED_TABLES.find(({ name }) => name === child.tableName) ??
+        null;
+      if (table === null) continue;
+      for (const parent of table.parents) {
+        const parentId = row[parent.column];
+        if (typeof parentId !== 'string') continue;
+        if (included.has(rowKey(parent.table, parentId))) continue;
+        const ids = parentIdsByTable.get(parent.table) ?? new Set<string>();
+        ids.add(parentId);
+        parentIdsByTable.set(parent.table, ids);
+      }
+    }
+
+    const found: SyncChange[] = [];
+    for (const [tableName, ids] of parentIdsByTable) {
+      const records = await syncDb.getLiveChangesSince(
+        maxSeqInBatch,
+        tableName,
+        [...ids],
+      );
+      for (const record of records) {
+        const row = await syncDb.getRowById(record.table_name, record.row_id);
+        if (row === null) continue;
+        included.add(rowKey(record.table_name, record.row_id));
+        found.push({
+          tableName: record.table_name,
+          rowId: record.row_id,
+          seq: record.seq,
+          deleted: false,
+          deletedAt: null,
+          row,
+        });
+      }
+    }
+    parents.push(...found);
+    children = found;
+  }
+
+  return parents;
+};
+
 const pushBatchesTo = async (endpointId: string): Promise<void> => {
   let cursor = lastPushedSeq.get(endpointId) ?? 0;
   let hasMore = true;
@@ -138,11 +200,18 @@ const pushBatchesTo = async (endpointId: string): Promise<void> => {
     }
 
     const maxSeqInBatch = changes[changes.length - 1].seq;
+    const parentsSentLater = await getParentsSentLater(
+      syncChanges,
+      maxSeqInBatch,
+    );
     try {
       await invoke('send_message', {
         endpointId,
         envelope: JSON.stringify(
-          buildSyncBatchMessage(syncChanges, maxSeqInBatch),
+          buildSyncBatchMessage(
+            [...syncChanges, ...parentsSentLater],
+            maxSeqInBatch,
+          ),
         ),
       });
     } catch {

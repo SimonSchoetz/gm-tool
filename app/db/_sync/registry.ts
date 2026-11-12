@@ -14,15 +14,21 @@ type SyncedTable = {
   name: string;
   columns: string[];
   zodSchema: z.ZodObject;
+  // Each foreign-key column with the table whose `id` it references.
+  parents: { column: string; table: string }[];
 };
 
 const syncedTable = (
   name: string,
-  table: { zodSchema: z.ZodObject },
+  table: {
+    zodSchema: z.ZodObject;
+    foreignKeys: { column: string; table: string }[];
+  },
 ): SyncedTable => ({
   name,
   columns: Object.keys(table.zodSchema.shape),
   zodSchema: table.zodSchema,
+  parents: table.foreignKeys,
 });
 
 // FK dependency order: parents before children. Apply upserts in this order, deletes in reverse. images first (SET NULL targets), adventures before all adventure-scoped tables, session_steps after sessions, base_entity_content_sections after base_entities, encounter_queue_items and encounter_log_entries after encounters, table_config last (no FK relations).

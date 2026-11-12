@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { BATCH_LIMIT } from '@services/syncService';
 
 // Two devices, each a separate module graph (`vi.resetModules()` before its dynamic imports) and so its own `db/database.ts` singleton over its own in-memory SQLite, run the real `syncService` and `@db/_sync` against each other. Only the transport is replaced: `send_message` hands the envelope to the other device's `handleSyncMessage`. Unlike `syncService.test.ts`, which mocks `@db/_sync` to test the service's own branching, this file's subject is that both databases end up with the same rows.
 
@@ -34,7 +35,6 @@ vi.mock('@tauri-apps/api/core', () => ({
 
 const ID_A = 'a'.repeat(64);
 const ID_B = 'b'.repeat(64);
-const BATCH_LIMIT = 200;
 
 const openDevice = async (deviceId: string) => {
   vi.resetModules();
@@ -248,28 +248,24 @@ describe('syncService between two devices', () => {
     await expectConverged(a, b);
   });
 
-  // Marked `fails` because the devices diverge today: the child's upsert in the first batch fails its foreign key, `applyUpsert` returns 'skipped', `applyBatch` still advances the watermark past it, and no later handshake re-sends it, so the child stays missing on B until it is edited again. When the sync code is fixed this test passes, `it.fails` turns it red, and `fails` is removed.
-  it.fails(
-    'brings a child over when its parent was edited after it and the two land in different batches',
-    async () => {
-      setTime('2026-01-02T00:00:00.000Z');
-      const adventureId = await a.adventureDb.create();
-      const sessionId = await a.sessionDb.create(adventureId);
-      for (let i = 0; i < BATCH_LIMIT; i++) {
-        await a.adventureDb.create();
-      }
-      // The edit rewrites the parent's change record with the newest seq, so the child's record now sorts a full batch ahead of it.
-      setTime('2026-01-03T00:00:00.000Z');
-      await a.adventureDb.update(adventureId, { name: 'Edited parent' });
+  it('brings a child over when its parent was edited after it and the two land in different batches', async () => {
+    setTime('2026-01-02T00:00:00.000Z');
+    const adventureId = await a.adventureDb.create();
+    const sessionId = await a.sessionDb.create(adventureId);
+    for (let i = 0; i < BATCH_LIMIT; i++) {
+      await a.adventureDb.create();
+    }
+    // The edit rewrites the parent's change record with the newest seq, so the child's record now sorts a full batch ahead of it.
+    setTime('2026-01-03T00:00:00.000Z');
+    await a.adventureDb.update(adventureId, { name: 'Edited parent' });
 
-      const link = connect(a, b);
-      await link.handshake();
+    const link = connect(a, b);
+    await link.handshake();
 
-      expect(link.batchesSentTo(b)).toBe(2);
-      expect(await rowIds(b, 'sessions')).toEqual([sessionId]);
-      await expectConverged(a, b);
-    },
-  );
+    expect(link.batchesSentTo(b)).toBe(2);
+    expect(await rowIds(b, 'sessions')).toEqual([sessionId]);
+    await expectConverged(a, b);
+  });
 
   it('brings every row over when the changes exceed one batch', async () => {
     setTime('2026-01-02T00:00:00.000Z');

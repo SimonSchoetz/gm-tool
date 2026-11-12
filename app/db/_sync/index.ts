@@ -1,4 +1,5 @@
 export { getChangesSince } from './get-changes-since';
+export { getLiveChangesSince } from './get-live-changes-since';
 export { getMaxSeq } from './get-max-seq';
 export { getRowById } from './get-row-by-id';
 export {

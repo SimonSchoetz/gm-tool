@@ -37,9 +37,12 @@ type ExtractUpdateShape<T extends Record<string, ColumnDefinition>> = {
     : z.ZodOptional<T[K]['zod']>;
 };
 
+type ForeignKey = { column: string; table: string };
+
 type TableSchema<T extends TableDefinition> = {
   name: T['name'];
   createTableSQL: string;
+  foreignKeys: ForeignKey[];
   zodSchema: z.ZodObject<ExtractZodShape<T['columns']>>;
   updateSchema: z.ZodObject<ExtractUpdateShape<T['columns']>>;
 };
@@ -52,6 +55,7 @@ export const defineTable = <T extends TableDefinition>(
   return {
     name,
     createTableSQL: generateCreateTableSQL(name, columns),
+    foreignKeys: listForeignKeys(columns),
     zodSchema: generateZodSchema(columns) as z.ZodObject<
       ExtractZodShape<T['columns']>
     >,
@@ -93,6 +97,13 @@ const generateCreateTableSQL = (
   )
 `;
 };
+
+const listForeignKeys = (
+  columns: Record<string, ColumnDefinition>,
+): ForeignKey[] =>
+  Object.entries(columns).flatMap(([column, columnDef]) =>
+    columnDef.foreignKey ? [{ column, table: columnDef.foreignKey.table }] : [],
+  );
 
 const generateZodSchema = (columns: Record<string, ColumnDefinition>) => {
   const zodSchemaShape: Record<string, z.ZodType> = {};

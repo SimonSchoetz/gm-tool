@@ -9,6 +9,7 @@ import {
   type SyncChange,
 } from '@domain';
 import type * as syncDb from '@db/_sync';
+import { BATCH_LIMIT } from '../syncService';
 import type * as systemDb from '@db/_system';
 
 const getDevice = vi.hoisted(() => vi.fn<typeof systemDb.getDevice>());
@@ -23,6 +24,9 @@ const getPeerWatermark = vi.hoisted(() =>
 const getChangesSince = vi.hoisted(() =>
   vi.fn<typeof syncDb.getChangesSince>(),
 );
+const getLiveChangesSince = vi.hoisted(() =>
+  vi.fn<typeof syncDb.getLiveChangesSince>(),
+);
 const getRowById = vi.hoisted(() => vi.fn<typeof syncDb.getRowById>());
 const getMaxSeq = vi.hoisted(() => vi.fn<typeof syncDb.getMaxSeq>());
 const invoke = vi.hoisted(() =>
@@ -34,15 +38,19 @@ const invoke = vi.hoisted(() =>
 vi.mock('@db/_system', () => ({ getDevice }));
 vi.mock('@db/_sync', () => ({
   SYNCED_TABLES: [
-    { name: 'images' },
-    { name: 'adventures' },
-    { name: 'sessions' },
+    { name: 'images', parents: [] },
+    { name: 'adventures', parents: [{ column: 'image_id', table: 'images' }] },
+    {
+      name: 'sessions',
+      parents: [{ column: 'adventure_id', table: 'adventures' }],
+    },
   ],
   applyUpsert,
   applyDelete,
   setPeerWatermark,
   getPeerWatermark,
   getChangesSince,
+  getLiveChangesSince,
   getRowById,
   getMaxSeq,
 }));
@@ -377,6 +385,7 @@ const armDefaults = () => {
   setPeerWatermark.mockReset().mockResolvedValue(undefined);
   getPeerWatermark.mockReset().mockResolvedValue(0);
   getChangesSince.mockReset().mockResolvedValue([]);
+  getLiveChangesSince.mockReset().mockResolvedValue([]);
   getRowById.mockReset().mockResolvedValue(null);
   getMaxSeq.mockReset().mockResolvedValue(0);
   invoke.mockReset().mockResolvedValue(undefined);
@@ -406,6 +415,19 @@ const rawHello = (overrides: {
       ...overrides,
     },
   });
+
+const upsertOf = (
+  tableName: string,
+  seq: number,
+  row: Record<string, unknown>,
+): SyncChange => ({
+  tableName,
+  rowId: String(row.id),
+  seq,
+  deleted: false,
+  deletedAt: null,
+  row,
+});
 
 const rawRequest = (sinceSeq: number): string =>
   JSON.stringify(buildSyncRequestMessage(sinceSeq));
@@ -580,7 +602,7 @@ describe('handleSyncMessage with a sync-request message and pushNewChanges', () 
     });
     await settleQueue(handleSyncMessage);
 
-    expect(getChangesSince.mock.calls).toEqual([[5, 200]]);
+    expect(getChangesSince.mock.calls).toEqual([[5, BATCH_LIMIT]]);
     expect(getRowById).toHaveBeenCalledTimes(1);
     expect(getRowById).toHaveBeenCalledWith('adventures', 'row-6');
     expect(sentMessages()).toEqual([
@@ -638,44 +660,200 @@ describe('handleSyncMessage with a sync-request message and pushNewChanges', () 
     ]);
   });
 
+  it("adds each row's parents whose own changes come in a later batch, and their parents in turn, looking each parent up once", async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const sessionA = { id: 'session-a', adventure_id: 'adventure-p' };
+    const sessionB = { id: 'session-b', adventure_id: 'adventure-p' };
+    const adventure = { id: 'adventure-p', image_id: 'image-p' };
+    const image = { id: 'image-p' };
+    const rows: Record<string, Record<string, unknown>> = {
+      'session-a': sessionA,
+      'session-b': sessionB,
+      'adventure-p': adventure,
+      'image-p': image,
+    };
+    getChangesSince.mockResolvedValueOnce([
+      { ...changeRecord(2, 0, 'sessions'), row_id: 'session-a' },
+      { ...changeRecord(3, 0, 'sessions'), row_id: 'session-b' },
+    ]);
+    getRowById.mockImplementation((_table, rowId) =>
+      Promise.resolve(rows[rowId] ?? null),
+    );
+    getLiveChangesSince.mockImplementation((_sinceSeq, tableName) =>
+      Promise.resolve(
+        tableName === 'adventures'
+          ? [{ ...changeRecord(9), row_id: 'adventure-p' }]
+          : [{ ...changeRecord(12, 0, 'images'), row_id: 'image-p' }],
+      ),
+    );
+
+    await handleSyncMessage(PEER_ID, rawRequest(1));
+    await settleQueue(handleSyncMessage);
+
+    expect(getLiveChangesSince.mock.calls).toEqual([
+      [3, 'adventures', ['adventure-p']],
+      [3, 'images', ['image-p']],
+    ]);
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncBatchMessage(
+        [
+          upsertOf('sessions', 2, sessionA),
+          upsertOf('sessions', 3, sessionB),
+          upsertOf('adventures', 9, adventure),
+          upsertOf('images', 12, image),
+        ],
+        3,
+      ),
+    ]);
+  });
+
+  it('sends a parent that two rows of different depth share only once', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const session = { id: 'session-a', adventure_id: 'adventure-p' };
+    const otherAdventure = { id: 'adventure-o', image_id: 'image-p' };
+    const adventure = { id: 'adventure-p', image_id: 'image-p' };
+    const image = { id: 'image-p' };
+    const rows: Record<string, Record<string, unknown>> = {
+      'session-a': session,
+      'adventure-o': otherAdventure,
+      'adventure-p': adventure,
+      'image-p': image,
+    };
+    getChangesSince.mockResolvedValueOnce([
+      { ...changeRecord(2), row_id: 'adventure-o' },
+      { ...changeRecord(3, 0, 'sessions'), row_id: 'session-a' },
+    ]);
+    getRowById.mockImplementation((_table, rowId) =>
+      Promise.resolve(rows[rowId] ?? null),
+    );
+    getLiveChangesSince.mockImplementation((_sinceSeq, tableName) =>
+      Promise.resolve(
+        tableName === 'adventures'
+          ? [{ ...changeRecord(9), row_id: 'adventure-p' }]
+          : [{ ...changeRecord(12, 0, 'images'), row_id: 'image-p' }],
+      ),
+    );
+
+    await handleSyncMessage(PEER_ID, rawRequest(1));
+    await settleQueue(handleSyncMessage);
+
+    expect(getLiveChangesSince).toHaveBeenCalledTimes(2);
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncBatchMessage(
+        [
+          upsertOf('adventures', 2, otherAdventure),
+          upsertOf('sessions', 3, session),
+          upsertOf('images', 12, image),
+          upsertOf('adventures', 9, adventure),
+        ],
+        3,
+      ),
+    ]);
+  });
+
+  it('looks up no parent that is already in the batch, none for a row without a parent id, and none for a tombstone', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const adventure = { id: 'adventure-p', image_id: null };
+    const session = { id: 'session-a', adventure_id: 'adventure-p' };
+    const rows: Record<string, Record<string, unknown>> = {
+      'adventure-p': adventure,
+      'session-a': session,
+    };
+    getChangesSince.mockResolvedValueOnce([
+      { ...changeRecord(1), row_id: 'adventure-p' },
+      { ...changeRecord(2, 0, 'sessions'), row_id: 'session-a' },
+      changeRecord(3, 1, 'sessions'),
+    ]);
+    getRowById.mockImplementation((_table, rowId) =>
+      Promise.resolve(rows[rowId] ?? null),
+    );
+
+    await handleSyncMessage(PEER_ID, rawRequest(0));
+    await settleQueue(handleSyncMessage);
+
+    expect(getLiveChangesSince).not.toHaveBeenCalled();
+    expect(sentMessages()).toHaveLength(1);
+  });
+
+  it('sends a row of a table the registry does not list without looking up any parent of it', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const row = { id: 'row-2', adventure_id: 'adventure-p' };
+    getChangesSince.mockResolvedValueOnce([
+      changeRecord(2, 0, 'retired_table'),
+    ]);
+    getRowById.mockResolvedValue(row);
+
+    await handleSyncMessage(PEER_ID, rawRequest(1));
+    await settleQueue(handleSyncMessage);
+
+    expect(getLiveChangesSince).not.toHaveBeenCalled();
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncBatchMessage([upsertOf('retired_table', 2, row)], 2),
+    ]);
+  });
+
+  it('leaves out a parent whose row was deleted since its change was read, and looks up no parent of it', async () => {
+    const { handleSyncMessage } = await import('../syncService');
+    const session = { id: 'session-a', adventure_id: 'adventure-p' };
+    getChangesSince.mockResolvedValueOnce([
+      { ...changeRecord(2, 0, 'sessions'), row_id: 'session-a' },
+    ]);
+    getRowById.mockImplementation((_table, rowId) =>
+      Promise.resolve(rowId === 'session-a' ? session : null),
+    );
+    getLiveChangesSince.mockResolvedValue([
+      { ...changeRecord(9), row_id: 'adventure-p' },
+    ]);
+
+    await handleSyncMessage(PEER_ID, rawRequest(1));
+    await settleQueue(handleSyncMessage);
+
+    expect(getLiveChangesSince).toHaveBeenCalledTimes(1);
+    expect(sentMessages().map(({ message }) => message)).toEqual([
+      buildSyncBatchMessage([upsertOf('sessions', 2, session)], 2),
+    ]);
+  });
+
   it('sends nothing when there are no changes after sinceSeq', async () => {
     const { handleSyncMessage } = await import('../syncService');
 
     await handleSyncMessage(PEER_ID, rawRequest(3));
     await settleQueue(handleSyncMessage);
 
-    expect(getChangesSince.mock.calls).toEqual([[3, 200]]);
+    expect(getChangesSince.mock.calls).toEqual([[3, BATCH_LIMIT]]);
     expect(invoke).not.toHaveBeenCalled();
   });
 
   it('asks for the next batch from the last seq while a batch comes back full, and stops at the first short one', async () => {
     const { handleSyncMessage } = await import('../syncService');
-    const fullBatch = Array.from({ length: 200 }, (_, index) =>
+    const fullBatch = Array.from({ length: BATCH_LIMIT }, (_, index) =>
       changeRecord(index + 1, 1),
     );
     getChangesSince
       .mockResolvedValueOnce(fullBatch)
-      .mockResolvedValueOnce([changeRecord(201, 1)]);
+      .mockResolvedValueOnce([changeRecord(BATCH_LIMIT + 1, 1)]);
 
     await handleSyncMessage(PEER_ID, rawRequest(0));
     await settleQueue(handleSyncMessage);
 
     expect(getChangesSince.mock.calls).toEqual([
-      [0, 200],
-      [200, 200],
+      [0, BATCH_LIMIT],
+      [BATCH_LIMIT, BATCH_LIMIT],
     ]);
     expect(
       sentMessages().map(
         ({ message }) =>
           (message as { payload: { maxSeq: number } }).payload.maxSeq,
       ),
-    ).toEqual([200, 201]);
+    ).toEqual([BATCH_LIMIT, BATCH_LIMIT + 1]);
   });
 
   it('does not ask again after a batch one change short of full', async () => {
     const { handleSyncMessage } = await import('../syncService');
     getChangesSince.mockResolvedValueOnce(
-      Array.from({ length: 199 }, (_, index) => changeRecord(index + 1, 1)),
+      Array.from({ length: BATCH_LIMIT - 1 }, (_, index) =>
+        changeRecord(index + 1, 1),
+      ),
     );
 
     await handleSyncMessage(PEER_ID, rawRequest(0));
@@ -698,7 +876,7 @@ describe('handleSyncMessage with a sync-request message and pushNewChanges', () 
     await pushNewChanges();
     await settleQueue(handleSyncMessage);
 
-    expect(getChangesSince.mock.calls).toEqual([[0, 200]]);
+    expect(getChangesSince.mock.calls).toEqual([[0, BATCH_LIMIT]]);
   });
 
   it('records the sent seq as the peer cursor, so the next push does not send the batch again', async () => {
@@ -729,7 +907,7 @@ describe('handleSyncMessage with a sync-request message and pushNewChanges', () 
     await pushNewChanges();
     await settleQueue(handleSyncMessage);
 
-    expect(getChangesSince.mock.calls).toEqual([[3, 200]]);
+    expect(getChangesSince.mock.calls).toEqual([[3, BATCH_LIMIT]]);
   });
 
   it('rejects pushNewChanges as SyncPushError when the newest seq cannot be read', async () => {
@@ -770,7 +948,7 @@ describe('resetPeerSession', () => {
     await pushNewChanges();
     await settleQueue(handleSyncMessage);
 
-    expect(getChangesSince.mock.calls).toEqual([[2, 200]]);
+    expect(getChangesSince.mock.calls).toEqual([[2, BATCH_LIMIT]]);
   });
 
   it('drops the file chunks received so far, so a later transfer saves only its own chunks', async () => {
