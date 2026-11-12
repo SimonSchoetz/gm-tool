@@ -63,6 +63,8 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
 
 **Redundant HTML attributes:** Never write an HTML attribute whose value matches the browser default — omit it, the browser supplies it (❌ `<input type="text" />` → ✅ `<input />`). Non-default values are kept (✅ `<input type="checkbox" />`, `<button type="button" />`).
 
+**A state a component shows only visually — a CSS class, or an element with no text — also carries accessible state, set from the same condition:** a role, an ARIA attribute or an `aria-label`. A text-less component shared across call sites carries it once, on its own root, so every call site has it (✅ `LoadingIcon` sets `role='img'` and `aria-label='Loading'` on its root).
+
 **Variant system:**
 
 - Variants are expressed as a union type prop and applied via a CSS modifier class. Never express variants as inline styles. Never use one boolean prop per variant when the component has — or may grow — more than one variant.
