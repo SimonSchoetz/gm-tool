@@ -6,7 +6,7 @@ Contains an old web project which was more of a playground. It should be ignored
 
 ## App (`app/`)
 
-Project to build the app I want for my personal use without constraints like accessibility concerns.
+Project to build the app I want for my personal use.
 
 ### Tech Stack
 
