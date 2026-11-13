@@ -9,14 +9,10 @@ import {
   $setSelection,
   createEditor,
 } from 'lexical';
-import { $createToggleNode, ToggleNode } from '../../../../nodes/ToggleNode';
-import {
-  $createToggleBodyNode,
-  ToggleBodyNode,
-} from '../../../../nodes/ToggleBodyNode';
+import { $createToggleNode } from '../../../../nodes/ToggleNode';
+import { $createToggleBodyNode } from '../../../../nodes/ToggleBodyNode';
 import { resolveHeaderToggleForRemoval } from '../resolveHeaderToggleForRemoval';
-
-const makeEditor = () => createEditor({ nodes: [ToggleNode, ToggleBodyNode] });
+import { makeEditor } from '../../../__tests__/support/toggleFixtures';
 
 const readResolution = (editor: ReturnType<typeof createEditor>) =>
   editor.getEditorState().read(() => {

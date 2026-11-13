@@ -1,9 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useEffect } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -17,16 +15,7 @@ import {
   type LexicalEditor,
 } from 'lexical';
 import { SendOnEnterPlugin } from '../SendOnEnterPlugin';
-
-type EditorHandleProps = { onEditor: (editor: LexicalEditor) => void };
-
-const EditorHandle = ({ onEditor }: EditorHandleProps) => {
-  const [editor] = useLexicalComposerContext();
-  useEffect(() => {
-    onEditor(editor);
-  }, [editor, onEditor]);
-  return null;
-};
+import { EditorHandle } from './support/EditorHandle';
 
 const mount = (onSubmit: (value: string) => Promise<boolean>) => {
   let editor: LexicalEditor | null = null;
