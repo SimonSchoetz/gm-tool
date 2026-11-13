@@ -1,9 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -31,16 +30,7 @@ import {
   paragraph,
   toggle,
 } from '../helper/__tests__/support/editorFixtures';
-
-type EditorHandleProps = { onEditor: (editor: LexicalEditor) => void };
-
-const EditorHandle = ({ onEditor }: EditorHandleProps) => {
-  const [editor] = useLexicalComposerContext();
-  useEffect(() => {
-    onEditor(editor);
-  }, [editor, onEditor]);
-  return null;
-};
+import { EditorHandle } from '../../__tests__/support/EditorHandle';
 
 type HarnessProps = { onEditor: (editor: LexicalEditor) => void };
 

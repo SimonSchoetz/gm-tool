@@ -1,18 +1,27 @@
-/* The hinted node is the hint's positioning box: the hint is drawn by ::after, which an empty node's <br> would otherwise push to the next line. */
+/* The hinted node is the hint's positioning box, so the max-width below is the node's width. */
 .editor-node--show-hint {
   position: relative;
 }
 
-/* ::after, not ::before: a check-list item draws its checkbox with ::before, whose box size would squeeze the hint text into a one-character column. One line, cut with an ellipsis, so a narrow editor never wraps it over the next block. */
-.editor-node--show-hint::after {
+/* The hint draws with ::before on every node but a check-list item. The offsets stay auto, so the hint keeps its static position at the start of the node's content box — below a heading's padding — which an offset from the node's padding edge, such as top: 0, would ignore. ::before, not ::after, because an empty node's <br> sits after a ::after hint's static position and pushes the hint to the next line. A check-list item draws its checkbox with ::before, whose box size would squeeze the hint text into a one-character column, so it draws the hint with ::after, which the next rule anchors to the item's top-left. One line, cut with an ellipsis, so a narrow editor never wraps it over the next block. */
+.editor-node--show-hint:not(.editor-listitem-checked):not(
+    .editor-listitem-unchecked
+  )::before,
+.editor-listitem-checked.editor-node--show-hint::after,
+.editor-listitem-unchecked.editor-node--show-hint::after {
   content: 'Start typing or use / for commands';
   color: var(--color-text-muted);
   pointer-events: none;
   position: absolute;
-  top: 0;
-  left: 0;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* A check-list item has no padding, so the top-left of its box is where its text starts. */
+.editor-listitem-checked.editor-node--show-hint::after,
+.editor-listitem-unchecked.editor-node--show-hint::after {
+  top: 0;
+  left: 0;
 }

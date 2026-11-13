@@ -1,0 +1,1 @@
+export { TogglePastePlugin } from './TogglePastePlugin';

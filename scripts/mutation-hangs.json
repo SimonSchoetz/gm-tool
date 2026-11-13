@@ -43,5 +43,23 @@
     "occurrence": 0,
     "lines": 3,
     "reason": "without the guard moveBlock inserts a block into its own subtree, which Lexical never finishes"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/isCaretAtBlockEnd.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "while (!current.is(block)) {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "the mutant empties the body of the loop that walks up from the caret's node, so the node never changes and the loop never ends"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/isCaretAtBlockStart.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "lineText": "while (!current.is(block)) {",
+    "occurrence": 0,
+    "lines": 4,
+    "reason": "the mutant empties the body of the loop that walks up from the caret's node, so the node never changes and the loop never ends"
   }
 ]

@@ -1,19 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import {
-  $createParagraphNode,
-  $createTextNode,
-  $getRoot,
-  createEditor,
-} from 'lexical';
-import {
-  $createListItemNode,
-  $createListNode,
-  ListItemNode,
-  ListNode,
-} from '@lexical/list';
+import { $createParagraphNode, $createTextNode, $getRoot } from 'lexical';
+import { $createListItemNode, $createListNode } from '@lexical/list';
 import { collectContentNodes } from '../collectContentNodes';
-
-const makeEditor = () => createEditor({ nodes: [ListNode, ListItemNode] });
+import { makeEditor } from '../../../__tests__/support/toggleFixtures';
 
 describe('collectContentNodes', () => {
   it('returns the node wrapped in an array when it is not a list or list item node', () => {

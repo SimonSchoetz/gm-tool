@@ -412,3 +412,45 @@ A nesting wrapper takes the number the next real item takes, since only items wi
 **Citation:** [implement_1: ran a scratch `npx vitest run` test that built a `ListNode` of items `a` and `b` with `a1` nested under `a`, called `a1.remove()` inside `editor.update` in an editor registering `ListNode`, `ListItemNode`, `ToggleNode` and `ToggleBodyNode`, and wrote `editor.getEditorState().toJSON()` — observed the list holding the item `a`, a `listitem` with `children` of length 0, and the item `b`]
 
 Lexical removes the emptied nested list, and nothing in that removal removes the wrapper that held it.
+
+## `$insertGeneratedNodes` dispatches `SELECTION_INSERT_CLIPBOARD_NODES_COMMAND` before `selection.insertNodes`, and a listener returning `true` skips the default insertion; the lexical-JSON and HTML importers call it, the plain-text importer does not
+
+**Verified at:** @lexical/clipboard 0.52.0, lexical 0.52.0
+**Citation:** [implement_1: `app/node_modules/.pnpm/@lexical+clipboard@0.52.0_typescript@6.0.3/node_modules/@lexical/clipboard/src/clipboard.ts:463-478` — `$insertGeneratedNodes` calls `selection.insertNodes(nodes)` only when `dispatchCommand(SELECTION_INSERT_CLIPBOARD_NODES_COMMAND, …)` returned false; `.../src/ClipboardImportExtension.ts:197,223` — `$defaultLexicalEditorImporter` and `$defaultHtmlImporter` call it; `:262` — `$defaultPlainTextImporter` drives `tokenizeRawText` with a paragraph split per line break and never calls it]
+
+A plain-text clipboard with line breaks therefore never reaches a listener of the command and is split by the editor's own paragraph split.
+
+## `INTERNAL_$isBlock` is false for a shadow-root element, so `RangeSelection.insertNodes` never merges a pasted shadow-root node into the target block, and it inserts the pasted blocks as siblings of the target block
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: `app/node_modules/.pnpm/lexical@0.52.0_typescript@6.0.3/node_modules/lexical/src/LexicalUtils.ts:2921-2929` — `INTERNAL_$isBlock` returns false for `$isRootOrShadowRoot(node)`; `.../src/LexicalSelection.ts:1372-1378` — `isMergeable` requires `INTERNAL_$isBlock(node)`; `:1396-1405` — `insertRangeAfter(firstBlock, firstToInsert)` inserts the remaining blocks after the block holding the caret]
+
+A pasted toggle is inserted whole as a block of its own and its header text is never merged into the target paragraph.
+
+## An inline node appended to a shadow-root element such as `ToggleNode` is wrapped into a paragraph when the update commits
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: ran a scratch `npx vitest run` test that appended a `LineBreakNode` to a `ToggleNode` in an editor registering `ToggleNode` and `ToggleBodyNode` and read the root's children — observed the toggle holding one `paragraph` child]
+
+So the first child of a toggle is always a block element, whichever node an edit appended.
+
+## `HeadingNode.insertNewAfter` creates a paragraph only when the caret is a text point at the end of the last descendant, creates a heading otherwise, and replaces a non-empty heading with a paragraph when the caret offset is 0
+
+**Verified at:** @lexical/rich-text 0.52.0
+**Citation:** [implement_1: `app/node_modules/.pnpm/@lexical+rich-text@0.52.0_typescript@6.0.3/node_modules/@lexical/rich-text/src/index.ts:462-493` — `isAtEnd` needs `selection.anchor.key === lastDesc.getKey()` and an offset equal to its text size, the new block is a paragraph when `isAtEnd` and a heading of the same tag otherwise, and `anchorOffet === 0 && !this.isEmpty()` runs `this.replace(paragraph, true)`; ran `npx vitest run` on `app/src/components/TextEditor/helper/__tests__/splitHeaderAtSelection.test.ts` — observed the heading header replaced by a paragraph when the caret was at offset 0 before the fix]
+
+An Enter or a split at the end of a heading whose caret is an element point, after a trailing soft line break or a mention, therefore yields a heading.
+
+## `RangeSelection.insertParagraph` removes the text of a non-collapsed selection before it splits the block
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: `app/node_modules/.pnpm/lexical@0.52.0_typescript@6.0.3/node_modules/lexical/src/LexicalSelection.ts:1470-1479` — `insertParagraph` calls `this.removeText()` first when the selection is not collapsed]
+
+A caller that needs the removal to precede a decision on the caret position still calls `removeText()` itself.
+
+## The default `KEY_BACKSPACE_COMMAND` handler leaves a character in the middle of a text node in place, and deletes a soft line break when the caret follows it
+
+**Verified at:** @lexical/rich-text 0.52.0
+**Citation:** [implement_1: ran `npx vitest run` on `app/src/components/TextEditor/plugins/ToggleKeyboardPlugin/__tests__/ToggleKeyboardPlugin.test.tsx` with `KEY_BACKSPACE_COMMAND` dispatched with a keydown event — observed the header `Hello` unchanged with the caret at offset 3, and the header `abc`, a soft line break, `def` becoming `abcdef` with the caret at offset 0 of `def`]
+
+Deleting a character inside a text node is left to the browser's own input event, so a test of that case compares the outcome with and without the plugin.
