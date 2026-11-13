@@ -11,8 +11,9 @@ import { BlockDragHandle } from './components/BlockDragHandle/BlockDragHandle';
 import { BlockDropHighlight } from './components/BlockDropHighlight/BlockDropHighlight';
 import { BlockDropIndicator } from './components/BlockDropIndicator/BlockDropIndicator';
 import { collectBlockRows, type BlockRow } from './helper/collectBlockRows';
+import { createMarginPush } from './helper/createMarginPush';
 import { moveBlock } from './helper/moveBlock';
-import { resolveDropTarget, type DropTarget } from './helper/resolveDropTarget';
+import { resolveDropTarget } from './helper/resolveDropTarget';
 import { resolveHoveredRow } from './helper/resolveHoveredRow';
 import { FCProps } from '@/types/fcProps.type';
 
@@ -23,15 +24,14 @@ type Props = {
   anchorElem: HTMLElement;
 };
 
-// Positions are relative to the anchor element, which is the editor container the handle, the drop indicator and the highlight are absolutely positioned in.
+// Positions are relative to the anchor element, which is the editor container the handle, the drop line and the highlight are absolutely positioned in.
 type HoveredBlock = {
-  key: NodeKey;
   top: number;
   left: number;
   height: number;
 };
 
-type DropIndicatorPosition = {
+type DropFeedbackPosition = {
   lineTop: number;
   lineLeft: number;
   highlightTop: number;
@@ -43,48 +43,29 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
   const [editor] = useLexicalComposerContext();
   const handleRef = useRef<HTMLDivElement>(null);
   const [hoveredBlock, setHoveredBlock] = useState<HoveredBlock | null>(null);
-  const [dropIndicator, setDropIndicator] =
-    useState<DropIndicatorPosition | null>(null);
+  const [dropFeedback, setDropFeedback] = useState<DropFeedbackPosition | null>(
+    null,
+  );
 
   // Read as a dependency of the effect below, which would otherwise re-register every listener on each render.
   const toAnchorSpace = useCallback(
-    (clientX: number, clientY: number) => {
-      const anchorRect = anchorElem.getBoundingClientRect();
-      return { x: clientX - anchorRect.left, y: clientY - anchorRect.top };
-    },
+    (clientX: number, clientY: number) => ({
+      x: clientX - anchorElem.getBoundingClientRect().left,
+      y: clientY - anchorElem.getBoundingClientRect().top,
+    }),
     [anchorElem],
   );
 
-  // The effect owns every piece of drag state that is not rendered — the hovered row, the dragged block's key and the margin it pushed — as closure variables, so the handlers share them without a render in between.
+  // The effect owns the drag state that is not rendered — the hovered row and the dragged block's key — as closure variables, so the handlers share them without a render in between.
   useEffect(() => {
     let hoveredRow: BlockRow | null = null;
     let draggedKey: NodeKey | null = null;
-    // Pushes the row above the drop gap away from the row below it so the gap reads as the document making room — a direct inline-style write on a Lexical-managed node, safe because Lexical's reconciler skips a node's DOM entirely when it isn't dirty (Lexical.dev.mjs:3414), so it survives unless the block itself is edited mid-drag. The transition lives in TextEditor.css.
-    let pushedMargin: {
-      element: HTMLElement;
-      margin: 'marginTop' | 'marginBottom';
-    } | null = null;
-
-    const clearPushedMargin = () => {
-      if (pushedMargin === null) return;
-      pushedMargin.element.style[pushedMargin.margin] = '';
-      pushedMargin = null;
-    };
-
-    const pushMargin = (target: DropTarget) => {
-      const { element, margin } = target.gap;
-      if (pushedMargin?.element === element && pushedMargin.margin === margin) {
-        return;
-      }
-      clearPushedMargin();
-      element.style[margin] = 'var(--spacing-xl)';
-      pushedMargin = { element, margin };
-    };
+    const marginPush = createMarginPush();
 
     const clearDrag = () => {
       draggedKey = null;
-      clearPushedMargin();
-      setDropIndicator(null);
+      marginPush.clear();
+      setDropFeedback(null);
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -98,7 +79,6 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       }
       const { x, y } = toAnchorSpace(row.markerLeft, row.top);
       setHoveredBlock({
-        key: row.key,
         top: y,
         left: x,
         height: row.bottom - row.top,
@@ -120,7 +100,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       const { element, key } = hoveredRow;
       dataTransfer.setData(DRAG_BLOCK_FORMAT, key);
       dataTransfer.effectAllowed = 'move';
-      // Removes the borders the browser would otherwise paint around the drag image, as the Lexical drag plugin this replaced did.
+      // Forces the element onto its own compositing layer while the browser captures it as the drag image, which keeps the borders the browser would otherwise paint around the image off it.
       const previousTransform = element.style.transform;
       element.style.transform = 'translateZ(0)';
       dataTransfer.setDragImage(element, 0, 0);
@@ -143,14 +123,19 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
         event.clientX,
         event.clientY,
       );
-      if (target === null) return false;
+      if (target === null) {
+        // No position here, as over the dragged block's own sub-items: nothing is marked and a release does nothing.
+        marginPush.clear();
+        setDropFeedback(null);
+        return false;
+      }
       // Lets the browser fire the drop event here.
       event.preventDefault();
-      pushMargin(target);
+      marginPush.push(target);
       const line = toAnchorSpace(target.lineLeft, target.lineTop);
       const highlight = toAnchorSpace(target.row.markerLeft, target.row.top);
       // A new object on every dragover, so the highlight keeps tracking the row while the margin transition moves it.
-      setDropIndicator({
+      setDropFeedback({
         lineTop: line.y,
         lineLeft: line.x,
         highlightTop: highlight.y,
@@ -201,13 +186,9 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       anchorElem.removeEventListener('dragend', handleDragEnd);
       unregisterDragOver();
       unregisterDrop();
-      clearPushedMargin();
+      marginPush.clear();
     };
   }, [editor, anchorElem, toAnchorSpace]);
-
-  const highlightTop = dropIndicator?.highlightTop ?? null;
-  const highlightLeft = dropIndicator?.highlightLeft ?? null;
-  const highlightHeight = dropIndicator?.highlightHeight ?? null;
 
   return (
     <>
@@ -215,21 +196,23 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
         <BlockDragHandle
           ref={handleRef}
           top={hoveredBlock.top}
-          left={hoveredBlock.left}
+          blockLeft={hoveredBlock.left}
           height={hoveredBlock.height}
         />
       )}
-      {dropIndicator && (
-        <BlockDropIndicator
-          top={dropIndicator.lineTop}
-          left={dropIndicator.lineLeft}
-        />
+      {dropFeedback && (
+        <>
+          <BlockDropIndicator
+            top={dropFeedback.lineTop}
+            left={dropFeedback.lineLeft}
+          />
+          <BlockDropHighlight
+            top={dropFeedback.highlightTop}
+            left={dropFeedback.highlightLeft}
+            height={dropFeedback.highlightHeight}
+          />
+        </>
       )}
-      <BlockDropHighlight
-        top={highlightTop}
-        left={highlightLeft}
-        height={highlightHeight}
-      />
     </>
   );
 };

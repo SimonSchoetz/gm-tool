@@ -7,6 +7,9 @@ import { $isToggleNode } from '../../../nodes/ToggleNode';
 import { subListOf } from './subListOf';
 import { wrapperAfter } from './wrapperAfter';
 
+// Where a drop lands relative to the block or list it is placed beside.
+export type DropPlacement = 'before' | 'after';
+
 // What a list item's row knows of its list: the item's depth, the width of one level of indentation (the computed padding of the root list), and the root list it belongs to (the list that stands directly in the root or in a toggle body), whose margins open the gaps before and after the whole list.
 export type ListRowInfo = {
   depth: number;

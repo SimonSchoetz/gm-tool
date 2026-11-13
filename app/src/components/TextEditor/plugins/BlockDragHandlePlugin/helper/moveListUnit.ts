@@ -1,26 +1,11 @@
-import { $createListItemNode, $isListItemNode } from '@lexical/list';
+import { $isListItemNode } from '@lexical/list';
 import type { ListItemNode } from '@lexical/list';
 import type { ParagraphNode } from 'lexical';
 import { convertToListItem } from './convertToListItem';
-import type { DropPlacement } from './moveBlock';
+import type { DropPlacement } from './collectBlockRows';
+import { rebuildListUnit } from './rebuildListUnit';
 import { removeListUnit } from './removeListUnit';
-import { subListOf } from './subListOf';
 import { wrapperAfter } from './wrapperAfter';
-
-// The unit's real items in document order, each with its depth relative to the unit's own item; a nesting wrapper is read with the item before it.
-const unitItems = (
-  item: ListItemNode,
-  relativeDepth: number,
-): { item: ListItemNode; relativeDepth: number }[] => [
-  { item, relativeDepth },
-  ...(subListOf(wrapperAfter(item))
-    ?.getChildren()
-    .flatMap((child) =>
-      $isListItemNode(child) && subListOf(child) === null
-        ? unitItems(child, relativeDepth + 1)
-        : [],
-    ) ?? []),
-];
 
 // Whether the unit already stands where the move would put it: directly before the target item, or directly after the target's own unit. A paragraph stands in no list.
 const isAlreadyThere = (
@@ -44,11 +29,7 @@ export const moveListUnit = (
   if (isAlreadyThere(dragged, target, placement, depth)) return;
 
   const [first, ...rest] = $isListItemNode(dragged)
-    ? unitItems(dragged, 0).map(({ item, relativeDepth }) => {
-        const rebuilt = $createListItemNode(item.getChecked());
-        rebuilt.append(...item.getChildren());
-        return { item: rebuilt, relativeDepth };
-      })
+    ? rebuildListUnit(dragged)
     : [{ item: convertToListItem(dragged), relativeDepth: 0 }];
   removeListUnit(dragged);
 

@@ -62,17 +62,18 @@ describe('editorFixtures', () => {
     expect(depths).toEqual([0, 1, 2, 0]);
   });
 
-  it('finds the outermost list that holds an item at any depth', () => {
+  it('finds the outermost list that holds an item at any depth, the list that stands in the root', () => {
     const editor = makeDocument();
 
-    const typeAndText = (text: string) =>
+    const rootListOf = (text: string) =>
       editor.read('latest', () => {
         const node = $getNodeByKey(rootListKeyOf(editor, text));
-        return `${node?.getType()}:${node?.getTextContent().slice(0, 1)}`;
+        return { key: node?.getKey(), parent: node?.getParent()?.getType() };
       });
 
-    expect(typeAndText('a1i')).toBe(typeAndText('a'));
-    expect(typeAndText('c')).not.toBe(typeAndText('a'));
+    expect(rootListOf('a1i')).toEqual(rootListOf('a'));
+    expect(rootListOf('a1i').parent).toBe('root');
+    expect(rootListOf('c').key).not.toBe(rootListOf('a').key);
     expect(() => rootListKeyOf(editor, 'p')).toThrow(/^no list holds p$/);
   });
 });

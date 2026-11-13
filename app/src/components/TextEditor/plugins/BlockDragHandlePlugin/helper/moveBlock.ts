@@ -9,11 +9,10 @@ import {
 } from 'lexical';
 import { $isListItemNode, $isListNode } from '@lexical/list';
 import { $isToggleBodyNode } from '../../../nodes/ToggleBodyNode';
+import type { DropPlacement } from './collectBlockRows';
 import { convertListUnitToParagraph } from './convertListUnitToParagraph';
 import { moveListUnit } from './moveListUnit';
 import { wrapperAfter } from './wrapperAfter';
-
-export type DropPlacement = 'before' | 'after';
 
 // The container a block stands in, the root or a toggle's body: for a list item, the one its root list stands in.
 const containerOf = (node: LexicalNode): LexicalNode | null => {

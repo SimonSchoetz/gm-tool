@@ -1,6 +1,5 @@
 import type { NodeKey } from 'lexical';
-import type { BlockRow, ListRowInfo } from './collectBlockRows';
-import type { DropPlacement } from './moveBlock';
+import type { BlockRow, DropPlacement, ListRowInfo } from './collectBlockRows';
 import { resolveHoveredRow } from './resolveHoveredRow';
 
 export type DropTarget = {

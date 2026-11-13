@@ -353,7 +353,7 @@ A `menuRenderFn` that changes identity on every render re-runs no effect, so `us
 ## `LexicalEditor.read(mode, callback)` flushes pending updates only for `'force-commit'`, reads the pending state for `'pending'`, and reads the committed state for every other mode text
 
 **Verified at:** lexical 0.52.0
-**Citation:** [implement_1: `app/node_modules/lexical/src/LexicalEditor.ts:1892-1905` — `if (mode === 'force-commit') { $commitPendingUpdates(this); }`, then `mode === 'pending' ? this._pendingEditorState || this._editorState : this.getEditorState()`], [implement_1: ran `npx vitest run` on `getDragOverTargetElement.test.ts` with `editor.read('force-commit', …)` and with `editor.read('', …)` in the helper — observed 1 test fail for `'force-commit'` and none for `''`]
+**Citation:** [implement_1: `app/node_modules/lexical/src/LexicalEditor.ts:1892-1905` — `if (mode === 'force-commit') { $commitPendingUpdates(this); }`, then `mode === 'pending' ? this._pendingEditorState || this._editorState : this.getEditorState()`], [implement_1: ran `npx vitest run src/components/TextEditor/plugins/BlockDragHandlePlugin` with `helper/collectBlockRows.ts` calling `editor.read('', …)` in place of `editor.read('latest', …)` — observed every test pass, the component test that drops a block inside a command listener included]
 
 The one-argument form `read(callback)` is `'force-commit'`, so it flushes a queued update; `'latest'` and a mode text no branch names behave the same.
 

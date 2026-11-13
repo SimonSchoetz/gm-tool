@@ -2,14 +2,12 @@ import { FCProps } from '@/types/fcProps.type';
 import './BlockDropHighlight.css';
 
 type Props = {
-  top: number | null;
-  left: number | null;
-  height: number | null;
+  top: number;
+  left: number;
+  height: number;
 };
 
 export const BlockDropHighlight: FCProps<Props> = ({ top, left, height }) => {
-  if (top === null || left === null || height === null) return null;
-
   return (
     <div
       className='block-drop-highlight'

@@ -2,10 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   $createParagraphNode,
   $createTextNode,
+  $getNodeByKey,
+  $isTextNode,
   HISTORY_PUSH_TAG,
 } from 'lexical';
 import type { LexicalEditor } from 'lexical';
-import { moveBlock, type DropPlacement } from '../moveBlock';
+import { $isListItemNode } from '@lexical/list';
+import type { DropPlacement } from '../collectBlockRows';
+import { moveBlock } from '../moveBlock';
 import {
   keyOf,
   list,
@@ -258,9 +262,12 @@ describe('moveBlock', () => {
 
     move(editor, 'strong', 'c', 'after', 0);
     expect(outlineOf(editor)).toEqual(['number(a[p],b)', 'check(☐c,☐strong)']);
-    expect(
-      JSON.stringify(editor.getEditorState().toJSON()).includes('"format":1'),
-    ).toBe(true);
+    const keepsBold = editor.read('latest', () => {
+      const item = $getNodeByKey(keyOf(editor, 'strong'));
+      const text = $isListItemNode(item) ? item.getFirstChild() : null;
+      return $isTextNode(text) && text.hasFormat('bold');
+    });
+    expect(keepsBold).toBe(true);
   });
 
   it('turns a list item dropped outside every list into a paragraph, its sub-items following as a list of the same style one level shallower', () => {

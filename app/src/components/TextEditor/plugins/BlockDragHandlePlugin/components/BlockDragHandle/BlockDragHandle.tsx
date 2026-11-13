@@ -6,14 +6,20 @@ import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
 type Props = {
   ref: React.Ref<HTMLDivElement>;
   top: number;
-  left: number;
+  // The left edge of the block the handle belongs to; the handle sits directly left of it.
+  blockLeft: number;
   height: number;
 };
 
-export const BlockDragHandle: FCProps<Props> = ({ ref, top, left, height }) => {
+export const BlockDragHandle: FCProps<Props> = ({
+  ref,
+  top,
+  blockLeft,
+  height,
+}) => {
   const positionStyle = {
     '--block-drag-handle-top': `${top}px`,
-    '--block-drag-handle-edge': `${left}px`,
+    '--block-drag-handle-edge': `${blockLeft}px`,
     '--block-drag-handle-height': `${height}px`,
   } as React.CSSProperties;
 
