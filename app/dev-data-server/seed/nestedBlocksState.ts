@@ -1,4 +1,4 @@
-// Node host — builds the Lexical editor state that the seed's "Nested Blocks Foe" text section holds: nested lists of all three styles, an open and a collapsed toggle, a heading and two paragraphs, in the JSON shape the text editor saves.
+// Node host — builds the Lexical editor state that the seed's "Nested Blocks Foe" text section holds: nested lists of all three styles, an open and a collapsed toggle, a heading and two paragraphs, then three toggles for the header cases (a header ending in bold text, a heading header, and a header saved with an extra block before its body), in the JSON shape the text editor saves.
 type ListStyle = 'bullet' | 'number' | 'check';
 
 type ItemSpec = {
@@ -14,9 +14,11 @@ const LIST_TAGS: Record<ListStyle, 'ul' | 'ol'> = {
   check: 'ul',
 };
 
-const textNode = (text: string) => ({
+const BOLD_FORMAT = 1;
+
+const textNode = (text: string, format = 0) => ({
   detail: 0,
-  format: 0,
+  format,
   mode: 'normal',
   style: '',
   text,
@@ -24,8 +26,8 @@ const textNode = (text: string) => ({
   version: 1,
 });
 
-const paragraphNode = (text: string) => ({
-  children: [textNode(text)],
+const paragraphNodeOf = (children: readonly object[]) => ({
+  children,
   direction: 'ltr',
   format: '',
   indent: 0,
@@ -34,6 +36,8 @@ const paragraphNode = (text: string) => ({
   type: 'paragraph',
   version: 1,
 });
+
+const paragraphNode = (text: string) => paragraphNodeOf([textNode(text)]);
 
 // A list item at `depth` is saved with that depth as its indent, and its sub-items sit in a second item right after it, a nesting wrapper whose only child is the sub-list and whose indent is the depth of the list it stands in and which carries no checked state of its own beyond `false`. An item's `value` is its position among the real items of its list, and the wrapper after it holds the number the next real item takes.
 const itemNodes = (
@@ -88,12 +92,15 @@ const listNode = (
 });
 
 const toggleNode = (
-  header: string,
+  header: object,
   bodyParagraphs: readonly string[],
   collapsed: boolean,
+  // Blocks saved between the header and the body, the damaged shape the editor repairs when it opens the text.
+  extraBlocks: readonly object[] = [],
 ) => ({
   children: [
-    paragraphNode(header),
+    header,
+    ...extraBlocks,
     {
       children: bodyParagraphs.map(paragraphNode),
       direction: 'ltr',
@@ -111,8 +118,8 @@ const toggleNode = (
   version: 1,
 });
 
-const headingNode = () => ({
-  children: [textNode('Nested blocks heading')],
+const headingNode = (text: string) => ({
+  children: [textNode(text)],
   direction: 'ltr',
   format: '',
   indent: 0,
@@ -160,7 +167,7 @@ export const buildNestedBlocksState = (): string =>
           0,
         ),
         toggleNode(
-          'Open toggle',
+          paragraphNode('Open toggle'),
           [
             'Open toggle body one',
             'Open toggle body two',
@@ -168,10 +175,33 @@ export const buildNestedBlocksState = (): string =>
           ],
           false,
         ),
-        toggleNode('Collapsed toggle', ['Collapsed toggle body'], true),
-        headingNode(),
+        toggleNode(
+          paragraphNode('Collapsed toggle'),
+          ['Collapsed toggle body'],
+          true,
+        ),
+        headingNode('Nested blocks heading'),
         paragraphNode('First closing paragraph'),
         paragraphNode('Second closing paragraph'),
+        toggleNode(
+          paragraphNodeOf([
+            textNode('Toggle ending in '),
+            textNode('bold text', BOLD_FORMAT),
+          ]),
+          ['Bold-ending toggle body'],
+          false,
+        ),
+        toggleNode(
+          headingNode('Heading toggle'),
+          ['Heading toggle body'],
+          false,
+        ),
+        toggleNode(
+          paragraphNode('Extra block toggle'),
+          ['Extra block toggle body'],
+          false,
+          [paragraphNode('Extra block between header and body')],
+        ),
       ],
       direction: 'ltr',
       format: '',

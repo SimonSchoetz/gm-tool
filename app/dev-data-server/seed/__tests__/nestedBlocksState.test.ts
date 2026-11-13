@@ -12,6 +12,8 @@ type SavedNode = {
   value?: number;
   collapsed?: boolean;
   version?: number;
+  tag?: string;
+  format?: number | string;
 };
 
 const rootChildren = (): SavedNode[] => {
@@ -42,7 +44,7 @@ const itemsOf = (list: SavedNode): string[] =>
   realItemsOf(list).map((item) => `${item.indent} ${textOf(item)}`);
 
 describe('buildNestedBlocksState', () => {
-  it('holds a bullet list, a numbered list, a check list, an open toggle, a collapsed toggle, a heading and two paragraphs, in that order', () => {
+  it('holds a bullet list, a numbered list, a check list, an open toggle, a collapsed toggle, a heading, two paragraphs and three more toggles, in that order', () => {
     expect(rootChildren().map((block) => block.type)).toEqual([
       'list',
       'list',
@@ -52,6 +54,9 @@ describe('buildNestedBlocksState', () => {
       'heading',
       'paragraph',
       'paragraph',
+      'toggle',
+      'toggle',
+      'toggle',
     ]);
     expect(
       rootChildren()
@@ -147,6 +152,45 @@ describe('buildNestedBlocksState', () => {
     expect(textOf(collapsedHeader)).toBe('Collapsed toggle');
     expect(collapsedBody.children?.map(textOf)).toEqual([
       'Collapsed toggle body',
+    ]);
+  });
+
+  it('holds a toggle whose header is one paragraph ending in a bold run after a plain one', () => {
+    const [header, body] = blockAt(8).children ?? [];
+
+    expect(blockAt(8).collapsed).toBe(false);
+    expect(header.type).toBe('paragraph');
+    expect(header.children?.map(({ text }) => text)).toEqual([
+      'Toggle ending in ',
+      'bold text',
+    ]);
+    expect(header.children?.map(({ format }) => format)).toEqual([0, 1]);
+    expect(body.children?.map(textOf)).toEqual(['Bold-ending toggle body']);
+  });
+
+  it('holds a toggle whose header is a level-two heading', () => {
+    const [header, body] = blockAt(9).children ?? [];
+
+    expect(header.type).toBe('heading');
+    expect(header.tag).toBe('h2');
+    expect(textOf(header)).toBe('Heading toggle');
+    expect(body.children?.map(textOf)).toEqual(['Heading toggle body']);
+  });
+
+  it('holds a toggle saved with an extra paragraph between its header and its body', () => {
+    const children = blockAt(10).children ?? [];
+
+    expect(children.map(({ type }) => type)).toEqual([
+      'paragraph',
+      'paragraph',
+      'toggle-body',
+    ]);
+    expect(children.slice(0, 2).map(textOf)).toEqual([
+      'Extra block toggle',
+      'Extra block between header and body',
+    ]);
+    expect(children[2].children?.map(textOf)).toEqual([
+      'Extra block toggle body',
     ]);
   });
 

@@ -227,7 +227,7 @@ describe('runSeed', () => {
     ]);
   });
 
-  it('gives Nested Blocks Foe one text section holding the nested lists, toggles, heading and paragraphs', async () => {
+  it('gives Nested Blocks Foe one text section holding the nested lists, toggles, heading and paragraphs, then three more toggles', async () => {
     const sections = await sectionsOf('Nested Blocks Foe');
 
     expect(sections.map(({ type }) => type)).toEqual(['text']);
@@ -243,6 +243,9 @@ describe('runSeed', () => {
       'heading',
       'paragraph',
       'paragraph',
+      'toggle',
+      'toggle',
+      'toggle',
     ]);
   });
 
