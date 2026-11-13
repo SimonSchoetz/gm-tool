@@ -55,6 +55,12 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
 
     const handleMouseMove = (event: MouseEvent) => {
       if (draggedKey !== null) return;
+      // A parent's handle is as tall as its whole section, so the pointer on it is beside sub-items' rows and must keep the parent's row hovered.
+      if (
+        event.target instanceof Node &&
+        handleRef.current?.contains(event.target)
+      )
+        return;
       const row = resolveHoveredRow(collectBlockRows(editor), event.clientY);
       if (row?.key === hoveredRow?.key) return;
       hoveredRow = row;
@@ -167,7 +173,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
           ref={handleRef}
           top={hoveredBlock.top}
           blockLeft={hoveredBlock.left}
-          height={hoveredBlock.height}
+          height={hoveredBlock.unitHeight}
         />
       )}
       {dropFeedback && (

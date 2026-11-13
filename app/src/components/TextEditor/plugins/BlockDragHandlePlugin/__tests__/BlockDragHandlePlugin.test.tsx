@@ -18,7 +18,12 @@ import {
   $isToggleBodyNode,
   ToggleBodyNode,
 } from '../../../nodes/ToggleBodyNode';
-import { $isListNode, ListItemNode, ListNode } from '@lexical/list';
+import {
+  $isListItemNode,
+  $isListNode,
+  ListItemNode,
+  ListNode,
+} from '@lexical/list';
 import { BlockDragHandlePlugin } from '../BlockDragHandlePlugin';
 import {
   list,
@@ -223,7 +228,83 @@ const mountList = () => {
   return mounted;
 };
 
+// A bullet list of "a" with its sub-item "a1", then "b": "a" at 24 to 44, the wrapper that holds "a1" and "a1" itself at 48 to 68, and "b" at 72 to 92.
+const mountParentItem = () => {
+  const mounted = mountDocument(() => [
+    list('bullet', [{ text: 'a', children: [{ text: 'a1' }] }, { text: 'b' }]),
+  ]);
+  const { editor } = mounted;
+  const [a, wrapper, b, a1] = editor
+    .read('latest', () => {
+      const [listNode] = $getRoot().getChildren();
+      if (!$isListNode(listNode)) throw new Error('the list is missing');
+      const [aNode, wrapperNode, bNode] = listNode.getChildren();
+      const subList = $isListItemNode(wrapperNode)
+        ? wrapperNode.getFirstChild()
+        : null;
+      const subItem = $isListNode(subList) ? subList.getFirstChild() : null;
+      if (subItem === null) throw new Error('the sub-item is missing');
+      return [aNode, wrapperNode, bNode, subItem];
+    })
+    .map((node) => editor.getElementByKey(node.getKey()));
+  stubRect(a, { top: 24, bottom: 44, left: 40 });
+  stubRect(wrapper, { top: 48, bottom: 68, left: 40 });
+  stubRect(a1, { top: 48, bottom: 68, left: 64 });
+  stubRect(b, { top: 72, bottom: 92, left: 40 });
+  return mounted;
+};
+
+const handleHeight = (handle: HTMLElement) =>
+  handle.style.getPropertyValue('--block-drag-handle-height');
+
 describe('BlockDragHandlePlugin', () => {
+  it('gives the handle of an open toggle the height of its header and body together', () => {
+    const { anchor } = mountNested();
+
+    fireEvent.mouseMove(anchor, { clientY: 30 });
+
+    expect(handleHeight(screen.getByLabelText('Drag to move block'))).toBe(
+      '76px',
+    );
+  });
+
+  it('gives the handle of a block inside a toggle body the height of that block alone', () => {
+    const { anchor } = mountNested();
+
+    fireEvent.mouseMove(anchor, { clientY: 55 });
+
+    expect(handleHeight(screen.getByLabelText('Drag to move block'))).toBe(
+      '20px',
+    );
+  });
+
+  it('gives the handle of a list item with sub-items the height of the item and all its sub-items, and of an item without them its own', () => {
+    const { anchor } = mountParentItem();
+
+    fireEvent.mouseMove(anchor, { clientY: 30 });
+    const parentHeight = handleHeight(
+      screen.getByLabelText('Drag to move block'),
+    );
+    fireEvent.mouseMove(anchor, { clientY: 80 });
+
+    expect(parentHeight).toBe('44px');
+    expect(handleHeight(screen.getByLabelText('Drag to move block'))).toBe(
+      '20px',
+    );
+  });
+
+  it('keeps the parent’s row hovered while the pointer is on its handle beside the sub-items', () => {
+    const { anchor } = mountParentItem();
+    fireEvent.mouseMove(anchor, { clientY: 30 });
+    const handle = screen.getByLabelText('Drag to move block');
+
+    fireEvent.mouseMove(handle, { clientY: 58 });
+
+    expect(handleHeight(screen.getByLabelText('Drag to move block'))).toBe(
+      '44px',
+    );
+  });
+
   it('leaves the saved document unchanged after a cancelled drag, and a later drop moves nothing', async () => {
     const { editor, anchor, root } = mount(['a', 'b', 'c']);
     const handle = startDragOfBlockAt(anchor, rowTop(0) + 1);
