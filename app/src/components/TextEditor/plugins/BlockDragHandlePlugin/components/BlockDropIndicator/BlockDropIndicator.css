@@ -19,7 +19,7 @@
   left: var(--block-drop-indicator-left);
   top: var(--block-drop-indicator-top);
   transform: translateY(-50%);
-  opacity: 0.4;
+  opacity: 0.4; /* one-off */
   color: var(--color-primary);
   z-index: var(--most-front);
   pointer-events: none;
