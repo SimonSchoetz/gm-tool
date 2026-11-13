@@ -208,3 +208,10 @@ Since the page says `VACUUM INTO` copies the database into the named file the wa
 **Citation:** [architect_3: ran `node -e` on an in-memory `DatabaseSync` — `ALTER TABLE encounters ADD COLUMN image_id TEXT REFERENCES images(id) ON DELETE SET NULL` accepted; `PRAGMA foreign_key_list(encounters)` reported `on_delete: SET NULL`; after `DELETE FROM images`, the child row read `image_id: null`] [implement_3: ran `npx vitest run db/_migrations` from `app/` — observed `addEncounterCoverImageMigration.up` adding `encounters.image_id` on the seeded test database, and the case "adds a nullable image_id to encounters that is set to NULL when its image row is deleted" passing]
 
 A migration can add a nullable foreign-key column with this single statement, so it needs no table rebuild. The statement was run only against Node's SQLite; the app's 3.46.0 engine is covered by a hand test, not by this entry.
+
+## The SQLite build libsqlite3-sys 0.30.1 bundles is compiled with `SQLITE_ENABLE_JSON1`, so it has the JSON functions (`json_each`, `json_group_array`)
+
+**Verified at:** libsqlite3-sys 0.30.1, read 2026-11-13; node:sqlite under Node v24.21.0 (SQLite 3.53.4, not the app's 3.46.0), run 2026-11-13
+**Citation:** [implement_1: ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.30.1/build.rs:130 — `.flag("-DSQLITE_ENABLE_JSON1")` in the bundled build] [implement_2: ran `npx vitest run db/_system` from `app/` — observed `pending-image-ids.test` passing with `json_each` and `json_group_array` in an `ON CONFLICT DO UPDATE` and an `UPDATE`]
+
+The bundled build's flag makes the JSON functions available to SQL the app runs. The test run exercised Node's SQLite, not the app's engine, so it shows only that the statements are valid SQL there.
