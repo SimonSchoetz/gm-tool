@@ -43,8 +43,9 @@ Where the user waits: nowhere. The drop is saved like any other edit.
 | One undo restores the arrangement from before the drag, and the drop never merges into the typing before it | — | Simon Schötz, 2026-11-13; `moveBlock.test`, `BlockDragHandlePlugin.test` |
 | A cancelled drag (Escape, or released outside the editor) and a drop where the block stands change nothing and add no undo step | — | Simon Schötz, 2026-11-13; `BlockDragHandlePlugin.test`, `moveBlock.test`, `moveListUnit.test` |
 | The result of a drop is saved like any other edit and survives leaving the screen and restarting the app | — | Simon Schötz, 2026-11-13; hand test |
-| Bullets, numbers and checkboxes sit in the same column and item text starts in the same column at every depth, each nesting level indenting by the same step in bullet, numbered and check lists | Check lists were indented differently from the other two | Simon Schötz, 2026-11-13; hand test |
+| Bullets, numbers and checkboxes sit in the same column and item text starts in the same column at every depth, each nesting level indenting by the same step in bullet, numbered and check lists | The three list styles line up, so a nested note reads the same in all of them | Simon Schötz, 2026-11-13; hand test |
 | The read-only editor and the one-line message editor show no drag handles | — | Simon Schötz, 2026-11-13; no test |
+| A block is moved within one editor by dragging its handle: selecting several blocks to drag them together, moving blocks with the keyboard and dragging a block into another editor are not offered | — | Simon Schötz, 2026-11-13; no test |
 | The handle's look, the drop line and the drop highlight are those the document text editor had before this feature; only their position follows the hovered row's depth | No new visual language is needed | Claude's call, 2026-11-13; hand test |
 
 ## Open points
