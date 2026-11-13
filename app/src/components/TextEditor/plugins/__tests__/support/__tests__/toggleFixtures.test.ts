@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { $createHeadingNode } from '@lexical/rich-text';
-import { $createTextNode, $createParagraphNode } from 'lexical';
+import { $createTextNode, $createParagraphNode, $getRoot } from 'lexical';
 import { $createToggleNode } from '../../../../nodes/ToggleNode';
 import {
   $caretAt,
+  $selectTextOf,
+  caretOf,
   body,
   inEditor,
   makeEditor,
@@ -59,5 +61,23 @@ describe('toggle fixtures', () => {
       ['text', 2, true],
       ['element', 1, true],
     ]);
+  });
+
+  it('selects a range of the first text of a block, and reads the caret back as its block text and offset', () => {
+    const editor = makeEditor();
+    inEditor(editor, () => {
+      const block = paragraph('Hello world');
+      $getRoot().clear().append(block);
+      $selectTextOf(block, 3, 3);
+    });
+
+    expect(caretOf(editor)).toEqual({ block: 'Hello world', offset: 3 });
+  });
+
+  it('reads no caret when the editor has no selection', () => {
+    const editor = makeEditor();
+    setRootChildren(editor, () => [paragraph('Hello')]);
+
+    expect(caretOf(editor)).toBeNull();
   });
 });

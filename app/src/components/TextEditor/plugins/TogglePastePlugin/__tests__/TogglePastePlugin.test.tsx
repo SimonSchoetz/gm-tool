@@ -21,6 +21,7 @@ import { $createLinkNode } from '@lexical/link';
 import { $createToggleNode, $isToggleNode } from '../../../nodes/ToggleNode';
 import { TogglePastePlugin } from '../TogglePastePlugin';
 import {
+  $selectTextOf,
   TEST_NAMESPACE,
   body,
   makeEditor,
@@ -59,12 +60,6 @@ const lexicalFormat = (blocks: () => LexicalNode[]) => {
 const richClipboard = (blocks: () => LexicalNode[]) => ({
   'application/x-lexical-editor': lexicalFormat(blocks),
 });
-
-const textSelection = (block: ElementNode, from: number, to: number = from) => {
-  const text = block.getFirstChildOrThrow();
-  if (!$isTextNode(text)) throw new Error('The child is not a text node');
-  text.select(from, to);
-};
 
 // The document is the toggle holding the header 'Hello world' and the body 'One', then the paragraph 'After'.
 const setUp = (
@@ -136,7 +131,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -153,7 +148,7 @@ describe('TogglePastePlugin', () => {
     setUp(editor, {
       collapsed: true,
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -170,7 +165,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 3, 7);
+        $selectTextOf(header, 3, 7);
       },
     });
 
@@ -186,7 +181,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
     const tags: string[] = [];
@@ -206,13 +201,13 @@ describe('TogglePastePlugin', () => {
 
   it('leaves a plain-text clipboard of one line in a header to the editor', () => {
     expectLeftToTheEditor({ 'text/plain': 'one line' }, (header) => {
-      textSelection(header, 5);
+      $selectTextOf(header, 5);
     });
   });
 
   it('leaves a paste with a caret outside any header to the editor, a rich one and a plain-text one', () => {
     const outside = (_header: ElementNode, after: ElementNode) => {
-      textSelection(after, 2);
+      $selectTextOf(after, 2);
     };
 
     expectLeftToTheEditor(richClipboard(twoParagraphs), outside);
@@ -275,7 +270,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -294,7 +289,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -313,7 +308,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -329,7 +324,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
     const withoutData = new Event('paste', { cancelable: true });
@@ -353,7 +348,7 @@ describe('TogglePastePlugin', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
     updateEditor(editor, () => {
@@ -371,15 +366,6 @@ describe('TogglePastePlugin', () => {
 });
 
 describe('TogglePastePlugin clipboard nodes', () => {
-  beforeEach(() => {
-    vi.stubGlobal('DragEvent', class extends Event {});
-    vi.stubGlobal('ClipboardEvent', TestClipboardEvent);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   const $getSelectionOrThrow = () => {
     const selection = $getSelection();
     if (selection === null) throw new Error('The editor has no selection');
@@ -408,7 +394,7 @@ describe('TogglePastePlugin clipboard nodes', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -419,7 +405,7 @@ describe('TogglePastePlugin clipboard nodes', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -433,7 +419,7 @@ describe('TogglePastePlugin clipboard nodes', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -447,7 +433,7 @@ describe('TogglePastePlugin clipboard nodes', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 
@@ -459,7 +445,7 @@ describe('TogglePastePlugin clipboard nodes', () => {
     const editor = mountEditor(<TogglePastePlugin />);
     setUp(editor, {
       place: (header) => {
-        textSelection(header, 5);
+        $selectTextOf(header, 5);
       },
     });
 

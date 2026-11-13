@@ -6,9 +6,7 @@ import {
   $createParagraphNode,
   $createTextNode,
   $getRoot,
-  $getSelection,
   $setSelection,
-  $isRangeSelection,
   $isElementNode,
   $isTextNode,
   COMMAND_PRIORITY_LOW,
@@ -25,6 +23,7 @@ import {
   $firstToggle,
   body,
   outlineOfRoot,
+  caretOf,
   paragraph,
   rootBlockTypes,
 } from '../../__tests__/support/toggleFixtures';
@@ -140,22 +139,6 @@ const expectBackspaceLeftToTheEditor = (
   );
 };
 
-// The reads below use editor.read, which commits the update the command left pending, and not the committed state: the browser's own selection sync, which jsdom runs a moment later, can move the caret the handler placed.
-
-// Where the caret is: the text of its top-level block and its offset in its own node.
-const caret = (editor: LexicalEditor) =>
-  editor.read(() => {
-    const selection = $getSelection();
-    if (!$isRangeSelection(selection)) return null;
-    return {
-      block: selection.anchor
-        .getNode()
-        .getTopLevelElementOrThrow()
-        .getTextContent(),
-      offset: selection.anchor.offset,
-    };
-  });
-
 const headerTypeOfToggleAt = (editor: LexicalEditor, index: number) =>
   editor.read(() => {
     const toggle = $getRoot().getChildAtIndex(index);
@@ -210,7 +193,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
       'toggle[Hello, body[ world, One]]',
       'After',
     ]);
-    expect(caret(editor)).toEqual({ block: ' world', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: ' world', offset: 0 });
   });
 
   it('splits a collapsed toggle header in the middle: the rest goes directly after the toggle and the toggle stays collapsed', () => {
@@ -228,7 +211,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
       ' world',
       'After',
     ]);
-    expect(caret(editor)).toEqual({ block: ' world', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: ' world', offset: 0 });
     expect(editor.read(() => $firstToggle().isCollapsed())).toBe(true);
   });
 
@@ -276,7 +259,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
         'paragraph',
       ]);
       expect(outlineOfRoot(editor)[1]).toBe('');
-      expect(caret(editor)).toEqual({ block: '', offset: 0 });
+      expect(caretOf(editor)).toEqual({ block: '', offset: 0 });
       expect(editor.read(() => $firstToggle().isCollapsed())).toBe(true);
     },
   );
@@ -298,7 +281,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
       expect(editor.read(() => $bodyOf($firstToggle()).getChildrenSize())).toBe(
         1,
       );
-      expect(caret(editor)).toEqual({ block: 'One', offset: 0 });
+      expect(caretOf(editor)).toEqual({ block: 'One', offset: 0 });
     },
   );
 
@@ -313,7 +296,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     pressEnter(editor);
 
     expect(outlineOfRoot(editor)).toEqual(['toggle[Hello, body[]]']);
-    expect(caret(editor)).toEqual({ block: '', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: '', offset: 0 });
   });
 
   it.each([
@@ -342,7 +325,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
         'paragraph',
       ]);
       expect(headerTypeOfToggleAt(editor, 1)).toBe(headerType);
-      expect(caret(editor)).toEqual({ block: 'Header', offset: 0 });
+      expect(caretOf(editor)).toEqual({ block: 'Header', offset: 0 });
     },
   );
 
@@ -356,7 +339,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     pressEnter(editor);
 
     expect(outlineOfRoot(editor)).toEqual(['toggle[, body[One]]', 'After']);
-    expect(caret(editor)).toEqual({ block: 'One', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: 'One', offset: 0 });
   });
 
   it.each([
@@ -395,7 +378,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
       'toggle[Hel, body[orld, One]]',
       'After',
     ]);
-    expect(caret(editor)).toEqual({ block: 'orld', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: 'orld', offset: 0 });
   });
 
   it('leaves an Enter over a selection that reaches out of the header to the editor', () => {
@@ -501,7 +484,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     pressEnter(editor);
 
     expect(outlineOfRoot(editor)).toEqual(['toggle[, body[One]]', 'After']);
-    expect(caret(editor)).toEqual({ block: 'One', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: 'One', offset: 0 });
   });
 
   it('removes the selected text up to the end of the header and then takes the Enter as one at the end', () => {
@@ -518,7 +501,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     pressEnter(editor);
 
     expect(outlineOfRoot(editor)).toEqual(['toggle[Hel, body[One]]', 'After']);
-    expect(caret(editor)).toEqual({ block: 'One', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: 'One', offset: 0 });
   });
 
   it('leaves an Enter over a selection that starts in the empty last body paragraph and reaches out of it to the editor', () => {
@@ -591,7 +574,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
       '',
       'After',
     ]);
-    expect(caret(editor)).toEqual({ block: '', offset: 0 });
+    expect(caretOf(editor)).toEqual({ block: '', offset: 0 });
   });
 });
 
@@ -622,7 +605,7 @@ describe('ToggleKeyboardPlugin Backspace', () => {
       expect(result.defaultPrevented).toBe(true);
       expect(outlineOfRoot(editor)).toEqual(['Header', 'One', 'Two', 'After']);
       expect(rootBlockTypes(editor)).toEqual(expectedTypes);
-      expect(caret(editor)).toEqual({ block: 'Header', offset: 0 });
+      expect(caretOf(editor)).toEqual({ block: 'Header', offset: 0 });
     },
   );
 

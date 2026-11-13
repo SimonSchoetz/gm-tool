@@ -25,7 +25,6 @@ export const insertBlocksBehindHeader = (
   if (!$isToggleNode(toggle)) return false;
   if (!resolveTopLevelBlock(selection.focus.getNode()).is(header)) return false;
 
-  if (blocks.length === 0) return false;
   const [first, ...others] = blocks;
   const firstGoesToHeader = isTextBlock(first);
   const remaining = firstGoesToHeader ? others : blocks;

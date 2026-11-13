@@ -4,9 +4,6 @@ import {
   $createParagraphNode,
   $createTextNode,
   $getRoot,
-  $getSelection,
-  $isRangeSelection,
-  $isTextNode,
   type ElementNode,
   type LexicalEditor,
   type RangeSelection,
@@ -17,6 +14,8 @@ import { $createToggleNode } from '../../../../nodes/ToggleNode';
 import { insertBlocksBehindHeader } from '../insertBlocksBehindHeader';
 import {
   $bodyOf,
+  $selectTextOf,
+  caretOf,
   $firstToggle,
   body,
   inEditor,
@@ -31,16 +30,6 @@ type Setup = {
   // Puts the selection; it receives the header and the paragraph after the toggle.
   place: (header: ElementNode, after: ElementNode) => RangeSelection;
   blocks: () => ElementNode[];
-};
-
-const textSelection = (
-  block: ElementNode,
-  from: number,
-  to: number = from,
-): RangeSelection => {
-  const text = block.getFirstChildOrThrow();
-  if (!$isTextNode(text)) throw new Error('The child is not a text node');
-  return text.select(from, to);
 };
 
 // The document is the toggle holding the header 'Hello world' (unless given) and the body 'One', then the paragraph 'After'. Returns what the helper returned.
@@ -66,19 +55,6 @@ const bodyTypes = (editor: LexicalEditor) =>
       .map((block) => block.getType()),
   );
 
-const caret = (editor: LexicalEditor) =>
-  editor.read(() => {
-    const selection = $getSelection();
-    if (!$isRangeSelection(selection)) return null;
-    return {
-      block: selection.anchor
-        .getNode()
-        .getTopLevelElementOrThrow()
-        .getTextContent(),
-      offset: selection.anchor.offset,
-    };
-  });
-
 const bulletList = () =>
   $createListNode('bullet').append(
     $createListItemNode().append($createTextNode('x')),
@@ -89,7 +65,7 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     const handled = paste(editor, {
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [paragraph('A'), paragraph('B'), paragraph('C')],
     });
 
@@ -98,14 +74,14 @@ describe('insertBlocksBehindHeader', () => {
       'toggle[HelloA, body[B, C world, One]]',
       'After',
     ]);
-    expect(caret(editor)).toEqual({ block: 'C world', offset: 1 });
+    expect(caretOf(editor)).toEqual({ block: 'C world', offset: 1 });
   });
 
   it('puts the caret on the block after its last child, before the moved text, when the last pasted block does not end in text', () => {
     const editor = makeEditor();
 
     paste(editor, {
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [
         paragraph('A'),
         $createParagraphNode().append(
@@ -115,7 +91,7 @@ describe('insertBlocksBehindHeader', () => {
       ],
     });
 
-    expect(caret(editor)).toEqual({ block: 'B\n world', offset: 2 });
+    expect(caretOf(editor)).toEqual({ block: 'B\n world', offset: 2 });
   });
 
   it('puts the other blocks directly after a collapsed toggle, not into its body', () => {
@@ -123,7 +99,7 @@ describe('insertBlocksBehindHeader', () => {
 
     paste(editor, {
       collapsed: true,
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [paragraph('A'), paragraph('B'), paragraph('C')],
     });
 
@@ -139,12 +115,12 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     const handled = paste(editor, {
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [bulletList()],
     });
 
     expect(handled).toBe(true);
-    expect(caret(editor)).toEqual({ block: 'x', offset: 1 });
+    expect(caretOf(editor)).toEqual({ block: 'x', offset: 1 });
     expect(outlineOfRoot(editor)).toEqual([
       'toggle[Hello, body[x,  world, One]]',
       'After',
@@ -158,7 +134,7 @@ describe('insertBlocksBehindHeader', () => {
     const handled = paste(editor, {
       header: () =>
         $createHeadingNode('h2').append($createTextNode('Hello world')),
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [
         paragraph('A'),
         $createToggleNode().append(paragraph('Inner'), body('Deep')),
@@ -166,7 +142,7 @@ describe('insertBlocksBehindHeader', () => {
     });
 
     expect(handled).toBe(true);
-    expect(caret(editor)).toEqual({ block: 'Deep', offset: 4 });
+    expect(caretOf(editor)).toEqual({ block: 'Deep', offset: 4 });
     expect(outlineOfRoot(editor)).toEqual([
       'toggle[HelloA, body[toggle[Inner, body[Deep]],  world, One]]',
       'After',
@@ -178,7 +154,7 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     paste(editor, {
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [
         paragraph('A'),
         $createHeadingNode('h2').append($createTextNode('Title')),
@@ -196,11 +172,11 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     paste(editor, {
-      place: (header) => textSelection(header, 11),
+      place: (header) => $selectTextOf(header, 11),
       blocks: () => [paragraph('A'), paragraph('B')],
     });
 
-    expect(caret(editor)).toEqual({ block: 'B', offset: 1 });
+    expect(caretOf(editor)).toEqual({ block: 'B', offset: 1 });
     expect(outlineOfRoot(editor)).toEqual([
       'toggle[Hello worldA, body[B, One]]',
       'After',
@@ -212,20 +188,20 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     const handled = paste(editor, {
-      place: (header) => textSelection(header, 11),
+      place: (header) => $selectTextOf(header, 11),
       blocks: () => [paragraph('A'), bulletList()],
     });
 
     expect(handled).toBe(true);
     expect(bodyTypes(editor)).toEqual(['list', 'paragraph']);
-    expect(caret(editor)).toEqual({ block: 'x', offset: 1 });
+    expect(caretOf(editor)).toEqual({ block: 'x', offset: 1 });
   });
 
   it('gives the pasted first block to the header and moves the header text to the end of the last block when the caret is at the start of the header text', () => {
     const editor = makeEditor();
 
     paste(editor, {
-      place: (header) => textSelection(header, 0),
+      place: (header) => $selectTextOf(header, 0),
       blocks: () => [paragraph('A'), paragraph('B')],
     });
 
@@ -241,7 +217,7 @@ describe('insertBlocksBehindHeader', () => {
     paste(editor, {
       header: () =>
         $createHeadingNode('h2').append($createTextNode('Hello world')),
-      place: (header) => textSelection(header, 0),
+      place: (header) => $selectTextOf(header, 0),
       blocks: () => [paragraph('A'), paragraph('B')],
     });
 
@@ -254,7 +230,7 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     paste(editor, {
-      place: (header) => textSelection(header, 3, 7),
+      place: (header) => $selectTextOf(header, 3, 7),
       blocks: () => [paragraph('A'), paragraph('B')],
     });
 
@@ -268,7 +244,7 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     const handled = paste(editor, {
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [paragraph('A')],
     });
 
@@ -283,7 +259,7 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     const handled = paste(editor, {
-      place: (header) => textSelection(header, 5),
+      place: (header) => $selectTextOf(header, 5),
       blocks: () => [],
     });
 
@@ -294,7 +270,7 @@ describe('insertBlocksBehindHeader', () => {
     const editor = makeEditor();
 
     const handled = paste(editor, {
-      place: (_header, after) => textSelection(after, 2),
+      place: (_header, after) => $selectTextOf(after, 2),
       blocks: () => [paragraph('A'), paragraph('B')],
     });
 
@@ -310,7 +286,7 @@ describe('insertBlocksBehindHeader', () => {
 
     const handled = paste(editor, {
       place: (header, after) => {
-        const selection = textSelection(header, 5);
+        const selection = $selectTextOf(header, 5);
         const afterText = after.getFirstChildOrThrow();
         selection.focus.set(afterText.getKey(), 2, 'text');
         return selection;

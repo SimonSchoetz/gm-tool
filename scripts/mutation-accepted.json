@@ -684,15 +684,6 @@
     "reason": "the code comment at this statement states why no test can observe this change"
   },
   {
-    "file": "src/components/TextEditor/plugins/TogglePastePlugin/helper/insertBlocksBehindHeader.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "lineText": "if (blocks.length === 0) return false;",
-    "occurrence": 0,
-    "lines": 1,
-    "reason": "with no blocks the test of the blocks left after the first one returns false the same way, so the early return only states it"
-  },
-  {
     "file": "src/components/TextEditor/plugins/TogglePastePlugin/TogglePastePlugin.ts",
     "mutator": "BooleanLiteral",
     "replacement": "true",

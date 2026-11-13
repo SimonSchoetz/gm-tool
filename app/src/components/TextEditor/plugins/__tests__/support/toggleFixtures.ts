@@ -3,9 +3,12 @@ import {
   $createRangeSelection,
   $createTextNode,
   $getRoot,
+  $getSelection,
   $isElementNode,
+  $isRangeSelection,
   $isTextNode,
   createEditor,
+  type ElementNode,
   type LexicalEditor,
   type LexicalNode,
   type RangeSelection,
@@ -119,3 +122,28 @@ export const inEditor = <T>(editor: LexicalEditor, read: () => T): T => {
   );
   return result as T;
 };
+
+// Selects `from` to `to` in the first child of `block`, which is a text node, and returns the selection, now the editor's.
+export const $selectTextOf = (
+  block: ElementNode,
+  from: number,
+  to: number = from,
+): RangeSelection => {
+  const text = block.getFirstChildOrThrow();
+  if (!$isTextNode(text)) throw new Error('The child is not a text node');
+  return text.select(from, to);
+};
+
+// Where the caret is: the text of its top-level block and its offset in its own node. Reads with editor.read, which commits the update a command left pending, and not the committed state: a caret the handler placed can already be moved when a test reads it after an awaited act (.claude/knowledge/jsdom.md).
+export const caretOf = (editor: LexicalEditor) =>
+  editor.read(() => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) return null;
+    return {
+      block: selection.anchor
+        .getNode()
+        .getTopLevelElementOrThrow()
+        .getTextContent(),
+      offset: selection.anchor.offset,
+    };
+  });

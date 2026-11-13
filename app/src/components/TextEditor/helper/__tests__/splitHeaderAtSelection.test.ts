@@ -16,11 +16,9 @@ import {
   inEditor,
   makeEditor,
   outlineOfRoot,
-  paragraph,
-  setRootChildren,
 } from '../../plugins/__tests__/support/toggleFixtures';
 
-// Splits 'Hello world' after 'Hello' in the header of a toggle holding `children` after the header, and returns the text of the block the split returned.
+// Splits 'Hello world' after 'Hello' in the header of the toggle `makeToggle` builds around it, and returns the text of the block the split returned.
 const splitAfterHello = (
   editor: LexicalEditor,
   makeToggle: (header: LexicalNode) => LexicalNode,
@@ -29,9 +27,7 @@ const splitAfterHello = (
     const text = $createTextNode('Hello world');
     const header = $createParagraphNode().append(text);
     $getRoot().clear().append(makeToggle(header));
-    text.select(5, 5);
-    const selection = text.select(5, 5);
-    return splitHeaderAtSelection(selection).getTextContent();
+    return splitHeaderAtSelection(text.select(5, 5)).getTextContent();
   });
 
 describe('splitHeaderAtSelection', () => {
@@ -158,7 +154,6 @@ describe('splitHeaderAtSelection', () => {
 
   it('throws for a caret outside a toggle header', () => {
     const editor = makeEditor();
-    setRootChildren(editor, () => [paragraph('Plain')]);
 
     expect(() =>
       inEditor(editor, () => {
