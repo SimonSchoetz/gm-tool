@@ -4,6 +4,7 @@ import {
   testDatabase,
   writeFailingOnEachCall,
 } from './support/failingDatabaseCall';
+import type { TestDatabase } from '@db/__tests__/support/sqlite-test-database';
 import {
   answerHostCommand,
   answerHostCommandFailing,
@@ -72,6 +73,22 @@ const load = async () => {
         )
       )[0].image_id,
   };
+};
+
+// The host commands the flow sent, each as its image id and extension.
+const imageCommands = (command: string) =>
+  invoke.mock.calls
+    .filter(([sent]) => sent === command)
+    .map(([, args]) => ({ id: args?.id, extension: args?.extension }));
+
+// Fails every insert of an image row, after the file it names was written, as a full disk or a locked database would.
+const failImageRowInserts = (db: TestDatabase) => {
+  const execute = db.execute.bind(db);
+  vi.spyOn(db, 'execute').mockImplementation((query, bindValues) =>
+    query.startsWith('INSERT INTO images')
+      ? Promise.reject(new Error('Injected failure: image row insert'))
+      : execute(query, bindValues),
+  );
 };
 
 const deletedFileIds = () =>
@@ -177,5 +194,77 @@ describe('the startup image cleanup against the database', () => {
         );
       },
     );
+  });
+
+  it('deletes the new file, keeps the entity on its image and forgets the id, when the image row insert fails after the file was written during a replacement', async () => {
+    const {
+      db,
+      baseEntityService,
+      systemDb,
+      createImagedEntity,
+      readImageIds,
+      readEntityImageId,
+    } = await load();
+    const { baseEntityId, imageId } = await createImagedEntity();
+    invoke.mockClear();
+    failImageRowInserts(db);
+
+    await expect(
+      baseEntityService.updateBaseEntity('npcs', baseEntityId, {
+        image_id: imageId,
+        imgFilePath: '/pics/new.jpg',
+      }),
+    ).rejects.toMatchObject({ name: 'BaseEntityUpdateError' });
+
+    const [written] = imageCommands('save_image');
+    expect(written.extension).toBe('jpg');
+    expect(imageCommands('delete_image')).toContainEqual(written);
+    expect(await readImageIds()).toEqual([imageId]);
+    expect(await readEntityImageId(baseEntityId)).toBe(imageId);
+    expect(await systemDb.getPendingImageIds()).toEqual([]);
+  });
+
+  it('deletes the copied file and forgets the id, leaving no copy, when the image row insert fails after the file was copied during a duplication', async () => {
+    const {
+      db,
+      baseEntityService,
+      systemDb,
+      createImagedEntity,
+      readImageIds,
+    } = await load();
+    const { baseEntityId, imageId } = await createImagedEntity();
+    invoke.mockClear();
+    failImageRowInserts(db);
+
+    await expect(
+      baseEntityService.duplicateBaseEntity('npcs', baseEntityId),
+    ).rejects.toMatchObject({ name: 'BaseEntityDuplicateError' });
+
+    const [written] = imageCommands('save_image_bytes');
+    expect(written.extension).toBe('png');
+    expect(imageCommands('delete_image')).toContainEqual(written);
+    expect(await readImageIds()).toEqual([imageId]);
+    expect(await systemDb.getPendingImageIds()).toEqual([]);
+  });
+
+  it('deletes at the next start the file of a recorded image whose row a quit kept from being written, and forgets the id', async () => {
+    const { imageService, imageDb, systemDb, readImageIds } = await load();
+    const imageId = imageDb.generateImageId();
+    await systemDb.addPendingImageIds([imageId]);
+    // The file the quit left: written, with no row naming it.
+    await invoke('save_image', {
+      sourcePath: '/pics/new.webp',
+      id: imageId,
+      extension: 'webp',
+    });
+
+    await imageService.cleanUpAbandonedImages();
+
+    expect(imageCommands('delete_image')).toContainEqual({
+      id: imageId,
+      extension: 'webp',
+    });
+    expect(await readImageIds()).toEqual([]);
+    expect(await systemDb.getPendingImageIds()).toEqual([]);
   });
 });
