@@ -256,6 +256,7 @@ export const parseArguments = (argv: string[]) => {
     '--accept-hang': null,
   };
   let timeoutMS: number | null = null;
+  let acceptFile: string | null = null;
   // pnpm may forward the `--` separator as an argument.
   const rest = argv.filter((argument) => argument !== '--');
   for (let index = 0; index < rest.length; index += 1) {
@@ -276,6 +277,16 @@ export const parseArguments = (argv: string[]) => {
       index += 1;
       continue;
     }
+    if (argument === '--accept-from') {
+      if (acceptFile !== null) throw new Error('--accept-from is given twice');
+      if (value === null || value.trim() === '' || value.startsWith('--'))
+        throw new Error(
+          '--accept-from needs a file of reasons: --accept-from <file>',
+        );
+      acceptFile = value.trim();
+      index += 1;
+      continue;
+    }
     if (!Object.hasOwn(REASON_OPTIONS, argument)) {
       files.push(argument.replace(/^(\.\/)?app\//, ''));
       continue;
@@ -289,12 +300,71 @@ export const parseArguments = (argv: string[]) => {
     reasons[option] = value.trim();
     index += 1;
   }
+  if (reasons['--accept'] !== null && acceptFile !== null)
+    throw new Error(
+      '--accept and --accept-from exclude each other: give one reason for every survivor or one reason each',
+    );
   return {
     files,
     all,
     acceptReason: reasons['--accept'],
     hangReason: reasons['--accept-hang'],
+    acceptFile,
     timeoutMS,
+  };
+};
+
+// Names one mutant of a run: what describeMutant prints before the source line, and the key of its reason in an `--accept-from` file.
+const mutantKey = ({
+  file,
+  line,
+  column,
+  mutator,
+  replacement,
+}: LocatedMutant) =>
+  `app/${file}:${line}:${column}  ${mutator}  → ${replacement}`;
+
+// An `--accept-from` file: a JSON object from each survivor's key to the reason it is accepted with. Keys are compared with their whitespace normalized, so a key may be typed with single spaces.
+export const parseReasonFile = (json: string) => {
+  const parsed: unknown = JSON.parse(json);
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
+    throw new Error('the file of reasons is not a JSON object');
+  const reasons = new Map<string, string>();
+  for (const [key, reason] of Object.entries(parsed)) {
+    const fail = (problem: string) =>
+      new Error(`the reason for "${key}" ${problem}`);
+    if (typeof reason !== 'string') throw fail('is not a string');
+    if (reason.trim() === '') throw fail('is empty');
+    if (reason.includes('\n')) throw fail('spans more than one line');
+    const normalizedKey = normalizeText(key);
+    if (reasons.has(normalizedKey)) throw new Error(`"${key}" is given twice`);
+    reasons.set(normalizedKey, reason.trim());
+  }
+  return reasons;
+};
+
+// Pairs each mutant with the reason its key names. `missing` are the mutants without one and `unused` the keys that name none, so the caller writes nothing until both are empty: a key left over names a mutant that moved or no longer survives.
+export const assignReasons = (
+  mutants: LocatedMutant[],
+  reasons: ReadonlyMap<string, string>,
+) => {
+  const assigned: { mutant: LocatedMutant; reason: string }[] = [];
+  const missing: LocatedMutant[] = [];
+  const used = new Set<string>();
+  for (const mutant of mutants) {
+    const key = normalizeText(mutantKey(mutant));
+    const reason = reasons.get(key) ?? null;
+    if (reason === null) {
+      missing.push(mutant);
+      continue;
+    }
+    used.add(key);
+    assigned.push({ mutant, reason });
+  }
+  return {
+    assigned,
+    missing,
+    unused: [...reasons.keys()].filter((key) => !used.has(key)),
   };
 };
 
@@ -306,9 +376,9 @@ export const describeEntry = (entry: LedgerEntry, sourceLines: SourceLines) => {
 
 // The source line is left out when the mutant's file or line is missing.
 export const describeMutant = (
-  { file, line, column, mutator, replacement }: LocatedMutant,
+  mutant: LocatedMutant,
   sourceLines: SourceLines,
 ) => {
-  const lineText = sourceLines(file)?.[line - 1];
-  return `app/${file}:${line}:${column}  ${mutator}  → ${replacement}${lineText === undefined ? '' : `  on "${normalizeText(lineText)}"`}`;
+  const lineText = sourceLines(mutant.file)?.[mutant.line - 1];
+  return `${mutantKey(mutant)}${lineText === undefined ? '' : `  on "${normalizeText(lineText)}"`}`;
 };

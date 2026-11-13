@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  assignReasons,
   describeEntry,
   describeMutant,
   entryFor,
@@ -8,6 +9,7 @@ import {
   normalizeText,
   parseArguments,
   parseLedger,
+  parseReasonFile,
   serializeLedger,
   mutantsOf,
   type LedgerEntry,
@@ -337,6 +339,7 @@ describe('parseArguments', () => {
       all: false,
       acceptReason: null,
       hangReason: null,
+      acceptFile: null,
       timeoutMS: null,
     });
   });
@@ -349,6 +352,7 @@ describe('parseArguments', () => {
       all: true,
       acceptReason: 'unreachable guard',
       hangReason: null,
+      acceptFile: null,
       timeoutMS: null,
     });
     expect(parseArguments(['--', '--all'])).toEqual({
@@ -356,6 +360,7 @@ describe('parseArguments', () => {
       all: true,
       acceptReason: null,
       hangReason: null,
+      acceptFile: null,
       timeoutMS: null,
     });
   });
@@ -373,6 +378,7 @@ describe('parseArguments', () => {
       all: false,
       acceptReason: 'unreachable guard',
       hangReason: null,
+      acceptFile: null,
       timeoutMS: null,
     });
   });
@@ -409,6 +415,7 @@ describe('parseArguments', () => {
       all: false,
       acceptReason: 'unreachable guard',
       hangReason: 'the loop never advances its index',
+      acceptFile: null,
       timeoutMS: 30000,
     });
   });
@@ -444,6 +451,125 @@ describe('parseArguments', () => {
     expect(() =>
       parseArguments(['--timeout-ms', '1', '--timeout-ms', '2']),
     ).toThrow(/^--timeout-ms is given twice$/);
+  });
+
+  it('reads --accept-from and its file in any position, without taking the file as a file argument', () => {
+    expect(
+      parseArguments(['src/a.ts', '--accept-from', ' reasons.json ', '--all']),
+    ).toEqual({
+      files: ['src/a.ts'],
+      all: true,
+      acceptReason: null,
+      hangReason: null,
+      acceptFile: 'reasons.json',
+      timeoutMS: null,
+    });
+  });
+
+  it.each([
+    ['no file', ['--accept-from']],
+    ['an empty file name', ['--accept-from', ' ']],
+    ['an option instead of a file', ['--accept-from', '--all']],
+  ])('rejects --accept-from with %s', (_name, argv) => {
+    expect(() => parseArguments(argv)).toThrow(
+      /^--accept-from needs a file of reasons: --accept-from <file>$/,
+    );
+  });
+
+  it('rejects --accept-from given twice', () => {
+    expect(() =>
+      parseArguments(['--accept-from', 'a', '--accept-from', 'b']),
+    ).toThrow(/^--accept-from is given twice$/);
+  });
+
+  it('rejects --accept together with --accept-from, in either order', () => {
+    for (const argv of [
+      ['--accept', 'r', '--accept-from', 'f'],
+      ['--accept-from', 'f', '--accept', 'r'],
+    ])
+      expect(() => parseArguments(argv)).toThrow(
+        /^--accept and --accept-from exclude each other: give one reason for every survivor or one reason each$/,
+      );
+  });
+});
+
+describe('parseReasonFile and assignReasons', () => {
+  const guard = survivor();
+  const conditional = survivor({
+    column: 7,
+    mutator: 'ConditionalExpression',
+    replacement: 'false',
+  });
+  const keyOf = (mutant: LocatedMutant) => describeMutant(mutant, () => null);
+
+  it('keys each survivor by the text describeMutant prints before the source line', () => {
+    expect(keyOf(guard)).toBe(
+      'app/src/NameField.tsx:2:30  StringLiteral  → "Stryker was here!"',
+    );
+  });
+
+  it('pairs each survivor with the reason under its key, read with its whitespace normalized', () => {
+    const reasons = parseReasonFile(
+      JSON.stringify({
+        'app/src/NameField.tsx:2:30 StringLiteral → "Stryker was here!"':
+          ' the label renders nothing while the entry is null ',
+        [keyOf(conditional)]: 'the guard returns the same empty name',
+      }),
+    );
+
+    expect(assignReasons([guard, conditional], reasons)).toEqual({
+      assigned: [
+        {
+          mutant: guard,
+          reason: 'the label renders nothing while the entry is null',
+        },
+        {
+          mutant: conditional,
+          reason: 'the guard returns the same empty name',
+        },
+      ],
+      missing: [],
+      unused: [],
+    });
+  });
+
+  it('gives two identical survivors the one reason under their shared key', () => {
+    const reasons = parseReasonFile(JSON.stringify({ [keyOf(guard)]: 'r' }));
+
+    expect(assignReasons([guard, guard], reasons).assigned).toEqual([
+      { mutant: guard, reason: 'r' },
+      { mutant: guard, reason: 'r' },
+    ]);
+  });
+
+  it('returns a survivor without a reason as missing and a key that names no survivor as unused', () => {
+    const reasons = parseReasonFile(
+      JSON.stringify({ [keyOf(conditional)]: 'r', 'app/src/gone.ts:1:1': 'r' }),
+    );
+
+    const result = assignReasons([guard, conditional], reasons);
+
+    expect(result.missing).toEqual([guard]);
+    expect(result.unused).toEqual(['app/src/gone.ts:1:1']);
+  });
+
+  it.each([
+    ['an array', '[]', /^the file of reasons is not a JSON object$/],
+    ['null', 'null', /^the file of reasons is not a JSON object$/],
+    ['a number reason', '{"k": 1}', /^the reason for "k" is not a string$/],
+    ['an empty reason', '{"k": "  "}', /^the reason for "k" is empty$/],
+    [
+      'a reason over two lines',
+      '{"k": "a\\nb"}',
+      /^the reason for "k" spans more than one line$/,
+    ],
+    [
+      'one key twice after normalizing',
+      '{"a  b": "r", "a b": "s"}',
+      /^"a b" is given twice$/,
+    ],
+  ])('rejects a file with %s', (_name, json, message) => {
+    expect(() => parseReasonFile(json)).toThrow(message);
   });
 });
 

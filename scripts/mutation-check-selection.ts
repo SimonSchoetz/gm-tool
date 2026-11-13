@@ -33,7 +33,7 @@ export const testFileCandidates = (appRelativePath: string) => {
   );
 };
 
-// The production sources to mutate: with `all`, every tracked source, otherwise the changed ones; the caller passes how to list each, and only the list that applies is read. File arguments select among them, and an argument that is none of them is returned as unknown.
+// The production sources to mutate: with `all`, every tracked source, otherwise the changed ones; the caller passes how to list each, and only the list that applies is read. File arguments select among them; scopeOfRequestedFiles says why an argument is none of them.
 export const selectFiles = ({
   all,
   listChangedPaths,
@@ -54,9 +54,50 @@ export const selectFiles = ({
       requestedFiles.length > 0
         ? candidates.filter((file) => requestedFiles.includes(file))
         : candidates,
-    unknown: requestedFiles.filter((file) => !candidates.includes(file)),
   };
 };
+
+// For each file argument, whether the run mutates it and, when not, why: `outOfScope` for a file that is no candidate, which fails the run before anything is mutated, and `untested` for a candidate without its own test file, which the run skips.
+export const scopeOfRequestedFiles = ({
+  all,
+  baseBranch,
+  candidates,
+  requestedFiles,
+  exists,
+  hasOwnTestFile,
+}: {
+  all: boolean;
+  baseBranch: string;
+  candidates: string[];
+  requestedFiles: string[];
+  exists: (appRelativePath: string) => boolean;
+  hasOwnTestFile: (appRelativePath: string) => boolean;
+}) =>
+  requestedFiles.map((file) => {
+    const outOfScope = (reason: string) => ({
+      file,
+      status: 'outOfScope' as const,
+      reason,
+    });
+    if (!exists(file)) return outOfScope('no such file under app/');
+    if (!isProductionSource(file))
+      return outOfScope(
+        `not a production source: only the .ts files under ${PRODUCTION_DIRECTORIES.map((directory) => `${directory}/`).join(', ')} are mutated, no .tsx, declaration, test or generated file`,
+      );
+    if (!candidates.includes(file))
+      return outOfScope(
+        all
+          ? 'not tracked by git'
+          : `not changed against ${baseBranch}; --all mutates it as a whole`,
+      );
+    if (!hasOwnTestFile(file))
+      return {
+        file,
+        status: 'untested' as const,
+        reason: `no own test file (${testFileCandidates(file).join(' or ')})`,
+      };
+    return { file, status: 'mutated' as const, reason: null };
+  });
 
 type LineRange = { start: number; end: number };
 
