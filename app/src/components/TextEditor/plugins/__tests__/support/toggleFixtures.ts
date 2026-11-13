@@ -23,7 +23,7 @@ import {
   ToggleBodyNode,
 } from '../../../nodes/ToggleBodyNode';
 
-// Fixtures for the tests of the toggle plugins: the nodes the text editor registers for blocks, builders for a paragraph and a toggle body, and a text outline of the document to assert on.
+// Fixtures for the tests of the toggle plugins and their helpers: the nodes the text editor registers for blocks, an editor of them, builders for a paragraph and a toggle body, a text outline of the document to assert on, and builders and readers for a caret and a selection.
 
 // The namespace of the editors mounted by mountEditor, which a pasted lexical clipboard payload has to carry for the editor to take it.
 export const TEST_NAMESPACE = 'toggle-plugin-test';

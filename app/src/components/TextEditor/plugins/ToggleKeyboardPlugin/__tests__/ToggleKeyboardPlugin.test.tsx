@@ -21,6 +21,7 @@ import { ToggleKeyboardPlugin } from '../ToggleKeyboardPlugin';
 import {
   $bodyOf,
   $firstToggle,
+  $selectTextOf,
   body,
   outlineOfRoot,
   caretOf,
@@ -366,9 +367,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     setUp(editor, {
       header: () => paragraphOf('Hello world'),
       placeCaret: (header) => {
-        const text = header.getFirstChildOrThrow();
-        if (!$isTextNode(text)) throw new Error('The child is not a text node');
-        text.select(3, 7);
+        $selectTextOf(header, 3, 7);
       },
     });
 
@@ -475,9 +474,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     setUp(editor, {
       header: () => paragraphOf('Hello world'),
       placeCaret: (header) => {
-        const text = header.getFirstChildOrThrow();
-        if (!$isTextNode(text)) throw new Error('The child is not a text node');
-        text.select(0, 11);
+        $selectTextOf(header, 0, 11);
       },
     });
 
@@ -492,9 +489,7 @@ describe('ToggleKeyboardPlugin Enter', () => {
     setUp(editor, {
       header: () => paragraphOf('Hello world'),
       placeCaret: (header) => {
-        const text = header.getFirstChildOrThrow();
-        if (!$isTextNode(text)) throw new Error('The child is not a text node');
-        text.select(3, 11);
+        $selectTextOf(header, 3, 11);
       },
     });
 

@@ -12,7 +12,7 @@ import { $isToggleNode } from '../../../nodes/ToggleNode';
 import { resolveTopLevelBlock } from '../../../helper/resolveTopLevelBlock';
 import { splitHeaderAtSelection } from '../../../helper/splitHeaderAtSelection';
 
-const isTextBlock = (node: LexicalNode): boolean =>
+const isTextBlock = (node: LexicalNode | undefined): boolean =>
   $isParagraphNode(node) || $isHeadingNode(node);
 
 // Pastes `blocks` at a caret, or over a selection (which the split removes), inside a toggle header so that the header stays one block. A first block that is a paragraph or heading gives its text to the header at the caret; every other block goes where Enter at the end of the header leads (the start of an open toggle's body, directly after a collapsed toggle), in order, and the text that followed the caret ends up at the end of the last block when that is a paragraph or heading, else as a paragraph of its own after it. Returns false, and changes nothing, when the selection is not inside one header or no block would leave the header: the editor's own insertion then runs.
@@ -25,6 +25,7 @@ export const insertBlocksBehindHeader = (
   if (!$isToggleNode(toggle)) return false;
   if (!resolveTopLevelBlock(selection.focus.getNode()).is(header)) return false;
 
+  // With no blocks `first` is undefined, which isTextBlock reads as no text block, and `remaining` below is then empty.
   const [first, ...others] = blocks;
   const firstGoesToHeader = isTextBlock(first);
   const remaining = firstGoesToHeader ? others : blocks;

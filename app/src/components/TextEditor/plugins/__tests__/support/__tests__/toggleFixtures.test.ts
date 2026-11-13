@@ -63,14 +63,15 @@ describe('toggle fixtures', () => {
     ]);
   });
 
-  it('selects a range of the first text of a block, and reads the caret back as its block text and offset', () => {
+  it('selects a range of the first text of a block with the anchor at its start, and reads the caret back as its block text and offset', () => {
     const editor = makeEditor();
-    inEditor(editor, () => {
+    const focusOffset = inEditor(editor, () => {
       const block = paragraph('Hello world');
       $getRoot().clear().append(block);
-      $selectTextOf(block, 3, 3);
+      return $selectTextOf(block, 3, 7).focus.offset;
     });
 
+    expect(focusOffset).toBe(7);
     expect(caretOf(editor)).toEqual({ block: 'Hello world', offset: 3 });
   });
 

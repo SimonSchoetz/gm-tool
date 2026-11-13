@@ -7,14 +7,14 @@ import {
   $getSelection,
   $isRangeSelection,
   $setSelection,
-  createEditor,
+  type LexicalEditor,
 } from 'lexical';
 import { $createToggleNode } from '../../../../nodes/ToggleNode';
 import { $createToggleBodyNode } from '../../../../nodes/ToggleBodyNode';
 import { resolveHeaderToggleForRemoval } from '../resolveHeaderToggleForRemoval';
 import { makeEditor } from '../../../__tests__/support/toggleFixtures';
 
-const readResolution = (editor: ReturnType<typeof createEditor>) =>
+const readResolution = (editor: LexicalEditor) =>
   editor.getEditorState().read(() => {
     const selection = $getSelection();
     if (!$isRangeSelection(selection)) return null;
