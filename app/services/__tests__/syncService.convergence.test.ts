@@ -115,6 +115,7 @@ const connect = (a: Device, b: Device) => {
       await a.syncService.sendSyncHello(b.id);
       await settle();
     },
+    settle,
   };
 };
 
@@ -187,6 +188,22 @@ describe('syncService between two devices', () => {
       name: 'Later edit on A',
       updated_at: '2026-01-04T00:00:00.000Z',
     });
+    await expectConverged(a, b);
+  });
+
+  it('brings an edit made after the handshake over when the editing device pushes, without a new handshake', async () => {
+    setTime('2026-01-02T00:00:00.000Z');
+    const adventureId = await a.adventureDb.create();
+    const link = connect(a, b);
+    await link.handshake();
+
+    setTime('2026-01-03T00:00:00.000Z');
+    await a.adventureDb.update(adventureId, { name: 'Edited after handshake' });
+    await a.syncService.pushNewChanges();
+    await link.settle();
+
+    const [adventureOnB] = await readTable(b, 'adventures');
+    expect(adventureOnB).toMatchObject({ name: 'Edited after handshake' });
     await expectConverged(a, b);
   });
 
