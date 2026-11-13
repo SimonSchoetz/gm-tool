@@ -13,7 +13,18 @@ import {
   $getRoot,
   UNDO_COMMAND,
   type LexicalEditor,
+  type LexicalNode,
 } from 'lexical';
+import {
+  $createToggleNode,
+  $isToggleNode,
+  ToggleNode,
+} from '../../../nodes/ToggleNode';
+import {
+  $createToggleBodyNode,
+  $isToggleBodyNode,
+  ToggleBodyNode,
+} from '../../../nodes/ToggleBodyNode';
 import { BlockDragHandlePlugin } from '../BlockDragHandlePlugin';
 
 type EditorHandleProps = { onEditor: (editor: LexicalEditor) => void };
@@ -35,7 +46,7 @@ const Harness = ({ onEditor }: HarnessProps) => {
     <LexicalComposer
       initialConfig={{
         namespace: 'block-drag-handle-test',
-        nodes: [],
+        nodes: [ToggleNode, ToggleBodyNode],
         onError: (error: Error) => {
           throw error;
         },
@@ -55,12 +66,25 @@ const Harness = ({ onEditor }: HarnessProps) => {
   );
 };
 
-// jsdom computes no layout, so each block gets a stubbed rectangle: 20 units tall, 4 apart, the first at the top.
+// jsdom computes no layout, so the blocks get stubbed rectangles. In a flat document each block is 20 units tall, 4 apart, the first at the top and the left edge 16.
 const ROW_HEIGHT = 20;
 const ROW_GAP = 4;
+const ROOT_LEFT = 16;
 const rowTop = (index: number) => index * (ROW_HEIGHT + ROW_GAP);
 
-const mount = (texts: string[]) => {
+const stubRect = (
+  element: HTMLElement | null,
+  rect: { top: number; bottom: number; left: number },
+) => {
+  if (element === null) throw new Error('block not rendered');
+  element.getBoundingClientRect = () =>
+    ({ ...rect, height: rect.bottom - rect.top }) as DOMRect;
+};
+
+const paragraph = (text: string) =>
+  $createParagraphNode().append($createTextNode(text));
+
+const mountDocument = (blocks: () => LexicalNode[]) => {
   let mountedEditor: LexicalEditor | null = null;
   const { container } = render(
     <Harness
@@ -74,42 +98,81 @@ const mount = (texts: string[]) => {
   act(() => {
     editor.update(
       () => {
-        const root = $getRoot().clear();
-        texts.forEach((text) =>
-          root.append($createParagraphNode().append($createTextNode(text))),
-        );
+        $getRoot()
+          .clear()
+          .append(...blocks());
       },
       { discrete: true },
     );
-  });
-  const keys = editor.read('latest', () => $getRoot().getChildrenKeys());
-  keys.forEach((key, index) => {
-    const element = editor.getElementByKey(key);
-    if (element === null) throw new Error('block not rendered');
-    element.getBoundingClientRect = () =>
-      ({
-        top: rowTop(index),
-        bottom: rowTop(index) + ROW_HEIGHT,
-        height: ROW_HEIGHT,
-      }) as DOMRect;
   });
   const anchor = container.firstElementChild;
   if (anchor === null) throw new Error('anchor not rendered');
   return { editor, anchor, root: screen.getByRole('textbox') };
 };
 
-// The saved document: the text of each top-level block, in order.
+const mount = (texts: string[]) => {
+  const mounted = mountDocument(() => texts.map(paragraph));
+  const keys = mounted.editor.read('latest', () =>
+    $getRoot().getChildrenKeys(),
+  );
+  keys.forEach((key, index) => {
+    stubRect(mounted.editor.getElementByKey(key), {
+      top: rowTop(index),
+      bottom: rowTop(index) + ROW_HEIGHT,
+      left: ROOT_LEFT,
+    });
+  });
+  return mounted;
+};
+
+// A paragraph "a", an open toggle "T" whose body holds "x" and "y", and a paragraph "c": "a" at 0 to 20, the toggle from 24 to 100 with its header at 24 to 44 and its body's blocks, indented by 32, at 48 to 68 and 70 to 90, and "c" at 104 to 124.
+const mountNested = () => {
+  const mounted = mountDocument(() => [
+    paragraph('a'),
+    $createToggleNode().append(
+      paragraph('T'),
+      $createToggleBodyNode().append(paragraph('x'), paragraph('y')),
+    ),
+    paragraph('c'),
+  ]);
+  const { editor } = mounted;
+  const keys = editor.read('latest', () => {
+    const [a, toggle, c] = $getRoot().getChildren();
+    if (!$isToggleNode(toggle)) throw new Error('the toggle is missing');
+    const header = toggle.getFirstChildOrThrow();
+    const body = toggle.getLastChildOrThrow();
+    if (!$isToggleBodyNode(body)) throw new Error('the body is missing');
+    const [x, y] = body.getChildren();
+    return [a, toggle, header, x, y, c].map((node) => node.getKey());
+  });
+  const [a, toggle, header, x, y, c] = keys.map((key) =>
+    editor.getElementByKey(key),
+  );
+  stubRect(a, { top: 0, bottom: 20, left: ROOT_LEFT });
+  stubRect(toggle, { top: 24, bottom: 100, left: ROOT_LEFT });
+  stubRect(header, { top: 24, bottom: 44, left: 48 });
+  stubRect(x, { top: 48, bottom: 68, left: 48 });
+  stubRect(y, { top: 70, bottom: 90, left: 48 });
+  stubRect(c, { top: 104, bottom: 124, left: ROOT_LEFT });
+  return mounted;
+};
+
+type SavedNode = { type: string; text?: string; children?: SavedNode[] };
+
+const outlineOfSaved = (block: SavedNode): string => {
+  const children = block.children ?? [];
+  if (block.type !== 'toggle') {
+    return children.map(({ text }) => text ?? '').join('');
+  }
+  const [header, body] = children;
+  return `${outlineOfSaved(header)}[${(body.children ?? []).map(outlineOfSaved).join(',')}]`;
+};
+
+// The saved document: each top-level block by its text, a toggle as `header[body, ...]`.
 const savedOrder = (editor: LexicalEditor): string[] =>
-  editor
-    .getEditorState()
-    .toJSON()
-    .root.children.map((block) =>
-      'children' in block
-        ? (block.children as { text: string }[])
-            .map(({ text }) => text)
-            .join('')
-        : '',
-    );
+  (editor.getEditorState().toJSON().root.children as SavedNode[]).map(
+    outlineOfSaved,
+  );
 
 // jsdom has no DragEvent, which Lexical's own drop handler checks for when ours leaves a drop alone, so the global is a mouse event, the pointer position being what the handlers read.
 class TestDragEvent extends MouseEvent {
@@ -124,8 +187,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const dragEvent = (type: 'dragover' | 'drop', clientY: number) =>
-  new TestDragEvent(type, { clientY, bubbles: true, cancelable: true });
+const dragEvent = (
+  type: 'dragover' | 'drop',
+  clientY: number,
+  clientX = ROOT_LEFT,
+) =>
+  new TestDragEvent(type, {
+    clientX,
+    clientY,
+    bubbles: true,
+    cancelable: true,
+  });
 
 // Lexical commits an update in a microtask, so the dispatch is awaited inside act.
 const dispatchOnRoot = (root: HTMLElement, event: Event) =>
@@ -140,8 +212,8 @@ const undo = (editor: LexicalEditor) =>
     return Promise.resolve();
   });
 
-const startDragOfBlock = (anchor: Element, blockIndex: number) => {
-  fireEvent.mouseMove(anchor, { clientY: rowTop(blockIndex) + 1 });
+const startDragOfBlockAt = (anchor: Element, clientY: number) => {
+  fireEvent.mouseMove(anchor, { clientY });
   const handle = screen.getByLabelText('Drag to move block');
   fireEvent.dragStart(handle, {
     dataTransfer: {
@@ -156,7 +228,7 @@ const startDragOfBlock = (anchor: Element, blockIndex: number) => {
 describe('BlockDragHandlePlugin', () => {
   it('leaves the saved document unchanged after a cancelled drag, and a later drop moves nothing', async () => {
     const { editor, anchor, root } = mount(['a', 'b', 'c']);
-    const handle = startDragOfBlock(anchor, 0);
+    const handle = startDragOfBlockAt(anchor, rowTop(0) + 1);
     await dispatchOnRoot(
       root,
       dragEvent('dragover', rowTop(2) + ROW_HEIGHT + 10),
@@ -170,7 +242,7 @@ describe('BlockDragHandlePlugin', () => {
 
   it('leaves the saved document unchanged for a drop on the block’s own position', async () => {
     const { editor, anchor, root } = mount(['a', 'b', 'c']);
-    startDragOfBlock(anchor, 1);
+    startDragOfBlockAt(anchor, rowTop(1) + 1);
 
     await dispatchOnRoot(root, dragEvent('drop', rowTop(1) + 1));
 
@@ -179,7 +251,7 @@ describe('BlockDragHandlePlugin', () => {
 
   it('puts the dragged block where it is dropped, and one undo restores the order before the drag', async () => {
     const { editor, anchor, root } = mount(['a', 'b', 'c']);
-    startDragOfBlock(anchor, 0);
+    startDragOfBlockAt(anchor, rowTop(0) + 1);
     const belowLastBlock = rowTop(2) + ROW_HEIGHT + 10;
     await dispatchOnRoot(root, dragEvent('dragover', belowLastBlock));
 
@@ -188,5 +260,23 @@ describe('BlockDragHandlePlugin', () => {
 
     await undo(editor);
     expect(savedOrder(editor)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('puts a block dropped on the lower half of an open toggle’s header at the start of its body', async () => {
+    const { editor, anchor, root } = mountNested();
+    startDragOfBlockAt(anchor, 110);
+
+    await dispatchOnRoot(root, dragEvent('drop', 40, 20));
+
+    expect(savedOrder(editor)).toEqual(['a', 'T[c,x,y]']);
+  });
+
+  it('puts a block dropped below the last block of a toggle body, with the pointer left of the body’s text, after the toggle', async () => {
+    const { editor, anchor, root } = mountNested();
+    startDragOfBlockAt(anchor, 80);
+
+    await dispatchOnRoot(root, dragEvent('drop', 86, 20));
+
+    expect(savedOrder(editor)).toEqual(['a', 'T[x]', 'y', 'c']);
   });
 });

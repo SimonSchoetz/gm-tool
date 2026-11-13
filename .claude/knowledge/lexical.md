@@ -384,3 +384,10 @@ Each of the plugin's two handlers returns false while no drag that the plugin st
 **Citation:** [implement_1: ran `npx vitest run` on `app/src/components/TextEditor/plugins/BlockDragHandlePlugin/__tests__/BlockDragHandlePlugin.test.tsx` with the drop event dispatched inside a synchronous `act(() => …)` — observed `editor.getEditorState().toJSON()` still holding the order before the drop; the same test with its `dispatchOnRoot` helper, which dispatches the event inside `act` and returns `Promise.resolve()` from it, awaited, passed]
 
 The drop event is one a command listener handles by moving a block in an update; the test reads the state only after `await dispatchOnRoot(root, event)`.
+
+## A shadow-root element with `canBeEmpty()` false stays in the tree with no children when `insertBefore` moves its last child elsewhere
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: `app/node_modules/.pnpm/lexical@0.52.0_typescript@6.0.3/node_modules/lexical/dist/Lexical.dev.js:9059` — `$removeNode` removes an emptied parent only under `!$isRootOrShadowRoot(parent) && !parent.canBeEmpty() && parent.isEmpty()`], [implement_1: `app/src/components/TextEditor/nodes/ToggleBodyNode.ts` declares `isShadowRoot(): true` and `canBeEmpty(): false` for the toggle body], [implement_1: ran a scratch `npx vitest run` test that put one paragraph in a `ToggleBodyNode` inside a `ToggleNode`, called `insertBefore` with that paragraph on the first root block, and wrote `editor.getEditorState().toJSON()` — observed the `toggle` with its `toggle-body` present and `children` of length 0]
+
+The element remains attached to its parent and the move raises no error.

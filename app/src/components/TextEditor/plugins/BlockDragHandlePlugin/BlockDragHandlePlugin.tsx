@@ -27,12 +27,15 @@ type Props = {
 type HoveredBlock = {
   key: NodeKey;
   top: number;
+  left: number;
   height: number;
 };
 
 type DropIndicatorPosition = {
   lineTop: number;
+  lineLeft: number;
   highlightTop: number;
+  highlightLeft: number;
   highlightHeight: number;
 };
 
@@ -45,7 +48,10 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
 
   // Read as a dependency of the effect below, which would otherwise re-register every listener on each render.
   const toAnchorSpace = useCallback(
-    (clientY: number) => clientY - anchorElem.getBoundingClientRect().top,
+    (clientX: number, clientY: number) => {
+      const anchorRect = anchorElem.getBoundingClientRect();
+      return { x: clientX - anchorRect.left, y: clientY - anchorRect.top };
+    },
     [anchorElem],
   );
 
@@ -87,17 +93,21 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
     const handleMouseMove = (event: MouseEvent) => {
       if (draggedKey !== null) return;
       const row = resolveHoveredRow(collectBlockRows(editor), event.clientY);
-      if (row?.key === hoveredRow?.key) return;
-      hoveredRow = row;
-      setHoveredBlock(
-        row === null
-          ? null
-          : {
-              key: row.key,
-              top: toAnchorSpace(row.top),
-              height: row.bottom - row.top,
-            },
-      );
+      // A row with no handle, such as a list, shows none.
+      const handleRow = row?.hasHandle ? row : null;
+      if (handleRow?.key === hoveredRow?.key) return;
+      hoveredRow = handleRow;
+      if (handleRow === null) {
+        setHoveredBlock(null);
+        return;
+      }
+      const { x, y } = toAnchorSpace(handleRow.left, handleRow.top);
+      setHoveredBlock({
+        key: handleRow.key,
+        top: y,
+        left: x,
+        height: handleRow.bottom - handleRow.top,
+      });
     };
 
     const handleMouseLeave = () => {
@@ -132,15 +142,24 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
 
     const handleDragOver = (event: DragEvent): boolean => {
       if (draggedKey === null) return false;
-      const target = resolveDropTarget(collectBlockRows(editor), event.clientY);
+      const target = resolveDropTarget(
+        collectBlockRows(editor),
+        draggedKey,
+        event.clientX,
+        event.clientY,
+      );
       if (target === null) return false;
       // Lets the browser fire the drop event here.
       event.preventDefault();
       pushMargin(target);
+      const line = toAnchorSpace(target.lineLeft, target.lineTop);
+      const highlight = toAnchorSpace(target.row.left, target.row.top);
       // A new object on every dragover, so the highlight keeps tracking the row while the margin transition moves it.
       setDropIndicator({
-        lineTop: toAnchorSpace(target.lineTop),
-        highlightTop: toAnchorSpace(target.row.top),
+        lineTop: line.y,
+        lineLeft: line.x,
+        highlightTop: highlight.y,
+        highlightLeft: highlight.x,
         highlightHeight: target.row.bottom - target.row.top,
       });
       return true;
@@ -150,10 +169,16 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       const droppedKey = draggedKey;
       if (droppedKey === null) return false;
       event.preventDefault();
-      const target = resolveDropTarget(collectBlockRows(editor), event.clientY);
+      const target = resolveDropTarget(
+        collectBlockRows(editor),
+        droppedKey,
+        event.clientX,
+        event.clientY,
+      );
       clearDrag();
-      if (target !== null)
-        moveBlock(droppedKey, target.row.key, target.placement);
+      if (target !== null) {
+        moveBlock(droppedKey, target.beside.key, target.placement);
+      }
       hoveredRow = null;
       setHoveredBlock(null);
       return true;
@@ -185,8 +210,8 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
     };
   }, [editor, anchorElem, toAnchorSpace]);
 
-  const lineTop = dropIndicator?.lineTop ?? null;
   const highlightTop = dropIndicator?.highlightTop ?? null;
+  const highlightLeft = dropIndicator?.highlightLeft ?? null;
   const highlightHeight = dropIndicator?.highlightHeight ?? null;
 
   return (
@@ -195,11 +220,21 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
         <BlockDragHandle
           ref={handleRef}
           top={hoveredBlock.top}
+          left={hoveredBlock.left}
           height={hoveredBlock.height}
         />
       )}
-      {lineTop !== null && <BlockDropIndicator top={lineTop} />}
-      <BlockDropHighlight top={highlightTop} height={highlightHeight} />
+      {dropIndicator && (
+        <BlockDropIndicator
+          top={dropIndicator.lineTop}
+          left={dropIndicator.lineLeft}
+        />
+      )}
+      <BlockDropHighlight
+        top={highlightTop}
+        left={highlightLeft}
+        height={highlightHeight}
+      />
     </>
   );
 };

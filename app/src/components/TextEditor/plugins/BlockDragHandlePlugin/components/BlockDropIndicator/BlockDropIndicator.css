@@ -16,7 +16,7 @@
 .block-drop-indicator {
   position: absolute;
   width: fit-content;
-  left: var(--text-editor-gutter-width);
+  left: var(--block-drop-indicator-left);
   top: var(--block-drop-indicator-top);
   transform: translateY(-50%);
   opacity: 0.4;

@@ -561,7 +561,7 @@
     "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/collectBlockRows.ts",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
-    "lineText": "editor.read('latest', () =>",
+    "lineText": "editor.read('latest', () => rowsOf(editor, $getRoot(), []));",
     "occurrence": 0,
     "lines": 1,
     "reason": "editor.read treats any mode text other than 'force-commit' and 'pending' as 'latest' (.claude/knowledge/lexical.md)"

@@ -19,8 +19,11 @@
 
 .editor-content > * {
   margin-bottom: var(--spacing-xs);
+}
 
-  /* Animates the margin BlockDragHandlePlugin.tsx pushes open at the drop gap — a row's margin-bottom, or the first row's margin-top at the start of the document — so the gap it opens/closes reads as smooth, not an instant jump. */
+/* Animates the margin BlockDragHandlePlugin.tsx pushes open at the drop gap — the top margin of the row a drop is placed before, the bottom margin of the row it is placed after — so the gap it opens/closes reads as smooth, not an instant jump. Rows are the editor's blocks and the blocks of an open toggle's body. */
+.editor-content > *,
+.toggle-body-inner > * {
   transition:
     margin-bottom var(--transition-fast),
     margin-top var(--transition-fast);

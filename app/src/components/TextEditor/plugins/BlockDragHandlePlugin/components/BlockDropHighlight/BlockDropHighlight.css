@@ -1,8 +1,13 @@
 .block-drop-highlight {
   position: absolute;
   top: var(--block-drop-highlight-top);
-  left: 0;
-  width: 100%;
+  /* The row's own left edge, less the editor's left gutter, which a root row's highlight covers: a row inside a toggle body is highlighted from the same distance left of its own edge. */
+  left: calc(
+    var(--block-drop-highlight-left) - var(--text-editor-gutter-width)
+  );
+  width: calc(
+    100% - var(--block-drop-highlight-left) + var(--text-editor-gutter-width)
+  );
   height: var(--block-drop-highlight-height);
   border-radius: var(--radius-sm);
   background-color: rgb(var(--color-primary-rgb), 0.08);

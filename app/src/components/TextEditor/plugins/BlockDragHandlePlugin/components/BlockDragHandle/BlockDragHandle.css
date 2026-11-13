@@ -1,7 +1,9 @@
 .block-drag-handle {
   position: absolute;
   top: var(--block-drag-handle-top);
-  left: 0; /* the editor's left gutter, which is as wide as the handle */
+  left: calc(
+    var(--block-drag-handle-edge) - var(--spacing-md)
+  ); /* directly left of the block's own left edge: at the editor's left gutter for a root block */
   display: flex;
   align-items: center;
   justify-content: center;

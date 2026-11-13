@@ -6,12 +6,14 @@ import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
 type Props = {
   ref: React.Ref<HTMLDivElement>;
   top: number;
+  left: number;
   height: number;
 };
 
-export const BlockDragHandle: FCProps<Props> = ({ ref, top, height }) => {
+export const BlockDragHandle: FCProps<Props> = ({ ref, top, left, height }) => {
   const positionStyle = {
     '--block-drag-handle-top': `${top}px`,
+    '--block-drag-handle-edge': `${left}px`,
     '--block-drag-handle-height': `${height}px`,
   } as React.CSSProperties;
 
