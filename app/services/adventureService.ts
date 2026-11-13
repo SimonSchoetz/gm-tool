@@ -100,8 +100,7 @@ export const deleteAdventure = async (id: string): Promise<void> => {
       adventureToDelete.image_id,
     ].filter((imageId) => imageId !== null);
 
-    await adventureDb.remove(id);
-    await imageService.discardImages(imageIds);
+    await imageService.deleteWithImages(imageIds, () => adventureDb.remove(id));
   } catch (err) {
     throw adventureDeleteError(id, err);
   }

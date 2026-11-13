@@ -1,12 +1,14 @@
 import { invoke } from '@platform';
 import { isImageFileExtension } from '@domain';
-import { generateId, buildCreateQuery, generateDbTimestamps } from '../util';
+import { buildCreateQuery, generateDbTimestamps } from '../util';
 import { getDatabase } from '../database';
 import type { CreateImageInput } from './types';
 
-export const create = async ({
-  filePath,
-}: CreateImageInput): Promise<string> => {
+// The caller supplies the id (generateImageId), so it can record the image before its file is written (services/imageService.ts).
+export const create = async (
+  { filePath }: CreateImageInput,
+  id: string,
+): Promise<string> => {
   if (typeof filePath !== 'string') {
     throw new Error('filePath must be a string');
   }
@@ -18,8 +20,6 @@ export const create = async ({
   }
 
   const originalFilename = filePath.split('/').pop() ?? null;
-
-  const id = generateId();
 
   const fileSize = await invoke<number>('save_image', {
     sourcePath: filePath,

@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type * as imageDb from '@db/image';
+import type * as systemDb from '@db/_system';
+import type * as imageReferencesDb from '@db/image-references';
 import type { Image } from '@db/image';
 import type {
   invoke as invokeType,
@@ -11,6 +13,21 @@ const create = vi.hoisted(() => vi.fn<typeof imageDb.create>());
 const remove = vi.hoisted(() => vi.fn<typeof imageDb.remove>());
 const duplicate = vi.hoisted(() => vi.fn<typeof imageDb.duplicate>());
 const update = vi.hoisted(() => vi.fn<typeof imageDb.update>());
+const generateImageId = vi.hoisted(() =>
+  vi.fn<typeof imageDb.generateImageId>(),
+);
+const addPendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.addPendingImageIds>(),
+);
+const removePendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.removePendingImageIds>(),
+);
+const getPendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.getPendingImageIds>(),
+);
+const isImageReferenced = vi.hoisted(() =>
+  vi.fn<typeof imageReferencesDb.isImageReferenced>(),
+);
 const invoke = vi.hoisted(() => vi.fn<typeof invokeType>());
 const convertFileSrc = vi.hoisted(() => vi.fn<typeof convertType>());
 
@@ -20,56 +37,89 @@ vi.mock('@db/image', () => ({
   remove,
   duplicate,
   update,
+  generateImageId,
 }));
+vi.mock('@db/_system', () => ({
+  addPendingImageIds,
+  removePendingImageIds,
+  getPendingImageIds,
+}));
+vi.mock('@db/image-references', () => ({ isImageReferenced }));
 vi.mock('@platform', () => ({ invoke, convertFileSrc }));
+
+// The images an entity names, as isImageReferenced answers; a test's entity write changes it as the real row would.
+let referenced = new Set<string>();
 
 beforeEach(() => {
   vi.resetModules();
+  referenced = new Set();
   get.mockReset().mockResolvedValue(null);
-  create.mockReset().mockResolvedValue('created-image');
+  create.mockReset().mockResolvedValue('new-image');
   remove.mockReset().mockResolvedValue();
-  duplicate.mockReset().mockResolvedValue('copied-image');
+  duplicate.mockReset().mockResolvedValue('new-image');
   update.mockReset().mockResolvedValue();
+  generateImageId.mockReset().mockReturnValue('new-image');
+  addPendingImageIds.mockReset().mockResolvedValue();
+  removePendingImageIds.mockReset().mockResolvedValue();
+  getPendingImageIds.mockReset().mockResolvedValue([]);
+  isImageReferenced
+    .mockReset()
+    .mockImplementation((id) => Promise.resolve(referenced.has(id)));
   invoke.mockReset().mockResolvedValue('/store/images/a.png');
   convertFileSrc.mockReset().mockImplementation((path) => `asset://${path}`);
 });
 
+const unrecordedIds = () => removePendingImageIds.mock.calls.flat(2);
+
 describe('saveImage', () => {
-  it('creates the new image, points the entity at it, then removes the current image, in that order', async () => {
+  const pointEntityAtNewImage = vi.fn((imageId: string) => {
+    referenced.delete('current-image');
+    referenced.add(imageId);
+    return Promise.resolve();
+  });
+
+  beforeEach(() => {
+    referenced.add('current-image');
+    pointEntityAtNewImage.mockClear();
+  });
+
+  it('records both images, creates the new one under its own id, points the entity at it, then removes the current one and unrecords both', async () => {
     const { saveImage } = await import('../imageService');
-    const pointEntityAt = vi.fn((_imageId: string) => Promise.resolve());
 
-    await saveImage('current-image', '/pick/map.png', pointEntityAt);
+    await saveImage('current-image', '/pick/map.png', pointEntityAtNewImage);
 
-    expect(create).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
-    expect(pointEntityAt).toHaveBeenCalledWith('created-image');
-    expect(remove).toHaveBeenCalledWith('current-image');
-    expect(create.mock.invocationCallOrder[0]).toBeLessThan(
-      pointEntityAt.mock.invocationCallOrder[0],
+    expect(addPendingImageIds).toHaveBeenCalledWith([
+      'new-image',
+      'current-image',
+    ]);
+    expect(create).toHaveBeenCalledWith(
+      { filePath: '/pick/map.png' },
+      'new-image',
     );
-    expect(pointEntityAt.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(pointEntityAtNewImage).toHaveBeenCalledWith('new-image');
+    expect(remove.mock.calls).toEqual([['current-image']]);
+    expect(unrecordedIds().sort()).toEqual(['current-image', 'new-image']);
+    expect(addPendingImageIds.mock.invocationCallOrder[0]).toBeLessThan(
+      create.mock.invocationCallOrder[0],
+    );
+    expect(create.mock.invocationCallOrder[0]).toBeLessThan(
+      pointEntityAtNewImage.mock.invocationCallOrder[0],
+    );
+    expect(pointEntityAtNewImage.mock.invocationCallOrder[0]).toBeLessThan(
       remove.mock.invocationCallOrder[0],
     );
   });
 
-  it('removes nothing when there is no current image', async () => {
+  it('records and removes only the new image’s entry when there is no current image', async () => {
     const { saveImage } = await import('../imageService');
 
-    await saveImage(null, '/pick/map.png', () => Promise.resolve());
+    await saveImage(null, '/pick/map.png', pointEntityAtNewImage);
 
+    expect(addPendingImageIds).toHaveBeenCalledWith(['new-image']);
     expect(remove).not.toHaveBeenCalled();
   });
 
-  it('resolves when the current image cannot be removed after the entity points at the new one', async () => {
-    const { saveImage } = await import('../imageService');
-    remove.mockRejectedValue(new Error('file locked'));
-
-    await expect(
-      saveImage('current-image', '/pick/map.png', () => Promise.resolve()),
-    ).resolves.toBeUndefined();
-  });
-
-  it('rejects with the entity update’s error and keeps the current image when the entity cannot be pointed at the new one', async () => {
+  it('rejects with the entity write’s error, keeps the current image the entity still names and removes the new one, when the entity cannot be pointed at it', async () => {
     const { saveImage } = await import('../imageService');
     const updateError = new Error('locked');
 
@@ -78,35 +128,68 @@ describe('saveImage', () => {
         Promise.reject(updateError),
       ),
     ).rejects.toBe(updateError);
-    expect(remove).not.toHaveBeenCalled();
+    expect(remove.mock.calls).toEqual([['new-image']]);
+    expect(unrecordedIds().sort()).toEqual(['current-image', 'new-image']);
   });
 
-  it('rejects as ImageCreateError, pointing the entity at nothing, when the creation fails', async () => {
+  it('rejects as ImageCreateError and points the entity at nothing when the creation fails', async () => {
     const { saveImage } = await import('../imageService');
     create.mockRejectedValue(new Error('disk'));
-    const pointEntityAt = vi.fn((_imageId: string) => Promise.resolve());
 
     await expect(
-      saveImage(null, '/pick/map.png', pointEntityAt),
+      saveImage('current-image', '/pick/map.png', pointEntityAtNewImage),
     ).rejects.toMatchObject({ name: 'ImageCreateError' });
-    expect(pointEntityAt).not.toHaveBeenCalled();
+    expect(pointEntityAtNewImage).not.toHaveBeenCalled();
+  });
+
+  it('rejects and writes nothing when the images cannot be recorded', async () => {
+    const { saveImage } = await import('../imageService');
+    addPendingImageIds.mockRejectedValue(new Error('locked'));
+
+    await expect(
+      saveImage('current-image', '/pick/map.png', pointEntityAtNewImage),
+    ).rejects.toThrow(/^locked$/);
+    expect(create).not.toHaveBeenCalled();
+    expect(pointEntityAtNewImage).not.toHaveBeenCalled();
+  });
+
+  it('resolves, keeping the current image recorded for the next start, when it cannot be removed', async () => {
+    const { saveImage } = await import('../imageService');
+    remove.mockRejectedValue(new Error('file locked'));
+
+    await expect(
+      saveImage('current-image', '/pick/map.png', pointEntityAtNewImage),
+    ).resolves.toBeUndefined();
+    expect(unrecordedIds()).toEqual(['new-image']);
   });
 });
 
 describe('removeImage', () => {
-  it('detaches the image from the entity, then removes it', async () => {
+  beforeEach(() => {
+    referenced.add('old-image');
+  });
+
+  it('records the image, detaches it from the entity, then removes it and unrecords it', async () => {
     const { removeImage } = await import('../imageService');
-    const detach = vi.fn(() => Promise.resolve());
+    const detach = vi.fn(() => {
+      referenced.delete('old-image');
+      return Promise.resolve();
+    });
 
     await removeImage('old-image', detach);
 
+    expect(addPendingImageIds).toHaveBeenCalledWith(['old-image']);
     expect(remove).toHaveBeenCalledWith('old-image');
+    expect(unrecordedIds()).toEqual(['old-image']);
+    expect(addPendingImageIds.mock.invocationCallOrder[0]).toBeLessThan(
+      detach.mock.invocationCallOrder[0],
+    );
     expect(detach.mock.invocationCallOrder[0]).toBeLessThan(
       remove.mock.invocationCallOrder[0],
     );
   });
 
-  it('rejects with the detach error and removes nothing when the entity cannot be detached', async () => {
+  it('rejects with the detach error and removes nothing the entity still names when it cannot be detached', async () => {
     const { removeImage } = await import('../imageService');
     const detachError = new Error('locked');
 
@@ -117,32 +200,118 @@ describe('removeImage', () => {
   });
 });
 
-describe('duplicateImage', () => {
-  it('resolves the id of the copy of the source', async () => {
-    const { duplicateImage } = await import('../imageService');
+describe('deleteWithImages', () => {
+  it('records the images, deletes the entity, then removes each image, going on past one that fails and leaving that one recorded', async () => {
+    const { deleteWithImages } = await import('../imageService');
+    const deleteEntity = vi.fn(() => Promise.resolve());
+    remove.mockRejectedValueOnce(new Error('file locked'));
 
-    await expect(duplicateImage('source-image')).resolves.toBe('copied-image');
-    expect(duplicate).toHaveBeenCalledWith('source-image');
+    await expect(deleteWithImages(['a', 'b'], deleteEntity)).resolves.toBe(
+      undefined,
+    );
+
+    expect(addPendingImageIds).toHaveBeenCalledWith(['a', 'b']);
+    expect(remove.mock.calls).toEqual([['a'], ['b']]);
+    expect(unrecordedIds()).toEqual(['b']);
+    expect(addPendingImageIds.mock.invocationCallOrder[0]).toBeLessThan(
+      deleteEntity.mock.invocationCallOrder[0],
+    );
+    expect(deleteEntity.mock.invocationCallOrder[0]).toBeLessThan(
+      remove.mock.invocationCallOrder[0],
+    );
   });
 
-  it('rejects as ImageDuplicateError when the copy fails', async () => {
-    const { duplicateImage } = await import('../imageService');
-    duplicate.mockRejectedValue(new Error('disk'));
+  it('rejects with the delete error and removes no image the entity still names when the entity cannot be deleted', async () => {
+    const { deleteWithImages } = await import('../imageService');
+    referenced.add('a');
+    const deleteError = new Error('locked');
 
-    await expect(duplicateImage('source-image')).rejects.toMatchObject({
-      name: 'ImageDuplicateError',
-    });
+    await expect(
+      deleteWithImages(['a'], () => Promise.reject(deleteError)),
+    ).rejects.toBe(deleteError);
+    expect(remove).not.toHaveBeenCalled();
   });
 });
 
-describe('discardImages', () => {
-  it('removes every image, and goes on to the next when one cannot be removed, resolving', async () => {
-    const { discardImages } = await import('../imageService');
-    remove.mockRejectedValueOnce(new Error('file locked'));
+describe('duplicateWithImage', () => {
+  it('records nothing and copies no image for a source without one', async () => {
+    const { duplicateWithImage } = await import('../imageService');
+    const duplicateEntity = vi.fn((_imageId: string | null) =>
+      Promise.resolve('copy'),
+    );
 
-    await expect(discardImages(['a', 'b'])).resolves.toBeUndefined();
+    await expect(duplicateWithImage(null, duplicateEntity)).resolves.toBe(
+      'copy',
+    );
 
-    expect(remove.mock.calls).toEqual([['a'], ['b']]);
+    expect(duplicateEntity).toHaveBeenCalledWith(null);
+    expect(addPendingImageIds).not.toHaveBeenCalled();
+    expect(duplicate).not.toHaveBeenCalled();
+  });
+
+  it('records the copy, copies the source image under its id, hands that id to the entity copy and unrecords the copy the entity names', async () => {
+    const { duplicateWithImage } = await import('../imageService');
+    const duplicateEntity = vi.fn((imageId: string | null) => {
+      if (imageId !== null) referenced.add(imageId);
+      return Promise.resolve('copy');
+    });
+
+    await expect(
+      duplicateWithImage('source-image', duplicateEntity),
+    ).resolves.toBe('copy');
+
+    expect(addPendingImageIds).toHaveBeenCalledWith(['new-image']);
+    expect(duplicate).toHaveBeenCalledWith('source-image', 'new-image');
+    expect(duplicateEntity).toHaveBeenCalledWith('new-image');
+    expect(remove).not.toHaveBeenCalled();
+    expect(unrecordedIds()).toEqual(['new-image']);
+    expect(addPendingImageIds.mock.invocationCallOrder[0]).toBeLessThan(
+      duplicate.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('removes the copy no entity names when the entity copy fails, rejecting with its error', async () => {
+    const { duplicateWithImage } = await import('../imageService');
+    const copyError = new Error('sections');
+
+    await expect(
+      duplicateWithImage('source-image', () => Promise.reject(copyError)),
+    ).rejects.toBe(copyError);
+    expect(remove).toHaveBeenCalledWith('new-image');
+  });
+
+  it('rejects as ImageDuplicateError, copying no entity, when the image cannot be copied', async () => {
+    const { duplicateWithImage } = await import('../imageService');
+    duplicate.mockRejectedValue(new Error('disk'));
+    const duplicateEntity = vi.fn((_imageId: string | null) =>
+      Promise.resolve('copy'),
+    );
+
+    await expect(
+      duplicateWithImage('source-image', duplicateEntity),
+    ).rejects.toMatchObject({ name: 'ImageDuplicateError' });
+    expect(duplicateEntity).not.toHaveBeenCalled();
+  });
+});
+
+describe('cleanUpAbandonedImages', () => {
+  it('removes the recorded images no entity names, keeps the one an entity names, and unrecords all of them', async () => {
+    const { cleanUpAbandonedImages } = await import('../imageService');
+    getPendingImageIds.mockResolvedValue(['abandoned', 'named']);
+    referenced.add('named');
+
+    await cleanUpAbandonedImages();
+
+    expect(remove.mock.calls).toEqual([['abandoned']]);
+    expect(unrecordedIds()).toEqual(['abandoned', 'named']);
+  });
+
+  it('resolves when the record cannot be read', async () => {
+    const { cleanUpAbandonedImages } = await import('../imageService');
+    getPendingImageIds.mockRejectedValue(new Error('locked'));
+
+    await expect(cleanUpAbandonedImages()).resolves.toBeUndefined();
+    expect(remove).not.toHaveBeenCalled();
   });
 });
 

@@ -35,7 +35,10 @@ const load = async () => {
   const adventureId = await adventureDb.create();
   const createImagedEncounter = async () => {
     const encounterId = await encounterDb.create(adventureId);
-    const imageId = await imageDb.create({ filePath: '/pics/cover.png' });
+    const imageId = await imageDb.create(
+      { filePath: '/pics/cover.png' },
+      imageDb.generateImageId(),
+    );
     await encounterDb.update(encounterId, { image_id: imageId });
     return { encounterId, imageId };
   };
@@ -208,9 +211,10 @@ describe('encounterService against the database', () => {
       db,
       () => encounterService.duplicateEncounter(encounterId),
       async () => {
-        // The source and the counting run's copy, each with its two queue items.
-        expect(await readEncounterIds()).toHaveLength(2);
-        expect(await countQueueItems()).toBe(4);
+        // Every encounter, the source and each copy a run completed, holds its two queue items: a failure in the copy leaves no copy, and one in the image bookkeeping after it leaves a whole one.
+        expect(await countQueueItems()).toBe(
+          2 * (await readEncounterIds()).length,
+        );
       },
     );
   });

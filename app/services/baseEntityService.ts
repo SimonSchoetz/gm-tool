@@ -100,10 +100,10 @@ export const deleteBaseEntity = async (
   try {
     const baseEntity = await getBaseEntityById(entityType, id);
 
-    await baseEntityDb.remove(id);
-    if (baseEntity.image_id) {
-      await imageService.discardImages([baseEntity.image_id]);
-    }
+    await imageService.deleteWithImages(
+      baseEntity.image_id === null ? [] : [baseEntity.image_id],
+      () => baseEntityDb.remove(id),
+    );
   } catch (err) {
     throw baseEntityDeleteError(entityType, id, err);
   }
@@ -115,15 +115,17 @@ export const duplicateBaseEntity = async (
 ): Promise<string> => {
   try {
     const source = await getBaseEntityById(entityType, id);
-    const imageId = source.image_id
-      ? await imageService.duplicateImage(source.image_id)
-      : null;
-    const newId = await baseEntityDb.duplicate(entityType, id, imageId);
-    await writeChildrenOrRemoveParent(
-      () => baseEntityContentSectionDb.duplicateByBaseEntity(id, newId),
-      () => baseEntityDb.remove(newId),
+    return await imageService.duplicateWithImage(
+      source.image_id,
+      async (imageId) => {
+        const newId = await baseEntityDb.duplicate(entityType, id, imageId);
+        await writeChildrenOrRemoveParent(
+          () => baseEntityContentSectionDb.duplicateByBaseEntity(id, newId),
+          () => baseEntityDb.remove(newId),
+        );
+        return newId;
+      },
     );
-    return newId;
   } catch (err) {
     throw baseEntityDuplicateError(entityType, id, err);
   }

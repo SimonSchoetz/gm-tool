@@ -19,11 +19,11 @@ const saveImage = vi.hoisted(() =>
 const removeImage = vi.hoisted(() =>
   vi.fn<typeof imageServiceModule.removeImage>(),
 );
-const discardImages = vi.hoisted(() =>
-  vi.fn<typeof imageServiceModule.discardImages>(),
+const deleteWithImages = vi.hoisted(() =>
+  vi.fn<typeof imageServiceModule.deleteWithImages>(),
 );
-const duplicateImage = vi.hoisted(() =>
-  vi.fn<typeof imageServiceModule.duplicateImage>(),
+const duplicateWithImage = vi.hoisted(() =>
+  vi.fn<typeof imageServiceModule.duplicateWithImage>(),
 );
 
 vi.mock('@db/base-entity', () => ({
@@ -38,8 +38,8 @@ vi.mock('@db/base-entity-content-section', () => ({ duplicateByBaseEntity }));
 vi.mock('@services/imageService', () => ({
   saveImage,
   removeImage,
-  discardImages,
-  duplicateImage,
+  deleteWithImages,
+  duplicateWithImage,
 }));
 
 beforeEach(() => {
@@ -59,8 +59,14 @@ beforeEach(() => {
   removeImage
     .mockReset()
     .mockImplementation((_imageId, detachFromEntity) => detachFromEntity());
-  discardImages.mockReset().mockResolvedValue();
-  duplicateImage.mockReset().mockResolvedValue('copied-image');
+  deleteWithImages
+    .mockReset()
+    .mockImplementation((_imageIds, deleteEntity) => deleteEntity());
+  duplicateWithImage
+    .mockReset()
+    .mockImplementation((sourceImageId, duplicateEntity) =>
+      duplicateEntity(sourceImageId === null ? null : 'copied-image'),
+    );
 });
 
 describe('getAllBaseEntities', () => {
@@ -241,26 +247,26 @@ describe('removeBaseEntityImage', () => {
 });
 
 describe('deleteBaseEntity', () => {
-  it('removes the row, then discards the image of the entity', async () => {
+  it('removes the row together with the image of the entity', async () => {
     const { deleteBaseEntity } = await import('../baseEntityService');
     get.mockResolvedValue(buildBaseEntity({ id: 'n1', image_id: 'image-1' }));
 
     await deleteBaseEntity('npcs', 'n1');
 
-    expect(remove).toHaveBeenCalledWith('n1');
-    expect(discardImages).toHaveBeenCalledWith(['image-1']);
-    expect(remove.mock.invocationCallOrder[0]).toBeLessThan(
-      discardImages.mock.invocationCallOrder[0],
+    expect(deleteWithImages).toHaveBeenCalledWith(
+      ['image-1'],
+      expect.any(Function),
     );
+    expect(remove).toHaveBeenCalledWith('n1');
   });
 
-  it('removes the row of an entity without an image, discarding no image', async () => {
+  it('removes the row of an entity without an image, with no image', async () => {
     const { deleteBaseEntity } = await import('../baseEntityService');
     get.mockResolvedValue(buildBaseEntity({ id: 'n1', image_id: null }));
 
     await deleteBaseEntity('npcs', 'n1');
 
-    expect(discardImages).not.toHaveBeenCalled();
+    expect(deleteWithImages).toHaveBeenCalledWith([], expect.any(Function));
     expect(remove).toHaveBeenCalledWith('n1');
   });
 
@@ -273,7 +279,7 @@ describe('deleteBaseEntity', () => {
     expect(remove).not.toHaveBeenCalled();
   });
 
-  it('rejects as BaseEntityDeleteError, discarding no image, when the row cannot be removed', async () => {
+  it('rejects as BaseEntityDeleteError when the row cannot be removed', async () => {
     const { deleteBaseEntity } = await import('../baseEntityService');
     get.mockResolvedValue(buildBaseEntity({ image_id: 'image-1' }));
     remove.mockRejectedValue(new Error('disk'));
@@ -281,12 +287,11 @@ describe('deleteBaseEntity', () => {
     await expect(deleteBaseEntity('npcs', 'n1')).rejects.toMatchObject({
       name: 'BaseEntityDeleteError',
     });
-    expect(discardImages).not.toHaveBeenCalled();
   });
 });
 
 describe('duplicateBaseEntity', () => {
-  it('duplicates the image, then the row with the copied image, then the content sections onto the copy', async () => {
+  it('duplicates the row with the copied image, then the content sections onto the copy', async () => {
     const { duplicateBaseEntity } = await import('../baseEntityService');
     get.mockResolvedValue(buildBaseEntity({ id: 'n1', image_id: 'image-1' }));
 
@@ -294,12 +299,12 @@ describe('duplicateBaseEntity', () => {
       'copy-entity',
     );
 
-    expect(duplicateImage).toHaveBeenCalledWith('image-1');
+    expect(duplicateWithImage).toHaveBeenCalledWith(
+      'image-1',
+      expect.any(Function),
+    );
     expect(duplicate).toHaveBeenCalledWith('npcs', 'n1', 'copied-image');
     expect(duplicateByBaseEntity).toHaveBeenCalledWith('n1', 'copy-entity');
-    expect(duplicateImage.mock.invocationCallOrder[0]).toBeLessThan(
-      duplicate.mock.invocationCallOrder[0],
-    );
     expect(duplicate.mock.invocationCallOrder[0]).toBeLessThan(
       duplicateByBaseEntity.mock.invocationCallOrder[0],
     );
@@ -311,7 +316,7 @@ describe('duplicateBaseEntity', () => {
 
     await duplicateBaseEntity('npcs', 'n1');
 
-    expect(duplicateImage).not.toHaveBeenCalled();
+    expect(duplicateWithImage).toHaveBeenCalledWith(null, expect.any(Function));
     expect(duplicate).toHaveBeenCalledWith('npcs', 'n1', null);
   });
 
@@ -324,7 +329,7 @@ describe('duplicateBaseEntity', () => {
     expect(duplicate).not.toHaveBeenCalled();
 
     get.mockResolvedValue(buildBaseEntity({ image_id: 'image-1' }));
-    duplicateImage.mockRejectedValueOnce(new Error('disk'));
+    duplicateWithImage.mockRejectedValueOnce(new Error('disk'));
 
     await expect(duplicateBaseEntity('npcs', 'n1')).rejects.toMatchObject({
       name: 'BaseEntityDuplicateError',

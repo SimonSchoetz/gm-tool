@@ -1,17 +1,19 @@
 import { invoke } from '@platform';
-import { generateId, buildDuplicateQuery, assertValidId } from '../util';
+import { buildDuplicateQuery, assertValidId } from '../util';
 import { getDatabase } from '../database';
 import { get } from './get';
 
-export const duplicate = async (sourceId: string): Promise<string> => {
+// The caller supplies the copy's id (generateImageId), so it can record the copy before its file is written (services/imageService.ts).
+export const duplicate = async (
+  sourceId: string,
+  id: string,
+): Promise<string> => {
   assertValidId(sourceId, 'image');
 
   const source = await get(sourceId);
   if (!source) {
     throw new Error(`Image not found: ${sourceId}`);
   }
-
-  const id = generateId();
 
   const dataBase64 = await invoke<string>('read_image_bytes', {
     id: sourceId,

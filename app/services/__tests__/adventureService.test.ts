@@ -3,6 +3,8 @@ import type * as adventureDb from '@db/adventure';
 import type * as baseEntityDb from '@db/base-entity';
 import type * as encounterDb from '@db/encounter';
 import type * as imageDb from '@db/image';
+import type * as systemDb from '@db/_system';
+import type * as imageReferencesDb from '@db/image-references';
 import type { Adventure } from '@db/adventure';
 import { BASE_ENTITY_TYPES } from '@domain';
 import { buildBaseEntity } from './support/encounterQueueFixtures';
@@ -20,6 +22,18 @@ const getAllBaseEntities = vi.hoisted(() =>
 );
 const getAllEncounters = vi.hoisted(() => vi.fn<typeof encounterDb.getAll>());
 const removeImage = vi.hoisted(() => vi.fn<typeof imageDb.remove>());
+const generateImageId = vi.hoisted(() =>
+  vi.fn<typeof imageDb.generateImageId>(),
+);
+const addPendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.addPendingImageIds>(),
+);
+const removePendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.removePendingImageIds>(),
+);
+const isImageReferenced = vi.hoisted(() =>
+  vi.fn<typeof imageReferencesDb.isImageReferenced>(),
+);
 const createImage = vi.hoisted(() => vi.fn<typeof imageDb.create>());
 
 vi.mock('@db/adventure', () => ({
@@ -31,10 +45,25 @@ vi.mock('@db/adventure', () => ({
 }));
 vi.mock('@db/base-entity', () => ({ getAll: getAllBaseEntities }));
 vi.mock('@db/encounter', () => ({ getAll: getAllEncounters }));
+vi.mock('@db/_system', () => ({
+  addPendingImageIds,
+  removePendingImageIds,
+}));
+vi.mock('@db/image-references', () => ({ isImageReferenced }));
 vi.mock('@db/image', () => ({
+  generateImageId,
   remove: removeImage,
   create: createImage,
 }));
+// The image lifecycle records each image it touches and removes those no entity names; here the new image is the one an entity names.
+beforeEach(() => {
+  generateImageId.mockReset().mockReturnValue('created-image');
+  addPendingImageIds.mockReset().mockResolvedValue();
+  removePendingImageIds.mockReset().mockResolvedValue();
+  isImageReferenced
+    .mockReset()
+    .mockImplementation((id) => Promise.resolve(id === 'created-image'));
+});
 
 const ADVENTURE_ID = 'adventure-1';
 
@@ -139,6 +168,7 @@ describe('deleteAdventure', () => {
       buildAdventure({ image_id: 'adventure-cover' }),
     );
     removeAdventure.mockRejectedValue(new Error('locked'));
+    isImageReferenced.mockResolvedValue(true);
 
     await expect(deleteAdventure(ADVENTURE_ID)).rejects.toMatchObject({
       name: 'AdventureDeleteError',
@@ -165,7 +195,10 @@ describe('updateAdventure', () => {
       name: 'Renamed',
     });
 
-    expect(createImage).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
+    expect(createImage).toHaveBeenCalledWith(
+      { filePath: '/pick/map.png' },
+      'created-image',
+    );
     expect(updateAdventureRow).toHaveBeenCalledWith(ADVENTURE_ID, {
       image_id: 'created-image',
       name: 'Renamed',
@@ -179,6 +212,9 @@ describe('updateAdventure', () => {
   it('rejects as AdventureUpdateError and keeps the old cover when the adventure cannot be pointed at the new one', async () => {
     const { updateAdventure } = await import('../adventureService');
     updateAdventureRow.mockRejectedValue(new Error('locked'));
+    isImageReferenced.mockImplementation((id) =>
+      Promise.resolve(id === 'adventure-cover'),
+    );
 
     await expect(
       updateAdventure(ADVENTURE_ID, {
@@ -187,7 +223,7 @@ describe('updateAdventure', () => {
       }),
     ).rejects.toMatchObject({ name: 'AdventureUpdateError' });
 
-    expect(removeImage).not.toHaveBeenCalled();
+    expect(removeImage.mock.calls).toEqual([['created-image']]);
   });
 
   it('creates a cover from the chosen file when the adventure has none', async () => {
@@ -198,7 +234,10 @@ describe('updateAdventure', () => {
       image_id: null,
     });
 
-    expect(createImage).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
+    expect(createImage).toHaveBeenCalledWith(
+      { filePath: '/pick/map.png' },
+      'created-image',
+    );
     expect(updateAdventureRow).toHaveBeenCalledWith(ADVENTURE_ID, {
       image_id: 'created-image',
     });
@@ -354,6 +393,7 @@ describe('removeAdventureImage', () => {
   it('rejects as AdventureUpdateError and deletes no image when image_id cannot be cleared', async () => {
     const { removeAdventureImage } = await import('../adventureService');
     updateAdventureRow.mockRejectedValue(new Error('locked'));
+    isImageReferenced.mockResolvedValue(true);
 
     await expect(removeAdventureImage(ADVENTURE_ID)).rejects.toMatchObject({
       name: 'AdventureUpdateError',

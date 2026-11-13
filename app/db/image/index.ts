@@ -1,5 +1,6 @@
 export { create } from './create';
 export { duplicate } from './duplicate';
+export { generateImageId } from './generate-image-id';
 export { get } from './get';
 export { remove } from './remove';
 export { update } from './update';

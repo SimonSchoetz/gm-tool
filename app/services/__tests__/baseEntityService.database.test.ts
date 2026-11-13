@@ -34,7 +34,10 @@ const load = async () => {
   const adventureId = await adventureDb.create();
   const createImagedEntity = async () => {
     const baseEntityId = await baseEntityDb.create('npcs', adventureId);
-    const imageId = await imageDb.create({ filePath: '/pics/portrait.png' });
+    const imageId = await imageDb.create(
+      { filePath: '/pics/portrait.png' },
+      imageDb.generateImageId(),
+    );
     await baseEntityDb.update(baseEntityId, { image_id: imageId });
     return { baseEntityId, imageId };
   };
@@ -165,9 +168,8 @@ describe('baseEntityService against the database', () => {
       db,
       () => baseEntityService.duplicateBaseEntity('npcs', baseEntityId),
       async () => {
-        // The source and the counting run's copy, each with its two sections.
-        expect(await readEntityIds()).toHaveLength(2);
-        expect(await countSections()).toBe(4);
+        // Every entity, the source and each copy a run completed, holds its two sections: a failure in the copy leaves no copy, and one in the image bookkeeping after it leaves a whole one.
+        expect(await countSections()).toBe(2 * (await readEntityIds()).length);
       },
     );
   });

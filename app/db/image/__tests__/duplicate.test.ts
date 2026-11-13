@@ -17,6 +17,7 @@ vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
 const T1 = '2026-01-10T09:00:00.000Z';
 const T2 = '2026-01-11T09:00:00.000Z';
+const COPY_ID = 'image-copy';
 const SOURCE_ID = 'source-image';
 
 const readImage = async (id: string) => {
@@ -52,14 +53,14 @@ describe('duplicate', () => {
     vi.useRealTimers();
   });
 
-  it('copies the row under a fresh id with new timestamps and copies the file bytes to that id', async () => {
+  it('copies the row under the id the caller gave with new timestamps and copies the file bytes to that id', async () => {
     const { duplicate } = await import('../duplicate');
     await seedSourceImage();
     vi.setSystemTime(new Date(T2));
 
-    const duplicateId = await duplicate(SOURCE_ID);
+    const duplicateId = await duplicate(SOURCE_ID, COPY_ID);
 
-    expect(duplicateId).not.toBe(SOURCE_ID);
+    expect(duplicateId).toBe(COPY_ID);
     expect(await readImage(duplicateId)).toEqual({
       id: duplicateId,
       file_extension: 'png',
@@ -89,7 +90,7 @@ describe('duplicate', () => {
     const before = await readImage(SOURCE_ID);
     vi.setSystemTime(new Date(T2));
 
-    await duplicate(SOURCE_ID);
+    await duplicate(SOURCE_ID, COPY_ID);
 
     expect(await readImage(SOURCE_ID)).toEqual(before);
   });
@@ -97,7 +98,7 @@ describe('duplicate', () => {
   it('rejects an unknown source id', async () => {
     const { duplicate } = await import('../duplicate');
 
-    await expect(duplicate('missing-image')).rejects.toThrow(
+    await expect(duplicate('missing-image', COPY_ID)).rejects.toThrow(
       /^Image not found: missing-image$/,
     );
   });
@@ -107,6 +108,8 @@ describe('duplicate input guards', () => {
   it('rejects a blank id, naming image in its message', async () => {
     const { duplicate } = await import('../duplicate');
 
-    await expect(duplicate('')).rejects.toThrow(/^Valid image ID is required$/);
+    await expect(duplicate('', COPY_ID)).rejects.toThrow(
+      /^Valid image ID is required$/,
+    );
   });
 });

@@ -15,6 +15,7 @@ const invoke = vi.hoisted(() =>
 );
 vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
+const NEW_ID = 'image-new';
 const CREATED_AT = '2026-01-10T09:00:00.000Z';
 
 describe('create', () => {
@@ -31,11 +32,13 @@ describe('create', () => {
     vi.useRealTimers();
   });
 
-  it('stores an upper-case extension in lower case with the file name and the saved size, and saves the file under the id of its row', async () => {
+  it('stores an upper-case extension in lower case with the file name and the saved size, and saves the file under the id the caller gave, which it returns', async () => {
     const { create } = await import('../create');
     const { readImages } = await import('@db/__tests__/support/image-fixtures');
 
-    const id = await create({ filePath: '/pics/Photo.JPG' });
+    const id = await create({ filePath: '/pics/Photo.JPG' }, NEW_ID);
+
+    expect(id).toBe(NEW_ID);
 
     expect(await readImages()).toEqual([
       {
@@ -62,9 +65,9 @@ describe('create', () => {
     const { create } = await import('../create');
     const { readImages } = await import('@db/__tests__/support/image-fixtures');
 
-    await expect(create({ filePath: '/docs/notes.pdf' })).rejects.toThrow(
-      /^Unsupported file extension: pdf$/,
-    );
+    await expect(
+      create({ filePath: '/docs/notes.pdf' }, NEW_ID),
+    ).rejects.toThrow(/^Unsupported file extension: pdf$/);
 
     expect(invoke).not.toHaveBeenCalled();
     expect(await readImages()).toEqual([]);
@@ -75,9 +78,9 @@ describe('create', () => {
     const { readImages } = await import('@db/__tests__/support/image-fixtures');
     invoke.mockImplementation(() => Promise.reject(new Error('disk full')));
 
-    await expect(create({ filePath: '/pics/Photo.png' })).rejects.toThrow(
-      /^disk full$/,
-    );
+    await expect(
+      create({ filePath: '/pics/Photo.png' }, NEW_ID),
+    ).rejects.toThrow(/^disk full$/);
 
     expect(await readImages()).toEqual([]);
   });
@@ -87,7 +90,7 @@ describe('create', () => {
     invoke.mockClear();
 
     await expect(
-      create({ filePath: 42 } as unknown as CreateImageInput),
+      create({ filePath: 42 } as unknown as CreateImageInput, NEW_ID),
     ).rejects.toThrow(/^filePath must be a string$/);
 
     expect(invoke).not.toHaveBeenCalled();

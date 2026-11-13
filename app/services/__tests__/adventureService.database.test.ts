@@ -30,7 +30,8 @@ const load = async () => {
   const { getDatabase } = await import('@db/database');
   const select = async <T>(sql: string, values: unknown[] = []) =>
     (await getDatabase()).select<T>(sql, values);
-  const createImage = () => imageDb.create({ filePath: '/pics/image.png' });
+  const createImage = () =>
+    imageDb.create({ filePath: '/pics/image.png' }, imageDb.generateImageId());
   const createImagedAdventure = async () => {
     const adventureId = await adventureDb.create();
     const imageId = await createImage();

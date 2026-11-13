@@ -3,6 +3,8 @@ import type * as encounterDb from '@db/encounter';
 import type * as queueItemDb from '@db/encounter-queue-item';
 import type * as logEntryDb from '@db/encounter-log-entry';
 import type * as imageDb from '@db/image';
+import type * as systemDb from '@db/_system';
+import type * as imageReferencesDb from '@db/image-references';
 import { buildEncounterQueueItem } from './support/encounterQueueFixtures';
 import { buildEncounter } from './support/encounterFixtures';
 
@@ -17,6 +19,18 @@ const removeEncounter = vi.hoisted(() => vi.fn<typeof encounterDb.remove>());
 const duplicateImage = vi.hoisted(() => vi.fn<typeof imageDb.duplicate>());
 const createImage = vi.hoisted(() => vi.fn<typeof imageDb.create>());
 const removeImage = vi.hoisted(() => vi.fn<typeof imageDb.remove>());
+const generateImageId = vi.hoisted(() =>
+  vi.fn<typeof imageDb.generateImageId>(),
+);
+const addPendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.addPendingImageIds>(),
+);
+const removePendingImageIds = vi.hoisted(() =>
+  vi.fn<typeof systemDb.removePendingImageIds>(),
+);
+const isImageReferenced = vi.hoisted(() =>
+  vi.fn<typeof imageReferencesDb.isImageReferenced>(),
+);
 const getAllQueueItems = vi.hoisted(() =>
   vi.fn<typeof queueItemDb.getAllByEncounter>(),
 );
@@ -35,11 +49,27 @@ vi.mock('@db/encounter', () => ({
   update: updateEncounterRow,
   remove: removeEncounter,
 }));
+vi.mock('@db/_system', () => ({
+  addPendingImageIds,
+  removePendingImageIds,
+}));
+vi.mock('@db/image-references', () => ({ isImageReferenced }));
 vi.mock('@db/image', () => ({
+  generateImageId,
   duplicate: duplicateImage,
   remove: removeImage,
   create: createImage,
 }));
+// The image lifecycle records each image it touches and removes those no entity names; here the new image is the one an entity names.
+beforeEach(() => {
+  generateImageId.mockReset().mockReturnValue('created-image');
+  addPendingImageIds.mockReset().mockResolvedValue();
+  removePendingImageIds.mockReset().mockResolvedValue();
+  isImageReferenced
+    .mockReset()
+    .mockImplementation((id) => Promise.resolve(id === 'created-image'));
+});
+
 vi.mock('@db/encounter-queue-item', () => ({
   getAllByEncounter: getAllQueueItems,
   duplicateByEncounter,
@@ -81,8 +111,11 @@ describe('duplicateEncounter', () => {
 
     await expect(duplicateEncounter('source')).resolves.toBe('new-encounter');
 
-    expect(duplicateImage).toHaveBeenCalledWith('source-image');
-    expect(duplicate).toHaveBeenCalledWith('source', 'copied-image');
+    expect(duplicateImage).toHaveBeenCalledWith(
+      'source-image',
+      'created-image',
+    );
+    expect(duplicate).toHaveBeenCalledWith('source', 'created-image');
     expect(duplicateByEncounter).toHaveBeenCalledWith(
       'source',
       'new-encounter',
@@ -178,6 +211,7 @@ describe('deleteEncounter', () => {
       buildEncounter({ id: 'source', image_id: 'source-image' }),
     );
     removeEncounter.mockRejectedValue(new Error('locked'));
+    isImageReferenced.mockResolvedValue(true);
 
     await expect(deleteEncounter('source')).rejects.toMatchObject({
       name: 'EncounterDeleteError',
@@ -201,7 +235,10 @@ describe('updateEncounter', () => {
       image_id: null,
     });
 
-    expect(createImage).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
+    expect(createImage).toHaveBeenCalledWith(
+      { filePath: '/pick/map.png' },
+      'created-image',
+    );
     expect(updateEncounterRow).toHaveBeenCalledWith('source', {
       image_id: 'created-image',
     });
@@ -215,7 +252,10 @@ describe('updateEncounter', () => {
       image_id: 'source-image',
     });
 
-    expect(createImage).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
+    expect(createImage).toHaveBeenCalledWith(
+      { filePath: '/pick/map.png' },
+      'created-image',
+    );
     expect(updateEncounterRow).toHaveBeenCalledWith('source', {
       image_id: 'created-image',
     });
@@ -228,6 +268,9 @@ describe('updateEncounter', () => {
   it('rejects as EncounterUpdateError and keeps the old cover when the encounter cannot be pointed at the new one', async () => {
     const { updateEncounter } = await import('../encounterService');
     updateEncounterRow.mockRejectedValue(new Error('locked'));
+    isImageReferenced.mockImplementation((id) =>
+      Promise.resolve(id === 'source-image'),
+    );
 
     await expect(
       updateEncounter('source', {
@@ -236,7 +279,7 @@ describe('updateEncounter', () => {
       }),
     ).rejects.toMatchObject({ name: 'EncounterUpdateError' });
 
-    expect(removeImage).not.toHaveBeenCalled();
+    expect(removeImage.mock.calls).toEqual([['created-image']]);
   });
 
   it('writes the data unchanged and touches no image when no file is chosen', async () => {
@@ -314,6 +357,7 @@ describe('removeEncounterImage', () => {
       buildEncounter({ id: 'source', image_id: 'source-image' }),
     );
     updateEncounterRow.mockRejectedValue(new Error('locked'));
+    isImageReferenced.mockResolvedValue(true);
 
     await expect(removeEncounterImage('source')).rejects.toMatchObject({
       name: 'EncounterUpdateError',
