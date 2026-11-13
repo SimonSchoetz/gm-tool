@@ -1,13 +1,17 @@
 import {
   $createParagraphNode,
+  $createRangeSelection,
   $createTextNode,
   $getRoot,
   $isElementNode,
+  $isTextNode,
   createEditor,
   type LexicalEditor,
   type LexicalNode,
+  type RangeSelection,
 } from 'lexical';
 import { HeadingNode } from '@lexical/rich-text';
+import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { $isToggleNode, ToggleNode } from '../../../nodes/ToggleNode';
 import {
@@ -22,6 +26,7 @@ export const TOGGLE_TEST_NODES = [
   HeadingNode,
   ListNode,
   ListItemNode,
+  LinkNode,
   ToggleNode,
   ToggleBodyNode,
 ];
@@ -66,7 +71,7 @@ export const outline = (node: LexicalNode): string => {
 };
 
 export const outlineOfRoot = (editor: LexicalEditor): string[] =>
-  editor.getEditorState().read(() => $getRoot().getChildren().map(outline));
+  editor.read(() => $getRoot().getChildren().map(outline));
 
 export const $firstToggle = (): ToggleNode => {
   const toggle = $getRoot().getFirstChild();
@@ -82,4 +87,25 @@ export const $bodyOf = (toggle: ToggleNode): ToggleBodyNode => {
     throw new Error('The last child of the toggle is not a body');
   }
   return bodyNode;
+};
+
+// A collapsed caret at `offset` of `node`, as a text point on a text node and an element point on any other node. The selection is not set on the editor.
+export const $caretAt = (node: LexicalNode, offset: number): RangeSelection => {
+  const selection = $createRangeSelection();
+  const type = $isTextNode(node) ? 'text' : 'element';
+  selection.anchor.set(node.getKey(), offset, type);
+  selection.focus.set(node.getKey(), offset, type);
+  return selection;
+};
+
+// Runs `read` inside an update, as the helpers under test need an active editor, and returns what it returns.
+export const inEditor = <T>(editor: LexicalEditor, read: () => T): T => {
+  let result: T | null = null;
+  editor.update(
+    () => {
+      result = read();
+    },
+    { discrete: true },
+  );
+  return result as T;
 };

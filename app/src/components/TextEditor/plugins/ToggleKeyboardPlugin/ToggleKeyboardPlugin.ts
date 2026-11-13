@@ -3,7 +3,9 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $createParagraphNode,
   $getSelection,
+  $isElementNode,
   $isRangeSelection,
+  COMMAND_PRIORITY_BEFORE_EDITOR,
   COMMAND_PRIORITY_LOW,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
@@ -13,7 +15,10 @@ import {
 import { $isToggleBodyNode } from '../../nodes/ToggleBodyNode';
 import { $isToggleNode } from '../../nodes/ToggleNode';
 import { resolveTopLevelBlock } from '../../helper/resolveTopLevelBlock';
+import { isCaretAtBlockEnd } from './helper/isCaretAtBlockEnd';
+import { isCaretAtBlockStart } from './helper/isCaretAtBlockStart';
 import { resolveHeaderToggleForRemoval } from './helper/resolveHeaderToggleForRemoval';
+import { splitHeaderAtSelection } from './helper/splitHeaderAtSelection';
 
 export const ToggleKeyboardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();
@@ -21,31 +26,28 @@ export const ToggleKeyboardPlugin = (): null => {
   useEffect(() => {
     const handleEnter = (event: KeyboardEvent | null): boolean => {
       const selection = $getSelection();
-      if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-        return false;
-      }
+      if (!$isRangeSelection(selection)) return false;
 
-      const anchorNode = selection.anchor.getNode();
-      const block = resolveTopLevelBlock(anchorNode);
+      const block = resolveTopLevelBlock(selection.anchor.getNode());
       const parent = block.getParent();
 
-      if (
-        $isToggleBodyNode(parent) &&
-        block.getTextContent().length === 0 &&
-        block.is(parent.getLastChild())
-      ) {
-        const toggleNode = parent.getParent();
-        if (!$isToggleNode(toggleNode)) return false;
-        event?.preventDefault();
-        block.remove();
-        toggleNode.insertAfter(block);
-        block.selectStart();
-        return true;
-      }
+      if ($isToggleNode(parent) && $isElementNode(block)) {
+        if (event?.shiftKey) return false;
+        const focusBlock = resolveTopLevelBlock(selection.focus.getNode());
+        if (!focusBlock.is(block)) return false;
+        selection.removeText();
 
-      if ($isToggleNode(parent)) {
-        const isAtEnd = selection.anchor.offset === block.getTextContentSize();
-        if (!isAtEnd) return false;
+        if (isCaretAtBlockStart(selection, block) && !block.isEmpty()) {
+          event?.preventDefault();
+          parent.insertBefore($createParagraphNode());
+          return true;
+        }
+
+        if (!isCaretAtBlockEnd(selection, block)) {
+          event?.preventDefault();
+          splitHeaderAtSelection(selection).selectStart();
+          return true;
+        }
 
         if (parent.isCollapsed()) {
           event?.preventDefault();
@@ -65,6 +67,19 @@ export const ToggleKeyboardPlugin = (): null => {
           body.append(firstBlock);
         }
         firstBlock.selectStart();
+        return true;
+      }
+
+      if (
+        selection.isCollapsed() &&
+        $isToggleBodyNode(parent) &&
+        block.getTextContent().length === 0 &&
+        block.is(parent.getLastChild())
+      ) {
+        const toggleNode = parent.getParent();
+        if (!$isToggleNode(toggleNode)) return false;
+        event?.preventDefault();
+        toggleNode.insertAfter(block);
         return true;
       }
 
@@ -106,10 +121,11 @@ export const ToggleKeyboardPlugin = (): null => {
     };
 
     return mergeRegister(
+      // Below the typeahead menus' listeners, which run at COMMAND_PRIORITY_LOW and take an Enter while a menu is open.
       editor.registerCommand(
         KEY_ENTER_COMMAND,
         handleEnter,
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_BEFORE_EDITOR,
       ),
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,

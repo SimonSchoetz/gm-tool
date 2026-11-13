@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { $createHeadingNode } from '@lexical/rich-text';
-import { $createTextNode } from 'lexical';
+import { $createTextNode, $createParagraphNode } from 'lexical';
 import { $createToggleNode } from '../../../../nodes/ToggleNode';
 import {
+  $caretAt,
   body,
+  inEditor,
   makeEditor,
   outlineOfRoot,
   paragraph,
@@ -35,5 +37,25 @@ describe('toggle fixtures', () => {
     setRootChildren(editor, () => [paragraph('Second'), paragraph('Third')]);
 
     expect(outlineOfRoot(editor)).toEqual(['Second', 'Third']);
+  });
+
+  it('places a caret as a text point on a text node and as an element point on any other node', () => {
+    const editor = makeEditor();
+
+    const points = inEditor(editor, () => {
+      const text = $createTextNode('abc');
+      const block = $createParagraphNode().append(text);
+      const onText = $caretAt(text, 2);
+      const onBlock = $caretAt(block, 1);
+      return [
+        [onText.anchor.type, onText.anchor.offset, onText.isCollapsed()],
+        [onBlock.anchor.type, onBlock.anchor.offset, onBlock.isCollapsed()],
+      ];
+    });
+
+    expect(points).toEqual([
+      ['text', 2, true],
+      ['element', 1, true],
+    ]);
   });
 });
