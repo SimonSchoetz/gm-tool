@@ -19,4 +19,4 @@ SQL built here follows `app/db/CLAUDE.md` — Conventions, the rule beginning "V
 
 ## Tests
 
-Tests sit in `__tests__/` beside the code and start with `// @vitest-environment node`, since `node:sqlite` exists only in Node. Which files need one is in `app/CLAUDE.md` — Testing. Shared fixtures live in `__tests__/support/` and have tests of their own, per the shared Writing Tests rule "Shared test infrastructure is code".
+Tests sit in `__tests__/` beside the code and start with `// @vitest-environment node`, since `node:sqlite` exists only in Node. Which files need one is in `app/CLAUDE.md` — Testing. Shared fixtures live in `__tests__/support/` and have tests of their own, per the shared Writing Tests rule "Shared test infrastructure is code". A test here that needs the app's migrated in-memory database imports `openTestDatabase` from `app/db/__tests__/support/sqlite-test-database.ts` rather than defining its own — an exception to that rule's bar on importing another layer's test support, for that module only.
