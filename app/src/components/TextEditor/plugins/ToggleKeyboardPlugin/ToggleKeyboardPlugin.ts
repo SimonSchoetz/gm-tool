@@ -19,6 +19,7 @@ import { isCaretAtBlockEnd } from './helper/isCaretAtBlockEnd';
 import { isCaretAtBlockStart } from './helper/isCaretAtBlockStart';
 import { resolveHeaderToggleForRemoval } from './helper/resolveHeaderToggleForRemoval';
 import { splitHeaderAtSelection } from './helper/splitHeaderAtSelection';
+import { unwrapToggle } from './helper/unwrapToggle';
 
 export const ToggleKeyboardPlugin = (): null => {
   const [editor] = useLexicalComposerContext();
@@ -91,12 +92,15 @@ export const ToggleKeyboardPlugin = (): null => {
       if (!$isRangeSelection(selection)) return false;
 
       if (selection.isCollapsed()) {
-        const anchorNode = selection.anchor.getNode();
-        const block = resolveTopLevelBlock(anchorNode);
+        const block = resolveTopLevelBlock(selection.anchor.getNode());
         const parent = block.getParent();
-        if ($isToggleNode(parent) && selection.anchor.offset === 0) {
+        if (
+          $isToggleNode(parent) &&
+          $isElementNode(block) &&
+          isCaretAtBlockStart(selection, block)
+        ) {
           event.preventDefault();
-          parent.remove();
+          unwrapToggle(parent).selectStart();
           return true;
         }
         return false;

@@ -12,6 +12,7 @@ import {
   $isElementNode,
   $isTextNode,
   COMMAND_PRIORITY_LOW,
+  KEY_BACKSPACE_COMMAND,
   KEY_ENTER_COMMAND,
   type ElementNode,
   type LexicalEditor,
@@ -25,6 +26,7 @@ import {
   body,
   outlineOfRoot,
   paragraph,
+  rootBlockTypes,
 } from '../../__tests__/support/toggleFixtures';
 import { mountEditor, updateEditor } from '../../__tests__/support/mountEditor';
 
@@ -98,14 +100,27 @@ const pressEnter = (
   return { handled, defaultPrevented: event?.defaultPrevented ?? false };
 };
 
-// What Enter leaves in the document, with the given plugins mounted.
+const pressBackspace = (editor: LexicalEditor) => {
+  const event = new KeyboardEvent('keydown', {
+    key: 'Backspace',
+    cancelable: true,
+  });
+  let handled = false;
+  act(() => {
+    handled = editor.dispatchCommand(KEY_BACKSPACE_COMMAND, event);
+  });
+  return { handled, defaultPrevented: event.defaultPrevented };
+};
+
+// What a key leaves in the document, with the given plugins mounted.
 const outcomeOf = (
   plugins: ReactNode,
   prepare: (editor: LexicalEditor) => void,
+  press: (editor: LexicalEditor) => unknown = pressEnter,
 ) => {
   const editor = mountEditor(plugins);
   prepare(editor);
-  pressEnter(editor);
+  press(editor);
   return outlineOfRoot(editor);
 };
 
@@ -114,6 +129,14 @@ const expectEnterLeftToTheEditor = (
 ) => {
   expect(outcomeOf(<ToggleKeyboardPlugin />, prepare)).toEqual(
     outcomeOf(null, prepare),
+  );
+};
+
+const expectBackspaceLeftToTheEditor = (
+  prepare: (editor: LexicalEditor) => void,
+) => {
+  expect(outcomeOf(<ToggleKeyboardPlugin />, prepare, pressBackspace)).toEqual(
+    outcomeOf(null, prepare, pressBackspace),
   );
 };
 
@@ -132,13 +155,6 @@ const caret = (editor: LexicalEditor) =>
       offset: selection.anchor.offset,
     };
   });
-
-const rootBlockTypes = (editor: LexicalEditor) =>
-  editor.read(() =>
-    $getRoot()
-      .getChildren()
-      .map((block) => block.getType()),
-  );
 
 const headerTypeOfToggleAt = (editor: LexicalEditor, index: number) =>
   editor.read(() => {
@@ -576,5 +592,118 @@ describe('ToggleKeyboardPlugin Enter', () => {
       'After',
     ]);
     expect(caret(editor)).toEqual({ block: '', offset: 0 });
+  });
+});
+
+describe('ToggleKeyboardPlugin Backspace', () => {
+  it.each([
+    [
+      'a paragraph',
+      () => paragraphOf('Header'),
+      ['paragraph', 'paragraph', 'paragraph', 'paragraph'],
+    ],
+    [
+      'a heading',
+      () => $createHeadingNode('h2').append($createTextNode('Header')),
+      ['heading', 'paragraph', 'paragraph', 'paragraph'],
+    ],
+  ])(
+    'turns the toggle into plain blocks at its level when Backspace is pressed at the very start of a header that is %s, deleting nothing and keeping the caret at the start',
+    (_name, header, expectedTypes) => {
+      const editor = mounted();
+      setUp(editor, {
+        header,
+        placeCaret: caretInChild(0, 0),
+        bodyTexts: ['One', 'Two'],
+      });
+
+      const result = pressBackspace(editor);
+
+      expect(result.defaultPrevented).toBe(true);
+      expect(outlineOfRoot(editor)).toEqual(['Header', 'One', 'Two', 'After']);
+      expect(rootBlockTypes(editor)).toEqual(expectedTypes);
+      expect(caret(editor)).toEqual({ block: 'Header', offset: 0 });
+    },
+  );
+
+  it('joins the second line of a header to the line above and leaves the toggle and its body', () => {
+    const editor = mounted();
+    setUp(editor, {
+      header: () =>
+        $createParagraphNode().append(
+          $createTextNode('abc'),
+          $createLineBreakNode(),
+          $createTextNode('def'),
+        ),
+      placeCaret: caretInChild(2, 0),
+    });
+
+    pressBackspace(editor);
+
+    expect(outlineOfRoot(editor)).toEqual([
+      'toggle[abcdef, body[One]]',
+      'After',
+    ]);
+  });
+
+  it('leaves a Backspace in the middle of a header to the editor and keeps the toggle', () => {
+    const prepare = (editor: LexicalEditor) => {
+      setUp(editor, {
+        header: () => paragraphOf('Hello'),
+        placeCaret: caretInChild(0, 3),
+      });
+    };
+
+    expectBackspaceLeftToTheEditor(prepare);
+    expect(
+      outcomeOf(<ToggleKeyboardPlugin />, prepare, pressBackspace),
+    ).toEqual(['toggle[Hello, body[One]]', 'After']);
+  });
+
+  it('leaves a Backspace at the start of the first body block to the editor', () => {
+    expectBackspaceLeftToTheEditor((editor) => {
+      setUp(editor, {
+        header: () => paragraphOf('Hello'),
+        placeCaret: () => {
+          $bodyOf($firstToggle()).getFirstChildOrThrow().selectStart();
+        },
+      });
+    });
+  });
+
+  it('still removes the toggle whole when Backspace is pressed over a selection that starts outside it and covers its header', () => {
+    const editor = mounted();
+    updateEditor(editor, () => {
+      const before = $createTextNode('Before');
+      const headerText = $createTextNode('Header');
+      $getRoot()
+        .clear()
+        .append(
+          $createParagraphNode().append(before),
+          $createToggleNode().append(
+            $createParagraphNode().append(headerText),
+            body('One'),
+          ),
+          paragraph('After'),
+        );
+      before.select(2, 2).focus.set(headerText.getKey(), 3, 'text');
+    });
+
+    pressBackspace(editor);
+
+    expect(outlineOfRoot(editor)).toEqual(['Before', 'After']);
+  });
+
+  it('leaves a Backspace over a selection that starts inside the header to the editor', () => {
+    expectBackspaceLeftToTheEditor((editor) => {
+      setUp(editor, {
+        header: () => paragraphOf('Hello'),
+        placeCaret: (header) => {
+          const text = header.getFirstChildOrThrow();
+          if (!$isTextNode(text)) throw new Error('Not a text node');
+          text.select(1, 3);
+        },
+      });
+    });
   });
 });

@@ -8,6 +8,7 @@ import {
   inEditor,
   makeEditor,
   outlineOfRoot,
+  rootBlockTypes,
   paragraph,
   setRootChildren,
 } from '../toggleFixtures';
@@ -29,6 +30,7 @@ describe('toggle fixtures', () => {
       'toggle[Header, body[One, toggle[Inner, body[Deep]]]]',
       'Title',
     ]);
+    expect(rootBlockTypes(editor)).toEqual(['toggle', 'heading']);
   });
 
   it('replaces the root children each time it is called', () => {

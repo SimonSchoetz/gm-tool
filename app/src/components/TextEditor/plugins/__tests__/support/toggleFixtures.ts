@@ -73,6 +73,13 @@ export const outline = (node: LexicalNode): string => {
 export const outlineOfRoot = (editor: LexicalEditor): string[] =>
   editor.read(() => $getRoot().getChildren().map(outline));
 
+export const rootBlockTypes = (editor: LexicalEditor): string[] =>
+  editor.read(() =>
+    $getRoot()
+      .getChildren()
+      .map((block) => block.getType()),
+  );
+
 export const $firstToggle = (): ToggleNode => {
   const toggle = $getRoot().getFirstChild();
   if (!$isToggleNode(toggle)) {
