@@ -551,9 +551,18 @@ describe('mutantsOf', () => {
 });
 
 describe('describeEntry and describeMutant', () => {
-  it('prints a survivor as the app-relative path, position, mutator and replacement', () => {
-    expect(describeMutant(survivor())).toBe(
-      'app/src/NameField.tsx:2:30  StringLiteral  → "Stryker was here!"',
+  it('prints a survivor as the app-relative path, position, mutator, replacement and the source line it mutates', () => {
+    expect(describeMutant(survivor(), sourceLines)).toBe(
+      `app/src/NameField.tsx:2:30  StringLiteral  → "Stryker was here!"  on "if (entry === null) return '';"`,
+    );
+  });
+
+  it('prints a survivor without a source line when its file or line is missing', () => {
+    expect(
+      describeMutant(survivor({ file: 'src/Renamed.tsx' }), sourceLines),
+    ).toBe('app/src/Renamed.tsx:2:30  StringLiteral  → "Stryker was here!"');
+    expect(describeMutant(survivor({ line: 99 }), sourceLines)).toBe(
+      'app/src/NameField.tsx:99:30  StringLiteral  → "Stryker was here!"',
     );
   });
 
