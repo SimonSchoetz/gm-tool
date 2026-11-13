@@ -248,6 +248,12 @@ const REASON_OPTIONS = {
   '--accept-hang': 'which loop the mutant makes endless',
 } as const;
 
+// The file of reasons an option takes as its next argument, and the option that gives one reason to every mutant instead.
+const REASON_FILE_OPTIONS = {
+  '--accept-from': '--accept',
+  '--accept-hang-from': '--accept-hang',
+} as const;
+
 export const parseArguments = (argv: string[]) => {
   const files: string[] = [];
   let all = false;
@@ -255,8 +261,11 @@ export const parseArguments = (argv: string[]) => {
     '--accept': null,
     '--accept-hang': null,
   };
+  const reasonFiles: Record<keyof typeof REASON_FILE_OPTIONS, string | null> = {
+    '--accept-from': null,
+    '--accept-hang-from': null,
+  };
   let timeoutMS: number | null = null;
-  let acceptFile: string | null = null;
   // pnpm may forward the `--` separator as an argument.
   const rest = argv.filter((argument) => argument !== '--');
   for (let index = 0; index < rest.length; index += 1) {
@@ -277,45 +286,46 @@ export const parseArguments = (argv: string[]) => {
       index += 1;
       continue;
     }
-    if (argument === '--accept-from') {
-      if (acceptFile !== null) throw new Error('--accept-from is given twice');
-      if (value === null || value.trim() === '' || value.startsWith('--'))
-        throw new Error(
-          '--accept-from needs a file of reasons: --accept-from <file>',
-        );
-      acceptFile = value.trim();
-      index += 1;
-      continue;
-    }
-    if (!Object.hasOwn(REASON_OPTIONS, argument)) {
+    const takesFile = Object.hasOwn(REASON_FILE_OPTIONS, argument);
+    if (!takesFile && !Object.hasOwn(REASON_OPTIONS, argument)) {
       files.push(argument.replace(/^(\.\/)?app\//, ''));
       continue;
     }
-    const option = argument as keyof typeof REASON_OPTIONS;
-    if (reasons[option] !== null) throw new Error(`${option} is given twice`);
+    const given = takesFile
+      ? reasonFiles[argument as keyof typeof REASON_FILE_OPTIONS]
+      : reasons[argument as keyof typeof REASON_OPTIONS];
+    if (given !== null) throw new Error(`${argument} is given twice`);
     if (value === null || value.trim() === '' || value.startsWith('--'))
       throw new Error(
-        `${option} needs a reason: ${option} "<${REASON_OPTIONS[option]}>"`,
+        takesFile
+          ? `${argument} needs a file of reasons: ${argument} <file>`
+          : `${argument} needs a reason: ${argument} "<${REASON_OPTIONS[argument as keyof typeof REASON_OPTIONS]}>"`,
       );
-    reasons[option] = value.trim();
+    if (takesFile)
+      reasonFiles[argument as keyof typeof REASON_FILE_OPTIONS] = value.trim();
+    else reasons[argument as keyof typeof REASON_OPTIONS] = value.trim();
     index += 1;
   }
-  if (reasons['--accept'] !== null && acceptFile !== null)
-    throw new Error(
-      '--accept and --accept-from exclude each other: give one reason for every survivor or one reason each',
-    );
+  for (const [fileOption, reasonOption] of Object.entries(
+    REASON_FILE_OPTIONS,
+  ) as [keyof typeof REASON_FILE_OPTIONS, keyof typeof REASON_OPTIONS][])
+    if (reasons[reasonOption] !== null && reasonFiles[fileOption] !== null)
+      throw new Error(
+        `${reasonOption} and ${fileOption} exclude each other: give one reason for every mutant or one reason each`,
+      );
   return {
     files,
     all,
     acceptReason: reasons['--accept'],
     hangReason: reasons['--accept-hang'],
-    acceptFile,
+    acceptFile: reasonFiles['--accept-from'],
+    hangFile: reasonFiles['--accept-hang-from'],
     timeoutMS,
   };
 };
 
-// Names one mutant of a run: what describeMutant prints before the source line, and the key of its reason in an `--accept-from` file.
-const mutantKey = ({
+// Names one mutant of a run: what describeMutant prints before the source line, and the key of its reason in an `--accept-from` or `--accept-hang-from` file.
+export const mutantKey = ({
   file,
   line,
   column,
@@ -324,7 +334,7 @@ const mutantKey = ({
 }: LocatedMutant) =>
   `app/${file}:${line}:${column}  ${mutator}  → ${replacement}`;
 
-// An `--accept-from` file: a JSON object from each survivor's key to the reason it is accepted with. Keys are compared with their whitespace normalized, so a key may be typed with single spaces.
+// A file of reasons (`--accept-from`, `--accept-hang-from`): a JSON object from each mutant's key to the reason it is recorded with. Keys are compared with their whitespace normalized, so a key may be typed with single spaces.
 export const parseReasonFile = (json: string) => {
   const parsed: unknown = JSON.parse(json);
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
@@ -343,17 +353,26 @@ export const parseReasonFile = (json: string) => {
   return reasons;
 };
 
-// Pairs each mutant with the reason its key names. `missing` are the mutants without one and `unused` the keys that name none, so the caller writes nothing until both are empty: a key left over names a mutant that moved or no longer survives.
-export const assignReasons = (
-  mutants: LocatedMutant[],
-  reasons: ReadonlyMap<string, string>,
+// Where the reasons of one ledger's new entries come from: one reason for every mutant from the command line (`--accept`, `--accept-hang`), one reason each from a file (parseReasonFile), or none.
+export type ReasonSource = string | ReadonlyMap<string, string> | null;
+
+// Pairs each mutant with its reason; `assigned` is null when `source` gives none. From a file, `missing` are the mutants whose key (`keyOf`) has no reason and `used` the keys that named one, so the caller writes nothing until every mutant has a reason and every key of the file, over all the mutants it judges against that file, was used: a key left over names a mutant that moved or no longer has that outcome.
+export const assignReasons = <Mutant>(
+  mutants: Mutant[],
+  source: ReasonSource,
+  keyOf: (mutant: Mutant) => string,
 ) => {
-  const assigned: { mutant: LocatedMutant; reason: string }[] = [];
-  const missing: LocatedMutant[] = [];
+  const assigned: { mutant: Mutant; reason: string }[] = [];
+  const missing: Mutant[] = [];
   const used = new Set<string>();
+  if (source === null) return { assigned: null, missing, used };
   for (const mutant of mutants) {
-    const key = normalizeText(mutantKey(mutant));
-    const reason = reasons.get(key) ?? null;
+    if (typeof source === 'string') {
+      assigned.push({ mutant, reason: source });
+      continue;
+    }
+    const key = normalizeText(keyOf(mutant));
+    const reason = source.get(key) ?? null;
     if (reason === null) {
       missing.push(mutant);
       continue;
@@ -361,12 +380,14 @@ export const assignReasons = (
     used.add(key);
     assigned.push({ mutant, reason });
   }
-  return {
-    assigned,
-    missing,
-    unused: [...reasons.keys()].filter((key) => !used.has(key)),
-  };
+  return { assigned, missing, used };
 };
+
+// The keys of a file of reasons that no `used` set of assignReasons holds: each names no mutant of the run, so the file was written for another one.
+export const unusedKeys = (
+  reasons: ReadonlyMap<string, string>,
+  ...used: ReadonlySet<string>[]
+) => [...reasons.keys()].filter((key) => !used.some((keys) => keys.has(key)));
 
 // The line number is left out when the entry's line no longer resolves.
 export const describeEntry = (entry: LedgerEntry, sourceLines: SourceLines) => {

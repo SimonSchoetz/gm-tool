@@ -6,11 +6,13 @@ import {
   entryFor,
   findMissingEntries,
   matchLedger,
+  mutantKey,
   normalizeText,
   parseArguments,
   parseLedger,
   parseReasonFile,
   serializeLedger,
+  unusedKeys,
   mutantsOf,
   type LedgerEntry,
   type MutatedRanges,
@@ -340,6 +342,7 @@ describe('parseArguments', () => {
       acceptReason: null,
       hangReason: null,
       acceptFile: null,
+      hangFile: null,
       timeoutMS: null,
     });
   });
@@ -353,6 +356,7 @@ describe('parseArguments', () => {
       acceptReason: 'unreachable guard',
       hangReason: null,
       acceptFile: null,
+      hangFile: null,
       timeoutMS: null,
     });
     expect(parseArguments(['--', '--all'])).toEqual({
@@ -361,6 +365,7 @@ describe('parseArguments', () => {
       acceptReason: null,
       hangReason: null,
       acceptFile: null,
+      hangFile: null,
       timeoutMS: null,
     });
   });
@@ -379,6 +384,7 @@ describe('parseArguments', () => {
       acceptReason: 'unreachable guard',
       hangReason: null,
       acceptFile: null,
+      hangFile: null,
       timeoutMS: null,
     });
   });
@@ -416,6 +422,7 @@ describe('parseArguments', () => {
       acceptReason: 'unreachable guard',
       hangReason: 'the loop never advances its index',
       acceptFile: null,
+      hangFile: null,
       timeoutMS: 30000,
     });
   });
@@ -462,6 +469,7 @@ describe('parseArguments', () => {
       acceptReason: null,
       hangReason: null,
       acceptFile: 'reasons.json',
+      hangFile: null,
       timeoutMS: null,
     });
   });
@@ -488,12 +496,67 @@ describe('parseArguments', () => {
       ['--accept-from', 'f', '--accept', 'r'],
     ])
       expect(() => parseArguments(argv)).toThrow(
-        /^--accept and --accept-from exclude each other: give one reason for every survivor or one reason each$/,
+        /^--accept and --accept-from exclude each other: give one reason for every mutant or one reason each$/,
+      );
+  });
+
+  it('reads --accept-hang-from and its file beside --accept-from, without taking either file as a file argument', () => {
+    expect(
+      parseArguments([
+        '--accept-hang-from',
+        ' hangs.json ',
+        'src/a.ts',
+        '--accept-from',
+        'reasons.json',
+      ]),
+    ).toEqual({
+      files: ['src/a.ts'],
+      all: false,
+      acceptReason: null,
+      hangReason: null,
+      acceptFile: 'reasons.json',
+      hangFile: 'hangs.json',
+      timeoutMS: null,
+    });
+  });
+
+  it('takes --accept with --accept-hang-from and --accept-hang with --accept-from', () => {
+    expect(
+      parseArguments(['--accept', 'r', '--accept-hang-from', 'h.json']),
+    ).toMatchObject({ acceptReason: 'r', hangFile: 'h.json' });
+    expect(
+      parseArguments(['--accept-hang', 'loop', '--accept-from', 'f.json']),
+    ).toMatchObject({ hangReason: 'loop', acceptFile: 'f.json' });
+  });
+
+  it.each([
+    ['no file', ['--accept-hang-from']],
+    ['an empty file name', ['--accept-hang-from', ' ']],
+    ['an option instead of a file', ['--accept-hang-from', '--all']],
+  ])('rejects --accept-hang-from with %s', (_name, argv) => {
+    expect(() => parseArguments(argv)).toThrow(
+      /^--accept-hang-from needs a file of reasons: --accept-hang-from <file>$/,
+    );
+  });
+
+  it('rejects --accept-hang-from given twice', () => {
+    expect(() =>
+      parseArguments(['--accept-hang-from', 'a', '--accept-hang-from', 'b']),
+    ).toThrow(/^--accept-hang-from is given twice$/);
+  });
+
+  it('rejects --accept-hang together with --accept-hang-from, in either order', () => {
+    for (const argv of [
+      ['--accept-hang', 'r', '--accept-hang-from', 'f'],
+      ['--accept-hang-from', 'f', '--accept-hang', 'r'],
+    ])
+      expect(() => parseArguments(argv)).toThrow(
+        /^--accept-hang and --accept-hang-from exclude each other: give one reason for every mutant or one reason each$/,
       );
   });
 });
 
-describe('parseReasonFile and assignReasons', () => {
+describe('parseReasonFile, assignReasons and unusedKeys', () => {
   const guard = survivor();
   const conditional = survivor({
     column: 7,
@@ -503,6 +566,7 @@ describe('parseReasonFile and assignReasons', () => {
   const keyOf = (mutant: LocatedMutant) => describeMutant(mutant, () => null);
 
   it('keys each survivor by the text describeMutant prints before the source line', () => {
+    expect(mutantKey(guard)).toBe(keyOf(guard));
     expect(keyOf(guard)).toBe(
       'app/src/NameField.tsx:2:30  StringLiteral  → "Stryker was here!"',
     );
@@ -517,7 +581,7 @@ describe('parseReasonFile and assignReasons', () => {
       }),
     );
 
-    expect(assignReasons([guard, conditional], reasons)).toEqual({
+    expect(assignReasons([guard, conditional], reasons, mutantKey)).toEqual({
       assigned: [
         {
           mutant: guard,
@@ -529,14 +593,17 @@ describe('parseReasonFile and assignReasons', () => {
         },
       ],
       missing: [],
-      unused: [],
+      used: new Set([
+        normalizeText(keyOf(guard)),
+        normalizeText(keyOf(conditional)),
+      ]),
     });
   });
 
   it('gives two identical survivors the one reason under their shared key', () => {
     const reasons = parseReasonFile(JSON.stringify({ [keyOf(guard)]: 'r' }));
 
-    expect(assignReasons([guard, guard], reasons).assigned).toEqual([
+    expect(assignReasons([guard, guard], reasons, mutantKey).assigned).toEqual([
       { mutant: guard, reason: 'r' },
       { mutant: guard, reason: 'r' },
     ]);
@@ -547,10 +614,49 @@ describe('parseReasonFile and assignReasons', () => {
       JSON.stringify({ [keyOf(conditional)]: 'r', 'app/src/gone.ts:1:1': 'r' }),
     );
 
-    const result = assignReasons([guard, conditional], reasons);
+    const result = assignReasons([guard, conditional], reasons, mutantKey);
 
     expect(result.missing).toEqual([guard]);
-    expect(result.unused).toEqual(['app/src/gone.ts:1:1']);
+    expect(unusedKeys(reasons, result.used)).toEqual(['app/src/gone.ts:1:1']);
+  });
+
+  it('counts a key as used when any of the sets of used keys holds it', () => {
+    const reasons = new Map([
+      ['a', 'r'],
+      ['b', 'r'],
+      ['c', 'r'],
+    ]);
+
+    expect(unusedKeys(reasons, new Set(['a']), new Set(['c']))).toEqual(['b']);
+    expect(unusedKeys(reasons)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('gives every mutant the one reason of the command line, and none without a reason', () => {
+    expect(assignReasons([guard, conditional], 'r', mutantKey)).toEqual({
+      assigned: [
+        { mutant: guard, reason: 'r' },
+        { mutant: conditional, reason: 'r' },
+      ],
+      missing: [],
+      used: new Set(),
+    });
+    expect(assignReasons([guard], null, mutantKey)).toEqual({
+      assigned: null,
+      missing: [],
+      used: new Set(),
+    });
+  });
+
+  it('keys a mutant of another shape by the key function it is given', () => {
+    const reasons = parseReasonFile(JSON.stringify({ 'a  b': 'r' }));
+
+    expect(
+      assignReasons([{ name: 'a b' }], reasons, ({ name }) => name),
+    ).toEqual({
+      assigned: [{ mutant: { name: 'a b' }, reason: 'r' }],
+      missing: [],
+      used: new Set(['a b']),
+    });
   });
 
   it.each([

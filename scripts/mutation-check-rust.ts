@@ -13,6 +13,7 @@ import {
 import { tmpdir } from 'os';
 import path from 'path';
 import { MAX_COMMAND_OUTPUT_BYTES } from './mutation-check-diff.ts';
+import { assignReasons, type ReasonSource } from './mutation-check-ledger.ts';
 
 const RUST_ROOT = 'app/src-tauri';
 const RUST_SOURCE_PREFIX = `${RUST_ROOT}/src/`;
@@ -216,6 +217,7 @@ const describeEntry = (
 ) =>
   `${RUST_ROOT}/${entry.file}  ${entry.mutant}${entry.occurrence > 0 ? ` (occurrence ${entry.occurrence})` : ''}`;
 
+// Also the key of the mutant's reason in an `--accept-from` or `--accept-hang-from` file.
 const describeMutant = (mutant: RustMutant) =>
   `${RUST_ROOT}/${mutant.file}:${mutant.line}:${mutant.column}  ${mutant.mutant}${mutant.occurrence > 0 ? ` (occurrence ${mutant.occurrence})` : ''}`;
 
@@ -300,11 +302,11 @@ export const rustFailures = ({
         ];
   return [
     ...failure(
-      'Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>"',
+      'Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>", or with --accept-from <file> for a reason per mutant',
       (accepted?.unmatched ?? []).map(describeMutant),
     ),
     ...failure(
-      `Rust mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n>, which cargo-mutants receives as its test timeout (\`--timeout\`, in seconds) in place of the one it derives from the baseline test run, and resolve it by that result`,
+      `Rust mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>", or with --accept-hang-from <file> for a reason per mutant; re-run any other with a longer limit, --timeout-ms <n>, which cargo-mutants receives as its test timeout (\`--timeout\`, in seconds) in place of the one it derives from the baseline test run, and resolve it by that result`,
       (hangs?.unmatched ?? []).map(describeMutant),
     ),
     ...ledgerFailures(accepted, {
@@ -388,18 +390,34 @@ const runArguments = (diffFile: string | null, timeoutMS: number | null) => [
   ...(timeoutMS === null ? [] : ['--timeout', String(timeoutMS / 1000)]),
 ];
 
-// The entries `reason` adds for the unmatched mutants of `match`; none without a reason.
-const entriesFor = (match: RustMatch, reason: string | null) =>
-  reason === null
-    ? []
-    : match.unmatched.map(({ file, mutant, occurrence }) => ({
+// The entries `source` gives the unmatched mutants of `match`, with the mutants a file of reasons has no reason for (described) and the keys of that file that named one.
+const entriesFor = (match: RustMatch, source: ReasonSource) => {
+  const { assigned, missing, used } = assignReasons(
+    match.unmatched,
+    source,
+    describeMutant,
+  );
+  return {
+    entries: (assigned ?? []).map(
+      ({ mutant: { file, mutant, occurrence }, reason }) => ({
         file,
         mutant,
         occurrence,
         reason,
-      }));
+      }),
+    ),
+    missing: missing.map(describeMutant),
+    used,
+  };
+};
 
-// Runs cargo-mutants for the diff against `base` (every mutant when `base` is null), prints its progress, and returns the failures that stop the gate, the entries `acceptReason` adds for the missed mutants that have none, and the entries `hangReason` adds for the timed-out mutants that have none.
+const NO_REASONS = {
+  entries: [] as RustLedgerEntry[],
+  missing: [] as string[],
+  used: new Set<string>(),
+};
+
+// Runs cargo-mutants for the diff against `base` (every mutant when `base` is null), prints its progress, and returns the failures that stop the gate and, for the missed mutants (`accepted`, from `acceptReason`) and the timed-out ones (`hangs`, from `hangReason`) that have no entry, the entries the reasons add, the mutants a file of reasons has no reason for, and the keys of that file that named one. A mutant given a reason, or left without one by a file, is no failure here: the caller fails a missing reason, together with the TypeScript ones, before writing any entry.
 export const runRustMutation = ({
   repositoryRoot,
   base,
@@ -413,8 +431,8 @@ export const runRustMutation = ({
   base: string | null;
   ledger: RustLedgerEntry[];
   hangLedger: RustLedgerEntry[];
-  acceptReason: string | null;
-  hangReason: string | null;
+  acceptReason: ReasonSource;
+  hangReason: ReasonSource;
   timeoutMS: number | null;
 }) => {
   const rustRoot = path.join(repositoryRoot, RUST_ROOT);
@@ -422,11 +440,7 @@ export const runRustMutation = ({
     spawnSync('cargo', ['mutants', '--version'], { cwd: rustRoot }).status,
   );
   if (missing !== null)
-    return {
-      failures: [missing],
-      newEntries: [] as RustLedgerEntry[],
-      newHangEntries: [] as RustLedgerEntry[],
-    };
+    return { failures: [missing], accepted: NO_REASONS, hangs: NO_REASONS };
   const listed = parseListedMutants(
     execFileSync('cargo', ['mutants', '--list', '--json'], {
       cwd: rustRoot,
@@ -446,11 +460,16 @@ export const runRustMutation = ({
       stdio: 'inherit',
     }).status;
     const judged = JUDGED_EXIT_CODES.includes(status);
+    if (!judged)
+      return {
+        failures: rustFailures({ status, accepted: null, hangs: null }),
+        accepted: NO_REASONS,
+        hangs: NO_REASONS,
+      };
     const outcomesFile = path.join(rustRoot, 'mutants.out', 'outcomes.json');
-    const outcomes =
-      judged && existsSync(outcomesFile)
-        ? parseOutcomes(readFileSync(outcomesFile, 'utf8'), listed)
-        : [];
+    const outcomes = existsSync(outcomesFile)
+      ? parseOutcomes(readFileSync(outcomesFile, 'utf8'), listed)
+      : [];
     const accepted = matchRustMutants({
       ledger,
       listed,
@@ -463,21 +482,19 @@ export const runRustMutation = ({
       outcomes,
       status: 'timeout',
     });
-    const newEntries = entriesFor(accepted, acceptReason);
-    const newHangEntries = entriesFor(hangs, hangReason);
-    // A mutant an entry is written for fails the run no more.
-    const withoutRecorded = (match: RustMatch, reason: string | null) => ({
+    // A mutant an entry is written for, or one the caller fails for its missing reason, fails the run no more here.
+    const withoutRecorded = (match: RustMatch, reason: ReasonSource) => ({
       ...match,
       unmatched: reason === null ? match.unmatched : [],
     });
     return {
       failures: rustFailures({
         status,
-        accepted: judged ? withoutRecorded(accepted, acceptReason) : null,
-        hangs: judged ? withoutRecorded(hangs, hangReason) : null,
+        accepted: withoutRecorded(accepted, acceptReason),
+        hangs: withoutRecorded(hangs, hangReason),
       }),
-      newEntries,
-      newHangEntries,
+      accepted: entriesFor(accepted, acceptReason),
+      hangs: entriesFor(hangs, hangReason),
     };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
