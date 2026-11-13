@@ -6,6 +6,10 @@ import {
   testDatabase,
   writeFailingOnEachCall,
 } from './support/failingDatabaseCall';
+import {
+  answerHostCommand,
+  answerHostCommandFailing,
+} from './support/hostCommands';
 
 // Runs the real baseEntityService against the real in-memory database, with only the image file commands answered by a stand-in; baseEntityService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -15,10 +19,8 @@ vi.mock('@tauri-apps/plugin-sql', async () => {
   return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-vi.mock('@tauri-apps/api/core', async () => {
-  const { answerHostCommand } = await import('./support/hostCommands');
-  return { invoke: answerHostCommand };
-});
+const invoke = vi.hoisted(() => vi.fn<(command: string) => Promise<unknown>>());
+vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
 const load = async () => {
   const baseEntityService = await import('@services/baseEntityService');
@@ -75,6 +77,7 @@ const load = async () => {
 describe('baseEntityService against the database', () => {
   beforeEach(() => {
     vi.resetModules();
+    invoke.mockReset().mockImplementation(answerHostCommand);
   });
 
   it('duplicates an entity so the copy points at a new image row and holds both content sections', async () => {
@@ -167,5 +170,95 @@ describe('baseEntityService against the database', () => {
         expect(await countSections()).toBe(4);
       },
     );
+  });
+
+  it('keeps the entity pointing at a stored image, the old or the new, when any database call of an image replacement fails', async () => {
+    const {
+      baseEntityService,
+      createImagedEntity,
+      readImageIds,
+      readEntity,
+      db,
+    } = await load();
+    const { baseEntityId } = await createImagedEntity();
+
+    await writeFailingOnEachCall(
+      db,
+      async () => {
+        const { image_id } = await readEntity(baseEntityId);
+        await baseEntityService.updateBaseEntity('npcs', baseEntityId, {
+          image_id,
+          imgFilePath: '/pics/new-image.jpg',
+        });
+      },
+      async () => {
+        const { image_id } = await readEntity(baseEntityId);
+        expect(await readImageIds()).toContain(image_id);
+      },
+    );
+  });
+
+  it('resolves with the entity on the new image, the old image row kept for the cleanup, when the old image’s file cannot be deleted', async () => {
+    const { baseEntityService, createImagedEntity, readImageIds, readEntity } =
+      await load();
+    const { baseEntityId, imageId } = await createImagedEntity();
+    invoke.mockImplementation(answerHostCommandFailing('delete_image'));
+
+    await baseEntityService.updateBaseEntity('npcs', baseEntityId, {
+      image_id: imageId,
+      imgFilePath: '/pics/new-image.jpg',
+    });
+
+    const { image_id: newImageId } = await readEntity(baseEntityId);
+    expect(newImageId).not.toBeNull();
+    expect(newImageId).not.toBe(imageId);
+    expect(await readImageIds()).toContain(imageId);
+  });
+
+  it('resolves with the entity’s image emptied when the image’s file cannot be deleted', async () => {
+    const { baseEntityService, createImagedEntity, readEntity } = await load();
+    const { baseEntityId } = await createImagedEntity();
+    invoke.mockImplementation(answerHostCommandFailing('delete_image'));
+
+    await baseEntityService.removeBaseEntityImage('npcs', baseEntityId);
+
+    expect((await readEntity(baseEntityId)).image_id).toBeNull();
+  });
+
+  it('leaves the entity either gone or still naming its image, when any database call of its deletion fails', async () => {
+    const {
+      baseEntityService,
+      createImagedEntity,
+      readImageIds,
+      readEntity,
+      readEntityIds,
+      db,
+    } = await load();
+    let baseEntityId = '';
+
+    await writeFailingOnEachCall(
+      db,
+      () => baseEntityService.deleteBaseEntity('npcs', baseEntityId),
+      async () => {
+        if ((await readEntityIds()).includes(baseEntityId)) {
+          const { image_id } = await readEntity(baseEntityId);
+          expect(await readImageIds()).toContain(image_id);
+        }
+      },
+      async () => {
+        ({ baseEntityId } = await createImagedEntity());
+      },
+    );
+  });
+
+  it('resolves with the entity gone when its image’s file cannot be deleted', async () => {
+    const { baseEntityService, createImagedEntity, readEntityIds } =
+      await load();
+    const { baseEntityId } = await createImagedEntity();
+    invoke.mockImplementation(answerHostCommandFailing('delete_image'));
+
+    await baseEntityService.deleteBaseEntity('npcs', baseEntityId);
+
+    expect(await readEntityIds()).not.toContain(baseEntityId);
   });
 });

@@ -6,6 +6,10 @@ import {
   testDatabase,
   writeFailingOnEachCall,
 } from './support/failingDatabaseCall';
+import {
+  answerHostCommand,
+  answerHostCommandFailing,
+} from './support/hostCommands';
 
 // Runs the real encounterService and encounterQueueService against the real in-memory database, with only the image file commands answered by a stand-in; encounterService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -15,10 +19,8 @@ vi.mock('@tauri-apps/plugin-sql', async () => {
   return { default: { load: () => Promise.resolve(openTestDatabase()) } };
 });
 
-vi.mock('@tauri-apps/api/core', async () => {
-  const { answerHostCommand } = await import('./support/hostCommands');
-  return { invoke: answerHostCommand };
-});
+const invoke = vi.hoisted(() => vi.fn<(command: string) => Promise<unknown>>());
+vi.mock('@tauri-apps/api/core', () => ({ invoke }));
 
 const load = async () => {
   const encounterService = await import('@services/encounterService');
@@ -74,6 +76,7 @@ const load = async () => {
 describe('encounterService against the database', () => {
   beforeEach(() => {
     vi.resetModules();
+    invoke.mockReset().mockImplementation(answerHostCommand);
   });
 
   it('duplicates an encounter with every queue item its log did not remove, each starting at the derived max HP', async () => {
@@ -210,5 +213,100 @@ describe('encounterService against the database', () => {
         expect(await countQueueItems()).toBe(4);
       },
     );
+  });
+
+  it('keeps the encounter pointing at a stored image, the old or the new, when any database call of an image replacement fails', async () => {
+    const {
+      encounterService,
+      createImagedEncounter,
+      readImageIds,
+      readEncounter,
+      db,
+    } = await load();
+    const { encounterId } = await createImagedEncounter();
+
+    await writeFailingOnEachCall(
+      db,
+      async () => {
+        const { image_id } = await readEncounter(encounterId);
+        await encounterService.updateEncounter(encounterId, {
+          image_id,
+          imgFilePath: '/pics/new-image.jpg',
+        });
+      },
+      async () => {
+        const { image_id } = await readEncounter(encounterId);
+        expect(await readImageIds()).toContain(image_id);
+      },
+    );
+  });
+
+  it('resolves with the encounter on the new image, the old image row kept for the cleanup, when the old image’s file cannot be deleted', async () => {
+    const {
+      encounterService,
+      createImagedEncounter,
+      readImageIds,
+      readEncounter,
+    } = await load();
+    const { encounterId, imageId } = await createImagedEncounter();
+    invoke.mockImplementation(answerHostCommandFailing('delete_image'));
+
+    await encounterService.updateEncounter(encounterId, {
+      image_id: imageId,
+      imgFilePath: '/pics/new-image.jpg',
+    });
+
+    const { image_id: newImageId } = await readEncounter(encounterId);
+    expect(newImageId).not.toBeNull();
+    expect(newImageId).not.toBe(imageId);
+    expect(await readImageIds()).toContain(imageId);
+  });
+
+  it('resolves with the encounter’s image emptied when the image’s file cannot be deleted', async () => {
+    const { encounterService, createImagedEncounter, readEncounter } =
+      await load();
+    const { encounterId } = await createImagedEncounter();
+    invoke.mockImplementation(answerHostCommandFailing('delete_image'));
+
+    await encounterService.removeEncounterImage(encounterId);
+
+    expect((await readEncounter(encounterId)).image_id).toBeNull();
+  });
+
+  it('leaves the encounter either gone or still naming its image, when any database call of its deletion fails', async () => {
+    const {
+      encounterService,
+      createImagedEncounter,
+      readImageIds,
+      readEncounter,
+      readEncounterIds,
+      db,
+    } = await load();
+    let encounterId = '';
+
+    await writeFailingOnEachCall(
+      db,
+      () => encounterService.deleteEncounter(encounterId),
+      async () => {
+        if ((await readEncounterIds()).includes(encounterId)) {
+          const { image_id } = await readEncounter(encounterId);
+          expect(await readImageIds()).toContain(image_id);
+        }
+      },
+      async () => {
+        ({ encounterId } = await createImagedEncounter());
+      },
+    );
+  });
+
+  it('resolves with the encounter gone when its image’s file cannot be deleted', async () => {
+    const { encounterService, createImagedEncounter, readEncounterIds } =
+      await load();
+    const { encounterId } = await createImagedEncounter();
+    invoke.mockImplementation(answerHostCommandFailing('delete_image'));
+
+    await encounterService.deleteEncounter(encounterId);
+
+    expect(await readEncounterIds()).not.toContain(encounterId);
   });
 });

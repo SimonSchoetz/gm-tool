@@ -5,8 +5,6 @@ import {
   imageNotFoundError,
   imageLoadError,
   imageCreateError,
-  imageDeleteError,
-  imageReplaceError,
   imageDuplicateError,
   imageUrlLoadError,
   imageUpdateFrameError,
@@ -28,32 +26,38 @@ export const duplicateImage = async (sourceId: string): Promise<string> => {
   }
 };
 
-export const deleteImage = async (id: string): Promise<void> => {
-  try {
-    await imageDb.remove(id);
-  } catch (cause) {
-    throw imageDeleteError(id, cause);
+// Runs after no entity points at the images any more, so a failure leaves only image rows nothing shows, which the startup cleanup removes; failing the flow for it would report as failed a change the user's entity already holds. Each image is tried on its own, so one failure leaves the others' removal unaffected.
+export const discardImages = async (ids: string[]): Promise<void> => {
+  for (const id of ids) {
+    try {
+      await imageDb.remove(id);
+    } catch {
+      // Swallowed on purpose: see the comment above.
+    }
   }
 };
 
-const replaceImage = async (
-  oldId: string,
-  filePath: string,
-): Promise<string> => {
-  try {
-    return await imageDb.replace(oldId, { filePath });
-  } catch (cause) {
-    throw imageReplaceError(oldId, cause);
-  }
-};
-
-export const saveImage = (
+// Stores the new image and points the entity at it before the image it replaces is removed, so a failure or a quit at any step leaves the entity showing one of the two images, never none.
+export const saveImage = async (
   currentImageId: string | null,
   filePath: string,
-): Promise<string> =>
-  currentImageId
-    ? replaceImage(currentImageId, filePath)
-    : createImage(filePath);
+  pointEntityAt: (imageId: string) => Promise<void>,
+): Promise<void> => {
+  const newImageId = await createImage(filePath);
+  await pointEntityAt(newImageId);
+  if (currentImageId !== null) {
+    await discardImages([currentImageId]);
+  }
+};
+
+// Empties the entity's image before the image is removed, so a failure or a quit leaves the entity either showing its image or showing none, never naming a deleted one.
+export const removeImage = async (
+  imageId: string,
+  detachFromEntity: () => Promise<void>,
+): Promise<void> => {
+  await detachFromEntity();
+  await discardImages([imageId]);
+};
 
 export const getImageById = async (id: string): Promise<Image> => {
   let img: Image | null;

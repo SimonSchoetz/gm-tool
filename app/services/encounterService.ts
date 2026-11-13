@@ -54,16 +54,16 @@ export const updateEncounter = async (
   data: UpdateEncounterData,
 ): Promise<void> => {
   try {
-    const imageId = data.imgFilePath
-      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
-      : null;
-
-    const { imgFilePath: _imgFilePath, ...dto } = data;
-    if (imageId) {
-      dto.image_id = imageId;
+    const { imgFilePath, ...dto } = data;
+    if (imgFilePath) {
+      await imageService.saveImage(
+        dto.image_id ?? null,
+        imgFilePath,
+        (imageId) => encounterDb.update(id, { ...dto, image_id: imageId }),
+      );
+    } else {
+      await encounterDb.update(id, dto);
     }
-
-    await encounterDb.update(id, dto);
   } catch (err) {
     throw encounterUpdateError(id, err);
   }
@@ -73,8 +73,9 @@ export const removeEncounterImage = async (id: string): Promise<void> => {
   try {
     const encounter = await getEncounterById(id);
     if (!encounter.image_id) return;
-    await imageService.deleteImage(encounter.image_id);
-    await encounterDb.update(id, { image_id: null });
+    await imageService.removeImage(encounter.image_id, () =>
+      encounterDb.update(id, { image_id: null }),
+    );
   } catch (err) {
     throw encounterUpdateError(id, err);
   }
@@ -84,11 +85,10 @@ export const deleteEncounter = async (id: string): Promise<void> => {
   try {
     const encounter = await getEncounterById(id);
 
-    if (encounter.image_id) {
-      await imageService.deleteImage(encounter.image_id);
-    }
-
     await encounterDb.remove(id);
+    if (encounter.image_id) {
+      await imageService.discardImages([encounter.image_id]);
+    }
   } catch (err) {
     throw encounterDeleteError(id, err);
   }

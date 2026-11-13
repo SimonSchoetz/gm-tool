@@ -47,16 +47,16 @@ export const updateAdventure = async (
   data: UpdateAdventureData,
 ): Promise<void> => {
   try {
-    const imageId = data.imgFilePath
-      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
-      : null;
-
-    const { imgFilePath: _imgFilePath, ...dto } = data;
-    if (imageId) {
-      dto.image_id = imageId;
+    const { imgFilePath, ...dto } = data;
+    if (imgFilePath) {
+      await imageService.saveImage(
+        dto.image_id ?? null,
+        imgFilePath,
+        (imageId) => adventureDb.update(id, { ...dto, image_id: imageId }),
+      );
+    } else {
+      await adventureDb.update(id, dto);
     }
-
-    await adventureDb.update(id, dto);
   } catch (err) {
     throw adventureUpdateError(id, err);
   }
@@ -68,8 +68,9 @@ export const removeAdventureImage = async (
   try {
     const adventure = await getAdventureById(adventureId);
     if (!adventure.image_id) return;
-    await imageService.deleteImage(adventure.image_id);
-    await adventureDb.update(adventureId, { image_id: null });
+    await imageService.removeImage(adventure.image_id, () =>
+      adventureDb.update(adventureId, { image_id: null }),
+    );
   } catch (err) {
     throw adventureUpdateError(adventureId, err);
   }
@@ -79,7 +80,7 @@ export const deleteAdventure = async (id: string): Promise<void> => {
   try {
     const adventureToDelete = await getAdventureById(id);
 
-    // The images are deleted before the row because the cascade removes the base entities and encounters, and with them the ids that name their images.
+    // The image ids are read before the row is deleted, because the cascade removes the base entities and encounters that name them; the images are removed after it, so a failure never leaves the adventure with its images gone.
     const baseEntityImageIds = (
       await Promise.all(
         BASE_ENTITY_TYPES.map((entityType) =>
@@ -93,17 +94,14 @@ export const deleteAdventure = async (id: string): Promise<void> => {
       (encounter) => encounter.image_id,
     );
 
-    for (const imageId of [
+    const imageIds = [
       ...baseEntityImageIds,
       ...encounterImageIds,
       adventureToDelete.image_id,
-    ]) {
-      if (imageId) {
-        await imageService.deleteImage(imageId);
-      }
-    }
+    ].filter((imageId) => imageId !== null);
 
     await adventureDb.remove(id);
+    await imageService.discardImages(imageIds);
   } catch (err) {
     throw adventureDeleteError(id, err);
   }

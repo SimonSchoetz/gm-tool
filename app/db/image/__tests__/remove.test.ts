@@ -58,6 +58,18 @@ describe('remove', () => {
     ).toEqual([{ image_id: null }]);
   });
 
+  it('keeps the row, naming the file for a later retry, and rejects when the file cannot be deleted', async () => {
+    const { remove } = await import('../remove');
+    const { seedImage, readImages } =
+      await import('@db/__tests__/support/image-fixtures');
+    await seedImage('image-1', 'png', SEEDED_AT);
+    invoke.mockRejectedValue(new Error('file locked'));
+
+    await expect(remove('image-1')).rejects.toThrow(/^file locked$/);
+
+    expect((await readImages()).map((image) => image.id)).toEqual(['image-1']);
+  });
+
   it('deletes nothing and deletes no file for an id with no image', async () => {
     const { remove } = await import('../remove');
     const { seedImage, readImages } =

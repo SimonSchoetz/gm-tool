@@ -16,3 +16,11 @@ export const answerHostCommand = (command: string): Promise<unknown> => {
       return Promise.reject(new Error(`Unexpected command: ${command}`));
   }
 };
+
+// Answers as answerHostCommand does, except that every call of `failingCommand` rejects as the native side does on a failure such as a locked file, so a test can assert what a flow leaves stored when that command fails.
+export const answerHostCommandFailing =
+  (failingCommand: string) =>
+  (command: string): Promise<unknown> =>
+    command === failingCommand
+      ? Promise.reject(new Error(`Injected failure: ${command}`))
+      : answerHostCommand(command);

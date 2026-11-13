@@ -63,16 +63,16 @@ export const updateBaseEntity = async (
   data: UpdateBaseEntityData,
 ): Promise<void> => {
   try {
-    const imageId = data.imgFilePath
-      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
-      : null;
-
-    const { imgFilePath: _imgFilePath, ...dto } = data;
-    if (imageId) {
-      dto.image_id = imageId;
+    const { imgFilePath, ...dto } = data;
+    if (imgFilePath) {
+      await imageService.saveImage(
+        dto.image_id ?? null,
+        imgFilePath,
+        (imageId) => baseEntityDb.update(id, { ...dto, image_id: imageId }),
+      );
+    } else {
+      await baseEntityDb.update(id, dto);
     }
-
-    await baseEntityDb.update(id, dto);
   } catch (err) {
     throw baseEntityUpdateError(entityType, id, err);
   }
@@ -85,8 +85,9 @@ export const removeBaseEntityImage = async (
   const baseEntity = await getBaseEntityById(entityType, id);
   if (!baseEntity.image_id) return;
   try {
-    await imageService.deleteImage(baseEntity.image_id);
-    await baseEntityDb.update(id, { image_id: null });
+    await imageService.removeImage(baseEntity.image_id, () =>
+      baseEntityDb.update(id, { image_id: null }),
+    );
   } catch (err) {
     throw baseEntityUpdateError(entityType, id, err);
   }
@@ -99,11 +100,10 @@ export const deleteBaseEntity = async (
   try {
     const baseEntity = await getBaseEntityById(entityType, id);
 
-    if (baseEntity.image_id) {
-      await imageService.deleteImage(baseEntity.image_id);
-    }
-
     await baseEntityDb.remove(id);
+    if (baseEntity.image_id) {
+      await imageService.discardImages([baseEntity.image_id]);
+    }
   } catch (err) {
     throw baseEntityDeleteError(entityType, id, err);
   }

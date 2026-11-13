@@ -16,7 +16,6 @@ const updateEncounterRow = vi.hoisted(() => vi.fn<typeof encounterDb.update>());
 const removeEncounter = vi.hoisted(() => vi.fn<typeof encounterDb.remove>());
 const duplicateImage = vi.hoisted(() => vi.fn<typeof imageDb.duplicate>());
 const createImage = vi.hoisted(() => vi.fn<typeof imageDb.create>());
-const replaceImage = vi.hoisted(() => vi.fn<typeof imageDb.replace>());
 const removeImage = vi.hoisted(() => vi.fn<typeof imageDb.remove>());
 const getAllQueueItems = vi.hoisted(() =>
   vi.fn<typeof queueItemDb.getAllByEncounter>(),
@@ -40,7 +39,6 @@ vi.mock('@db/image', () => ({
   duplicate: duplicateImage,
   remove: removeImage,
   create: createImage,
-  replace: replaceImage,
 }));
 vi.mock('@db/encounter-queue-item', () => ({
   getAllByEncounter: getAllQueueItems,
@@ -61,7 +59,6 @@ const resetSpies = () => {
   removeEncounter.mockReset().mockResolvedValue();
   duplicateImage.mockReset().mockResolvedValue('copied-image');
   createImage.mockReset().mockResolvedValue('created-image');
-  replaceImage.mockReset().mockResolvedValue('replacement-image');
   removeImage.mockReset().mockResolvedValue();
   getAllQueueItems
     .mockReset()
@@ -141,7 +138,7 @@ describe('deleteEncounter', () => {
     resetSpies();
   });
 
-  it('deletes the cover image before the encounter row', async () => {
+  it('deletes the encounter row before the cover image', async () => {
     const { deleteEncounter } = await import('../encounterService');
     getEncounter.mockResolvedValue(
       buildEncounter({ id: 'source', image_id: 'source-image' }),
@@ -151,8 +148,8 @@ describe('deleteEncounter', () => {
 
     expect(removeImage).toHaveBeenCalledWith('source-image');
     expect(removeEncounter).toHaveBeenCalledWith('source');
-    expect(removeImage.mock.invocationCallOrder[0]).toBeLessThan(
-      removeEncounter.mock.invocationCallOrder[0],
+    expect(removeEncounter.mock.invocationCallOrder[0]).toBeLessThan(
+      removeImage.mock.invocationCallOrder[0],
     );
   });
 
@@ -165,18 +162,28 @@ describe('deleteEncounter', () => {
     expect(removeEncounter).toHaveBeenCalledWith('source');
   });
 
-  it('rejects as EncounterDeleteError and keeps the encounter when the cover delete fails', async () => {
+  it('resolves when the cover cannot be deleted after the encounter is gone', async () => {
     const { deleteEncounter } = await import('../encounterService');
     getEncounter.mockResolvedValue(
       buildEncounter({ id: 'source', image_id: 'source-image' }),
     );
     removeImage.mockRejectedValue(new Error('disk locked'));
 
+    await expect(deleteEncounter('source')).resolves.toBeUndefined();
+  });
+
+  it('rejects as EncounterDeleteError and deletes no cover when the encounter cannot be deleted', async () => {
+    const { deleteEncounter } = await import('../encounterService');
+    getEncounter.mockResolvedValue(
+      buildEncounter({ id: 'source', image_id: 'source-image' }),
+    );
+    removeEncounter.mockRejectedValue(new Error('locked'));
+
     await expect(deleteEncounter('source')).rejects.toMatchObject({
       name: 'EncounterDeleteError',
     });
 
-    expect(removeEncounter).not.toHaveBeenCalled();
+    expect(removeImage).not.toHaveBeenCalled();
   });
 });
 
@@ -200,7 +207,7 @@ describe('updateEncounter', () => {
     });
   });
 
-  it('replaces the existing cover with the chosen file and writes the replacement id', async () => {
+  it('stores the chosen file as a new cover, writes its id, then deletes the old cover', async () => {
     const { updateEncounter } = await import('../encounterService');
 
     await updateEncounter('source', {
@@ -208,13 +215,28 @@ describe('updateEncounter', () => {
       image_id: 'source-image',
     });
 
-    expect(replaceImage).toHaveBeenCalledWith('source-image', {
-      filePath: '/pick/map.png',
-    });
-    expect(createImage).not.toHaveBeenCalled();
+    expect(createImage).toHaveBeenCalledWith({ filePath: '/pick/map.png' });
     expect(updateEncounterRow).toHaveBeenCalledWith('source', {
-      image_id: 'replacement-image',
+      image_id: 'created-image',
     });
+    expect(removeImage).toHaveBeenCalledWith('source-image');
+    expect(updateEncounterRow.mock.invocationCallOrder[0]).toBeLessThan(
+      removeImage.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('rejects as EncounterUpdateError and keeps the old cover when the encounter cannot be pointed at the new one', async () => {
+    const { updateEncounter } = await import('../encounterService');
+    updateEncounterRow.mockRejectedValue(new Error('locked'));
+
+    await expect(
+      updateEncounter('source', {
+        imgFilePath: '/pick/map.png',
+        image_id: 'source-image',
+      }),
+    ).rejects.toMatchObject({ name: 'EncounterUpdateError' });
+
+    expect(removeImage).not.toHaveBeenCalled();
   });
 
   it('writes the data unchanged and touches no image when no file is chosen', async () => {
@@ -230,7 +252,6 @@ describe('updateEncounter', () => {
       image_id: 'source-image',
     });
     expect(createImage).not.toHaveBeenCalled();
-    expect(replaceImage).not.toHaveBeenCalled();
   });
 
   it('rejects as EncounterUpdateError and writes nothing when the image save fails', async () => {
@@ -251,7 +272,7 @@ describe('removeEncounterImage', () => {
     resetSpies();
   });
 
-  it('deletes the cover image, then clears image_id', async () => {
+  it('clears image_id, then deletes the cover image', async () => {
     const { removeEncounterImage } = await import('../encounterService');
     getEncounter.mockResolvedValue(
       buildEncounter({ id: 'source', image_id: 'source-image' }),
@@ -263,8 +284,8 @@ describe('removeEncounterImage', () => {
     expect(updateEncounterRow).toHaveBeenCalledWith('source', {
       image_id: null,
     });
-    expect(removeImage.mock.invocationCallOrder[0]).toBeLessThan(
-      updateEncounterRow.mock.invocationCallOrder[0],
+    expect(updateEncounterRow.mock.invocationCallOrder[0]).toBeLessThan(
+      removeImage.mock.invocationCallOrder[0],
     );
   });
 
@@ -277,18 +298,28 @@ describe('removeEncounterImage', () => {
     expect(updateEncounterRow).not.toHaveBeenCalled();
   });
 
-  it('rejects as EncounterUpdateError and keeps image_id when the image delete fails', async () => {
+  it('resolves when the image cannot be deleted after image_id is cleared', async () => {
     const { removeEncounterImage } = await import('../encounterService');
     getEncounter.mockResolvedValue(
       buildEncounter({ id: 'source', image_id: 'source-image' }),
     );
     removeImage.mockRejectedValue(new Error('disk locked'));
 
+    await expect(removeEncounterImage('source')).resolves.toBeUndefined();
+  });
+
+  it('rejects as EncounterUpdateError and deletes no image when image_id cannot be cleared', async () => {
+    const { removeEncounterImage } = await import('../encounterService');
+    getEncounter.mockResolvedValue(
+      buildEncounter({ id: 'source', image_id: 'source-image' }),
+    );
+    updateEncounterRow.mockRejectedValue(new Error('locked'));
+
     await expect(removeEncounterImage('source')).rejects.toMatchObject({
       name: 'EncounterUpdateError',
     });
 
-    expect(updateEncounterRow).not.toHaveBeenCalled();
+    expect(removeImage).not.toHaveBeenCalled();
   });
 });
 

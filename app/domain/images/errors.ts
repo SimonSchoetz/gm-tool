@@ -25,30 +25,6 @@ export const imageCreateError = (cause?: unknown): ImageCreateError => {
   return error;
 };
 
-type ImageDeleteError = Error & { name: 'ImageDeleteError' };
-export const imageDeleteError = (
-  id: string,
-  cause?: unknown,
-): ImageDeleteError => {
-  const error = new Error(
-    `Failed to delete Image ${id}: ${String(cause)}`,
-  ) as ImageDeleteError;
-  error.name = 'ImageDeleteError';
-  return error;
-};
-
-type ImageReplaceError = Error & { name: 'ImageReplaceError' };
-export const imageReplaceError = (
-  id: string,
-  cause?: unknown,
-): ImageReplaceError => {
-  const error = new Error(
-    `Failed to replace Image ${id}: ${String(cause)}`,
-  ) as ImageReplaceError;
-  error.name = 'ImageReplaceError';
-  return error;
-};
-
 type ImageDuplicateError = Error & { name: 'ImageDuplicateError' };
 export const imageDuplicateError = (
   id: string,
