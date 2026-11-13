@@ -1,7 +1,7 @@
 .mention-typeahead-popup {
   background: var(--color-surface);
-  width: max-content;
-  max-width: 250px; /* one-off */
+  /* A fixed width, never max-content: WebKit (the macOS webview) does not recompute a content-sized box's width when the scrolling `.mention-option-list` inside it gains or loses its scrollbar (WebKit bug 314898), which left an empty gutter or pushed the type label against the scrollbar. */
+  width: 250px; /* one-off */
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   overflow: hidden;

@@ -203,3 +203,10 @@ With only the default permission granted, `openUrl` from `@tauri-apps/plugin-ope
 **Citation:** [implement_1: `~/.cargo/registry/src/*/tauri-2.12.0/src/app.rs:385-387` — `#[default_runtime(crate::Wry, wry)] pub struct AppHandle<R: Runtime>`; `~/.cargo/registry/src/*/tauri-2.12.0/src/test/mod.rs:185` — `pub fn mock_app() -> App<MockRuntime>`, behind the `test = []` feature of `Cargo.toml:123`]
 
 A command declared with `tauri::AppHandle` therefore cannot be called with the handle of a mock app, whose type is `AppHandle<MockRuntime>`; only a command generic over `R: Runtime` could.
+
+## WebKit does not recompute a shrink-to-fit box's width when a scroll container inside it gains or loses a scrollbar; the fix landed on WebKit main on 2026-05-17
+
+**Verified at:** <https://bugs.webkit.org/show_bug.cgi?id=314898>, 2026-11-13
+**Citation:** [fix_1: web fetch `https://bugs.webkit.org/show_bug.cgi?id=314898` — "shrink-to-fit boxes do not update their width when they gain or lose a scrollbar", RESOLVED FIXED, committed 313390@main on 2026-05-17; testcase `https://bugs.webkit.org/attachment.cgi?id=479679` is an `inline-block` with `overflow: auto` whose scrollbar shrinks its content]
+
+A `width: max-content` (or other shrink-to-fit) popup around an `overflow-y: auto` list therefore keeps the width of its previous scrollbar state in the macOS webview: an empty gutter after the scrollbar goes, or content squeezed by the scrollbar after it appears. Which WKWebView release carries the fix was not checked; a box with a fixed width avoids the bug whatever the release.
