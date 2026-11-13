@@ -35,4 +35,16 @@ describe('isImageReferenced', () => {
     expect(await isImageReferenced('cover')).toBe(true);
     expect(await isImageReferenced('loose')).toBe(false);
   });
+
+  it('is false for an image whose id another foreign-key column happens to hold, since only image columns name an image', async () => {
+    const { isImageReferenced } = await import('../image-references');
+    const { seedImage } = await import('./support/image-fixtures');
+    const adventureDb = await import('@db/adventure');
+    const baseEntityDb = await import('@db/base-entity');
+    const adventureId = await adventureDb.create();
+    await baseEntityDb.create('npcs', adventureId);
+    await seedImage(adventureId, 'png', SEEDED_AT);
+
+    expect(await isImageReferenced(adventureId)).toBe(false);
+  });
 });

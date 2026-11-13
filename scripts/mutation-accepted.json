@@ -252,6 +252,15 @@
     "reason": "stays: the tombstone's deleted_at is a database row value, so the static type may not hold at run time, and removing the null test would leave the comparison correct only through null > a string being false, which the type-check rejects"
   },
   {
+    "file": "db/encounter-queue-item/append.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "if (item.kind === 'combatant' && item.starting_max_hp !== undefined) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "Binding starting_max_hp for an item that carries none binds undefined, which stores NULL, the same as leaving the column out of the INSERT, so no stored row differs."
+  },
+  {
     "file": "db/image/create.ts",
     "mutator": "OptionalChaining",
     "replacement": "filePath.split('.').pop().toLowerCase",

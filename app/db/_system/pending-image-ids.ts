@@ -28,7 +28,6 @@ export const addPendingImageIds = async (ids: string[]): Promise<void> => {
 };
 
 export const removePendingImageIds = async (ids: string[]): Promise<void> => {
-  if (ids.length === 0) return;
   const db = await getDatabase();
   await db.execute(
     `UPDATE _system SET value = (
