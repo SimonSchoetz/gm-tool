@@ -4,6 +4,7 @@
 // A mutant found in none of the files runs no test and so survives, which fails the check rather than hiding the mutant.
 import { spawnSync } from 'child_process';
 import { readFileSync } from 'fs';
+import { ownTestFiles } from './mutation-check-own-tests.ts';
 
 const files = (process.env.MUTATION_CHECK_FILES ?? '')
   .split(',')
@@ -17,6 +18,17 @@ const holdsMutant = (file: string) =>
 const relatedFiles = mutantId === undefined ? files : files.filter(holdsMutant);
 
 if (mutantId !== undefined && relatedFiles.length === 0) process.exit(0);
+
+// A mutant's own test files run first, alone: most mutants are killed there within seconds, while the related set of a file behind a barrel can take a minute and outrun Stryker's timeout though it kills the mutant at its end. The related set still runs for a mutant they do not kill.
+const ownTests = mutantId === undefined ? [] : ownTestFiles(relatedFiles);
+if (ownTests.length > 0) {
+  const own = spawnSync(
+    'npx',
+    ['vitest', 'run', '--bail', '1', '--maxWorkers', '1', ...ownTests],
+    { stdio: 'inherit' },
+  );
+  if (own.status !== 0) process.exit(own.status ?? 1);
+}
 
 const vitest = spawnSync(
   'npx',
