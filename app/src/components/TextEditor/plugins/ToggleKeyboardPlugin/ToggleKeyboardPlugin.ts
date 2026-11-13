@@ -15,10 +15,10 @@ import {
 import { $isToggleBodyNode } from '../../nodes/ToggleBodyNode';
 import { $isToggleNode } from '../../nodes/ToggleNode';
 import { resolveTopLevelBlock } from '../../helper/resolveTopLevelBlock';
+import { splitHeaderAtSelection } from '../../helper/splitHeaderAtSelection';
 import { isCaretAtBlockEnd } from './helper/isCaretAtBlockEnd';
 import { isCaretAtBlockStart } from './helper/isCaretAtBlockStart';
 import { resolveHeaderToggleForRemoval } from './helper/resolveHeaderToggleForRemoval';
-import { splitHeaderAtSelection } from './helper/splitHeaderAtSelection';
 import { unwrapToggle } from './helper/unwrapToggle';
 
 export const ToggleKeyboardPlugin = (): null => {

@@ -7,8 +7,8 @@ import {
   type LexicalNode,
 } from 'lexical';
 import { $createHeadingNode, $isHeadingNode } from '@lexical/rich-text';
-import { $createToggleNode } from '../../../../nodes/ToggleNode';
-import { $createToggleBodyNode } from '../../../../nodes/ToggleBodyNode';
+import { $createToggleNode } from '../../nodes/ToggleNode';
+import { $createToggleBodyNode } from '../../nodes/ToggleBodyNode';
 import { splitHeaderAtSelection } from '../splitHeaderAtSelection';
 import {
   $firstToggle,
@@ -18,7 +18,7 @@ import {
   outlineOfRoot,
   paragraph,
   setRootChildren,
-} from '../../../__tests__/support/toggleFixtures';
+} from '../../plugins/__tests__/support/toggleFixtures';
 
 // Splits 'Hello world' after 'Hello' in the header of a toggle holding `children` after the header, and returns the text of the block the split returned.
 const splitAfterHello = (
@@ -96,6 +96,52 @@ describe('splitHeaderAtSelection', () => {
     });
 
     expect(levels).toEqual(['h2', 'h2']);
+  });
+
+  it.each([
+    ['a paragraph', () => $createParagraphNode(), 'paragraph'],
+    ['a heading', () => $createHeadingNode('h2'), 'heading'],
+  ])(
+    'keeps the header node itself, as the header type it was, when %s is split in the middle',
+    (_name, makeHeader, headerType) => {
+      const editor = makeEditor();
+
+      const result = inEditor(editor, () => {
+        const text = $createTextNode('Hello world');
+        const header = makeHeader().append(text);
+        const toggle = $createToggleNode().append(header, body('One'));
+        $getRoot().clear().append(toggle);
+        splitHeaderAtSelection(text.select(5, 5));
+        const current = toggle.getFirstChildOrThrow();
+        return { sameNode: current.is(header), type: current.getType() };
+      });
+
+      expect(result).toEqual({ sameNode: true, type: headerType });
+    },
+  );
+
+  it('keeps a heading header a heading when the caret is at the start of its text, the text moving to the split-off block', () => {
+    const editor = makeEditor();
+
+    const result = inEditor(editor, () => {
+      const text = $createTextNode('Hello world');
+      const header = $createHeadingNode('h2').append(text);
+      const toggle = $createToggleNode().append(header, body('One'));
+      $getRoot().clear().append(toggle);
+      const newBlock = splitHeaderAtSelection(text.select(0, 0));
+      const currentHeader = toggle.getFirstChildOrThrow();
+      return {
+        headerType: currentHeader.getType(),
+        headerText: currentHeader.getTextContent(),
+        newBlockText: newBlock.getTextContent(),
+      };
+    });
+
+    expect(result).toEqual({
+      headerType: 'heading',
+      headerText: '',
+      newBlockText: 'Hello world',
+    });
   });
 
   it('leaves the toggle with exactly its header and its body, whatever the body holds', () => {

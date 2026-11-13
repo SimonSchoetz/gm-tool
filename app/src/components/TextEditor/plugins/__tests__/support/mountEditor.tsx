@@ -6,7 +6,11 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import type { LexicalEditor } from 'lexical';
 import { EditorHandle } from './EditorHandle';
-import { TOGGLE_TEST_NODES, throwOnError } from './toggleFixtures';
+import {
+  TEST_NAMESPACE,
+  TOGGLE_TEST_NODES,
+  throwOnError,
+} from './toggleFixtures';
 
 // Mounts the plugins under the same LexicalComposer and RichTextPlugin the text editor uses, holding the saved state `initialState` (a JSON string) or an empty one, and returns the editor so a test drives it through commands and updates.
 export const mountEditor = (
@@ -18,7 +22,7 @@ export const mountEditor = (
     // eslint-disable-next-line @typescript-eslint/no-deprecated -- the same LexicalComposer TextEditor mounts, whose initialConfig the plugins run under
     <LexicalComposer
       initialConfig={{
-        namespace: 'toggle-plugin-test',
+        namespace: TEST_NAMESPACE,
         nodes: TOGGLE_TEST_NODES,
         editorState: initialState,
         onError: throwOnError,

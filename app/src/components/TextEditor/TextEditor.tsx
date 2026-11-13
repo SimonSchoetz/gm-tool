@@ -37,6 +37,7 @@ import { TableEdgeHandlePlugin } from './plugins/TableEdgeHandlePlugin';
 import { ToggleGutterPlugin } from './plugins/ToggleGutterPlugin/ToggleGutterPlugin';
 import { ToggleHeaderGuardPlugin } from './plugins/ToggleHeaderGuardPlugin';
 import { ToggleKeyboardPlugin } from './plugins/ToggleKeyboardPlugin';
+import { TogglePastePlugin } from './plugins/TogglePastePlugin';
 import { EditorThemeClasses, EditorState, LexicalEditor } from 'lexical';
 import { parseSafeEditorState } from './helper/parseSafeEditorState';
 import {
@@ -195,6 +196,7 @@ export const TextEditor: FCProps<Props> = ({
           {isDocument && !readOnly && <EmptyNodeHintPlugin />}
           {isDocument && !readOnly && <ToggleKeyboardPlugin />}
           {isDocument && !readOnly && <ToggleHeaderGuardPlugin />}
+          {isDocument && !readOnly && <TogglePastePlugin />}
           {isDocument && readOnly && <CheckboxReadOnlyPlugin />}
           {!isDocument && !readOnly && onSubmit && (
             <SendOnEnterPlugin onSubmit={onSubmit} />
