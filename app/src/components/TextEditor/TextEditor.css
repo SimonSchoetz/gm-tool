@@ -20,8 +20,10 @@
 .editor-content > * {
   margin-bottom: var(--spacing-xs);
 
-  /* Animates the block-drag-handle's drop-target margin-bottom (BlockDragHandlePlugin.tsx) so the gap it opens/closes reads as smooth, not an instant jump. */
-  transition: margin-bottom var(--transition-fast);
+  /* Animates the margin BlockDragHandlePlugin.tsx pushes open at the drop gap — a row's margin-bottom, or the first row's margin-top at the start of the document — so the gap it opens/closes reads as smooth, not an instant jump. */
+  transition:
+    margin-bottom var(--transition-fast),
+    margin-top var(--transition-fast);
 }
 
 .placeholder {

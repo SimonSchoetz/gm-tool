@@ -5,38 +5,26 @@ import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
 
 type Props = {
   ref: React.Ref<HTMLDivElement>;
-  barHeight: number | null;
-  anchorHeight: number | null;
+  top: number;
+  height: number;
 };
 
-export const BlockDragHandle: FCProps<Props> = ({
-  ref,
-  barHeight,
-  anchorHeight,
-}) => (
-  <div
-    ref={ref}
-    className='block-drag-handle-anchor'
-    style={
-      anchorHeight !== null
-        ? ({
-            '--block-drag-handle-anchor-height': `${anchorHeight}px`,
-          } as React.CSSProperties)
-        : undefined
-    }
-  >
+export const BlockDragHandle: FCProps<Props> = ({ ref, top, height }) => {
+  const positionStyle = {
+    '--block-drag-handle-top': `${top}px`,
+    '--block-drag-handle-height': `${height}px`,
+  } as React.CSSProperties;
+
+  return (
     <GlassPanel
+      ref={ref}
       intensity='off'
+      draggable
+      aria-label='Drag to move block'
       className='block-drag-handle'
-      style={
-        barHeight !== null
-          ? ({
-              '--block-drag-handle-height': `${barHeight}px`,
-            } as React.CSSProperties)
-          : undefined
-      }
+      style={positionStyle}
     >
       <EllipsisVerticalIcon />
     </GlassPanel>
-  </div>
-);
+  );
+};
