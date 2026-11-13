@@ -120,15 +120,18 @@ describe('duplicateEncounter', () => {
     });
 
     expect(duplicate).not.toHaveBeenCalled();
+    expect(removeEncounter).not.toHaveBeenCalled();
   });
 
-  it('rejects as EncounterDuplicateError when the queue copy fails', async () => {
+  it('rejects as EncounterDuplicateError naming the queue copy’s failure, and removes the new encounter, when the queue copy fails', async () => {
     const { duplicateEncounter } = await import('../encounterService');
     duplicateByEncounter.mockRejectedValue(new Error('disk full'));
 
     await expect(duplicateEncounter('source')).rejects.toMatchObject({
       name: 'EncounterDuplicateError',
+      message: expect.stringContaining('disk full') as unknown,
     });
+    expect(removeEncounter).toHaveBeenCalledWith('new-encounter');
   });
 });
 

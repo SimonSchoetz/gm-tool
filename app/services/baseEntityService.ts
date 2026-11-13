@@ -1,6 +1,7 @@
 import * as baseEntityDb from '@db/base-entity';
 import * as baseEntityContentSectionDb from '@db/base-entity-content-section';
 import * as imageService from '@services/imageService';
+import { writeChildrenOrRemoveParent } from '@services/partialCopy';
 import type { BaseEntity, UpdateBaseEntityInput } from '@db/base-entity';
 import type { BaseEntityType } from '@domain/entities';
 import {
@@ -118,7 +119,10 @@ export const duplicateBaseEntity = async (
       ? await imageService.duplicateImage(source.image_id)
       : null;
     const newId = await baseEntityDb.duplicate(entityType, id, imageId);
-    await baseEntityContentSectionDb.duplicateByBaseEntity(id, newId);
+    await writeChildrenOrRemoveParent(
+      () => baseEntityContentSectionDb.duplicateByBaseEntity(id, newId),
+      () => baseEntityDb.remove(newId),
+    );
     return newId;
   } catch (err) {
     throw baseEntityDuplicateError(entityType, id, err);

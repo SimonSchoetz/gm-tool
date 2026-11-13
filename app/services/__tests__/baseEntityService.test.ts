@@ -345,11 +345,14 @@ describe('duplicateBaseEntity', () => {
       name: 'BaseEntityDuplicateError',
     });
     expect(duplicateByBaseEntity).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
 
-    duplicateByBaseEntity.mockRejectedValueOnce(new Error('disk'));
+    duplicateByBaseEntity.mockRejectedValueOnce(new Error('sections'));
 
     await expect(duplicateBaseEntity('npcs', 'n1')).rejects.toMatchObject({
       name: 'BaseEntityDuplicateError',
+      message: expect.stringContaining('sections') as unknown,
     });
+    expect(remove).toHaveBeenCalledWith('copy-entity');
   });
 });

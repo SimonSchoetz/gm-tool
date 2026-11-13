@@ -2,6 +2,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Encounter } from '@db/encounter';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
+import {
+  testDatabase,
+  writeFailingOnEachCall,
+} from './support/failingDatabaseCall';
 
 // Runs the real encounterService and encounterQueueService against the real in-memory database, with only the image file commands answered by a stand-in; encounterService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -34,6 +38,13 @@ const load = async () => {
     return { encounterId, imageId };
   };
   return {
+    db: await testDatabase(getDatabase),
+    countQueueItems: async () =>
+      (
+        await select<{ count: number }[]>(
+          'SELECT COUNT(*) AS count FROM encounter_queue_items',
+        )
+      )[0].count,
     encounterService,
     encounterQueueService,
     logEntryDb,
@@ -175,5 +186,29 @@ describe('encounterService against the database', () => {
 
     expect((await readEncounter(removed.encounterId)).image_id).toBeNull();
     expect(await readImageIds()).toEqual([kept.imageId]);
+  });
+
+  it('leaves no copy and no copied queue item behind when any database call of a duplication fails', async () => {
+    const {
+      encounterService,
+      encounterQueueService,
+      createImagedEncounter,
+      readEncounterIds,
+      countQueueItems,
+      db,
+    } = await load();
+    const { encounterId } = await createImagedEncounter();
+    await encounterQueueService.addRandomCombatant(encounterId, 'Orc', 10);
+    await encounterQueueService.addEvent(encounterId, 'Reinforcements');
+
+    await writeFailingOnEachCall(
+      db,
+      () => encounterService.duplicateEncounter(encounterId),
+      async () => {
+        // The source and the counting run's copy, each with its two queue items.
+        expect(await readEncounterIds()).toHaveLength(2);
+        expect(await countQueueItems()).toBe(4);
+      },
+    );
   });
 });

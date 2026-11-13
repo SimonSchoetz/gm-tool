@@ -20,3 +20,19 @@ export const writeFailingOnCall = async (
   }
   db.failOnCall(0);
 };
+
+// Runs `write` once to count its database calls, then once more for each of those calls with that call failing, and awaits `afterFailedWrite` after each failed run, so a test can assert that a failure at any point leaves the same stored state.
+export const writeFailingOnEachCall = async (
+  db: TestDatabase,
+  write: () => Promise<unknown>,
+  afterFailedWrite: (callNumber: number) => Promise<void>,
+): Promise<void> => {
+  const callsBefore = db.callCount();
+  await write();
+  const callsPerWrite = db.callCount() - callsBefore;
+
+  for (let callNumber = 1; callNumber <= callsPerWrite; callNumber++) {
+    await writeFailingOnCall(db, callNumber, write);
+    await afterFailedWrite(callNumber);
+  }
+};

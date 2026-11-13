@@ -2,6 +2,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { BaseEntity } from '@db/base-entity';
 import type { BaseEntityContentSection } from '@db/base-entity-content-section';
+import {
+  testDatabase,
+  writeFailingOnEachCall,
+} from './support/failingDatabaseCall';
 
 // Runs the real baseEntityService against the real in-memory database, with only the image file commands answered by a stand-in; baseEntityService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -33,6 +37,13 @@ const load = async () => {
     return { baseEntityId, imageId };
   };
   return {
+    db: await testDatabase(getDatabase),
+    countSections: async () =>
+      (
+        await select<{ count: number }[]>(
+          'SELECT COUNT(*) AS count FROM base_entity_content_sections',
+        )
+      )[0].count,
     baseEntityService,
     sectionDb,
     createImagedEntity,
@@ -132,5 +143,29 @@ describe('baseEntityService against the database', () => {
     const { image_id: newImageId } = await readEntity(baseEntityId);
     expect(newImageId).not.toBe(imageId);
     expect(await readImageIds()).toEqual([newImageId]);
+  });
+
+  it('leaves no copy and no copied section behind when any database call of a duplication fails', async () => {
+    const {
+      baseEntityService,
+      sectionDb,
+      createImagedEntity,
+      readEntityIds,
+      countSections,
+      db,
+    } = await load();
+    const { baseEntityId } = await createImagedEntity();
+    await sectionDb.create({ base_entity_id: baseEntityId, type: 'text' });
+    await sectionDb.create({ base_entity_id: baseEntityId, type: 'text' });
+
+    await writeFailingOnEachCall(
+      db,
+      () => baseEntityService.duplicateBaseEntity('npcs', baseEntityId),
+      async () => {
+        // The source and the counting run's copy, each with its two sections.
+        expect(await readEntityIds()).toHaveLength(2);
+        expect(await countSections()).toBe(4);
+      },
+    );
   });
 });

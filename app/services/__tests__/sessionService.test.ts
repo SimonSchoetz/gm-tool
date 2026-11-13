@@ -123,16 +123,19 @@ describe('createSession', () => {
       name: 'SessionCreateError',
     });
     expect(createStep).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
   });
 
-  it('rejects as SessionCreateError and creates no further step when a step fails', async () => {
+  it('rejects as SessionCreateError naming the step’s failure, creates no further step, and removes the new session when a step fails', async () => {
     const { createSession } = await import('../sessionService');
     createStep.mockRejectedValueOnce(new Error('disk'));
 
     await expect(createSession('adventure-7')).rejects.toMatchObject({
       name: 'SessionCreateError',
+      message: expect.stringContaining('disk') as unknown,
     });
     expect(createStep).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenCalledWith('new-session');
   });
 });
 
@@ -159,15 +162,18 @@ describe('duplicateSession', () => {
       name: 'SessionDuplicateError',
     });
     expect(duplicateBySession).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
   });
 
-  it('rejects as SessionDuplicateError when the steps cannot be copied', async () => {
+  it('rejects as SessionDuplicateError naming the copy’s failure, and removes the copy, when the steps cannot be copied', async () => {
     const { duplicateSession } = await import('../sessionService');
     duplicateBySession.mockRejectedValue(new Error('disk'));
 
     await expect(duplicateSession('original')).rejects.toMatchObject({
       name: 'SessionDuplicateError',
+      message: expect.stringContaining('disk') as unknown,
     });
+    expect(remove).toHaveBeenCalledWith('copy-session');
   });
 });
 
