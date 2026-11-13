@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   COMMAND_PRIORITY_HIGH,
@@ -16,6 +16,8 @@ import {
   dropFeedbackPosition,
   type DropFeedbackPosition,
 } from './helper/dropFeedbackPosition';
+import { handleBlockKeyOf } from './helper/handleBlockKeyOf';
+import { handleRowsOf } from './helper/handleRowsOf';
 import { moveBlock } from './helper/moveBlock';
 import { resolveDropTarget } from './helper/resolveDropTarget';
 import { resolveHoveredRow } from './helper/resolveHoveredRow';
@@ -33,17 +35,20 @@ type Props = {
   anchorElem: HTMLElement;
 };
 
+// One shown handle: the key of the block it moves and where it is drawn.
+type HandleBox = AnchorBox & { key: NodeKey };
+
 export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
   const [editor] = useLexicalComposerContext();
-  const handleRef = useRef<HTMLDivElement>(null);
-  const [hoveredBlock, setHoveredBlock] = useState<AnchorBox | null>(null);
+  const [handleBoxes, setHandleBoxes] = useState<HandleBox[]>([]);
   const [dropFeedback, setDropFeedback] = useState<DropFeedbackPosition | null>(
     null,
   );
 
-  // The effect owns the drag state that is not rendered — the hovered row and the dragged block's key — as closure variables, so the handlers share them without a render in between.
+  // The effect owns the drag state that is not rendered — the hovered row, the rows whose handles show and the dragged block's key — as closure variables, so the handlers share them without a render in between.
   useEffect(() => {
     let hoveredRow: BlockRow | null = null;
+    let handleRows: BlockRow[] = [];
     let draggedKey: NodeKey | null = null;
     const marginPush = createMarginPush();
 
@@ -55,37 +60,36 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
 
     const handleMouseMove = (event: MouseEvent) => {
       if (draggedKey !== null) return;
-      // A parent's handle is as tall as its whole section, so the pointer on it is beside sub-items' rows and must keep the parent's row hovered.
-      if (
-        event.target instanceof Node &&
-        handleRef.current?.contains(event.target)
-      )
-        return;
-      const row = resolveHoveredRow(collectBlockRows(editor), event.clientY);
+      // A parent's handle is as tall as its whole section, so the pointer on it is beside sub-items' rows and must keep the hovered row.
+      if (handleBlockKeyOf(event.target) !== null) return;
+      const rows = collectBlockRows(editor);
+      const row = resolveHoveredRow(rows, event.clientY);
       if (row?.key === hoveredRow?.key) return;
       hoveredRow = row;
-      if (row === null) {
-        setHoveredBlock(null);
-        return;
-      }
-      setHoveredBlock(
-        rowBoxInAnchorSpace(anchorElem.getBoundingClientRect(), row),
+      handleRows = row === null ? [] : handleRowsOf(rows, row);
+      const anchorRect = anchorElem.getBoundingClientRect();
+      setHandleBoxes(
+        handleRows.map((handleRow) => ({
+          key: handleRow.key,
+          ...rowBoxInAnchorSpace(anchorRect, handleRow),
+        })),
       );
     };
 
     const handleMouseLeave = () => {
       if (draggedKey !== null) return;
       hoveredRow = null;
-      setHoveredBlock(null);
+      handleRows = [];
+      setHandleBoxes([]);
     };
 
     const handleDragStart = (event: DragEvent) => {
       const { dataTransfer } = event;
-      const isOnHandle =
-        event.target instanceof Node &&
-        handleRef.current?.contains(event.target);
-      if (hoveredRow === null || dataTransfer === null || !isOnHandle) return;
-      const { element, key } = hoveredRow;
+      const grabbedKey = handleBlockKeyOf(event.target);
+      const grabbedRow =
+        handleRows.find((row) => row.key === grabbedKey) ?? null;
+      if (grabbedRow === null || dataTransfer === null) return;
+      const { element, key } = grabbedRow;
       dataTransfer.setData(DRAG_BLOCK_FORMAT, key);
       dataTransfer.effectAllowed = 'move';
       setDragImageOfRow(dataTransfer, element);
@@ -136,7 +140,8 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
         moveBlock(droppedKey, target.besideKey, target.placement, target.depth);
       }
       hoveredRow = null;
-      setHoveredBlock(null);
+      handleRows = [];
+      setHandleBoxes([]);
       return true;
     };
 
@@ -168,14 +173,15 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
 
   return (
     <>
-      {hoveredBlock && (
+      {handleBoxes.map((box) => (
         <BlockDragHandle
-          ref={handleRef}
-          top={hoveredBlock.top}
-          blockLeft={hoveredBlock.left}
-          height={hoveredBlock.unitHeight}
+          key={box.key}
+          blockKey={box.key}
+          top={box.top}
+          blockLeft={box.left}
+          height={box.unitHeight}
         />
-      )}
+      ))}
       {dropFeedback && (
         <>
           <BlockDropIndicator

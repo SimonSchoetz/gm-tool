@@ -194,9 +194,11 @@ const undo = (editor: LexicalEditor) =>
     return Promise.resolve();
   });
 
+// Grabs the hovered block's own handle, the last of the shown handles.
 const startDragOfBlockAt = (anchor: Element, clientY: number) => {
   fireEvent.mouseMove(anchor, { clientY });
-  const handle = screen.getByLabelText('Drag to move block');
+  const handle = screen.getAllByLabelText('Drag to move block').at(-1);
+  if (handle === undefined) throw new Error('no handle shown');
   fireEvent.dragStart(handle, {
     dataTransfer: {
       setData: vi.fn(),
@@ -228,13 +230,13 @@ const mountList = () => {
   return mounted;
 };
 
-// A bullet list of "a" with its sub-item "a1", then "b": "a" at 24 to 44, the wrapper that holds "a1" and "a1" itself at 48 to 68, and "b" at 72 to 92.
+// A bullet list of "a" with its sub-item "a1", then "b": "a" at 24 to 44, the wrapper that holds "a1" and "a1" itself at 48 to 68, and "b" at 72 to 92. The list steps 24 per depth, so the text edge of depth 0 is 40 and of depth 1 is 64.
 const mountParentItem = () => {
   const mounted = mountDocument(() => [
     list('bullet', [{ text: 'a', children: [{ text: 'a1' }] }, { text: 'b' }]),
   ]);
   const { editor } = mounted;
-  const [a, wrapper, b, a1] = editor
+  const [listElement, a, wrapper, b, a1] = editor
     .read('latest', () => {
       const [listNode] = $getRoot().getChildren();
       if (!$isListNode(listNode)) throw new Error('the list is missing');
@@ -244,9 +246,11 @@ const mountParentItem = () => {
         : null;
       const subItem = $isListNode(subList) ? subList.getFirstChild() : null;
       if (subItem === null) throw new Error('the sub-item is missing');
-      return [aNode, wrapperNode, bNode, subItem];
+      return [listNode, aNode, wrapperNode, bNode, subItem];
     })
     .map((node) => editor.getElementByKey(node.getKey()));
+  if (listElement === null) throw new Error('the list is not rendered');
+  listElement.style.paddingLeft = '24px';
   stubRect(a, { top: 24, bottom: 44, left: 40 });
   stubRect(wrapper, { top: 48, bottom: 68, left: 40 });
   stubRect(a1, { top: 48, bottom: 68, left: 64 });
@@ -256,6 +260,9 @@ const mountParentItem = () => {
 
 const handleHeight = (handle: HTMLElement) =>
   handle.style.getPropertyValue('--block-drag-handle-height');
+
+const handleHeights = () =>
+  screen.getAllByLabelText('Drag to move block').map(handleHeight);
 
 describe('BlockDragHandlePlugin', () => {
   it('gives the handle of an open toggle the height of its header and body together', () => {
@@ -273,9 +280,7 @@ describe('BlockDragHandlePlugin', () => {
 
     fireEvent.mouseMove(anchor, { clientY: 55 });
 
-    expect(handleHeight(screen.getByLabelText('Drag to move block'))).toBe(
-      '20px',
-    );
+    expect(handleHeights().at(-1)).toBe('20px');
   });
 
   it('gives the handle of a list item with sub-items the height of the item and all its sub-items, and of an item without them its own', () => {
@@ -303,6 +308,91 @@ describe('BlockDragHandlePlugin', () => {
     expect(handleHeight(screen.getByLabelText('Drag to move block'))).toBe(
       '44px',
     );
+  });
+
+  it('shows the handles of every parent of a hovered list item, outermost first, each as tall as its own section', () => {
+    const { anchor } = mountParentItem();
+
+    fireEvent.mouseMove(anchor, { clientY: 58 });
+
+    expect(handleHeights()).toEqual(['44px', '20px']);
+  });
+
+  it('shows the handle of the enclosing toggle beside the handle of a hovered block in its body', () => {
+    const { anchor } = mountNested();
+
+    fireEvent.mouseMove(anchor, { clientY: 55 });
+
+    expect(handleHeights()).toEqual(['76px', '20px']);
+  });
+
+  it('shows only the hovered root block’s own handle when nothing encloses it', () => {
+    const { anchor } = mountNested();
+
+    fireEvent.mouseMove(anchor, { clientY: 10 });
+
+    expect(handleHeights()).toEqual(['20px']);
+  });
+
+  it('keeps every shown handle while the pointer moves onto a parent’s handle', () => {
+    const { anchor } = mountParentItem();
+    fireEvent.mouseMove(anchor, { clientY: 58 });
+    const [parentHandle] = screen.getAllByLabelText('Drag to move block');
+
+    fireEvent.mouseMove(parentHandle, { clientY: 30 });
+
+    expect(handleHeights()).toEqual(['44px', '20px']);
+  });
+
+  it('moves the parent item with its sub-item when its handle is grabbed while its sub-item is hovered', async () => {
+    const { editor, anchor, root } = mountParentItem();
+    fireEvent.mouseMove(anchor, { clientY: 58 });
+    const [parentHandle] = screen.getAllByLabelText('Drag to move block');
+    fireEvent.dragStart(parentHandle, {
+      dataTransfer: {
+        setData: vi.fn(),
+        setDragImage: vi.fn(),
+        effectAllowed: '',
+      },
+    });
+
+    await dispatchOnRoot(root, dragEvent('drop', 88, 40));
+
+    expect(outlineOf(editor)).toEqual(['bullet(b,a[a1])']);
+  });
+
+  it('moves only the hovered sub-item when its own handle is grabbed', async () => {
+    const { editor, anchor, root } = mountParentItem();
+    fireEvent.mouseMove(anchor, { clientY: 58 });
+    const [, ownHandle] = screen.getAllByLabelText('Drag to move block');
+    fireEvent.dragStart(ownHandle, {
+      dataTransfer: {
+        setData: vi.fn(),
+        setDragImage: vi.fn(),
+        effectAllowed: '',
+      },
+    });
+
+    await dispatchOnRoot(root, dragEvent('drop', 88, 70));
+
+    expect(outlineOf(editor)).toEqual(['bullet(a,b[a1])']);
+  });
+
+  it('moves the whole toggle when its handle is grabbed while a block in its body is hovered', async () => {
+    const { editor, anchor, root } = mountNested();
+    fireEvent.mouseMove(anchor, { clientY: 55 });
+    const [toggleHandle] = screen.getAllByLabelText('Drag to move block');
+    fireEvent.dragStart(toggleHandle, {
+      dataTransfer: {
+        setData: vi.fn(),
+        setDragImage: vi.fn(),
+        effectAllowed: '',
+      },
+    });
+
+    await dispatchOnRoot(root, dragEvent('drop', 120, 20));
+
+    expect(outlineOf(editor)).toEqual(['a', 'c', 'T{x,y}']);
   });
 
   it('leaves the saved document unchanged after a cancelled drag, and a later drop moves nothing', async () => {

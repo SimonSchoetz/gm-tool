@@ -1,10 +1,13 @@
 import { EllipsisVerticalIcon } from 'lucide-react';
+import type { NodeKey } from 'lexical';
 import { FCProps } from '@/types/fcProps.type';
 import './BlockDragHandle.css';
 import { GlassPanel } from '../../../../../GlassPanel/GlassPanel';
+import { BLOCK_KEY_ATTRIBUTE } from '../../helper/handleBlockKeyOf';
 
 type Props = {
-  ref: React.Ref<HTMLDivElement>;
+  // The key of the block this handle moves.
+  blockKey: NodeKey;
   top: number;
   // The left edge of the block the handle belongs to; the handle sits directly left of it.
   blockLeft: number;
@@ -12,7 +15,7 @@ type Props = {
 };
 
 export const BlockDragHandle: FCProps<Props> = ({
-  ref,
+  blockKey,
   top,
   blockLeft,
   height,
@@ -23,14 +26,16 @@ export const BlockDragHandle: FCProps<Props> = ({
     '--block-drag-handle-height': `${height}px`,
   } as React.CSSProperties;
 
+  const blockKeyAttribute = { [BLOCK_KEY_ATTRIBUTE]: blockKey };
+
   return (
     <GlassPanel
-      ref={ref}
       intensity='off'
       draggable
       aria-label='Drag to move block'
       className='block-drag-handle'
       style={positionStyle}
+      {...blockKeyAttribute}
     >
       <EllipsisVerticalIcon />
     </GlassPanel>
