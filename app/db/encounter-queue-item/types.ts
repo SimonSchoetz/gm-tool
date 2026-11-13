@@ -18,6 +18,17 @@ export type SharedEncounterQueueItemFields = {
   name?: string;
   starting_max_hp?: number;
 };
+// A combatant made from a base entity, a random combatant typed by name, or an event; the position and a combatant's sequence number are computed by append.
+export type AppendEncounterQueueItemInput = { encounter_id: string } & (
+  | {
+      kind: 'combatant';
+      base_entity_id: string;
+      name?: string;
+      starting_max_hp?: number;
+    }
+  | { kind: 'combatant'; name: string; starting_max_hp?: number }
+  | { kind: 'event'; name: string }
+);
 export type UpdateEncounterQueueItemInput = z.infer<
   typeof encounterQueueItemTable.updateSchema
 >;

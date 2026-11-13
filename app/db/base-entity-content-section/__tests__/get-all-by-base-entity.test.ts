@@ -16,31 +16,28 @@ describe('getAllByBaseEntity', () => {
     const { create: createAdventure } = await import('@db/adventure');
     const { create: createBaseEntity } = await import('@db/base-entity');
     const { create } = await import('../create');
+    const { update } = await import('../update');
     const { getAllByBaseEntity } = await import('../get-all-by-base-entity');
     const adventureId = await createAdventure();
     const baseEntityId = await createBaseEntity('npcs', adventureId);
     const otherEntityId = await createBaseEntity('npcs', adventureId);
-    // Inserted out of sort order, so insertion order and sort order differ.
+    // Moved out of insertion order, so insertion order and sort order differ.
     const thirdId = await create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 2,
     });
     const firstId = await create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 0,
     });
     const secondId = await create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 1,
     });
-    await create({
-      base_entity_id: otherEntityId,
-      type: 'text',
-      sort_order: 0,
-    });
+    await update(thirdId, { sort_order: 2 });
+    await update(firstId, { sort_order: 0 });
+    await update(secondId, { sort_order: 1 });
+    await create({ base_entity_id: otherEntityId, type: 'text' });
 
     const sections = await getAllByBaseEntity(baseEntityId);
 

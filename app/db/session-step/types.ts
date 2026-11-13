@@ -9,6 +9,10 @@ export type CreateSessionStepInput = {
   default_step_key?: LazyDmStepKey | null;
   name?: string;
 };
+export type AppendSessionStepInput = {
+  session_id: string;
+  name?: string;
+};
 export type UpdateSessionStepInput = z.infer<
   typeof sessionStepTable.updateSchema
 >;

@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { SessionStep } from '@db/session-step';
+import {
+  testDatabase,
+  writeFailingOnCall,
+} from './support/failingDatabaseCall';
 
 // Runs the real sessionStepService against the real in-memory database; sessionStepService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -35,7 +39,8 @@ const load = async () => {
     }
     return { sessionId, stepIds };
   };
-  return { sessionStepService, readSteps, createSessionWithSteps };
+  const db = await testDatabase(getDatabase);
+  return { sessionStepService, readSteps, createSessionWithSteps, db };
 };
 
 describe('sessionStepService against the database', () => {
@@ -97,5 +102,55 @@ describe('sessionStepService against the database', () => {
       first,
       second,
     ]);
+  });
+
+  it('stores two custom steps added at the same time at two different sort orders', async () => {
+    const { sessionStepService, readSteps, createSessionWithSteps } =
+      await load();
+    const { sessionId } = await createSessionWithSteps([0]);
+
+    await Promise.all([
+      sessionStepService.createCustomStep(sessionId),
+      sessionStepService.createCustomStep(sessionId),
+    ]);
+
+    expect((await readSteps(sessionId)).map((step) => step.sort_order)).toEqual(
+      [0, 1, 2],
+    );
+  });
+
+  it('leaves the old order or the whole new one, never a mix, when any database call of a bulk reorder or a swap fails', async () => {
+    const { sessionStepService, readSteps, createSessionWithSteps, db } =
+      await load();
+    const {
+      sessionId,
+      stepIds: [first, second, third],
+    } = await createSessionWithSteps([0, 1, 2]);
+    const storedOrder = async () =>
+      (await readSteps(sessionId)).map((step) => step.sort_order);
+    const sortOrderOf = async (id: string) =>
+      (await readSteps(sessionId)).find((step) => step.id === id)?.sort_order;
+
+    for (const callNumber of [1, 2, 3]) {
+      await writeFailingOnCall(db, callNumber, () =>
+        sessionStepService.bulkReorderSteps([third, first, second]),
+      );
+      const ids = (await readSteps(sessionId)).map((step) => step.id);
+      expect([
+        [first, second, third],
+        [third, first, second],
+      ]).toContainEqual(ids);
+      expect(await storedOrder()).toEqual([0, 1, 2]);
+      await sessionStepService.bulkReorderSteps([first, second, third]);
+    }
+
+    for (const callNumber of [1, 2, 3]) {
+      const before = [await sortOrderOf(first), await sortOrderOf(second)];
+      await writeFailingOnCall(db, callNumber, () =>
+        sessionStepService.swapStepOrder(sessionId, second, 'up'),
+      );
+      const after = [await sortOrderOf(first), await sortOrderOf(second)];
+      expect([before, [...before].reverse()]).toContainEqual(after);
+    }
   });
 });

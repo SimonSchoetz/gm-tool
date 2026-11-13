@@ -8,7 +8,6 @@ export type BaseEntityContentSection = z.infer<
 export type CreateBaseEntityContentSectionInput = {
   base_entity_id: string;
   type: BaseEntityContentSectionType;
-  sort_order: number;
   name?: string;
 };
 export type UpdateBaseEntityContentSectionInput = z.infer<

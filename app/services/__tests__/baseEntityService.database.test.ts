@@ -79,13 +79,11 @@ describe('baseEntityService against the database', () => {
     const firstSectionId = await sectionDb.create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 0,
     });
     await sectionDb.update(firstSectionId, { content: 'First' });
     const secondSectionId = await sectionDb.create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 1,
     });
     await sectionDb.update(secondSectionId, { content: 'Second' });
 

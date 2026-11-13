@@ -27,7 +27,7 @@ const createSection = async (type: BaseEntityContentSectionType) => {
   const { create: createBaseEntity } = await import('@db/base-entity');
   const { create } = await import('../create');
   const baseEntityId = await createBaseEntity('npcs', await createAdventure());
-  return create({ base_entity_id: baseEntityId, type, sort_order: 0 });
+  return create({ base_entity_id: baseEntityId, type });
 };
 
 const validStatBlockContent = JSON.stringify({

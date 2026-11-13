@@ -25,12 +25,10 @@ describe('remove', () => {
     const removedId = await create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 0,
     });
     const keptId = await create({
       base_entity_id: baseEntityId,
       type: 'text',
-      sort_order: 1,
     });
 
     await remove(removedId);

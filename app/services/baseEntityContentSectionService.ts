@@ -28,14 +28,9 @@ export const createSection = async (
   name?: string,
 ): Promise<string> => {
   try {
-    const sections =
-      await baseEntityContentSectionDb.getAllByBaseEntity(baseEntityId);
-    const maxSortOrder =
-      sections.length > 0 ? Math.max(...sections.map((s) => s.sort_order)) : -1;
     return await baseEntityContentSectionDb.create({
       base_entity_id: baseEntityId,
       type,
-      sort_order: maxSortOrder + 1,
       ...(name !== undefined ? { name } : {}),
     });
   } catch (err) {
@@ -66,11 +61,9 @@ export const bulkReorderSections = async (
   orderedSectionIds: string[],
 ): Promise<void> => {
   try {
-    for (let index = 0; index < orderedSectionIds.length; index++) {
-      await baseEntityContentSectionDb.update(orderedSectionIds[index], {
-        sort_order: index,
-      });
-    }
+    await baseEntityContentSectionDb.updateSortOrders(
+      orderedSectionIds.map((id, index) => ({ id, sort_order: index })),
+    );
   } catch (err) {
     throw baseEntityContentSectionReorderError(err);
   }

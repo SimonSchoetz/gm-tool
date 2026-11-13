@@ -7,3 +7,8 @@ export { generateId } from './generate-id.ts';
 export { generateDbTimestamps } from './generate-db-timestamps.ts';
 export { ensureColumn } from './ensure-column.ts';
 export { buildCreateManyQuery } from './build-create-many-query.ts';
+export { buildAppendQuery } from './build-append-query.ts';
+export {
+  buildUpdateSortOrdersQuery,
+  type SortOrderEntry,
+} from './build-update-sort-orders-query.ts';

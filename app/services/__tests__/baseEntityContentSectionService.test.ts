@@ -8,12 +8,16 @@ const getAllByBaseEntity = vi.hoisted(() =>
 const create = vi.hoisted(() => vi.fn<typeof sectionDb.create>());
 const update = vi.hoisted(() => vi.fn<typeof sectionDb.update>());
 const remove = vi.hoisted(() => vi.fn<typeof sectionDb.remove>());
+const updateSortOrders = vi.hoisted(() =>
+  vi.fn<typeof sectionDb.updateSortOrders>(),
+);
 
 vi.mock('@db/base-entity-content-section', () => ({
   getAllByBaseEntity,
   create,
   update,
   remove,
+  updateSortOrders,
 }));
 
 beforeEach(() => {
@@ -22,6 +26,7 @@ beforeEach(() => {
   create.mockReset().mockResolvedValue('new-section');
   update.mockReset().mockResolvedValue();
   remove.mockReset().mockResolvedValue();
+  updateSortOrders.mockReset().mockResolvedValue();
 });
 
 describe('getSectionsByBaseEntityId', () => {
@@ -49,29 +54,22 @@ describe('getSectionsByBaseEntityId', () => {
 });
 
 describe('createSection', () => {
-  it('sorts the new section after the highest sort order of the base entity, whatever the order of the list', async () => {
+  it('creates a section of the given type and name for the base entity and returns its id', async () => {
     const { createSection } =
       await import('../baseEntityContentSectionService');
-    getAllByBaseEntity.mockResolvedValue([
-      { ...buildSection('text', null), sort_order: 3 },
-      { ...buildSection('basic-stat-block', null), sort_order: 8 },
-      { ...buildSection('5e-stat-block', null), sort_order: 1 },
-    ]);
 
     await expect(createSection('entity-7', 'text', 'Backstory')).resolves.toBe(
       'new-section',
     );
 
-    expect(getAllByBaseEntity).toHaveBeenCalledWith('entity-7');
     expect(create).toHaveBeenCalledWith({
       base_entity_id: 'entity-7',
       type: 'text',
-      sort_order: 9,
       name: 'Backstory',
     });
   });
 
-  it('sorts the first section first and leaves the name out of the input when none is given', async () => {
+  it('leaves the name out of the input when none is given', async () => {
     const { createSection } =
       await import('../baseEntityContentSectionService');
 
@@ -80,7 +78,6 @@ describe('createSection', () => {
     expect(create).toHaveBeenCalledWith({
       base_entity_id: 'entity-7',
       type: '5e-stat-block',
-      sort_order: 0,
     });
     expect(create.mock.calls[0][0]).not.toHaveProperty('name');
   });
@@ -94,21 +91,13 @@ describe('createSection', () => {
     expect(create).toHaveBeenCalledWith({
       base_entity_id: 'entity-7',
       type: 'text',
-      sort_order: 0,
       name: '',
     });
   });
 
-  it('rejects as BaseEntityContentSectionCreateError when the sections cannot be read or the section cannot be created', async () => {
+  it('rejects as BaseEntityContentSectionCreateError when the section cannot be created', async () => {
     const { createSection } =
       await import('../baseEntityContentSectionService');
-    getAllByBaseEntity.mockRejectedValueOnce(new Error('disk'));
-
-    await expect(createSection('entity-7', 'text')).rejects.toMatchObject({
-      name: 'BaseEntityContentSectionCreateError',
-    });
-    expect(create).not.toHaveBeenCalled();
-
     create.mockRejectedValueOnce(new Error('disk'));
 
     await expect(createSection('entity-7', 'text')).rejects.toMatchObject({
@@ -145,32 +134,30 @@ describe('updateSection and deleteSection', () => {
 });
 
 describe('bulkReorderSections', () => {
-  it('gives each section the sort order of its position in the list, in order', async () => {
+  it('gives each section the sort order of its position in the list, in one write', async () => {
     const { bulkReorderSections } =
       await import('../baseEntityContentSectionService');
 
     await bulkReorderSections(['c', 'a', 'b']);
 
-    expect(update.mock.calls).toEqual([
-      ['c', { sort_order: 0 }],
-      ['a', { sort_order: 1 }],
-      ['b', { sort_order: 2 }],
+    expect(updateSortOrders.mock.calls).toEqual([
+      [
+        [
+          { id: 'c', sort_order: 0 },
+          { id: 'a', sort_order: 1 },
+          { id: 'b', sort_order: 2 },
+        ],
+      ],
     ]);
   });
 
-  it('updates nothing for an empty list, and rejects as BaseEntityContentSectionReorderError, updating no later section, when an update fails', async () => {
+  it('rejects as BaseEntityContentSectionReorderError when the write fails', async () => {
     const { bulkReorderSections } =
       await import('../baseEntityContentSectionService');
-
-    await bulkReorderSections([]);
-
-    expect(update).not.toHaveBeenCalled();
-
-    update.mockRejectedValueOnce(new Error('disk'));
+    updateSortOrders.mockRejectedValueOnce(new Error('disk'));
 
     await expect(bulkReorderSections(['a', 'b'])).rejects.toMatchObject({
       name: 'BaseEntityContentSectionReorderError',
     });
-    expect(update).toHaveBeenCalledTimes(1);
   });
 });
