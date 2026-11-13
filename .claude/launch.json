@@ -15,9 +15,10 @@
       "runtimeExecutable": "bash",
       "runtimeArgs": [
         "-c",
-        ". \"$HOME/.nvm/nvm.sh\" && nvm use --silent && exec pnpm --dir app run web:seed --port 5174"
+        ". \"$HOME/.nvm/nvm.sh\" && nvm use --silent && exec pnpm --dir app run web:seed --port \"$PORT\""
       ],
-      "port": 5174
+      "port": 5174,
+      "autoPort": true
     }
   ]
 }
