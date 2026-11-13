@@ -1,6 +1,18 @@
-.editor-node--show-hint::before {
+/* The hinted node is the hint's positioning box: the hint is drawn by ::after, which an empty node's <br> would otherwise push to the next line. */
+.editor-node--show-hint {
+  position: relative;
+}
+
+/* ::after, not ::before: a check-list item draws its checkbox with ::before, whose box size would squeeze the hint text into a one-character column. One line, cut with an ellipsis, so a narrow editor never wraps it over the next block. */
+.editor-node--show-hint::after {
   content: 'Start typing or use / for commands';
   color: var(--color-text-muted);
   pointer-events: none;
   position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
