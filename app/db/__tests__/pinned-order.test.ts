@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -32,6 +32,14 @@ const addSession = async (adventureId: string, pinnedOrder: number | null) => {
   const id = await create(adventureId);
   if (pinnedOrder !== null) await update(id, { pinned_order: pinnedOrder });
   return id;
+};
+
+const readUpdatedAts = async (table: string) => {
+  const { getDatabase } = await import('@db/database');
+  const db = await getDatabase();
+  return db.select<{ id: string; updated_at: string }[]>(
+    `SELECT id, updated_at FROM ${table} ORDER BY rowid`,
+  );
 };
 
 const readPinnedOrders = async (table: string) => {
@@ -116,6 +124,58 @@ describe('pinned order', () => {
         { id: pinnedSession, pinned_order: 2 },
         { id: otherSession, pinned_order: 5 },
       ]);
+    });
+
+    describe('updated_at', () => {
+      const CREATED = '2026-01-01T00:00:00.000Z';
+      const PINNED = '2026-01-02T00:00:00.000Z';
+
+      beforeEach(() => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(CREATED));
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it.each([
+        {
+          label: 'a base entity',
+          table: 'base_entities',
+          add: addNpc,
+          type: 'npcs',
+        },
+        {
+          label: 'a session',
+          table: 'sessions',
+          add: addSession,
+          type: 'sessions',
+        },
+      ])(
+        'stamps the pinned and the unpinned $label as updated, and no other row',
+        async ({ table, add, type }) => {
+          const { setPinnedOrder } = await import('../pinned-order');
+          const adventureId = await createAdventure();
+          const pinned = await add(adventureId, null);
+          const other = await add(adventureId, null);
+
+          vi.setSystemTime(new Date(PINNED));
+          await setPinnedOrder(type, pinned, 0);
+          expect(await readUpdatedAts(table)).toEqual([
+            { id: pinned, updated_at: PINNED },
+            { id: other, updated_at: CREATED },
+          ]);
+
+          const UNPINNED = '2026-01-03T00:00:00.000Z';
+          vi.setSystemTime(new Date(UNPINNED));
+          await setPinnedOrder(type, pinned, null);
+          expect(await readUpdatedAts(table)).toEqual([
+            { id: pinned, updated_at: UNPINNED },
+            { id: other, updated_at: CREATED },
+          ]);
+        },
+      );
     });
   });
 });

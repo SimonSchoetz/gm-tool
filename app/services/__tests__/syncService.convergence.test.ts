@@ -46,6 +46,7 @@ const openDevice = async (deviceId: string) => {
   const sessionDb = await import('@db/session');
   const baseEntityDb = await import('@db/base-entity');
   const contentSectionDb = await import('@db/base-entity-content-section');
+  const pinnedOrderService = await import('@services/pinnedOrderService');
   await systemDb.updateDevice({ id: deviceId, name: null });
   return {
     id: deviceId,
@@ -56,6 +57,7 @@ const openDevice = async (deviceId: string) => {
     sessionDb,
     baseEntityDb,
     contentSectionDb,
+    pinnedOrderService,
   };
 };
 
@@ -223,6 +225,44 @@ describe('syncService between two devices', () => {
     });
     await expectConverged(a, b);
   });
+
+  const pinnedOrderOf = async (device: Device, baseEntityId: string) => {
+    const db = await device.getDatabase();
+    const [row] = await db.select<{ pinned_order: number | null }[]>(
+      'SELECT pinned_order FROM base_entities WHERE id = $1',
+      [baseEntityId],
+    );
+    return row.pinned_order;
+  };
+
+  // ID_A sorts below ID_B, so a change made on A reaches B without the tie-breaking force flag syncService sets only for the greater sender id; each direction is covered because the defect showed in one only.
+  it.each([
+    { pinOn: 'the lower-id device', pinner: () => a, peer: () => b },
+    { pinOn: 'the higher-id device', pinner: () => b, peer: () => a },
+  ])(
+    'brings a pin and an unpin made on $pinOn to the other device',
+    async ({ pinner, peer }) => {
+      setTime('2026-01-02T00:00:00.000Z');
+      const adventureId = await a.adventureDb.create();
+      const baseEntityId = await a.baseEntityDb.create('npcs', adventureId);
+      const link = connect(a, b);
+      await link.handshake();
+
+      setTime('2026-01-03T00:00:00.000Z');
+      await pinner().pinnedOrderService.pinEntity('npcs', baseEntityId);
+      await link.handshake();
+
+      expect(await pinnedOrderOf(peer(), baseEntityId)).toBe(0);
+      await expectConverged(a, b);
+
+      setTime('2026-01-04T00:00:00.000Z');
+      await pinner().pinnedOrderService.unpinEntity('npcs', baseEntityId);
+      await link.handshake();
+
+      expect(await pinnedOrderOf(peer(), baseEntityId)).toBeNull();
+      await expectConverged(a, b);
+    },
+  );
 
   it('brings a parent and its children over without a foreign-key failure', async () => {
     setTime('2026-01-02T00:00:00.000Z');
