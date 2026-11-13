@@ -90,7 +90,7 @@
 
 .editor-list-ul,
 .editor-list-ol {
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-xl);
 }
 
 .editor-list-ul {
@@ -111,7 +111,7 @@
 
 .editor-checklist {
   list-style: none;
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-xl);
 }
 
 .editor-listitem-checked,
@@ -121,12 +121,12 @@
   cursor: default;
 }
 
-/* The checkbox sits in the list's padding, the column a bullet or a number occupies, so item text starts at the same position in all three list styles. */
+/* The checkbox sits in the list's padding, the column a bullet or a number occupies, so item text starts at the same position in all three list styles; it ends a small gap before the text, as a bullet does, which leaves room between it and the block drag handle at the padding's left edge. */
 .editor-listitem-checked::before,
 .editor-listitem-unchecked::before {
   content: '';
   position: absolute;
-  left: calc(-1 * var(--spacing-lg));
+  left: calc(-1 * (var(--spacing-md) + var(--spacing-sm)));
   top: 50%;
   transform: translateY(-50%);
   width: var(--spacing-md);
