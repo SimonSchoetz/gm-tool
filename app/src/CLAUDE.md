@@ -107,7 +107,7 @@ What goes inside a `.css` file — the scope of `styles/`, class naming, the des
 - Domain error types — those belong in `domain/domainName/errors.ts`
 - Domain entity types — those belong in `@domain/<domainName>/types.ts`
 - Types derived from db schemas — import directly from `@db/domainName`
-- Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file.
+- Types with a single consumer — a type used in exactly one component or module must be declared in that file, not extracted to a separate `.types.ts` or any other file. `types/` is for types reused across multiple unrelated modules. When the consuming file needs to share the type with a sub-component, re-export it from the owning file. A type shared by several helpers of one module is declared in a module those helpers already import and that imports none of them, so no import cycle forms among the helpers.
   - ❌ `SessionScreen.types.ts` alongside `SessionScreen.tsx` — same directory does not satisfy this rule; the type must be in `SessionScreen.tsx` itself
   - ✅ `HtmlProps` in `types/` — imported across dozens of unrelated components
 

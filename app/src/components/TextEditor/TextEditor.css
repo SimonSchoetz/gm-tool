@@ -19,9 +19,15 @@
 
 .editor-content > * {
   margin-bottom: var(--spacing-xs);
+}
 
-  /* Animates the block-drag-handle's drop-target margin-bottom (BlockDragHandlePlugin.tsx) so the gap it opens/closes reads as smooth, not an instant jump. */
-  transition: margin-bottom var(--transition-fast);
+/* Animates the margin createMarginPush (BlockDragHandlePlugin) pushes open at the drop gap — the top margin of the row a drop is placed before, the bottom margin of the row it is placed after — so the gap it opens/closes reads as smooth, not an instant jump. Rows are the editor's blocks, the blocks of an open toggle's body and the items of a list. */
+.editor-content > *,
+.toggle-body-inner > *,
+.editor-content li {
+  transition:
+    margin-bottom var(--transition-fast),
+    margin-top var(--transition-fast);
 }
 
 .placeholder {
@@ -112,15 +118,15 @@
 .editor-listitem-unchecked {
   position: relative;
   list-style-type: none;
-  padding-left: 1.75rem; /* no spacing token for 1.75rem — flagged for user review */
   cursor: default;
 }
 
+/* The checkbox sits in the list's padding, the column a bullet or a number occupies, so item text starts at the same position in all three list styles. */
 .editor-listitem-checked::before,
 .editor-listitem-unchecked::before {
   content: '';
   position: absolute;
-  left: 0;
+  left: calc(-1 * var(--spacing-lg));
   top: 50%;
   transform: translateY(-50%);
   width: var(--spacing-md);
@@ -150,15 +156,10 @@
   text-decoration: line-through;
 }
 
-/* A nesting wrapper <li> (Lexical's structural container for a nested <ul>/<ol>) has no checked state of its own, but still receives the checked/unchecked theme class from its check-list parent — suppress the checkbox and its indent reservation so only the deepest item draws one. */
+/* A nesting wrapper <li> (Lexical's structural container for a nested <ul>/<ol>) has no checked state of its own, but still receives the checked/unchecked theme class from its check-list parent — suppress its checkbox so only a real item draws one. */
 .editor-nested-list-item.editor-listitem-checked::before,
 .editor-nested-list-item.editor-listitem-unchecked::before {
   content: none;
-}
-
-.editor-nested-list-item.editor-listitem-checked,
-.editor-nested-list-item.editor-listitem-unchecked {
-  padding-left: 0;
 }
 
 /*
@@ -270,6 +271,8 @@
 .toggle-body-inner {
   overflow: hidden;
   min-height: 0;
+  /* The body's blocks start one handle width right of the content edge, so the drag handle of a body block, which sits directly left of that block, ends at the content edge instead of covering the toggle's gutter and chevron. */
+  padding-left: var(--spacing-md);
   transition: visibility var(--transition-fast);
 }
 

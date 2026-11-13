@@ -353,6 +353,62 @@ A `menuRenderFn` that changes identity on every render re-runs no effect, so `us
 ## `LexicalEditor.read(mode, callback)` flushes pending updates only for `'force-commit'`, reads the pending state for `'pending'`, and reads the committed state for every other mode text
 
 **Verified at:** lexical 0.52.0
-**Citation:** [implement_1: `app/node_modules/lexical/src/LexicalEditor.ts:1892-1905` — `if (mode === 'force-commit') { $commitPendingUpdates(this); }`, then `mode === 'pending' ? this._pendingEditorState || this._editorState : this.getEditorState()`], [implement_1: ran `npx vitest run` on `getDragOverTargetElement.test.ts` with `editor.read('force-commit', …)` and with `editor.read('', …)` in the helper — observed 1 test fail for `'force-commit'` and none for `''`]
+**Citation:** [implement_1: `app/node_modules/lexical/src/LexicalEditor.ts:1892-1905` — `if (mode === 'force-commit') { $commitPendingUpdates(this); }`, then `mode === 'pending' ? this._pendingEditorState || this._editorState : this.getEditorState()`], [implement_1: ran `npx vitest run src/components/TextEditor/plugins/BlockDragHandlePlugin` with `helper/collectBlockRows.ts` calling `editor.read('', …)` in place of `editor.read('latest', …)` — observed every test pass, the component test that drops a block inside a command listener included]
 
 The one-argument form `read(callback)` is `'force-commit'`, so it flushes a queued update; `'latest'` and a mode text no branch names behave the same.
+
+## `ListItemNode.exportJSON` saves a nested list as a wrapper list item holding only the sub-list, placed right after its parent item, and an item's `indent` is its nesting depth
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: ran a scratch `npx vitest run` test that built a check list with `$createListNode('check')` and three `$createListItemNode` items, called `setIndent(1)` on the third, and wrote `editor.getEditorState().toJSON()` — observed the third item as a list item of `indent` 1 inside a `list` node, that list the only child of a list item (`indent` 0, `checked` false, `value` 3) after the second item], [implement_1: ran a second scratch test that appended items a to e to a `$createListNode('bullet')` and to a `$createListNode('number')`, called `setIndent(1)` on b, `setIndent(2)` on c and `setIndent(1)` on d, and wrote the state's JSON — observed in both lists `indent` 0, 1, 2, 1, 0 for a, b, c, d, e, each nested sub-list in a wrapper after its parent, the wrapper's `indent` the depth of the list it stands in, and no `checked` on any item or wrapper]
+
+A wrapper in a check list carries `checked: false`. An item's `value` is its position among the real items of its list, and the wrapper after it holds the number the next real item takes (a is 1, its wrapper 2, e 2).
+
+## `HISTORY_PUSH_TAG` (`'history-push'`) is exported from `lexical`, and `@lexical/history` skips both of its merge branches for an update that carries it
+
+**Verified at:** lexical 0.52.0, @lexical/history 0.52.0
+**Citation:** [implement_1: `app/node_modules/lexical/dist/LexicalUpdateTags.d.ts:15-19` declares `HISTORY_PUSH_TAG = "history-push"`, and `app/node_modules/lexical/dist/index.d.ts:52` exports it], [implement_1: `app/node_modules/lexical/dist/LexicalEditor.d.ts:56` declares the `tag?: UpdateTag | UpdateTag[]` option of `editor.update`, and `app/node_modules/lexical/dist/LexicalUtils.d.ts:271-273` declares `$addUpdateTag`], [implement_1: `app/node_modules/.pnpm/@lexical+history@0.52.0_typescript@6.0.3/node_modules/@lexical/history/dist/LexicalHistory.dev.js:168-169,187-189` — `shouldPushHistory = tags.has(HISTORY_PUSH_TAG)` makes `shouldMergeHistory` false and fails the `shouldPushHistory === false` condition of the merge-within-delay branch]
+
+A structural edit that must be its own undo step carries the tag, through `editor.update(fn, { tag: HISTORY_PUSH_TAG })` or `$addUpdateTag(HISTORY_PUSH_TAG)` inside the update, and is then never merged into the typing before it.
+
+## `DraggableBlockPlugin_EXPERIMENTAL` registers `DRAGOVER_COMMAND` at low and `DROP_COMMAND` at high priority and carries its drag in the data format `application/x-lexical-drag-block`
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [implement_1: `app/node_modules/@lexical/react/dist/LexicalDraggableBlockPlugin.dev.js:209` — `DRAG_DATA_FORMAT = 'application/x-lexical-drag-block'`; `:510-514` — `editor.registerCommand(DRAGOVER_COMMAND, …, COMMAND_PRIORITY_LOW)` and `editor.registerCommand(DROP_COMMAND, …, COMMAND_PRIORITY_HIGH)`; `:430,455` — both handlers return false while `isDraggingBlockRef.current` is false]
+
+Each of the plugin's two handlers returns false while no drag that the plugin started is in progress.
+
+## A drop event dispatched in a jsdom test changes `editor.getEditorState()` only after an awaited `act`, not after a synchronous one
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: ran `npx vitest run` on `app/src/components/TextEditor/plugins/BlockDragHandlePlugin/__tests__/BlockDragHandlePlugin.test.tsx` with the drop event dispatched inside a synchronous `act(() => …)` — observed `editor.getEditorState().toJSON()` still holding the order before the drop; the same test with its `dispatchOnRoot` helper, which dispatches the event inside `act` and returns `Promise.resolve()` from it, awaited, passed]
+
+The drop event is one a command listener handles by moving a block in an update; the test reads the state only after `await dispatchOnRoot(root, event)`.
+
+## A shadow-root element with `canBeEmpty()` false stays in the tree with no children when `insertBefore` moves its last child elsewhere
+
+**Verified at:** lexical 0.52.0
+**Citation:** [implement_1: `app/node_modules/.pnpm/lexical@0.52.0_typescript@6.0.3/node_modules/lexical/dist/Lexical.dev.js:9059` — `$removeNode` removes an emptied parent only under `!$isRootOrShadowRoot(parent) && !parent.canBeEmpty() && parent.isEmpty()`], [implement_1: `app/src/components/TextEditor/nodes/ToggleBodyNode.ts` declares `isShadowRoot(): true` and `canBeEmpty(): false` for the toggle body], [implement_1: ran a scratch `npx vitest run` test that put one paragraph in a `ToggleBodyNode` inside a `ToggleNode`, called `insertBefore` with that paragraph on the first root block, and wrote `editor.getEditorState().toJSON()` — observed the `toggle` with its `toggle-body` present and `children` of length 0]
+
+The element remains attached to its parent and the move raises no error.
+
+## `ListItemNode.setIndent(indent)` raises or lowers the item's nesting one level at a time through `$handleIndent` and `$handleOutdent` until `getIndent()` equals the target, and does not clamp the target
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: `app/node_modules/@lexical/list/dist/LexicalList.dev.js:1198-1222` — `setIndent` floors the argument, throws on a negative value, then loops `while (currentIndent !== target)` calling `$handleIndent(this)` or `$handleOutdent(this)`, with a comment that the target is deliberately not clamped; `app/node_modules/@lexical/list/dist/LexicalListItemNode.d.ts:77-78` declares `getIndent()` and `setIndent(indent)`]
+
+A target deeper than the item's neighbours allow is reached one nesting level at a time, so the list gets a wrapper for each level.
+
+## The `ListNode` node transform renumbers its items' `value` and clears `checked` on the items of a list that is not a check list
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: `app/node_modules/@lexical/list/dist/LexicalList.dev.js:1436-1441` — the `$transform` of the `list` node calls `updateChildrenListItemValue(node)`; `app/node_modules/@lexical/list/dist/LexicalList.dev.js:393-409` — that function sets each item's `value` from the list's start, counting an item only when its first child is not a list, and calls `setChecked(undefined)` on an item whose list type is not `check`]
+
+A nesting wrapper takes the number the next real item takes, since only items without a list as first child advance the counter.
+
+## `remove()` on the last item of a nested list leaves its nesting wrapper in the list as a list item with no children
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: ran a scratch `npx vitest run` test that built a `ListNode` of items `a` and `b` with `a1` nested under `a`, called `a1.remove()` inside `editor.update` in an editor registering `ListNode`, `ListItemNode`, `ToggleNode` and `ToggleBodyNode`, and wrote `editor.getEditorState().toJSON()` — observed the list holding the item `a`, a `listitem` with `children` of length 0, and the item `b`]
+
+Lexical removes the emptied nested list, and nothing in that removal removes the wrapper that held it.

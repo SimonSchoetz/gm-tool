@@ -13,6 +13,7 @@ import * as encounterService from '@services/encounterService';
 import * as sessionService from '@services/sessionService';
 import * as sessionStepService from '@services/sessionStepService';
 import type { CommandContext } from '../commands';
+import { buildNestedBlocksState } from './nestedBlocksState';
 import { provideSeedContext } from './seedPlatform';
 
 // One fixture image per shape, so the seeded covers show each aspect ratio the framing dialog handles.
@@ -186,6 +187,20 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
   await baseEntityContentSectionService.createSection(noStatBlockFoeId, 'text');
 
   await createNamedBaseEntity('foes', adventureId, UNBROKEN_NAME_FOE_NAME);
+
+  const nestedBlocksFoeId = await createNamedBaseEntity(
+    'foes',
+    adventureId,
+    'Nested Blocks Foe',
+  );
+  const nestedBlocksSectionId =
+    await baseEntityContentSectionService.createSection(
+      nestedBlocksFoeId,
+      'text',
+    );
+  await baseEntityContentSectionService.updateSection(nestedBlocksSectionId, {
+    content: buildNestedBlocksState(),
+  });
 
   const encounterId = await encounterService.createEncounter(adventureId);
   await encounterService.updateEncounter(encounterId, {

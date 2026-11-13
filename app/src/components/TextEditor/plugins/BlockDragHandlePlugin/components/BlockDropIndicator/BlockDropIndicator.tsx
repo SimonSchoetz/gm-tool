@@ -3,11 +3,23 @@ import './BlockDropIndicator.css';
 import { SquareArrowRightEnterIcon } from 'lucide-react';
 
 type Props = {
-  ref: React.Ref<HTMLDivElement>;
+  top: number;
+  left: number;
 };
 
-export const BlockDropIndicator: FCProps<Props> = ({ ref }) => (
-  <div ref={ref} className='block-drop-indicator'>
-    <SquareArrowRightEnterIcon />
-  </div>
-);
+export const BlockDropIndicator: FCProps<Props> = ({ top, left }) => {
+  const positionStyle = {
+    '--block-drop-indicator-top': `${top}px`,
+    '--block-drop-indicator-left': `${left}px`,
+  } as React.CSSProperties;
+
+  return (
+    <div
+      className='block-drop-indicator'
+      aria-hidden='true'
+      style={positionStyle}
+    >
+      <SquareArrowRightEnterIcon />
+    </div>
+  );
+};

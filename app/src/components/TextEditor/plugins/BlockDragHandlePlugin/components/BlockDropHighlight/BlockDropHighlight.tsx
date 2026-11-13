@@ -2,19 +2,20 @@ import { FCProps } from '@/types/fcProps.type';
 import './BlockDropHighlight.css';
 
 type Props = {
-  top: number | null;
-  height: number | null;
+  top: number;
+  left: number;
+  height: number;
 };
 
-export const BlockDropHighlight: FCProps<Props> = ({ top, height }) => {
-  if (top === null || height === null) return null;
-
+export const BlockDropHighlight: FCProps<Props> = ({ top, left, height }) => {
   return (
     <div
       className='block-drop-highlight'
+      aria-hidden='true'
       style={
         {
           '--block-drop-highlight-top': `${top}px`,
+          '--block-drop-highlight-left': `${left}px`,
           '--block-drop-highlight-height': `${height}px`,
         } as React.CSSProperties
       }

@@ -134,6 +134,7 @@ describe('runSeed', () => {
       [
         { entity_type: 'factions', name: 'Imageless Faction' },
         { entity_type: 'factions', name: 'Seed Faction' },
+        { entity_type: 'foes', name: 'Nested Blocks Foe' },
         { entity_type: 'foes', name: 'No Stat Block Foe' },
         { entity_type: 'foes', name: 'Single Stat Block Foe' },
         { entity_type: 'foes', name: 'Two Stat Block Foe' },
@@ -167,6 +168,7 @@ describe('runSeed', () => {
       { name: 'Imageless Item', original_filename: null },
       { name: 'Imageless Location', original_filename: null },
       { name: 'Imageless PC', original_filename: null },
+      { name: 'Nested Blocks Foe', original_filename: null },
       { name: 'No Stat Block Foe', original_filename: null },
       { name: 'Seed Faction', original_filename: 'square.webp' },
       { name: 'Seed Item', original_filename: 'square.webp' },
@@ -222,6 +224,25 @@ describe('runSeed', () => {
   it('gives No Stat Block Foe one empty text section and no stat block', async () => {
     expect(await sectionsOf('No Stat Block Foe')).toEqual([
       { type: 'text', content: null },
+    ]);
+  });
+
+  it('gives Nested Blocks Foe one text section holding the nested lists, toggles, heading and paragraphs', async () => {
+    const sections = await sectionsOf('Nested Blocks Foe');
+
+    expect(sections.map(({ type }) => type)).toEqual(['text']);
+    const state = JSON.parse(String(sections[0].content)) as {
+      root: { children: { type: string }[] };
+    };
+    expect(state.root.children.map(({ type }) => type)).toEqual([
+      'list',
+      'list',
+      'list',
+      'toggle',
+      'toggle',
+      'heading',
+      'paragraph',
+      'paragraph',
     ]);
   });
 

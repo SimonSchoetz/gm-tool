@@ -1,110 +1,200 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggableBlockPlugin';
+import {
+  COMMAND_PRIORITY_HIGH,
+  COMMAND_PRIORITY_LOW,
+  DRAGOVER_COMMAND,
+  DROP_COMMAND,
+  type NodeKey,
+} from 'lexical';
 import { BlockDragHandle } from './components/BlockDragHandle/BlockDragHandle';
 import { BlockDropHighlight } from './components/BlockDropHighlight/BlockDropHighlight';
 import { BlockDropIndicator } from './components/BlockDropIndicator/BlockDropIndicator';
-import { getAnchorHeight } from './helper/getAnchorHeight';
-import { getDragOverTargetElement } from './helper/getDragOverTargetElement';
-import { isOnMenu } from './helper/isOnMenu';
+import { collectBlockRows, type BlockRow } from './helper/collectBlockRows';
+import { createMarginPush } from './helper/createMarginPush';
+import {
+  dropFeedbackPosition,
+  type DropFeedbackPosition,
+} from './helper/dropFeedbackPosition';
+import { handleBlockKeyOf } from './helper/handleBlockKeyOf';
+import { handleRowsOf } from './helper/handleRowsOf';
+import { moveBlock } from './helper/moveBlock';
+import { resolveDropTarget } from './helper/resolveDropTarget';
+import { resolveHoveredRow } from './helper/resolveHoveredRow';
+import {
+  rowBoxInAnchorSpace,
+  type AnchorBox,
+} from './helper/rowBoxInAnchorSpace';
+import { setDragImageOfRow } from './helper/setDragImageOfRow';
 import { FCProps } from '@/types/fcProps.type';
+
+// The only data type this drag puts in its drag data, so no other editor or input accepts the drop.
+const DRAG_BLOCK_FORMAT = 'application/x-gm-block-drag';
 
 type Props = {
   anchorElem: HTMLElement;
 };
 
-type DragOverRect = {
-  top: number;
-  height: number;
-};
+// One shown handle: the key of the block it moves and where it is drawn.
+type HandleBox = AnchorBox & { key: NodeKey };
 
 export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
   const [editor] = useLexicalComposerContext();
-  const menuRef = useRef<HTMLDivElement>(null);
-  const targetLineRef = useRef<HTMLDivElement>(null);
-  const [hoveredElement, setHoveredElement] = useState<HTMLElement | null>(
+  const [handleBoxes, setHandleBoxes] = useState<HandleBox[]>([]);
+  const [dropFeedback, setDropFeedback] = useState<DropFeedbackPosition | null>(
     null,
   );
-  const [dragOverRect, setDragOverRect] = useState<DragOverRect | null>(null);
-  const barHeight = hoveredElement?.getBoundingClientRect().height ?? null;
-  const anchorHeight = getAnchorHeight(hoveredElement);
 
-  // Pushes the drop target away from the node below it to read as the document making room — a direct inline-style write on a Lexical-managed node, safe because Lexical's reconciler skips a node's DOM entirely when it isn't dirty (Lexical.dev.mjs:3414), so this survives as long as nobody edits this exact block mid-drag. Bottom margin only: DraggableBlockPlugin_EXPERIMENTAL's own $onDrop calls insertBefore only when the cursor is above the very first top-level node in the document — getBlockElement's hit-test otherwise only ever returns a block whose own top is at or above the cursor, so pageY >= targetBlockElemTop is true in every other case and insertAfter always wins. currentTarget is a plain closure variable scoped to this effect (not React state), so react-hooks/immutability has nothing to flag when its .style is mutated.
+  // The effect owns the drag state that is not rendered — the hovered row, the rows whose handles show and the dragged block's key — as closure variables, so the handlers share them without a render in between.
   useEffect(() => {
-    let currentTarget: HTMLElement | null = null;
+    let hoveredRow: BlockRow | null = null;
+    let handleRows: BlockRow[] = [];
+    let draggedKey: NodeKey | null = null;
+    const marginPush = createMarginPush();
 
-    const applyMargin = (element: HTMLElement) => {
-      element.style.marginBottom = 'var(--spacing-xl)';
-    };
-    const clearMargin = (element: HTMLElement) => {
-      element.style.marginBottom = '';
+    const clearDrag = () => {
+      draggedKey = null;
+      marginPush.clear();
+      setDropFeedback(null);
     };
 
-    const handleDragOver = (event: DragEvent) => {
-      const target = getDragOverTargetElement(
-        editor,
-        anchorElem,
+    const handleMouseMove = (event: MouseEvent) => {
+      if (draggedKey !== null) return;
+      // A parent's handle is as tall as its whole section, so the pointer on it is beside sub-items' rows and must keep the hovered row.
+      if (handleBlockKeyOf(event.target) !== null) return;
+      const rows = collectBlockRows(editor);
+      const row = resolveHoveredRow(rows, event.clientY);
+      if (row?.key === hoveredRow?.key) return;
+      hoveredRow = row;
+      handleRows = row === null ? [] : handleRowsOf(rows, row);
+      const anchorRect = anchorElem.getBoundingClientRect();
+      setHandleBoxes(
+        handleRows.map((handleRow) => ({
+          key: handleRow.key,
+          ...rowBoxInAnchorSpace(anchorRect, handleRow),
+        })),
+      );
+    };
+
+    const handleMouseLeave = () => {
+      if (draggedKey !== null) return;
+      hoveredRow = null;
+      handleRows = [];
+      setHandleBoxes([]);
+    };
+
+    const handleDragStart = (event: DragEvent) => {
+      const { dataTransfer } = event;
+      const grabbedKey = handleBlockKeyOf(event.target);
+      const grabbedRow =
+        handleRows.find((row) => row.key === grabbedKey) ?? null;
+      if (grabbedRow === null || dataTransfer === null) return;
+      const { element, key } = grabbedRow;
+      dataTransfer.setData(DRAG_BLOCK_FORMAT, key);
+      dataTransfer.effectAllowed = 'move';
+      setDragImageOfRow(dataTransfer, element);
+      draggedKey = key;
+    };
+
+    const handleDragEnd = () => {
+      clearDrag();
+      editor.focus();
+    };
+
+    const handleDragOver = (event: DragEvent): boolean => {
+      if (draggedKey === null) return false;
+      const target = resolveDropTarget(
+        collectBlockRows(editor),
+        draggedKey,
         event.clientX,
         event.clientY,
       );
-      if (currentTarget !== target) {
-        if (currentTarget) clearMargin(currentTarget);
-        if (target) applyMargin(target);
-        currentTarget = target;
+      if (target === null) {
+        // No position here, as over the dragged block's own sub-items: nothing is marked and a release does nothing.
+        marginPush.clear();
+        setDropFeedback(null);
+        return false;
       }
-      // Re-measured on every dragover, not gated behind the target reference changing — the target's own position keeps shifting while its neighbors' margin transitions settle, and a new object here (unlike reusing the same element reference in state) always triggers a re-render, so the highlight keeps tracking instead of freezing at a mid-transition snapshot.
-      setDragOverRect(
-        target
-          ? {
-              top:
-                target.getBoundingClientRect().top -
-                anchorElem.getBoundingClientRect().top,
-              height: target.getBoundingClientRect().height,
-            }
-          : null,
+      // Lets the browser fire the drop event here.
+      event.preventDefault();
+      marginPush.push(target);
+      // A new object on every dragover, so the highlight keeps tracking the row while the margin transition moves it.
+      setDropFeedback(
+        dropFeedbackPosition(anchorElem.getBoundingClientRect(), target),
       );
-    };
-    const clearDragOverTarget = () => {
-      if (currentTarget) {
-        clearMargin(currentTarget);
-        currentTarget = null;
-      }
-      setDragOverRect(null);
+      return true;
     };
 
-    anchorElem.addEventListener('dragover', handleDragOver);
-    anchorElem.addEventListener('dragend', clearDragOverTarget);
-    anchorElem.addEventListener('drop', clearDragOverTarget);
+    const handleDrop = (event: DragEvent): boolean => {
+      const droppedKey = draggedKey;
+      if (droppedKey === null) return false;
+      event.preventDefault();
+      const target = resolveDropTarget(
+        collectBlockRows(editor),
+        droppedKey,
+        event.clientX,
+        event.clientY,
+      );
+      clearDrag();
+      if (target !== null) {
+        moveBlock(droppedKey, target.besideKey, target.placement, target.depth);
+      }
+      hoveredRow = null;
+      handleRows = [];
+      setHandleBoxes([]);
+      return true;
+    };
+
+    anchorElem.addEventListener('mousemove', handleMouseMove);
+    anchorElem.addEventListener('mouseleave', handleMouseLeave);
+    anchorElem.addEventListener('dragstart', handleDragStart);
+    anchorElem.addEventListener('dragend', handleDragEnd);
+    const unregisterDragOver = editor.registerCommand(
+      DRAGOVER_COMMAND,
+      handleDragOver,
+      COMMAND_PRIORITY_LOW,
+    );
+    const unregisterDrop = editor.registerCommand(
+      DROP_COMMAND,
+      handleDrop,
+      COMMAND_PRIORITY_HIGH,
+    );
 
     return () => {
-      anchorElem.removeEventListener('dragover', handleDragOver);
-      anchorElem.removeEventListener('dragend', clearDragOverTarget);
-      anchorElem.removeEventListener('drop', clearDragOverTarget);
-      if (currentTarget) clearMargin(currentTarget);
+      anchorElem.removeEventListener('mousemove', handleMouseMove);
+      anchorElem.removeEventListener('mouseleave', handleMouseLeave);
+      anchorElem.removeEventListener('dragstart', handleDragStart);
+      anchorElem.removeEventListener('dragend', handleDragEnd);
+      unregisterDragOver();
+      unregisterDrop();
+      marginPush.clear();
     };
   }, [editor, anchorElem]);
 
   return (
     <>
-      <DraggableBlockPlugin_EXPERIMENTAL
-        anchorElem={anchorElem}
-        menuRef={menuRef}
-        targetLineRef={targetLineRef}
-        menuComponent={
-          <BlockDragHandle
-            ref={menuRef}
-            barHeight={barHeight}
-            anchorHeight={anchorHeight}
+      {handleBoxes.map((box) => (
+        <BlockDragHandle
+          key={box.key}
+          blockKey={box.key}
+          top={box.top}
+          blockLeft={box.left}
+          height={box.unitHeight}
+        />
+      ))}
+      {dropFeedback && (
+        <>
+          <BlockDropIndicator
+            top={dropFeedback.lineTop}
+            left={dropFeedback.lineLeft}
           />
-        }
-        targetLineComponent={<BlockDropIndicator ref={targetLineRef} />}
-        isOnMenu={isOnMenu}
-        onElementChanged={setHoveredElement}
-      />
-      <BlockDropHighlight
-        top={dragOverRect?.top ?? null}
-        height={dragOverRect?.height ?? null}
-      />
+          <BlockDropHighlight
+            top={dropFeedback.highlightTop}
+            left={dropFeedback.highlightLeft}
+            height={dropFeedback.highlightHeight}
+          />
+        </>
+      )}
     </>
   );
 };

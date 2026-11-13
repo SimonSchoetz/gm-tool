@@ -558,13 +558,67 @@
     "reason": "stays: the text is stored editor content parsed from JSON, so its shape may not match the declared type at run time"
   },
   {
-    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/getDragOverTargetElement.ts",
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/collectBlockRows.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "if (!$isListItemNode(item)) return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the children of a list are always list items, so the guard never meets another node"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/collectBlockRows.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!$isListItemNode(item)) return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the children of a list are always list items, so the guard never meets another node"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/collectBlockRows.ts",
+    "mutator": "ArrayDeclaration",
+    "replacement": "[\"Stryker was here\"]",
+    "lineText": "if (element === null) return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "every item of a list whose element is rendered has an element of its own"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/collectBlockRows.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (element === null) return [];",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "every item of a list whose element is rendered has an element of its own"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/collectBlockRows.ts",
     "mutator": "StringLiteral",
     "replacement": "\"\"",
-    "lineText": "return editor.read('latest', () => {",
+    "lineText": "editor.read('latest', () => rowsOf(editor, $getRoot(), []));",
     "occurrence": 0,
     "lines": 1,
     "reason": "editor.read treats any mode text other than 'force-commit' and 'pending' as 'latest' (.claude/knowledge/lexical.md)"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/resolveDropTarget.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "row.list.depth === 0 &&",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the position after the list of a deeper row is dominated by the position after its parent item, which the same gap offers first at the same threshold, so the pointer never chooses it"
+  },
+  {
+    "file": "src/components/TextEditor/plugins/BlockDragHandlePlugin/helper/resolveDropTarget.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "clientY <= first.top",
+    "lineText": "(first !== null && clientY < first.top ? first : last);",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "resolveHoveredRow resolves a pointer exactly at the first row's top to that row, so this branch never sees a pointer equal to first.top and `<` and `<=` choose the same row"
   },
   {
     "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/resolveHeaderToggleForRemoval.ts",
