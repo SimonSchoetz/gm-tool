@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   isProductionSource,
   lineRangesFor,
+  scopeOfRequestedFiles,
   selectFiles,
   testFileCandidates,
 } from '../mutation-check-selection.ts';
@@ -102,13 +103,93 @@ describe('selectFiles', () => {
     ).toEqual(['util/a.ts']);
   });
 
-  it('returns a requested file that is no candidate as unknown', () => {
+  it('leaves a requested file that is no candidate out of the selection', () => {
     const result = selectFiles({
       ...lists(false),
       requestedFiles: ['util/a.ts', 'util/c.ts', 'src/types/x.d.ts'],
     });
-    expect(result.unknown).toEqual(['util/c.ts', 'src/types/x.d.ts']);
     expect(result.selected).toEqual(['util/a.ts']);
+  });
+});
+
+describe('scopeOfRequestedFiles', () => {
+  const existing = new Set([
+    'util/a.ts',
+    'util/untested.ts',
+    'util/unchanged.ts',
+    'src/components/Button.tsx',
+  ]);
+  const scopeOf = (requestedFiles: string[], all = false) =>
+    scopeOfRequestedFiles({
+      all,
+      baseBranch: 'main',
+      candidates: ['util/a.ts', 'util/untested.ts'],
+      requestedFiles,
+      exists: (file) => existing.has(file),
+      hasOwnTestFile: (file) => file !== 'util/untested.ts',
+    });
+
+  it('mutates a candidate with its own test file', () => {
+    expect(scopeOf(['util/a.ts'])).toEqual([
+      { file: 'util/a.ts', status: 'mutated', reason: null },
+    ]);
+  });
+
+  it('skips a candidate without its own test file and names the test paths it looked for', () => {
+    expect(scopeOf(['util/untested.ts'])).toEqual([
+      {
+        file: 'util/untested.ts',
+        status: 'untested',
+        reason:
+          'no own test file (util/__tests__/untested.test.ts or util/__tests__/untested.test.tsx)',
+      },
+    ]);
+  });
+
+  it('puts a missing file out of scope before asking anything else of it', () => {
+    expect(scopeOf(['util/gone.ts'])).toEqual([
+      {
+        file: 'util/gone.ts',
+        status: 'outOfScope',
+        reason: 'no such file under app/',
+      },
+    ]);
+  });
+
+  it('puts an existing file that is no production source out of scope and names which files are', () => {
+    expect(scopeOf(['src/components/Button.tsx'])).toEqual([
+      {
+        file: 'src/components/Button.tsx',
+        status: 'outOfScope',
+        reason:
+          'not a production source: only the .ts files under src/, services/, domain/, db/, platform/, util/ are mutated, no .tsx, declaration, test or generated file',
+      },
+    ]);
+  });
+
+  it('puts an unchanged production source out of scope, pointing to --all, and an untracked one under all', () => {
+    expect(scopeOf(['util/unchanged.ts'])).toEqual([
+      {
+        file: 'util/unchanged.ts',
+        status: 'outOfScope',
+        reason: 'not changed against main; --all mutates it as a whole',
+      },
+    ]);
+    expect(scopeOf(['util/unchanged.ts'], true)[0].reason).toBe(
+      'not tracked by git',
+    );
+  });
+
+  it('answers for every given file in the order given', () => {
+    expect(
+      scopeOf(['util/gone.ts', 'util/a.ts', 'util/untested.ts']).map(
+        ({ file, status }) => [file, status],
+      ),
+    ).toEqual([
+      ['util/gone.ts', 'outOfScope'],
+      ['util/a.ts', 'mutated'],
+      ['util/untested.ts', 'untested'],
+    ]);
   });
 });
 

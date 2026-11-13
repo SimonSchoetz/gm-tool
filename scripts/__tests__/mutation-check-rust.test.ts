@@ -607,6 +607,34 @@ describe('mutation-check-rust parsing and wording', () => {
     ]);
   });
 
+  it('sorts file names by code unit, so save_image.rs stays before save_image_bytes.rs as the committed ledger has them', () => {
+    const text = serializeRustLedger([
+      entry({ file: 'src/commands/images/save_image_bytes.rs' }),
+      entry({ file: 'src/commands/images/save_image.rs' }),
+    ]);
+
+    expect(
+      (JSON.parse(text) as RustLedgerEntry[]).map(({ file }) => file),
+    ).toEqual([
+      'src/commands/images/save_image.rs',
+      'src/commands/images/save_image_bytes.rs',
+    ]);
+  });
+
+  it('writes the committed Rust ledgers back unchanged', () => {
+    for (const ledger of [
+      'mutation-accepted-rust.json',
+      'mutation-hangs-rust.json',
+    ]) {
+      const text = readFileSync(
+        path.join(import.meta.dirname, '..', ledger),
+        'utf8',
+      );
+
+      expect(serializeRustLedger(parseRustLedger(text))).toBe(text);
+    }
+  });
+
   it('leaves a caught mutant with no entry out of the unmatched ones', () => {
     const result = matchRustMutants({
       status: 'missed',
@@ -639,7 +667,7 @@ describe('mutation-check-rust parsing and wording', () => {
     });
 
     expect(failures).toEqual([
-      '2 Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  app/src-tauri/src/lib.rs:12:3  replace run with ()\n  app/src-tauri/src/lib.rs:14:3  replace run with () (occurrence 2)',
+      '2 Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>", or with --accept-from <file> for a reason per mutant:\n  app/src-tauri/src/lib.rs:12:3  replace run with ()\n  app/src-tauri/src/lib.rs:14:3  replace run with () (occurrence 2)',
       '2 entr(y/ies) in scripts/mutation-accepted-rust.json accept a mutant that no longer survives; a test now kills it or the code changed, so remove each:\n  app/src-tauri/src/lib.rs  replace run with () (occurrence 1)\n  app/src-tauri/src/lib.rs  replace old with ()',
       '2 entr(y/ies) in scripts/mutation-accepted-rust.json name a mutant that no longer exists; remove each, and re-run with --accept "<reason>" if the code still has the mutant under another change:\n  app/src-tauri/src/lib.rs  replace removed with ()\n  app/src-tauri/src/other.rs  replace gone with ()',
     ]);
@@ -825,7 +853,7 @@ describe('runRustMutation with a stand-in cargo', () => {
     expect(result.failures).toEqual([
       'cargo-mutants is not installed, and the mutation check of app/src-tauri/src/ needs it; install it with `cargo install --locked cargo-mutants`.',
     ]);
-    expect(result.newEntries).toEqual([]);
+    expect(result.accepted.entries).toEqual([]);
     expect(log()).toEqual(['ROOT|mutants --version']);
   });
 
@@ -853,7 +881,7 @@ describe('runRustMutation with a stand-in cargo', () => {
     expect(missed.failures[0]).toContain(
       'src/lib.rs:10:5  replace run with ()',
     );
-    expect(missed.newEntries).toEqual([]);
+    expect(missed.accepted.entries).toEqual([]);
 
     const accepted = run({
       ledger: [
@@ -874,7 +902,7 @@ describe('runRustMutation with a stand-in cargo', () => {
     const result = run({ acceptReason: 'no test starts run' });
 
     expect(result.failures).toEqual([]);
-    expect(result.newEntries).toEqual([
+    expect(result.accepted.entries).toEqual([
       {
         file: 'src/lib.rs',
         mutant: 'replace run with ()',
@@ -941,8 +969,8 @@ describe('runRustMutation with a stand-in cargo', () => {
       acceptReason: 'no test starts run',
       hangReason: 'stop loops forever',
     });
-    expect(result.newEntries).toEqual([]);
-    expect(result.newHangEntries).toEqual([]);
+    expect(result.accepted.entries).toEqual([]);
+    expect(result.hangs.entries).toEqual([]);
   });
 
   it('passes a clean run that left no outcomes file', () => {
@@ -987,10 +1015,68 @@ describe('runRustMutation with a stand-in cargo', () => {
 
     const result = run({ hangReason: 'stop never returns' });
 
-    expect(result.newHangEntries).toEqual([hangEntry]);
-    expect(result.newEntries).toEqual([]);
+    expect(result.hangs.entries).toEqual([hangEntry]);
+    expect(result.accepted.entries).toEqual([]);
     expect(result.failures).toHaveLength(1);
     expect(result.failures[0]).toMatch(/were missed/);
+  });
+
+  it('takes the reason of each missed and timed-out mutant from a file of reasons under its printed line, its whitespace normalized', () => {
+    missedAndTimedOut();
+
+    const result = run({
+      acceptReason: new Map([
+        [`app/src-tauri/src/lib.rs:10:5 ${RUN}`, 'no test starts run'],
+      ]),
+      hangReason: new Map([
+        [`app/src-tauri/src/lib.rs:20:3 ${STOP}`, 'stop never returns'],
+      ]),
+    });
+
+    expect(result.failures).toEqual([]);
+    expect(result.accepted).toEqual({
+      entries: [entry({ reason: 'no test starts run' })],
+      missing: [],
+      used: new Set([`app/src-tauri/src/lib.rs:10:5 ${RUN}`]),
+    });
+    expect(result.hangs).toEqual({
+      entries: [hangEntry],
+      missing: [],
+      used: new Set([`app/src-tauri/src/lib.rs:20:3 ${STOP}`]),
+    });
+  });
+
+  it('returns a mutant a file of reasons has no reason for as missing, writes no entry for it and leaves failing it to the caller', () => {
+    missedAndTimedOut();
+
+    const result = run({
+      acceptReason: new Map([['app/src-tauri/src/other.rs:1:1 x', 'r']]),
+      hangReason: new Map(),
+    });
+
+    expect(result.failures).toEqual([]);
+    expect(result.accepted).toEqual({
+      entries: [],
+      missing: [`app/src-tauri/src/lib.rs:10:5  ${RUN}`],
+      used: new Set(),
+    });
+    expect(result.hangs.missing).toEqual([
+      `app/src-tauri/src/lib.rs:20:3  ${STOP}`,
+    ]);
+  });
+
+  it('uses no key of a file of reasons for a run that ended with another exit status than 0, 2 and 3', () => {
+    withOutcomes(outcomesJson([RUN, 'MissedMutant']), 4);
+
+    const result = run({
+      acceptReason: new Map([[`app/src-tauri/src/lib.rs:10:5 ${RUN}`, 'r']]),
+    });
+
+    expect(result.accepted).toEqual({
+      entries: [],
+      missing: [],
+      used: new Set(),
+    });
   });
 
   it('reports a hang entry as stale when its mutant was caught on a re-run', () => {
@@ -1112,8 +1198,8 @@ describe('rustFailures for timed-out mutants', () => {
     });
 
     expect(failures).toEqual([
-      '1 Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  app/src-tauri/src/lib.rs:12:5  replace run with ()',
-      '1 Rust mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n>, which cargo-mutants receives as its test timeout (`--timeout`, in seconds) in place of the one it derives from the baseline test run, and resolve it by that result:\n  app/src-tauri/src/lib.rs:20:9  replace < with <=',
+      '1 Rust mutant(s) were missed; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>", or with --accept-from <file> for a reason per mutant:\n  app/src-tauri/src/lib.rs:12:5  replace run with ()',
+      '1 Rust mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>", or with --accept-hang-from <file> for a reason per mutant; re-run any other with a longer limit, --timeout-ms <n>, which cargo-mutants receives as its test timeout (`--timeout`, in seconds) in place of the one it derives from the baseline test run, and resolve it by that result:\n  app/src-tauri/src/lib.rs:20:9  replace < with <=',
       '1 entr(y/ies) in scripts/mutation-hangs-rust.json record a hang whose mutant no longer times out; a test now kills it or the code changed, so remove each:\n  app/src-tauri/src/lib.rs  replace old with ()',
       '1 entr(y/ies) in scripts/mutation-hangs-rust.json name a mutant that no longer exists; remove each, and re-run with --accept-hang "<reason>" if the code still has the mutant under another change:\n  app/src-tauri/src/lib.rs  replace removed with () (occurrence 1)',
     ]);
