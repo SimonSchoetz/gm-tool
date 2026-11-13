@@ -11,6 +11,7 @@ export const BlockDropHighlight: FCProps<Props> = ({ top, left, height }) => {
   return (
     <div
       className='block-drop-highlight'
+      aria-hidden='true'
       style={
         {
           '--block-drop-highlight-top': `${top}px`,

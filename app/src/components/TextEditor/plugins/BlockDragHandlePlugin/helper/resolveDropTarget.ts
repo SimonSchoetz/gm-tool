@@ -3,7 +3,7 @@ import type { BlockRow, DropPlacement, ListRowInfo } from './collectBlockRows';
 import { resolveHoveredRow } from './resolveHoveredRow';
 
 export type DropTarget = {
-  // The row under the pointer, which the drop highlight marks.
+  // The row under the pointer, or the first or last row for a pointer above or below all rows, which the drop highlight marks.
   row: BlockRow;
   // The node the move is placed beside, which is not `row` for a drop on the lower half of a row with rows inside it, a pointer leaving a container, and a position before or after a whole list.
   besideKey: NodeKey;

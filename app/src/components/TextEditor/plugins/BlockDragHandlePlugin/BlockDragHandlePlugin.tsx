@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   COMMAND_PRIORITY_HIGH,
@@ -12,48 +12,33 @@ import { BlockDropHighlight } from './components/BlockDropHighlight/BlockDropHig
 import { BlockDropIndicator } from './components/BlockDropIndicator/BlockDropIndicator';
 import { collectBlockRows, type BlockRow } from './helper/collectBlockRows';
 import { createMarginPush } from './helper/createMarginPush';
+import {
+  dropFeedbackPosition,
+  type DropFeedbackPosition,
+} from './helper/dropFeedbackPosition';
 import { moveBlock } from './helper/moveBlock';
 import { resolveDropTarget } from './helper/resolveDropTarget';
 import { resolveHoveredRow } from './helper/resolveHoveredRow';
+import {
+  rowBoxInAnchorSpace,
+  type AnchorBox,
+} from './helper/rowBoxInAnchorSpace';
+import { setDragImageOfRow } from './helper/setDragImageOfRow';
 import { FCProps } from '@/types/fcProps.type';
 
-// The only data type this drag puts on the clipboard, so no other editor or input accepts the drop.
+// The only data type this drag puts in its drag data, so no other editor or input accepts the drop.
 const DRAG_BLOCK_FORMAT = 'application/x-gm-block-drag';
 
 type Props = {
   anchorElem: HTMLElement;
 };
 
-// Positions are relative to the anchor element, which is the editor container the handle, the drop line and the highlight are absolutely positioned in.
-type HoveredBlock = {
-  top: number;
-  left: number;
-  height: number;
-};
-
-type DropFeedbackPosition = {
-  lineTop: number;
-  lineLeft: number;
-  highlightTop: number;
-  highlightLeft: number;
-  highlightHeight: number;
-};
-
 export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
   const [editor] = useLexicalComposerContext();
   const handleRef = useRef<HTMLDivElement>(null);
-  const [hoveredBlock, setHoveredBlock] = useState<HoveredBlock | null>(null);
+  const [hoveredBlock, setHoveredBlock] = useState<AnchorBox | null>(null);
   const [dropFeedback, setDropFeedback] = useState<DropFeedbackPosition | null>(
     null,
-  );
-
-  // Read as a dependency of the effect below, which would otherwise re-register every listener on each render.
-  const toAnchorSpace = useCallback(
-    (clientX: number, clientY: number) => ({
-      x: clientX - anchorElem.getBoundingClientRect().left,
-      y: clientY - anchorElem.getBoundingClientRect().top,
-    }),
-    [anchorElem],
   );
 
   // The effect owns the drag state that is not rendered — the hovered row and the dragged block's key — as closure variables, so the handlers share them without a render in between.
@@ -77,12 +62,9 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
         setHoveredBlock(null);
         return;
       }
-      const { x, y } = toAnchorSpace(row.markerLeft, row.top);
-      setHoveredBlock({
-        top: y,
-        left: x,
-        height: row.bottom - row.top,
-      });
+      setHoveredBlock(
+        rowBoxInAnchorSpace(anchorElem.getBoundingClientRect(), row),
+      );
     };
 
     const handleMouseLeave = () => {
@@ -100,13 +82,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       const { element, key } = hoveredRow;
       dataTransfer.setData(DRAG_BLOCK_FORMAT, key);
       dataTransfer.effectAllowed = 'move';
-      // Forces the element onto its own compositing layer while the browser captures it as the drag image, which keeps the borders the browser would otherwise paint around the image off it.
-      const previousTransform = element.style.transform;
-      element.style.transform = 'translateZ(0)';
-      dataTransfer.setDragImage(element, 0, 0);
-      setTimeout(() => {
-        element.style.transform = previousTransform;
-      });
+      setDragImageOfRow(dataTransfer, element);
       draggedKey = key;
     };
 
@@ -132,16 +108,10 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       // Lets the browser fire the drop event here.
       event.preventDefault();
       marginPush.push(target);
-      const line = toAnchorSpace(target.lineLeft, target.lineTop);
-      const highlight = toAnchorSpace(target.row.markerLeft, target.row.top);
       // A new object on every dragover, so the highlight keeps tracking the row while the margin transition moves it.
-      setDropFeedback({
-        lineTop: line.y,
-        lineLeft: line.x,
-        highlightTop: highlight.y,
-        highlightLeft: highlight.x,
-        highlightHeight: target.row.bottom - target.row.top,
-      });
+      setDropFeedback(
+        dropFeedbackPosition(anchorElem.getBoundingClientRect(), target),
+      );
       return true;
     };
 
@@ -188,7 +158,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       unregisterDrop();
       marginPush.clear();
     };
-  }, [editor, anchorElem, toAnchorSpace]);
+  }, [editor, anchorElem]);
 
   return (
     <>

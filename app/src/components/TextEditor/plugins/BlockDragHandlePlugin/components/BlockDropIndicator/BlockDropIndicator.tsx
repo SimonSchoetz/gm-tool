@@ -14,7 +14,11 @@ export const BlockDropIndicator: FCProps<Props> = ({ top, left }) => {
   } as React.CSSProperties;
 
   return (
-    <div className='block-drop-indicator' style={positionStyle}>
+    <div
+      className='block-drop-indicator'
+      aria-hidden='true'
+      style={positionStyle}
+    >
       <SquareArrowRightEnterIcon />
     </div>
   );
