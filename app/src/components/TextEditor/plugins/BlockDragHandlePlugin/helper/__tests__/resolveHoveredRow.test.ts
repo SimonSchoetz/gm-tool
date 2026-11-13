@@ -1,45 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { BlockRow } from '../collectBlockRows';
 import { resolveHoveredRow } from '../resolveHoveredRow';
+import { makeRow } from './support/blockRows';
 
 // Three rows with a 4-unit gap between each pair; the gap between the first two has its middle at 22.
-const rows: BlockRow[] = [
-  {
-    key: 'a',
-    element: document.createElement('div'),
-    top: 0,
-    bottom: 20,
-    unitBottom: 20,
-    left: 16,
-    ancestry: [],
-    hasHandle: true,
-    marginTop: 0,
-    marginBottom: 4,
-  },
-  {
-    key: 'b',
-    element: document.createElement('div'),
-    top: 24,
-    bottom: 44,
-    unitBottom: 44,
-    left: 16,
-    ancestry: [],
-    hasHandle: true,
-    marginTop: 0,
-    marginBottom: 4,
-  },
-  {
-    key: 'c',
-    element: document.createElement('div'),
-    top: 48,
-    bottom: 68,
-    unitBottom: 68,
-    left: 16,
-    ancestry: [],
-    hasHandle: true,
-    marginTop: 0,
-    marginBottom: 4,
-  },
+const rows = [
+  makeRow('a', { top: 0, bottom: 20 }),
+  makeRow('b', { top: 24, bottom: 44 }),
+  makeRow('c', { top: 48, bottom: 68 }),
 ];
 
 describe('resolveHoveredRow', () => {

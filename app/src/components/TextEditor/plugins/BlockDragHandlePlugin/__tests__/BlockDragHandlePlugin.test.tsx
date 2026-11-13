@@ -8,24 +8,24 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import {
-  $createParagraphNode,
-  $createTextNode,
   $getRoot,
   UNDO_COMMAND,
   type LexicalEditor,
   type LexicalNode,
 } from 'lexical';
+import { $isToggleNode, ToggleNode } from '../../../nodes/ToggleNode';
 import {
-  $createToggleNode,
-  $isToggleNode,
-  ToggleNode,
-} from '../../../nodes/ToggleNode';
-import {
-  $createToggleBodyNode,
   $isToggleBodyNode,
   ToggleBodyNode,
 } from '../../../nodes/ToggleBodyNode';
+import { $isListNode, ListItemNode, ListNode } from '@lexical/list';
 import { BlockDragHandlePlugin } from '../BlockDragHandlePlugin';
+import {
+  list,
+  outlineOf,
+  paragraph,
+  toggle,
+} from '../helper/__tests__/support/editorFixtures';
 
 type EditorHandleProps = { onEditor: (editor: LexicalEditor) => void };
 
@@ -46,7 +46,7 @@ const Harness = ({ onEditor }: HarnessProps) => {
     <LexicalComposer
       initialConfig={{
         namespace: 'block-drag-handle-test',
-        nodes: [ToggleNode, ToggleBodyNode],
+        nodes: [ToggleNode, ToggleBodyNode, ListNode, ListItemNode],
         onError: (error: Error) => {
           throw error;
         },
@@ -80,9 +80,6 @@ const stubRect = (
   element.getBoundingClientRect = () =>
     ({ ...rect, height: rect.bottom - rect.top }) as DOMRect;
 };
-
-const paragraph = (text: string) =>
-  $createParagraphNode().append($createTextNode(text));
 
 const mountDocument = (blocks: () => LexicalNode[]) => {
   let mountedEditor: LexicalEditor | null = null;
@@ -129,50 +126,30 @@ const mount = (texts: string[]) => {
 const mountNested = () => {
   const mounted = mountDocument(() => [
     paragraph('a'),
-    $createToggleNode().append(
-      paragraph('T'),
-      $createToggleBodyNode().append(paragraph('x'), paragraph('y')),
-    ),
+    toggle('T', [paragraph('x'), paragraph('y')]),
     paragraph('c'),
   ]);
   const { editor } = mounted;
   const keys = editor.read('latest', () => {
-    const [a, toggle, c] = $getRoot().getChildren();
-    if (!$isToggleNode(toggle)) throw new Error('the toggle is missing');
-    const header = toggle.getFirstChildOrThrow();
-    const body = toggle.getLastChildOrThrow();
+    const [a, toggleNode, c] = $getRoot().getChildren();
+    if (!$isToggleNode(toggleNode)) throw new Error('the toggle is missing');
+    const header = toggleNode.getFirstChildOrThrow();
+    const body = toggleNode.getLastChildOrThrow();
     if (!$isToggleBodyNode(body)) throw new Error('the body is missing');
     const [x, y] = body.getChildren();
-    return [a, toggle, header, x, y, c].map((node) => node.getKey());
+    return [a, toggleNode, header, x, y, c].map((node) => node.getKey());
   });
-  const [a, toggle, header, x, y, c] = keys.map((key) =>
+  const [a, toggleElement, header, x, y, c] = keys.map((key) =>
     editor.getElementByKey(key),
   );
   stubRect(a, { top: 0, bottom: 20, left: ROOT_LEFT });
-  stubRect(toggle, { top: 24, bottom: 100, left: ROOT_LEFT });
+  stubRect(toggleElement, { top: 24, bottom: 100, left: ROOT_LEFT });
   stubRect(header, { top: 24, bottom: 44, left: 48 });
   stubRect(x, { top: 48, bottom: 68, left: 48 });
   stubRect(y, { top: 70, bottom: 90, left: 48 });
   stubRect(c, { top: 104, bottom: 124, left: ROOT_LEFT });
   return mounted;
 };
-
-type SavedNode = { type: string; text?: string; children?: SavedNode[] };
-
-const outlineOfSaved = (block: SavedNode): string => {
-  const children = block.children ?? [];
-  if (block.type !== 'toggle') {
-    return children.map(({ text }) => text ?? '').join('');
-  }
-  const [header, body] = children;
-  return `${outlineOfSaved(header)}[${(body.children ?? []).map(outlineOfSaved).join(',')}]`;
-};
-
-// The saved document: each top-level block by its text, a toggle as `header[body, ...]`.
-const savedOrder = (editor: LexicalEditor): string[] =>
-  (editor.getEditorState().toJSON().root.children as SavedNode[]).map(
-    outlineOfSaved,
-  );
 
 // jsdom has no DragEvent, which Lexical's own drop handler checks for when ours leaves a drop alone, so the global is a mouse event, the pointer position being what the handlers read.
 class TestDragEvent extends MouseEvent {
@@ -225,6 +202,27 @@ const startDragOfBlockAt = (anchor: Element, clientY: number) => {
   return handle;
 };
 
+// A paragraph "p" at 0 to 20, then a bullet list of "a" at 24 to 44 and "b" at 48 to 68, the list's items' text starting at 40.
+const mountList = () => {
+  const mounted = mountDocument(() => [
+    paragraph('p'),
+    list('bullet', [{ text: 'a' }, { text: 'b' }]),
+  ]);
+  const { editor } = mounted;
+  const [p, listElement, a, b] = editor
+    .read('latest', () => {
+      const [pNode, listNode] = $getRoot().getChildren();
+      if (!$isListNode(listNode)) throw new Error('the list is missing');
+      return [pNode, listNode, ...listNode.getChildren()];
+    })
+    .map((node) => editor.getElementByKey(node.getKey()));
+  stubRect(p, { top: 0, bottom: 20, left: ROOT_LEFT });
+  stubRect(listElement, { top: 24, bottom: 68, left: ROOT_LEFT });
+  stubRect(a, { top: 24, bottom: 44, left: 40 });
+  stubRect(b, { top: 48, bottom: 68, left: 40 });
+  return mounted;
+};
+
 describe('BlockDragHandlePlugin', () => {
   it('leaves the saved document unchanged after a cancelled drag, and a later drop moves nothing', async () => {
     const { editor, anchor, root } = mount(['a', 'b', 'c']);
@@ -237,7 +235,7 @@ describe('BlockDragHandlePlugin', () => {
     fireEvent.dragEnd(handle);
     await dispatchOnRoot(root, dragEvent('drop', rowTop(2) + ROW_HEIGHT + 10));
 
-    expect(savedOrder(editor)).toEqual(['a', 'b', 'c']);
+    expect(outlineOf(editor)).toEqual(['a', 'b', 'c']);
   });
 
   it('leaves the saved document unchanged for a drop on the block’s own position', async () => {
@@ -246,7 +244,7 @@ describe('BlockDragHandlePlugin', () => {
 
     await dispatchOnRoot(root, dragEvent('drop', rowTop(1) + 1));
 
-    expect(savedOrder(editor)).toEqual(['a', 'b', 'c']);
+    expect(outlineOf(editor)).toEqual(['a', 'b', 'c']);
   });
 
   it('puts the dragged block where it is dropped, and one undo restores the order before the drag', async () => {
@@ -256,10 +254,10 @@ describe('BlockDragHandlePlugin', () => {
     await dispatchOnRoot(root, dragEvent('dragover', belowLastBlock));
 
     await dispatchOnRoot(root, dragEvent('drop', belowLastBlock));
-    expect(savedOrder(editor)).toEqual(['b', 'c', 'a']);
+    expect(outlineOf(editor)).toEqual(['b', 'c', 'a']);
 
     await undo(editor);
-    expect(savedOrder(editor)).toEqual(['a', 'b', 'c']);
+    expect(outlineOf(editor)).toEqual(['a', 'b', 'c']);
   });
 
   it('puts a block dropped on the lower half of an open toggle’s header at the start of its body', async () => {
@@ -268,7 +266,7 @@ describe('BlockDragHandlePlugin', () => {
 
     await dispatchOnRoot(root, dragEvent('drop', 40, 20));
 
-    expect(savedOrder(editor)).toEqual(['a', 'T[c,x,y]']);
+    expect(outlineOf(editor)).toEqual(['a', 'T{c,x,y}']);
   });
 
   it('puts a block dropped below the last block of a toggle body, with the pointer left of the body’s text, after the toggle', async () => {
@@ -277,6 +275,24 @@ describe('BlockDragHandlePlugin', () => {
 
     await dispatchOnRoot(root, dragEvent('drop', 86, 20));
 
-    expect(savedOrder(editor)).toEqual(['a', 'T[x]', 'y', 'c']);
+    expect(outlineOf(editor)).toEqual(['a', 'T{x}', 'y', 'c']);
+  });
+
+  it('puts a paragraph dropped on the lower half of a list item, with the pointer at or right of its text, as the first child of that item', async () => {
+    const { editor, anchor, root } = mountList();
+    startDragOfBlockAt(anchor, 10);
+
+    await dispatchOnRoot(root, dragEvent('drop', 40, 100));
+
+    expect(outlineOf(editor)).toEqual(['bullet(a[p],b)']);
+  });
+
+  it('turns a list item dropped outside every list, with the pointer left of the list, into a paragraph after the list', async () => {
+    const { editor, anchor, root } = mountList();
+    startDragOfBlockAt(anchor, 56);
+
+    await dispatchOnRoot(root, dragEvent('drop', 66, 20));
+
+    expect(outlineOf(editor)).toEqual(['p', 'bullet(a)', 'b']);
   });
 });

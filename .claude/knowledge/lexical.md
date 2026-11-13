@@ -391,3 +391,24 @@ The drop event is one a command listener handles by moving a block in an update;
 **Citation:** [implement_1: `app/node_modules/.pnpm/lexical@0.52.0_typescript@6.0.3/node_modules/lexical/dist/Lexical.dev.js:9059` — `$removeNode` removes an emptied parent only under `!$isRootOrShadowRoot(parent) && !parent.canBeEmpty() && parent.isEmpty()`], [implement_1: `app/src/components/TextEditor/nodes/ToggleBodyNode.ts` declares `isShadowRoot(): true` and `canBeEmpty(): false` for the toggle body], [implement_1: ran a scratch `npx vitest run` test that put one paragraph in a `ToggleBodyNode` inside a `ToggleNode`, called `insertBefore` with that paragraph on the first root block, and wrote `editor.getEditorState().toJSON()` — observed the `toggle` with its `toggle-body` present and `children` of length 0]
 
 The element remains attached to its parent and the move raises no error.
+
+## `ListItemNode.setIndent(indent)` raises or lowers the item's nesting one level at a time through `$handleIndent` and `$handleOutdent` until `getIndent()` equals the target, and does not clamp the target
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: `app/node_modules/@lexical/list/dist/LexicalList.dev.js:1198-1222` — `setIndent` floors the argument, throws on a negative value, then loops `while (currentIndent !== target)` calling `$handleIndent(this)` or `$handleOutdent(this)`, with a comment that the target is deliberately not clamped; `app/node_modules/@lexical/list/dist/LexicalListItemNode.d.ts:77-78` declares `getIndent()` and `setIndent(indent)`]
+
+A target deeper than the item's neighbours allow is reached one nesting level at a time, so the list gets a wrapper for each level.
+
+## The `ListNode` node transform renumbers its items' `value` and clears `checked` on the items of a list that is not a check list
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: `app/node_modules/@lexical/list/dist/LexicalList.dev.js:1436-1441` — the `$transform` of the `list` node calls `updateChildrenListItemValue(node)`; `app/node_modules/@lexical/list/dist/LexicalList.dev.js:393-409` — that function sets each item's `value` from the list's start, counting an item only when its first child is not a list, and calls `setChecked(undefined)` on an item whose list type is not `check`]
+
+A nesting wrapper takes the number the next real item takes, since only items without a list as first child advance the counter.
+
+## `remove()` on the last item of a nested list leaves its nesting wrapper in the list as a list item with no children
+
+**Verified at:** @lexical/list 0.52.0
+**Citation:** [implement_1: ran a scratch `npx vitest run` test that built a `ListNode` of items `a` and `b` with `a1` nested under `a`, called `a1.remove()` inside `editor.update` in an editor registering `ListNode`, `ListItemNode`, `ToggleNode` and `ToggleBodyNode`, and wrote `editor.getEditorState().toJSON()` — observed the list holding the item `a`, a `listitem` with `children` of length 0, and the item `b`]
+
+Lexical removes the emptied nested list, and nothing in that removal removes the wrapper that held it.

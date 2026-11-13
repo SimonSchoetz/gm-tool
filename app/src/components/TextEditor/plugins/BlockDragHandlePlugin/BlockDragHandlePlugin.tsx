@@ -72,16 +72,13 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
     };
 
     const pushMargin = (target: DropTarget) => {
-      const { row, margin } = target.gap;
-      if (
-        pushedMargin?.element === row.element &&
-        pushedMargin.margin === margin
-      ) {
+      const { element, margin } = target.gap;
+      if (pushedMargin?.element === element && pushedMargin.margin === margin) {
         return;
       }
       clearPushedMargin();
-      row.element.style[margin] = 'var(--spacing-xl)';
-      pushedMargin = { element: row.element, margin };
+      element.style[margin] = 'var(--spacing-xl)';
+      pushedMargin = { element, margin };
     };
 
     const clearDrag = () => {
@@ -93,20 +90,18 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
     const handleMouseMove = (event: MouseEvent) => {
       if (draggedKey !== null) return;
       const row = resolveHoveredRow(collectBlockRows(editor), event.clientY);
-      // A row with no handle, such as a list, shows none.
-      const handleRow = row?.hasHandle ? row : null;
-      if (handleRow?.key === hoveredRow?.key) return;
-      hoveredRow = handleRow;
-      if (handleRow === null) {
+      if (row?.key === hoveredRow?.key) return;
+      hoveredRow = row;
+      if (row === null) {
         setHoveredBlock(null);
         return;
       }
-      const { x, y } = toAnchorSpace(handleRow.left, handleRow.top);
+      const { x, y } = toAnchorSpace(row.markerLeft, row.top);
       setHoveredBlock({
-        key: handleRow.key,
+        key: row.key,
         top: y,
         left: x,
-        height: handleRow.bottom - handleRow.top,
+        height: row.bottom - row.top,
       });
     };
 
@@ -153,7 +148,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       event.preventDefault();
       pushMargin(target);
       const line = toAnchorSpace(target.lineLeft, target.lineTop);
-      const highlight = toAnchorSpace(target.row.left, target.row.top);
+      const highlight = toAnchorSpace(target.row.markerLeft, target.row.top);
       // A new object on every dragover, so the highlight keeps tracking the row while the margin transition moves it.
       setDropIndicator({
         lineTop: line.y,
@@ -177,7 +172,7 @@ export const BlockDragHandlePlugin: FCProps<Props> = ({ anchorElem }) => {
       );
       clearDrag();
       if (target !== null) {
-        moveBlock(droppedKey, target.beside.key, target.placement);
+        moveBlock(droppedKey, target.besideKey, target.placement, target.depth);
       }
       hoveredRow = null;
       setHoveredBlock(null);
