@@ -34,3 +34,10 @@ The test's paste event is an instance of the stubbed `ClipboardEvent`, since `ev
 **Citation:** [implement_1: ran a scratch `npx vitest run` test that put a caret at offset 0 of a header's text after an empty paragraph, dispatched `KEY_ENTER_COMMAND`, and read the selection twice — observed a text point on the header's text right after the command through `editor.read`, and an element point on the preceding empty paragraph after an awaited `act`]
 
 The cause was not established; a test that asserts where a handler left the caret reads it through `editor.read` right after the command inside a synchronous `act`.
+
+## jsdom's default stylesheet gives a `ul` or `ol` element `padding-inline-start: 40px`, but `getComputedStyle` does not map it to `padding-left`, which reads `0`
+
+**Verified at:** jsdom 30.1.1, read 2026-11-13
+**Citation:** [knowledge-check_1: `app/node_modules/jsdom/lib/jsdom/browser/default-stylesheet.css:181` — `dir, menu, ol, ul { padding-inline-start: 40px; }`, applied by `getComputedStyle` through `app/node_modules/jsdom/lib/jsdom/living/css/helpers/computed-style.js:17-19,62-75`] [knowledge-check_2: ran a scratch `npx vitest run` test that appended a `ul` and an `ol` to the body and read their computed style — observed `paddingLeft` `"0"`, `getPropertyValue('padding-left')` `"0"` and `getPropertyValue('padding-inline-start')` `"40px"`; after `style.paddingLeft = '24px'` on a `ul` and on an `ol`, `paddingLeft` read `"24px"` on both]
+
+Code that reads a list's indentation from its computed `paddingLeft` sees 0 in a jsdom test, so a test that depends on that indentation, such as a list-depth test, sets an inline `paddingLeft` on the list element.
