@@ -4,7 +4,7 @@ paths: ["app/services/**/__tests__/**", "services/**/__tests__/**"]
 
 # Unit tests under `services/`
 
-Wiring a test for a service function that mocks the `@db/<domain>` modules it calls, per `app/services/CLAUDE.md` — Testing.
+Wiring a test for a service function that mocks the `@db/<domain>` modules it calls, per `app/services/CLAUDE.md` — Testing; the `@db/<domain>` wiring below is for that mocked test only. A test that runs the real service code against the real in-memory database instead takes its database wiring from `.claude/rules/db-unit-tests.md` — "Wiring a test that reaches `getDatabase()`", which does not load for a services test, and mocks the host boundary as the bullet below on `invoke` from `@tauri-apps/api/core` describes. A flow between two devices gives each its own module graph, as `app/services/__tests__/syncService.convergence.test.ts` does (`vi.resetModules()` before that device's dynamic imports).
 
 ## Wiring the mock
 
