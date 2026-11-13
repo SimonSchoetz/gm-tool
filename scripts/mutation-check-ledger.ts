@@ -304,11 +304,11 @@ export const describeEntry = (entry: LedgerEntry, sourceLines: SourceLines) => {
   return `app/${entry.file}${line === null ? '' : `:${line}`}  ${entry.mutator}  → ${entry.replacement}  on "${entry.lineText}"${entry.occurrence > 0 ? ` (occurrence ${entry.occurrence})` : ''}`;
 };
 
-export const describeMutant = ({
-  file,
-  line,
-  column,
-  mutator,
-  replacement,
-}: LocatedMutant) =>
-  `app/${file}:${line}:${column}  ${mutator}  → ${replacement}`;
+// The source line is left out when the mutant's file or line is missing.
+export const describeMutant = (
+  { file, line, column, mutator, replacement }: LocatedMutant,
+  sourceLines: SourceLines,
+) => {
+  const lineText = sourceLines(file)?.[line - 1];
+  return `app/${file}:${line}:${column}  ${mutator}  → ${replacement}${lineText === undefined ? '' : `  on "${normalizeText(lineText)}"`}`;
+};

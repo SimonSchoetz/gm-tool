@@ -8,7 +8,7 @@
 // A survivor no test can kill (an equivalent mutant) is accepted by an entry of that ledger, which names one mutant by its file, mutator, replacement and the text of the line it starts on (scripts/mutation-check-ledger.ts); a survivor matches one entry, so each of two identical mutants needs its own.
 // An accepted mutant still runs: an entry whose whole span this run mutated and whose mutant did not survive fails the run as stale, because a test now kills it or the code changed; remove it. Since every entry in a file the branch changed is mutated, a change on any line of that file that makes an entry's mutant killable, or another mutant on its lines observable, fails the run; only an entry in a file the branch did not change waits for an `--all` audit. On every run, before Stryker starts, an entry whose file or line no longer exists fails the run too, and so does a `Stryker disable` or `Stryker restore` comment anywhere under app/ outside app/docs/ and Markdown files.
 // A mutant Stryker reports as `Timeout` (its tests ran past `timeoutMS` in app/stryker.config.json) fails the run too, listed apart from survivors, unless scripts/mutation-hangs.json holds an entry for it; that ledger has the entry shape and the stale and missing checks of scripts/mutation-accepted.json. A timeout counts as caught only when the mutant hangs, turning a loop's condition or update into one that never ends, since a test run observes a hang; `--accept-hang "<reason>"` records every unmatched timeout with that reason, so run it only once each one left is a confirmed hang. Any other timeout is re-run with a longer limit, `--timeout-ms <n>`, which overrides `timeoutMS` for one run, and is resolved by that run's result.
-// `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, and run it last, once every survivor still unmatched is known to be equivalent, since it accepts them all. Each entry it adds carries the one reason given, so where the mutants differ, edit each entry's reason in the ledger afterwards. Before Stryker starts, it runs the `test` row (`npx vitest run` in app/) and exits non-zero without writing an entry when a test fails (scripts/mutation-check-test-row.ts). After editing an accepted line, remove its entry and re-run with `--accept`.
+// `--accept "<reason>"` adds an entry with that reason for every survivor no entry matches, and prints each; run once without it first, and run it last, once every survivor still unmatched is known to be equivalent, since it accepts them all. Each entry it adds carries the one reason given, so where the mutants differ, edit each entry's reason in the ledger afterwards. Before Stryker starts, it runs the `test` row (`npx vitest run` in app/) and exits non-zero without writing an entry when a test fails (scripts/mutation-check-test-row.ts). `--accept` and `--accept-hang` first format app/ with Prettier (`pnpm run prettier-fix`), so each entry records its line as formatted and a later format run leaves it matching. After editing an accepted line by hand, remove its entry and re-run with `--accept`.
 import { execFileSync, spawnSync } from 'child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
@@ -71,6 +71,24 @@ const {
   hangReason,
   timeoutMS,
 } = parsedArguments;
+
+// An entry keys its mutant by the text of its line, so a later Prettier run that rewrites that line would leave the entry naming a line that no longer exists; formatting first records the line as it will stay. Runs before any source line is read, since it can move lines.
+if (acceptReason !== null || hangReason !== null) {
+  const format = spawnSync(
+    'pnpm',
+    ['run', 'prettier-fix', '--log-level', 'warn'],
+    {
+      cwd: repositoryRoot,
+      stdio: 'inherit',
+    },
+  );
+  if (format.status !== 0) {
+    console.error(
+      `mutation-check: formatting app/ before writing ledger entries failed with ${format.status ?? format.signal}; no entry was written.`,
+    );
+    process.exit(2);
+  }
+}
 
 const RUST_LEDGER_PATH = path.join(
   repositoryRoot,
@@ -425,12 +443,12 @@ const staleHangs = timeoutMatch.stale;
 
 if (unmatched.length > 0) {
   console.error(
-    `\nmutation-check: FAILED — ${unmatched.length} mutant(s) survived in files with their own tests; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  ${unmatched.map(describeMutant).join('\n  ')}`,
+    `\nmutation-check: FAILED — ${unmatched.length} mutant(s) survived in files with their own tests; the tests pass with this logic changed. Add a test that fails on each, or, for a mutant no test can observe, accept it with --accept "<reason>":\n  ${unmatched.map((mutant) => describeMutant(mutant, sourceLines)).join('\n  ')}`,
   );
 }
 if (timedOut.length > 0) {
   console.error(
-    `\nmutation-check: FAILED — ${timedOut.length} mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n> (app/stryker.config.json sets timeoutMS), and resolve it by that result:\n  ${timedOut.map(describeMutant).join('\n  ')}`,
+    `\nmutation-check: FAILED — ${timedOut.length} mutant(s) timed out, so the run cannot tell whether a test catches them. Where the mutant turns a loop into one that never ends, the hang is caught: record it with --accept-hang "<which loop the mutant makes endless>"; re-run any other with a longer limit, --timeout-ms <n> (app/stryker.config.json sets timeoutMS), and resolve it by that result:\n  ${timedOut.map((mutant) => describeMutant(mutant, sourceLines)).join('\n  ')}`,
   );
 }
 if (stale.length > 0) {
