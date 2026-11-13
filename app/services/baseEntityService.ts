@@ -1,6 +1,7 @@
 import * as baseEntityDb from '@db/base-entity';
 import * as baseEntityContentSectionDb from '@db/base-entity-content-section';
 import * as imageService from '@services/imageService';
+import { writeChildrenOrRemoveParent } from '@services/partialCopy';
 import type { BaseEntity, UpdateBaseEntityInput } from '@db/base-entity';
 import type { BaseEntityType } from '@domain/entities';
 import {
@@ -62,16 +63,16 @@ export const updateBaseEntity = async (
   data: UpdateBaseEntityData,
 ): Promise<void> => {
   try {
-    const imageId = data.imgFilePath
-      ? await imageService.saveImage(data.image_id ?? null, data.imgFilePath)
-      : null;
-
-    const { imgFilePath: _imgFilePath, ...dto } = data;
-    if (imageId) {
-      dto.image_id = imageId;
+    const { imgFilePath, ...dto } = data;
+    if (imgFilePath) {
+      await imageService.saveImage(
+        dto.image_id ?? null,
+        imgFilePath,
+        (imageId) => baseEntityDb.update(id, { ...dto, image_id: imageId }),
+      );
+    } else {
+      await baseEntityDb.update(id, dto);
     }
-
-    await baseEntityDb.update(id, dto);
   } catch (err) {
     throw baseEntityUpdateError(entityType, id, err);
   }
@@ -84,8 +85,9 @@ export const removeBaseEntityImage = async (
   const baseEntity = await getBaseEntityById(entityType, id);
   if (!baseEntity.image_id) return;
   try {
-    await imageService.deleteImage(baseEntity.image_id);
-    await baseEntityDb.update(id, { image_id: null });
+    await imageService.removeImage(baseEntity.image_id, () =>
+      baseEntityDb.update(id, { image_id: null }),
+    );
   } catch (err) {
     throw baseEntityUpdateError(entityType, id, err);
   }
@@ -98,11 +100,10 @@ export const deleteBaseEntity = async (
   try {
     const baseEntity = await getBaseEntityById(entityType, id);
 
-    if (baseEntity.image_id) {
-      await imageService.deleteImage(baseEntity.image_id);
-    }
-
-    await baseEntityDb.remove(id);
+    await imageService.deleteWithImages(
+      baseEntity.image_id === null ? [] : [baseEntity.image_id],
+      () => baseEntityDb.remove(id),
+    );
   } catch (err) {
     throw baseEntityDeleteError(entityType, id, err);
   }
@@ -114,12 +115,17 @@ export const duplicateBaseEntity = async (
 ): Promise<string> => {
   try {
     const source = await getBaseEntityById(entityType, id);
-    const imageId = source.image_id
-      ? await imageService.duplicateImage(source.image_id)
-      : null;
-    const newId = await baseEntityDb.duplicate(entityType, id, imageId);
-    await baseEntityContentSectionDb.duplicateByBaseEntity(id, newId);
-    return newId;
+    return await imageService.duplicateWithImage(
+      source.image_id,
+      async (imageId) => {
+        const newId = await baseEntityDb.duplicate(entityType, id, imageId);
+        await writeChildrenOrRemoveParent(
+          () => baseEntityContentSectionDb.duplicateByBaseEntity(id, newId),
+          () => baseEntityDb.remove(newId),
+        );
+        return newId;
+      },
+    );
   } catch (err) {
     throw baseEntityDuplicateError(entityType, id, err);
   }

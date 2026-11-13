@@ -34,17 +34,15 @@ const seedSourceAndEmptyTarget = async () => {
   const first = await create({
     base_entity_id: sourceEntityId,
     type: 'text',
-    sort_order: 7,
     name: 'Section A',
   });
   const second = await create({
     base_entity_id: sourceEntityId,
     type: '5e-stat-block',
-    sort_order: 3,
     name: 'Section B',
   });
-  await update(first, { content: 'c', checked: 1 });
-  await update(second, { content: FIVE_E_CONTENT, checked: 1 });
+  await update(first, { content: 'c', checked: 1, sort_order: 7 });
+  await update(second, { content: FIVE_E_CONTENT, checked: 1, sort_order: 3 });
   return { sourceEntityId, targetEntityId };
 };
 

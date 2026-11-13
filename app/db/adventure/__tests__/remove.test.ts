@@ -43,7 +43,6 @@ const seedAdventureWithChildren = async () => {
   await createSection({
     base_entity_id: baseEntityId,
     type: 'text',
-    sort_order: 0,
   });
   return id;
 };

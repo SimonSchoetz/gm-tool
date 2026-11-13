@@ -26,12 +26,10 @@ describe('remove', () => {
     await createSection({
       base_entity_id: removedId,
       type: 'text',
-      sort_order: 0,
     });
     await createSection({
       base_entity_id: keptId,
       type: 'text',
-      sort_order: 0,
     });
 
     await remove(removedId);

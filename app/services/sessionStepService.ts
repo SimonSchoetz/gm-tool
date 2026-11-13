@@ -42,12 +42,8 @@ export const createCustomStep = async (
   name?: string,
 ): Promise<string> => {
   try {
-    const steps = await sessionStepDb.getAllBySession(sessionId);
-    const maxSortOrder =
-      steps.length > 0 ? Math.max(...steps.map((s) => s.sort_order)) : -1;
-    return await sessionStepDb.create({
+    return await sessionStepDb.append({
       session_id: sessionId,
-      sort_order: maxSortOrder + 1,
       ...(name !== undefined ? { name } : {}),
     });
   } catch (err) {
@@ -70,8 +66,10 @@ export const swapStepOrder = async (
     const adjacent = steps[adjacentIndex];
 
     const target = steps[index];
-    await sessionStepDb.update(target.id, { sort_order: adjacent.sort_order });
-    await sessionStepDb.update(adjacent.id, { sort_order: target.sort_order });
+    await sessionStepDb.updateSortOrders([
+      { id: target.id, sort_order: adjacent.sort_order },
+      { id: adjacent.id, sort_order: target.sort_order },
+    ]);
   } catch (err) {
     throw sessionStepReorderError(err);
   }
@@ -81,9 +79,9 @@ export const bulkReorderSteps = async (
   orderedStepIds: string[],
 ): Promise<void> => {
   try {
-    for (let index = 0; index < orderedStepIds.length; index++) {
-      await sessionStepDb.update(orderedStepIds[index], { sort_order: index });
-    }
+    await sessionStepDb.updateSortOrders(
+      orderedStepIds.map((id, index) => ({ id, sort_order: index })),
+    );
   } catch (err) {
     throw sessionStepReorderError(err);
   }

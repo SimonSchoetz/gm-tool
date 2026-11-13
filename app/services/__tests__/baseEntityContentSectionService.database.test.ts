@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { BaseEntityContentSection } from '@db/base-entity-content-section';
+import {
+  testDatabase,
+  writeFailingOnCall,
+} from './support/failingDatabaseCall';
 
 // Runs the real baseEntityContentSectionService against the real in-memory database; baseEntityContentSectionService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -29,17 +33,17 @@ const load = async () => {
     const baseEntityId = await baseEntityDb.create('npcs', adventureId);
     const sectionIds: string[] = [];
     for (const sortOrder of sortOrders) {
-      sectionIds.push(
-        await sectionDb.create({
-          base_entity_id: baseEntityId,
-          type: 'text',
-          sort_order: sortOrder,
-        }),
-      );
+      const sectionId = await sectionDb.create({
+        base_entity_id: baseEntityId,
+        type: 'text',
+      });
+      await sectionDb.update(sectionId, { sort_order: sortOrder });
+      sectionIds.push(sectionId);
     }
     return { baseEntityId, sectionIds };
   };
-  return { sectionService, readSections, createEntityWithSections };
+  const db = await testDatabase(getDatabase);
+  return { sectionService, readSections, createEntityWithSections, db };
 };
 
 describe('baseEntityContentSectionService against the database', () => {
@@ -83,5 +87,42 @@ describe('baseEntityContentSectionService against the database', () => {
     expect(
       (await readSections(baseEntityId)).map((section) => section.id),
     ).toEqual([third, first, second]);
+  });
+
+  it('stores two sections added at the same time at two different sort orders', async () => {
+    const { sectionService, readSections, createEntityWithSections } =
+      await load();
+    const { baseEntityId } = await createEntityWithSections([0]);
+
+    await Promise.all([
+      sectionService.createSection(baseEntityId, 'text'),
+      sectionService.createSection(baseEntityId, 'text'),
+    ]);
+
+    expect(
+      (await readSections(baseEntityId)).map((section) => section.sort_order),
+    ).toEqual([0, 1, 2]);
+  });
+
+  it('leaves the old order or the whole new one, never a mix, when any database call of a bulk reorder fails', async () => {
+    const { sectionService, readSections, createEntityWithSections, db } =
+      await load();
+    const {
+      baseEntityId,
+      sectionIds: [first, second, third],
+    } = await createEntityWithSections([0, 1, 2]);
+
+    for (const callNumber of [1, 2, 3]) {
+      await writeFailingOnCall(db, callNumber, () =>
+        sectionService.bulkReorderSections([third, first, second]),
+      );
+      const sections = await readSections(baseEntityId);
+      expect([
+        [first, second, third],
+        [third, first, second],
+      ]).toContainEqual(sections.map((section) => section.id));
+      expect(sections.map((section) => section.sort_order)).toEqual([0, 1, 2]);
+      await sectionService.bulkReorderSections([first, second, third]);
+    }
   });
 });

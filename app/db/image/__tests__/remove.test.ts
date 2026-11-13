@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { IMAGE_FILE_EXTENSIONS } from '@domain';
 
 vi.mock('@tauri-apps/plugin-sql', async () => {
   const { openTestDatabase } =
@@ -58,7 +59,19 @@ describe('remove', () => {
     ).toEqual([{ image_id: null }]);
   });
 
-  it('deletes nothing and deletes no file for an id with no image', async () => {
+  it('keeps the row, naming the file for a later retry, and rejects when the file cannot be deleted', async () => {
+    const { remove } = await import('../remove');
+    const { seedImage, readImages } =
+      await import('@db/__tests__/support/image-fixtures');
+    await seedImage('image-1', 'png', SEEDED_AT);
+    invoke.mockRejectedValue(new Error('file locked'));
+
+    await expect(remove('image-1')).rejects.toThrow(/^file locked$/);
+
+    expect((await readImages()).map((image) => image.id)).toEqual(['image-1']);
+  });
+
+  it('deletes no other row and deletes the file of an id with no row under every image extension, since only a row names the extension', async () => {
     const { remove } = await import('../remove');
     const { seedImage, readImages } =
       await import('@db/__tests__/support/image-fixtures');
@@ -67,7 +80,19 @@ describe('remove', () => {
     await remove('missing-image');
 
     expect((await readImages()).map((image) => image.id)).toEqual(['image-1']);
-    expect(invoke).not.toHaveBeenCalled();
+    expect(invoke.mock.calls).toEqual(
+      IMAGE_FILE_EXTENSIONS.map((extension) => [
+        'delete_image',
+        { id: 'missing-image', extension },
+      ]),
+    );
+  });
+
+  it('rejects when a file of an id with no row cannot be deleted', async () => {
+    const { remove } = await import('../remove');
+    invoke.mockRejectedValue(new Error('file locked'));
+
+    await expect(remove('missing-image')).rejects.toThrow(/^file locked$/);
   });
 });
 

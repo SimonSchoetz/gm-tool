@@ -5,23 +5,28 @@ import { buildSessionStep } from './support/sessionFixtures';
 const getAllBySession = vi.hoisted(() =>
   vi.fn<typeof sessionStepDb.getAllBySession>(),
 );
-const create = vi.hoisted(() => vi.fn<typeof sessionStepDb.create>());
+const append = vi.hoisted(() => vi.fn<typeof sessionStepDb.append>());
 const update = vi.hoisted(() => vi.fn<typeof sessionStepDb.update>());
 const remove = vi.hoisted(() => vi.fn<typeof sessionStepDb.remove>());
+const updateSortOrders = vi.hoisted(() =>
+  vi.fn<typeof sessionStepDb.updateSortOrders>(),
+);
 
 vi.mock('@db/session-step', () => ({
   getAllBySession,
-  create,
+  append,
   update,
   remove,
+  updateSortOrders,
 }));
 
 beforeEach(() => {
   vi.resetModules();
   getAllBySession.mockReset().mockResolvedValue([]);
-  create.mockReset().mockResolvedValue('new-step');
+  append.mockReset().mockResolvedValue('new-step');
   update.mockReset().mockResolvedValue();
   remove.mockReset().mockResolvedValue();
+  updateSortOrders.mockReset().mockResolvedValue();
 });
 
 describe('getStepsBySessionId', () => {
@@ -70,36 +75,26 @@ describe('updateStep and deleteStep', () => {
 });
 
 describe('createCustomStep', () => {
-  it('sorts the new step after the highest sort order of the session, whatever the order of the list', async () => {
+  it('appends a step with the given name to the session and returns its id', async () => {
     const { createCustomStep } = await import('../sessionStepService');
-    getAllBySession.mockResolvedValue([
-      buildSessionStep({ id: 'a', sort_order: 4 }),
-      buildSessionStep({ id: 'b', sort_order: 9 }),
-      buildSessionStep({ id: 'c', sort_order: 2 }),
-    ]);
 
     await expect(createCustomStep('session-7', 'Notes')).resolves.toBe(
       'new-step',
     );
 
-    expect(getAllBySession).toHaveBeenCalledWith('session-7');
-    expect(create).toHaveBeenCalledWith({
+    expect(append).toHaveBeenCalledWith({
       session_id: 'session-7',
-      sort_order: 10,
       name: 'Notes',
     });
   });
 
-  it('sorts the first step of a session first, and leaves the name out of the input when none is given', async () => {
+  it('leaves the name out of the input when none is given', async () => {
     const { createCustomStep } = await import('../sessionStepService');
 
     await createCustomStep('session-7');
 
-    expect(create).toHaveBeenCalledWith({
-      session_id: 'session-7',
-      sort_order: 0,
-    });
-    expect(create.mock.calls[0][0]).not.toHaveProperty('name');
+    expect(append).toHaveBeenCalledWith({ session_id: 'session-7' });
+    expect(append.mock.calls[0][0]).not.toHaveProperty('name');
   });
 
   it('passes an empty name on, as a name the caller gave', async () => {
@@ -107,23 +102,15 @@ describe('createCustomStep', () => {
 
     await createCustomStep('session-7', '');
 
-    expect(create).toHaveBeenCalledWith({
+    expect(append).toHaveBeenCalledWith({
       session_id: 'session-7',
-      sort_order: 0,
       name: '',
     });
   });
 
-  it('rejects as SessionStepCreateError when the steps cannot be read or the step cannot be created', async () => {
+  it('rejects as SessionStepCreateError when the step cannot be appended', async () => {
     const { createCustomStep } = await import('../sessionStepService');
-    getAllBySession.mockRejectedValueOnce(new Error('disk'));
-
-    await expect(createCustomStep('session-7')).rejects.toMatchObject({
-      name: 'SessionStepCreateError',
-    });
-    expect(create).not.toHaveBeenCalled();
-
-    create.mockRejectedValueOnce(new Error('disk'));
+    append.mockRejectedValueOnce(new Error('disk'));
 
     await expect(createCustomStep('session-7')).rejects.toMatchObject({
       name: 'SessionStepCreateError',
@@ -144,9 +131,13 @@ describe('swapStepOrder', () => {
 
     await swapStepOrder('session-7', 'second', 'up');
 
-    expect(update.mock.calls).toEqual([
-      ['second', { sort_order: 10 }],
-      ['first', { sort_order: 20 }],
+    expect(updateSortOrders.mock.calls).toEqual([
+      [
+        [
+          { id: 'second', sort_order: 10 },
+          { id: 'first', sort_order: 20 },
+        ],
+      ],
     ]);
   });
 
@@ -156,9 +147,13 @@ describe('swapStepOrder', () => {
 
     await swapStepOrder('session-7', 'second', 'down');
 
-    expect(update.mock.calls).toEqual([
-      ['second', { sort_order: 30 }],
-      ['third', { sort_order: 20 }],
+    expect(updateSortOrders.mock.calls).toEqual([
+      [
+        [
+          { id: 'second', sort_order: 30 },
+          { id: 'third', sort_order: 20 },
+        ],
+      ],
     ]);
   });
 
@@ -175,7 +170,7 @@ describe('swapStepOrder', () => {
       swapStepOrder('session-7', 'elsewhere', 'down'),
     ).resolves.toBeUndefined();
 
-    expect(update).not.toHaveBeenCalled();
+    expect(updateSortOrders).not.toHaveBeenCalled();
   });
 
   it('can move the first step down and the last step up', async () => {
@@ -185,15 +180,23 @@ describe('swapStepOrder', () => {
     await swapStepOrder('session-7', 'first', 'down');
     await swapStepOrder('session-7', 'third', 'up');
 
-    expect(update.mock.calls).toEqual([
-      ['first', { sort_order: 20 }],
-      ['second', { sort_order: 10 }],
-      ['third', { sort_order: 20 }],
-      ['second', { sort_order: 30 }],
+    expect(updateSortOrders.mock.calls).toEqual([
+      [
+        [
+          { id: 'first', sort_order: 20 },
+          { id: 'second', sort_order: 10 },
+        ],
+      ],
+      [
+        [
+          { id: 'third', sort_order: 20 },
+          { id: 'second', sort_order: 30 },
+        ],
+      ],
     ]);
   });
 
-  it('rejects as SessionStepReorderError when the steps cannot be read or an update fails', async () => {
+  it('rejects as SessionStepReorderError when the steps cannot be read or the write fails', async () => {
     const { swapStepOrder } = await import('../sessionStepService');
     getAllBySession.mockRejectedValueOnce(new Error('disk'));
 
@@ -202,7 +205,7 @@ describe('swapStepOrder', () => {
     ).rejects.toMatchObject({ name: 'SessionStepReorderError' });
 
     getAllBySession.mockResolvedValue(steps());
-    update.mockRejectedValueOnce(new Error('disk'));
+    updateSortOrders.mockRejectedValueOnce(new Error('disk'));
 
     await expect(
       swapStepOrder('session-7', 'second', 'up'),
@@ -211,30 +214,28 @@ describe('swapStepOrder', () => {
 });
 
 describe('bulkReorderSteps', () => {
-  it('gives each step the sort order of its position in the list, in order', async () => {
+  it('gives each step the sort order of its position in the list, in one write', async () => {
     const { bulkReorderSteps } = await import('../sessionStepService');
 
     await bulkReorderSteps(['c', 'a', 'b']);
 
-    expect(update.mock.calls).toEqual([
-      ['c', { sort_order: 0 }],
-      ['a', { sort_order: 1 }],
-      ['b', { sort_order: 2 }],
+    expect(updateSortOrders.mock.calls).toEqual([
+      [
+        [
+          { id: 'c', sort_order: 0 },
+          { id: 'a', sort_order: 1 },
+          { id: 'b', sort_order: 2 },
+        ],
+      ],
     ]);
   });
 
-  it('updates nothing for an empty list, and rejects as SessionStepReorderError, updating no later step, when an update fails', async () => {
+  it('rejects as SessionStepReorderError when the write fails', async () => {
     const { bulkReorderSteps } = await import('../sessionStepService');
-
-    await bulkReorderSteps([]);
-
-    expect(update).not.toHaveBeenCalled();
-
-    update.mockRejectedValueOnce(new Error('disk'));
+    updateSortOrders.mockRejectedValueOnce(new Error('disk'));
 
     await expect(bulkReorderSteps(['a', 'b'])).rejects.toMatchObject({
       name: 'SessionStepReorderError',
     });
-    expect(update).toHaveBeenCalledTimes(1);
   });
 });

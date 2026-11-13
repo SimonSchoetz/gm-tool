@@ -7,3 +7,5 @@ export const deviceDataSchema = z.object({
 });
 
 export type DeviceData = z.infer<typeof deviceDataSchema>;
+
+export const pendingImageIdsSchema = z.array(z.string());

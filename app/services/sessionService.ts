@@ -1,6 +1,7 @@
 import * as sessionDb from '@db/session';
 import type { Session, UpdateSessionInput } from '@db/session';
 import * as sessionStepDb from '@db/session-step';
+import { writeChildrenOrRemoveParent } from '@services/partialCopy';
 import {
   LAZY_DM_STEPS,
   sessionNotFoundError,
@@ -35,13 +36,18 @@ export const getSessionById = async (id: string): Promise<Session> => {
 export const createSession = async (adventureId: string): Promise<string> => {
   try {
     const newSessionId = await sessionDb.create(adventureId);
-    for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
-      await sessionStepDb.create({
-        session_id: newSessionId,
-        sort_order: index,
-        default_step_key: LAZY_DM_STEPS[index].key,
-      });
-    }
+    await writeChildrenOrRemoveParent(
+      async () => {
+        for (let index = 0; index < LAZY_DM_STEPS.length; index++) {
+          await sessionStepDb.create({
+            session_id: newSessionId,
+            sort_order: index,
+            default_step_key: LAZY_DM_STEPS[index].key,
+          });
+        }
+      },
+      () => sessionDb.remove(newSessionId),
+    );
     return newSessionId;
   } catch (err) {
     throw sessionCreateError(err);
@@ -52,7 +58,10 @@ export const createSession = async (adventureId: string): Promise<string> => {
 export const duplicateSession = async (id: string): Promise<string> => {
   try {
     const newSessionId = await sessionDb.duplicate(id);
-    await sessionStepDb.duplicateBySession(id, newSessionId);
+    await writeChildrenOrRemoveParent(
+      () => sessionStepDb.duplicateBySession(id, newSessionId),
+      () => sessionDb.remove(newSessionId),
+    );
     return newSessionId;
   } catch (err) {
     throw sessionDuplicateError(id, err);

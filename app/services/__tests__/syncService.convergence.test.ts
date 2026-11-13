@@ -289,12 +289,10 @@ describe('syncService between two devices', () => {
       await a.contentSectionDb.create({
         base_entity_id: baseEntityId,
         type: 'text',
-        sort_order: 0,
       }),
       await a.contentSectionDb.create({
         base_entity_id: baseEntityId,
         type: 'text',
-        sort_order: 1,
       }),
     ].sort();
 

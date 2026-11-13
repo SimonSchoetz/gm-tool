@@ -2,6 +2,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { SessionStep } from '@db/session-step';
 import { LAZY_DM_STEPS } from '@domain';
+import {
+  testDatabase,
+  writeFailingOnEachCall,
+} from './support/failingDatabaseCall';
 
 // Runs the real sessionService against the real in-memory database; sessionService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -21,7 +25,24 @@ const load = async () => {
       'SELECT * FROM session_steps WHERE session_id = $1 ORDER BY sort_order',
       [sessionId],
     );
-  return { sessionService, adventureDb, sessionStepDb, readSteps };
+  const countRows = async (table: string) =>
+    (
+      await (
+        await getDatabase()
+      ).select<{ count: number }[]>(
+        // table is one of the literal names the tests below pass.
+        `SELECT COUNT(*) AS count FROM ${table}`,
+      )
+    )[0].count;
+  const db = await testDatabase(getDatabase);
+  return {
+    sessionService,
+    adventureDb,
+    sessionStepDb,
+    readSteps,
+    countRows,
+    db,
+  };
 };
 
 const copiedFields = ({
@@ -90,5 +111,36 @@ describe('sessionService against the database', () => {
     const sourceStepIds = new Set(sourceStepsBefore.map((step) => step.id));
     expect(copySteps.filter((step) => sourceStepIds.has(step.id))).toEqual([]);
     expect(await readSteps(sourceId)).toEqual(sourceStepsBefore);
+  });
+
+  it('leaves no session and no step behind when any database call of a session creation fails', async () => {
+    const { sessionService, adventureDb, countRows, db } = await load();
+    const adventureId = await adventureDb.create();
+
+    await writeFailingOnEachCall(
+      db,
+      () => sessionService.createSession(adventureId),
+      async () => {
+        // Only the session of the counting run, with its steps.
+        expect(await countRows('sessions')).toBe(1);
+        expect(await countRows('session_steps')).toBe(LAZY_DM_STEPS.length);
+      },
+    );
+  });
+
+  it('leaves no copy and no copied step behind when any database call of a session duplication fails', async () => {
+    const { sessionService, adventureDb, countRows, db } = await load();
+    const adventureId = await adventureDb.create();
+    const sourceId = await sessionService.createSession(adventureId);
+
+    await writeFailingOnEachCall(
+      db,
+      () => sessionService.duplicateSession(sourceId),
+      async () => {
+        // The source and the counting run's copy, each with its steps.
+        expect(await countRows('sessions')).toBe(2);
+        expect(await countRows('session_steps')).toBe(2 * LAZY_DM_STEPS.length);
+      },
+    );
   });
 });

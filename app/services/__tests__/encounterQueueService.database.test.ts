@@ -2,6 +2,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
 import type { EncounterLogEntry } from '@db/encounter-log-entry';
+import {
+  testDatabase,
+  writeFailingOnCall,
+} from './support/failingDatabaseCall';
 
 // Runs the real encounterQueueService against the real in-memory database; encounterQueueService.test.ts mocks the db modules to test the service's own branching and error wrapping.
 
@@ -21,6 +25,7 @@ const load = async () => {
     (await getDatabase()).select<T>(sql, values);
   const adventureId = await adventureDb.create();
   return {
+    db: await testDatabase(getDatabase),
     encounterQueueService,
     adventureId,
     encounterDb,
@@ -140,5 +145,51 @@ describe('encounterQueueService against the database', () => {
       first.id,
       second.id,
     ]);
+  });
+
+  it('stores items added at the same time at different sort orders, and numbers same-named random combatants 1 and 2', async () => {
+    const { encounterQueueService, adventureId, encounterDb, readQueue } =
+      await load();
+    const encounterId = await encounterDb.create(adventureId);
+
+    await Promise.all([
+      encounterQueueService.addRandomCombatant(encounterId, 'Grunt', null),
+      encounterQueueService.addRandomCombatant(encounterId, 'Grunt', null),
+      encounterQueueService.addEvent(encounterId, 'Lair action'),
+    ]);
+
+    const queue = await readQueue(encounterId);
+    expect(queue.map((item) => item.sort_order)).toEqual([0, 1, 2]);
+    expect(
+      queue
+        .filter((item) => item.kind === 'combatant')
+        .map((item) => item.sequence_number)
+        .sort(),
+    ).toEqual([1, 2]);
+  });
+
+  it('leaves the old order or the whole new one, never a mix, when any database call of a reorder fails', async () => {
+    const { encounterQueueService, adventureId, encounterDb, readQueue, db } =
+      await load();
+    const encounterId = await encounterDb.create(adventureId);
+    await encounterQueueService.addEvent(encounterId, 'First');
+    await encounterQueueService.addEvent(encounterId, 'Second');
+    await encounterQueueService.addEvent(encounterId, 'Third');
+    const [first, second, third] = (await readQueue(encounterId)).map(
+      (item) => item.id,
+    );
+
+    for (const callNumber of [1, 2, 3]) {
+      await writeFailingOnCall(db, callNumber, () =>
+        encounterQueueService.reorderQueueItems([third, first, second]),
+      );
+      const queue = await readQueue(encounterId);
+      expect([
+        [first, second, third],
+        [third, first, second],
+      ]).toContainEqual(queue.map((item) => item.id));
+      expect(queue.map((item) => item.sort_order)).toEqual([0, 1, 2]);
+      await encounterQueueService.reorderQueueItems([first, second, third]);
+    }
   });
 });

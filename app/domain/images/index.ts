@@ -1,8 +1,6 @@
 export { imageNotFoundError } from './errors.ts';
 export { imageLoadError } from './errors.ts';
 export { imageCreateError } from './errors.ts';
-export { imageDeleteError } from './errors.ts';
-export { imageReplaceError } from './errors.ts';
 export { imageDuplicateError } from './errors.ts';
 export { imageUrlLoadError } from './errors.ts';
 export { imageUpdateFrameError } from './errors.ts';

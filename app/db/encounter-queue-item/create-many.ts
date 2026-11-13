@@ -10,6 +10,7 @@ import type {
   SharedEncounterQueueItemFields,
 } from './types';
 
+// eslint-disable-next-line local/no-unused-exports -- tests seed queue items at positions and sequence numbers of their choosing with it; the app adds an item through append, which computes both
 export const createMany = async (
   rows: CreateEncounterQueueItemInput[],
   shared: SharedEncounterQueueItemFields,
