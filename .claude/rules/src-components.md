@@ -5,12 +5,14 @@ paths:
     "src/**/*.tsx",
     "app/src/**/helper/**",
     "src/**/helper/**",
+    "app/src/**/plugins/*/*Plugin.ts",
+    "src/**/plugins/*/*Plugin.ts",
   ]
 ---
 
 # Components under `src/`
 
-Conventions for a file that renders JSX and for the `helper/` directories components own. Barrel and grouping-folder rules these build on are in `app/src/CLAUDE.md` — Barrel Files. A file under `screens/` or under `providers/` carries additional rules of its own: `.claude/rules/src-screens.md` and `.claude/rules/src-providers.md`.
+Conventions for a file that renders JSX — a Lexical plugin that returns `null` (`plugins/<Name>Plugin/<Name>Plugin.ts`) is a component for every rule below — and for the `helper/` directories components own. Barrel and grouping-folder rules these build on are in `app/src/CLAUDE.md` — Barrel Files. A file under `screens/` or under `providers/` carries additional rules of its own: `.claude/rules/src-screens.md` and `.claude/rules/src-providers.md`.
 
 ## Icon imports
 
@@ -55,7 +57,7 @@ Selection is a strict gate — apply in order, stopping at the first match. The 
 3. Neither of the above? → `FCProps<Props>` — closed API. Always declare the props as a named `type Props = { ... }` and type the component assignment as `FCProps<Props>`.
    - ❌ `const SearchInput = ({ onSearch }: { onSearch: () => void }) => { ... }` — inline destructuring without FCProps
    - ❌ `const SearchInput: React.FC<Props> = ...` — use FCProps, not React.FC
-   - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely (✅ `export const AdventureCrumb = () => { ... }`) — do not write `type Props = object`, `type Props = Record<string, never>`, or keep an empty/placeholder `FCProps<Props>`.
+   - **Zero-props exception:** when a case-3 component accepts no external props whatsoever, omit `FCProps<Props>` entirely (✅ `export const AdventureCrumb = () => { ... }`).
 
 **A wrapper hardcoding a value for a prop inherited via `React.ComponentProps<typeof Parent>` (case 2 above) must `Omit` that prop from its own `Props` type.** Otherwise a caller can pass a value that is silently shadowed in JSX. Every hardcoded prop must be excluded, not just the first one added.
 
@@ -96,4 +98,4 @@ When a CSS value cannot use a global token from `styles/variables/`, declare it 
 
 ## Framework context is not a prop
 
-Never relay a value as a prop when the receiving component can obtain it directly from a framework-managed context. This prohibition covers data-fetching results, data-fetching callbacks, and routing context (URL params via `useParams`). Props are reserved for state that genuinely belongs to a parent: cross-component coordination such as tooltip visibility, modal open/close, or selection state shared between siblings. Pass a callback down only when the parent owns the coordination state and the child reports events up. If a component has a button, that component owns the button's action — it does not receive a callback from two levels up.
+Never relay a value as a prop when the receiving component can obtain it directly from a framework-managed context. This prohibition covers data-fetching results, data-fetching callbacks, and routing context (URL params via `useParams`). Props are reserved for state that genuinely belongs to a parent: cross-component coordination such as tooltip visibility, modal open/close, or selection state shared between siblings. Pass a callback down only when the parent owns the coordination state and the child reports events up.
