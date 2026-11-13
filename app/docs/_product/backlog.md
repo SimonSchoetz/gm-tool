@@ -3,8 +3,6 @@
 ## Closed Beta Ready
 
 - Fix (UX): Text editor height in summary fields
-- Fix (UX): List item spacings (check list indentation is different to normal list)
-- Fix (UI): Placeholder on checkbox list item is a single-char straight line, overflowing all contents below
 - Fix (UX Toggle enter behavior):
   - Trying to add a mention badge with hitting enter in toggle heading not working -> hitting enter adds new line instead. Hitting enter when mention badge pop up is open should add the badge.
   - When Toggle is collapsed: Hitting enter at the end of the line of the toggle header should create a new node below and focus the new node
@@ -18,11 +16,6 @@
 - Feature: Syncing in progress indicator in Header
 - Feature: right click context menu with inspect mode
 - Feature: Right sidebar. Present in Screens like AdventureScreen, PCScreen, ect. Usage: Upload additional content. First step: Additional Images. Coming after: other documents types. Moreover: Different tabs with e.g. a table of content based on headings
-- Fix (test strategy):
-  - should earn their place.
-    - should cover the full (whatever full means and if this is feasible) outcome
-    - should cover error handling (should not throw or throw and what's the expected error message)
-    - example: 6d7a5df5 feat(adventure-stat-counts): refactor getDateTimeString.test to have useful tests
 
 ## Open Beta Ready
 
