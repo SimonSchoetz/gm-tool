@@ -192,14 +192,18 @@ export const parseRustLedger = (json: string): RustLedgerEntry[] => {
   return entries;
 };
 
+// Orders by UTF-16 code unit, as a string sort does: the order scripts/mutation-accepted-rust.json is committed in, with `save_image.rs` before `save_image_bytes.rs`, where `localeCompare` ranks `_` before `.` and would swap them on every write.
+const compareText = (first: string, second: string) =>
+  first < second ? -1 : first > second ? 1 : 0;
+
 // Ordered by file, change and occurrence as two-space JSON with a final newline, so a rewrite changes only the entries that changed.
 export const serializeRustLedger = (entries: RustLedgerEntry[]) =>
   `${JSON.stringify(
     [...entries]
       .sort(
         (first, second) =>
-          first.file.localeCompare(second.file) ||
-          first.mutant.localeCompare(second.mutant) ||
+          compareText(first.file, second.file) ||
+          compareText(first.mutant, second.mutant) ||
           first.occurrence - second.occurrence,
       )
       .map(({ file, mutant, occurrence, reason }) => ({

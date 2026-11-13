@@ -607,6 +607,34 @@ describe('mutation-check-rust parsing and wording', () => {
     ]);
   });
 
+  it('sorts file names by code unit, so save_image.rs stays before save_image_bytes.rs as the committed ledger has them', () => {
+    const text = serializeRustLedger([
+      entry({ file: 'src/commands/images/save_image_bytes.rs' }),
+      entry({ file: 'src/commands/images/save_image.rs' }),
+    ]);
+
+    expect(
+      (JSON.parse(text) as RustLedgerEntry[]).map(({ file }) => file),
+    ).toEqual([
+      'src/commands/images/save_image.rs',
+      'src/commands/images/save_image_bytes.rs',
+    ]);
+  });
+
+  it('writes the committed Rust ledgers back unchanged', () => {
+    for (const ledger of [
+      'mutation-accepted-rust.json',
+      'mutation-hangs-rust.json',
+    ]) {
+      const text = readFileSync(
+        path.join(import.meta.dirname, '..', ledger),
+        'utf8',
+      );
+
+      expect(serializeRustLedger(parseRustLedger(text))).toBe(text);
+    }
+  });
+
   it('leaves a caught mutant with no entry out of the unmatched ones', () => {
     const result = matchRustMutants({
       status: 'missed',
