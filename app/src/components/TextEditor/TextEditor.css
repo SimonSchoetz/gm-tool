@@ -271,6 +271,8 @@
 .toggle-body-inner {
   overflow: hidden;
   min-height: 0;
+  /* The body's blocks start one handle width right of the content edge, so the drag handle of a body block, which sits directly left of that block, ends at the content edge instead of covering the toggle's gutter and chevron. */
+  padding-left: var(--spacing-md);
   transition: visibility var(--transition-fast);
 }
 
