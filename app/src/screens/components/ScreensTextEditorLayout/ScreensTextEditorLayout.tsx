@@ -32,7 +32,9 @@ export const ScreensTextEditorLayout: FCProps<Props> = ({
         {sideBar}
         <div className='screens-text-editor-layout--body'>
           {bodyHeader}
-          <div className='screens-text-editor-layout--body-scroll'>{body}</div>
+          <div className='screens-text-editor-layout--body-scroll scroll-edge-fade'>
+            {body}
+          </div>
         </div>
       </div>
     </GlassPanel>

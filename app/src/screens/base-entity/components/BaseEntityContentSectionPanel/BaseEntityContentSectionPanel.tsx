@@ -22,7 +22,7 @@ import {
 } from '@domain';
 import { ContentSectionTypeMenu } from './components/ContentSectionTypeMenu/ContentSectionTypeMenu';
 import { getIdAfterRemoval } from './helper/getIdAfterRemoval';
-import './BaseEntityContentSectionPanel.css';
+import './BaseEntityContentSectionPanel.css'; // After the ContentSectionBody import: `.base-entity-content-section-panel-body`'s `max-height` ties with `.content-section-body`'s and must win
 
 export const BaseEntityContentSectionPanel = () => {
   const params = useParams({ strict: false });
@@ -167,7 +167,7 @@ export const BaseEntityContentSectionPanel = () => {
               section={transition.from}
               baseEntityId={baseEntityId}
               readOnly
-              className='base-entity-content-section-panel-body'
+              className='base-entity-content-section-panel-body scroll-edge-fade scroll-edge-fade--sm'
             />
           ),
         };
@@ -196,7 +196,7 @@ export const BaseEntityContentSectionPanel = () => {
               section={selected}
               baseEntityId={baseEntityId}
               readOnly={false}
-              className='base-entity-content-section-panel-body'
+              className='base-entity-content-section-panel-body scroll-edge-fade scroll-edge-fade--sm'
             />
           </SlideTransition>
         </PanelBody>

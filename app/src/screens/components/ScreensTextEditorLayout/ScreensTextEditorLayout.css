@@ -32,10 +32,11 @@
   min-height: 0;
 }
 
+/* Reaches into the gap above it and the margin below it, which the `scroll-edge-fade` padding gives back, so the fade takes that space and text at rest sits where it would without the fade. */
 .screens-text-editor-layout--body-scroll {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow-y: auto;
+  margin-block: calc(-1 * var(--spacing-md));
 }

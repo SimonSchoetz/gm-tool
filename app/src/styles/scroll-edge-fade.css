@@ -1,0 +1,88 @@
+/* `scroll-edge-fade` fades a vertical scroll box's content out toward its top and bottom edges instead of clipping it, over a padding of `--scroll-edge-fade-inset` plus a reach of up to `--scroll-edge-fade-reach` into the content on a side where more content lies beyond the edge. The reach is twice the inset, so a box with more spacing around it gets a longer, softer fade, and a box with little spacing keeps more of its height fully visible; a size is set by its inset alone. The scroll box takes that padding from the spacing around it (its consumer removes or negates its margin there), so content at rest sits where it would without the fade and is never faded. That holds only while the box's in-flow children take their content's height: a child stretched to the box's capped height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The fade follows an ease-in curve, so content is nearly gone before it meets the edge. Only the mask's alpha counts, so its colour is irrelevant. A second, opaque mask layer over the scrollbar's strip (`::-webkit-scrollbar` in `scrollbar.css` is 0.5rem wide) keeps the scrollbar out of the fade, and the track's margin keeps the scrollbar out of the padding. */
+
+/* How far the fade reaches past the padding into the content; the scroll-driven animations below shrink it to zero at the start and the end of the scroll range. */
+@property --scroll-edge-fade-reach-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-edge-fade-reach-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.scroll-edge-fade {
+  --scroll-edge-fade-inset: var(--spacing-md);
+  --scroll-edge-fade-reach: calc(2 * var(--scroll-edge-fade-inset));
+  --scroll-edge-fade-top: calc(
+    var(--scroll-edge-fade-inset) + var(--scroll-edge-fade-reach-top)
+  );
+  --scroll-edge-fade-bottom: calc(
+    var(--scroll-edge-fade-inset) + var(--scroll-edge-fade-reach-bottom)
+  );
+  /* Opacity steps of an ease-in curve (the square of 0.25, 0.5 and 0.75), placed at those fractions of each fade. */
+  --scroll-edge-fade-alpha-low: rgb(0 0 0 / 0.06);
+  --scroll-edge-fade-alpha-mid: rgb(0 0 0 / 0.25);
+  --scroll-edge-fade-alpha-high: rgb(0 0 0 / 0.56);
+  overflow-y: auto;
+  padding-block: var(--scroll-edge-fade-inset);
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent,
+      var(--scroll-edge-fade-alpha-low) calc(var(--scroll-edge-fade-top) * 0.25),
+      var(--scroll-edge-fade-alpha-mid) calc(var(--scroll-edge-fade-top) * 0.5),
+      var(--scroll-edge-fade-alpha-high)
+        calc(var(--scroll-edge-fade-top) * 0.75),
+      black var(--scroll-edge-fade-top),
+      black calc(100% - var(--scroll-edge-fade-bottom)),
+      var(--scroll-edge-fade-alpha-high)
+        calc(100% - var(--scroll-edge-fade-bottom) * 0.75),
+      var(--scroll-edge-fade-alpha-mid)
+        calc(100% - var(--scroll-edge-fade-bottom) * 0.5),
+      var(--scroll-edge-fade-alpha-low)
+        calc(100% - var(--scroll-edge-fade-bottom) * 0.25),
+      transparent
+    ),
+    linear-gradient(black, black);
+  mask-size:
+    calc(100% - var(--spacing-sm)) 100%,
+    var(--spacing-sm) 100%;
+  mask-position: left, right;
+  mask-repeat: no-repeat;
+}
+
+.scroll-edge-fade--sm {
+  --scroll-edge-fade-inset: var(--spacing-sm);
+}
+
+.scroll-edge-fade::-webkit-scrollbar-track {
+  margin-block: var(--scroll-edge-fade-inset);
+}
+
+/* Without scroll timelines the animations would run on the document timeline with zero duration and hold their last keyframe, fading content at rest; the fade then stays at the padding alone. */
+@supports (animation-timeline: scroll()) {
+  .scroll-edge-fade {
+    animation:
+      scroll-edge-fade-reach-top linear both,
+      scroll-edge-fade-reach-bottom linear both;
+    animation-timeline: scroll(self);
+    animation-range:
+      0 var(--scroll-edge-fade-reach),
+      calc(100% - var(--scroll-edge-fade-reach)) 100%;
+  }
+}
+
+@keyframes scroll-edge-fade-reach-top {
+  to {
+    --scroll-edge-fade-reach-top: var(--scroll-edge-fade-reach);
+  }
+}
+
+@keyframes scroll-edge-fade-reach-bottom {
+  from {
+    --scroll-edge-fade-reach-bottom: var(--scroll-edge-fade-reach);
+  }
+}

@@ -1,5 +1,6 @@
 .content-section-body {
   display: flex;
+  align-items: flex-start; /* A section body taller than the max height keeps its own height instead of being stretched to it, so the scroll range ends after the section body and any bottom padding, not inside them. */
   max-height: var(--popup-content-section-height);
   max-width: var(--popup-content-max-width);
   overflow-y: auto;
