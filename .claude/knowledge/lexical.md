@@ -454,3 +454,24 @@ A caller that needs the removal to precede a decision on the caret position stil
 **Citation:** [implement_1: ran `npx vitest run` on `app/src/components/TextEditor/plugins/ToggleKeyboardPlugin/__tests__/ToggleKeyboardPlugin.test.tsx` with `KEY_BACKSPACE_COMMAND` dispatched with a keydown event — observed the header `Hello` unchanged with the caret at offset 3, and the header `abc`, a soft line break, `def` becoming `abcdef` with the caret at offset 0 of `def`]
 
 Deleting a character inside a text node is left to the browser's own input event, so a test of that case compares the outcome with and without the plugin.
+
+## `LexicalMenu` passes `null` as the query node to `onSelectOption` when the selection is not a collapsed caret in a simple text node, or the text before the caret in that node is shorter than the match's `replaceableString`
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [fix_1: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:141-175` — `$splitNodeContainingQuery` returns `null` for a non-range or non-collapsed selection (:144), a non-text anchor (:148), an anchor node that is not simple text (:152) and a negative start offset (:163-164); :353-367 — `selectOptionAndCleanUp` passes its result to `onSelectOption` as `textNodeContainingQuery`]
+
+With `null` there is no query node to replace, so a handler that attaches its node only through that node leaves it unattached.
+
+## `LexicalTypeaheadMenuPlugin` stores a new match inside `startTransition` and closes the menu through React state, so until React re-renders, the menu's key handlers act on the match it last rendered
+
+**Verified at:** @lexical/react 0.52.0
+**Citation:** [fix_2: `app/node_modules/@lexical/react/src/LexicalTypeaheadMenuPlugin.tsx:250-255` — the update listener calls `openTypeahead` inside `startTransition`; :176-181 — `closeTypeahead` calls `setResolution(null)`; `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:353-370` — `selectOptionAndCleanUp` reads `resolution.match` from the rendered props]; [fix_3: ran `npx vitest run` on `app/src/components/TextEditor/plugins/MentionTypeaheadPlugin/__tests__/MentionTypeaheadPlugin.test.tsx` with the query text removed and `KEY_ENTER_COMMAND` dispatched in one `act` — observed `Expected node 9 to have a parent.` thrown from `MentionTypeaheadPlugin.tsx` as of commit `6abcd482`, whose `onSelectOption` attaches the mention only by replacing the query node]
+
+An update that moves the caret off the query and an Enter that follows it before the next render therefore reach `onSelectOption` with a `null` query node.
+
+## `$insertNodes` inserts into the current selection, falling back to the previous selection and then to the end of the root
+
+**Verified at:** lexical 0.52.0
+**Citation:** [fix_4: `app/node_modules/lexical/dist/Lexical.dev.js:15591-15598` — `$insertNodes` takes `$getSelection() || $getPreviousSelection()`, uses `$getRoot().selectEnd()` when both are `null`, and calls `selection.insertNodes(nodes)`]; [fix_5: ran `npx vitest run` on `app/src/components/TextEditor/plugins/MentionTypeaheadPlugin/__tests__/MentionTypeaheadPlugin.test.tsx` — observed a `MentionNode` passed to `$insertNodes` with a collapsed caret in an empty paragraph end up as that paragraph's child, with `selectNext` on it succeeding]
+
+What `selection.insertNodes` does with the nodes for other selections, such as a non-collapsed range or a node selection, was not checked.
