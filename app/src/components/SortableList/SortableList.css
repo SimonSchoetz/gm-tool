@@ -3,8 +3,10 @@
   flex-direction: column;
   position: relative;
   height: 100%;
-  --sortable-list-padding: calc(var(--spacing-md) - var(--spacing-xs));
-  padding: var(--sortable-list-padding); /* preserves btn hover shadow*/
+  padding: calc(
+    var(--spacing-md) - var(--spacing-xs)
+  ); /* preserves btn hover shadow*/
+  padding-bottom: 0; /* the table's `scroll-edge-fade` padding is the bottom spacing */
   min-height: 0;
 }
 
@@ -20,8 +22,6 @@
   flex-direction: column;
   gap: var(--spacing-xs);
   padding-inline: var(--spacing-xs); /* preserves btn hover shadow*/
-  /* Takes the list's bottom padding as the fade's spacing; the track inset of `scroll-edge-fade--shadow-gutter` assumes that padding is the spacing minus its xs gutter. */
-  margin-bottom: calc(-1 * var(--sortable-list-padding));
 }
 
 .sortable-list--table li {

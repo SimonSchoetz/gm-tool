@@ -4,7 +4,6 @@
   margin-block: calc(-1 * var(--spacing-sm));
 }
 
-/* The `scroll-edge-fade--sm` padding replaces the popup body's block padding, so the max height grows by it. */
 .entity-read-only-view-body {
   max-height: var(--popup-content-section-height-faded);
 }
