@@ -14,13 +14,15 @@ export const EncounterLogComposer = () => {
 
   return (
     <div className='encounter-log-composer'>
-      <TextEditor
-        variant='message'
-        textEditorId={`encounter-log-composer-${encounterId}`}
-        value=''
-        placeholder='Write a message...'
-        onSubmit={onSubmit}
-      />
+      <div className='encounter-log-composer-scroll scroll-edge-fade scroll-edge-fade--sm'>
+        <TextEditor
+          variant='message'
+          textEditorId={`encounter-log-composer-${encounterId}`}
+          value=''
+          placeholder='Write a message...'
+          onSubmit={onSubmit}
+        />
+      </div>
     </div>
   );
 };

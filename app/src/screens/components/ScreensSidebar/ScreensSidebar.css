@@ -1,5 +1,6 @@
 .screens-sidebar {
   width: calc(var(--screens-sidebar-base-width) + 2 * var(--spacing-md));
+  --scroll-edge-fade-track-inset: 0;
   padding-inline: var(--spacing-md);
   display: flex;
   flex-direction: column;
