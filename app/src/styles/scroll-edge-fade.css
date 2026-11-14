@@ -1,4 +1,4 @@
-/* A consumer gives up its own margin on the faded sides (removes or negates it), since this class's padding takes that spacing. The box's in-flow children must take their content's height: a child stretched to a capped box height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The scrollbar's unmasked strip is `var(--spacing-sm)` wide because `::-webkit-scrollbar` in `scrollbar.css` is 0.5rem. The `scroll-padding-block` keeps a row that `scrollIntoView` or keyboard focus brings in clear of the fade. A box whose spacing was its own padding takes `--own-padding`, since a scrollbar track spans the padding box and would otherwise end up shorter than it was. An edge with no spacing takes `--no-top` or `--no-bottom`, which give that edge no padding, no fade and no track margin. The track insets are plain custom properties, since a registered one that does not inherit never reaches the scrollbar's pseudo-element. */
+/* A consumer gives up its own margin on the faded sides (removes or negates it), since this class's padding takes that spacing. The box's in-flow children must take their content's height: a child stretched to a capped box height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The scrollbar's unmasked strip is `var(--spacing-sm)` wide because `::-webkit-scrollbar` in `scrollbar.css` is 0.5rem. The `scroll-padding-block` keeps a row that `scrollIntoView` or keyboard focus brings in clear of the fade. A box whose spacing was its own padding takes `--own-padding`, since a scrollbar track spans the padding box and would otherwise end up shorter than it was. An edge with no spacing takes `--no-top` or `--no-bottom`, which give that edge no padding, no fade and no track margin. A box that keeps a `--spacing-xs` gutter of its own inside its spacing, so that a hover shadow is not clipped, takes `--shadow-gutter`, since only the rest of the spacing was added to the box. The track insets are plain custom properties, since a registered one that does not inherit never reaches the scrollbar's pseudo-element. */
 
 @property --scroll-edge-fade-reach-top {
   syntax: '<length>';
@@ -75,6 +75,17 @@
 .scroll-edge-fade--own-padding {
   --scroll-edge-fade-track-inset-top: 0px;
   --scroll-edge-fade-track-inset-bottom: 0px;
+}
+
+.scroll-edge-fade--shadow-gutter {
+  --scroll-edge-fade-track-inset-top: max(
+    0px,
+    calc(var(--scroll-edge-fade-inset-top) - var(--spacing-xs))
+  );
+  --scroll-edge-fade-track-inset-bottom: max(
+    0px,
+    calc(var(--scroll-edge-fade-inset-bottom) - var(--spacing-xs))
+  );
 }
 
 .scroll-edge-fade--no-top {

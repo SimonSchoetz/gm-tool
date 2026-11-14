@@ -108,7 +108,7 @@ export const SortableList = <
         />
       </div>
 
-      <ul className='sortable-list--table'>
+      <ul className='sortable-list--table scroll-edge-fade scroll-edge-fade--no-top scroll-edge-fade--shadow-gutter'>
         {showCreateNewBtn && (
           <li key='new-item-button'>
             <NewItemBtn label='Create new item' onClick={onCreateNew} />
