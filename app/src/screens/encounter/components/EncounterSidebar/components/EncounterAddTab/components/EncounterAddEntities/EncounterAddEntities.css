@@ -27,10 +27,10 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   gap: var(--spacing-xs);
-  margin: 0;
+  /* Takes the sidebar panel's bottom padding as the fade's spacing. */
+  margin: 0 0 calc(-1 * var(--spacing-sm));
   /* The right padding gives a row's plus icon the room its hover growth (`scale: 1.1`) needs: scaled content counts as overflow, so without it hovering an icon adds a horizontal scrollbar to this list. */
-  padding: 0 var(--spacing-xs) 0 0;
+  padding-right: var(--spacing-xs);
   list-style: none;
 }

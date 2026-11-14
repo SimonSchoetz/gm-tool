@@ -23,12 +23,17 @@
   margin: 0;
 }
 
-.error-fallback-view-details {
-  overflow-y: auto;
+.error-fallback-view-details-frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   border: var(--border-thin) solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--spacing-sm);
   background: rgb(var(--color-bg-rgb), 0.5);
+}
+
+.error-fallback-view-details {
+  padding-inline: var(--spacing-sm);
 }
 
 .error-fallback-view-details summary {

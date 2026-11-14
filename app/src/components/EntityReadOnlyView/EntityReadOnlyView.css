@@ -1,3 +1,9 @@
 .entity-read-only-view-region {
   flex: 1;
+  /* Takes the popup body's block padding as the fade's spacing; the region is the slide transition's root, which clips what lies outside it. */
+  margin-block: calc(-1 * var(--spacing-sm));
+}
+
+.entity-read-only-view-body {
+  max-height: var(--popup-content-section-height-faded);
 }

@@ -12,6 +12,6 @@
 }
 
 .base-entity-content-section-panel-body {
-  margin: var(--spacing-sm);
-  margin-left: 0;
+  margin-right: var(--spacing-sm);
+  max-height: var(--popup-content-section-height-faded);
 }

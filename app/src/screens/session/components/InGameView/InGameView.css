@@ -7,14 +7,14 @@
 }
 
 .in-game-view--summary {
-  padding: var(--spacing-sm);
-  padding-left: 0;
+  padding-right: var(--spacing-sm);
   border-radius: var(--radius-lg);
 }
 
-.in-game-view--summary-text-editor {
-  height: var(--popup-content-section-height);
-  overflow-y: auto;
+.in-game-view--summary-scroll {
+  display: flex;
+  flex-direction: column;
+  height: var(--popup-content-section-height-faded);
 }
 
 .in-game-view--steps {
@@ -22,5 +22,6 @@
   flex-direction: column;
   gap: var(--spacing-md);
   min-height: 0;
-  overflow-y: auto;
+  /* Takes the view's bottom padding as the fade's spacing. */
+  margin-bottom: calc(-1 * var(--spacing-md));
 }

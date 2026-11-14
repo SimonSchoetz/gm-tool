@@ -32,10 +32,11 @@
   min-height: 0;
 }
 
+/* The `scroll-edge-fade` padding takes the gap above and the margin below. */
 .screens-text-editor-layout--body-scroll {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow-y: auto;
+  margin-block: calc(-1 * var(--spacing-md));
 }

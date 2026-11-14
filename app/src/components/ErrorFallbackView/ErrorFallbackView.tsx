@@ -27,10 +27,12 @@ export const ErrorFallbackView: FCProps<Props> = ({
       <p className='error-fallback-view-message'>{errorMessage}</p>
 
       {isDevelopment && errorStack && (
-        <details className='error-fallback-view-details'>
-          <summary>Stack trace</summary>
-          <pre className='error-fallback-view-stack'>{errorStack}</pre>
-        </details>
+        <div className='error-fallback-view-details-frame'>
+          <details className='error-fallback-view-details scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--own-padding'>
+            <summary>Stack trace</summary>
+            <pre className='error-fallback-view-stack'>{errorStack}</pre>
+          </details>
+        </div>
       )}
 
       <div className='error-fallback-view-actions'>

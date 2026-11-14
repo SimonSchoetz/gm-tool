@@ -1,7 +1,8 @@
 .encounter-shown-item {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  /* Takes the screen body's bottom padding as the fade's spacing. */
+  margin-bottom: calc(-1 * var(--spacing-md));
 }
 
 .encounter-shown-item > * + * {

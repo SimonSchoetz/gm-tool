@@ -1,5 +1,5 @@
 .entity-popup-body-text {
-  max-height: var(--popup-content-section-height);
+  max-height: var(--popup-content-section-height-faded);
   max-width: var(--popup-content-max-width);
-  overflow-y: auto;
+  margin-block: calc(-1 * var(--spacing-sm));
 }

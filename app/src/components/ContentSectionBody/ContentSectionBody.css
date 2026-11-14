@@ -1,5 +1,6 @@
 .content-section-body {
   display: flex;
+  align-items: flex-start; /* Not stretched to the max height, so bottom padding stays after the overflow. */
   max-height: var(--popup-content-section-height);
   max-width: var(--popup-content-max-width);
   overflow-y: auto;

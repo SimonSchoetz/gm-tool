@@ -24,7 +24,7 @@ export const SideBarNav: FCProps<Props> = ({ className, ...props }) => {
   return (
     <aside className={cn('sidebar-nav', className)} {...props}>
       <GlassPanel className='sidebar-nav--content-container'>
-        <ul className='sidebar-nav--btn-group'>
+        <ul className='sidebar-nav--btn-group scroll-edge-fade scroll-edge-fade--shadow-gutter'>
           <li>
             <ScreenNavBtn label='Adventures' to='/adventures' />
           </li>

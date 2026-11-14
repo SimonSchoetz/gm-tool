@@ -2,6 +2,9 @@
   --popup-content-section-height: calc(
     200px - 2 * var(--spacing-md)
   ); /* rooted in the UI of item screens */
+  --popup-content-section-height-faded: calc(
+    var(--popup-content-section-height) + 2 * var(--spacing-sm)
+  ); /* the height of a box that takes `scroll-edge-fade--sm` spacing on both sides */
   --popup-content-max-width: 450px;
   --dialog-max-width: 640px;
   --mention-popup-max-height: 14rem; /* <=7 visible rows */

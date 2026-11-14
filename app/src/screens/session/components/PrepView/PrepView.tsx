@@ -23,7 +23,7 @@ export const PrepView: FCProps<Props> = ({
   }
 
   return (
-    <div className='prep-view'>
+    <div className='prep-view scroll-edge-fade'>
       {steps.map((step) => (
         <StepSection
           key={step.id}
