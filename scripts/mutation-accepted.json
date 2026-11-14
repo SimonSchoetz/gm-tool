@@ -648,6 +648,33 @@
     "reason": "resolveHoveredRow resolves a pointer exactly at the first row's top to that row, so this branch never sees a pointer equal to first.top and `<` and `<=` choose the same row"
   },
   {
+    "file": "src/components/TextEditor/plugins/ScrollPaddingCaretPlugin/helper/computeCaretScrollDelta.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "caret.top <= rangeTop",
+    "lineText": "if (caret.top < rangeTop) return caret.top - rangeTop;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "At caret.top === rangeTop the branch returns caret.top - rangeTop, which is 0, and falling through to the bottom check also returns 0 there (the minimum with caret.top - rangeTop, which is 0), so no input observes the difference."
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ScrollPaddingCaretPlugin/helper/computeCaretScrollDelta.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "caret.bottom >= rangeBottom",
+    "lineText": "if (caret.bottom > rangeBottom) {",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "At caret.bottom === rangeBottom the branch returns the minimum of 0 and caret.top - rangeTop, which is not negative once the top branch failed, so it returns 0, the same as the fall-through, and no input observes the difference."
+  },
+  {
+    "file": "src/components/TextEditor/plugins/ScrollPaddingCaretPlugin/helper/revealCaretClearOfScrollPadding.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "lineText": "ancestor !== null && ancestor !== documentBody;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "The loop ends at the document body before parentElement turns null, since the root is the focused element and so attached to the document; the null test only narrows the type of parentElement, and no input observes it."
+  },
+  {
     "file": "src/components/TextEditor/plugins/ToggleKeyboardPlugin/helper/resolveHeaderToggleForRemoval.ts",
     "mutator": "ConditionalExpression",
     "replacement": "false",

@@ -30,6 +30,7 @@ import { EmbeddedLinkPlugin } from './plugins/EmbeddedLinkPlugin/EmbeddedLinkPlu
 import { EmptyNodeHintPlugin } from './plugins/EmptyNodeHintPlugin/EmptyNodeHintPlugin';
 import { ExternalValueSyncPlugin } from './plugins/ExternalValueSyncPlugin';
 import { SendOnEnterPlugin } from './plugins/SendOnEnterPlugin';
+import { ScrollPaddingCaretPlugin } from './plugins/ScrollPaddingCaretPlugin/ScrollPaddingCaretPlugin';
 import { MentionFormatPlugin } from './plugins/MentionFormatPlugin/MentionFormatPlugin';
 import { SlashCommandPlugin } from './plugins/SlashCommandPlugin';
 import { TableCellBackgroundGuardPlugin } from './plugins/TableCellBackgroundGuardPlugin/TableCellBackgroundGuardPlugin';
@@ -193,6 +194,7 @@ export const TextEditor: FCProps<Props> = ({
             <BlockDragHandlePlugin anchorElem={anchorElem} />
           )}
           {!readOnly && <MentionFormatPlugin />}
+          {!readOnly && <ScrollPaddingCaretPlugin />}
           {isDocument && !readOnly && <EmptyNodeHintPlugin />}
           {isDocument && !readOnly && <ToggleKeyboardPlugin />}
           {isDocument && !readOnly && <ToggleHeaderGuardPlugin />}
