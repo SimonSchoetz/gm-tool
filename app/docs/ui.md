@@ -19,7 +19,7 @@ UI/UX decisions that hold across the app: what the project's UI conventions leav
 | A border or background that an area paints itself, such as the log composer's border or the error details' frame, stays fully visible: only the content fades | A faded border would read as a broken edge | Claude's call, 2026-11-14; hand test |
 | The sortable entity tables and the sidebar's button list fade like every other area, with a gutter of 4 px kept around the buttons so that a hover shadow at an edge is not cut off | "why the list screens don't have the fade?" | proposed by Claude, accepted by Simon Schötz, 2026-11-14; hand test |
 | The height of a content section box that takes the `--sm` fade spacing on both sides is one design token, `--popup-content-section-height-faded`, which the entity view, the mention popup's description, the in-game summary and the content section panel use | A change of the fade spacing then edits one value | proposed by Claude, accepted by Simon Schötz, 2026-11-14; no test |
-| On a Mac whose WebKit has no scroll-driven animations (Safari before 26), the fade covers only the spacing, so an edge with none has no fade | Without them the reach cannot follow the scroll, and a fixed reach would fade content at rest | Claude's call, 2026-11-14; hand test |
+| On a Mac whose WebKit has no scroll-driven animations (Safari before 26), the fade covers only the spacing, so an edge with none has no fade | Without them the reach cannot follow the scroll, and a fixed reach would fade content at rest | Claude's call, 2026-11-14; no test |
 
 ## Where to look
 
