@@ -3,9 +3,8 @@
   flex-direction: column;
   position: relative;
   height: 100%;
-  padding: calc(
-    var(--spacing-md) - var(--spacing-xs)
-  ); /* preserves btn hover shadow*/
+  --sortable-list-padding: calc(var(--spacing-md) - var(--spacing-xs));
+  padding: var(--sortable-list-padding); /* preserves btn hover shadow*/
   min-height: 0;
 }
 
@@ -21,9 +20,8 @@
   flex-direction: column;
   gap: var(--spacing-xs);
   padding-inline: var(--spacing-xs); /* preserves btn hover shadow*/
-  padding-top: var(--spacing-xs); /* preserves btn hover shadow*/
   /* Takes the list's bottom padding as the fade's spacing; its own gutter stays inside that spacing. */
-  margin-bottom: calc(var(--spacing-xs) - var(--spacing-md));
+  margin-bottom: calc(-1 * var(--sortable-list-padding));
 }
 
 .sortable-list--table li {

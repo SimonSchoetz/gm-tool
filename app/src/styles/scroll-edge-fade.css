@@ -1,4 +1,4 @@
-/* A consumer gives up its own margin on the faded sides (removes or negates it), since this class's padding takes that spacing. The box's in-flow children must take their content's height: a child stretched to a capped box height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The scrollbar's unmasked strip is `var(--spacing-sm)` wide because `::-webkit-scrollbar` in `scrollbar.css` is 0.5rem. The `scroll-padding-block` keeps a row that `scrollIntoView` or keyboard focus brings in clear of the fade. A box whose spacing was its own padding takes `--own-padding`, since a scrollbar track spans the padding box and would otherwise end up shorter than it was. An edge with no spacing takes `--no-top` or `--no-bottom`, which give that edge no padding, no fade and no track margin. A box that keeps a `--spacing-xs` gutter of its own inside its spacing, so that a hover shadow is not clipped, takes `--shadow-gutter`, since only the rest of the spacing was added to the box. The track insets are plain custom properties, since a registered one that does not inherit never reaches the scrollbar's pseudo-element. */
+/* A consumer gives up its own margin on the faded sides (removes or negates it), since this class's padding takes that spacing. The box's in-flow children must take their content's height: a child stretched to a capped box height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The scrollbar's unmasked strip is `var(--spacing-sm)` wide because `::-webkit-scrollbar` in `scrollbar.css` is 0.5rem. The `scroll-padding-block` keeps a row that `scrollIntoView` or keyboard focus brings in clear of the fade. A box whose spacing is its own padding takes `--own-padding`: a scrollbar track spans the padding box, so it keeps that length only with no track inset. An edge with no spacing takes `--no-top` or `--no-bottom`: it has no padding and no track margin, and fades over the scroll-driven reach alone, twice the box's spacing. A box whose faded edges keep a `--spacing-xs` gutter, so that a hover shadow is not clipped, takes `--shadow-gutter`: the gutter is the padding of an edge with no spacing and part of the padding of one with, and its track inset is the spacing minus that gutter. The track insets are plain custom properties, since a registered one that does not inherit never reaches the scrollbar's pseudo-element. */
 
 @property --scroll-edge-fade-reach-top {
   syntax: '<length>';
@@ -18,9 +18,13 @@
   --scroll-edge-fade-inset-bottom: var(--scroll-edge-fade-inset);
   --scroll-edge-fade-track-inset-top: var(--scroll-edge-fade-inset-top);
   --scroll-edge-fade-track-inset-bottom: var(--scroll-edge-fade-inset-bottom);
-  --scroll-edge-fade-reach-max-top: calc(2 * var(--scroll-edge-fade-inset-top));
+  --scroll-edge-fade-reach-inset-top: var(--scroll-edge-fade-inset-top);
+  --scroll-edge-fade-reach-inset-bottom: var(--scroll-edge-fade-inset-bottom);
+  --scroll-edge-fade-reach-max-top: calc(
+    2 * var(--scroll-edge-fade-reach-inset-top)
+  );
   --scroll-edge-fade-reach-max-bottom: calc(
-    2 * var(--scroll-edge-fade-inset-bottom)
+    2 * var(--scroll-edge-fade-reach-inset-bottom)
   );
   --scroll-edge-fade-top: calc(
     var(--scroll-edge-fade-inset-top) + var(--scroll-edge-fade-reach-top)
@@ -78,6 +82,8 @@
 }
 
 .scroll-edge-fade--shadow-gutter {
+  padding-block: max(var(--scroll-edge-fade-inset-top), var(--spacing-xs))
+    max(var(--scroll-edge-fade-inset-bottom), var(--spacing-xs));
   --scroll-edge-fade-track-inset-top: max(
     0px,
     calc(var(--scroll-edge-fade-inset-top) - var(--spacing-xs))
@@ -90,10 +96,12 @@
 
 .scroll-edge-fade--no-top {
   --scroll-edge-fade-inset-top: 0px;
+  --scroll-edge-fade-reach-inset-top: var(--scroll-edge-fade-inset);
 }
 
 .scroll-edge-fade--no-bottom {
   --scroll-edge-fade-inset-bottom: 0px;
+  --scroll-edge-fade-reach-inset-bottom: var(--scroll-edge-fade-inset);
 }
 
 .scroll-edge-fade::-webkit-scrollbar-track {

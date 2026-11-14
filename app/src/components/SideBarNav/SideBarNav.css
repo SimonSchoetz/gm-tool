@@ -7,9 +7,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: calc(
-    var(--spacing-md) - var(--spacing-xs)
-  ); /* preserves btn hover shadow */
+  --sidebar-nav-padding: calc(var(--spacing-md) - var(--spacing-xs));
+  padding: var(--sidebar-nav-padding); /* preserves btn hover shadow */
 }
 
 .sidebar-nav--btn-group {
@@ -18,7 +17,7 @@
   gap: var(--spacing-xs);
   padding-inline: var(--spacing-xs); /* preserves btn hover shadow */
   /* Takes the panel's block padding as the fade's spacing; its own gutter stays inside that spacing. */
-  margin-block: calc(var(--spacing-xs) - var(--spacing-md));
+  margin-block: calc(-1 * var(--sidebar-nav-padding));
 }
 
 .sidebar-nav--btn-group li {

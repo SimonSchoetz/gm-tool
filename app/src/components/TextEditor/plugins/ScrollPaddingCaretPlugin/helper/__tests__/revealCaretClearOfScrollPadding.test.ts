@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { LexicalEditor } from 'lexical';
+import {
+  SKIP_DOM_SELECTION_TAG,
+  SKIP_SCROLL_INTO_VIEW_TAG,
+  type LexicalEditor,
+} from 'lexical';
 import { revealCaretClearOfScrollPadding } from '../revealCaretClearOfScrollPadding';
 
 type Edges = { top: number; bottom: number };
@@ -47,9 +51,10 @@ const stubSelection = (
   } as unknown as Selection);
 };
 
-type SelectionStub = { is: (other: unknown) => boolean };
-const unchangedSelection: SelectionStub = { is: () => true };
-const changedSelection: SelectionStub = { is: () => false };
+type SelectionStub = { dirty: boolean; isCollapsed: () => boolean };
+const cleanSelection: SelectionStub = { dirty: false, isCollapsed: () => true };
+const dirtySelection: SelectionStub = { dirty: true, isCollapsed: () => true };
+const rangeSelection: SelectionStub = { dirty: true, isCollapsed: () => false };
 
 type UpdateOptions = {
   editable?: boolean;
@@ -59,7 +64,7 @@ type UpdateOptions = {
   selection?: SelectionStub | null;
 };
 
-// What Lexical hands an update listener, with the parts the driver reads: by default one changed leaf and an unchanged selection.
+// What Lexical hands an update listener, with the parts the driver reads: by default one changed leaf and a clean, collapsed selection.
 const reveal = (
   root: HTMLElement | null,
   {
@@ -67,7 +72,7 @@ const reveal = (
     tags = [],
     dirtyElements = [],
     dirtyLeaves = ['leaf'],
-    selection = unchangedSelection,
+    selection = cleanSelection,
   }: UpdateOptions = {},
 ) => {
   const editor = {
@@ -79,7 +84,6 @@ const reveal = (
     dirtyElements: new Map(dirtyElements.map((key) => [key, true])),
     dirtyLeaves: new Set(dirtyLeaves),
     editorState: { read: () => selection },
-    prevEditorState: { read: () => null },
   } as unknown as Parameters<typeof revealCaretClearOfScrollPadding>[1];
   revealCaretClearOfScrollPadding(editor, update);
 };
@@ -119,18 +123,19 @@ describe('revealCaretClearOfScrollPadding', () => {
 
   it.each([
     ['the editor is not editable', { editable: false }],
-    ['the update skips the DOM selection', { tags: ['skip-dom-selection'] }],
+    ['the update skips the DOM selection', { tags: [SKIP_DOM_SELECTION_TAG] }],
     [
       'the update skips the scroll into view',
-      { tags: ['skip-scroll-into-view'] },
+      { tags: [SKIP_SCROLL_INTO_VIEW_TAG] },
     ],
     [
-      'no node changed and the selection did not',
-      { dirtyLeaves: [], selection: unchangedSelection },
+      'no node changed and the selection is clean',
+      { dirtyLeaves: [], selection: cleanSelection },
     ],
+    ['there is no selection', { selection: null }],
     [
-      'no node changed and there is no selection',
-      { dirtyLeaves: [], selection: null },
+      'the selection is a range',
+      { dirtyLeaves: ['leaf'], selection: rangeSelection },
     ],
   ])(
     'scrolls nothing when %s, as Lexical itself does not scroll',
@@ -146,10 +151,9 @@ describe('revealCaretClearOfScrollPadding', () => {
 
   it.each([
     ['a changed element', { dirtyLeaves: [], dirtyElements: ['p'] }],
-    ['a changed leaf', { dirtyLeaves: ['text'] }],
     [
-      'a changed selection with no changed node',
-      { dirtyLeaves: [], selection: changedSelection },
+      'a dirty selection with no changed node',
+      { dirtyLeaves: [], selection: dirtySelection },
     ],
   ])(
     'moves the scroller for %s, as Lexical itself scrolls',

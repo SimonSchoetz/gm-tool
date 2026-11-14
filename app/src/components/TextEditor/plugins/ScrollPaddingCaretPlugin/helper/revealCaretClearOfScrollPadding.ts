@@ -9,7 +9,7 @@ import { computeCaretScrollDelta } from './computeCaretScrollDelta';
 
 type EditorUpdate = Pick<
   Parameters<UpdateListener>[0],
-  'tags' | 'dirtyElements' | 'dirtyLeaves' | 'editorState' | 'prevEditorState'
+  'tags' | 'dirtyElements' | 'dirtyLeaves' | 'editorState'
 >;
 
 type ScrollPaddedAncestor = {
@@ -22,17 +22,16 @@ export const revealCaretClearOfScrollPadding = (
   editor: LexicalEditor,
   update: EditorUpdate,
 ): void => {
-  // Lexical scrolls the caret itself only for an editable editor, an update that skips neither its DOM selection nor its scroll, and changed nodes or a changed selection; correcting any other update would pull back a scroll the user made.
+  // Lexical scrolls the caret itself only for an editable editor, an update that skips neither its DOM selection nor its scroll, a collapsed selection, and changed nodes or a dirty selection; correcting any other update would pull back a scroll the user made.
   if (!editor.isEditable()) return;
   if (update.tags.has(SKIP_DOM_SELECTION_TAG)) return;
   if (update.tags.has(SKIP_SCROLL_INTO_VIEW_TAG)) return;
   const selection = update.editorState.read($getSelection);
+  if (selection === null) return;
+  if (!selection.isCollapsed()) return;
   const changedNodes =
     update.dirtyElements.size > 0 || update.dirtyLeaves.size > 0;
-  const changedSelection =
-    selection !== null &&
-    !selection.is(update.prevEditorState.read($getSelection));
-  if (!changedNodes && !changedSelection) return;
+  if (!changedNodes && !selection.dirty) return;
 
   const rootElement = editor.getRootElement();
   if (rootElement === null) return;

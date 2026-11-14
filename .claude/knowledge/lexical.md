@@ -454,3 +454,17 @@ A caller that needs the removal to precede a decision on the caret position stil
 **Citation:** [implement_1: ran `npx vitest run` on `app/src/components/TextEditor/plugins/ToggleKeyboardPlugin/__tests__/ToggleKeyboardPlugin.test.tsx` with `KEY_BACKSPACE_COMMAND` dispatched with a keydown event — observed the header `Hello` unchanged with the caret at offset 3, and the header `abc`, a soft line break, `def` becoming `abcdef` with the caret at offset 0 of `def`]
 
 Deleting a character inside a text node is left to the browser's own input event, so a test of that case compares the outcome with and without the plugin.
+
+## Lexical 0.52 reads `scroll-padding` only on the document element when it scrolls the caret into view, and scrolls every other ancestor to its border-box rect
+
+**Verified at:** lexical 0.52.0 (`app/node_modules/lexical/package.json:12`)
+**Citation:** [implement_27: `app/node_modules/lexical/src/LexicalUtils.ts:1866-1926` — read: the `scroll-padding-top` and `scroll-padding-bottom` of `doc.documentElement` are added to the body's target rect, and each other ancestor's own `getBoundingClientRect()` is the target of its `scrollTop` change]
+
+A scroll container below the body that sets `scroll-padding` does not keep the caret clear of that padding when Lexical scrolls it into view.
+
+## Lexical 0.52 scrolls the caret into view only for an editable editor, an update with neither `skip-dom-selection` nor `skip-scroll-into-view`, changed nodes or a changed selection, a collapsed selection and the root as the active element
+
+**Verified at:** lexical 0.52.0 (`app/node_modules/lexical/package.json:12`)
+**Citation:** [implement_28: `app/node_modules/lexical/src/LexicalUpdates.ts:760-789` and `app/node_modules/lexical/src/LexicalSelection.ts:4376-4410` — read]
+
+`$updateDOMSelection` runs only when `editor._editable` holds, the update lacks `SKIP_DOM_SELECTION_TAG`, and `needsUpdate`, a missing selection, a dirty selection or a selection unequal to the current one holds; its scroll branch then also needs `SKIP_SCROLL_INTO_VIEW_TAG` absent, a collapsed selection and the root as the active element.
