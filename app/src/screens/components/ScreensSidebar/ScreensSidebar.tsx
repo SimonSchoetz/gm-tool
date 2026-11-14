@@ -14,7 +14,7 @@ export const ScreensSidebar: FCProps<Props> = ({
 }) => {
   return (
     <aside
-      className={cn('screens-sidebar', className)}
+      className={cn('screens-sidebar scroll-edge-fade', className)}
       style={
         {
           '--screens-sidebar-base-width': `${PREVIEW_WIDTH}px`,

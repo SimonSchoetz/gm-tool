@@ -1,4 +1,3 @@
 .prep-view {
-  overflow-y: auto;
-  margin: var(--spacing-md);
+  margin-inline: var(--spacing-md);
 }
