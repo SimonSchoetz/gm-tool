@@ -9,7 +9,8 @@
 .encounter-log-tab-scroll {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  /* Takes the sidebar panel's top padding as the fade's spacing. */
+  margin-top: calc(-1 * var(--spacing-sm));
 }
 
 .encounter-log-tab-list {

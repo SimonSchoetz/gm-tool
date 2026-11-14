@@ -16,4 +16,4 @@ UI/UX decisions that hold across the app: what the project's UI conventions leav
 
 ## Where to look
 
-- `app/src/styles/scroll-edge-fade.css` — the `scroll-edge-fade` class, its `--sm` size and the `scroll-padding-block` that keeps a scrolled-to row clear of the fade.
+- `app/src/styles/scroll-edge-fade.css` — the `scroll-edge-fade` class, its `--sm` size, the `--no-top` and `--no-bottom` modifiers for an edge with no spacing, and the `scroll-padding-block` that keeps a scrolled-to row clear of the fade.

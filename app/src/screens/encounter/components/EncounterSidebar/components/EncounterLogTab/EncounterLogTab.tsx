@@ -23,7 +23,10 @@ export const EncounterLogTab: FCProps<Props> = ({ isOpen }) => {
 
   return (
     <div className='encounter-log-tab'>
-      <div ref={scrollRef} className='encounter-log-tab-scroll'>
+      <div
+        ref={scrollRef}
+        className='encounter-log-tab-scroll scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-bottom'
+      >
         {loading && (
           <div className='content-center'>
             <LoadingIcon />

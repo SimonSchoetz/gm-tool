@@ -13,7 +13,10 @@ import { EntityPopupBody } from '../EntityPopupBody/EntityPopupBody';
 import type { EntitySectionHeaderLeading } from '../EntitySectionHeaderLeading/EntitySectionHeaderLeading';
 import { SlideTransition } from '../SlideTransition/SlideTransition';
 import { UpDownBtns } from '../UpDownBtns/UpDownBtns';
-import './EntityReadOnlyView.css';
+import './EntityReadOnlyView.css'; // After the ContentSectionBody import: `.entity-read-only-view-body`'s `max-height` ties with `.content-section-body`'s and must win
+
+const SECTION_BODY_CLASS =
+  'entity-read-only-view-body scroll-edge-fade scroll-edge-fade--sm';
 
 type HeaderProps = React.ComponentProps<typeof EntitySectionHeaderLeading>;
 
@@ -93,6 +96,7 @@ export const EntityReadOnlyView: FCProps<Props> = ({
               section={transition.from}
               baseEntityId={entityId}
               readOnly
+              className={SECTION_BODY_CLASS}
             />
           ),
         };
@@ -115,6 +119,7 @@ export const EntityReadOnlyView: FCProps<Props> = ({
               section={selected}
               baseEntityId={entityId}
               readOnly
+              className={SECTION_BODY_CLASS}
             />
           </SlideTransition>
         )}

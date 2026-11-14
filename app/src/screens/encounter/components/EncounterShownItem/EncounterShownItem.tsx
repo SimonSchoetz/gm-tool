@@ -22,7 +22,10 @@ export const EncounterShownItem: FCProps<Props> = ({ shownItemId }) => {
   if (entry === null) return;
 
   return (
-    <div key={shownItemId} className='encounter-shown-item'>
+    <div
+      key={shownItemId}
+      className='encounter-shown-item scroll-edge-fade scroll-edge-fade--no-top'
+    >
       {entry.kind === 'event' ? (
         <EncounterShownEvent shownItemId={shownItemId} />
       ) : (

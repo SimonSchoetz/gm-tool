@@ -112,7 +112,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
         </div>
       ))}
 
-      <div className='encounter-combatant-actions-tab-rows'>
+      <div className='encounter-combatant-actions-tab-rows scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top'>
         {rows.map(({ entry, hp }) => (
           <EncounterCombatantActionRow
             key={entry.id}

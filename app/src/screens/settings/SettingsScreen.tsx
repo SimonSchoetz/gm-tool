@@ -6,7 +6,7 @@ import './SettingsScreen.css';
 
 export const SettingsScreen = () => (
   <GlassPanel className='settings-screen'>
-    <div className='settings-screen--content'>
+    <div className='settings-screen--content scroll-edge-fade'>
       <AppearanceSection />
 
       <ListConfigSection />

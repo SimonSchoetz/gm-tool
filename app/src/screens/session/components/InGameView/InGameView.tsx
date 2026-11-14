@@ -42,7 +42,7 @@ export const InGameView = () => {
         </div>
       </GlassPanel>
 
-      <div className='in-game-view--steps'>
+      <div className='in-game-view--steps scroll-edge-fade scroll-edge-fade--no-top'>
         {steps.map((step) => (
           <InGameStepSection key={step.id} stepId={step.id} />
         ))}

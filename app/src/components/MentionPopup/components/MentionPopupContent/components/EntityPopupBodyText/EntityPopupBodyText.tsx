@@ -11,7 +11,7 @@ export const EntityPopupBodyText: FCProps<Props> = ({ text, textEditorId }) => {
   if (text === null) return null;
 
   return (
-    <div className='entity-popup-body-text'>
+    <div className='entity-popup-body-text scroll-edge-fade scroll-edge-fade--sm'>
       <TextEditor value={text} textEditorId={textEditorId} readOnly />
     </div>
   );

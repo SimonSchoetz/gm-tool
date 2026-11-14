@@ -78,7 +78,7 @@ export const EncounterAddEntities: FCProps<Props> = ({ hidden }) => {
           {baseEntities.length === 0 ? (
             <p>This adventure has no entities yet.</p>
           ) : (
-            <ul className='encounter-add-entities-list'>
+            <ul className='encounter-add-entities-list scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top'>
               {visibleEntities.length === 0 ? (
                 <li>No results found</li>
               ) : (

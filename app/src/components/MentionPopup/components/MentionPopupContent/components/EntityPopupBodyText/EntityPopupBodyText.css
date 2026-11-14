@@ -1,5 +1,6 @@
 .entity-popup-body-text {
-  max-height: var(--popup-content-section-height);
+  /* The `scroll-edge-fade--sm` padding takes the popup body's block padding, so the max height grows by it. */
+  max-height: calc(var(--popup-content-section-height) + 2 * var(--spacing-sm));
   max-width: var(--popup-content-max-width);
-  overflow-y: auto;
+  margin-block: calc(-1 * var(--spacing-sm));
 }
