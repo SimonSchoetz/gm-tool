@@ -34,7 +34,6 @@
 
 ## Ideas Dump (unsorted)
 
-- Feature: Foldable Prep Sections
 - Feature: On-Page-Search (cmd+f)
 - Feature: full data export for manual backups
 - Feature: data import from manual backups
