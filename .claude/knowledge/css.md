@@ -34,3 +34,10 @@ The scaled icon at the list's right edge made `scrollWidth` exceed `clientWidth`
 **Citation:** [implement_25: ran the same hover and reads as the entry above after setting `padding: 0 0.25rem 0 0` on the entity list — observed `scrollWidth` 156 and `clientWidth` 156]
 
 One reading, on one list with a 24 px icon; it is no general rule about how much padding removes such an overflow.
+
+## Safari supports `animation-timeline`, including its `scroll()` value, from version 26
+
+**Verified at:** MDN browser-compat-data `main`, fetched 2026-11-14
+**Citation:** [claude_1: https://raw.githubusercontent.com/mdn/browser-compat-data/main/css/properties/animation-timeline.json — `safari` `version_added` `26` for `animation-timeline` and for its `scroll` value]
+
+This is MDN's compatibility data, not an observation in the app's webview. How the Tauri app's webview relates to the system WebKit is in `tauri.md`.
