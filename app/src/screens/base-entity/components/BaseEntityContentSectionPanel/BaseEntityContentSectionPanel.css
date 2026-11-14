@@ -11,7 +11,7 @@
   font-weight: inherit;
 }
 
-/* No block margin: the `scroll-edge-fade--sm` padding takes that spacing, and the max height grows by it, so the body keeps its outer height and its content area. */
+/* The `scroll-edge-fade--sm` padding replaces the block margin, so the max height grows by it. */
 .base-entity-content-section-panel-body {
   margin-right: var(--spacing-sm);
   max-height: calc(var(--popup-content-section-height) + 2 * var(--spacing-sm));
