@@ -1,12 +1,12 @@
 .encounter-notes {
   flex-shrink: 0;
   height: var(--encounter-notes-height);
-  padding: var(--spacing-sm);
-  padding-left: 0;
+  padding-right: var(--spacing-sm);
   border-radius: var(--radius-lg);
 }
 
-.encounter-notes-text-editor {
+.encounter-notes-scroll {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  overflow-y: auto;
 }

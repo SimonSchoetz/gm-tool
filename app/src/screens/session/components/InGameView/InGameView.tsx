@@ -32,13 +32,14 @@ export const InGameView = () => {
   return (
     <div className='in-game-view'>
       <GlassPanel intensity='bright' className='in-game-view--summary'>
-        <TextEditor
-          className='in-game-view--summary-text-editor'
-          textEditorId={`session-summary-${sessionId}`}
-          value={session?.summary ?? ''}
-          onChange={onSummaryChange}
-          placeholder='Ingame notes and session summary...'
-        />
+        <div className='in-game-view--summary-scroll scroll-edge-fade scroll-edge-fade--sm'>
+          <TextEditor
+            textEditorId={`session-summary-${sessionId}`}
+            value={session?.summary ?? ''}
+            onChange={onSummaryChange}
+            placeholder='Ingame notes and session summary...'
+          />
+        </div>
       </GlassPanel>
 
       <div className='in-game-view--steps'>

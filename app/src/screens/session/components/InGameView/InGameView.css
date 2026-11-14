@@ -7,14 +7,14 @@
 }
 
 .in-game-view--summary {
-  padding: var(--spacing-sm);
-  padding-left: 0;
+  padding-right: var(--spacing-sm);
   border-radius: var(--radius-lg);
 }
 
-.in-game-view--summary-text-editor {
-  height: var(--popup-content-section-height);
-  overflow-y: auto;
+.in-game-view--summary-scroll {
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--popup-content-section-height) + 2 * var(--spacing-sm));
 }
 
 .in-game-view--steps {

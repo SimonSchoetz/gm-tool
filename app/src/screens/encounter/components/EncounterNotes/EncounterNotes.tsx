@@ -27,13 +27,14 @@ export const EncounterNotes = () => {
         } as React.CSSProperties
       }
     >
-      <TextEditor
-        className='encounter-notes-text-editor'
-        textEditorId={`ENCOUNTER_${encounter.id}_description`}
-        value={encounter.description ?? ''}
-        onChange={onDescriptionChange}
-        placeholder='Global combat notes...'
-      />
+      <div className='encounter-notes-scroll scroll-edge-fade scroll-edge-fade--sm'>
+        <TextEditor
+          textEditorId={`ENCOUNTER_${encounter.id}_description`}
+          value={encounter.description ?? ''}
+          onChange={onDescriptionChange}
+          placeholder='Global combat notes...'
+        />
+      </div>
     </GlassPanel>
   );
 };
