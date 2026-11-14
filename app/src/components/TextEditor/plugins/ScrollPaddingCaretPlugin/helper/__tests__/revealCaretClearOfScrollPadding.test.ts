@@ -132,7 +132,7 @@ describe('revealCaretClearOfScrollPadding', () => {
       'no node changed and the selection is clean',
       { dirtyLeaves: [], selection: cleanSelection },
     ],
-    ['there is no selection', { selection: null }],
+    ['Lexical has no selection', { selection: null }],
     [
       'the selection is a range',
       { dirtyLeaves: ['leaf'], selection: rangeSelection },
@@ -188,7 +188,7 @@ describe('revealCaretClearOfScrollPadding', () => {
   });
 
   it.each([
-    ['there is no selection', null],
+    ['the browser has no selection', null],
     ['the selection has no range', { rangeCount: 0 }],
     ['the selection is not collapsed', { isCollapsed: false }],
   ])('scrolls nothing when %s', (_name, selection) => {

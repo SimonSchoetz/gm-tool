@@ -462,9 +462,9 @@ Deleting a character inside a text node is left to the browser's own input event
 
 A scroll container below the body that sets `scroll-padding` does not keep the caret clear of that padding when Lexical scrolls it into view.
 
-## Lexical 0.52 scrolls the caret into view only for an editable editor, an update with neither `skip-dom-selection` nor `skip-scroll-into-view`, changed nodes or a changed selection, a collapsed selection and the root as the active element
+## Lexical 0.52 scrolls the caret into view only for an editable editor, an update with neither `skip-dom-selection` nor `skip-scroll-into-view`, changed nodes or a dirty selection, a collapsed selection and the root as the active element
 
 **Verified at:** lexical 0.52.0 (`app/node_modules/lexical/package.json:12`)
-**Citation:** [implement_28: `app/node_modules/lexical/src/LexicalUpdates.ts:760-789` and `app/node_modules/lexical/src/LexicalSelection.ts:4376-4410` — read]
+**Citation:** [implement_28: `app/node_modules/lexical/src/LexicalUpdates.ts:760-789`, `app/node_modules/lexical/src/LexicalSelection.ts:4294-4318` and `app/node_modules/lexical/src/LexicalSelection.ts:4376-4410` — read]
 
-`$updateDOMSelection` runs only when `editor._editable` holds, the update lacks `SKIP_DOM_SELECTION_TAG`, and `needsUpdate`, a missing selection, a dirty selection or a selection unequal to the current one holds; its scroll branch then also needs `SKIP_SCROLL_INTO_VIEW_TAG` absent, a collapsed selection and the root as the active element.
+`$updateDOMSelection` is called only from the inner `if (needsUpdate || pendingSelection === null || pendingSelection.dirty)` of a block that needs `editor._editable` and no `SKIP_DOM_SELECTION_TAG`; its scroll branch then also needs `SKIP_SCROLL_INTO_VIEW_TAG` absent, a collapsed selection and the root as the active element. It returns before that branch when the DOM selection already holds the next selection's points and the anchor is not an element, so Lexical itself does not scroll then.

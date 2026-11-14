@@ -18,14 +18,7 @@
   --scroll-edge-fade-inset-bottom: var(--scroll-edge-fade-inset);
   --scroll-edge-fade-track-inset-top: var(--scroll-edge-fade-inset-top);
   --scroll-edge-fade-track-inset-bottom: var(--scroll-edge-fade-inset-bottom);
-  --scroll-edge-fade-reach-inset-top: var(--scroll-edge-fade-inset-top);
-  --scroll-edge-fade-reach-inset-bottom: var(--scroll-edge-fade-inset-bottom);
-  --scroll-edge-fade-reach-max-top: calc(
-    2 * var(--scroll-edge-fade-reach-inset-top)
-  );
-  --scroll-edge-fade-reach-max-bottom: calc(
-    2 * var(--scroll-edge-fade-reach-inset-bottom)
-  );
+  --scroll-edge-fade-reach-max: calc(2 * var(--scroll-edge-fade-inset));
   --scroll-edge-fade-top: calc(
     var(--scroll-edge-fade-inset-top) + var(--scroll-edge-fade-reach-top)
   );
@@ -40,11 +33,10 @@
   padding-block: var(--scroll-edge-fade-inset-top)
     var(--scroll-edge-fade-inset-bottom);
   scroll-padding-block: calc(
-      var(--scroll-edge-fade-inset-top) + var(--scroll-edge-fade-reach-max-top)
+      var(--scroll-edge-fade-inset-top) + var(--scroll-edge-fade-reach-max)
     )
     calc(
-      var(--scroll-edge-fade-inset-bottom) +
-        var(--scroll-edge-fade-reach-max-bottom)
+      var(--scroll-edge-fade-inset-bottom) + var(--scroll-edge-fade-reach-max)
     );
   mask-image:
     linear-gradient(
@@ -96,12 +88,10 @@
 
 .scroll-edge-fade--no-top {
   --scroll-edge-fade-inset-top: 0px;
-  --scroll-edge-fade-reach-inset-top: var(--scroll-edge-fade-inset);
 }
 
 .scroll-edge-fade--no-bottom {
   --scroll-edge-fade-inset-bottom: 0px;
-  --scroll-edge-fade-reach-inset-bottom: var(--scroll-edge-fade-inset);
 }
 
 .scroll-edge-fade::-webkit-scrollbar-track {
@@ -117,19 +107,19 @@
       scroll-edge-fade-reach-bottom linear both;
     animation-timeline: scroll(self);
     animation-range:
-      0 var(--scroll-edge-fade-reach-max-top),
-      calc(100% - var(--scroll-edge-fade-reach-max-bottom)) 100%;
+      0 var(--scroll-edge-fade-reach-max),
+      calc(100% - var(--scroll-edge-fade-reach-max)) 100%;
   }
 }
 
 @keyframes scroll-edge-fade-reach-top {
   to {
-    --scroll-edge-fade-reach-top: var(--scroll-edge-fade-reach-max-top);
+    --scroll-edge-fade-reach-top: var(--scroll-edge-fade-reach-max);
   }
 }
 
 @keyframes scroll-edge-fade-reach-bottom {
   from {
-    --scroll-edge-fade-reach-bottom: var(--scroll-edge-fade-reach-max-bottom);
+    --scroll-edge-fade-reach-bottom: var(--scroll-edge-fade-reach-max);
   }
 }

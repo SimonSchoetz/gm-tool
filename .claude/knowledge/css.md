@@ -42,7 +42,7 @@ One reading, on one list with a 24 px icon; it is no general rule about how much
 
 This is MDN's compatibility data, not an observation in the app's webview. How the Tauri app's webview relates to the system WebKit is in `tauri.md`.
 
-## A custom property registered with `@property` and `inherits: false` on an element is not read by that element's `::-webkit-scrollbar-track` rule
+## In Chromium 156, a custom property registered with `@property` and `inherits: false` on an element is not read by that element's `::-webkit-scrollbar-track` rule
 
 **Verified at:** Chromium 156.0.8078.75 (the Claude desktop app's browser pane, user agent `Claude/5.11492.5 Chrome/156.0.8078.75`)
 **Citation:** [implement_26: ran `getComputedStyle(element, '::-webkit-scrollbar-track').marginTop` in the browser pane on an element with `--scroll-edge-fade-track-inset: 0`, the property registered with `syntax: '*'` and `inherits: false`, and a track rule `margin-block: var(--scroll-edge-fade-track-inset-top)` falling back to the element's inset — observed `16px`; after the registration was removed, the same call observed `0px`]
