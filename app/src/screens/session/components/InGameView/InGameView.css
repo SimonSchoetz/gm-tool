@@ -14,7 +14,7 @@
 .in-game-view--summary-scroll {
   display: flex;
   flex-direction: column;
-  height: calc(var(--popup-content-section-height) + 2 * var(--spacing-sm));
+  height: var(--popup-content-section-height-faded);
 }
 
 .in-game-view--steps {
