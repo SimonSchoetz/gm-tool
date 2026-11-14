@@ -4,7 +4,7 @@ import {
   LexicalTypeaheadMenuPlugin,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import { TextNode } from 'lexical';
+import { $insertNodes, TextNode } from 'lexical';
 import { useParams } from '@tanstack/react-router';
 import { useTableConfigs } from '@/data-access-layer';
 import * as mentionSearchService from '@services/mentionSearchService';
@@ -63,8 +63,11 @@ export const MentionTypeaheadPlugin = () => {
           option.result.name,
           option.result.adventureId,
         );
+        // Lexical hands over no query node when the caret no longer sits after the typed query, as when Return reaches the menu before React has closed it; the mention then goes in at the caret, since a node left unattached has no parent to place the caret in.
         if (textNodeContainingQuery !== null) {
           textNodeContainingQuery.replace(mentionNode);
+        } else {
+          $insertNodes([mentionNode]);
         }
         mentionNode.selectNext(0, 0);
       });
