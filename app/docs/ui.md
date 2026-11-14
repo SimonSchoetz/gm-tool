@@ -11,7 +11,7 @@ UI/UX decisions that hold across the app: what the project's UI conventions leav
 | The fade reaches twice the spacing into the content, so the whole fade is three times the spacing: 48 px in the text editor, whose spacing is 16 px, and 24 px in a content section, whose spacing is 8 px | "For these smaller content boxes with less spacing, the fade should also be smaller … we need to make more of the less given space" | proposed by Claude, accepted by Simon Schötz, 2026-11-14; hand test |
 | The fade's opacity follows an ease-in curve, so content is nearly gone before it meets the edge | "Can the fade be more drastic?" | proposed by Claude, accepted by Simon Schötz, 2026-11-14; hand test |
 | The scrollbar is never faded and stays the height of the area the content rests in | "I'd love if it's really only on the contents, not on the scroll bar" | Simon Schötz, 2026-11-14; hand test |
-| A row that the keyboard highlights or focuses, or that the app scrolls into view, in a faded area ends fully visible, clear of the fade | A highlighted row is never shown half-transparent | proposed by Claude, accepted by Simon Schötz, 2026-11-14; hand test |
+| A row that the keyboard highlights or focuses, or that the app scrolls into view, in a faded area ends fully visible, clear of the fade | A highlighted row is never shown half-transparent | proposed by Claude, accepted by Simon Schötz, 2026-11-14; no test |
 | On a Mac whose WebKit has no scroll-driven animations (Safari before 26), the fade covers only the spacing | Without them the reach cannot follow the scroll, and a fixed reach would fade content at rest | Claude's call, 2026-11-14; no test |
 
 ## Where to look

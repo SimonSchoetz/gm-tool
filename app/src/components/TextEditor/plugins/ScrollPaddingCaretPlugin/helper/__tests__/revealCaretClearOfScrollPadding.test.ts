@@ -171,6 +171,23 @@ describe('revealCaretClearOfScrollPadding', () => {
     },
   );
 
+  it('does not measure the caret while no ancestor has scroll padding', () => {
+    const { root } = mountFadedScroller({ top: 'auto', bottom: 'auto' });
+    const measureCaret = vi.fn(() => ({ top: 280, bottom: 300, height: 20 }));
+    vi.spyOn(window, 'getSelection').mockReturnValue({
+      rangeCount: 1,
+      isCollapsed: true,
+      getRangeAt: () => ({
+        startContainer: root,
+        getBoundingClientRect: measureCaret,
+      }),
+    } as unknown as Selection);
+
+    revealCaretClearOfScrollPadding(root);
+
+    expect(measureCaret).not.toHaveBeenCalled();
+  });
+
   it('honours the top padding of a scroller that has none at the bottom', () => {
     const { scroller, root } = mountFadedScroller({
       top: FADE,

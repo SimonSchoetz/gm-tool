@@ -6,7 +6,7 @@ export const computeCaretScrollDelta = (
   paddingTop: number,
   paddingBottom: number,
 ): number => {
-  // An all-zero rect is a caret the browser could not measure (an empty line), not a caret at the top of the viewport.
+  // A rect of no height is a caret the browser could not measure, even through its holder element, not a caret at the top of the viewport.
   if (caret.top === caret.bottom) return 0;
 
   const rangeTop = scroller.top + paddingTop;
