@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { LexicalEditor } from 'lexical';
 import { revealCaretClearOfScrollPadding } from '../revealCaretClearOfScrollPadding';
 
 type Edges = { top: number; bottom: number };
@@ -46,6 +47,43 @@ const stubSelection = (
   } as unknown as Selection);
 };
 
+type SelectionStub = { is: (other: unknown) => boolean };
+const unchangedSelection: SelectionStub = { is: () => true };
+const changedSelection: SelectionStub = { is: () => false };
+
+type UpdateOptions = {
+  editable?: boolean;
+  tags?: string[];
+  dirtyElements?: string[];
+  dirtyLeaves?: string[];
+  selection?: SelectionStub | null;
+};
+
+// What Lexical hands an update listener, with the parts the driver reads: by default one changed leaf and an unchanged selection.
+const reveal = (
+  root: HTMLElement | null,
+  {
+    editable = true,
+    tags = [],
+    dirtyElements = [],
+    dirtyLeaves = ['leaf'],
+    selection = unchangedSelection,
+  }: UpdateOptions = {},
+) => {
+  const editor = {
+    isEditable: () => editable,
+    getRootElement: () => root,
+  } as unknown as LexicalEditor;
+  const update = {
+    tags: new Set(tags),
+    dirtyElements: new Map(dirtyElements.map((key) => [key, true])),
+    dirtyLeaves: new Set(dirtyLeaves),
+    editorState: { read: () => selection },
+    prevEditorState: { read: () => null },
+  } as unknown as Parameters<typeof revealCaretClearOfScrollPadding>[1];
+  revealCaretClearOfScrollPadding(editor, update);
+};
+
 describe('revealCaretClearOfScrollPadding', () => {
   beforeEach(() => {
     scrollPaddings.clear();
@@ -79,11 +117,58 @@ describe('revealCaretClearOfScrollPadding', () => {
     return { scroller, root };
   };
 
+  it.each([
+    ['the editor is not editable', { editable: false }],
+    ['the update skips the DOM selection', { tags: ['skip-dom-selection'] }],
+    [
+      'the update skips the scroll into view',
+      { tags: ['skip-scroll-into-view'] },
+    ],
+    [
+      'no node changed and the selection did not',
+      { dirtyLeaves: [], selection: unchangedSelection },
+    ],
+    [
+      'no node changed and there is no selection',
+      { dirtyLeaves: [], selection: null },
+    ],
+  ])(
+    'scrolls nothing when %s, as Lexical itself does not scroll',
+    (_name, options) => {
+      const { scroller, root } = mountFadedScroller();
+      stubSelection(root, { top: 280, bottom: 300 });
+
+      reveal(root, options);
+
+      expect(scroller.scrollTop).toBe(0);
+    },
+  );
+
+  it.each([
+    ['a changed element', { dirtyLeaves: [], dirtyElements: ['p'] }],
+    ['a changed leaf', { dirtyLeaves: ['text'] }],
+    [
+      'a changed selection with no changed node',
+      { dirtyLeaves: [], selection: changedSelection },
+    ],
+  ])(
+    'moves the scroller for %s, as Lexical itself scrolls',
+    (_name, options) => {
+      const { scroller, root } = mountFadedScroller();
+      const caret = { top: 280, bottom: 300 };
+      stubSelection(root, caret);
+
+      reveal(root, options);
+
+      expect(scroller.scrollTop).toBe(caret.bottom - (300 - SCROLL_PADDING));
+    },
+  );
+
   it('does nothing without a root element', () => {
     stubSelection(document.body, { top: 280, bottom: 300 });
 
     expect(() => {
-      revealCaretClearOfScrollPadding(null);
+      reveal(null);
     }).not.toThrow();
   });
 
@@ -93,7 +178,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const root = placeElement(scroller, { top: 100, bottom: 300 });
     stubSelection(root, { top: 280, bottom: 300 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(0);
   });
@@ -110,7 +195,7 @@ describe('revealCaretClearOfScrollPadding', () => {
       stubSelection(root, { top: 280, bottom: 300 }, selection);
     }
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(0);
   });
@@ -120,7 +205,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const elsewhere = placeElement(document.body, { top: 0, bottom: 10 });
     stubSelection(elsewhere, { top: 280, bottom: 300 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(0);
   });
@@ -130,7 +215,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const caret = { top: 280, bottom: 300 };
     stubSelection(root, caret);
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(caret.bottom - (300 - SCROLL_PADDING));
   });
@@ -141,7 +226,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const caret = { top: 110, bottom: 130 };
     stubSelection(root, caret);
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(50 + (caret.top - (100 + SCROLL_PADDING)));
   });
@@ -150,7 +235,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const { scroller, root } = mountFadedScroller();
     stubSelection(root, { top: 180, bottom: 200 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(0);
   });
@@ -164,7 +249,7 @@ describe('revealCaretClearOfScrollPadding', () => {
       const { scroller, root } = mountFadedScroller(padding);
       stubSelection(root, { top: 310, bottom: 330 });
 
-      revealCaretClearOfScrollPadding(root);
+      reveal(root);
 
       expect(scroller.scrollTop).toBe(0);
       expect(root.scrollTop).toBe(0);
@@ -183,7 +268,7 @@ describe('revealCaretClearOfScrollPadding', () => {
       }),
     } as unknown as Selection);
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(measureCaret).not.toHaveBeenCalled();
   });
@@ -197,7 +282,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const caret = { top: 110, bottom: 130 };
     stubSelection(root, caret);
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(50 + (caret.top - (100 + SCROLL_PADDING)));
   });
@@ -210,7 +295,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const caret = { top: 280, bottom: 300 };
     stubSelection(root, caret);
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(caret.bottom - (300 - SCROLL_PADDING));
   });
@@ -222,7 +307,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     });
     stubSelection(root, { top: 280, bottom: 300 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(0);
   });
@@ -235,7 +320,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     scroller.scrollTop = 50;
     stubSelection(root, { top: 110, bottom: 130 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(50);
   });
@@ -247,7 +332,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     line.appendChild(text);
     stubSelection(text, { top: 0, bottom: 0 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(290 - (300 - SCROLL_PADDING));
   });
@@ -257,7 +342,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const line = placeElement(root, { top: 270, bottom: 290 });
     stubSelection(line, { top: 0, bottom: 0 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(scroller.scrollTop).toBe(290 - (300 - SCROLL_PADDING));
   });
@@ -275,7 +360,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     const caret = { top: 280, bottom: 300 };
     stubSelection(root, caret);
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(inner.scrollTop).toBe(15);
     expect(outer.scrollTop).toBe(caret.bottom - 10 - (290 - SCROLL_PADDING));
@@ -292,7 +377,7 @@ describe('revealCaretClearOfScrollPadding', () => {
     });
     stubSelection(root, { top: 280, bottom: 300 });
 
-    revealCaretClearOfScrollPadding(root);
+    reveal(root);
 
     expect(bodyScrollTop).not.toHaveBeenCalled();
   });

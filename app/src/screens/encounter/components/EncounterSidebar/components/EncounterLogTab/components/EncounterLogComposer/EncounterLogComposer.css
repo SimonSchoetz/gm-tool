@@ -8,6 +8,5 @@
 }
 
 .encounter-log-composer-scroll {
-  --scroll-edge-fade-track-inset: 0;
   flex: 1;
 }

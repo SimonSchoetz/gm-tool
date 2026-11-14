@@ -14,7 +14,7 @@ export const EncounterLogComposer = () => {
 
   return (
     <div className='encounter-log-composer'>
-      <div className='encounter-log-composer-scroll scroll-edge-fade scroll-edge-fade--sm'>
+      <div className='encounter-log-composer-scroll scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--own-padding'>
         <TextEditor
           variant='message'
           textEditorId={`encounter-log-composer-${encounterId}`}

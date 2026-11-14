@@ -1,4 +1,4 @@
-/* A consumer gives up its own margin on the faded sides (removes or negates it), since this class's padding takes that spacing. The box's in-flow children must take their content's height: a child stretched to a capped box height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The scrollbar's unmasked strip is `var(--spacing-sm)` wide because `::-webkit-scrollbar` in `scrollbar.css` is 0.5rem. The `scroll-padding-block` keeps a row that `scrollIntoView` or keyboard focus brings in clear of the fade. A box whose spacing was its own padding sets `--scroll-edge-fade-track-inset` to 0, since a scrollbar track spans the padding box and would otherwise end up shorter than it was. An edge with no spacing takes `--no-top` or `--no-bottom`, which give that edge no padding, no fade and no track margin. `--scroll-edge-fade-track-inset` is registered without inheritance so that an override on one box never reaches a faded box inside it. */
+/* A consumer gives up its own margin on the faded sides (removes or negates it), since this class's padding takes that spacing. The box's in-flow children must take their content's height: a child stretched to a capped box height lets its content overflow it, and the bottom padding then sits inside that overflow instead of after it. The scrollbar's unmasked strip is `var(--spacing-sm)` wide because `::-webkit-scrollbar` in `scrollbar.css` is 0.5rem. The `scroll-padding-block` keeps a row that `scrollIntoView` or keyboard focus brings in clear of the fade. A box whose spacing was its own padding takes `--own-padding`, since a scrollbar track spans the padding box and would otherwise end up shorter than it was. An edge with no spacing takes `--no-top` or `--no-bottom`, which give that edge no padding, no fade and no track margin. The track insets are plain custom properties, since a registered one that does not inherit never reaches the scrollbar's pseudo-element. */
 
 @property --scroll-edge-fade-reach-top {
   syntax: '<length>';
@@ -12,15 +12,12 @@
   initial-value: 0px;
 }
 
-@property --scroll-edge-fade-track-inset {
-  syntax: '*';
-  inherits: false;
-}
-
 .scroll-edge-fade {
   --scroll-edge-fade-inset: var(--spacing-md);
   --scroll-edge-fade-inset-top: var(--scroll-edge-fade-inset);
   --scroll-edge-fade-inset-bottom: var(--scroll-edge-fade-inset);
+  --scroll-edge-fade-track-inset-top: var(--scroll-edge-fade-inset-top);
+  --scroll-edge-fade-track-inset-bottom: var(--scroll-edge-fade-inset-bottom);
   --scroll-edge-fade-reach-max-top: calc(2 * var(--scroll-edge-fade-inset-top));
   --scroll-edge-fade-reach-max-bottom: calc(
     2 * var(--scroll-edge-fade-inset-bottom)
@@ -75,6 +72,11 @@
   --scroll-edge-fade-inset: var(--spacing-sm);
 }
 
+.scroll-edge-fade--own-padding {
+  --scroll-edge-fade-track-inset-top: 0px;
+  --scroll-edge-fade-track-inset-bottom: 0px;
+}
+
 .scroll-edge-fade--no-top {
   --scroll-edge-fade-inset-top: 0px;
 }
@@ -84,11 +86,8 @@
 }
 
 .scroll-edge-fade::-webkit-scrollbar-track {
-  margin-block: var(
-      --scroll-edge-fade-track-inset,
-      var(--scroll-edge-fade-inset-top)
-    )
-    var(--scroll-edge-fade-track-inset, var(--scroll-edge-fade-inset-bottom));
+  margin-block: var(--scroll-edge-fade-track-inset-top)
+    var(--scroll-edge-fade-track-inset-bottom);
 }
 
 /* Without scroll timelines the animations would run with zero duration and hold their last keyframe, fading content at rest. */

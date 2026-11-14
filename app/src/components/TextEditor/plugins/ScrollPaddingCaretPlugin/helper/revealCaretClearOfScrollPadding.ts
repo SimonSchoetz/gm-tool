@@ -1,4 +1,16 @@
+import {
+  $getSelection,
+  SKIP_DOM_SELECTION_TAG,
+  SKIP_SCROLL_INTO_VIEW_TAG,
+  type LexicalEditor,
+  type UpdateListener,
+} from 'lexical';
 import { computeCaretScrollDelta } from './computeCaretScrollDelta';
+
+type EditorUpdate = Pick<
+  Parameters<UpdateListener>[0],
+  'tags' | 'dirtyElements' | 'dirtyLeaves' | 'editorState' | 'prevEditorState'
+>;
 
 type ScrollPaddedAncestor = {
   element: HTMLElement;
@@ -7,16 +19,30 @@ type ScrollPaddedAncestor = {
 };
 
 export const revealCaretClearOfScrollPadding = (
-  rootElement: HTMLElement | null,
+  editor: LexicalEditor,
+  update: EditorUpdate,
 ): void => {
+  // Lexical scrolls the caret itself only for an editable editor, an update that skips neither its DOM selection nor its scroll, and changed nodes or a changed selection; correcting any other update would pull back a scroll the user made.
+  if (!editor.isEditable()) return;
+  if (update.tags.has(SKIP_DOM_SELECTION_TAG)) return;
+  if (update.tags.has(SKIP_SCROLL_INTO_VIEW_TAG)) return;
+  const selection = update.editorState.read($getSelection);
+  const changedNodes =
+    update.dirtyElements.size > 0 || update.dirtyLeaves.size > 0;
+  const changedSelection =
+    selection !== null &&
+    !selection.is(update.prevEditorState.read($getSelection));
+  if (!changedNodes && !changedSelection) return;
+
+  const rootElement = editor.getRootElement();
   if (rootElement === null) return;
   if (rootElement.ownerDocument.activeElement !== rootElement) return;
 
-  const selection = window.getSelection();
-  if (selection === null || selection.rangeCount === 0) return;
-  if (!selection.isCollapsed) return;
+  const domSelection = window.getSelection();
+  if (domSelection === null || domSelection.rangeCount === 0) return;
+  if (!domSelection.isCollapsed) return;
 
-  const range = selection.getRangeAt(0);
+  const range = domSelection.getRangeAt(0);
   if (!rootElement.contains(range.startContainer)) return;
 
   const scrollPaddedAncestors: ScrollPaddedAncestor[] = [];

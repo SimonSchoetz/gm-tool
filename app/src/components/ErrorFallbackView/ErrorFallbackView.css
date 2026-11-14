@@ -33,7 +33,6 @@
 }
 
 .error-fallback-view-details {
-  --scroll-edge-fade-track-inset: 0;
   padding-inline: var(--spacing-sm);
 }
 
