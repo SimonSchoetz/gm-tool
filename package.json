@@ -29,8 +29,8 @@
     "mutation-check": "node scripts/mutation-check.ts"
   },
   "devDependencies": {
-    "@types/node": "^26.6.3",
-    "markdownlint-cli2": "0.23.3",
+    "@types/node": "^26.6.6",
+    "markdownlint-cli2": "0.24.1",
     "simple-git-hooks": "latest"
   },
   "simple-git-hooks": {
