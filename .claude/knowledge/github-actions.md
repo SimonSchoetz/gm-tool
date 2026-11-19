@@ -90,3 +90,45 @@ Only the action's metadata file was read; no job was run.
 **Citation:** [implement_1: ran `gh api repos/tauri-apps/tauri-action/contents/src/index.ts?ref=v0` and `…/src/build.ts?ref=v0` — observed `buildProject` returning `artifacts.filter((p) => existsSync(p.path))` (`src/build.ts:576`), and `src/index.ts` lines 123–131 throwing `No artifacts were found.` when `releaseId || tagName` and otherwise logging that this "is not handled as an error" and returning] [implement_2: ran `gh api repos/tauri-apps/tauri-action/commits/v0 --jq .sha` — observed `84b9d35b5fc46c1e45415bdb6144030364f7ebc5`]
 
 Only the action's source was read; no run of the action was made.
+
+## The REST endpoint `releases/latest` returns the most recent published release that is neither a draft nor a prerelease
+
+**Verified at:** <https://docs.github.com/en/rest/releases/releases#get-the-latest-release> — 2026-11-19
+**Citation:** [architect_1: https://docs.github.com/en/rest/releases/releases#get-the-latest-release — "The latest release is the most recent non-prerelease, non-draft release"]
+
+Only the REST page was read; it does not state how the `/releases/latest/download/<file>` web URL form picks its release.
+
+## `tauri-apps/tauri-action@v0` finds a draft release by listing all releases and matching the tag, and creates one when none matches
+
+**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
+**Citation:** [implement_1: read `src/create-release.ts` at `84b9d35` — the comment "you can't get a an existing draft by tag" at line 67, `release.tag_name === tagName` over the `listReleases` pages at line 73, `throw new Error('release not found')` at line 84 and `createRelease` for that error from line 97]
+
+Only the action's source was read; no run of the action was made.
+
+## `tauri-apps/tauri-action@v0` skips its release lookup and creation when `releaseId` is set and uploads to that release
+
+**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
+**Citation:** [implement_1: read `src/index.ts` at `84b9d35` — `if (tagName && !releaseId) {` at line 178 guarding the lookup and creation, and `if (releaseId) {` at line 211 before the upload]
+
+Only the action's source was read; no run of the action was made.
+
+## `tauri-apps/tauri-action@v0` rewrites `untagged-` download URLs in `latest.json` to `/download/<tagName>/` when `tagName` is set, and to `/latest/download/` otherwise
+
+**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
+**Citation:** [implement_1: read `src/upload-version-json.ts` at `84b9d35` — `/\/download\/(untagged-[^/]+)\//` replaced with ``tagName ? `/download/${encodeURIComponent(tagName)}/` : '/latest/download/'`` at lines 192–196, under the comment "Untagged release downloads won't work after the release was published" at line 191]
+
+Only the action's source was read; no run of the action was made.
+
+## `tauri-apps/tauri-action@v0` deletes an existing release asset of the same name and then uploads the new one
+
+**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
+**Citation:** [implement_1: read `src/upload-release-assets.ts` at `84b9d35` — `Deleting existing ${assetName}...` at line 58 followed by `deleteReleaseAsset` at line 68, then `Uploading ${assetName}...` at line 76 and `uploadReleaseAsset` at line 80, the delete block running only `if (existingAsset)`]
+
+Only the action's source was read; no run of the action was made.
+
+## `tauri-apps/tauri-action@v0` merges `latest.json` per job by listing the release's assets, reading the existing file, copying its `platforms`, adding its own and replacing the asset
+
+**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
+**Citation:** [implement_1: read `src/upload-version-json.ts` at `84b9d35` — `listReleaseAssets` at line 60, `versionContent.platforms` taken from the existing file at lines 86–89 and 107–110, the job's own platform keys set from line 220, `writeFileSync` of the merged file at line 267, `deleteReleaseAsset` for the old file at line 274 and `uploadAssets` of the new file at line 293]
+
+Concurrent jobs of one release each read before writing, so a platform one of them added can be lost when another writes last; this is inferred from the read-modify-write order, and no run was made.
