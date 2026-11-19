@@ -35,9 +35,23 @@ The test's paste event is an instance of the stubbed `ClipboardEvent`, since `ev
 
 The cause was not established; a test that asserts where a handler left the caret reads it through `editor.read` right after the command inside a synchronous `act`.
 
-## jsdom's default stylesheet gives a `ul` or `ol` element `padding-inline-start: 40px`, but `getComputedStyle` does not map it to `padding-left`, which reads `0`
+## jsdom 31 maps a `ul` or `ol` element's default `padding-inline-start: 40px` to its computed `padding-left`, which reads `40px`
 
-**Verified at:** jsdom 30.1.1, read 2026-11-13
-**Citation:** [knowledge-check_1: `app/node_modules/jsdom/lib/jsdom/browser/default-stylesheet.css:181` — `dir, menu, ol, ul { padding-inline-start: 40px; }`, applied by `getComputedStyle` through `app/node_modules/jsdom/lib/jsdom/living/css/helpers/computed-style.js:17-19,62-75`] [knowledge-check_2: ran a scratch `npx vitest run` test that appended a `ul` and an `ol` to the body and read their computed style — observed `paddingLeft` `"0"`, `getPropertyValue('padding-left')` `"0"` and `getPropertyValue('padding-inline-start')` `"40px"`; after `style.paddingLeft = '24px'` on a `ul` and on an `ol`, `paddingLeft` read `"24px"` on both]
+**Verified at:** jsdom 31.0.0 — 2026-11-19
+**Citation:** [dependabot-triage_1: ran `node -e` in `app/` with jsdom 31.0.0, building a `JSDOM` with a `ul` holding one `li` and reading `getComputedStyle` of the `ul` — observed `paddingLeft` `"40px"` and `paddingInlineStart` `"40px"`; the same read on an `ol` holding one `li` — observed `paddingLeft` `"40px"`]
 
-Code that reads a list's indentation from its computed `paddingLeft` sees 0 in a jsdom test, so a test that depends on that indentation, such as a list-depth test, sets an inline `paddingLeft` on the list element.
+A test that depends on a list's indentation sets an inline `paddingLeft` on the list element when it needs a width other than 40px.
+
+## jsdom 31 applies a default stylesheet that gives a `p` element 16px top and bottom margins, and computes a `margin: auto` as `"auto"`
+
+**Verified at:** jsdom 31.0.0 — 2026-11-19
+**Citation:** [dependabot-triage_3: ran `node -e` in `app/` with jsdom 31.0.0, reading `getComputedStyle` of a `p`, a `div` and a `p` with `margin: auto` — observed `marginTop` and `marginBottom` `"16px"` on the `p`, `"0px"` on the `div` and `"auto"` on the `margin: auto` `p`]
+
+A test that needs a margin which parses to no number sets `margin: auto` on the element rather than leaving the margin unset.
+
+## jsdom 31 reads back an inline `style.transform = 'translateZ(0)'` as `translateZ(0px)`
+
+**Verified at:** jsdom 31.0.0 — 2026-11-19
+**Citation:** [dependabot-triage_4: ran `node -e` in `app/` with jsdom 31.0.0, setting `style.transform = 'translateZ(0)'` on a `div` and reading it back — observed `translateZ(0px)`]
+
+Only this one property and value were checked, and browsers were not compared.
