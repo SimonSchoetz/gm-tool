@@ -2,3 +2,6 @@ allowBuilds:
   simple-git-hooks: true
 # Pinned rather than inherited: pnpm applies a 1440-minute (24-hour) minimum release age by default, which is what keeps a freshly published version out of the lockfile until malicious releases have had time to be caught and pulled. Stating it here keeps the policy in force if that default ever changes, and makes it visible to anyone reading this file. Raising it delays legitimate upstream fixes by the same amount.
 minimumReleaseAge: 1440
+overrides:
+  # micromark-extension-math 3.1.0 (its latest), under markdownlint, asks for katex ^0.16.0, and no 0.16.x release fixes the prototype-pollution trust bypass of GHSA-238p-pmpm-9mq7 (fixed in 0.18.2). The jump across two 0.x minors is safe here because markdownlint imports only the `math` syntax extension: katex is loaded with the module, but only `mathHtml` calls it, and markdownlint never does. It is pinned to 0.18.10 because katex deprecated 0.18.11, which shipped breaking changes later republished as 0.19.0. Drop this entry once micromark-extension-math's own range reaches 0.18.2.
+  'micromark-extension-math>katex': 0.18.10
