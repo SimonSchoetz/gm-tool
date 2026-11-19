@@ -174,3 +174,17 @@ The run was made on an asset of a published release; the download of an asset of
 **Citation:** [head-of-instructions_1: https://docs.github.com/en/actions/reference/security/secure-use — "a tag can be moved or deleted if a bad actor gains access to the repository storing the action"]
 
 GitHub's secure-use reference gives this as the risk of referencing a third-party action by a tag.
+
+## Inside a reusable workflow called with `workflow_call`, the `github` context is the caller workflow's
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations> — 2026-11-19
+**Citation:** [docs-only-checks_1: https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations — section "`github` context": "When a reusable workflow is triggered by a caller workflow, the `github` context is always associated with the caller workflow."]
+
+Read for the whole context, `github.event_name` in the called workflow is the event that started the caller; the page does not name `github.event_name` or any event separately.
+
+## On a `pull_request` event, `GITHUB_SHA` is the last merge commit of the pull request's merge branch, not its head commit
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows> — 2026-11-19
+**Citation:** [docs-only-checks_2: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows — `pull_request`: "Note that `GITHUB_SHA` for this event is the last merge commit of the pull request merge branch. If you want to get the commit ID for the last commit to the head branch of the pull request, use `github.event.pull_request.head.sha` instead.", with `GITHUB_REF` `refs/pull/PULL_REQUEST_NUMBER/merge`]
+
+The head commit is `github.event.pull_request.head.sha`.
