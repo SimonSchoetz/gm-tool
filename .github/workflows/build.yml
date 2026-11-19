@@ -8,10 +8,6 @@ on:
         description: Id of the draft release to upload the bundles to; empty for a build that uploads nothing.
         type: string
         default: ''
-      tag-name:
-        description: Tag of that release, which tauri-action writes into the download URLs of its `latest.json`.
-        type: string
-        default: ''
     secrets:
       TAURI_SIGNING_PRIVATE_KEY:
         required: false
@@ -60,6 +56,5 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           releaseId: ${{ inputs.release-id }}
-          tagName: ${{ inputs.tag-name }}
           projectPath: app
           args: ${{ format('{0} {1}', matrix.target && format('--target {0}', matrix.target) || '', inputs.release-id == '' && '--no-bundle' || '') }}
