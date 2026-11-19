@@ -48,3 +48,8 @@ Whether `preinstall`, `postinstall` or dependency build scripts follow the same 
 **Citation:** [release-check_7: with `PNPM_HOME` and `XDG_DATA_HOME` pointed at an empty scratch directory and `$PNPM_HOME/bin` first on `PATH`, ran `pnpm runtime set node 24 -g` on macOS arm64 — observed `+ node 24.22.0` and `Done in 2.7s using pnpm v12.4.2`; `ls -la $PNPM_HOME/bin` listed `node` and the dotfile `.pnpm-shim-v1-node-target`, no `npm` or `npx`; `command -v npx npm` resolved both outside `$PNPM_HOME`]
 
 A step that calls `npx` or `npm` after a global `pnpm runtime set` gets them from another Node installation on `PATH`, if there is one.
+
+## An `overrides` map in `pnpm-workspace.yaml` with a `parent>child` key replaced that child's version under that parent, and the map is copied into the lockfile
+
+**Verified at:** pnpm 12.4.2 — 2026-11-19
+**Citation:** [claude_1: ran `pnpm install` from `app/` with `'typed-rest-client>qs': ^6.16.1` under `overrides:` — observed `pnpm why qs` report only `qs@6.17.1` and the same entry under `overrides:` in `app/pnpm-lock.yaml`]
