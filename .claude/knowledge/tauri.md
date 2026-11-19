@@ -155,6 +155,13 @@ What changed is the `plugin:updater|check` IPC command reachable from the webvie
 
 The feature controls `reqwest`'s own `system-proxy` feature. The releases between those two were not read, so this says only that the default is the same at both ends.
 
+## tauri-plugin-updater 2.13.1 sends `Accept: application/octet-stream` when it downloads an update, unless the caller set an `Accept` header
+
+**Verified at:** tauri-plugin-updater 2.13.1 — 2026-11-19
+**Citation:** [dependabot-triage_26: `~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-plugin-updater-2.13.1/src/updater.rs:783-786` — `download` inserting `ACCEPT: application/octet-stream` when the headers hold no `ACCEPT`] [dependabot-triage_27: ran `curl -sSL -H 'Accept: application/octet-stream'` without a token on `https://api.github.com/repos/SimonSchoetz/gm-tool/releases/assets/707249071`, the `latest.json` asset of the published v0.17.0 release — observed the file's JSON]
+
+An update URL of the REST API asset form therefore downloads the file rather than the asset's metadata, for a published release of this public repository.
+
 ## tauri-plugin-sql 2.5.0 opens a `sqlite:<file>` database at `<app config dir>/<file>`, creating the directory, and the database through sqlx, when either is missing
 
 **Verified at:** tauri-plugin-sql 2.5.0 (Cargo.lock) — 2026-10-20

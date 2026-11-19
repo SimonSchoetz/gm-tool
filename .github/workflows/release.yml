@@ -56,7 +56,6 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       release-id: ${{ needs.draft.outputs.release-id }}
-      tag-name: ${{ github.ref_name }}
     # The one place the signing key reaches a build.
     secrets: inherit
 
@@ -74,10 +73,10 @@ jobs:
       - name: Fetch the draft's assets
         run: gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?per_page=100" > assets.json
 
-      # The nine assets of v0.17.0, each matched by its suffix: three installers, two updater archives, their three signatures and `latest.json`. Any other set fails.
+      # The nine assets a release holds, each matched by its suffix: three installers, two macOS updater archives, their three signatures and `latest.json`. Any other set fails.
       - name: Verify the asset set
         run: |
-          expected='["_aarch64.dmg","_x64.dmg","_x64-setup.exe","_x64-setup.exe.sig","GM-Tool_aarch64.app.tar.gz","GM-Tool_aarch64.app.tar.gz.sig","GM-Tool_x64.app.tar.gz","GM-Tool_x64.app.tar.gz.sig","latest.json"]'
+          expected='["_aarch64.dmg","_x64.dmg","_x64-setup.exe","_x64-setup.exe.sig","_aarch64.app.tar.gz","_aarch64.app.tar.gz.sig","_x64.app.tar.gz","_x64.app.tar.gz.sig","latest.json"]'
           if ! jq -e --argjson expected "$expected" '
             [.[].name] as $names
             | all($names[]; . as $n | [$expected[] | select(. as $s | $n | endswith($s))] | length == 1)
@@ -93,13 +92,14 @@ jobs:
           asset_id=$(jq -r '.[] | select(.name == "latest.json") | .id' assets.json)
           gh api -H 'Accept: application/octet-stream' "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" > latest.json
 
-      # The three build jobs each merge their own platform into `latest.json`; two finishing together can overwrite each other's platform, so this step fails the run when one is missing. Re-running the build job of the missing platform merges it again.
+      # The three build jobs each merge their own platform into `latest.json`; two finishing together can overwrite each other's platform, so this step fails the run when one is missing. Re-running the build job of the missing platform merges it again. tauri-action writes each platform's URL as the REST API URL of the asset it uploaded, so a URL that is not one of this draft's assets points at another release.
       - name: Verify latest.json
         run: |
-          if ! jq -e --arg version "${TAG#v}" --arg tag "$TAG" '
-            .version == $version
+          if ! jq -e --arg version "${TAG#v}" --slurpfile assets assets.json '
+            [$assets[0][].url] as $urls
+            | .version == $version
             and ((.platforms | keys | sort) == ["darwin-aarch64","darwin-aarch64-app","darwin-x86_64","darwin-x86_64-app","windows-x86_64","windows-x86_64-nsis"])
-            and all(.platforms[]; (.url | contains("/download/" + $tag + "/")) and (.signature | length > 0))
+            and all(.platforms[]; (.url as $url | any($urls[]; . == $url)) and (.signature | length > 0))
           ' latest.json > /dev/null; then
             echo "latest.json does not describe $TAG for all six platforms:"
             cat latest.json
