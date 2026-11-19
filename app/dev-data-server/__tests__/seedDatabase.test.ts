@@ -58,7 +58,8 @@ afterEach(() => {
   }
 });
 
-describe('seedDatabase', () => {
+// Each test starts the Vite server the seed runs in, and the first one runs every migration and the real seed: 2–4 seconds locally, past Vitest's 5-second default on a GitHub-hosted macOS runner.
+describe('seedDatabase', { timeout: 30_000 }, () => {
   it('runs the seed on the given database through the app services, with `@platform` answering from that database and images folder', async () => {
     const db = openTestDatabase();
     await runMigrations(db, skipBackup);
