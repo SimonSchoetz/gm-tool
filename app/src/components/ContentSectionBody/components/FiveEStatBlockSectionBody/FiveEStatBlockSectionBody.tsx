@@ -1,5 +1,6 @@
 import { useBaseEntityContentSections } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
+import { cn } from '@/util/className';
 import { patchFiveEStatBlockContent, readFiveEStatBlockContent } from '@domain';
 import type { SectionBodyProps } from '../../types';
 // Imported before the groups so their stylesheets load after it: its `label` rules and the groups' `label` rules tie on specificity, and the later one wins.
@@ -36,7 +37,12 @@ export const FiveEStatBlockSectionBody: FCProps<Props> = ({
   };
 
   return (
-    <div className='five-e-stat-block-section-body'>
+    <div
+      className={cn(
+        'five-e-stat-block-section-body',
+        !readOnly && 'five-e-stat-block-section-body--editable',
+      )}
+    >
       <FiveEStatBlockBaseStats {...groupProps} />
 
       <FiveEStatBlockAbilities {...groupProps} />

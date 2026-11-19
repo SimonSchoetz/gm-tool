@@ -4,5 +4,4 @@
   max-width: 250px; /* one-off */
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-  border: none;
 }
