@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { durationsOf, trendsOf, type Run } from '../ci-timings-summary.ts';
+import {
+  durationsOf,
+  percentChange,
+  trendsOf,
+  type Run,
+} from '../ci-timings-summary.ts';
 
 type RunDurations = ReturnType<typeof durationsOf>;
 
@@ -97,4 +102,19 @@ describe('trendsOf', () => {
       { metric: 'rust-test', recentMedian: 80, previousMedian: null },
     ]);
   });
+});
+
+describe('percentChange', () => {
+  it.each([
+    [{ recentMedian: 80, previousMedian: 100 }, -20],
+    [{ recentMedian: 30, previousMedian: 20 }, 50],
+    [{ recentMedian: 0, previousMedian: 0 }, null],
+    [{ recentMedian: 5, previousMedian: null }, null],
+    [{ recentMedian: null, previousMedian: 5 }, null],
+  ])(
+    'of %j is %j, with no percentage against a 0 s or missing median',
+    (medians, expected) => {
+      expect(percentChange({ metric: 'test', ...medians })).toBe(expected);
+    },
+  );
 });

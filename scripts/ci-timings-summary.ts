@@ -90,3 +90,12 @@ export const trendsOf = (
     previousMedian: medianOf(previous, metric),
   }));
 };
+
+// The change of the recent median against the previous one, in percent; none when either median is missing or the previous one is 0 s, where a percentage has no base.
+export const percentChange = ({
+  recentMedian,
+  previousMedian,
+}: MetricTrend): number | null =>
+  recentMedian === null || previousMedian === null || previousMedian === 0
+    ? null
+    : ((recentMedian - previousMedian) / previousMedian) * 100;
