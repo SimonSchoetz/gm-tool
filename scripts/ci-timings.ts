@@ -2,7 +2,12 @@
 import { execFileSync } from 'child_process';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { durationsOf, trendsOf, type Run } from './ci-timings-summary.ts';
+import {
+  durationsOf,
+  percentChange,
+  trendsOf,
+  type Run,
+} from './ci-timings-summary.ts';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
 
@@ -71,13 +76,13 @@ const cell = (seconds: number | null) =>
   seconds === null ? '—' : String(Math.round(seconds));
 
 console.table(
-  trendsOf(runs, window).map(({ metric, recentMedian, previousMedian }) => ({
-    check: metric,
-    recent: cell(recentMedian),
-    previous: cell(previousMedian),
-    change:
-      recentMedian === null || previousMedian === null
-        ? '—'
-        : `${Math.round(((recentMedian - previousMedian) / previousMedian) * 100)}%`,
-  })),
+  trendsOf(runs, window).map((trend) => {
+    const change = percentChange(trend);
+    return {
+      check: trend.metric,
+      recent: cell(trend.recentMedian),
+      previous: cell(trend.previousMedian),
+      change: change === null ? '—' : `${Math.round(change)}%`,
+    };
+  }),
 );
