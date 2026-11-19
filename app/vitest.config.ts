@@ -20,6 +20,8 @@ export default defineConfig({
     css: true,
     // `pnpm run mutation-check` writes sandbox copies of the app under `.stryker-tmp`; a run beside it would collect their test files too. Setting `exclude` replaces Vitest's defaults, hence the spread.
     exclude: [...configDefaults.exclude, '.stryker-tmp/**'],
+    // Vitest's default leaves one core free, which costs a third of the workers on a 3-core GitHub-hosted runner, where nothing else competes for the cores; GitHub Actions sets `CI` to `true` in every job.
+    ...(process.env.CI === 'true' ? { maxWorkers: '100%' } : {}),
     projects: [
       {
         extends: true,
