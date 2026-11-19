@@ -40,7 +40,7 @@ export type BlockRow = {
   list: ListRowInfo | null;
 };
 
-// A margin that computes to no length, such as `auto`, parses to NaN, and the empty string a stylesheet-less environment reports does too.
+// A margin that computes to no length, such as `auto`, parses to NaN.
 const marginInPixels = (value: string): number => Number.parseFloat(value) || 0;
 
 // The root list of a list item: the list that stands directly in the root or in a toggle body, whose element's padding is the width of one level of indentation for every list inside it.

@@ -74,7 +74,7 @@ describe('collectBlockRows', () => {
     expect(collectBlockRows(editor)).toEqual([]);
   });
 
-  it('carries each row element rectangle top and bottom and computed margins as numbers, an unset margin as 0', () => {
+  it('carries each row element rectangle top and bottom and computed margins as numbers, a margin that computes to no length as 0', () => {
     const editor = renderedEditor(() => ['a', 'b'].map(paragraph));
     const [firstKey, secondKey] = topLevelKeys(editor);
     const first = editor.getElementByKey(firstKey);
@@ -87,6 +87,7 @@ describe('collectBlockRows', () => {
     first.style.marginBottom = '12px';
     second.getBoundingClientRect = () =>
       ({ top: 62, bottom: 90, left: 16 }) as DOMRect;
+    second.style.margin = 'auto';
 
     const [firstRow, secondRow] = collectBlockRows(editor);
 
