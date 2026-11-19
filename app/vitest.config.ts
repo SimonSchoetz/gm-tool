@@ -2,18 +2,40 @@ import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
+// Tests of Node tooling (the dev data server, the ESLint rules, the repository-root scripts) load native modules and the bundler, whose globals differ from a VM context's (`instanceof Error` fails across them), so they stay on the default `forks` pool.
+const nodeToolingTests = [
+  'dev-data-server/**/*.test.ts',
+  'eslint-rules/**/*.test.js',
+  '../scripts/**/*.test.ts',
+];
+
 export default defineConfig({
   plugins: [react()],
   // The tests of the repository-root `scripts/` live outside this root; the dev server serves them only when it may read the parent directory.
   server: { fs: { allow: ['..'] } },
   test: {
     globals: true,
-    include: [...configDefaults.include, '../scripts/**/*.test.ts'],
     environment: 'jsdom',
     setupFiles: './src/__tests__/setup.ts',
     css: true,
     // `pnpm run mutation-check` writes sandbox copies of the app under `.stryker-tmp`; a run beside it would collect their test files too. Setting `exclude` replaces Vitest's defaults, hence the spread.
     exclude: [...configDefaults.exclude, '.stryker-tmp/**'],
+    projects: [
+      {
+        extends: true,
+        test: { name: 'node-tooling', include: nodeToolingTests },
+      },
+      // `vmThreads` builds the jsdom environment once per worker and still gives each file a fresh VM context and `window`, where `forks` builds jsdom again for every file.
+      {
+        extends: true,
+        test: {
+          name: 'app',
+          pool: 'vmThreads',
+          include: configDefaults.include,
+          exclude: nodeToolingTests,
+        },
+      },
+    ],
     coverage: {
       include: [
         'src/**/*.{ts,tsx}',
