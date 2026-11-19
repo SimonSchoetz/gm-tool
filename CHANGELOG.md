@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.18.0] - 2026-11-19
+
+### Added
+
+- Scrolling areas fade their content out toward the top and bottom edges instead of cutting it off: the text editors, the content section panel, the sidebar, the lists, the prep and in-game views, the encounter notes and the message composer; the line you are typing on and a row you scroll to stay clear of the fade
+- Drag blocks inside an open toggle's body, and move them into, out of and between toggles
+- Drag list items at any depth, together with their sub-items, into, out of and between lists
+- Fold a step's section in the in-game view from its header, and unfold it from the steps navigation
+
+### Changed
+
+- The three list styles indent by the same, wider step, and a check item's checkbox no longer sits under the drag handle
+- The mention dropdown has a fixed width
+- Screen readers announce the loading indicator and the options of the mention dropdown
+
+### Fixed
+
+- In a toggle's header, Enter splits the header at the caret and sends the rest to the body (or after a collapsed toggle), Enter at the start of the header adds an empty line above the toggle, Shift+Enter inserts a line break, and Backspace at the very start turns the toggle into plain blocks without deleting anything
+- Pasting into a toggle's header puts the first pasted paragraph into the header and the other blocks where Enter would lead, instead of splitting them out next to the header; a toggle saved with stray blocks next to its header is repaired when the text opens
+- The empty-line hint stays on a heading header's text line and on one line beside a check item's checkbox
+- Picking a mention with Return right after the typed query changed inserts it at the caret instead of failing
+- A mention's hover popup closes when its badge is removed
+- Typographic substitution in name fields works from the first keystroke into a field that already holds text
+- Pinning and unpinning sync from either paired device
+- Sync no longer loses an entry whose parent changed after it and arrives in a later batch
+- Replacing an image keeps entities pointing at an image the whole time, images left behind by a quit in the middle of an image change are deleted at the next start, and a failed duplicate leaves no half-made copy
+- Reordering sections, steps and queue items, and adding to them, can no longer leave a half-written order after a failure or quit, and two adds at once no longer take the same position
+
 ## [v0.17.0] - 2026-11-03
 
 ### Added
