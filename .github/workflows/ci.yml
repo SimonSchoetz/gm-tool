@@ -1,0 +1,26 @@
+name: CI
+
+# The scheduled run keeps the caches saved on `main` alive: an entry unaccessed for 7 days is removed, and Monday plus Thursday leaves at most 4 days between two runs. Never `pull_request_target`: this workflow runs the code of the pull request.
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 4 * * 1,4'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  # Warms the Rust and pnpm caches that a release run restores from `main`. Never on a pull request, whose caches only that pull request could restore. No secrets are passed, so the build is unsigned and uploads nothing.
+  build:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build.yml

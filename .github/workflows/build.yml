@@ -1,0 +1,65 @@
+name: Build
+
+# Builds the app for Windows, macOS arm64 and macOS x86_64. With a `release-id` it bundles, signs and uploads to that release; without one (a push to `main` or the schedule) it compiles the same release-profile Rust and frontend with `--no-bundle`, which skips bundling and so needs no signing key and uploads nothing, so that a release run restores the Rust and pnpm caches this run saves. The calling job's `permissions` set the token: this workflow sets none, because a called workflow can only lower them.
+on:
+  workflow_call:
+    inputs:
+      release-id:
+        description: Id of the draft release to upload the bundles to; empty for a build that uploads nothing.
+        type: string
+        default: ''
+      tag-name:
+        description: Tag of that release, which tauri-action writes into the download URLs of its `latest.json`.
+        type: string
+        default: ''
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY:
+        required: false
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD:
+        required: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: ''
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      # The two macOS legs share this job id and runner, so `key` tells their caches apart. Saved on `main` only, as in checks.yml.
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: app/src-tauri -> target
+          key: ${{ matrix.target }}
+          cache-on-failure: true
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install frontend dependencies
+        run: pnpm install
+        working-directory: app
+
+      - uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0.6.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ inputs.release-id }}
+          tagName: ${{ inputs.tag-name }}
+          projectPath: app
+          args: ${{ format('{0} {1}', matrix.target && format('--target {0}', matrix.target) || '', inputs.release-id == '' && '--no-bundle' || '') }}

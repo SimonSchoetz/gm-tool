@@ -158,3 +158,24 @@ A test can therefore run a Node entry script as a child process against a tempor
 
 **Verified at:** vitest 5.0.2, installed in `app/`, run 2026-11-10
 **Citation:** [implement_2: ran `npx vitest related --run src/styles/global.css` from `app/` — observed `No test files found, exiting with code 0` and exit code 0; ran it again with `--passWithNoTests` — observed the same output and exit code 0]
+
+## Under `pool: 'vmThreads'`, Vitest 5.0.2 builds the jsdom environment once per worker and gives each test file a fresh VM context and `window`
+
+**Verified at:** vitest 5.0.2, <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/guide/improving-performance.md> fetched 2026-11-19, run 2026-11-19
+**Citation:** [vitest-pool_1: <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/guide/improving-performance.md>, "Test Environments" table — row `pool: 'vmThreads'`: environment created "once per worker", isolation "fresh VM context and `window` per file"; row `isolate: false`: "files in the same worker share the environment and module state"; "Test Isolation" — with `vmThreads` "you cannot disable isolation"] [vitest-pool_2: ran `npx vitest run` from `app/` on Node v24.21.0 — observed at 0d896d48 (default `forks` pool) `Environment jsdom was created 373 times`, 42% of tracked time, ~24.5 s wall; with that commit's config split into a `forks` project for `dev-data-server/`, `eslint-rules/` and `../scripts/` tests and a `vmThreads` project for the other 340 files, no such line, environment ~9%, ~10.7 s wall, all 3184 tests passing in four runs]
+
+Per-file isolation of globals and module state is kept, unlike `isolate: false`, which shares both between the files a worker runs.
+
+## Under `pool: 'vmThreads'`, Vitest 5.0.2 test files that run Vite's bundler fail with `Value is none of these types BindingPluginOptions`, and pass under `forks`
+
+**Verified at:** vitest 5.0.2, vite 8.3.1, <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/config/pool.md> fetched 2026-11-19, run 2026-11-19
+**Citation:** [vitest-pool_3: <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/config/pool.md>, "vmThreads" warning — the globals within native modules such as `fs` differ from the test environment's, so an `fs` error is not `instanceof Error`] [vitest-pool_4: ran `npx vitest run --pool=vmThreads` from `app/` at 0d896d48 — observed 4 of 373 files fail, all under `dev-data-server/__tests__/` and `eslint-rules/__tests__/`, the bundler ones with `Value is none of these types BindingPluginOptions`, others with `Invalid URL` and `no such table`; the same 4 files passed under the default `forks` pool]
+
+The documentation names cross-context globals of native modules as the pool's known pitfall; which global each of the other two errors trips was not traced, so a test of Node tooling is checked under `vmThreads` before it is moved there.
+
+## In Vitest 5.0.2, a `projects` entry with `extends: true` runs on the `pool` it sets, and setting its own `exclude` keeps the root config's `exclude` in effect
+
+**Verified at:** vitest 5.0.2, read and run 2026-11-19
+**Citation:** [vitest-pool_5: `app/node_modules/vitest/dist/chunks/plugin.d.My_z-jmU.d.ts:4451` — `NonProjectOptions` does not list `pool`, and `:4476` `ProjectConfig` omits only those options from `InlineConfig`] [vitest-pool_6: ran `npx vitest run` from `app/` with two `extends: true` projects, one setting `pool: 'vmThreads'` and one not — observed the 4 files that fail under `--pool=vmThreads` pass in the project without it, and the jsdom-rebuild line gone for the other] [vitest-pool_7: ran `npx vitest list --filesOnly` from `app/` with a planted `.stryker-tmp/sandbox-1/planted.test.ts`, the root `exclude` holding `.stryker-tmp/**` and an `extends: true` project setting `exclude` to its own globs only — observed 373 files listed, the planted one not among them]
+
+A project's own `exclude` therefore need not repeat the root's entries.

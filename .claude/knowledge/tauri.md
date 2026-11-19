@@ -210,3 +210,17 @@ A command declared with `tauri::AppHandle` therefore cannot be called with the h
 **Citation:** [fix_1: web fetch `https://bugs.webkit.org/show_bug.cgi?id=314898` — "shrink-to-fit boxes do not update their width when they gain or lose a scrollbar", RESOLVED FIXED, committed 313390@main on 2026-05-17; testcase `https://bugs.webkit.org/attachment.cgi?id=479679` is an `inline-block` with `overflow: auto` whose scrollbar shrinks its content]
 
 A `width: max-content` (or other shrink-to-fit) popup around an `overflow-y: auto` list therefore keeps the width of its previous scrollbar state in the macOS webview: an empty gutter after the scrollbar goes, or content squeezed by the scrollbar after it appears. Which WKWebView release carries the fix was not checked; a box with a fixed width avoids the bug whatever the release.
+
+## `tauri build --no-bundle` builds the release profile and skips the bundling step
+
+**Verified at:** tauri-cli 2.12.0 — 2026-11-19
+**Citation:** [implement_1: ran `gh api repos/tauri-apps/tauri/contents/crates/tauri-cli/src/build.rs?ref=tauri-cli-v2.12.0` — observed `crate::bundle::bundle(…)` called only under `if !options.no_bundle && (config.bundle.active || options.bundles.is_some())`, at line 132] [implement_2: ran `npx tauri build --no-bundle --ci` from `app/` — observed "Finished `release` profile [optimized]", "Built application at: …/target/release/gm-tool" and no `target/release/bundle` directory] [implement_3: ran `npx tauri --version` from `app/` — observed `tauri-cli 2.12.0`] [implement_4: ran `uname -sm` — observed `Darwin arm64`]
+
+The run passed `--ci` and was made on macOS arm64 only.
+
+## `tauri build --no-bundle` exits 0 with `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` unset
+
+**Verified at:** tauri-cli 2.12.0 — 2026-11-19
+**Citation:** [implement_1: ran `npx tauri build --no-bundle --ci` from `app/` with both variables unset (`env | grep -c TAURI_SIGNING` observed 0) — observed exit 0 after "Built application at: …/target/release/gm-tool"] [implement_2: ran `npx tauri --version` from `app/` — observed `tauri-cli 2.12.0`] [implement_3: ran `uname -sm` — observed `Darwin arm64`]
+
+The run passed `--ci` and was made on macOS arm64 only.

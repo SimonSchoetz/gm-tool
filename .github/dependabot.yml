@@ -1,0 +1,67 @@
+# Version updates only; Dependabot alerts and security updates are repository settings. Nothing here auto-merges: every pull request is merged by hand after CI passes.
+#
+# Minor and patch updates of one ecosystem and directory arrive as one pull request. A major update matches no group and arrives as its own pull request.
+#
+# A version waits 7 days after its release before Dependabot proposes it, which also keeps it longer than the 24-hour `minimumReleaseAge` in `pnpm-workspace.yaml` that a pnpm install enforces.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  # `app/src-tauri/vendor/` holds path crates that this entry does not update.
+  - package-ecosystem: cargo
+    directory: /app/src-tauri
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  # The composite action's directory is listed because the entry for `/` is not assumed to scan it.
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/setup-pnpm
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch

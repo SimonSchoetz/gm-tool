@@ -1,25 +1,20 @@
 name: Release
 
+# `draft` verifies the tag and creates the draft release (or finds it again on a re-run); `checks` and `build` then run side by side, and `publish` makes the release public only when both passed. The updater reads `releases/latest/download/latest.json`, which serves only the latest published release, so until `publish` runs a release is invisible to installed apps. A failed check or build skips `publish` and leaves the draft; re-running the failed jobs completes the same draft.
 on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-env:
-  # Pinned rather than floating on node@lts, which tracks whichever line is Active LTS at build time and so can move CI across a major without a commit. Keep in step with `.nvmrc` at the repository root. jsdom requires 24.15.0 or newer, the floor `engines.node` in app/package.json states.
-  NODE_RUNTIME: node@24
-
 jobs:
-  # Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, which finds no changed file to mutate on a tag that sits on main, before any release build, so a release never ships code those checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table.
-  check:
+  draft:
+    runs-on: ubuntu-latest
     permissions:
-      contents: read
-    runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: app
+      contents: write
+    outputs:
+      release-id: ${{ steps.draft.outputs.release-id }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
 
@@ -29,107 +24,87 @@ jobs:
           git fetch origin main
           git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
 
-      # No run for a different tag can restore a cache saved under this one, and no workflow runs on main, whose caches every tag could restore, so the pnpm and cargo caches below can help only a later run under the same tag.
-      - uses: pnpm/setup@v2
-        with:
-          package-json-file: app/package.json
-          runtime: ${{ env.NODE_RUNTIME }}
-          install: false
-          cache: true
-          cache-dependency-path: app/pnpm-lock.yaml
+      # The releases list includes drafts and a lookup by tag does not, so the list is searched; the three matrix builds then upload to this one release instead of each creating a draft of their own. A release of this tag that is already published fails the run: the builds would replace assets, `latest.json` among them, that installed apps are already served.
+      - name: Find or create the draft release
+        id: draft
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          release=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" | jq -r --arg tag "$TAG" '.[] | select(.tag_name == $tag) | "\(.id) \(.draft)"' | sed -n '1p')
+          if [ -z "$release" ]; then
+            release_id=$(gh api -X POST "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$TAG" -f name="GM Tool $TAG" -F draft=true -F prerelease=false --jq .id)
+          else
+            release_id=${release% *}
+            if [ "${release#* }" != "true" ]; then
+              echo "The release for $TAG is already published and is not rebuilt in place."
+              exit 1
+            fi
+          fi
+          echo "release-id=$release_id" >> "$GITHUB_OUTPUT"
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
+  checks:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/checks.yml
 
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: app/src-tauri -> target
-          # Saved when a check fails too, so a failed check still leaves a cache for a later run under the same tag.
-          cache-on-failure: true
+  build:
+    needs: draft
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build.yml
+    with:
+      release-id: ${{ needs.draft.outputs.release-id }}
+      tag-name: ${{ github.ref_name }}
+    # The one place the signing key reaches a build.
+    secrets: inherit
 
-      - name: Install frontend dependencies
-        run: pnpm install
-
-      # Before the type-check: `scripts/tsconfig.json` takes its Node types from the repository root's `@types/node`.
-      - name: Install root dependencies
-        run: pnpm install
-        working-directory: .
-
-      - name: type-check
-        run: npx tsc --noEmit && npx tsc --noEmit -p ../scripts
-
-      - name: lint
-        run: npx eslint . ../scripts
-
-      - name: format-check
-        run: npx prettier --check . ../scripts
-
-      - name: markdown-lint
-        run: pnpm run markdown-lint
-        working-directory: .
-
-      - name: css-token-check
-        run: node scripts/css-token-check.ts
-        working-directory: .
-
-      - name: test
-        run: npx vitest run
-
-      - name: rust-lint
-        run: cargo clippy --all-targets -- -D warnings
-        working-directory: app/src-tauri
-
-      - name: rust-format-check
-        run: cargo fmt --check
-        working-directory: app/src-tauri
-
-      - name: rust-test
-        run: cargo test
-        working-directory: app/src-tauri
-
-  release:
-    needs: check
+  # Skipped when `checks` or `build` fails, which leaves the draft in place.
+  publish:
+    needs: [draft, checks, build]
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
-      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            args: ''
-          - os: macos-latest
-            args: '--target aarch64-apple-darwin'
-          - os: macos-latest
-            args: '--target x86_64-apple-darwin'
-    runs-on: ${{ matrix.os }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+      RELEASE_ID: ${{ needs.draft.outputs.release-id }}
     steps:
-      - uses: actions/checkout@v5
+      - name: Fetch the draft's assets
+        run: gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?per_page=100" > assets.json
 
-      - uses: pnpm/setup@v2
-        with:
-          package-json-file: app/package.json
-          runtime: ${{ env.NODE_RUNTIME }}
-          install: false
+      # The nine assets of v0.17.0, each matched by its suffix: three installers, two updater archives, their three signatures and `latest.json`. Any other set fails.
+      - name: Verify the asset set
+        run: |
+          expected='["_aarch64.dmg","_x64.dmg","_x64-setup.exe","_x64-setup.exe.sig","GM-Tool_aarch64.app.tar.gz","GM-Tool_aarch64.app.tar.gz.sig","GM-Tool_x64.app.tar.gz","GM-Tool_x64.app.tar.gz.sig","latest.json"]'
+          if ! jq -e --argjson expected "$expected" '
+            [.[].name] as $names
+            | all($names[]; . as $n | [$expected[] | select(. as $s | $n | endswith($s))] | length == 1)
+            and all($expected[]; . as $s | [$names[] | select(endswith($s))] | length == 1)
+          ' assets.json > /dev/null; then
+            echo "The draft's assets are not the expected set:"
+            jq -r '.[].name' assets.json
+            exit 1
+          fi
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.os == 'macos-latest' && matrix.args == '--target aarch64-apple-darwin' && 'aarch64-apple-darwin' || matrix.os == 'macos-latest' && 'x86_64-apple-darwin' || '' }}
+      - name: Download latest.json
+        run: |
+          asset_id=$(jq -r '.[] | select(.name == "latest.json") | .id' assets.json)
+          gh api -H 'Accept: application/octet-stream' "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" > latest.json
 
-      - name: Install frontend dependencies
-        run: pnpm install
-        working-directory: app
+      # The three build jobs each merge their own platform into `latest.json`; two finishing together can overwrite each other's platform, so this step fails the run when one is missing. Re-running the build job of the missing platform merges it again.
+      - name: Verify latest.json
+        run: |
+          if ! jq -e --arg version "${TAG#v}" --arg tag "$TAG" '
+            .version == $version
+            and ((.platforms | keys | sort) == ["darwin-aarch64","darwin-aarch64-app","darwin-x86_64","darwin-x86_64-app","windows-x86_64","windows-x86_64-nsis"])
+            and all(.platforms[]; (.url | contains("/download/" + $tag + "/")) and (.signature | length > 0))
+          ' latest.json > /dev/null; then
+            echo "latest.json does not describe $TAG for all six platforms:"
+            cat latest.json
+            exit 1
+          fi
 
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: GM Tool ${{ github.ref_name }}
-          releaseDraft: false
-          prerelease: false
-          projectPath: app
-          args: ${{ matrix.args }}
+      - name: Publish the release
+        run: gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false -f make_latest=true
