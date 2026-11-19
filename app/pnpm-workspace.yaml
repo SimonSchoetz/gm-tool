@@ -4,3 +4,7 @@ allowBuilds:
   unrs-resolver: false
 # Pinned rather than inherited: pnpm applies a 1440-minute (24-hour) minimum release age by default, which is what keeps a freshly published version out of the lockfile until malicious releases have had time to be caught and pulled. Stating it here keeps the policy in force if that default ever changes, and makes it visible to anyone reading this file. Raising it delays legitimate upstream fixes by the same amount.
 minimumReleaseAge: 1440
+overrides:
+  # No minimatch 10.x release fixes the globparts DoS (GHSA-g3hv-75wg-m249, fixed in 11.0.1), and two parents still cap it at 10: Stryker 10.1.1 (its latest) pins ~10.2.4, and @typescript-eslint/typescript-estree 8.72.2 asks for ^10.2.2. Both call only APIs that 11 kept: `minimatch()` and `new Minimatch()` with `dot`, `nocase` and `flipNegate`, `.match()`, `.negate` and `.hasMagic()`; 11 removed `makeRe()`, the `AST` class and `matchOne()`. Drop an entry once that parent's own range reaches 11: typescript-estree 8.73.0 already does, but the typescript-eslint 8.73.0 that brings it adds `no-unsafe-class-instance-assignment`, which reports 62 errors here.
+  '@stryker-mutator/core>minimatch': ^11.0.1
+  '@typescript-eslint/typescript-estree>minimatch': ^11.0.1
