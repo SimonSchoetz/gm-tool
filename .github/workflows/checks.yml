@@ -1,6 +1,6 @@
 name: Checks
 
-# Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, whatever the row's Trigger. `mutation-check` mutates only files changed against `main`, so it has nothing to do on a push to `main` or on a tag, and it stays a local gate before review. ci.yml calls this workflow for pull requests, pushes to `main` and the schedule; release.yml calls it and publishes only when it passes, so a release never ships code these checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table. The rows run in three parallel jobs, so a run takes as long as its slowest job: `static` on Linux, since none of its rows depends on the platform; `test` on macOS, since the dev data server's tests exercise its macOS-only app-data paths; `rust` on macOS, the platform the Tauri crate is linted and tested on.
+# Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, whatever the row's Trigger. `mutation-check` mutates only files changed against `main`, so it has nothing to do on a push to `main` or on a tag, and it stays a local gate before review. ci.yml calls this workflow for pull requests, pushes to `main` and the schedule; release.yml calls it and publishes only when it passes, so a release never ships code these checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table. The rows run in four parallel jobs, so a run takes as long as its slowest job: `static` and `lint` on Linux, since none of their rows depends on the platform, with `lint`, the longest of them, in a job of its own; `test` on macOS, since the dev data server's tests exercise its macOS-only app-data paths; `rust` on macOS, the platform the Tauri crate is linted and tested on.
 on:
   workflow_call:
 
@@ -28,9 +28,6 @@ jobs:
 
       - name: type-check
         run: npx tsc --noEmit && npx tsc --noEmit -p ../scripts
-
-      - name: lint
-        run: npx eslint . ../scripts
 
       - name: format-check
         run: npx prettier --check . ../scripts
@@ -92,3 +89,24 @@ jobs:
 
       - name: rust-test
         run: cargo test
+
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      # As in `static`: `scripts/tsconfig.json` takes its Node types from the repository root's `@types/node`.
+      - name: Install root dependencies
+        run: pnpm install
+        working-directory: .
+
+      - name: lint
+        run: npx eslint . ../scripts
