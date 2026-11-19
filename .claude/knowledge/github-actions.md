@@ -91,6 +91,13 @@ Only the source of the action was read; no job was run.
 
 Only the action's metadata file was read; no job was run.
 
+## `pnpm/setup@v2` has no restore-only mode for its store cache: `cache: false` turns off both the restore and the save
+
+**Verified at:** pnpm/setup `v2` at `703c526` — 2026-11-19
+**Citation:** [implement_8: ran `gh api repos/pnpm/setup/contents/action.yml?ref=703c526` — observed the inputs `version`, `dest`, `runtime`, `cache`, `cache-dependency-path`, `working-directory`, `package-json-file`, `require-lockfile`, `install` and `token`, none of them a save condition] [implement_9: read `src/cache-restore/run.ts` and `src/cache-save/run.ts` at `703c526` — `if (!inputs.cache) return` before `runRestoreStoreCache`, and the save returning when no primary key was recorded, which only a restore with `cache: true` records]
+
+Only the action's metadata and these two source files were read; no job was run.
+
 ## `tauri-apps/tauri-action@v0` treats a build that yields no artifacts as an error only when `releaseId` or `tagName` is set
 
 **Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19

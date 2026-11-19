@@ -6,10 +6,11 @@ runs:
   steps:
     - uses: pnpm/setup@v2
       with:
+        # Deprecated in `pnpm/setup` but still honoured and kept: its `working-directory` replacement is documented to resolve `cache-dependency-path` relative to itself, while that input's own text says relative to the repository root.
         package-json-file: app/package.json
         # Pinned rather than floating on node@lts, which tracks whichever line is Active LTS at build time and so can move CI across a major without a commit. Keep in step with `.nvmrc` at the repository root. jsdom requires 24.15.0 or newer, the floor `engines.node` in app/package.json states.
         runtime: node@24
         install: false
-        # `pnpm/setup` has no input that limits the save to `main`, so a pull request whose lockfile differs from `main`'s also saves a pnpm store, scoped to its merge ref.
+        # `pnpm/setup` has no restore-only mode, so a pull request whose lockfile differs from `main`'s also saves a pnpm store, scoped to its merge ref.
         cache: true
         cache-dependency-path: app/pnpm-lock.yaml
