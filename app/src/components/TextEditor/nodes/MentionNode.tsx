@@ -110,8 +110,7 @@ export class MentionNode extends DecoratorNode<JSX.Element> {
 
   exportJSON(): SerializedMentionNode {
     const json: SerializedMentionNode = {
-      type: 'mention',
-      version: 1,
+      ...super.exportJSON(),
       entityId: this.__entityId,
       entityType: this.__entityType,
       displayName: this.__displayName,

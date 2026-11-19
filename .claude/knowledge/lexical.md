@@ -489,3 +489,17 @@ An update that moves the caret off the query and an Enter that follows it before
 **Citation:** [fix_4: `app/node_modules/lexical/dist/Lexical.dev.js:15591-15598` — `$insertNodes` takes `$getSelection() || $getPreviousSelection()`, uses `$getRoot().selectEnd()` when both are `null`, and calls `selection.insertNodes(nodes)`]; [fix_5: ran `npx vitest run` on `app/src/components/TextEditor/plugins/MentionTypeaheadPlugin/__tests__/MentionTypeaheadPlugin.test.tsx` — observed a `MentionNode` passed to `$insertNodes` with a collapsed caret in an empty paragraph end up as that paragraph's child, with `selectNext` on it succeeding]
 
 What `selection.insertNodes` does with the nodes for other selections, such as a non-collapsed range or a node selection, was not checked.
+
+## Lexical 0.53 marks `SerializedLexicalNode.version` `@deprecated`, and `LexicalNode.exportJSON()` still writes it as `1`
+
+**Verified at:** lexical 0.53.0 — 2026-11-19
+**Citation:** [dependabot-triage_5: `app/node_modules/lexical/dist/LexicalNode.d.ts:25-34` — the `@deprecated` tag on `version`, stating that parsing ignores it and that `exportJSON()` still writes it as `1` for older readers] [dependabot-triage_6: ran a Vitest test that serialized a `MentionNode` built with `...super.exportJSON()` — observed `type: 'mention'` and `version: 1` in its JSON] [dependabot-triage_9: ran `npx eslint . ../scripts` in CI on the Lexical 0.53 bump (Actions run 44511743391, job `checks / static`) — observed `@typescript-eslint/no-deprecated` reporting `version` at `app/src/components/TextEditor/nodes/MentionNode.tsx:114:7`, where `exportJSON` wrote `version: 1` in its object literal]
+
+A custom node that writes `version: 1` in its own object literal trips `@typescript-eslint/no-deprecated`; spreading `super.exportJSON()` supplies `type` and `version` without naming the deprecated field.
+
+## `@lexical/react` 0.53's `ContentEditable` gives a read-only editor no `role="textbox"` unless it has an accessible name
+
+**Verified at:** @lexical/react 0.53.0 — 2026-11-19
+**Citation:** [dependabot-triage_7: `app/node_modules/@lexical/react/dist/LexicalContentEditable.dev.js:121-122` — the role resolves to `textbox` only when the editor is editable or has an `aria-label`, `aria-labelledby` or `title`, unless a `role` prop is passed] [dependabot-triage_8: https://github.com/facebook/lexical/releases/tag/v0.53.0 — "A read-only `ContentEditable` no longer renders an unnamed `role="textbox"`" (#9270)]
+
+A test that found such an editor through the `textbox` role finds none at this version.
