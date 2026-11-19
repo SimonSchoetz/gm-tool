@@ -83,3 +83,10 @@ Only the source of the action was read; no job was run.
 **Citation:** [implement_7: ran `gh api repos/pnpm/setup/contents/action.yml?ref=703c526` — observed `package-json-file` described as "Deprecated. Use `working-directory` instead... Still honoured when set on its own — the directory containing the file becomes the working directory", with a `deprecationMessage`]
 
 Only the action's metadata file was read; no job was run.
+
+## `tauri-apps/tauri-action@v0` treats a build that yields no artifacts as an error only when `releaseId` or `tagName` is set
+
+**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
+**Citation:** [implement_1: ran `gh api repos/tauri-apps/tauri-action/contents/src/index.ts?ref=v0` and `…/src/build.ts?ref=v0` — observed `buildProject` returning `artifacts.filter((p) => existsSync(p.path))` (`src/build.ts:576`), and `src/index.ts` lines 123–131 throwing `No artifacts were found.` when `releaseId || tagName` and otherwise logging that this "is not handled as an error" and returning] [implement_2: ran `gh api repos/tauri-apps/tauri-action/commits/v0 --jq .sha` — observed `84b9d35b5fc46c1e45415bdb6144030364f7ebc5`]
+
+Only the action's source was read; no run of the action was made.

@@ -17,3 +17,10 @@ permissions:
 jobs:
   checks:
     uses: ./.github/workflows/checks.yml
+
+  # Warms the Rust and pnpm caches that a release run restores from `main`. Never on a pull request, whose caches only that pull request could restore. No secrets are passed, so the build is unsigned and uploads nothing.
+  build:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build.yml
