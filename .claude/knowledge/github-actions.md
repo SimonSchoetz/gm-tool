@@ -28,19 +28,19 @@ No job was run on the image; both READMEs are the only source.
 
 A job that runs `cargo clippy` or `cargo fmt` after this action passes `components: clippy, rustfmt`.
 
-## `pnpm/setup@v2` installs its `runtime` input by running `pnpm runtime set <name> <version> -g`
+## `pnpm/setup@v3` installs its `runtime` input by running `pnpm runtime set <name> <version> -g`
 
-**Verified at:** pnpm/setup `v2` at `703c526` — 2026-11-19
-**Citation:** [implement_5: read pnpm/setup at `703c526` — `src/index.ts` `runMain` passes `resolveRuntimeRequests(inputs)` to `installRuntime(request, result.binDest)`, and `src/install-runtime/index.ts` `installRuntime` runs `runPnpm(binDest, ['runtime', 'set', request.name, request.version, '-g'])`]
+**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
+**Citation:** [dependabot-triage_10: read pnpm/setup at `fa36a5e` — `src/index.ts` `runMain` calls `installRuntime(request, result.binDest)` at line 42, and `src/install-runtime/index.ts` line 70 runs `runPnpm(binDest, ['runtime', 'set', request.name, request.version, '-g'])`]
 
 For `runtime: node@24` under pnpm 12.4.2 that links only `node`, no `npx` or `npm` (`.claude/knowledge/pnpm.md`), so `npx` in such a job comes from another Node installation on `PATH`, if there is one.
 
-## `pnpm/setup@v2` caches the pnpm store only with `cache: true`, under a key made of the runner OS, the CPU architecture, a hash of the runtimes and a hash of the files `cache-dependency-path` names
+## `pnpm/setup@v3` caches the pnpm store only with `cache: true`, saving under a key unique to each run that starts with the runner OS, the CPU architecture, a hash of the runtimes and a hash of the files `cache-dependency-path` names
 
-**Verified at:** pnpm/setup `v2` at `703c526` — 2026-11-19
-**Citation:** [implement_6: ran `gh api repos/pnpm/setup/contents/action.yml?ref=703c526` and read `src/cache-restore/keys.ts`, `src/cache-restore/run.ts`, `src/cache-save/run.ts` and `src/index.ts` at the same ref — observed `cache` defaulting to `'false'`, the prefix `pnpm-cache-<RUNNER_OS>-<arch>-<hash of the runtime requests>-` used as the restore key, the primary key `<prefix><hash of the installed runtimes>-<hashFiles(cache-dependency-path)>`, the cached path taken from `pnpm store path`, a save that is skipped when no primary key was recorded or when it equals the restored key, `src/cache-restore/run.ts` `finalizeCache` setting the `cache-hit` output to `restoredKey === primaryKey`, the `install` input described in `action.yml` as whether to run `pnpm install` after pnpm and the runtime are set up, and `src/index.ts` `runMain` calling `restoreCache(inputs, requests)` before the runtime installs and before `if (inputs.install)`]
+**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
+**Citation:** [dependabot-triage_11: read `src/cache-restore/keys.ts`, `src/cache-restore/run.ts`, `src/cache-save/run.ts` and `src/index.ts` at `fa36a5e` — observed the prefix `pnpm-cache-<RUNNER_OS>-<arch>-<hash of the runtime requests>-` from `getCacheKeyPrefix`, the lockfile prefix `<prefix><hashFiles(cache-dependency-path)>-` tried first and the bare prefix second as restore keys, the save key `<lockfile prefix><hash of the installed runtimes>-<GITHUB_RUN_ID>-<run attempt>-<random UUID>` from `getSaveCacheKey`, a save skipped when the store is unchanged since the restore, and `restoreCache(inputs, requests)` at `src/index.ts:37` before the runtime installs and before `if (inputs.install)` at line 76] [dependabot-triage_15: https://github.com/pnpm/setup/releases/tag/v3.0.0 — "fix!: include runid in cache key, restore freshest lockfile match" (#43)]
 
-With `cache: true`, the action calls its cache restore before, and independently of, its `install` input, which decides whether the action runs `pnpm install` itself. When the exact key is absent the restore falls back to the prefix, restores an older store and sets the `cache-hit` output to false.
+With `cache: true`, the action restores before, and independently of, its `install` input. Because every save key is new, each run whose store changed adds a cache entry rather than replacing one.
 
 ## `tauri-apps/tauri-action@v0`'s own TypeScript source starts no `git` command; its only subprocesses are the Tauri CLI, `npm install -g @tauri-apps/cli` and `tar`
 
@@ -84,19 +84,19 @@ Only the source of the action was read; no job was run.
 
 Only the source of the action was read; no job was run.
 
-## `pnpm/setup@v2` marks its `package-json-file` input deprecated in favour of `working-directory`, and still honours it when it is set on its own
+## `pnpm/setup@v3` marks its `package-json-file` input deprecated in favour of `working-directory`, and still honours it when it is set on its own
 
-**Verified at:** pnpm/setup `v2` at `703c526` — 2026-11-19
-**Citation:** [implement_7: ran `gh api repos/pnpm/setup/contents/action.yml?ref=703c526` — observed `package-json-file` described as "Deprecated. Use `working-directory` instead... Still honoured when set on its own — the directory containing the file becomes the working directory", with a `deprecationMessage`]
+**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
+**Citation:** [dependabot-triage_12: read `action.yml` at `fa36a5e`, lines 108–115 — observed `package-json-file` described as "Deprecated. Use `working-directory` instead... Still honoured when set on its own — the directory containing the file becomes the working directory", with a `deprecationMessage`]
 
 Only the action's metadata file was read; no job was run.
 
-## `pnpm/setup@v2` has no restore-only mode for its store cache: `cache: false` turns off both the restore and the save
+## `pnpm/setup@v3` skips saving its store cache when `save-cache` is `false`
 
-**Verified at:** pnpm/setup `v2` at `703c526` — 2026-11-19
-**Citation:** [implement_8: ran `gh api repos/pnpm/setup/contents/action.yml?ref=703c526` — observed the inputs `version`, `dest`, `runtime`, `cache`, `cache-dependency-path`, `working-directory`, `package-json-file`, `require-lockfile`, `install` and `token`, none of them a save condition] [implement_9: read `src/cache-restore/run.ts` and `src/cache-save/run.ts` at `703c526` — `if (!inputs.cache) return` before `runRestoreStoreCache`, and the save returning when no primary key was recorded, which only a restore with `cache: true` records]
+**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
+**Citation:** [dependabot-triage_13: read `action.yml` at `fa36a5e` — observed the input `save-cache`, default `'true'`, described as whether to save the pnpm store at the end of the job when `cache` is `true`, and `src/cache-save/index.ts` line 7 returning before the save when `!inputs.cache || !inputs.saveCache`] [dependabot-triage_14: https://github.com/pnpm/setup/releases/tag/v3.1.0 — "feat: add `save-cache` and skip saving an unchanged store"]
 
-Only the action's metadata and these two source files were read; no job was run.
+Only the action's metadata and `src/cache-save/index.ts` were read; no job was run.
 
 ## `tauri-apps/tauri-action@v0` treats a build that yields no artifacts as an error only when `releaseId` or `tagName` is set
 
