@@ -1,0 +1,70 @@
+name: Checks
+
+# Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, whatever the row's Trigger. `mutation-check` mutates only files changed against `main`, so it has nothing to do on a push to `main` or on a tag, and it stays a local gate before review. ci.yml calls this workflow for pull requests, pushes to `main` and the schedule; release.yml calls it and publishes only when it passes, so a release never ships code these checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      # Saved on `main` only: a pull request's caches are scoped to its merge ref and a tag run's cannot serve another tag, so saving from either only crowds out the caches of `main`, which every run can restore, within the repository's 10 GB. Saved when a check fails too, so a failed check still leaves a cache for the next run.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri -> target
+          cache-on-failure: true
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      # Before the type-check: `scripts/tsconfig.json` takes its Node types from the repository root's `@types/node`.
+      - name: Install root dependencies
+        run: pnpm install
+        working-directory: .
+
+      - name: type-check
+        run: npx tsc --noEmit && npx tsc --noEmit -p ../scripts
+
+      - name: lint
+        run: npx eslint . ../scripts
+
+      - name: format-check
+        run: npx prettier --check . ../scripts
+
+      - name: markdown-lint
+        run: pnpm run markdown-lint
+        working-directory: .
+
+      - name: css-token-check
+        run: node scripts/css-token-check.ts
+        working-directory: .
+
+      - name: test
+        run: npx vitest run
+
+      - name: rust-lint
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: app/src-tauri
+
+      - name: rust-format-check
+        run: cargo fmt --check
+        working-directory: app/src-tauri
+
+      - name: rust-test
+        run: cargo test
+        working-directory: app/src-tauri
