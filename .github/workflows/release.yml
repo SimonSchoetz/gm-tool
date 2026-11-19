@@ -24,7 +24,7 @@ jobs:
           git fetch origin main
           git merge-base --is-ancestor ${{ github.sha }} origin/main || (echo "Release tags must be pushed from main" && exit 1)
 
-      # The releases list includes drafts and a lookup by tag does not, so the list is searched; the three matrix builds then upload to this one release instead of each creating a draft of their own.
+      # The releases list includes drafts and a lookup by tag does not, so the list is searched; the three matrix builds then upload to this one release instead of each creating a draft of their own. A release of this tag that is already published fails the run: the builds would replace assets, `latest.json` among them, that installed apps are already served.
       - name: Find or create the draft release
         id: draft
         shell: bash
@@ -32,9 +32,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          release_id=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | sed -n '1p')
-          if [ -z "$release_id" ]; then
+          release=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" | jq -r --arg tag "$TAG" '.[] | select(.tag_name == $tag) | "\(.id) \(.draft)"' | sed -n '1p')
+          if [ -z "$release" ]; then
             release_id=$(gh api -X POST "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$TAG" -f name="GM Tool $TAG" -F draft=true -F prerelease=false --jq .id)
+          else
+            release_id=${release% *}
+            if [ "${release#* }" != "true" ]; then
+              echo "The release for $TAG is already published and is not rebuilt in place."
+              exit 1
+            fi
           fi
           echo "release-id=$release_id" >> "$GITHUB_OUTPUT"
 
@@ -75,8 +81,7 @@ jobs:
           expected='["_aarch64.dmg","_x64.dmg","_x64-setup.exe","_x64-setup.exe.sig","GM-Tool_aarch64.app.tar.gz","GM-Tool_aarch64.app.tar.gz.sig","GM-Tool_x64.app.tar.gz","GM-Tool_x64.app.tar.gz.sig","latest.json"]'
           if ! jq -e --argjson expected "$expected" '
             [.[].name] as $names
-            | ($names | length) == ($expected | length)
-            and all($names[]; . as $n | [$expected[] | select(. as $s | $n | endswith($s))] | length == 1)
+            | all($names[]; . as $n | [$expected[] | select(. as $s | $n | endswith($s))] | length == 1)
             and all($expected[]; . as $s | [$names[] | select(endswith($s))] | length == 1)
           ' assets.json > /dev/null; then
             echo "The draft's assets are not the expected set:"

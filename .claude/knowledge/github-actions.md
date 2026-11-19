@@ -63,17 +63,24 @@ No run was made; the page is the only source.
 
 No run was made; the page is the only source.
 
-## `Swatinem/rust-cache@v2` builds its key from the prefix, the `key` input, the job id, the runner OS and CPU architecture, a hash of the Rust environment and a hash of the manifests and lockfiles
+## `Swatinem/rust-cache@v2` builds its key from `prefix-key`, the `key` input and by default the job id (or a `shared-key` instead of both), the runner OS and CPU architecture, a hash of the Rust environment and a hash of the manifests and lockfiles
 
-**Verified at:** Swatinem/rust-cache `v2` at `d1527c8`, `src/config.ts` — 2026-11-19
-**Citation:** [implement_2: ran `gh api repos/Swatinem/rust-cache/contents/src/config.ts?ref=v2` — observed `key = prefix-key`, then `-<shared-key>` or `-<key input>` and `-<process.env.GITHUB_JOB>`, then `-<os.type()>-<os.arch()>` (lines 73–93), then the Rust-environment hash (lines 128–131) and the manifest and lockfile hash (lines 154–260); the `shared-key` branch (lines 75–77) adds only the shared key, and the job id is added only when `add-job-id-key` is `true` (line 85)]
+**Verified at:** Swatinem/rust-cache `v2` at `d1527c8`, `src/config.ts` and `action.yml` — 2026-11-19
+**Citation:** [implement_2: ran `gh api repos/Swatinem/rust-cache/contents/src/config.ts?ref=v2` — observed `key = prefix-key`, then `-<shared-key>` or `-<key input>` and `-<process.env.GITHUB_JOB>`, then `-<os.type()>-<os.arch()>` (lines 73–93), then the Rust-environment hash (lines 128–131) and the manifest and lockfile hash (lines 154–260); the `shared-key` branch (lines 75–77) adds only the shared key, and the job id is added only when `add-job-id-key` is `true` (line 85)] [implement_3: ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=v2` — observed `add-job-id-key` with `default: "true"`] [implement_9: ran `gh api repos/Swatinem/rust-cache/commits/v2 --jq .sha` — observed `d1527c8f67ef9af357290475d4af4b0fab8f12e0`]
 
-The job id is part of the key by default, because `add-job-id-key` defaults to `true` in `action.yml`, and a `shared-key` input is used instead of the `key` input and the job id. Only the source of the action was read; no job was run.
+The job id is part of the key by default, and a `shared-key` input is used instead of the `key` input and the job id. Only the source of the action was read; no job was run.
 
-## `Swatinem/rust-cache@v2` saves its cache in a post step, skips the save when `save-if` is `false`, and still saves after a failed job when `cache-on-failure` is `true`, which its restore step exports as `CACHE_ON_FAILURE`
+## `Swatinem/rust-cache@v2` saves its cache in a post step and skips the save when `save-if` is `false`
 
-**Verified at:** Swatinem/rust-cache `v2` at `d1527c8`, `action.yml` — 2026-11-19
-**Citation:** [implement_3: ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=v2` — observed `save-if` described as "If `false`, the cache is only restored." with default `"true"`, `cache-on-failure` as "Cache even if the build fails", and `post: "dist/save.js"` with `post-if: "success() || env.CACHE_ON_FAILURE == 'true'"`] [implement_4: ran `gh api repos/Swatinem/rust-cache/contents/src/save.ts?ref=v2` — observed `const save = core.getInput("save-if").toLowerCase() || "true"` at line 18] [implement_5: ran `gh api repos/Swatinem/rust-cache/contents/src/restore.ts?ref=v2` — observed `core.getInput("cache-on-failure")` at line 23 and `core.exportVariable("CACHE_ON_FAILURE", cacheOnFailure)` at line 29]
+**Verified at:** Swatinem/rust-cache `v2` at `d1527c8`, `action.yml` and `src/save.ts` — 2026-11-19
+**Citation:** [implement_1: ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=v2` — observed `save-if` described as "If `false`, the cache is only restored." with default `"true"`, and `post: "dist/save.js"`] [implement_2: ran `gh api repos/Swatinem/rust-cache/contents/src/save.ts?ref=v2` — observed `const save = core.getInput("save-if").toLowerCase() || "true"` at line 18] [implement_9: ran `gh api repos/Swatinem/rust-cache/commits/v2 --jq .sha` — observed `d1527c8f67ef9af357290475d4af4b0fab8f12e0`]
+
+Only the source of the action was read; no job was run.
+
+## `Swatinem/rust-cache@v2` saves after a failed job when `cache-on-failure` is `true`, which its restore step exports as `CACHE_ON_FAILURE`
+
+**Verified at:** Swatinem/rust-cache `v2` at `d1527c8`, `action.yml` and `src/restore.ts` — 2026-11-19
+**Citation:** [implement_1: ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=v2` — observed `cache-on-failure` described as "Cache even if the build fails" and `post-if: "success() || env.CACHE_ON_FAILURE == 'true'"`] [implement_2: ran `gh api repos/Swatinem/rust-cache/contents/src/restore.ts?ref=v2` — observed `core.getInput("cache-on-failure")` at line 23 and `core.exportVariable("CACHE_ON_FAILURE", cacheOnFailure)` at line 29] [implement_9: ran `gh api repos/Swatinem/rust-cache/commits/v2 --jq .sha` — observed `d1527c8f67ef9af357290475d4af4b0fab8f12e0`]
 
 Only the source of the action was read; no job was run.
 
@@ -132,3 +139,17 @@ Only the action's source was read; no run of the action was made.
 **Citation:** [implement_1: read `src/upload-version-json.ts` at `84b9d35` — `listReleaseAssets` at line 60, `versionContent.platforms` taken from the existing file at lines 86–89 and 107–110, the job's own platform keys set from line 220, `writeFileSync` of the merged file at line 267, `deleteReleaseAsset` for the old file at line 274 and `uploadAssets` of the new file at line 293]
 
 Concurrent jobs of one release each read before writing, so a platform one of them added can be lost when another writes last; this is inferred from the read-modify-write order, and no run was made.
+
+## The `make_latest` field of the create-release and update-release endpoints takes the strings `true`, `false` or `legacy`
+
+**Verified at:** <https://docs.github.com/en/rest/releases/releases> — 2026-11-19
+**Citation:** [implement_1: https://docs.github.com/en/rest/releases/releases — the "Create a release" and "Update a release" parameters: "make_latest string … Drafts and prereleases cannot be set as latest. Defaults to true for newly published releases … Can be one of: true, false, legacy"]
+
+The page says `legacy` determines the latest release by creation date and higher semantic version, and that `true` is the default for a newly published release. Only the documentation page was read; no request was sent.
+
+## A release asset's binary content is fetched from `GET /repos/{owner}/{repo}/releases/assets/{asset_id}` with the header `Accept: application/octet-stream`, and the answer is a 200 or a redirect
+
+**Verified at:** <https://docs.github.com/en/rest/releases/assets> — 2026-11-19
+**Citation:** [implement_1: https://docs.github.com/en/rest/releases/assets — "Get a release asset": "set the Accept header of the request to application/octet-stream. The API will either redirect the client to the location, or stream it directly if possible. API clients should handle both a 200 or 302 response."] [implement_2: ran `gh api -H 'Accept: application/octet-stream' repos/SimonSchoetz/gm-tool/releases/assets/<id of the v0.17.0 latest.json>` — observed the file's JSON on standard output, with `gh` following the redirect]
+
+The run was made on an asset of a published release; the download of an asset of a draft release was not run.

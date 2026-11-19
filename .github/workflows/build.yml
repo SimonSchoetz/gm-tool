@@ -25,11 +25,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            args: ''
+            target: ''
           - os: macos-latest
-            args: '--target aarch64-apple-darwin'
+            target: aarch64-apple-darwin
           - os: macos-latest
-            args: '--target x86_64-apple-darwin'
+            target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -38,13 +38,13 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.os == 'macos-latest' && matrix.args == '--target aarch64-apple-darwin' && 'aarch64-apple-darwin' || matrix.os == 'macos-latest' && 'x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target }}
 
       # The two macOS legs share this job id and runner, so `key` tells their caches apart. Saved on `main` only, as in checks.yml.
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: app/src-tauri -> target
-          key: ${{ matrix.args }}
+          key: ${{ matrix.target }}
           cache-on-failure: true
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -61,4 +61,4 @@ jobs:
           releaseId: ${{ inputs.release-id }}
           tagName: ${{ inputs.tag-name }}
           projectPath: app
-          args: ${{ inputs.release-id == '' && format('{0} --no-bundle', matrix.args) || matrix.args }}
+          args: ${{ format('{0} {1}', matrix.target && format('--target {0}', matrix.target) || '', inputs.release-id == '' && '--no-bundle' || '') }}
