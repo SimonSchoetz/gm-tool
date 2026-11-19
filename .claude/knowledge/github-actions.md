@@ -42,10 +42,10 @@ For `runtime: node@24` under pnpm 12.4.2 that links only `node`, no `npx` or `np
 
 With `cache: true`, the action restores before, and independently of, its `install` input. Because every save key is new, each run whose store changed adds a cache entry rather than replacing one.
 
-## `tauri-apps/tauri-action@v0`'s own TypeScript source starts no `git` command; its only subprocesses are the Tauri CLI, `npm install -g @tauri-apps/cli` and `tar`
+## `tauri-apps/tauri-action@v1`'s own TypeScript source starts no `git` command; its only subprocesses are the Tauri CLI, `npm install -g @tauri-apps/cli`, `tar`, and `which` (`where.exe` on Windows) to check that a package runner is installed
 
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-10-20
-**Citation:** [release-check_6: listed `src/*.ts` at ref `v0` with `gh api repos/tauri-apps/tauri-action/git/trees/v0?recursive=1` and grepped each file for `execa|spawn|exec(|getExecOutput` — observed only `execa` in `src/utils.ts`, wrapped by `execCommand`, whose call sites are `src/runner.ts` (the Tauri CLI binary and `npm install -g @tauri-apps/cli@<tag>`) and `src/index.ts` (`tar czf`); the same files grepped for `child_process|execSync|execFile|spawnSync` matched nothing, and for `git` only `@actions/github` API usage]
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_16: grepped `src/*.ts` of a clone at `1deb371` for `execa|spawn|exec(|getExecOutput|child_process|execSync|execFile` — observed only `execa` and `execaSync` imported in `src/utils.ts:11`, `execaSync(bin, [runner])` in `isRunnerInstalled` at line 469 with `bin` set to `which` or `where.exe`, and `execCommand` (line 476) called from `src/runner.ts` (the Tauri CLI binary at line 41, `npm install -g @tauri-apps/cli@v2` at line 77) and `src/index.ts` (`tar` at line 82); a grep for `git` outside `github` matched only a `gitignore: true` option]
 
 Only `src/*.ts` was searched; the built `dist/` and what the Tauri CLI it launches runs were not.
 
@@ -98,10 +98,10 @@ Only the action's metadata file was read; no job was run.
 
 Only the action's metadata and `src/cache-save/index.ts` were read; no job was run.
 
-## `tauri-apps/tauri-action@v0` treats a build that yields no artifacts as an error only when `releaseId` or `tagName` is set
+## `tauri-apps/tauri-action@v1` treats a build that yields no artifacts as an error only when `releaseId` or `tagName` is set or workflow-artifact upload is enabled
 
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
-**Citation:** [implement_1: ran `gh api repos/tauri-apps/tauri-action/contents/src/index.ts?ref=v0` and `…/src/build.ts?ref=v0` — observed `buildProject` returning `artifacts.filter((p) => existsSync(p.path))` (`src/build.ts:576`), and `src/index.ts` lines 123–131 throwing `No artifacts were found.` when `releaseId || tagName` and otherwise logging that this "is not handled as an error" and returning] [implement_2: ran `gh api repos/tauri-apps/tauri-action/commits/v0 --jq .sha` — observed `84b9d35b5fc46c1e45415bdb6144030364f7ebc5`]
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_17: read `src/index.ts` and `src/build.ts` of a clone at `1deb371` — observed `buildProject` returning `artifacts.filter((p) => existsSync(p.path))` (`src/build.ts:517`), and `src/index.ts` throwing `No artifacts were found.` at line 43 when `releaseId || tagName || shouldUploadWorkflowArtifacts`, and otherwise logging at line 46 that this "is not handled as an error" and returning]
 
 Only the action's source was read; no run of the action was made.
 
@@ -112,40 +112,47 @@ Only the action's source was read; no run of the action was made.
 
 Only the REST page was read; it does not state how the `/releases/latest/download/<file>` web URL form picks its release.
 
-## `tauri-apps/tauri-action@v0` finds a draft release by listing all releases and matching the tag, and creates one when none matches
+## `tauri-apps/tauri-action@v1` finds a draft release by listing all releases and matching the tag, and creates one when none matches
 
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
-**Citation:** [implement_1: read `src/create-release.ts` at `84b9d35` — the comment "you can't get a an existing draft by tag" at line 67, `release.tag_name === tagName` over the `listReleases` pages at line 73, `throw new Error('release not found')` at line 84 and `createRelease` for that error from line 97]
-
-Only the action's source was read; no run of the action was made.
-
-## `tauri-apps/tauri-action@v0` skips its release lookup and creation when `releaseId` is set and uploads to that release
-
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
-**Citation:** [implement_1: read `src/index.ts` at `84b9d35` — `if (tagName && !releaseId) {` at line 178 guarding the lookup and creation, and `if (releaseId) {` at line 211 before the upload]
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_18: read `src/create-release.ts` of a clone at `1deb371` — the comment "you can't get a an existing draft by tag" at line 70, `release.tag_name === tagName` over the `listReleases` pages at line 76, `throw new Error('release not found')` at line 93 and `createRelease` for that error at line 113]
 
 Only the action's source was read; no run of the action was made.
 
-## `tauri-apps/tauri-action@v0` rewrites `untagged-` download URLs in `latest.json` to `/download/<tagName>/` when `tagName` is set, and to `/latest/download/` otherwise
+## `tauri-apps/tauri-action@v1` skips its release lookup and creation when `releaseId` is set and uploads to that release, so with `releaseId` set its `tagName` input changes nothing
 
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
-**Citation:** [implement_1: read `src/upload-version-json.ts` at `84b9d35` — `/\/download\/(untagged-[^/]+)\//` replaced with ``tagName ? `/download/${encodeURIComponent(tagName)}/` : '/latest/download/'`` at lines 192–196, under the comment "Untagged release downloads won't work after the release was published" at line 191]
-
-Only the action's source was read; no run of the action was made.
-
-## `tauri-apps/tauri-action@v0` deletes an existing release asset of the same name and then uploads the new one
-
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
-**Citation:** [implement_1: read `src/upload-release-assets.ts` at `84b9d35` — `Deleting existing ${assetName}...` at line 58 followed by `deleteReleaseAsset` at line 68, then `Uploading ${assetName}...` at line 76 and `uploadReleaseAsset` at line 80, the delete block running only `if (existingAsset)`]
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_19: read `src/index.ts` of a clone at `1deb371` — `tagName` read at line 29 and used only in `releaseId || tagName || shouldUploadWorkflowArtifacts` at line 42 and in the block `if (tagName && !releaseId) {` at line 102, which holds the lookup and creation (`getOrCreateRelease` at line 118, the only caller of `src/create-release.ts`), and `if (releaseId) {` at line 128 before the upload, whose `uploadVersionJSON` call takes no tag]
 
 Only the action's source was read; no run of the action was made.
 
-## `tauri-apps/tauri-action@v0` merges `latest.json` per job by listing the release's assets, reading the existing file, copying its `platforms`, adding its own and replacing the asset
+## `tauri-apps/tauri-action@v1` writes each `latest.json` platform URL as the REST API URL of the uploaded asset, `<GITHUB_API_URL>/repos/<owner>/<repo>/releases/assets/<asset id>`
 
-**Verified at:** tauri-apps/tauri-action `v0` at `84b9d35` — 2026-11-19
-**Citation:** [implement_1: read `src/upload-version-json.ts` at `84b9d35` — `listReleaseAssets` at line 60, `versionContent.platforms` taken from the existing file at lines 86–89 and 107–110, the job's own platform keys set from line 220, `writeFileSync` of the merged file at line 267, `deleteReleaseAsset` for the old file at line 274 and `uploadAssets` of the new file at line 293]
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_20: read `src/upload-version-json.ts` and `src/inputs.ts` of a clone at `1deb371` — the download URL built as `${githubBaseUrl}/repos/${owner}/${repo}/releases/assets/${data.id}` at `src/upload-version-json.ts:97`, and `githubBaseUrl` taken from the `githubBaseUrl` input, else `GITHUB_API_URL`, else `https://api.github.com` at `src/inputs.ts:64-67`] [dependabot-triage_28: ran `gh api repos/SimonSchoetz/gm-tool/releases/tags/v0.17.0 --jq '.assets[0] | {url, browser_download_url}'` — observed `url` `https://api.github.com/repos/SimonSchoetz/gm-tool/releases/assets/707232423`] [dependabot-triage_21: https://github.com/tauri-apps/tauri-action/releases/tag/action-v1.0.0 — "The download urls in `latest.json` will now use the github url instead of the browser download url" (#1315)]
+
+The URL carries no tag; it has the form of a release asset's own `url` field in the REST API.
+
+## `tauri-apps/tauri-action@v1` deletes an existing release asset whose label or name matches and then uploads the new one, setting the asset's label to its file name
+
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_22: read `src/upload-release-assets.ts` of a clone at `1deb371` — the match `a.label === assetName || a.name === assetNameGH` at line 55, `Deleting existing ${assetName}...` at line 59 followed by `deleteReleaseAsset` at line 60, then `uploadReleaseAsset` at line 71 with `label: assetName` at line 75]
+
+Only the action's source was read; no run of the action was made.
+
+## `tauri-apps/tauri-action@v1` merges `latest.json` per job by listing the release's assets, reading the existing file, copying its `platforms`, adding its own and replacing the asset
+
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_23: read `src/upload-version-json.ts` of a clone at `1deb371` — `listReleaseAssets` at line 57, `versionContent.platforms` taken from the existing file at line 82, the job's own platform keys set from line 229, `writeFileSync` of the merged file at line 274, `deleteReleaseAsset` for the old file at line 278 and `uploadAssets` of the new file at line 294]
 
 Concurrent jobs of one release each read before writing, so a platform one of them added can be lost when another writes last; this is inferred from the read-modify-write order, and no run was made.
+
+## `tauri-apps/tauri-action@v1` names a macOS updater archive `<productName>_<version>_<arch>.app.tar.gz`, with `aarch64` for Apple silicon and `x64` for Intel, where v0 left the version out
+
+**Verified at:** tauri-apps/tauri-action `v1.0.0` at `1deb371` — 2026-11-19
+**Citation:** [dependabot-triage_24: read `src/utils.ts` and `src/build.ts` of a clone at `1deb371` — `getAssetName` sending `.app.tar.gz` and `.app.tar.gz.sig` past the keep-the-file-name branch at `src/utils.ts:104`, setting `` version = `_${asset.version}` `` at line 133 and returning `name + platform + version + arch + asset.ext` at line 136, with `platform` left empty unless `asset.name === 'binary'` (lines 122–127), and the macOS arch mapped `x86_64` to `x64` and `arm64` to `aarch64` at `src/build.ts:77-80`] [dependabot-triage_25: https://github.com/tauri-apps/tauri-action/releases/tag/action-v1.0.0 — "`.app.tar.gz` & `.app.tar.gz.sig` files will now include the app version like all other bundles/installers" (#1194)]
+
+The installers already carried the version in their file names under v0.
 
 ## The `make_latest` field of the create-release and update-release endpoints takes the strings `true`, `false` or `legacy`
 
