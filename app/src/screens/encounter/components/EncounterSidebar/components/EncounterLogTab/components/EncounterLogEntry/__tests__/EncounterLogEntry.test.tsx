@@ -144,7 +144,7 @@ describe('EncounterLogEntry', () => {
     expect(screen.getByText('Damage: entry-1')).toBeInTheDocument();
     expect(screen.queryByRole('deletion')).not.toBeInTheDocument();
     expect(screen.getByText('Round 1')).toBeInTheDocument();
-    expect(screen.getAllByRole('textbox')).toHaveLength(1);
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.getAllByText('2:05 PM')).toHaveLength(2);
   });
 
