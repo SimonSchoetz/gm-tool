@@ -40,6 +40,7 @@ Where the user waits: the popup shows only its header until the entity's section
 | The Basic Stat Block body has one render path: `readOnly` on the HP input and the text editor, the HP a read-only input in the popup, the editor's change handler only when editable, the editable padding class the only conditional | Simpler than a separate read-only branch; a change handler passed to a read-only editor would save a checklist tick made in the popup | Simon Schötz, 2026-10-24; no test |
 | The HP is part of the Basic Stat Block body, never a header slot of a generic body | HP is stat-block content, not a header; a header slot mixes concepts | Simon Schötz, 2026-10-24; no test |
 | In read-only mode the Basic Stat Block's HP row carries no gutter padding, so it lines up with the text | A read-only text editor has gutter width 0 | Claude's call, 2026-10-24; no test |
+| In read-only mode the 5e Stat Block's fields carry no left padding, so in the popup they start as close to the image as a Text section's paragraphs; on the screen they keep their left padding | The popup's sections share one left edge | Simon Schötz, 2026-11-19; no test |
 
 ## Open points
 
