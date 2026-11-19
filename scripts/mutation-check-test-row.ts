@@ -1,4 +1,4 @@
-// The guard scripts/mutation-check.ts runs before `--accept` may write ledger entries: the `test` row of root CLAUDE.md's Check Commands (`npx vitest run` in app/) must pass.
+// The guard scripts/mutation-check.ts runs before `--accept` may write ledger entries: the whole Vitest suite (`npx vitest run` in app/, which runs the `test-app` and `test-node-tooling` rows of root CLAUDE.md's Check Commands together) must pass.
 // A survivor is equivalent only if a passing suite cannot observe it; while a test fails — say a new test meant to kill the mutant — accepting its survivors would record an untested mutant as one no test can observe.
 import { spawnSync } from 'child_process';
 
@@ -13,11 +13,11 @@ export type RunCommand = (
 const runShown: RunCommand = (command, args, cwd) =>
   spawnSync(command, args, { cwd, stdio: 'inherit' }).status;
 
-// The message to refuse `--accept` with, or null when the test row passes.
+// The message to refuse `--accept` with, or null when the whole suite passes.
 // eslint-disable-next-line local/no-constant-argument -- tests inject a runner in place of the real `npx vitest run`
 export const testRowFailure = (appRoot: string, run = runShown) => {
   const status = run('npx', ['vitest', 'run'], appRoot);
   return status === 0
     ? null
-    : `mutation-check: --accept refused — the test row (\`npx vitest run\` in app/) exited with ${status ?? 'a signal'}; make every test pass, then re-run with --accept, so no survivor of a failing test is accepted.`;
+    : `mutation-check: --accept refused — the Vitest suite (\`npx vitest run\` in app/) exited with ${status ?? 'a signal'}; make every test pass, then re-run with --accept, so no survivor of a failing test is accepted.`;
 };
