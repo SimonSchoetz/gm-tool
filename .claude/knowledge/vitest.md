@@ -179,3 +179,10 @@ The documentation names cross-context globals of native modules as the pool's kn
 **Citation:** [vitest-pool_5: `app/node_modules/vitest/dist/chunks/plugin.d.My_z-jmU.d.ts:4451` — `NonProjectOptions` does not list `pool`, and `:4476` `ProjectConfig` omits only those options from `InlineConfig`] [vitest-pool_6: ran `npx vitest run` from `app/` with two `extends: true` projects, one setting `pool: 'vmThreads'` and one not — observed the 4 files that fail under `--pool=vmThreads` pass in the project without it, and the jsdom-rebuild line gone for the other] [vitest-pool_7: ran `npx vitest list --filesOnly` from `app/` with a planted `.stryker-tmp/sandbox-1/planted.test.ts`, the root `exclude` holding `.stryker-tmp/**` and an `extends: true` project setting `exclude` to its own globs only — observed 373 files listed, the planted one not among them]
 
 A project's own `exclude` therefore need not repeat the root's entries.
+
+## Vitest 5.0.2's vm pools leak memory with every test file and restart a worker once it passes `vmMemoryLimit`, by default an even share of system memory per worker
+
+**Verified at:** vitest 5.0.2, <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/config/pool.md> and <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/config/vmmemorylimit.md> fetched 2026-11-19
+**Citation:** [lead_1: pool.md, "vmThreads" — "Your tests will leak memory - to battle that, workers are restarted when they exceed vmMemoryLimit"] [lead_2: vmmemorylimit.md — default `1 / maxWorkers`, "affects only vmForks and vmThreads pools", "a worker's memory usage grows with every test file it runs", and "By increasing maxWorkers, workers have less memory available, so they're recycled more often"]
+
+Raising `maxWorkers` lowers each worker's limit, so workers restart more often.
