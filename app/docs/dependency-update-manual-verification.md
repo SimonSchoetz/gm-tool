@@ -86,7 +86,7 @@ Do 2.1 and 2.2 before any editing, on documents last saved by the old version.
 
 Nothing in this update was verified on Windows, and this bump replaces the Windows webview and windowing layer: `wry` 0.55.1 to 0.57.0, `tao` 0.35.3 to 0.37.1 and `webview2-com` 0.38.2 to 0.39.1, alongside the menu and tray crates `muda` 0.19.3 to 0.20.0, `tray-icon` 0.24.2 to 0.25.1 and `window-vibrancy` 0.6.0 to 0.8.1 [research-rust-deps_6: <https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri/CHANGELOG.md> — the 2.12.0 breaking-change list, which also records dropping Windows 7 and moving the `windows` crate to 0.62].
 
-These need a Windows machine and a CI run; the `windows-latest` and `x86_64-apple-darwin` legs of `.github/workflows/build.yml` also build, unsigned, on every push to `main` and on the schedule of `.github/workflows/ci.yml`, and in full only when a release is triggered, which is the owner's call, so pair this section with the next release rather than running it on its own.
+These need a Windows machine and a CI run; the `windows-latest` and `x86_64-apple-darwin` legs of `.github/workflows/build.yml` also build, unsigned, on every push to `main` that changes a file other than Markdown, except the release commit, and on the schedule of `.github/workflows/ci.yml`, and in full only when a release is triggered, which is the owner's call, so pair this section with the next release rather than running it on its own.
 
 **6.1 Windows launch.** Install and start the Windows build. Pass: the main window opens and renders the app, with its configured size and dark background.
 

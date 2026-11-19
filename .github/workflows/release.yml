@@ -1,6 +1,6 @@
 name: Release
 
-# `draft` verifies the tag and creates the draft release (or finds it again on a re-run); `checks` and `build` then run side by side, and `publish` makes the release public only when both passed. The updater reads `releases/latest/download/latest.json`, which serves only the latest published release, so until `publish` runs a release is invisible to installed apps. A failed check or build skips `publish` and leaves the draft; re-running the failed jobs completes the same draft.
+# `draft` verifies the tag and creates the draft release (or finds it again on a re-run); `checks` and `build` then run side by side, and `publish` makes the release public only when both passed. The updater reads `releases/latest/download/latest.json`, which serves only the latest published release, so until `publish` runs a release is invisible to installed apps. A failed check or build skips `publish` and leaves the draft; re-running the failed jobs with `gh run rerun <run-id> --failed` completes the same draft. That includes a job GitHub cancels with "The job was not acquired by Runner of type hosted even after multiple attempts", which happens when no macOS runner frees up in time.
 on:
   push:
     tags:

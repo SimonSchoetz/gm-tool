@@ -14,13 +14,67 @@ on:
 permissions:
   contents: read
 
-jobs:
-  checks:
-    uses: ./.github/workflows/checks.yml
+# A newer push to `main` or to a pull request's branch cancels the older run of the same ref: the newer commit contains the older one, so its run covers both, and the macOS jobs of stale runs never hold the 5 concurrent macOS jobs GitHub Free allows while a release waits. The event is part of the group, so a push never cancels the scheduled run that keeps the caches alive, nor the other way round. release.yml has no such group and is never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
-  # Warms the Rust and pnpm caches that a release run restores from `main`. Never on a pull request, whose caches only that pull request could restore. No secrets are passed, so the build is unsigned and uploads nothing.
+jobs:
+  # Classifies the change once for both jobs below. `docs-only`: every changed file ends in `.md` — on a pull request against the base branch, which a merge commit has as its first parent, and on a push against the commit before the push (`github.event.before`), so a push of several commits is judged as a whole; `--no-renames` lists both names of a renamed file. `release-commit`: a push whose tip is the `chore(release):` commit `pnpm run create-release` pushes before its tag. The schedule sets neither, so it runs every job.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs-only: ${{ steps.classify.outputs.docs-only }}
+      release-commit: ${{ steps.classify.outputs.release-commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      # A commit before the push that cannot be fetched (none, when the push created the branch) sets no `docs-only`, so every job runs.
+      - name: Classify the change
+        id: classify
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          case "$EVENT" in
+            pull_request)
+              base=HEAD^1
+              ;;
+            push)
+              if [[ "$(git log -1 --format=%s HEAD)" == 'chore(release):'* ]]; then
+                echo "release-commit=true" >> "$GITHUB_OUTPUT"
+              fi
+              if ! git fetch --no-tags --depth=1 origin "$BEFORE"; then
+                echo "The commit before the push cannot be fetched; every job runs."
+                exit 0
+              fi
+              base=$BEFORE
+              ;;
+            *)
+              exit 0
+              ;;
+          esac
+          changed=$(git diff --name-only --no-renames "$base" HEAD)
+          echo "$changed"
+          if [ -n "$changed" ] && ! grep -qv '\.md$' <<< "$changed"; then
+            echo "docs-only=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Skipped for the release commit: release.yml runs this same checks.yml on the same commit at the same moment and publishes only when it passes, so a second copy here would only add two macOS jobs beside the release's four.
+  checks:
+    needs: changes
+    if: needs.changes.outputs.release-commit != 'true'
+    uses: ./.github/workflows/checks.yml
+    with:
+      docs-only: ${{ needs.changes.outputs.docs-only }}
+
+  # Warms the Rust and pnpm caches that a release run restores from `main`. Never on a pull request, whose caches only that pull request could restore. Skipped when the push changes only `.md` files, since the caches the previous commit warmed are just as warm, and for the release commit, which release.yml builds signed at the same moment. No secrets are passed, so the build is unsigned and uploads nothing.
   build:
-    if: github.event_name != 'pull_request'
+    needs: changes
+    if: github.event_name != 'pull_request' && needs.changes.outputs.docs-only != 'true' && needs.changes.outputs.release-commit != 'true'
     permissions:
       contents: read
     uses: ./.github/workflows/build.yml
