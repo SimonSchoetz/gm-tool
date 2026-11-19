@@ -26,10 +26,12 @@ export const MentionOptionList: FCProps<Props> = ({
   }, [selectedIndex, menuOptions]);
 
   return (
-    <ul className='mention-option-list'>
+    <ul className='mention-option-list' role='listbox'>
       {menuOptions.map((option, i) => (
         <li
           key={option.key}
+          role='option'
+          aria-selected={i === selectedIndex}
           ref={(el) => {
             option.setRefElement(el);
           }}
