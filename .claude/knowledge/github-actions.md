@@ -188,3 +188,80 @@ Read for the whole context, `github.event_name` in the called workflow is the ev
 **Citation:** [docs-only-checks_2: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows — `pull_request`: "Note that `GITHUB_SHA` for this event is the last merge commit of the pull request merge branch. If you want to get the commit ID for the last commit to the head branch of the pull request, use `github.event.pull_request.head.sha` instead.", with `GITHUB_REF` `refs/pull/PULL_REQUEST_NUMBER/merge`]
 
 The head commit is `github.event.pull_request.head.sha`.
+
+## On GitHub Free, an account runs at most 5 macOS jobs on standard GitHub-hosted runners at a time, beside 20 jobs in all
+
+**Verified at:** <https://docs.github.com/en/actions/reference/limits> — 2026-11-19
+**Citation:** [web-fetch_1: https://docs.github.com/en/actions/reference/limits — the table row "Standard GitHub-hosted runner | Free | 20 | 5 | Not applicable"; the page also says "During periods of high demand, jobs that run on macOS runners may take longer to start"]
+
+The page gives the limit, not how jobs beyond it are queued. No run was made to measure the limit.
+
+## A workflow-level `concurrency` group with `cancel-in-progress: true` cancels the group's running run when a new run is queued, and a newly queued run always replaces the group's pending one
+
+**Verified at:** <https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency> — 2026-11-19
+**Citation:** [macos-runner-budget_1: https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency — "When a new job or workflow run is queued, any existing `pending` job or workflow run in the same group is canceled and replaced." and "To also cancel any currently running job or workflow in the same concurrency group, specify `cancel-in-progress: true`."]
+
+The quoted sentences do not state what happens to the running run without `cancel-in-progress`.
+
+## A workflow-level `concurrency` expression can use only the `github`, `inputs` and `vars` contexts
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/contexts> — 2026-11-19
+**Citation:** [macos-runner-budget_2: https://docs.github.com/en/actions/reference/workflows-and-actions/contexts — the Context availability row "`concurrency` | `github, inputs, vars`"]
+
+So a workflow-level group cannot depend on a job's output; the contexts of `jobs.<job_id>.concurrency` were not read for this entry.
+
+## A `jobs.<job_id>.if` expression can use the `github`, `needs`, `vars` and `inputs` contexts, and a `jobs.<job_id>.with` value the `github`, `needs`, `strategy`, `matrix`, `inputs` and `vars` contexts
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/contexts> — 2026-11-19
+**Citation:** [macos-runner-budget_3: https://docs.github.com/en/actions/reference/workflows-and-actions/contexts — the rows "`jobs.<job_id>.if` | `github, needs, vars, inputs` | `always, cancelled, success, failure`" and "`jobs.<job_id>.with.<input_id>` | `github, needs, strategy, matrix, inputs, vars`"]
+
+A called workflow's jobs can therefore gate on its `inputs`, and the caller can pass a job output to them through `needs`.
+
+## A `workflow_call` input is a `boolean`, `number` or `string`, and an input the caller omits and that sets no `default` is `false`, `0` or `""`
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax> — 2026-11-19
+**Citation:** [macos-runner-budget_4: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax — `on.workflow_call.inputs.<input_id>.type`: "This must be one of: `boolean`, `number`, or `string`." and "If a `default` parameter is not set, the default value of the input is `false` for a boolean, `0` for a number, and `""` for a string."] [macos-runner-budget_5: https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows — "For inputs, the data type of the input value must match the type specified in the called workflow (either boolean, number, or string)."]
+
+Neither page states whether an expression such as `${{ a && b }}` yields a boolean, so a value built from `&&` is safest passed to a `string` input.
+
+## A `schedule` run uses the latest commit of the default branch, with `GITHUB_REF` set to the default branch
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows> — 2026-11-19
+**Citation:** [macos-runner-budget_6: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows — the `schedule` row: `GITHUB_SHA` "Last commit on default branch", `GITHUB_REF` "Default branch"; "Scheduled workflows will only run on the default branch."]
+
+That a scheduled run and a push to the default branch see the same `github.ref` string is inferred from these rows, not stated; a concurrency group that should keep them apart also includes `github.event_name`.
+
+## For a `push`, `GITHUB_SHA` is the tip commit pushed, and the payload's `before` is the ref's most recent commit before the push
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows>; <https://docs.github.com/en/webhooks/webhook-events-and-payloads#push> — 2026-11-19
+**Citation:** [macos-runner-budget_7: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows — the `push` row: `GITHUB_SHA` "Tip commit pushed to the ref", `GITHUB_REF` "Updated ref"] [macos-runner-budget_8: https://docs.github.com/en/webhooks/webhook-events-and-payloads#push — `before`: "The SHA of the most recent commit on ref before the push."; `head_commit` is listed as "`object or null` | **Required.**" with no fields described]
+
+The page does not state what `before` holds when the push created the ref, and documents no field of `head_commit`, `message` included.
+
+## On 2026-11-19 github.com served an unauthenticated shallow fetch of one branch-reachable commit of gm-tool by its full SHA, and refused the all-zero SHA with "not our ref"
+
+**Verified at:** github.com, observed 2026-11-19
+**Citation:** [macos-runner-budget_9: ran `git fetch --no-tags --depth=1 origin 7d0a7ddb…` (the full SHA of a commit on gm-tool's `main`) in an empty repository with `https://github.com/SimonSchoetz/gm-tool.git` as `origin` — observed exit 0 and `git cat-file -t FETCH_HEAD` printing `commit`; ran `git fetch --depth=1 origin 0000000000000000000000000000000000000000` — observed `fatal: remote error: upload-pack: not our ref 0000000000000000000000000000000000000000` and exit 128]
+
+One observation of one public repository; an abbreviated SHA was refused with "couldn't find remote ref", and a commit no ref reaches any more was not tried.
+
+## When a workflow run is cancelled, GitHub re-evaluates each running job's `if`, keeps a job whose condition is still true, and stops the others' steps with SIGINT, SIGTERM 7500 ms later, and force after 5 minutes
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-cancellation> — 2026-11-19
+**Citation:** [macos-runner-budget_10: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-cancellation — "the server re-evaluates `if` conditions for all currently running jobs. If the condition evaluates to `true`, the job will not get canceled."; the runner sends "SIGINT/Ctrl-C", then SIGTERM after 7500 ms; "After the 5 minute cancellation timeout period, the server will forcibly terminate all jobs and steps marked for cancellation that are still running."]
+
+The page says nothing about an action's `post` step after a cancellation.
+
+## An action's `post` step runs under `post-if`, which defaults to `always()`, and `always()` is true even when the run was cancelled
+
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax>; <https://docs.github.com/en/actions/reference/workflows-and-actions/expressions>; pnpm/setup `v3.1.2` at `fa36a5e` and Swatinem/rust-cache `v2` at `d1527c8`, `action.yml` — 2026-11-19
+**Citation:** [macos-runner-budget_11: https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax — "If not set, then `post-if` defaults to `always()`."] [macos-runner-budget_14: ran `gh api repos/pnpm/setup/contents/action.yml?ref=fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e` — observed `runs:` with `post: dist/index.js` and no `post-if`; ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=d1527c8f67ef9af357290475d4af4b0fab8f12e0` — observed `post-if: "success() || env.CACHE_ON_FAILURE == 'true'"`] [macos-runner-budget_12: https://docs.github.com/en/actions/reference/workflows-and-actions/expressions — `always()`: "Causes the step to always execute, and returns `true`, even when canceled."; `cancelled()`: "Returns `true` if the workflow was canceled."]
+
+That a `post` step whose `post-if` is true runs in a cancelled job, within the 5-minute cancellation timeout, is inferred from these two pages; neither states it, and no cancelled run was observed. `pnpm/setup@v3` sets no `post-if` (its `action.yml` at `fa36a5e` has `post: dist/index.js` alone) and `Swatinem/rust-cache@v2` sets `success() || env.CACHE_ON_FAILURE == 'true'`.
+
+## `Swatinem/rust-cache@v2` skips its save when the restore found an entry under the exact current key
+
+**Verified at:** Swatinem/rust-cache `v2` at `d1527c8`, `src/restore.ts`, `src/save.ts` and `src/config.ts` — 2026-11-19
+**Citation:** [macos-runner-budget_13: ran `gh api repos/Swatinem/rust-cache/contents/src/restore.ts?ref=d1527c8f67ef9af357290475d4af4b0fab8f12e0` — observed `config.saveState()` called only when the restored key is not a full match (lines 50–59) or no cache was found (line 65); `src/config.ts` line 361 `isCacheUpToDate()` returns `core.getState(STATE_CONFIG) === ""`, and `src/save.ts` returns with "Cache up-to-date." when it is true]
+
+While an entry under the current key exists, the action itself therefore never saves over it, whatever build produced that entry; a new save under the key follows only once the entry is gone, by eviction or deletion. Only the source was read; no job was run.
