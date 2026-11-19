@@ -37,6 +37,6 @@
     "pre-commit": "./.githooks/staged-checks",
     "pre-merge-commit": "./.githooks/staged-checks",
     "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2",
-    "pre-push": "cd app && npx eslint . ../scripts && npx prettier --check . ../scripts && npx vitest run && cd src-tauri && cargo test"
+    "pre-push": "cd app && npx eslint --concurrency=auto . ../scripts && npx prettier --check . ../scripts && npx vitest run && cd src-tauri && cargo test"
   }
 }
