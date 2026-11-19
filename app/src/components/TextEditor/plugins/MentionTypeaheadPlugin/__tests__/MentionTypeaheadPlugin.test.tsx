@@ -103,8 +103,16 @@ const mount = (): LexicalEditor => {
   return mountedEditor;
 };
 
+// React re-renders only once the interaction returns, so everything it does reaches the menu React last rendered. The plugin commits a picked mention in a non-discrete update, which Lexical flushes on a microtask; awaiting one inside act lands that commit before the assertions.
+const interact = (interaction: () => void) =>
+  act(async () => {
+    interaction();
+    await Promise.resolve();
+  });
+
+// The search resolves on a microtask, and Lexical's menu registers the Return handler for the options it renders in an effect. Typing inside an async act lets act render the options and run that effect before Return is pressed; outside act, React runs the effect in a later task, and a Return that arrives first reaches the handler for the empty option list, which passes it on to the rich-text plugin as a new paragraph.
 const typeQuery = async (editor: LexicalEditor, query: string) => {
-  act(() => {
+  await interact(() => {
     editor.update(
       () => {
         const paragraph = $createParagraphNode();
@@ -115,15 +123,11 @@ const typeQuery = async (editor: LexicalEditor, query: string) => {
       { discrete: true },
     );
   });
-  await screen.findByText(SEED_ENCOUNTER.name);
-};
-
-// React re-renders only once the interaction returns, so everything it does reaches the menu React last rendered. The plugin commits a picked mention in a non-discrete update, which Lexical flushes on a microtask; awaiting one inside act lands that commit before the assertions.
-const interact = (interaction: () => void) =>
-  act(async () => {
-    interaction();
-    await Promise.resolve();
+  screen.getByRole('option', {
+    name: new RegExp(SEED_ENCOUNTER.name),
+    selected: true,
   });
+};
 
 const pressEnter = (editor: LexicalEditor) =>
   editor.dispatchCommand(
