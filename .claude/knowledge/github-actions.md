@@ -265,3 +265,31 @@ That a `post` step whose `post-if` is true runs in a cancelled job, within the 5
 **Citation:** [macos-runner-budget_13: ran `gh api repos/Swatinem/rust-cache/contents/src/restore.ts?ref=d1527c8f67ef9af357290475d4af4b0fab8f12e0` — observed `config.saveState()` called only when the restored key is not a full match (lines 50–59) or no cache was found (line 65); `src/config.ts` line 361 `isCacheUpToDate()` returns `core.getState(STATE_CONFIG) === ""`, and `src/save.ts` returns with "Cache up-to-date." when it is true]
 
 While an entry under the current key exists, the action itself therefore never saves over it, whatever build produced that entry; a new save under the key follows only once the entry is gone, by eviction or deletion. Only the source was read; no job was run.
+
+## `macos-26-intel` is a standard GitHub-hosted runner label for public repositories, Intel with 4 CPUs and 14 GB of RAM, and standard runners are free on public repositories
+
+**Verified at:** <https://docs.github.com/en/actions/reference/runners/github-hosted-runners>; <https://docs.github.com/en/actions/reference/runners/larger-runners>; actions/runner-images README — 2026-11-19
+**Citation:** [macos-runner-budget_15: https://docs.github.com/en/actions/reference/runners/github-hosted-runners — section "Standard GitHub-hosted runners for public repositories", the row with CPU "4", RAM "14 GB", architecture "Intel" and labels "macos-15-intel, macos-26-intel"; "Use of the standard GitHub-hosted runners is free and unlimited on public repositories."] [macos-runner-budget_16: ran `gh api repos/actions/runner-images/readme` — observed the macOS 26 x64 row listing `macos-latest-large`, `macos-26-intel`, `macos-26-large`, and the macOS 26 Arm64 row listing `macos-latest`, `macos-26`, `macos-26-xlarge`] [macos-runner-budget_20: https://docs.github.com/en/actions/reference/runners/larger-runners — the macOS larger runners `macos-latest-large`, `macos-26-large` (Intel) and `macos-26-xlarge` (arm64) are "available for organizations and enterprises on GitHub Team and GitHub Enterprise Cloud plans"]
+
+The `-large` and `-xlarge` labels on the same images are larger runners, which need a GitHub Team or Enterprise Cloud plan. No job was run on `macos-26-intel` when this was recorded.
+
+## A September 2025 runner-images announcement ends x86_64 images on GitHub Actions in August 2027, naming `macos-15-intel` as the last one
+
+**Verified at:** <https://github.com/actions/runner-images/issues/13046> — 2026-11-19
+**Citation:** [macos-runner-budget_17: https://github.com/actions/runner-images/issues/13046 — opened 2025-09-19, closed 2025-12-16, its body naming `macos-15-intel` and no `macos-26-intel`: "The new label will run on macOS 15 and will be available from now until August 2027." and "This will be the last available x86_64 image from Actions, and after that date the x86_64 architecture will not be supported on GitHub Actions."]
+
+The runner-images README lists `macos-26-intel` (the entry beginning "`macos-26-intel` is a standard GitHub-hosted runner label"), a label this issue predates, so whether it also ends in August 2027 is not stated.
+
+## The limit on concurrent macOS jobs is shared by standard and larger GitHub-hosted runners
+
+**Verified at:** <https://docs.github.com/en/actions/reference/limits> — 2026-11-19
+**Citation:** [macos-runner-budget_18: https://docs.github.com/en/actions/reference/limits — "The maximum concurrent macOS jobs is shared across standard GitHub-hosted runners and GitHub-hosted larger runners."]
+
+The page does not separate arm64 from Intel labels; that an Intel job counts against the same 5-job limit on GitHub Free is inferred from "macOS jobs".
+
+## On 2026-11-19 two gm-tool jobs on `macos-latest` failed with "The job was not acquired by Runner of type hosted even after multiple attempts" after waiting 15 to 19 minutes, each with a macOS arm64 capacity notice
+
+**Verified at:** gm-tool jobs 135661017581 and 135682629694 — observed 2026-11-19
+**Citation:** [macos-runner-budget_19: ran `gh api repos/SimonSchoetz/gm-tool/actions/jobs/<id>` and `gh api repos/SimonSchoetz/gm-tool/check-runs/<id>/annotations` for both ids — observed job 135661017581 (`checks / rust`, run 44552864209) and job 135682629694 (`checks / rust`, run 44558930742), both with `labels` `["macos-latest"]` and conclusion `cancelled`, created 15:16:15 and completed 15:35:09, created 15:48:30 and completed 16:03:31, each with the `failure` annotation "The job was not acquired by Runner of type hosted even after multiple attempts" and three `notice` annotations "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."]
+
+Two observations of one job on one day; no documentation page stating how long GitHub tries to acquire a runner was read.
