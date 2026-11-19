@@ -160,3 +160,10 @@ The page says `legacy` determines the latest release by creation date and higher
 **Citation:** [implement_1: https://docs.github.com/en/rest/releases/assets — "Get a release asset": "set the Accept header of the request to application/octet-stream. The API will either redirect the client to the location, or stream it directly if possible. API clients should handle both a 200 or 302 response."] [implement_2: ran `gh api -H 'Accept: application/octet-stream' repos/SimonSchoetz/gm-tool/releases/assets/<id of the v0.17.0 latest.json>` — observed the file's JSON on standard output, with `gh` following the redirect]
 
 The run was made on an asset of a published release; the download of an asset of a draft release was not run.
+
+## An action's tag can be moved or deleted by anyone who gains access to the repository that stores the action
+
+**Verified at:** <https://docs.github.com/en/actions/reference/security/secure-use> — 2026-11-19
+**Citation:** [head-of-instructions_1: https://docs.github.com/en/actions/reference/security/secure-use — "a tag can be moved or deleted if a bad actor gains access to the repository storing the action"]
+
+GitHub's secure-use reference gives this as the risk of referencing a third-party action by a tag.
