@@ -248,3 +248,8 @@ A hook that passes staged paths to ESLint without an extension filter needs the 
 **Citation:** [implement_4: ran `app/node_modules/.bin/eslint` with no arguments in a disposable directory holding an `eslint.config.js` that enables `no-debugger` for `**/*.js` and a `probe.js` containing `debugger;` — observed `1:1  error  Unexpected 'debugger' statement  no-debugger` for that file and exit code 1]
 
 A hook that builds a path list for ESLint must skip the run when the list is empty, or ESLint checks the whole directory instead of nothing.
+
+## Under this project's `eslint.config.js`, typescript-eslint 8.73.0 reported 62 `@typescript-eslint/no-unsafe-class-instance-assignment` errors, where 8.72.2 reported none
+
+**Verified at:** typescript-eslint 8.73.0 — 2026-11-19
+**Citation:** [claude_2: ran `npx eslint --concurrency=auto . ../scripts` from `app/` after `pnpm update typescript-eslint` — observed 62 errors, all `no-unsafe-class-instance-assignment`]
