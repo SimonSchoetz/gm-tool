@@ -39,7 +39,7 @@ describe('setDragImageOfRow', () => {
     setDragImageOfRow(dataTransfer, element);
 
     expect(calls).toEqual([
-      { image: element, x: 0, y: 0, transform: 'translateZ(0)' },
+      { image: element, x: 0, y: 0, transform: 'translateZ(0px)' },
     ]);
   });
 
@@ -56,7 +56,7 @@ describe('setDragImageOfRow', () => {
       dataTransferRecording(withoutTransform).dataTransfer,
       withoutTransform,
     );
-    expect(withTransform.style.transform).toBe('translateZ(0)');
+    expect(withTransform.style.transform).toBe('translateZ(0px)');
 
     vi.runOnlyPendingTimers();
 
