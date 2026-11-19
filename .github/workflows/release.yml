@@ -44,7 +44,6 @@ jobs:
           fi
           echo "release-id=$release_id" >> "$GITHUB_OUTPUT"
 
-  # [DEFERRED-VIOLATION: CLAUDE.md Tool Use Discipline, "The `check` job in `.github/workflows/release.yml` runs every row" — the `build` job needs only `draft` and `publish` needs `checks`, and the check steps live in checks.yml]
   checks:
     permissions:
       contents: read
