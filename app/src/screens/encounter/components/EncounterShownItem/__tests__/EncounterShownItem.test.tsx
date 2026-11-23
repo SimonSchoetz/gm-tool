@@ -30,7 +30,7 @@ vi.mock('@services/encounterQueueService', () => ({ getQueueItems }));
 vi.mock('@tanstack/react-router', async () => {
   const { encounterRouteParams } =
     await import('@/__tests__/support/encounterRouteParams');
-  return { useParams: encounterRouteParams };
+  return { useParams: encounterRouteParams, useNavigate: () => vi.fn() };
 });
 
 describe('EncounterShownItem', () => {
