@@ -101,7 +101,7 @@ export const EmbeddedLinkPlugin = () => {
   const getAnchorRect = () =>
     linkElementRef.current?.getBoundingClientRect() ?? null;
 
-  const onClickOutside = () => {
+  const onDismiss = () => {
     setLinkUrl(null);
   };
 
@@ -111,10 +111,7 @@ export const EmbeddedLinkPlugin = () => {
   };
 
   return (
-    <AnchoredPopup
-      getAnchorRect={getAnchorRect}
-      onClickOutside={onClickOutside}
-    >
+    <AnchoredPopup getAnchorRect={getAnchorRect} onDismiss={onDismiss}>
       <GlassPanel intensity='bright' className='link-popup'>
         <span className='link-popup--url clip-text'>{linkUrl}</span>
 

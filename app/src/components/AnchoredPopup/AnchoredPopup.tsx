@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
 import { FCProps } from '@/types/fcProps.type';
+import { useEscapeDismiss } from '@/hooks/useEscapeDismiss';
 import { cn } from '@/util/className';
 import { calculateHorizontalClampOffset } from './helper/calculateHorizontalClampOffset';
 import { calculateVerticalPlacement } from './helper/calculateVerticalPlacement';
@@ -10,14 +11,14 @@ import './AnchoredPopup.css';
 type Props = {
   getAnchorRect: () => DOMRect | null;
   children: ReactNode;
-  onClickOutside?: (event: MouseEvent) => void;
+  onDismiss?: (event: MouseEvent | KeyboardEvent) => void;
   zIndex?: number | null;
 };
 
 export const AnchoredPopup: FCProps<Props> = ({
   getAnchorRect,
   children,
-  onClickOutside,
+  onDismiss,
   zIndex,
 }) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -25,20 +26,24 @@ export const AnchoredPopup: FCProps<Props> = ({
   const [placement, setPlacement] = useState<'above' | 'below'>('above');
 
   useEffect(() => {
-    if (!onClickOutside) return;
+    if (!onDismiss) return;
     const handleMouseDown = (event: MouseEvent) => {
       if (
         popupRef.current &&
         !popupRef.current.contains(event.target as Node)
       ) {
-        onClickOutside(event);
+        onDismiss(event);
       }
     };
     document.addEventListener('mousedown', handleMouseDown);
     return () => {
       document.removeEventListener('mousedown', handleMouseDown);
     };
-  }, [onClickOutside]);
+  }, [onDismiss]);
+
+  useEscapeDismiss((event) => {
+    onDismiss?.(event);
+  }, onDismiss !== undefined);
 
   const rect = getAnchorRect();
 

@@ -84,4 +84,20 @@ describe('RowActionsMenu', () => {
       screen.queryByRole('button', { name: 'Custom action for row-1' }),
     ).not.toBeInTheDocument();
   });
+
+  it('closes the menu on Escape and stays open on another key', async () => {
+    const user = userEvent.setup();
+    renderMenu();
+    await user.click(screen.getByRole('button', { name: 'Row actions' }));
+
+    await user.keyboard('a');
+    expect(
+      screen.getByRole('button', { name: 'Custom action for row-1' }),
+    ).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    expect(
+      screen.queryByRole('button', { name: 'Custom action for row-1' }),
+    ).not.toBeInTheDocument();
+  });
 });

@@ -238,7 +238,7 @@ export const TableEdgeHandlePlugin = () => {
       {popupState && (
         <AnchoredPopup
           getAnchorRect={getPopupAnchorRect}
-          onClickOutside={closePopup}
+          onDismiss={closePopup}
         >
           <PopupSurface>
             <TableHandleMenu
