@@ -13,12 +13,8 @@ export const DeleteDialogProvider: FCProps<Props> = ({ children }) => {
   const [dialog, setDialog] = useState<DeleteDialogProps | null>(null);
   const [popupState, setPopupState] = useState<'open' | 'closed'>('closed');
 
-  const openDeleteDialog = ({
-    name,
-    onDeletionConfirm,
-    oneClickConfirm,
-  }: DeleteDialogProps) => {
-    setDialog({ name, onDeletionConfirm, oneClickConfirm });
+  const openDeleteDialog = (props: DeleteDialogProps) => {
+    setDialog(props);
     setPopupState('open');
   };
 
@@ -48,11 +44,7 @@ export const DeleteDialogProvider: FCProps<Props> = ({ children }) => {
       {dialog !== null &&
         createPortal(
           <PopUpContainer state={popupState} setState={setPopupState}>
-            <DeleteDialog
-              name={dialog.name}
-              onDeletionConfirm={onDeletionConfirm}
-              oneClickConfirm={dialog.oneClickConfirm}
-            />
+            <DeleteDialog {...dialog} onDeletionConfirm={onDeletionConfirm} />
           </PopUpContainer>,
           document.body,
         )}

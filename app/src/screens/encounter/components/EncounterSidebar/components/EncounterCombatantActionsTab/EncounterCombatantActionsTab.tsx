@@ -2,6 +2,7 @@ import { useParams } from '@tanstack/react-router';
 import { Button } from '@/components/Button/Button';
 import { Input } from '@/components/Input/Input';
 import { useEncounterLogEntries } from '@/data-access-layer';
+import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
 import { FCProps } from '@/types/fcProps.type';
 import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { isCombatantEntry } from '../../../../helper/isCombatantEntry';
@@ -25,6 +26,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
   });
   const { entries } = useEncounterQueueEntries();
   const { recordLogEntry, isWriting } = useEncounterLogEntries(encounterId);
+  const { openDeleteDialog } = useDeleteDialog();
   const selectedEntries = entries.filter((entry) =>
     selectedIds.includes(entry.id),
   );
@@ -47,33 +49,49 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
     hp: describeQueueEntryHp(entry),
   }));
   const planRows = buildPlanRows(selectedEntries, amountTextOf);
-  const amountButtons = [
-    { label: 'Damage', plan: planGroupAction('damage', planRows) },
-    { label: 'Heal', plan: planGroupAction('heal', planRows) },
-    { label: 'Set temp HP', plan: planGroupAction('temp-hp', planRows) },
-    { label: 'Set max HP', plan: planGroupAction('max-hp', planRows) },
-  ];
-  const stateButtons = [
-    {
-      label: 'Mark defeated',
-      plan: planGroupAction('defeated', planRows),
-    },
-    {
-      label: 'Unmark defeated',
-      plan: planGroupAction('undefeated', planRows),
-    },
-    {
-      label: 'Remove',
-      plan: planGroupAction('removed', planRows),
-      buttonStyle: 'danger' as const,
-    },
-  ];
-
   const recordPlan = (plan: GroupActionPlan | null) => {
     // Every button is disabled while its plan is null, so a click never reaches this guard.
     if (plan === null) return;
     void recordLogEntry(plan.kind, plan.payload);
   };
+
+  const recordButton = (label: string, plan: GroupActionPlan | null) => ({
+    label,
+    plan,
+    onClick: () => {
+      recordPlan(plan);
+    },
+  });
+
+  const removePlan = planGroupAction('removed', planRows);
+  // A removal cannot be reverted, so it waits for a confirm; the selection is left as it is whether the dialog is confirmed or closed.
+  const onRemove = () => {
+    openDeleteDialog({
+      action: 'remove',
+      oneClickConfirm: true,
+      name: selectedEntries.map((entry) => entry.name).join(', '),
+      onDeletionConfirm: () => {
+        recordPlan(removePlan);
+      },
+    });
+  };
+
+  const amountButtons = [
+    recordButton('Damage', planGroupAction('damage', planRows)),
+    recordButton('Heal', planGroupAction('heal', planRows)),
+    recordButton('Set temp HP', planGroupAction('temp-hp', planRows)),
+    recordButton('Set max HP', planGroupAction('max-hp', planRows)),
+  ];
+  const stateButtons = [
+    recordButton('Mark defeated', planGroupAction('defeated', planRows)),
+    recordButton('Unmark defeated', planGroupAction('undefeated', planRows)),
+    {
+      label: 'Remove',
+      plan: removePlan,
+      onClick: onRemove,
+      buttonStyle: 'danger' as const,
+    },
+  ];
 
   const onSharedAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSharedText(event.currentTarget.value);
@@ -104,9 +122,6 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
               label={label}
               {...rest}
               disabled={isWriting || plan === null}
-              onClick={() => {
-                recordPlan(plan);
-              }}
             />
           ))}
         </div>

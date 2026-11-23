@@ -25,7 +25,7 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
   let actionButton: ReactNode = null;
   switch (line.kind) {
     case 'automatic': {
-      const parts = line.parts.map((part, index) =>
+      content = line.parts.map((part, index) =>
         part.kind === 'name' ? (
           <span
             // The parts of a line are fixed once it is built and never reordered, so the position is a stable key.
@@ -39,7 +39,6 @@ export const EncounterLogEntry: FCProps<Props> = ({ line }) => {
           part.text
         ),
       );
-      content = line.isReverted ? <del>{parts}</del> : parts;
       if (line.isRevertible) {
         const onRevert = () => {
           void recordLogEntry('revert', { entryId: line.id });

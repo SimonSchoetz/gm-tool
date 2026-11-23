@@ -41,7 +41,6 @@ const automatic = (
   id,
   createdAt: '2024-03-15T14:05:00',
   parts: [{ kind: 'text', text: `Damage: ${id}` }],
-  isReverted: false,
   isRevertible: true,
   ...overrides,
 });
@@ -129,12 +128,10 @@ describe('EncounterLogEntry', () => {
     expect(getButton('Delete')).toBeDisabled();
   });
 
-  it('strikes a reverted line through and offers no Revert for it', () => {
-    renderLines(
-      automatic('entry-1', { isReverted: true, isRevertible: false }),
-    );
+  it('offers no Revert on a line that is not revertible', () => {
+    renderLines(automatic('entry-1', { isRevertible: false }));
 
-    expect(screen.getByRole('deletion')).toHaveTextContent('Damage: entry-1');
+    expect(screen.getByText('Damage: entry-1')).toBeInTheDocument();
     expect(screen.queryByLabelText('Revert')).not.toBeInTheDocument();
   });
 
@@ -142,7 +139,6 @@ describe('EncounterLogEntry', () => {
     renderLines(automatic('entry-1'), message('message-1'));
 
     expect(screen.getByText('Damage: entry-1')).toBeInTheDocument();
-    expect(screen.queryByRole('deletion')).not.toBeInTheDocument();
     expect(screen.getByText('Round 1')).toBeInTheDocument();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.getAllByText('2:05 PM')).toHaveLength(2);

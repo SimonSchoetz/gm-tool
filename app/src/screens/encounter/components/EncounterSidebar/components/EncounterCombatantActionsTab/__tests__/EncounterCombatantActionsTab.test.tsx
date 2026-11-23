@@ -11,6 +11,7 @@ import { buildEncounterLogEntry } from '@/__tests__/support/buildEncounterLogEnt
 import { buildEncounterQueueItem } from '@/__tests__/support/buildEncounterQueueItem';
 import { ROUTE_ENCOUNTER_ID } from '@/__tests__/support/encounterRouteParams';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
+import { DeleteDialogProvider } from '@/providers/DeleteDialogProvider';
 import { EncounterCombatantActionsTab } from '../EncounterCombatantActionsTab';
 
 const getAllBaseEntities = vi.hoisted(() =>
@@ -92,15 +93,19 @@ const arrange = ({
   getAllBaseEntities.mockResolvedValue([]);
 };
 
+const Wrapper = ({ children }: { children: React.ReactNode }) => (
+  <TanstackQueryClientProvider>
+    <DeleteDialogProvider>{children}</DeleteDialogProvider>
+  </TanstackQueryClientProvider>
+);
+
 const renderTab = async (
   selectedIds: string[] = [ITEM_ID],
   readyText = 'Goblin',
 ) => {
   const rendered = render(
     <EncounterCombatantActionsTab selectedIds={selectedIds} />,
-    {
-      wrapper: TanstackQueryClientProvider,
-    },
+    { wrapper: Wrapper },
   );
   if (selectedIds.length > 0) await screen.findByText(readyText);
   return rendered;
@@ -166,7 +171,6 @@ describe('EncounterCombatantActionsTab', () => {
       kind: 'defeated',
       payload: { queueItemIds: [ITEM_ID] },
     },
-    { label: 'Remove', kind: 'removed', payload: { queueItemIds: [ITEM_ID] } },
   ])(
     'records a $kind entry for the selected combatant when $label is clicked',
     async ({ label, kind, payload }) => {
@@ -397,11 +401,12 @@ describe('EncounterCombatantActionsTab', () => {
       expect(button('Damage')).toBeEnabled();
     });
 
-    it('writes one Remove entry listing every selected id', async () => {
+    it('writes one Remove entry listing every selected id once Remove is confirmed', async () => {
       const user = userEvent.setup();
       await renderTab(SEVERAL);
 
       await user.click(button('Remove'));
+      await user.click(await screen.findByRole('button', { name: 'CONFIRM' }));
 
       await waitFor(() => {
         expect(recordLogEntry.mock.calls).toEqual([
@@ -596,17 +601,56 @@ describe('EncounterCombatantActionsTab', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('writes one Remove entry holding a combatant and an event in queue order', async () => {
+    it('asks to confirm Remove, naming the selected items in queue order, before it writes anything', async () => {
+      arrange({ events: [LAIR] });
       const user = userEvent.setup();
       await renderTab([LAIR.id, ITEM_ID]);
 
       await user.click(button('Remove'));
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Remove Goblin, Lair action',
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Are you sure you want to remove Goblin, Lair action?',
+        ),
+      ).toBeInTheDocument();
+      expect(recordLogEntry).not.toHaveBeenCalled();
+    });
+
+    it('writes one Remove entry holding a combatant and an event in queue order once Remove is confirmed', async () => {
+      const user = userEvent.setup();
+      await renderTab([LAIR.id, ITEM_ID]);
+
+      await user.click(button('Remove'));
+      await user.click(await screen.findByRole('button', { name: 'CONFIRM' }));
 
       await waitFor(() => {
         expect(recordLogEntry.mock.calls).toEqual([
           [ROUTE_ENCOUNTER_ID, 'removed', { queueItemIds: [ITEM_ID, LAIR.id] }],
         ]);
       });
+    });
+
+    it('writes nothing and keeps the selection when the Remove dialog is closed without confirming', async () => {
+      const user = userEvent.setup();
+      await renderTab([LAIR.id, ITEM_ID]);
+
+      await user.click(button('Remove'));
+      await screen.findByRole('button', { name: 'CONFIRM' });
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('button', { name: 'CONFIRM' }),
+        ).not.toBeInTheDocument();
+      });
+      expect(recordLogEntry).not.toHaveBeenCalled();
+      expect(amountField()).toBeInTheDocument();
+      expect(button('Remove')).toBeEnabled();
     });
   });
 });

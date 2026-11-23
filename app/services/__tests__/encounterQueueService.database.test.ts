@@ -48,7 +48,7 @@ describe('encounterQueueService against the database', () => {
     vi.resetModules();
   });
 
-  it('stores an entity added twice, a random combatant and an event at consecutive sort orders, numbers the entity 1 and 2, and logs one added entry per add naming the stored id', async () => {
+  it('stores an entity added twice, a random combatant and an event at consecutive sort orders, numbers the entity 1 and 2, and writes no log entry', async () => {
     const {
       encounterQueueService,
       adventureId,
@@ -107,22 +107,7 @@ describe('encounterQueueService against the database', () => {
         sort_order: 3,
       },
     ]);
-    const log = await readLog(encounterId);
-    expect(log.map((entry) => entry.kind)).toEqual([
-      'added',
-      'added',
-      'added',
-      'added',
-    ]);
-    expect(
-      log
-        .map(
-          (entry) =>
-            (JSON.parse(entry.payload) as { queueItemIds: string[] })
-              .queueItemIds,
-        )
-        .sort(),
-    ).toEqual(queue.map((item) => [item.id]).sort());
+    expect(await readLog(encounterId)).toEqual([]);
   });
 
   it('reorders queue items, so a later read returns the requested order', async () => {
