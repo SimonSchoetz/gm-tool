@@ -164,45 +164,6 @@ describe('addEntityCombatant', () => {
     expect(appended()).not.toHaveProperty('name');
   });
 
-  it('writes the added entry after the insert with the id append returned', async () => {
-    const { addEntityCombatant } = await import('../encounterQueueService');
-    arrange();
-    append.mockResolvedValue('x');
-
-    await addEntityCombatant(ENCOUNTER_ID, 'foes', ENTITY_ID);
-
-    expect(createLogEntry).toHaveBeenCalledWith({
-      encounter_id: ENCOUNTER_ID,
-      kind: 'added',
-      payload: { queueItemIds: ['x'] },
-    });
-    expect(append.mock.invocationCallOrder[0]).toBeLessThan(
-      createLogEntry.mock.invocationCallOrder[0],
-    );
-  });
-
-  it('resolves when the added log write fails after the combatant was stored, so a retry cannot add it twice', async () => {
-    const { addEntityCombatant } = await import('../encounterQueueService');
-    arrange();
-    createLogEntry.mockRejectedValue(new Error('log table locked'));
-
-    await expect(
-      addEntityCombatant(ENCOUNTER_ID, 'foes', ENTITY_ID),
-    ).resolves.toBeUndefined();
-    expect(append).toHaveBeenCalledTimes(1);
-  });
-
-  it('writes no added entry and rejects as EncounterQueueAddError when append rejects', async () => {
-    const { addEntityCombatant } = await import('../encounterQueueService');
-    arrange();
-    append.mockRejectedValue(new Error('disk full'));
-
-    await expect(
-      addEntityCombatant(ENCOUNTER_ID, 'foes', ENTITY_ID),
-    ).rejects.toMatchObject({ name: 'EncounterQueueAddError' });
-    expect(createLogEntry).not.toHaveBeenCalled();
-  });
-
   it('rejects an entity that does not exist without any write', async () => {
     const { addEntityCombatant } = await import('../encounterQueueService');
     arrange({ entity: null });
@@ -388,46 +349,50 @@ describe('addEvent', () => {
   });
 });
 
-describe('the added entry of every add', () => {
+describe.each([
+  [
+    'an entity combatant',
+    async () => {
+      const { addEntityCombatant } = await import('../encounterQueueService');
+      await addEntityCombatant(ENCOUNTER_ID, 'foes', ENTITY_ID);
+    },
+  ],
+  [
+    'a random combatant',
+    async () => {
+      const { addRandomCombatant } = await import('../encounterQueueService');
+      await addRandomCombatant(ENCOUNTER_ID, 'Grunt', null);
+    },
+  ],
+  [
+    'an event',
+    async () => {
+      const { addEvent } = await import('../encounterQueueService');
+      await addEvent(ENCOUNTER_ID, 'Lair action');
+    },
+  ],
+])('adding %s', (_label, add) => {
   beforeEach(() => {
     vi.resetModules();
     resetAddMocks();
     getBaseEntity.mockReset().mockResolvedValue(buildBaseEntity());
     getAllByBaseEntity.mockReset().mockResolvedValue([]);
-    append.mockResolvedValue('x');
   });
 
-  it.each([
-    [
-      'a random combatant',
-      async () => {
-        const { addRandomCombatant } = await import('../encounterQueueService');
-        await addRandomCombatant(ENCOUNTER_ID, 'Grunt', null);
-      },
-    ],
-    [
-      'an event',
-      async () => {
-        const { addEvent } = await import('../encounterQueueService');
-        await addEvent(ENCOUNTER_ID, 'Lair action');
-      },
-    ],
-  ])(
-    'is written once after the insert for %s, with the id append returned',
-    async (_label, add) => {
-      await add();
+  it('stores the item once and writes no log entry', async () => {
+    await add();
 
-      expect(createLogEntry).toHaveBeenCalledTimes(1);
-      expect(createLogEntry).toHaveBeenCalledWith({
-        encounter_id: ENCOUNTER_ID,
-        kind: 'added',
-        payload: { queueItemIds: ['x'] },
-      });
-      expect(append.mock.invocationCallOrder[0]).toBeLessThan(
-        createLogEntry.mock.invocationCallOrder[0],
-      );
-    },
-  );
+    expect(append).toHaveBeenCalledTimes(1);
+    expect(createLogEntry).not.toHaveBeenCalled();
+  });
+
+  it('rejects as EncounterQueueAddError when storing the item fails', async () => {
+    append.mockRejectedValue(new Error('disk full'));
+
+    await expect(add()).rejects.toMatchObject({
+      name: 'EncounterQueueAddError',
+    });
+  });
 });
 
 describe('duplicateQueue', () => {

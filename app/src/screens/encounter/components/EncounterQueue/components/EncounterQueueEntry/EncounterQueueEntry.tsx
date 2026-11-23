@@ -101,7 +101,7 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
         )}
       </div>
 
-      {hp && <div className='label encounter-queue-entry-hp'>{hp.text}</div>}
+      <div className='encounter-queue-entry-name'>{name}</div>
 
       {otherDraggedCount > 0 && (
         <span className='encounter-queue-entry-badge'>

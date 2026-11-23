@@ -249,7 +249,7 @@ describe('runSeed', () => {
     ]);
   });
 
-  it('creates Seed Encounter whose queue holds two Single Stat Block Foes, a Two Stat Block Foe, Seed Event, a No Stat Block Foe and Seed Bandit, in that order', async () => {
+  it('creates Seed Encounter whose queue holds two Single Stat Block Foes, a Two Stat Block Foe, Seed Event, a No Stat Block Foe and Seed Bandit, in that order, and whose log holds one stored added entry', async () => {
     const encounters = await db.select<{ id: string; name: string }[]>(
       "SELECT id, name FROM encounters WHERE name = 'Seed Encounter'",
     );
@@ -306,13 +306,22 @@ describe('runSeed', () => {
         starting_max_hp: 9,
       },
     ]);
-    // Each of the seed's six add calls logs one `added` entry; nothing else is logged.
+    // The seed's one `added` entry names the first queue item, Single Stat Block Foe 1; nothing else is logged.
+    const [firstQueueItem] = await db.select<{ id: string }[]>(
+      'SELECT id FROM encounter_queue_items WHERE encounter_id = $1 ORDER BY sort_order',
+      [encounters[0]?.id],
+    );
     expect(
       await db.select(
-        'SELECT kind FROM encounter_log_entries WHERE encounter_id = $1',
+        'SELECT kind, payload FROM encounter_log_entries WHERE encounter_id = $1',
         [encounters[0]?.id],
       ),
-    ).toEqual(Array.from({ length: 6 }, () => ({ kind: 'added' })));
+    ).toEqual([
+      {
+        kind: 'added',
+        payload: JSON.stringify({ queueItemIds: [firstQueueItem.id] }),
+      },
+    ]);
   });
 
   it('creates Seed Session in Seed Adventure, in the in-game view, with every default step unfolded, Strong Start and Potential Scenes carrying content, and an untitled step last', async () => {

@@ -63,7 +63,7 @@ describe('buildLogLines', () => {
     },
   );
 
-  it('keeps every entity name in a name part of its own and the label, separators, figures and quantity in text parts', () => {
+  it('keeps every entity name in a name part of its own and the label, separators and figures in text parts', () => {
     const goblins = [
       buildEncounterQueueItem({ id: 'a', name: 'Goblin', sequence_number: 1 }),
       buildEncounterQueueItem({ id: 'b', name: 'Goblin', sequence_number: 2 }),
@@ -78,8 +78,6 @@ describe('buildLogLines', () => {
           ],
         }),
         log('e2', 'defeated', { queueItemIds: ['a', 'b'] }),
-        log('e3', 'added', { queueItemIds: ['a', 'b'] }),
-        log('e4', 'added', { queueItemIds: ['a'] }),
       ],
       [],
     );
@@ -101,48 +99,7 @@ describe('buildLogLines', () => {
         { kind: 'text', text: ', ' },
         { kind: 'name', text: 'Goblin 2' },
       ],
-      [
-        { kind: 'text', text: 'Added: ' },
-        { kind: 'name', text: 'Goblin' },
-        { kind: 'text', text: ' ×2' },
-      ],
-      [
-        { kind: 'text', text: 'Added: ' },
-        { kind: 'name', text: 'Goblin' },
-      ],
     ]);
-  });
-
-  it('shows the base name once on an added line and a quantity only above one', () => {
-    const goblins = [
-      buildEncounterQueueItem({ id: 'a', name: 'Goblin', sequence_number: 1 }),
-      buildEncounterQueueItem({ id: 'b', name: 'Goblin', sequence_number: 2 }),
-    ];
-
-    expect(
-      textsOf(
-        buildLogLines(
-          goblins,
-          [
-            log('e1', 'added', { queueItemIds: ['a'] }),
-            log('e2', 'added', { queueItemIds: ['a', 'b'] }),
-          ],
-          [],
-        ),
-      ),
-    ).toEqual(['Added: Goblin', 'Added: Goblin ×2']);
-  });
-
-  it('names an added line after its first target that still has a queue item', () => {
-    expect(
-      textsOf(
-        buildLogLines(
-          [orc],
-          [log('e1', 'added', { queueItemIds: ['gone', 'b'] })],
-          [],
-        ),
-      ),
-    ).toEqual(['Added: Orc ×2']);
   });
 
   it('names a removed combatant as the log numbers it while the queue shows another name', () => {
@@ -181,15 +138,14 @@ describe('buildLogLines', () => {
           ],
         }),
         log('e2', 'defeated', { queueItemIds: ['gone'] }),
-        log('e3', 'added', { queueItemIds: ['gone'] }),
       ],
       [],
     );
 
-    expect(textsOf(lines)).toEqual(['Damage: Goblin (3)', 'Defeated', 'Added']);
+    expect(textsOf(lines)).toEqual(['Damage: Goblin (3)', 'Defeated']);
   });
 
-  it('marks a reverted entry, words its revert from the reverted entry and offers Revert only on entries still in effect', () => {
+  it('leaves out every added entry, every entry a revert dropped and every revert entry, keeping the rest in order', () => {
     const lines = buildLogLines(
       [goblin],
       [
@@ -198,91 +154,98 @@ describe('buildLogLines', () => {
         damage('e3'),
         log('e4', 'revert', { entryId: 'e2' }),
         log('e5', 'message', { editorState: 'state' }),
+        log('e6', 'removed', { queueItemIds: ['a'] }),
+        log('e7', 'revert', { entryId: 'e6' }),
       ],
       [],
     );
 
-    expect(lines).toEqual([
-      expect.objectContaining({
-        id: 'e1',
-        isReverted: false,
-        isRevertible: false,
-      }),
-      expect.objectContaining({
-        id: 'e2',
-        parts: [
-          { kind: 'text', text: 'Damage: ' },
-          { kind: 'name', text: 'Goblin' },
-          { kind: 'text', text: ' (3)' },
-        ],
-        isReverted: true,
-        isRevertible: false,
-      }),
-      expect.objectContaining({
-        id: 'e3',
-        isReverted: false,
-        isRevertible: true,
-      }),
-      expect.objectContaining({
-        id: 'e4',
-        kind: 'automatic',
-        parts: [
-          { kind: 'text', text: 'Reverted: ' },
-          { kind: 'text', text: 'Damage: ' },
-          { kind: 'name', text: 'Goblin' },
-          { kind: 'text', text: ' (3)' },
-        ],
-        isReverted: false,
-        isRevertible: false,
-      }),
-      expect.objectContaining({ id: 'e5', kind: 'message' }),
+    expect(lines.map(({ id }) => id)).toEqual(['e3', 'e5']);
+  });
+
+  it('offers Revert on every listed automatic entry except a Removed one', () => {
+    const lines = buildLogLines(
+      [goblin, orc],
+      [
+        damage('e1'),
+        log('e2', 'heal', { targets: [{ queueItemId: 'a', amount: 1 }] }),
+        log('e3', 'temp-hp', { targets: [{ queueItemId: 'a', value: 2 }] }),
+        log('e4', 'max-hp', { targets: [{ queueItemId: 'a', value: 9 }] }),
+        log('e5', 'defeated', { queueItemIds: ['a'] }),
+        log('e6', 'undefeated', { queueItemIds: ['a'] }),
+        log('e7', 'removed', { queueItemIds: ['b'] }),
+      ],
+      [],
+    );
+
+    expect(
+      lines.map((line) =>
+        line.kind === 'automatic' ? [line.id, line.isRevertible] : line.kind,
+      ),
+    ).toEqual([
+      ['e1', true],
+      ['e2', true],
+      ['e3', true],
+      ['e4', true],
+      ['e5', true],
+      ['e6', true],
+      ['e7', false],
     ]);
   });
 
   it.each([
+    ['an added entry', log('t', 'added', { queueItemIds: ['a'] }), []],
+    ['a message', log('t', 'message', { editorState: 's' }), ['t']],
+    ['a revert', log('t', 'revert', { entryId: 'none' }), []],
     [
-      'a revert naming an added entry',
-      log('t', 'added', { queueItemIds: ['a'] }),
+      'a missing entry',
+      log('other', 'message', { editorState: 's' }),
+      ['other'],
     ],
-    ['a revert naming a message', log('t', 'message', { editorState: 's' })],
-    ['a revert naming a revert', log('t', 'revert', { entryId: 'none' })],
-  ])('reads %s as unreadable', (_label, named) => {
-    const lines = buildLogLines(
-      [goblin],
-      [named, log('r', 'revert', { entryId: 't' })],
-      [],
-    );
+  ])(
+    'leaves out a revert naming %s, which the derivation ignores',
+    (_label, named, expectedIds) => {
+      const lines = buildLogLines(
+        [goblin],
+        [named, log('r', 'revert', { entryId: 't' })],
+        [],
+      );
 
-    expect(lines[1]).toEqual({
-      kind: 'unreadable',
-      id: 'r',
-      createdAt: 'at-r',
-    });
-  });
+      expect(lines.map(({ id }) => id)).toEqual(expectedIds);
+    },
+  );
 
-  it('reads a revert naming a missing entry, an unknown kind and invalid JSON as unreadable', () => {
+  it('leaves out an added or revert entry that fails to read and shows any other entry that fails to read as unreadable', () => {
     const lines = buildLogLines(
       [goblin],
       [
-        log('r', 'revert', { entryId: 'missing' }),
+        buildEncounterLogEntry(
+          'added',
+          { queueItemIds: ['a'] },
+          { id: 'h1', payload: '{not json' },
+        ),
+        buildEncounterLogEntry(
+          'revert',
+          { entryId: 'x' },
+          { id: 'h2', payload: '{"entryId":""}' },
+        ),
         buildEncounterLogEntry(
           'added',
           { queueItemIds: ['a'] },
           { id: 'u1', kind: 'constructor', created_at: 'at-u1' },
         ),
         buildEncounterLogEntry(
-          'added',
-          { queueItemIds: ['a'] },
+          'damage',
+          { targets: [{ queueItemId: 'a', amount: 1 }] },
           { id: 'u2', payload: '{not json', created_at: 'at-u2' },
         ),
       ],
       [],
     );
 
-    expect(lines.map(({ kind, id }) => [kind, id])).toEqual([
-      ['unreadable', 'r'],
-      ['unreadable', 'u1'],
-      ['unreadable', 'u2'],
+    expect(lines).toEqual([
+      { kind: 'unreadable', id: 'u1', createdAt: 'at-u1' },
+      { kind: 'unreadable', id: 'u2', createdAt: 'at-u2' },
     ]);
   });
 
@@ -323,33 +286,7 @@ describe('buildLogLines', () => {
     ]);
   });
 
-  it('keeps the entity name on an added line whose first item is renamed', () => {
-    const items = [
-      buildEncounterQueueItem({
-        id: 'a',
-        name: 'Goblin',
-        custom_name: 'Boss',
-        sequence_number: 1,
-      }),
-      buildEncounterQueueItem({
-        id: 'b',
-        name: 'Goblin',
-        sequence_number: 2,
-      }),
-    ];
-
-    expect(
-      textsOf(
-        buildLogLines(
-          items,
-          [log('e1', 'added', { queueItemIds: ['a', 'b'] })],
-          [],
-        ),
-      ),
-    ).toEqual(['Added: Goblin ×2']);
-  });
-
-  it('names an event on an added line and a combatant and an event on a removed line, a blank event as Untitled Event', () => {
+  it('names a combatant and an event on a removed line, a blank event as Untitled Event', () => {
     const items = [
       buildEncounterQueueItem({ id: 'a', name: 'Goblin', sequence_number: 1 }),
       buildEncounterQueueItem({
@@ -370,7 +307,6 @@ describe('buildLogLines', () => {
     const lines = buildLogLines(
       items,
       [
-        log('e1', 'added', { queueItemIds: ['b'] }),
         log('e2', 'removed', { queueItemIds: ['a', 'b'] }),
         log('e3', 'removed', { queueItemIds: ['c'] }),
       ],
@@ -378,7 +314,6 @@ describe('buildLogLines', () => {
     );
 
     expect(textsOf(lines)).toEqual([
-      'Added: Lair action',
       'Removed: Goblin, Lair action',
       'Removed: Untitled Event',
     ]);

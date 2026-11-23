@@ -8,6 +8,7 @@ import {
 import * as adventureService from '@services/adventureService';
 import * as baseEntityContentSectionService from '@services/baseEntityContentSectionService';
 import * as baseEntityService from '@services/baseEntityService';
+import * as encounterLogEntryService from '@services/encounterLogEntryService';
 import * as encounterQueueService from '@services/encounterQueueService';
 import * as encounterService from '@services/encounterService';
 import * as sessionService from '@services/sessionService';
@@ -234,6 +235,12 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
     noStatBlockFoeId,
   );
   await encounterQueueService.addRandomCombatant(encounterId, 'Seed Bandit', 9);
+  // An add stores no `added` entry, so the seed writes one itself: it stands for an entry an earlier app version stored, which the Log tab must hide.
+  const [firstQueueItem] =
+    await encounterQueueService.getQueueItems(encounterId);
+  await encounterLogEntryService.recordLogEntry(encounterId, 'added', {
+    queueItemIds: [firstQueueItem.id],
+  });
   // createSession adds one step per default step, each with its default title; createCustomStep adds a last step with neither a name nor a default step, so its header has no title.
   const sessionId = await sessionService.createSession(adventureId);
   await sessionService.updateSession(sessionId, {

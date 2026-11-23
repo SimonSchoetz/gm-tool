@@ -53,7 +53,7 @@ export const useEncounterQueueItems = (
     encounterQueueItemsQueryOptions(encounterId),
   );
 
-  // One mutation and one key serve all three adds, so no add runs beside another of the same encounter: two would hand out the same sort_order. A resolved add stays pending until the queue and the log have refetched, so every Add button stays disabled until both show the new rows and the `added` line.
+  // One mutation and one key serve all three adds, so no add runs beside another of the same encounter: two would hand out the same sort_order. A resolved add stays pending until the queue has refetched, so every Add button stays disabled until the queue shows the new row.
   const addMutation = useMutation({
     mutationKey: encounterKeys.addQueueItems(encounterId),
     mutationFn: (variables: AddQueueItemsVariables) => {
@@ -75,14 +75,9 @@ export const useEncounterQueueItems = (
       }
     },
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: encounterKeys.queueItems(encounterId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: encounterKeys.logEntries(encounterId),
-        }),
-      ]),
+      queryClient.invalidateQueries({
+        queryKey: encounterKeys.queueItems(encounterId),
+      }),
   });
 
   // The pending state is read from the mutation cache, not from addMutation: a hook-local isPending belongs to one hook instance, so the Add buttons would not disable each other. The guard in add reads the cache at call time because a useIsMutating value read from render state lags the call by a render, so two calls in one call stack, of any of the three adds, would both write and hand out the same sort_order.

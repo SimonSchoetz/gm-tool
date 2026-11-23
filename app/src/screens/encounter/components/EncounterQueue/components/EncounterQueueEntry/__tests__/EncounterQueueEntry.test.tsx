@@ -168,15 +168,6 @@ describe('EncounterQueueEntry', () => {
     expect(screen.queryByLabelText('Greyed-out image')).not.toBeInTheDocument();
   });
 
-  it('shows its HP as current/max, and no HP text with HP not set', () => {
-    const { unmount } = renderEntry({ maxHp: 10, currentHp: 4 });
-    expect(screen.getByText('4/10')).toBeInTheDocument();
-    unmount();
-
-    renderEntry();
-    expect(screen.queryByText(/\//)).not.toBeInTheDocument();
-  });
-
   describe('an event entry', () => {
     const renderEvent = (onSelect = vi.fn()) =>
       render(

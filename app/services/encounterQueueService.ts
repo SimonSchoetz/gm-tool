@@ -1,6 +1,5 @@
 import * as queueItemDb from '@db/encounter-queue-item';
 import type {
-  AppendEncounterQueueItemInput,
   EncounterQueueItem,
   UpdateEncounterQueueItemInput,
 } from '@db/encounter-queue-item';
@@ -26,23 +25,6 @@ export type UpdateQueueItemData = Pick<
   UpdateEncounterQueueItemInput,
   'custom_name' | 'name' | 'notes'
 >;
-
-const appendQueueItem = async (
-  item: AppendEncounterQueueItemInput,
-): Promise<void> => {
-  const queueItemId = await queueItemDb.append(item);
-
-  // The item is stored by now. A failed log write loses only its `added` line, which the derivation does not read, and reporting the add as failed would invite a retry that adds the item twice.
-  try {
-    await logEntryDb.create({
-      encounter_id: item.encounter_id,
-      kind: 'added',
-      payload: { queueItemIds: [queueItemId] },
-    });
-  } catch {
-    // Swallowed on purpose: see the comment above.
-  }
-};
 
 const requireQueueItemName = (name: string): string => {
   const normalized = normalizeQueueItemName(name);
@@ -76,7 +58,7 @@ export const addEntityCombatant = async (
     const sections = await sectionDb.getAllByBaseEntity(baseEntityId);
     const startingMaxHp = singleStatBlockHp(sections);
 
-    await appendQueueItem({
+    await queueItemDb.append({
       encounter_id: encounterId,
       kind: 'combatant',
       base_entity_id: baseEntityId,
@@ -102,7 +84,7 @@ export const addRandomCombatant = async (
       throw new Error(`Invalid HP: ${startingMaxHp}`);
     }
 
-    await appendQueueItem({
+    await queueItemDb.append({
       encounter_id: encounterId,
       kind: 'combatant',
       name: trimmedName,
@@ -120,7 +102,7 @@ export const addEvent = async (
   try {
     const trimmedName = requireQueueItemName(name);
 
-    await appendQueueItem({
+    await queueItemDb.append({
       encounter_id: encounterId,
       kind: 'event',
       name: trimmedName,

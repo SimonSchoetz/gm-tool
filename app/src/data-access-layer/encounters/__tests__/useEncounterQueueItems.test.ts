@@ -128,7 +128,7 @@ describe('useEncounterQueueItems', () => {
     expect(await Promise.all(adds)).toEqual([true, false]);
   });
 
-  it('invalidates the queue and the log of the encounter once an add resolved', async () => {
+  it('invalidates the queue of the encounter and nothing else once an add resolved', async () => {
     const { result, invalidateQueries } = renderHookWithQueryClient(() =>
       useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );
@@ -139,15 +139,12 @@ describe('useEncounterQueueItems', () => {
     );
 
     expect(wasAdded).toBe(true);
-    expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID),
-    });
-    expect(invalidateQueries).toHaveBeenCalledWith({
-      queryKey: encounterKeys.logEntries(QUEUE_ITEM_ENCOUNTER_ID),
-    });
+    expect(invalidateQueries.mock.calls).toEqual([
+      [{ queryKey: encounterKeys.queueItems(QUEUE_ITEM_ENCOUNTER_ID) }],
+    ]);
   });
 
-  it('keeps isAdding true after the service resolved until the queue and the log have refetched', async () => {
+  it('keeps isAdding true after the service resolved until the queue has refetched', async () => {
     const { result, invalidateQueries } = renderHookWithQueryClient(() =>
       useEncounterQueueItems(QUEUE_ITEM_ENCOUNTER_ID),
     );

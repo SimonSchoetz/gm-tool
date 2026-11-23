@@ -10,6 +10,7 @@ import type * as queueService from '@services/encounterQueueService';
 import type * as tableConfigService from '@services/tableConfigService';
 import { buildEncounter } from '@/__tests__/support/buildEncounter';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
+import { DeleteDialogProvider } from '@/providers/DeleteDialogProvider';
 import type { SidebarTab } from '../../../hooks/useEncounterSelection';
 import { EncounterSidebar } from '../EncounterSidebar';
 
@@ -65,12 +66,17 @@ const StatefulSidebar = ({
   );
 };
 
+// The Actions tab asks for a confirm through the app's delete dialog, whose provider wraps the app.
+const Wrapper = ({ children }: { children: React.ReactNode }) => (
+  <TanstackQueryClientProvider>
+    <DeleteDialogProvider>{children}</DeleteDialogProvider>
+  </TanstackQueryClientProvider>
+);
+
 const renderSidebar = async (
   onTabChange: (tab: SidebarTab) => void = vi.fn(),
 ) => {
-  render(<StatefulSidebar onTabChange={onTabChange} />, {
-    wrapper: TanstackQueryClientProvider,
-  });
+  render(<StatefulSidebar onTabChange={onTabChange} />, { wrapper: Wrapper });
   await screen.findByPlaceholderText('Search entities...');
 };
 

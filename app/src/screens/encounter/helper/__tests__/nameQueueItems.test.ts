@@ -85,19 +85,6 @@ describe('nameQueueItems', () => {
     ]);
   });
 
-  it('gives every item a base name without its number', () => {
-    const names = nameQueueItems(
-      [goblin('a', 1), goblin('b', 2)],
-      states(['b']),
-      [],
-    );
-
-    expect([...names].map(([id, { baseName }]) => [id, baseName])).toEqual([
-      ['a', 'Goblin'],
-      ['b', 'Goblin'],
-    ]);
-  });
-
   it('shows a renamed kept item its name and keeps its sibling numbered', () => {
     const names = nameQueueItems(
       [
@@ -184,7 +171,7 @@ describe('nameQueueItems', () => {
       ]);
     });
 
-    it('shows Untitled Event as shown, automatic and base name for an emptied or spaces-only event name, and ignores custom_name', () => {
+    it('shows Untitled Event as shown and automatic name for an emptied or spaces-only event name, and ignores custom_name', () => {
       const names = nameQueueItems(
         [
           event('a', null),
@@ -199,7 +186,6 @@ describe('nameQueueItems', () => {
         ['a', 'b', 'c'].map(() => ({
           shownName: 'Untitled Event',
           automaticName: 'Untitled Event',
-          baseName: 'Untitled Event',
         })),
       );
     });

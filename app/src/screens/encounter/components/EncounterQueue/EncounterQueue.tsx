@@ -26,6 +26,7 @@ import { foldBlockDrag } from './helper/foldBlockDrag';
 import { getBlockDragOtherIds } from './helper/getBlockDragOtherIds';
 import { getDraggedIds } from './helper/getDraggedIds';
 import { reorderIdsAsBlock } from './helper/reorderIdsAsBlock';
+// After the GlassPanel import: .encounter-queue and .glass-panel set border-radius at equal specificity, and the later stylesheet wins.
 import './EncounterQueue.css';
 
 type BlockDrag = { activeId: string; otherIds: string[]; folded: boolean };
