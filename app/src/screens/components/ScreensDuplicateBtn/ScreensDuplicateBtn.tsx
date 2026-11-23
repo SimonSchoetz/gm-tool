@@ -7,6 +7,8 @@ import { EncounterDuplicateBtn } from './components/EncounterDuplicateBtn';
 type Props = { entityType: EntityType };
 
 // This switch is the single declaration of what can be duplicated, which is why the component can be placed in every item sidebar unconditionally.
+// The one caller left passes 'sessions' and goes with this component, so the rule that wants the parameter removed has nothing to act on.
+// eslint-disable-next-line local/no-constant-argument
 export const ScreensDuplicateBtn: FCProps<Props> = ({ entityType }) => {
   const label = `Duplicate ${entityTypeLabel(entityType)}`;
 

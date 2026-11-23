@@ -1,11 +1,10 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Encounter } from '@db/encounter';
 import type * as encounterService from '@services/encounterService';
 import { buildEncounter } from '@/__tests__/support/buildEncounter';
 import { queryClient, TanstackQueryClientProvider } from '@/data-access-layer';
-import { DeleteDialogProvider } from '@/providers/DeleteDialogProvider';
 import { EncounterActions } from '../EncounterActions';
 
 const getEncounterById = vi.hoisted(() =>
@@ -14,15 +13,10 @@ const getEncounterById = vi.hoisted(() =>
 const updateEncounter = vi.hoisted(() =>
   vi.fn<typeof encounterService.updateEncounter>(),
 );
-const deleteEncounter = vi.hoisted(() =>
-  vi.fn<typeof encounterService.deleteEncounter>(),
-);
-const navigate = vi.hoisted(() => vi.fn());
 
 vi.mock('@services/encounterService', () => ({
   getEncounterById,
   updateEncounter,
-  deleteEncounter,
 }));
 
 vi.mock('@tanstack/react-router', async () => {
@@ -30,22 +24,14 @@ vi.mock('@tanstack/react-router', async () => {
     await import('@/__tests__/support/encounterRouteParams');
   return {
     useParams: encounterRouteParams,
-    useRouter: () => ({ navigate }),
-    useNavigate: () => vi.fn(),
   };
 });
-
-const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <TanstackQueryClientProvider>
-    <DeleteDialogProvider>{children}</DeleteDialogProvider>
-  </TanstackQueryClientProvider>
-);
 
 // What the database holds, so a refetch after a write returns the saved flag.
 let stored: Encounter;
 
 const renderActions = async () => {
-  render(<EncounterActions />, { wrapper: Wrapper });
+  render(<EncounterActions />, { wrapper: TanstackQueryClientProvider });
   await screen.findByRole('checkbox', { name: 'Hide defeated' });
 };
 
@@ -55,8 +41,6 @@ describe('EncounterActions', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     stored = buildEncounter({ hide_defeated: 0 });
     getEncounterById.mockImplementation(() => Promise.resolve(stored));
-    deleteEncounter.mockReset().mockResolvedValue();
-    navigate.mockReset();
     updateEncounter.mockReset().mockImplementation((_id, data) => {
       stored = {
         ...stored,
@@ -86,39 +70,6 @@ describe('EncounterActions', () => {
       ['encounter-1', { hide_defeated: 1 }],
       ['encounter-1', { hide_defeated: 0 }],
     ]);
-  });
-
-  it('opens a dialog naming the encounter and deletes it, then returns to the encounter list, once the confirmation text is typed', async () => {
-    stored = buildEncounter({ name: 'Ambush' });
-    const user = userEvent.setup();
-    await renderActions();
-
-    await user.click(screen.getByRole('button', { name: 'Delete Encounter' }));
-    expect(
-      screen.getByRole('heading', { name: 'Delete Ambush' }),
-    ).toBeInTheDocument();
-    expect(deleteEncounter).not.toHaveBeenCalled();
-
-    await user.type(
-      screen.getByPlaceholderText('DELETE Ambush'),
-      'DELETE Ambush',
-    );
-
-    await waitFor(() => {
-      expect(deleteEncounter).toHaveBeenCalledWith('encounter-1');
-    });
-    expect(navigate).toHaveBeenCalledWith({
-      to: '/adventure/adventure-1/encounters',
-    });
-  });
-
-  it('titles the delete dialog with no name for an unnamed encounter', async () => {
-    const user = userEvent.setup();
-    await renderActions();
-
-    await user.click(screen.getByRole('button', { name: 'Delete Encounter' }));
-
-    expect(screen.getByRole('heading', { name: 'Delete' })).toBeInTheDocument();
   });
 
   it('shows the box checked when hide_defeated is 1', async () => {
