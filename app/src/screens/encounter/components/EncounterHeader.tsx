@@ -17,7 +17,9 @@ export const EncounterHeader = () => {
 
   return (
     <ScreensNameRow entityType='encounters'>
+      {/* Keyed by entity id: the router reuses this screen for the copy a Duplicate opens, and `autoFocus` only acts when the input mounts. */}
       <ScreensNameInput
+        key={encounter.id}
         placeholder='Encounter Name'
         initValue={encounter.name ?? ''}
         onCommit={onNameCommit}

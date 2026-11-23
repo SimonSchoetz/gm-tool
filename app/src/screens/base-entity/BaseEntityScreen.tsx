@@ -42,7 +42,9 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
     <ScreensTextEditorLayout
       header={
         <ScreensNameRow entityType={entityType}>
+          {/* Keyed by entity id: the router reuses this screen for the copy a Duplicate opens, and `autoFocus` only acts when the input mounts. */}
           <ScreensNameInput
+            key={baseEntity.id}
             placeholder={`${label} Name`}
             initValue={baseEntity.name ?? ''}
             onCommit={onNameCommit}

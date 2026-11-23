@@ -38,7 +38,9 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   return (
     <header className='session-header'>
       <div className='session-name-row'>
+        {/* Keyed by entity id: the router reuses this screen for the copy a Duplicate opens, and `autoFocus` only acts when the input mounts. */}
         <SyncedInput
+          key={session.id}
           autoFocus={focusNameInput}
           className='session-name-input'
           placeholder='Session name, i. e. ingame date'
