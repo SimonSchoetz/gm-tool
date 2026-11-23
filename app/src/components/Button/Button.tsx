@@ -5,7 +5,7 @@ import { ActionContainer } from '../ActionContainer/ActionContainer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { cn } from '@/util/className';
 
-type Props = { buttonStyle?: 'danger' } & React.ComponentProps<
+type Props = { buttonStyle?: 'danger' | 'success' } & React.ComponentProps<
   typeof ActionContainer
 >;
 
