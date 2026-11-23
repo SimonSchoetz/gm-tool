@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.19.0] - 2026-11-23
+
+### Added
+
+- Every list row's menu in the Sessions, Encounters and entity lists offers Duplicate and Delete beside Pin
+- Duplicate and Delete moved into a gear popup beside the name on the entity, encounter and session screens (a session's in Prep), and an adventure's Delete into one on its screen
+- Escape closes the topmost open popup
+- The encounter queue shows each entry's name, on up to two lines, in place of its HP figures; the red tint and grey look still show HP
+- Remove in the encounter's Actions tab asks for a one-click confirm naming what it removes
+- The shown combatant's entity panel has the Navigate icon of the mention popup, which opens the entity's screen
+
+### Changed
+
+- The encounter Log lists only what helps read back a fight: adding to the queue writes no log line, and reverted entries and their "Reverted" lines are hidden
+- A Removed entry in the encounter Log can no longer be reverted
+- The Actions tab is split into HP and State sections with full-width buttons, Damage and Heal side by side; Damage and Remove glow red on hover and Heal green; the whole tab scrolls when it is taller than the sidebar
+- Event tiles and the queue panel have the same rounded corners as combatant images and the combat notes
+- Every scrolling area fades at its edges, now including the encounter queue, the adventures list and the pop-up menus (section menu, slash commands, table handle menu, mention suggestions)
+
+### Fixed
+
+- Disabled buttons fade again
+- Popups have the glass panel border, and a read-only 5e stat block starts at the section's left edge like text
+
 ## [v0.18.0] - 2026-11-19
 
 ### Added
