@@ -48,7 +48,7 @@ Every base entity type shares these modules — nothing per-type is created for 
 | List screen | `screens/base-entities/BaseEntitiesScreen.tsx` |
 | Detail screen | `screens/base-entity/BaseEntityScreen.tsx` with `components/BaseEntitySidebar/` |
 | Mention popup | `BaseEntityPopupContent` |
-| Duplicate button | `BaseEntityDuplicateBtn` |
+| Duplicate and Delete actions | `BaseEntityActionRows` in `screens/components/ScreensEntityActions/` |
 | Breadcrumb crumb | `BaseEntityCrumb` |
 
 ## Shared Columns
@@ -175,12 +175,12 @@ Needs no change — `services/baseEntityService.ts` already accepts any `BaseEnt
 
 - The two route files, in the shapes `src/routes/adventure.$adventureId.[plural].tsx` and `src/routes/adventure.$adventureId.[singular].$baseEntityId.tsx` — see the List Route and Detail Route shapes under Routes below.
 - Two cases in `src/components/Header/helper/buildBreadcrumbs.ts`'s switch (list and detail), and their assertions in `buildBreadcrumbs.test.ts`.
-- One label added to the existing grouped case in `screens/components/ScreensDuplicateBtn/ScreensDuplicateBtn.tsx`'s switch and in `src/components/Header/components/BreadcrumbList/components/BreadcrumbListEntry.tsx`'s switch — both already dispatch every base entity type through one shared body, so adding a type means adding its case label to the existing `case 'npcs': case 'pcs': ...` group, not writing a new branch.
+- One label added to the existing grouped case in `screens/components/ScreensEntityActions/ScreensEntityActions.tsx`'s switch and in `src/components/Header/components/BreadcrumbList/components/BreadcrumbListEntry.tsx`'s switch — both already dispatch every base entity type through one shared body, so adding a type means adding its case label to the existing `case 'npcs': case 'pcs': ...` group, not writing a new branch.
 - One entry in `TABLE_NAV_ITEMS` (`src/components/SideBarNav/tableNavItems.ts`) — its `label`, its `to` route and its `tableName`, in the order the adventure-scoped buttons show — which `SideBarNav.tsx` renders through `TableNavItem`; `tableNavItems.test.ts` asserts each entry's route and label against its table name, so it gets no case.
 - One `useBaseEntities('[plural]', adventureId)` call and one `statsMap` entry in `AdventureStats.tsx`.
 - One `[plural]` key in `ENTITY_PLACEHOLDER_ICONS` (`src/components/EntityPlaceholderIcon/entityPlaceholderIcons.ts`), the icon its lists, queue rows and Add-tab rows show for an entity with no image — the table is declared `satisfies Record<…>` over every `BaseEntityType`, so `tsc` rejects it until the key exists; `entityPlaceholderIcons.test.ts` gets the case for it.
 
-**Needs no change** — `MentionPopupContent.tsx` (dispatches every base entity type through `isBaseEntityType`), `BaseEntitiesScreen`, `BaseEntityScreen`, `BaseEntitySidebar`, `BaseEntityPopupContent`, `BaseEntityDuplicateBtn`, `BaseEntityCrumb`, `services/baseEntityService.ts`, and every `db/base-entity/` CRUD file — all already accept any `BaseEntityType` as their first argument or prop.
+**Needs no change** — `MentionPopupContent.tsx` (dispatches every base entity type through `isBaseEntityType`), `BaseEntitiesScreen`, `BaseEntityScreen`, `BaseEntitySidebar`, `BaseEntityPopupContent`, `BaseEntityActionRows`, `BaseEntityCrumb`, `services/baseEntityService.ts`, and every `db/base-entity/` CRUD file — all already accept any `BaseEntityType` as their first argument or prop.
 
 ### Routes
 
@@ -236,12 +236,12 @@ After creating these files, run `pnpm run build:frontend` once from `app/` — s
 
 ## Detail Screen Composition
 
-`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the header slot renders `ScreensNameInput` for the entity's name, the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the body-header slot renders `BaseEntityContentSectionPanel` (`screens/base-entity/components/`, which reads the entity id from the route) keyed by the entity's id — the entity's content sections, one shown at a time, with a menu bar to add, rename, switch between and delete them — and the body slot renders the description editor. This is the reference implementation for that composition pattern.
+`screens/base-entity/BaseEntityScreen.tsx` composes `ScreensTextEditorLayout`: the header slot renders `ScreensNameInput` for the entity's name inside `ScreensNameRow`, which puts the gear (`ScreensEntityActionsMenu`, the popup holding Duplicate and Delete) at the right end of the name's line, the sidebar slot renders `<BaseEntitySidebar entityType={entityType} />`, the body-header slot renders `BaseEntityContentSectionPanel` (`screens/base-entity/components/`, which reads the entity id from the route) keyed by the entity's id — the entity's content sections, one shown at a time, with a menu bar to add, rename, switch between and delete them — and the body slot renders the description editor. This is the reference implementation for that composition pattern.
 
 **`screens/session/` and `screens/encounter/` are deliberate exceptions** to this composition — each for its own reason, and neither is a template to copy:
 
 - `screens/session/`: its hand-rolled `SessionHeader` re-implements what `ScreensNameInput` now provides, and its custom `SessionScreen.css` layout predates the shared components below. This shape must not be copied.
-- `screens/encounter/`: `EncounterScreen` has its own `EncounterScreen.css`: a `GlassPanel` root with `EncounterHeader` above a three-column body — the combat queue with Duplicate and Delete below it, a middle column that holds the global combat notes in a fixed-height panel and, below them, the shown item's view (`EncounterShownItem`, a combatant's or an event's) in one scroll area, and a tabbed sidebar (Add, Actions and Log) whose Add tab opens with an Entities / Other switch. `EncounterHeader` composes the shared `ScreensNameInput` rather than hand-rolling it, unlike `SessionHeader`. The shape is justified by an encounter being a working surface with a queue, notes and a tabbed sidebar (Add, Actions and Log), not a new default pattern, so it is not to be copied either.
+- `screens/encounter/`: `EncounterScreen` has its own `EncounterScreen.css`: a `GlassPanel` root with `EncounterHeader` above a three-column body — the combat queue with Hide defeated below it, a middle column that holds the global combat notes in a fixed-height panel and, below them, the shown item's view (`EncounterShownItem`, a combatant's or an event's) in one scroll area, and a tabbed sidebar (Add, Actions and Log) whose Add tab opens with an Entities / Other switch. `EncounterHeader` composes the shared `ScreensNameInput` inside `ScreensNameRow` rather than hand-rolling it, unlike `SessionHeader`, which lays out its own name line and shows the gear only in Prep view. The shape is justified by an encounter being a working surface with a queue, notes and a tabbed sidebar (Add, Actions and Log), not a new default pattern, so it is not to be copied either.
 
 ## Customization Points
 
