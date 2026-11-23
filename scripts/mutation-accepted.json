@@ -801,6 +801,15 @@
     "reason": "the queue is created once by useState and never changes, so the dependency list holds one value that never differs and an empty list runs the effect as often"
   },
   {
+    "file": "src/hooks/useEscapeDismiss.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "lineText": "if (!topmost) return;",
+    "occurrence": 0,
+    "lines": 1,
+    "reason": "the code comment at this statement states why no test can observe this change"
+  },
+  {
     "file": "src/hooks/useSortable.ts",
     "mutator": "ConditionalExpression",
     "replacement": "true",

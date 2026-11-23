@@ -38,16 +38,6 @@ describe('usePopupDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it('dismisses on Escape and on no other key', () => {
-    setup();
-
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-    expect(onDismiss).not.toHaveBeenCalled();
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-
-    expect(onDismiss).toHaveBeenCalledTimes(1);
-  });
-
   it('dismisses when the window is resized', () => {
     setup();
 
@@ -89,7 +79,6 @@ describe('usePopupDismiss', () => {
 
     unmount();
     document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     window.dispatchEvent(new Event('resize'));
 
     expect(onDismiss).not.toHaveBeenCalled();

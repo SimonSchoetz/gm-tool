@@ -302,14 +302,16 @@ describe('useEncounterSelection', () => {
     });
   });
 
-  it('keeps the selection and the shown id on Escape while a modal dialog is open, and clears them once it is gone', () => {
+  it('keeps the selection and the shown id on an Escape that an open popup took, and clears them on the next Escape once it is gone', () => {
     const { result } = renderSelection();
     act(() => {
       result.current.select('a', PLAIN);
     });
-    const dialog = document.createElement('div');
-    dialog.setAttribute('aria-modal', 'true');
-    document.body.append(dialog);
+    // Stands in for `useEscapeDismiss`, whose capture-phase listener marks the key as taken.
+    const takeEscape = (event: KeyboardEvent) => {
+      event.preventDefault();
+    };
+    document.addEventListener('keydown', takeEscape, true);
 
     fireEvent.keyDown(document, { key: 'Escape' });
 
@@ -318,7 +320,7 @@ describe('useEncounterSelection', () => {
       shownItemId: 'a',
     });
 
-    dialog.remove();
+    document.removeEventListener('keydown', takeEscape, true);
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(result.current).toMatchObject({
