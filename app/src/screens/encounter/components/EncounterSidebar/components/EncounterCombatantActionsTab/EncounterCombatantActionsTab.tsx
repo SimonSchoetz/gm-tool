@@ -77,7 +77,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
 
   return (
     <div className='encounter-combatant-actions-tab'>
-      <div className='encounter-combatant-actions-tab-section'>
+      <div className='encounter-combatant-actions-tab-section encounter-combatant-actions-tab-section--fill'>
         <div className='label encounter-combatant-actions-tab-label'>HP</div>
         {combatantEntries.length > 1 && (
           <label className='encounter-combatant-actions-tab-bulk-hp'>

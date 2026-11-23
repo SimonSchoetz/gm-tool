@@ -13,7 +13,14 @@
 .encounter-combatant-actions-tab-section {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   gap: var(--spacing-sm);
+}
+
+/* The HP section takes the tab's remaining height, so its row list is the one box that shrinks and scrolls. */
+.encounter-combatant-actions-tab-section--fill {
+  flex: 1;
+  min-height: 0;
 }
 
 .encounter-combatant-actions-tab-pair {
@@ -31,7 +38,7 @@
   flex: 1;
   min-height: 0;
   gap: var(--spacing-sm);
-  /* Takes the sidebar panel's bottom padding as the fade's spacing. */
+  /* Takes the section's gap below it as the fade's spacing. */
   margin-bottom: calc(-1 * var(--spacing-sm));
 }
 
