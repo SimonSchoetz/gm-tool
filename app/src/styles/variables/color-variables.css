@@ -63,11 +63,18 @@
     2px 2px 5px rgb(var(--color-bg-rgb), 0.5);
   --box-shadow-inset-danger: inset 0 -5px 10px
     rgb(var(--color-danger-hover-rgb), 0.8);
+  --box-shadow-inset-success: inset 0 -5px 10px
+    rgb(var(--color-success-rgb), 0.5);
 
   /* Backgrounds */
   --background-danger: radial-gradient(
     ellipse 50% 80% at 50% 100%,
     rgb(var(--color-danger-hover-rgb), 0.8),
+    transparent
+  );
+  --background-success: radial-gradient(
+    ellipse 50% 80% at 50% 100%,
+    rgb(var(--color-success-rgb), 0.5),
     transparent
   );
 }
