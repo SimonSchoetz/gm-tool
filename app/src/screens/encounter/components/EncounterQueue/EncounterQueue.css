@@ -4,7 +4,3 @@
   flex: 1;
   border-radius: var(--radius-lg);
 }
-
-.encounter-queue-list {
-  overflow-y: auto;
-}

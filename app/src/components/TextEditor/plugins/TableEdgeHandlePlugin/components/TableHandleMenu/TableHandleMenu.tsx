@@ -101,7 +101,7 @@ export const TableHandleMenu: FCProps<Props> = ({
   const { toggleHeaderLabel, actions } = getTableMenu(type);
 
   return (
-    <div className='table-handle-menu'>
+    <div className='table-handle-menu scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top scroll-edge-fade--no-bottom'>
       <MenuOptionRow
         Icon={Table2Icon}
         label={toggleHeaderLabel}

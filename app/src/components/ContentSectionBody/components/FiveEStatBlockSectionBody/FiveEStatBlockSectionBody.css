@@ -12,7 +12,7 @@
   display: flex;
   gap: var(--spacing-xs);
 }
-.five-e-stat-block-section-body label span {
+.five-e-stat-block-section-body label * {
   align-self: center;
   text-wrap-mode: nowrap;
 }

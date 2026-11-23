@@ -22,3 +22,10 @@
   box-shadow: var(--box-shadow-inset-danger);
   background: var(--background-danger);
 }
+
+.button-label--success:hover {
+  color: var(--color-success);
+  text-shadow: 0 0 5px var(--color-bg);
+  box-shadow: var(--box-shadow-inset-success);
+  background: var(--background-success);
+}

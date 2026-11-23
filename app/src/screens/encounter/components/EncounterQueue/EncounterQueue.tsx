@@ -112,7 +112,7 @@ export const EncounterQueue: FCProps<Props> = ({ selectedIds, onSelect }) => {
           items={shownIds}
           strategy={verticalListSortingStrategy}
         >
-          <div className='encounter-queue-list'>
+          <div className='encounter-queue-list scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top scroll-edge-fade--no-bottom scroll-edge-fade--shadow-gutter'>
             {shownEntries.map((entry) => (
               <EncounterQueueEntry
                 key={entry.id}

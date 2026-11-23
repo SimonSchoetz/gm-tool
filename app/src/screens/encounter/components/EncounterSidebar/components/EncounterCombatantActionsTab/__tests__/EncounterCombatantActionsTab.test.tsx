@@ -274,13 +274,6 @@ describe('EncounterCombatantActionsTab', () => {
     releaseWrite();
   });
 
-  it('shows no events line when no event is selected', async () => {
-    arrange({ events: [LAIR] });
-    await renderTab();
-
-    expect(screen.queryByText(/Remove also removes/)).not.toBeInTheDocument();
-  });
-
   it('shows a hint while nothing is selected', async () => {
     await renderTab([]);
 
@@ -314,7 +307,7 @@ describe('EncounterCombatantActionsTab', () => {
       const { rerender } = await renderTab(SEVERAL);
 
       expect(sharedField()).toBeInTheDocument();
-      expect(sharedField()).toHaveAttribute('placeholder', 'Amount for all');
+      expect(sharedField()).toHaveAttribute('placeholder', 'Amount');
 
       rerender(<EncounterCombatantActionsTab selectedIds={[ITEM_ID]} />);
 
@@ -531,14 +524,12 @@ describe('EncounterCombatantActionsTab', () => {
   });
 
   describe('with events selected', () => {
-    const EVENTS_NOTE = 'Remove also removes: Lair action, Reinforcements';
-
     beforeEach(() => {
       arrange({ events: [LAIR, REINFORCEMENTS] });
     });
 
-    it('enables only Remove, names the events and shows no row or amount field when only events are selected', async () => {
-      await renderTab([LAIR.id, REINFORCEMENTS.id], EVENTS_NOTE);
+    it('enables only Remove and shows no row or amount field when only events are selected', async () => {
+      await renderTab([LAIR.id, REINFORCEMENTS.id], 'Remove');
 
       expect(button('Remove')).toBeEnabled();
       for (const label of [
@@ -557,7 +548,7 @@ describe('EncounterCombatantActionsTab', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('shows no shared field, one row and the events line for one combatant and one event, and Damage writes for the combatant alone', async () => {
+    it('shows no shared field and one row for one combatant and one event, and Damage writes for the combatant alone', async () => {
       arrange({ events: [LAIR] });
       const user = userEvent.setup();
       await renderTab([ITEM_ID, LAIR.id]);
@@ -567,9 +558,6 @@ describe('EncounterCombatantActionsTab', () => {
         screen.queryByRole('spinbutton', { name: 'Shared amount' }),
       ).not.toBeInTheDocument();
       expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
-      expect(
-        screen.getByText('Remove also removes: Lair action'),
-      ).toBeInTheDocument();
 
       await user.click(button('Damage'));
 

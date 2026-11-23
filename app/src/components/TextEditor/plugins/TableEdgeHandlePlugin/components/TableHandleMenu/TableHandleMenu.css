@@ -1,6 +1,5 @@
 .table-handle-menu {
   max-height: 169px; /* one-off - simulates exact hight of first 2 sections  (4 items + divider */
-  overflow-y: auto;
 }
 
 .table-handle-menu--divider {
