@@ -36,7 +36,7 @@ export const AdventuresScreen = () => {
   };
 
   return (
-    <ul className='content-center adventure-list-container'>
+    <ul className='content-center adventure-list-container scroll-edge-fade scroll-edge-fade--no-top scroll-edge-fade--no-bottom scroll-edge-fade--shadow-gutter'>
       <li key='new-adventure'>
         <NewItemBtn
           className='new-adventure-btn'

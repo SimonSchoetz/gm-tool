@@ -26,7 +26,10 @@ export const MentionOptionList: FCProps<Props> = ({
   }, [selectedIndex, menuOptions]);
 
   return (
-    <ul className='mention-option-list' role='listbox'>
+    <ul
+      className='mention-option-list scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top scroll-edge-fade--no-bottom'
+      role='listbox'
+    >
       {menuOptions.map((option, i) => (
         <li
           key={option.key}

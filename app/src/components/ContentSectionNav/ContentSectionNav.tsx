@@ -55,7 +55,7 @@ export const ContentSectionNav: FCProps<Props> = ({
       zIndex={popupZIndex}
       onDismiss={onDismiss}
     >
-      <PopupSurface className='content-section-nav'>
+      <PopupSurface className='content-section-nav scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top scroll-edge-fade--no-bottom'>
         <ReorderableNavList
           items={mappedSections}
           activeId={activeId}

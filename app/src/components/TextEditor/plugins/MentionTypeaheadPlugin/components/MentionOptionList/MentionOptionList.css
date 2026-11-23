@@ -1,6 +1,5 @@
 .mention-option-list {
   max-height: var(--mention-popup-max-height);
-  overflow-y: auto;
 }
 
 .mention-option-list-item {
