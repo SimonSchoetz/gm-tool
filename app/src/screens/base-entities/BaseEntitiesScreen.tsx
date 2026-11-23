@@ -10,6 +10,7 @@ import {
 } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
 import { FCProps } from '@/types/fcProps.type';
+import { ScreensEntityActions } from '../components/ScreensEntityActions';
 
 type Props = { entityType: BaseEntityType };
 
@@ -57,6 +58,16 @@ export const BaseEntitiesScreen: FCProps<Props> = ({ entityType }) => {
     void handleBaseEntityCreation();
   };
 
+  const renderRowActions = (itemId: string, closeMenu: () => void) => (
+    <ScreensEntityActions
+      entityType={entityType}
+      entityId={itemId}
+      adventureId={adventureId}
+      afterDelete='stay'
+      onChoose={closeMenu}
+    />
+  );
+
   const searchPlaceholder = `e.g. "name, ${baseEntitySearchHint(entityType)}, some text in description"`;
 
   return (
@@ -67,6 +78,7 @@ export const BaseEntitiesScreen: FCProps<Props> = ({ entityType }) => {
       onCreateNew={onCreateNew}
       searchPlaceholder={searchPlaceholder}
       entityType={entityType}
+      renderRowActions={renderRowActions}
     />
   );
 };

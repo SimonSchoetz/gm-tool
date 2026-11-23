@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import './SortableListItem.css';
 import { FCProps } from '@/types/fcProps.type';
 import type { ImagePlaceholderEntityType } from '../../../EntityPlaceholderIcon';
@@ -17,6 +18,9 @@ type Props = {
   onClick: (item: Record<string, unknown>) => void;
   dragWidths: Record<string, number> | null;
   entityType: ImagePlaceholderEntityType | null;
+  // `| undefined` because the parent forwards its own optional prop, which `exactOptionalPropertyTypes` types as possibly undefined.
+  renderRowActions?:
+    ((itemId: string, closeMenu: () => void) => ReactNode) | undefined;
 };
 
 export const SortableListItem: FCProps<Props> = ({
@@ -25,6 +29,7 @@ export const SortableListItem: FCProps<Props> = ({
   onClick,
   dragWidths,
   entityType,
+  renderRowActions,
 }) => {
   const { config } = useTableConfig(tableConfigId);
   const columns = config?.layout.columns ?? [];
@@ -74,6 +79,7 @@ export const SortableListItem: FCProps<Props> = ({
           tableConfigId={tableConfigId}
           itemId={itemId}
           isPinned={isPinned}
+          renderRowActions={renderRowActions}
         />
       </GlassPanel>
     </li>

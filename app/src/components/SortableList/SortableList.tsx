@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSortable } from '@/hooks/useSortable';
 import { useListFilter } from '@/hooks/useListFilter';
 import { useTableConfig } from '@/data-access-layer';
@@ -19,6 +19,7 @@ type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   onCreateNew?: () => void;
   searchPlaceholder: string;
   entityType?: ImagePlaceholderEntityType | null;
+  renderRowActions?: (itemId: string, closeMenu: () => void) => ReactNode;
 };
 
 export const SortableList = <
@@ -30,6 +31,7 @@ export const SortableList = <
   onCreateNew,
   searchPlaceholder,
   entityType = null,
+  renderRowActions,
 }: SortableListProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dragWidths, setDragWidths] = useState<Record<string, number> | null>(
@@ -131,6 +133,7 @@ export const SortableList = <
                 onClick={handleRowClick}
                 dragWidths={dragWidths}
                 entityType={entityType}
+                renderRowActions={renderRowActions}
               />
             ))}
 
@@ -151,6 +154,7 @@ export const SortableList = <
             onClick={handleRowClick}
             dragWidths={dragWidths}
             entityType={entityType}
+            renderRowActions={renderRowActions}
           />
         ))}
 
@@ -170,6 +174,7 @@ export const SortableList = <
                 onClick={handleRowClick}
                 dragWidths={dragWidths}
                 entityType={entityType}
+                renderRowActions={renderRowActions}
               />
             ))}
           </>

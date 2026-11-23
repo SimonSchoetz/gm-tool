@@ -5,6 +5,7 @@ import { SortableList } from '@/components/SortableList';
 import type { Encounter } from '@db/encounter';
 import { buildEntityPath } from '@domain';
 import { tableConfigNotFoundError } from '@domain/table-config';
+import { ScreensEntityActions } from '../components/ScreensEntityActions';
 
 export const EncountersScreen = () => {
   const router = useRouter();
@@ -51,6 +52,16 @@ export const EncountersScreen = () => {
     void handleEncounterCreation();
   };
 
+  const renderRowActions = (itemId: string, closeMenu: () => void) => (
+    <ScreensEntityActions
+      entityType='encounters'
+      entityId={itemId}
+      adventureId={adventureId}
+      afterDelete='stay'
+      onChoose={closeMenu}
+    />
+  );
+
   return (
     <SortableList<Encounter>
       tableConfigId={encountersTableConfig.id}
@@ -59,6 +70,7 @@ export const EncountersScreen = () => {
       onCreateNew={onCreateNew}
       searchPlaceholder='e.g. "name, some text in description"'
       entityType='encounters'
+      renderRowActions={renderRowActions}
     />
   );
 };

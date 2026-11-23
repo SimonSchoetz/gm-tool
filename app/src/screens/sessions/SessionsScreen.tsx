@@ -4,6 +4,7 @@ import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { SortableList } from '@/components/SortableList';
 import type { Session } from '@db/session';
 import { buildEntityPath } from '@domain';
+import { ScreensEntityActions } from '../components/ScreensEntityActions';
 
 export const SessionsScreen = () => {
   const router = useRouter();
@@ -42,6 +43,16 @@ export const SessionsScreen = () => {
     void handleSessionCreation();
   };
 
+  const renderRowActions = (itemId: string, closeMenu: () => void) => (
+    <ScreensEntityActions
+      entityType='sessions'
+      entityId={itemId}
+      adventureId={adventureId}
+      afterDelete='stay'
+      onChoose={closeMenu}
+    />
+  );
+
   return (
     <SortableList<Session>
       tableConfigId={sessionsTableConfig.id}
@@ -49,6 +60,7 @@ export const SessionsScreen = () => {
       onRowClick={onRowClick}
       onCreateNew={onCreateNew}
       searchPlaceholder='e.g. "session name, description"'
+      renderRowActions={renderRowActions}
     />
   );
 };
