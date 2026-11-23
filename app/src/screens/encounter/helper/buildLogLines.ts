@@ -25,7 +25,7 @@ export type LogLine =
     };
 
 type ReadEntry = NonNullable<ReturnType<typeof readLogEntry>>;
-// The Log lists only what reads back a fight: an `added` entry and a `revert` entry are left out whether or not they read, and so is every entry a revert dropped.
+// The Log lists only what reads back a fight, so an `added` entry and a `revert` entry are left out whether or not they read.
 const HIDDEN_KINDS = ['added', 'revert'] as const satisfies LogEntryKind[];
 type ListedEntry = Exclude<ReadEntry, { kind: (typeof HIDDEN_KINDS)[number] }>;
 type AutomaticEntry = Exclude<ListedEntry, { kind: 'message' }>;
@@ -41,6 +41,7 @@ const LABELS = {
   removed: 'Removed',
 } as const satisfies Record<AutomaticEntry['kind'], string>;
 
+// Takes any string: an entry that fails to read is checked by its stored kind, which is plain text.
 const isHiddenKind = (kind: string): boolean =>
   (HIDDEN_KINDS as readonly string[]).includes(kind);
 
@@ -125,6 +126,7 @@ export const buildLogLines = (
   const names = nameQueueItems(queueItems, items, baseEntities);
 
   return logEntries.flatMap((raw): LogLine[] => {
+    // An entry a revert dropped no longer counts in the fight, so the Log leaves it out too.
     if (revertedEntryIds.has(raw.id)) return [];
     const entry = readLogEntry(raw.kind, raw.payload);
     const base = { id: raw.id, createdAt: raw.created_at };
