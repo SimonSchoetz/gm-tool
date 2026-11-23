@@ -13,7 +13,6 @@ type Props = {
   tableConfigId: string;
   itemId: string;
   isPinned: boolean;
-  // `| undefined` because the parent forwards its own optional prop, which `exactOptionalPropertyTypes` types as possibly undefined.
   renderRowActions?:
     ((itemId: string, closeMenu: () => void) => ReactNode) | undefined;
 };

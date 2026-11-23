@@ -1,4 +1,8 @@
-import { buildBaseEntityListPath, type BaseEntityType } from '@domain';
+import {
+  buildBaseEntityListPath,
+  buildEntityPath,
+  type BaseEntityType,
+} from '@domain';
 import { useBaseEntity } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import {
@@ -29,15 +33,16 @@ export const BaseEntityActionRows: FCProps<Props> = ({
 
   const listPath = buildBaseEntityListPath(entityType, adventureId);
 
+  const duplicate = async () =>
+    buildEntityPath(entityType, await duplicateBaseEntity(), adventureId);
+
   return (
     <EntityActionRows
-      entityType={entityType}
-      adventureId={adventureId}
       name={baseEntity?.name ?? ''}
       listPath={listPath}
       afterDelete={afterDelete}
       onChoose={onChoose}
-      duplicate={duplicateBaseEntity}
+      duplicate={duplicate}
       deleteEntity={deleteBaseEntity}
     />
   );

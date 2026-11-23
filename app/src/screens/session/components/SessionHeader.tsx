@@ -7,7 +7,7 @@ import { HtmlProps } from '@/types/htmlProps.type';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { useFocusNameInputOnArrival } from '@/hooks/useFocusNameInputOnArrival';
 import { useParams } from '@tanstack/react-router';
-import { ScreensEntityActionsMenu } from '../../components/ScreensEntityActionsMenu';
+import { ScreensNameRow } from '../../components/ScreensNameRow/ScreensNameRow';
 
 export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   const { sessionId, adventureId } = useParams({
@@ -37,7 +37,10 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
 
   return (
     <header className='session-header'>
-      <div className='session-name-row'>
+      <ScreensNameRow
+        entityType='sessions'
+        hideActionsMenu={session.active_view !== 'prep'}
+      >
         {/* Keyed by entity id: the router reuses this screen for the copy a Duplicate opens, and `autoFocus` only acts when the input mounts. */}
         <SyncedInput
           key={session.id}
@@ -47,11 +50,7 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
           initValue={session.name ?? ''}
           onCommit={onNameCommit}
         />
-
-        {session.active_view === 'prep' && (
-          <ScreensEntityActionsMenu entityType='sessions' />
-        )}
-      </div>
+      </ScreensNameRow>
 
       <label className='session-date'>
         <span className='label'>Session Date:</span>

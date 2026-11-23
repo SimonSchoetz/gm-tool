@@ -5,15 +5,7 @@
   padding-bottom: 0;
 }
 
-.session-name-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
 .session-name-input {
-  flex: 1;
-  min-width: 0;
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-medium);
 }

@@ -1,3 +1,4 @@
+import { buildEntityPath } from '@domain';
 import { useSession } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import {
@@ -23,15 +24,16 @@ export const SessionActionRows: FCProps<Props> = ({
     adventureId,
   );
 
+  const duplicate = async () =>
+    buildEntityPath('sessions', await duplicateSession(), adventureId);
+
   return (
     <EntityActionRows
-      entityType='sessions'
-      adventureId={adventureId}
       name={session?.name ?? ''}
       listPath={`/adventure/${adventureId}/sessions`}
       afterDelete={afterDelete}
       onChoose={onChoose}
-      duplicate={duplicateSession}
+      duplicate={duplicate}
       deleteEntity={deleteSession}
     />
   );

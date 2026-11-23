@@ -1,3 +1,4 @@
+import { buildEntityPath } from '@domain';
 import { useEncounter } from '@/data-access-layer';
 import { FCProps } from '@/types/fcProps.type';
 import {
@@ -23,15 +24,16 @@ export const EncounterActionRows: FCProps<Props> = ({
     adventureId,
   );
 
+  const duplicate = async () =>
+    buildEntityPath('encounters', await duplicateEncounter(), adventureId);
+
   return (
     <EntityActionRows
-      entityType='encounters'
-      adventureId={adventureId}
       name={encounter?.name ?? ''}
       listPath={`/adventure/${adventureId}/encounters`}
       afterDelete={afterDelete}
       onChoose={onChoose}
-      duplicate={duplicateEncounter}
+      duplicate={duplicate}
       deleteEntity={deleteEncounter}
     />
   );

@@ -11,7 +11,7 @@ type Props = {
   onChoose: () => void;
 };
 
-// No `duplicate`: an adventure owns seven child tables, and duplicating it is out of scope.
+// No `duplicate`: adventures cannot be duplicated.
 export const AdventureActionRows: FCProps<Props> = ({
   entityId,
   afterDelete,
@@ -21,8 +21,6 @@ export const AdventureActionRows: FCProps<Props> = ({
 
   return (
     <EntityActionRows
-      entityType='adventures'
-      adventureId={entityId}
       name={adventure?.name ?? ''}
       listPath='/adventures'
       afterDelete={afterDelete}

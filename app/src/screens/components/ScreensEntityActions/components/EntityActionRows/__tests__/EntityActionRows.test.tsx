@@ -1,7 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildEntityPath } from '@domain';
 import { DeleteDialogProvider } from '@/providers/DeleteDialogProvider';
 import { EntityActionRows, type AfterDelete } from '../EntityActionRows';
 
@@ -11,8 +10,8 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => navigate,
 }));
 
-const ADVENTURE_ID = 'adventure-1';
 const LIST_PATH = '/adventure/adventure-1/npcs';
+const COPY_PATH = '/adventure/adventure-1/npc/copy-1';
 
 const onChoose = vi.fn<() => void>();
 const duplicate = vi.fn<() => Promise<string>>();
@@ -34,8 +33,6 @@ const renderRows = ({
     <DeleteDialogProvider>
       <ul>
         <EntityActionRows
-          entityType='npcs'
-          adventureId={ADVENTURE_ID}
           name={name}
           listPath={LIST_PATH}
           afterDelete={afterDelete}
@@ -63,7 +60,7 @@ describe('EntityActionRows', () => {
   beforeEach(() => {
     navigate.mockReset();
     onChoose.mockReset();
-    duplicate.mockReset().mockResolvedValue('copy-1');
+    duplicate.mockReset().mockResolvedValue(COPY_PATH);
     deleteEntity.mockReset().mockResolvedValue();
   });
 
@@ -75,7 +72,7 @@ describe('EntityActionRows', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith({
-        to: buildEntityPath('npcs', 'copy-1', ADVENTURE_ID),
+        to: COPY_PATH,
         state: { focusNameInput: true },
       });
     });

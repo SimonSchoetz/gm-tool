@@ -36,7 +36,7 @@ const PopUpContainer = ({
     }
   }, [state]);
 
-  // Gated on the prop, not on `isOpen`, which stays true through the closing animation: a closing dialog would still be the topmost popup and swallow the next Escape.
+  // Gated on `state`, not on `isOpen`, which stays true through the closing animation: a closing dialog would still be the topmost popup and swallow the next Escape.
   useEscapeDismiss(() => {
     setState('closed');
   }, state === 'open');
