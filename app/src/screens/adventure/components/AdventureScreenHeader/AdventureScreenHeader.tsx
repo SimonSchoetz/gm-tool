@@ -3,6 +3,7 @@ import { useAdventure } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
 import './AdventureScreenHeader.css';
 import { AdventureStats } from './components/AdventureStats/AdventureStats';
+import { ScreensNameRow } from '../../../components/ScreensNameRow/ScreensNameRow';
 
 export const AdventureScreenHeader = () => {
   const { adventureId } = useParams({
@@ -18,12 +19,14 @@ export const AdventureScreenHeader = () => {
 
   return (
     <div>
-      <SyncedInput
-        placeholder='Adventure Title'
-        initValue={adventure.name ?? ''}
-        onCommit={onNameCommit}
-        className='adventure-title-input'
-      />
+      <ScreensNameRow entityType='adventures'>
+        <SyncedInput
+          placeholder='Adventure Title'
+          initValue={adventure.name ?? ''}
+          onCommit={onNameCommit}
+          className='adventure-title-input'
+        />
+      </ScreensNameRow>
 
       <AdventureStats />
     </div>

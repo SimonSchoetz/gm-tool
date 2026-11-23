@@ -2,6 +2,7 @@ import type { EntityType } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
 import { BaseEntityActionRows } from './components/BaseEntityActionRows/BaseEntityActionRows';
 import { SessionActionRows } from './components/SessionActionRows/SessionActionRows';
+import { AdventureActionRows } from './components/AdventureActionRows/AdventureActionRows';
 import { EncounterActionRows } from './components/EncounterActionRows/EncounterActionRows';
 import type { AfterDelete } from './components/EntityActionRows/EntityActionRows';
 
@@ -55,8 +56,13 @@ export const ScreensEntityActions: FCProps<Props> = ({
           onChoose={onChoose}
         />
       );
-    // Adventures own seven child tables; their duplication is out of scope. This case becomes a component when its Delete action ships.
     case 'adventures':
-      return null;
+      return (
+        <AdventureActionRows
+          entityId={entityId}
+          afterDelete={afterDelete}
+          onChoose={onChoose}
+        />
+      );
   }
 };
