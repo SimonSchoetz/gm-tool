@@ -18,8 +18,6 @@ export const ScreensEntityActions: FCProps<Props> = ({
   entityType,
   entityId,
   adventureId,
-  // The gear menu on the entity screens passes 'go-to-list'; until it exists every caller passes 'stay'.
-  // eslint-disable-next-line local/no-constant-argument
   afterDelete,
   onChoose,
 }) => {

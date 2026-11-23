@@ -1,40 +1,23 @@
 import { UploadImgBtn } from '@/components/UploadImgBtn';
-import { Button } from '@/components/Button/Button';
 import { useBaseEntity } from '@/data-access-layer';
-import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
-import {
-  buildBaseEntityListPath,
-  entityTypeLabel,
-  type BaseEntityType,
-} from '@domain';
+import type { BaseEntityType } from '@domain';
 import { FCProps } from '@/types/fcProps.type';
 import { PREVIEW_DIMENSIONS } from '../../../screens.constants';
-import { useRouter, useParams } from '@tanstack/react-router';
-import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
+import { useParams } from '@tanstack/react-router';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 
 type Props = { entityType: BaseEntityType };
 
 export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
-  const router = useRouter();
   const params = useParams({ strict: false });
   const adventureId = params.adventureId ?? '';
-  const {
-    baseEntity,
-    updateBaseEntity,
-    deleteBaseEntity,
-    removeBaseEntityImage,
-  } = useBaseEntity(entityType, params.baseEntityId ?? '', adventureId);
-  const { openDeleteDialog } = useDeleteDialog();
+  const { baseEntity, updateBaseEntity, removeBaseEntityImage } = useBaseEntity(
+    entityType,
+    params.baseEntityId ?? '',
+    adventureId,
+  );
 
   if (!baseEntity) return;
-
-  const handleBaseEntityDelete = async () => {
-    await deleteBaseEntity();
-    void router.navigate({
-      to: buildBaseEntityListPath(entityType, adventureId),
-    });
-  };
 
   const onUpload = (filePath: string) => {
     updateBaseEntity({
@@ -47,18 +30,6 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
     if (baseEntity.image_id) void removeBaseEntityImage();
   };
 
-  const onDeleteClick = () => {
-    openDeleteDialog({
-      name: baseEntity.name ?? '',
-      onDeletionConfirm: () => {
-        void handleBaseEntityDelete();
-      },
-      oneClickConfirm: false,
-    });
-  };
-
-  const deleteLabel = `Delete ${entityTypeLabel(entityType)}`;
-
   return (
     <ScreensSidebar>
       <UploadImgBtn
@@ -67,14 +38,6 @@ export const BaseEntitySidebar: FCProps<Props> = ({ entityType }) => {
         title=''
         uploadFn={onUpload}
         deleteFn={onImageDelete}
-      />
-
-      <ScreensDuplicateBtn entityType={entityType} />
-
-      <Button
-        label={deleteLabel}
-        onClick={onDeleteClick}
-        buttonStyle={'danger'}
       />
     </ScreensSidebar>
   );

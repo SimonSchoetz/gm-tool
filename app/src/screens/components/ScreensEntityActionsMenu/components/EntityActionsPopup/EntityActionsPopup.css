@@ -1,0 +1,16 @@
+/* Both offsets give back the surface's own border, so the Close control inside it lands on the gear and not a border's width off it. */
+.entity-actions-popup {
+  position: fixed;
+  top: calc(var(--rt-entity-actions-popup-top) - var(--border-thin));
+  right: calc(var(--rt-entity-actions-popup-right) - var(--border-thin));
+  z-index: var(--most-front);
+}
+
+.entity-actions-popup--close {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.entity-actions-popup--rows {
+  list-style: none;
+}

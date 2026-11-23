@@ -1,0 +1,10 @@
+.screens-name-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.screens-name-row > :first-child {
+  flex: 1;
+  min-width: 0;
+}
