@@ -37,6 +37,13 @@
 
 .search-input .search-input-field:hover::placeholder {
   color: var(--color-text-muted);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.search-input-field:hover:not(:read-only) {
+  background-color: transparent;
+  box-shadow: none;
 }
 
 .search-input-clear {
