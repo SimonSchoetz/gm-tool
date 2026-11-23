@@ -25,6 +25,7 @@
   padding: var(--spacing-xs);
   padding-right: var(--spacing-sm);
   align-self: stretch; /* fill the row's height */
+  flex-shrink: 0;
 }
 
 .encounter-queue-entry:hover .encounter-queue-entry-handle {
@@ -58,10 +59,16 @@
   background-color: rgb(var(--color-danger-rgb), 0.5);
 }
 
-.encounter-queue-entry-hp {
-  width: 100%;
-  text-align: center;
-  font-size: var(--font-size-base);
+.encounter-queue-entry-name {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-md);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .encounter-queue-entry-badge {
