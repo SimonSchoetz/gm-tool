@@ -70,7 +70,7 @@ describe('ScreensEntityActionsMenu', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('opens a popup with Duplicate and Delete rows and a Close control when the gear is clicked', async () => {
+  it('opens a popup with Duplicate and Delete rows and no Close control when the gear is clicked', async () => {
     const user = userEvent.setup();
     renderMenu();
 
@@ -80,7 +80,9 @@ describe('ScreensEntityActionsMenu', () => {
       screen.getByRole('button', { name: 'Duplicate' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Close' }),
+    ).not.toBeInTheDocument();
   });
 
   it('closes on a click outside it', async () => {
@@ -95,12 +97,13 @@ describe('ScreensEntityActionsMenu', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('closes on the Close control', async () => {
+  it('closes on a click on the gear and keeps the gear visible while open', async () => {
     const user = userEvent.setup();
     renderMenu();
     await openPopup(user);
+    expect(screen.getByRole('button', { name: 'NPC actions' })).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await openPopup(user);
 
     expect(
       screen.queryByRole('button', { name: 'Duplicate' }),
@@ -127,7 +130,7 @@ describe('ScreensEntityActionsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Duplicate' }));
 
     expect(
-      screen.queryByRole('button', { name: 'Close' }),
+      screen.queryByRole('button', { name: 'Delete' }),
     ).not.toBeInTheDocument();
     await waitFor(() => {
       expect(duplicateBaseEntity).toHaveBeenCalledWith('npcs', 'entity-1');

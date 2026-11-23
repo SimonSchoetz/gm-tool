@@ -69,7 +69,11 @@ export const RowActionsMenu: FCProps<Props> = ({
       </div>
 
       {isOpen && (
-        <AnchoredPopup getAnchorRect={getAnchorRect} onDismiss={closeMenu}>
+        <AnchoredPopup
+          getAnchorRect={getAnchorRect}
+          onDismiss={closeMenu}
+          side='left'
+        >
           <PopupSurface className='row-actions-menu-popup'>
             <ul>
               {options.map((option) => (

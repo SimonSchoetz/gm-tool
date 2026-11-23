@@ -38,6 +38,22 @@ describe('usePopupDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
+  it('does not dismiss on a mousedown on the ignored element', () => {
+    const gear = document.createElement('button');
+    document.body.append(gear);
+    renderHook(() => {
+      usePopupDismiss({
+        popupRef: { current: document.createElement('div') },
+        ignoreRef: { current: gear },
+        onDismiss,
+      });
+    });
+
+    gear.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
+
   it('dismisses when the window is resized', () => {
     setup();
 

@@ -1,8 +1,6 @@
-import { useRef } from 'react';
+import { useRef, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import { XIcon } from 'lucide-react';
 import type { EntityType } from '@domain';
-import { ClickableIcon } from '@/components/ClickableIcon/ClickableIcon';
 import { PopupSurface } from '@/components/PopupSurface/PopupSurface';
 import { FCProps } from '@/types/fcProps.type';
 import { ScreensEntityActions } from '../../../ScreensEntityActions';
@@ -14,19 +12,21 @@ type Props = {
   entityId: string;
   adventureId: string;
   anchor: { top: number; right: number };
+  gearRef: RefObject<HTMLElement | null>;
   onClose: () => void;
 };
 
-// Portalled because every screen header sits inside a `GlassPanel`, which clips its overflow; positioned from the gear's rect so the Close control covers the gear.
+// Portalled because every screen header sits inside a `GlassPanel`, which clips its overflow; positioned from the gear's rect: its right edge on the gear's, its top at the gear's bottom, so the gear stays visible and clickable.
 export const EntityActionsPopup: FCProps<Props> = ({
   entityType,
   entityId,
   adventureId,
   anchor,
+  gearRef,
   onClose,
 }) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
-  usePopupDismiss({ popupRef, onDismiss: onClose });
+  usePopupDismiss({ popupRef, ignoreRef: gearRef, onDismiss: onClose });
 
   const style = {
     '--rt-entity-actions-popup-top': `${anchor.top}px`,
@@ -36,9 +36,6 @@ export const EntityActionsPopup: FCProps<Props> = ({
   return createPortal(
     <div ref={popupRef} className='entity-actions-popup' style={style}>
       <PopupSurface>
-        <div className='entity-actions-popup--close'>
-          <ClickableIcon icon={<XIcon />} label='Close' onClick={onClose} />
-        </div>
         <ul className='entity-actions-popup--rows'>
           <ScreensEntityActions
             entityType={entityType}

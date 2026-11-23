@@ -9,6 +9,11 @@
   transform: translateX(-50%) translateY(var(--spacing-xs));
 }
 
+/* Left of the anchor and vertically centered on it; placed from the anchor's left edge and vertical middle. */
+.anchored-popup--left {
+  transform: translateX(calc(-100% - var(--spacing-xs))) translateY(-50%);
+}
+
 @keyframes editorPopupFadeIn {
   from {
     opacity: 0;

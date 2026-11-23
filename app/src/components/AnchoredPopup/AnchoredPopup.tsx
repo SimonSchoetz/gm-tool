@@ -13,6 +13,7 @@ type Props = {
   children: ReactNode;
   onDismiss?: (event: MouseEvent | KeyboardEvent) => void;
   zIndex?: number | null;
+  side?: 'left';
 };
 
 export const AnchoredPopup: FCProps<Props> = ({
@@ -20,6 +21,7 @@ export const AnchoredPopup: FCProps<Props> = ({
   children,
   onDismiss,
   zIndex,
+  side,
 }) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
@@ -48,7 +50,7 @@ export const AnchoredPopup: FCProps<Props> = ({
   const rect = getAnchorRect();
 
   useEffect(() => {
-    if (!rect || !popupRef.current) return;
+    if (!rect || !popupRef.current || side === 'left') return;
     const popup = popupRef.current;
 
     const resizeObserver = new ResizeObserver(() => {
@@ -72,7 +74,7 @@ export const AnchoredPopup: FCProps<Props> = ({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [rect]);
+  }, [rect, side]);
 
   if (!rect) return;
 
@@ -82,12 +84,21 @@ export const AnchoredPopup: FCProps<Props> = ({
       className={cn(
         'anchored-popup',
         placement === 'below' && 'anchored-popup--below',
+        side === 'left' && 'anchored-popup--left',
       )}
-      style={{
-        top: placement === 'below' ? rect.bottom : rect.top,
-        left: rect.left + rect.width / 2 + horizontalOffset,
-        zIndex: zIndex ?? undefined,
-      }}
+      style={
+        side === 'left'
+          ? {
+              top: rect.top + rect.height / 2,
+              left: rect.left,
+              zIndex: zIndex ?? undefined,
+            }
+          : {
+              top: placement === 'below' ? rect.bottom : rect.top,
+              left: rect.left + rect.width / 2 + horizontalOffset,
+              zIndex: zIndex ?? undefined,
+            }
+      }
     >
       {children}
     </div>,

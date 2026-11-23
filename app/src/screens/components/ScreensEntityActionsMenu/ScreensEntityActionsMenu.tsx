@@ -17,9 +17,13 @@ export const ScreensEntityActionsMenu: FCProps<Props> = ({ entityType }) => {
   );
 
   const onGearClick = () => {
+    if (anchor) {
+      setAnchor(null);
+      return;
+    }
     const rect = gearRef.current?.getBoundingClientRect() ?? null;
     if (!rect) return;
-    setAnchor({ top: rect.top, right: window.innerWidth - rect.right });
+    setAnchor({ top: rect.bottom, right: window.innerWidth - rect.right });
   };
 
   const onClose = () => {
@@ -44,6 +48,7 @@ export const ScreensEntityActionsMenu: FCProps<Props> = ({ entityType }) => {
           entityId={entityId}
           adventureId={adventureId}
           anchor={anchor}
+          gearRef={gearRef}
           onClose={onClose}
         />
       )}
