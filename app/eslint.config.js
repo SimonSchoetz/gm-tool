@@ -11,6 +11,7 @@ import noConstantArgument from './eslint-rules/no-constant-argument.js';
 import noExtensionlessNodeHostImport from './eslint-rules/no-extensionless-node-host-import.js';
 import noImportPastIndex from './eslint-rules/no-import-past-index.js';
 import noInlineJsxValues from './eslint-rules/no-inline-jsx-values.js';
+import noJsxCommentText from './eslint-rules/no-jsx-comment-text.js';
 import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-result.js';
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
@@ -90,6 +91,7 @@ export default defineConfig(
           'no-extensionless-node-host-import': noExtensionlessNodeHostImport,
           'no-import-past-index': noImportPastIndex,
           'no-inline-jsx-values': noInlineJsxValues,
+          'no-jsx-comment-text': noJsxCommentText,
           'no-unnormalized-lookup-result': noUnnormalizedLookupResult,
           'no-unused-exports': noUnusedExports,
           'no-wrapped-line-comments': noWrappedLineComments,
@@ -126,6 +128,7 @@ export default defineConfig(
       'local/no-unnormalized-lookup-result': 'error',
       'local/no-unused-exports': 'error',
       'local/no-constant-argument': 'error',
+      'local/no-jsx-comment-text': 'error',
       // app/dev-data-server/CLAUDE.md — Imports: Vite's config loader and the `dev` script's `node` load these entries and every file their relative imports reach, where Node's type stripping requires the `.ts` extension and Vite 8 warns that its native config loader does.
       'local/no-extensionless-node-host-import': [
         'error',
