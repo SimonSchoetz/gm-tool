@@ -19,7 +19,7 @@ type SortableListProps<T extends Record<string, unknown> & { id: string }> = {
   onCreateNew?: () => void;
   searchPlaceholder: string;
   entityType?: ImagePlaceholderEntityType | null;
-  renderRowActions?: (itemId: string, closeMenu: () => void) => ReactNode;
+  renderRowActions: (itemId: string, closeMenu: () => void) => ReactNode;
 };
 
 export const SortableList = <

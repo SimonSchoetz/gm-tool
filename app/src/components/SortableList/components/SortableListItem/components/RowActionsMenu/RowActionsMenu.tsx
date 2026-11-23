@@ -13,8 +13,7 @@ type Props = {
   tableConfigId: string;
   itemId: string;
   isPinned: boolean;
-  renderRowActions?:
-    ((itemId: string, closeMenu: () => void) => ReactNode) | undefined;
+  renderRowActions: (itemId: string, closeMenu: () => void) => ReactNode;
 };
 
 export const RowActionsMenu: FCProps<Props> = ({
@@ -82,7 +81,7 @@ export const RowActionsMenu: FCProps<Props> = ({
                   />
                 </li>
               ))}
-              {renderRowActions?.(itemId, closeMenu)}
+              {renderRowActions(itemId, closeMenu)}
             </ul>
           </PopupSurface>
         </AnchoredPopup>

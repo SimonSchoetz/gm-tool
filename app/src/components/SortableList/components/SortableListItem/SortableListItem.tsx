@@ -18,9 +18,7 @@ type Props = {
   onClick: (item: Record<string, unknown>) => void;
   dragWidths: Record<string, number> | null;
   entityType: ImagePlaceholderEntityType | null;
-  // `| undefined` because the parent forwards its own optional prop, which `exactOptionalPropertyTypes` types as possibly undefined.
-  renderRowActions?:
-    ((itemId: string, closeMenu: () => void) => ReactNode) | undefined;
+  renderRowActions: (itemId: string, closeMenu: () => void) => ReactNode;
 };
 
 export const SortableListItem: FCProps<Props> = ({
