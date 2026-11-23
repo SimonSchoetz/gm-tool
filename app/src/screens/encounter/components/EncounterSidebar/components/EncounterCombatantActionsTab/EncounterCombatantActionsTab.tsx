@@ -35,11 +35,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
     useActionAmounts(combatantEntries.map((entry) => entry.id));
 
   if (selectedEntries.length === 0) {
-    return (
-      <div className='encounter-combatant-actions-tab'>
-        Select a combatant in the queue.
-      </div>
-    );
+    return <div>Select a combatant in the queue.</div>;
   }
 
   const rows = combatantEntries.map((entry) => ({
@@ -76,8 +72,8 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
   };
 
   return (
-    <div className='encounter-combatant-actions-tab'>
-      <div className='encounter-combatant-actions-tab-section encounter-combatant-actions-tab-section--fill'>
+    <div className='encounter-combatant-actions-tab scroll-edge-fade scroll-edge-fade--sm'>
+      <div className='encounter-combatant-actions-tab-section'>
         <div className='label encounter-combatant-actions-tab-label'>HP</div>
         {combatantEntries.length > 1 && (
           <label className='encounter-combatant-actions-tab-bulk-hp'>
@@ -93,7 +89,7 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
             />
           </label>
         )}
-        <div className='encounter-combatant-actions-tab-rows scroll-edge-fade scroll-edge-fade--sm scroll-edge-fade--no-top'>
+        <div className='encounter-combatant-actions-tab-rows'>
           {rows.map(({ entry, hp }) => (
             <EncounterCombatantActionRow
               key={entry.id}
