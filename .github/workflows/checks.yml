@@ -1,6 +1,6 @@
 name: Checks
 
-# Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, whatever the row's Trigger, with one exception: on a pull request that changes only `.md` files, only `static` runs, since `format-check` and `markdown-lint` are the only rows that read a Markdown file. ci.yml decides that in its `changes` job and passes it as the `docs-only` input; inside a workflow called with `workflow_call`, the `github` context is the caller's, so the input counts only on a pull request, and pushes to `main`, the schedule and release.yml, which passes no input, always run every job. `mutation-check` mutates only files changed against `main`, so it has nothing to do on a push to `main` or on a tag, and it stays a local gate before review. ci.yml calls this workflow for pull requests, pushes to `main` other than the release commit, and the schedule; release.yml calls it and publishes only when it passes, so a release never ships code these checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table. The rows run in five parallel jobs, so a run takes about as long as its slowest job: `static`, `lint` and `test-app` on Linux, since none of their rows depends on the platform, with `lint`, the longest of the static rows, in a job of its own; `test-node-tooling` on macOS, since the dev data server's tests exercise its macOS-only app-data paths; `rust` on macOS, the platform the Tauri crate is linted and tested on. Both macOS jobs run on the arm64 `macos-latest`. On 2026-11-19 an Intel label (`macos-26-intel`) gave these jobs a runner within seconds while arm64 runners were short, but ran them slower and timed out a dev data server test (`.claude/knowledge/github-actions.md` — the entry beginning "On 2026-11-19 gm-tool's `test-node-tooling` job ran slower"), so a job GitHub never gives an arm64 runner, failing with "The job was not acquired by Runner of type hosted", is re-run with `gh run rerun <run-id> --failed` instead.
+# Runs every row of the Check Commands table in the root CLAUDE.md except `mutation-check`, whatever the row's Trigger, with one exception: on a pull request that changes only `.md` files, only `static` runs, since `format-check` and `markdown-lint` are the only rows that read a Markdown file. ci.yml decides that in its `changes` job and passes it as the `docs-only` input; inside a workflow called with `workflow_call`, the `github` context is the caller's, so the input counts only on a pull request, and pushes to `main`, the schedule and release.yml, which passes no input, always run every job. `mutation-check` mutates only files changed against `main`, so it has nothing to do on a push to `main` or on a tag, and it stays a local gate before review. ci.yml calls this workflow for pull requests, pushes to `main` other than the release commit, and the schedule; release.yml calls it and publishes only when it passes, so a release never ships code these checks reject, even when a git hook was bypassed. Step names are the table's keys; keep the steps in step with the table. The rows run in four parallel jobs, so a run takes about as long as its slowest job: `static`, `lint` and `test-app` on Linux, since none of their rows depends on the platform, with `lint`, the longest of the static rows, in a job of its own; and one `macos` job for `test-node-tooling`, since the dev data server's tests exercise its macOS-only app-data paths, and the three Rust rows, since macOS is the platform the Tauri crate is linted and tested on. That job runs on the arm64 `macos-latest`. On 2026-11-19 an Intel label (`macos-26-intel`) gave these jobs a runner within seconds while arm64 runners were short, but ran them slower and timed out a dev data server test (`.claude/knowledge/github-actions.md` — the entry beginning "On 2026-11-19 gm-tool's `test-node-tooling` job ran slower"), so a job GitHub never gives an arm64 runner, failing with "The job was not acquired by Runner of type hosted", is re-run with `gh run rerun <run-id> --failed` instead.
 on:
   workflow_call:
     inputs:
@@ -62,7 +62,8 @@ jobs:
       - name: test-app
         run: npx vitest run --project app
 
-  test-node-tooling:
+  # `test-node-tooling` and the three Rust rows share one macOS job: arm64 macOS runners are often short, and each job waits for its own runner, so one job waits once where two jobs waited twice.
+  macos:
     if: github.event_name != 'pull_request' || inputs.docs-only != 'true'
     runs-on: macos-latest
     defaults:
@@ -84,15 +85,6 @@ jobs:
       - name: test-node-tooling
         run: npx vitest run --project node-tooling
 
-  rust:
-    if: github.event_name != 'pull_request' || inputs.docs-only != 'true'
-    runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: app/src-tauri
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
         with:
           toolchain: stable
@@ -107,12 +99,15 @@ jobs:
 
       - name: rust-lint
         run: cargo clippy --all-targets -- -D warnings
+        working-directory: app/src-tauri
 
       - name: rust-format-check
         run: cargo fmt --check
+        working-directory: app/src-tauri
 
       - name: rust-test
         run: cargo test
+        working-directory: app/src-tauri
 
   lint:
     if: github.event_name != 'pull_request' || inputs.docs-only != 'true'
