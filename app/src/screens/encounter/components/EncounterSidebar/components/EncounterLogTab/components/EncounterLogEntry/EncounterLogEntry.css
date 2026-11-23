@@ -42,11 +42,6 @@
   margin-left: auto;
 }
 
-/* The element's default text-decoration already strikes the text through. */
-.encounter-log-entry-content del {
-  color: var(--color-fg-muted);
-}
-
 .encounter-log-entry-buttons {
   display: flex;
   visibility: hidden;

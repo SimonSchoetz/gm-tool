@@ -9,7 +9,6 @@ import {
 type QueueItemName = {
   shownName: string;
   automaticName: string;
-  baseName: string;
 };
 
 const toNamedItem = (item: EncounterQueueItem) => ({
@@ -48,7 +47,6 @@ export const nameQueueItems = (
           {
             shownName: eventName,
             automaticName: eventName,
-            baseName: eventName,
           },
         ];
       }
@@ -57,11 +55,13 @@ export const nameQueueItems = (
         entityNamesById,
       );
       // The pass over all combatants holds one entry per combatant, so this lookup never misses.
-      const names = shownNames.get(item.id) ?? {
-        shownName: baseName,
-        automaticName: baseName,
-      };
-      return [item.id, { ...names, baseName }];
+      return [
+        item.id,
+        shownNames.get(item.id) ?? {
+          shownName: baseName,
+          automaticName: baseName,
+        },
+      ];
     }),
   );
 };

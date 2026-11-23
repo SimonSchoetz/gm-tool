@@ -1,11 +1,7 @@
 import type { BaseEntity } from '@db/base-entity';
 import type { EncounterLogEntry } from '@db/encounter-log-entry';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
-import {
-  deriveCombatState,
-  isRevertibleLogEntryKind,
-  readLogEntry,
-} from '@domain';
+import { deriveCombatState, readLogEntry, type LogEntryKind } from '@domain';
 import { nameQueueItems } from './nameQueueItems';
 
 // A `name` part is an entity name the screen shows on one line, cut at the line's width; a `text` part is the label, a separator or a figure, which stays readable.
@@ -20,16 +16,15 @@ export type LogLine =
       id: string;
       createdAt: string;
       parts: LogLinePart[];
-      isReverted: boolean;
       isRevertible: boolean;
     };
 
 type ReadEntry = NonNullable<ReturnType<typeof readLogEntry>>;
-type AutomaticEntry = Exclude<ReadEntry, { kind: 'message' | 'revert' }>;
+type ListedEntry = Exclude<ReadEntry, { kind: 'added' | 'revert' }>;
+type AutomaticEntry = Exclude<ListedEntry, { kind: 'message' }>;
 type QueueItemNames = ReturnType<typeof nameQueueItems>;
 
 const LABELS = {
-  added: 'Added',
   damage: 'Damage',
   heal: 'Heal',
   'temp-hp': 'Temp HP',
@@ -39,9 +34,14 @@ const LABELS = {
   removed: 'Removed',
 } as const satisfies Record<AutomaticEntry['kind'], string>;
 
-const isAutomatic = (entry: ReadEntry | null): entry is AutomaticEntry =>
-  // Only the ids of reverted entries are looked up in the map built with this guard, and those are revertible kinds.
-  entry !== null && entry.kind !== 'message' && entry.kind !== 'revert';
+// The Log lists only what reads back a fight: an `added` entry and a `revert` entry are left out whether or not they read, and so is every entry a revert dropped.
+const HIDDEN_KINDS: ReadonlySet<string> = new Set<LogEntryKind>([
+  'added',
+  'revert',
+]);
+
+const isListed = (entry: ReadEntry): entry is ListedEntry =>
+  !HIDDEN_KINDS.has(entry.kind);
 
 const textPart = (text: string): LogLinePart => ({ kind: 'text', text });
 const namePart = (text: string): LogLinePart => ({ kind: 'name', text });
@@ -103,18 +103,6 @@ const describeEntry = (
           return name === null ? [] : [[namePart(name)]];
         }),
       );
-    case 'added': {
-      const { queueItemIds } = entry.payload;
-      const baseName =
-        queueItemIds
-          .map((queueItemId) => names.get(queueItemId)?.baseName ?? null)
-          .find((name) => name !== null) ?? null;
-      const quantity =
-        queueItemIds.length > 1 ? [textPart(` ×${queueItemIds.length}`)] : [];
-      return baseName === null
-        ? [textPart(label)]
-        : [textPart(`${label}: `), namePart(baseName), ...quantity];
-    }
   }
 };
 
@@ -131,53 +119,30 @@ export const buildLogLines = (
     logEntries,
   );
   const names = nameQueueItems(queueItems, items, baseEntities);
-  const readEntries = logEntries.map((raw) =>
-    readLogEntry(raw.kind, raw.payload),
-  );
-  const automaticEntriesById = new Map(
-    logEntries.flatMap((raw, index) => {
-      const entry = readEntries[index];
-      return isAutomatic(entry) ? [[raw.id, entry] as const] : [];
-    }),
-  );
 
-  return logEntries.map((raw, index): LogLine => {
-    const entry = readEntries[index];
+  return logEntries.flatMap((raw): LogLine[] => {
+    if (revertedEntryIds.has(raw.id)) return [];
+    const entry = readLogEntry(raw.kind, raw.payload);
     const base = { id: raw.id, createdAt: raw.created_at };
     if (entry === null) {
-      return { kind: 'unreadable', ...base };
+      return HIDDEN_KINDS.has(raw.kind)
+        ? []
+        : [{ kind: 'unreadable', ...base }];
     }
+    if (!isListed(entry)) return [];
     if (entry.kind === 'message') {
-      return {
-        kind: 'message',
-        ...base,
-        editorState: entry.payload.editorState,
-      };
+      return [
+        { kind: 'message', ...base, editorState: entry.payload.editorState },
+      ];
     }
-    if (entry.kind === 'revert') {
-      const { entryId } = entry.payload;
-      // A revert the derivation ignored names no entry that was dropped, so it has no text to repeat.
-      const reverted = revertedEntryIds.has(entryId)
-        ? (automaticEntriesById.get(entryId) ?? null)
-        : null;
-      if (reverted === null) {
-        return { kind: 'unreadable', ...base };
-      }
-      return {
+    return [
+      {
         kind: 'automatic',
         ...base,
-        parts: [textPart('Reverted: '), ...describeEntry(reverted, names)],
-        isReverted: false,
-        isRevertible: false,
-      };
-    }
-    const isReverted = revertedEntryIds.has(raw.id);
-    return {
-      kind: 'automatic',
-      ...base,
-      parts: describeEntry(entry, names),
-      isReverted,
-      isRevertible: isRevertibleLogEntryKind(entry.kind) && !isReverted,
-    };
+        parts: describeEntry(entry, names),
+        // A Removed line offers no Revert, though the combat state derivation still applies a revert of a removal stored earlier.
+        isRevertible: entry.kind !== 'removed',
+      },
+    ];
   });
 };
