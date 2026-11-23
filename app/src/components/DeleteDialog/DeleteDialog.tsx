@@ -8,18 +8,20 @@ import { Button } from '../Button/Button';
 
 type Action = 'delete' | 'remove';
 
-// The words of the title and of the one-click sentence; typing to confirm always reads DELETE.
+// The words of the title and of the one-click sentence.
 const ACTION_WORDS: Record<Action, { title: string; verb: string }> = {
   delete: { title: 'Delete', verb: 'delete' },
   remove: { title: 'Remove', verb: 'remove' },
 };
 
+// Typing to confirm always asks for DELETE, so only the one-click mode takes another action's wording.
 type Props = {
   name: string;
   onDeletionConfirm: () => void;
-  oneClickConfirm: boolean;
-  action?: Action;
-};
+} & (
+  | { oneClickConfirm: true; action?: Action }
+  | { oneClickConfirm: false; action?: 'delete' }
+);
 
 export const DeleteDialog: FCProps<Props> = ({
   name,

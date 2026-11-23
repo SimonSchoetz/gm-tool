@@ -1,7 +1,12 @@
 import type { BaseEntity } from '@db/base-entity';
 import type { EncounterLogEntry } from '@db/encounter-log-entry';
 import type { EncounterQueueItem } from '@db/encounter-queue-item';
-import { deriveCombatState, readLogEntry, type LogEntryKind } from '@domain';
+import {
+  deriveCombatState,
+  isRevertibleLogEntryKind,
+  readLogEntry,
+  type LogEntryKind,
+} from '@domain';
 import { nameQueueItems } from './nameQueueItems';
 
 // A `name` part is an entity name the screen shows on one line, cut at the line's width; a `text` part is the label, a separator or a figure, which stays readable.
@@ -20,7 +25,9 @@ export type LogLine =
     };
 
 type ReadEntry = NonNullable<ReturnType<typeof readLogEntry>>;
-type ListedEntry = Exclude<ReadEntry, { kind: 'added' | 'revert' }>;
+// The Log lists only what reads back a fight: an `added` entry and a `revert` entry are left out whether or not they read, and so is every entry a revert dropped.
+const HIDDEN_KINDS = ['added', 'revert'] as const satisfies LogEntryKind[];
+type ListedEntry = Exclude<ReadEntry, { kind: (typeof HIDDEN_KINDS)[number] }>;
 type AutomaticEntry = Exclude<ListedEntry, { kind: 'message' }>;
 type QueueItemNames = ReturnType<typeof nameQueueItems>;
 
@@ -34,14 +41,11 @@ const LABELS = {
   removed: 'Removed',
 } as const satisfies Record<AutomaticEntry['kind'], string>;
 
-// The Log lists only what reads back a fight: an `added` entry and a `revert` entry are left out whether or not they read, and so is every entry a revert dropped.
-const HIDDEN_KINDS: ReadonlySet<string> = new Set<LogEntryKind>([
-  'added',
-  'revert',
-]);
+const isHiddenKind = (kind: string): boolean =>
+  (HIDDEN_KINDS as readonly string[]).includes(kind);
 
 const isListed = (entry: ReadEntry): entry is ListedEntry =>
-  !HIDDEN_KINDS.has(entry.kind);
+  !isHiddenKind(entry.kind);
 
 const textPart = (text: string): LogLinePart => ({ kind: 'text', text });
 const namePart = (text: string): LogLinePart => ({ kind: 'name', text });
@@ -125,9 +129,7 @@ export const buildLogLines = (
     const entry = readLogEntry(raw.kind, raw.payload);
     const base = { id: raw.id, createdAt: raw.created_at };
     if (entry === null) {
-      return HIDDEN_KINDS.has(raw.kind)
-        ? []
-        : [{ kind: 'unreadable', ...base }];
+      return isHiddenKind(raw.kind) ? [] : [{ kind: 'unreadable', ...base }];
     }
     if (!isListed(entry)) return [];
     if (entry.kind === 'message') {
@@ -141,7 +143,8 @@ export const buildLogLines = (
         ...base,
         parts: describeEntry(entry, names),
         // A Removed line offers no Revert, though the combat state derivation still applies a revert of a removal stored earlier.
-        isRevertible: entry.kind !== 'removed',
+        isRevertible:
+          isRevertibleLogEntryKind(entry.kind) && entry.kind !== 'removed',
       },
     ];
   });
