@@ -29,7 +29,6 @@ export const EncounterActionRows: FCProps<Props> = ({
       adventureId={adventureId}
       name={encounter?.name ?? ''}
       listPath={`/adventure/${adventureId}/encounters`}
-      canDelete={encounter !== null}
       afterDelete={afterDelete}
       onChoose={onChoose}
       duplicate={duplicateEncounter}

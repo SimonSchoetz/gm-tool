@@ -105,12 +105,15 @@ describe('ScreensEntityActions in a menu that unmounts when an action is chosen'
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('keeps Delete disabled until the entity has loaded', () => {
+  it('keeps Delete usable before the entity has loaded and opens the dialog without a name', async () => {
+    const user = userEvent.setup();
     getBaseEntityById
       .mockReset()
       .mockReturnValue(new Promise<never>(() => undefined));
     render(<MenuHost />, { wrapper: Wrapper });
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(screen.getByRole('heading', { name: 'Delete' })).toBeInTheDocument();
   });
 });

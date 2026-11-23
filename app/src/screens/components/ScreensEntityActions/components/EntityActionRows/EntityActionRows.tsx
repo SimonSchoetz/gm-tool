@@ -12,7 +12,6 @@ type Props = {
   adventureId: string;
   name: string;
   listPath: string;
-  canDelete: boolean;
   afterDelete: AfterDelete;
   onChoose: () => void;
   duplicate?: () => Promise<string>;
@@ -25,7 +24,6 @@ export const EntityActionRows: FCProps<Props> = ({
   adventureId,
   name,
   listPath,
-  canDelete,
   afterDelete,
   onChoose,
   duplicate,
@@ -83,7 +81,6 @@ export const EntityActionRows: FCProps<Props> = ({
           Icon={Trash2Icon}
           label='Delete'
           variant='danger'
-          disabled={!canDelete}
           onClick={onDeleteClick}
         />
       </li>

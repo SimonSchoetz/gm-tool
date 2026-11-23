@@ -35,7 +35,6 @@ export const BaseEntityActionRows: FCProps<Props> = ({
       adventureId={adventureId}
       name={baseEntity?.name ?? ''}
       listPath={listPath}
-      canDelete={baseEntity !== null}
       afterDelete={afterDelete}
       onChoose={onChoose}
       duplicate={duplicateBaseEntity}

@@ -29,7 +29,6 @@ export const SessionActionRows: FCProps<Props> = ({
       adventureId={adventureId}
       name={session?.name ?? ''}
       listPath={`/adventure/${adventureId}/sessions`}
-      canDelete={session !== null}
       afterDelete={afterDelete}
       onChoose={onChoose}
       duplicate={duplicateSession}

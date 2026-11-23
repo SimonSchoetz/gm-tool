@@ -20,14 +20,12 @@ const deleteEntity = vi.fn<() => Promise<void>>();
 
 type RenderOptions = {
   afterDelete?: AfterDelete;
-  canDelete?: boolean;
   withDuplicate?: boolean;
   name?: string;
 };
 
 const renderRows = ({
   afterDelete = 'stay',
-  canDelete = true,
   withDuplicate = true,
   name = 'Ambush',
 }: RenderOptions = {}) => {
@@ -40,7 +38,6 @@ const renderRows = ({
           adventureId={ADVENTURE_ID}
           name={name}
           listPath={LIST_PATH}
-          canDelete={canDelete}
           afterDelete={afterDelete}
           onChoose={onChoose}
           deleteEntity={deleteEntity}
@@ -154,15 +151,5 @@ describe('EntityActionRows', () => {
     await act(() => Promise.resolve());
 
     expect(navigate).not.toHaveBeenCalled();
-  });
-
-  it('keeps the Delete row disabled and opens no dialog until the entity has loaded', async () => {
-    const user = userEvent.setup();
-    renderRows({ canDelete: false });
-
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
-
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
-    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 });
