@@ -25,6 +25,12 @@
   color: var(--color-fg);
 }
 
+.menu-option-row--danger,
+.menu-option-row--danger:hover,
+.menu-option-row--danger.menu-option-row--selected {
+  color: var(--color-danger);
+}
+
 .menu-option-row-icon {
   padding: var(--spacing-xs);
   border-radius: var(--radius-sm);

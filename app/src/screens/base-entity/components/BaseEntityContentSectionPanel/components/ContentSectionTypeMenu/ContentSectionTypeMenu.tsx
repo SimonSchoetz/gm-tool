@@ -20,7 +20,7 @@ export const ContentSectionTypeMenu: FCProps<Props> = ({
   onSelect,
   onClose,
 }) => (
-  <AnchoredPopup getAnchorRect={getAnchorRect} onClickOutside={onClose}>
+  <AnchoredPopup getAnchorRect={getAnchorRect} onDismiss={onClose}>
     <PopupSurface className='content-section-type-menu'>
       <ul>
         {BASE_ENTITY_CONTENT_SECTION_TYPES.map((type) => (

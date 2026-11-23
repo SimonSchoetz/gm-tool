@@ -53,6 +53,10 @@ pnpm run web:seed           # Vite in a browser, on a fresh database filled by t
 
 `pnpm run web` and `pnpm run web:seed` reach the database through the dev data server (`app/dev-data-server/CLAUDE.md`), so a session verifies UI acceptance criteria in the browser pane (`app/docs/features/web-dev-mode.md`), on the seeded mode (`pnpm run web:seed`, the `seeded-web` launch configuration): its data is the same at every start and the Seeded mode table in that file names its entities. `pnpm run web` serves a copy of the developer's own dev data, for a check that needs it. What needs the native host — the native file dialog, sync between devices, the updater, the backup — stays a hand test in the Tauri app. `pnpm run dev` first offers to replace the dev app's data with a copy of the installed app's data — unasked only when the dev app has no database; a session that starts it without a terminal keeps the dev data (`app/docs/features/dev-data-mirror.md`).
 
+#### Releasing
+
+Never run `pnpm run create-release`: it pushes the branch and the tag and starts the CI pipeline that publishes the release. The `cut-release` skill ends at the local `chore(release):` commit and leaves that command to the user.
+
 ### Communication Style
 
 Never open a response with a positive affirmation directed at the user or a teammate's output. Phrases like "Good catch.", "Clean analysis.", "You're right.", "Good question." add no information and must be omitted.

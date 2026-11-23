@@ -2,11 +2,9 @@ import { Button } from '@/components/Button/Button';
 import './StepsNavSidebar.css';
 import { ToggleSessionViewBtn } from './components/ToggleSessionViewBtn/ToggleSessionViewBtn';
 import { SessionStepsNav } from './components/SessionStepsNav/SessionStepsNav';
-import { DeleteSessionBtn } from './components/DeleteSessionBtn/DeleteSessionBtn';
 import { FCProps } from '@/types/fcProps.type';
 import { useSession } from '@/data-access-layer';
 import { useParams } from '@tanstack/react-router';
-import { ScreensDuplicateBtn } from '../../../components/ScreensDuplicateBtn';
 import { ScreensSidebar } from '../../../components/ScreensSidebar/ScreensSidebar';
 import { getTooltipsButtonLabel } from './helper/getTooltipsButtonLabel';
 
@@ -34,12 +32,7 @@ export const StepsNavSidebar: FCProps<Props> = ({
       <SessionStepsNav />
 
       {session?.active_view === 'prep' && (
-        <>
-          <Button onClick={onToggleAllTooltips} label={tooltipsButtonLabel} />
-          <ScreensDuplicateBtn entityType='sessions' />
-
-          <DeleteSessionBtn />
-        </>
+        <Button onClick={onToggleAllTooltips} label={tooltipsButtonLabel} />
       )}
     </ScreensSidebar>
   );

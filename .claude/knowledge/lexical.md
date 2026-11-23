@@ -317,8 +317,8 @@ A listener that dereferences `event` unguarded throws on that dispatch.
 
 ## `LexicalMenu`'s `KEY_ESCAPE_COMMAND` listener calls `stopImmediatePropagation()`, and Lexical registers its `keydown` listener on the editor's root element, so an Escape that closes the typeahead menu does not bubble to a `document` listener
 
-**Verified at:** lexical 0.52.0, @lexical/react 0.52.0
-**Citation:** [spec-writer_4: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:536-548` — unless `rendersNothing`, the listener calls `event.preventDefault()` and `event.stopImmediatePropagation()`, then `close()`; `app/node_modules/lexical/src/LexicalEvents.ts:164,2076,2159` — the `['keydown', onKeyDown]` entry is registered through `registerEventListener(rootElement, eventName, eventHandler)`]
+**Verified at:** lexical 0.53.0, @lexical/react 0.53.0
+**Citation:** [implementer_1: `app/node_modules/@lexical/react/src/shared/LexicalMenu.tsx:536-548` — unless `rendersNothing`, the listener calls `event.preventDefault()` and `event.stopImmediatePropagation()`, then `close()`; `app/node_modules/lexical/src/LexicalEvents.ts:2522,2553` — the `keydown: onKeyDown` entry, and `registerEventListener(rootElement, eventName, eventHandler)`]
 
 An Escape pressed in an editor with no open menu was not traced to the `document`.
 

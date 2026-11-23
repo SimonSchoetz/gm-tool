@@ -1,5 +1,6 @@
 import { useEffect, Dispatch, SetStateAction, useState } from 'react';
 import { HtmlProps } from '@/types/htmlProps.type';
+import { useEscapeDismiss } from '@/hooks/useEscapeDismiss';
 import { cn } from '@/util/className';
 import './PopUpContainer.css';
 
@@ -35,21 +36,10 @@ const PopUpContainer = ({
     }
   }, [state]);
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        setState('closed');
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, setState]);
+  // Gated on `state`, not on `isOpen`, which stays true through the closing animation: a closing dialog would still be the topmost popup and swallow the next Escape.
+  useEscapeDismiss(() => {
+    setState('closed');
+  }, state === 'open');
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {

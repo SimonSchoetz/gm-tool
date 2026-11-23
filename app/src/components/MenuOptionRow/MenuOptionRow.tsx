@@ -10,6 +10,7 @@ type Props = {
   Icon?: LucideIcon;
   isActive?: boolean;
   isSelected?: boolean;
+  variant?: 'danger';
 } & React.ComponentProps<typeof ActionContainer>;
 
 export const MenuOptionRow: FCProps<Props> = ({
@@ -18,6 +19,7 @@ export const MenuOptionRow: FCProps<Props> = ({
   className,
   isActive,
   isSelected,
+  variant,
   ...props
 }) => {
   const iconIntensity = getIconIntensity(isActive);
@@ -30,6 +32,7 @@ export const MenuOptionRow: FCProps<Props> = ({
         'menu-option-row',
         isActive && 'menu-option-row--active',
         isSelected && 'menu-option-row--selected',
+        variant && `menu-option-row--${variant}`,
         className,
       )}
       {...props}

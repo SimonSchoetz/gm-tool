@@ -33,9 +33,13 @@ export const ContentSectionNav: FCProps<Props> = ({
   const getAnchorRect = () =>
     anchorRef.current?.getBoundingClientRect() ?? null;
 
-  const onClickOutside = (event: MouseEvent) => {
-    // The anchor's own click toggles the nav, so closing on its mousedown would reopen it on the click.
-    if (anchorRef.current?.contains(event.target as Node)) return;
+  const onDismiss = (event: MouseEvent | KeyboardEvent) => {
+    // The anchor's own click toggles the nav, so closing on its mousedown would reopen it on the click; Escape closes it wherever the focus is.
+    if (
+      event.type === 'mousedown' &&
+      anchorRef.current?.contains(event.target as Node)
+    )
+      return;
     onClose();
   };
 
@@ -49,7 +53,7 @@ export const ContentSectionNav: FCProps<Props> = ({
     <AnchoredPopup
       getAnchorRect={getAnchorRect}
       zIndex={popupZIndex}
-      onClickOutside={onClickOutside}
+      onDismiss={onDismiss}
     >
       <PopupSurface className='content-section-nav'>
         <ReorderableNavList

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useEscapeDismiss } from '@/hooks/useEscapeDismiss';
 
 type Args = {
   isActive: boolean;
@@ -31,17 +32,14 @@ export const useDismissClickOpened = ({
       if (isOnOwnBadge) return;
       onDismiss();
     };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onDismiss();
-    };
 
     document.addEventListener('click', handleClick);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('click', handleClick);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isActive, anchorEntityId, onDismiss]);
+
+  useEscapeDismiss(onDismiss, isActive);
 
   return { markInside };
 };

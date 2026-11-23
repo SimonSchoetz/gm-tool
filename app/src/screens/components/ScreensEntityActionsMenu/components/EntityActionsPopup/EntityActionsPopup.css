@@ -1,0 +1,10 @@
+.entity-actions-popup {
+  position: fixed;
+  top: calc(var(--rt-entity-actions-popup-top) + var(--spacing-xs));
+  right: var(--rt-entity-actions-popup-right);
+  z-index: var(--most-front);
+}
+
+.entity-actions-popup--rows {
+  list-style: none;
+}

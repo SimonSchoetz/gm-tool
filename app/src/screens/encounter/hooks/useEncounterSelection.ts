@@ -49,8 +49,8 @@ export const useEncounterSelection = (
       const clearOnEscape = (event: KeyboardEvent) => {
         if (
           event.key === 'Escape' &&
-          // An open modal dialog closes on its own Escape, which must leave the selection alone.
-          document.querySelector('[aria-modal="true"]') === null &&
+          // An open popup or dialog took the key through useEscapeDismiss, and that Escape must leave the selection alone.
+          !event.defaultPrevented &&
           !isEditableWithin(middleColumnRef.current, event.target)
         ) {
           setSelection(EMPTY_SELECTION);

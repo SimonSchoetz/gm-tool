@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { EllipsisVerticalIcon } from 'lucide-react';
 import { FCProps } from '@/types/fcProps.type';
 import { useTableConfig, useSetPinnedOrder } from '@/data-access-layer';
@@ -13,12 +13,14 @@ type Props = {
   tableConfigId: string;
   itemId: string;
   isPinned: boolean;
+  renderRowActions: (itemId: string, closeMenu: () => void) => ReactNode;
 };
 
 export const RowActionsMenu: FCProps<Props> = ({
   tableConfigId,
   itemId,
   isPinned,
+  renderRowActions,
 }) => {
   const { config } = useTableConfig(tableConfigId);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +49,7 @@ export const RowActionsMenu: FCProps<Props> = ({
   const getAnchorRect = () =>
     triggerRef.current?.getBoundingClientRect() ?? null;
 
-  const onClickOutside = () => {
+  const closeMenu = () => {
     setIsOpen(false);
   };
 
@@ -69,7 +71,8 @@ export const RowActionsMenu: FCProps<Props> = ({
       {isOpen && (
         <AnchoredPopup
           getAnchorRect={getAnchorRect}
-          onClickOutside={onClickOutside}
+          onDismiss={closeMenu}
+          side='left'
         >
           <PopupSurface className='row-actions-menu-popup'>
             <ul>
@@ -82,6 +85,7 @@ export const RowActionsMenu: FCProps<Props> = ({
                   />
                 </li>
               ))}
+              {renderRowActions(itemId, closeMenu)}
             </ul>
           </PopupSurface>
         </AnchoredPopup>

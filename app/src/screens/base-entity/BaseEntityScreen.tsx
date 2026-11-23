@@ -7,6 +7,7 @@ import { FCProps } from '@/types/fcProps.type';
 import { BaseEntitySidebar } from './components/BaseEntitySidebar/BaseEntitySidebar';
 import { BaseEntityContentSectionPanel } from './components/BaseEntityContentSectionPanel';
 import { ScreensNameInput } from '../components/ScreensNameInput/ScreensNameInput';
+import { ScreensNameRow } from '../components/ScreensNameRow/ScreensNameRow';
 import { ScreensTextEditorLayout } from '../components/ScreensTextEditorLayout/ScreensTextEditorLayout';
 
 type Props = { entityType: BaseEntityType };
@@ -40,11 +41,15 @@ export const BaseEntityScreen: FCProps<Props> = ({ entityType }) => {
   return (
     <ScreensTextEditorLayout
       header={
-        <ScreensNameInput
-          placeholder={`${label} Name`}
-          initValue={baseEntity.name ?? ''}
-          onCommit={onNameCommit}
-        />
+        <ScreensNameRow entityType={entityType}>
+          {/* Keyed by entity id: the router reuses this screen for the copy a Duplicate opens, and `autoFocus` only acts when the input mounts. */}
+          <ScreensNameInput
+            key={baseEntity.id}
+            placeholder={`${label} Name`}
+            initValue={baseEntity.name ?? ''}
+            onCommit={onNameCommit}
+          />
+        </ScreensNameRow>
       }
       sideBar={<BaseEntitySidebar entityType={entityType} />}
       bodyHeader={
