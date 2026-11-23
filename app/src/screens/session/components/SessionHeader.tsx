@@ -7,6 +7,7 @@ import { HtmlProps } from '@/types/htmlProps.type';
 import { useSyncedInputValue } from '@/hooks/useSyncedInputValue';
 import { useFocusNameInputOnArrival } from '@/hooks/useFocusNameInputOnArrival';
 import { useParams } from '@tanstack/react-router';
+import { ScreensEntityActionsMenu } from '../../components/ScreensEntityActionsMenu';
 
 export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
   const { sessionId, adventureId } = useParams({
@@ -36,13 +37,19 @@ export const SessionHeader: FCProps<HtmlProps<'header'>> = () => {
 
   return (
     <header className='session-header'>
-      <SyncedInput
-        autoFocus={focusNameInput}
-        className='session-name-input'
-        placeholder='Session name, i. e. ingame date'
-        initValue={session.name ?? ''}
-        onCommit={onNameCommit}
-      />
+      <div className='session-name-row'>
+        <SyncedInput
+          autoFocus={focusNameInput}
+          className='session-name-input'
+          placeholder='Session name, i. e. ingame date'
+          initValue={session.name ?? ''}
+          onCommit={onNameCommit}
+        />
+
+        {session.active_view === 'prep' && (
+          <ScreensEntityActionsMenu entityType='sessions' />
+        )}
+      </div>
 
       <label className='session-date'>
         <span className='label'>Session Date:</span>
