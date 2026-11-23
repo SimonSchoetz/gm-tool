@@ -58,7 +58,8 @@ a:hover {
   background-color: var(--color-highlight-bg);
 }
 
-.global-btn-styles.disabled {
+.global-btn-styles.disabled,
+.global-btn-styles:has(> :disabled) {
   background-color: transparent;
   box-shadow: none;
   opacity: 0.5;
