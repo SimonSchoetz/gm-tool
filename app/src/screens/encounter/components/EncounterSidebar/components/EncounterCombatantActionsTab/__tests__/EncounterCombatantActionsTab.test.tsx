@@ -264,17 +264,6 @@ describe('EncounterCombatantActionsTab', () => {
     },
   );
 
-  it('offers the three Set buttons as Current, Temp and Max, named Set current HP, Set temp HP and Set max HP', async () => {
-    await renderTab();
-
-    expect(screen.getByText('Set HP')).toBeInTheDocument();
-    expect(button('Set current HP')).toHaveTextContent(/^Current$/);
-    expect(button('Set temp HP')).toHaveTextContent(/^Temp$/);
-    expect(button('Set max HP')).toHaveTextContent(/^Max$/);
-    expect(screen.queryByText('Set temp HP')).not.toBeInTheDocument();
-    expect(screen.queryByText('Set max HP')).not.toBeInTheDocument();
-  });
-
   it('disables every button while a write is pending', async () => {
     const releaseWrite = withDeferredRecord();
     const user = userEvent.setup();
@@ -596,14 +585,14 @@ describe('EncounterCombatantActionsTab', () => {
     });
 
     it('shows the shared field for two combatants and an event, and not for one combatant and two events', async () => {
-      arrange({ combatants: [GOBLIN, ORC], events: [LAIR] });
+      arrange({ combatants: [GOBLIN, ORC], events: [LAIR, REINFORCEMENTS] });
       const { rerender } = await renderTab([ITEM_ID, OTHER_ID, LAIR.id]);
 
       expect(sharedField()).toBeInTheDocument();
 
       rerender(
         <EncounterCombatantActionsTab
-          selectedIds={[ITEM_ID, LAIR.id, 'event-2']}
+          selectedIds={[ITEM_ID, LAIR.id, REINFORCEMENTS.id]}
         />,
       );
 

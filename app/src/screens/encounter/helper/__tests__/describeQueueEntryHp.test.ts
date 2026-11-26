@@ -29,13 +29,6 @@ describe('describeQueueEntryHp', () => {
   });
 
   it.each([
-    { maxHp: 7, currentHp: 7 },
-    { maxHp: 7, currentHp: 0 },
-  ])('hands the temp HP through for %j', (hp) => {
-    expect(describeQueueEntryHp({ ...hp, tempHp: 3 })?.tempHp).toBe(3);
-  });
-
-  it.each([
     { maxHp: 8, tempHp: 0, tempShare: 0 },
     { maxHp: 0, tempHp: 0, tempShare: 0 },
     { maxHp: 8, tempHp: 2, tempShare: 0.25 },

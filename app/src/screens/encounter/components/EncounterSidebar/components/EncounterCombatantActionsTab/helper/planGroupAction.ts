@@ -25,7 +25,7 @@ export type PlanRow =
     };
 type CombatantPlanRow = Extract<PlanRow, { kind: 'combatant' }>;
 
-const isCombatantRow = (row: PlanRow): row is CombatantPlanRow =>
+export const isCombatantRow = (row: PlanRow): row is CombatantPlanRow =>
   row.kind === 'combatant';
 
 const amountsOf = (
@@ -48,13 +48,14 @@ export const planGroupAction = (
 ): GroupActionPlan | null => {
   // An event row takes no amount and no state: every kind but `removed` runs over the combatant rows.
   const rows = planRows.filter(isCombatantRow);
+  const rowsWithHp = rows.filter((row) => row.hasHp);
   switch (kind) {
     case 'damage': {
-      const targets = amountsOf(rows.filter((row) => row.hasHp));
+      const targets = amountsOf(rowsWithHp);
       return targets === null ? null : { kind, payload: { targets } };
     }
     case 'heal': {
-      const targets = amountsOf(rows.filter((row) => row.hasHp));
+      const targets = amountsOf(rowsWithHp);
       return targets === null
         ? null
         : { kind, payload: { targets, hpRules: true } };
@@ -62,9 +63,7 @@ export const planGroupAction = (
     case 'current-hp':
     case 'temp-hp':
     case 'max-hp': {
-      const amounts = amountsOf(
-        kind === 'current-hp' ? rows.filter((row) => row.hasHp) : rows,
-      );
+      const amounts = amountsOf(kind === 'current-hp' ? rowsWithHp : rows);
       return amounts === null
         ? null
         : {

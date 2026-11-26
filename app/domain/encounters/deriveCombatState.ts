@@ -36,7 +36,7 @@ const applyCurrentHp = (state: TrackedState, value: number): void => {
     return;
   }
   state.hp.current = Math.min(state.hp.max, value);
-  if (value > 0) {
+  if (state.hp.current > 0) {
     state.defeated = false;
   }
 };

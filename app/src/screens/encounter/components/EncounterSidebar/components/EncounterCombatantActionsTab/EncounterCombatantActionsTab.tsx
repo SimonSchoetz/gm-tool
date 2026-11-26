@@ -8,7 +8,7 @@ import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { isCombatantEntry } from '../../../../helper/isCombatantEntry';
 import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEntries';
 import { EncounterCombatantActionButton } from './components/EncounterCombatantActionButton/EncounterCombatantActionButton';
-import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
+import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow';
 import { buildPlanRows } from './helper/buildPlanRows';
 import { pickDefeatedAction } from './helper/pickDefeatedAction';
 import { planGroupAction } from './helper/planGroupAction';

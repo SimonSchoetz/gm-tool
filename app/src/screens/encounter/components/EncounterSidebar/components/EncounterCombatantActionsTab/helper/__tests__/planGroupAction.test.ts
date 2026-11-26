@@ -1,22 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { planGroupAction } from '../planGroupAction';
-
-const row = (
-  id: string,
-  overrides: Partial<{
-    amount: number | null;
-    hasHp: boolean;
-    defeated: boolean;
-  }> = {},
-) => ({
-  kind: 'combatant' as const,
-  id,
-  amount: 5,
-  hasHp: true,
-  defeated: false,
-  ...overrides,
-});
-const eventRow = (id: string) => ({ kind: 'event' as const, id });
+import { combatantRow as row, eventRow } from './support/planRowFixtures';
 
 describe('planGroupAction', () => {
   it.each([

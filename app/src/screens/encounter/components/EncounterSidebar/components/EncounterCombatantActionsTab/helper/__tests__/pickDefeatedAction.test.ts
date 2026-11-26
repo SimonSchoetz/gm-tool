@@ -1,14 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { pickDefeatedAction } from '../pickDefeatedAction';
+import { combatantRow, eventRow } from './support/planRowFixtures';
 
-const row = (id: string, defeated: boolean) => ({
-  kind: 'combatant' as const,
-  id,
-  amount: null,
-  hasHp: true,
-  defeated,
-});
-const eventRow = (id: string) => ({ kind: 'event' as const, id });
+const row = (id: string, defeated: boolean) => combatantRow(id, { defeated });
 
 const MARK = { kind: 'defeated', label: 'Mark defeated' };
 const UNMARK = { kind: 'undefeated', label: 'Unmark defeated' };

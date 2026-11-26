@@ -382,6 +382,15 @@ describe('deriveCombatState', () => {
     ).toBe(defeated);
   });
 
+  it('keeps the mark when max HP 0 caps the HP of a current-hp entry above 0 at 0', () => {
+    expect(
+      derive(
+        [{ id: 'a', startingMaxHp: 0 }],
+        [mark('a'), currentHp('a', 5)],
+      ).get('a'),
+    ).toMatchObject({ currentHp: 0, defeated: true });
+  });
+
   it('leaves a combatant without HP and its mark alone for a current-hp or ruled heal entry', () => {
     expect(
       derive(
