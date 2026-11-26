@@ -10,13 +10,7 @@ describe('describeQueueEntryHp', () => {
     expect(describeQueueEntryHp({ ...hp, tempHp: 0 })).toBeNull();
   });
 
-  it('writes current and max HP without the temp HP', () => {
-    expect(
-      describeQueueEntryHp({ maxHp: 7, currentHp: 4, tempHp: 2 })?.text,
-    ).toBe('4/7');
-  });
-
-  it('computes the lost share of a hurt entry from max and current HP and ignores temp HP', () => {
+  it('keeps temp HP out of the text and the lost share of a hurt entry and gives its share of max HP apart', () => {
     expect(describeQueueEntryHp({ maxHp: 8, currentHp: 6, tempHp: 5 })).toEqual(
       {
         text: '6/8',

@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { pickDefeatedAction } from '../pickDefeatedAction';
 import { combatantRow, eventRow } from './support/planRowFixtures';
 
-const row = (id: string, defeated: boolean) => combatantRow(id, { defeated });
-
 const MARK = { kind: 'defeated', label: 'Mark defeated' };
 const UNMARK = { kind: 'undefeated', label: 'Unmark defeated' };
 
@@ -16,16 +14,29 @@ describe('pickDefeatedAction', () => {
   });
 
   it('picks Mark defeated while any combatant is not defeated', () => {
-    expect(pickDefeatedAction([row('a', true), row('b', false)])).toEqual(MARK);
+    expect(
+      pickDefeatedAction([
+        combatantRow('a', { defeated: true }),
+        combatantRow('b', { defeated: false }),
+      ]),
+    ).toEqual(MARK);
   });
 
   it('picks Unmark defeated when every combatant is defeated', () => {
-    expect(pickDefeatedAction([row('a', true), row('b', true)])).toEqual(
-      UNMARK,
-    );
+    expect(
+      pickDefeatedAction([
+        combatantRow('a', { defeated: true }),
+        combatantRow('b', { defeated: true }),
+      ]),
+    ).toEqual(UNMARK);
   });
 
   it('leaves an event out when it decides whether every combatant is defeated', () => {
-    expect(pickDefeatedAction([eventRow('e'), row('a', true)])).toEqual(UNMARK);
+    expect(
+      pickDefeatedAction([
+        eventRow('e'),
+        combatantRow('a', { defeated: true }),
+      ]),
+    ).toEqual(UNMARK);
   });
 });

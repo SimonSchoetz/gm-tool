@@ -23,8 +23,8 @@ const currentHp = (queueItemId: string, value: number, id?: string) =>
   entry('current-hp', { targets: [{ queueItemId, value }] }, id);
 const ruledHeal = (queueItemId: string, amount: number, id?: string) =>
   entry('heal', { targets: [{ queueItemId, amount }], hpRules: true }, id);
-const mark = (queueItemId: string) =>
-  entry('defeated', { queueItemIds: [queueItemId] });
+const mark = (queueItemId: string, id?: string) =>
+  entry('defeated', { queueItemIds: [queueItemId] }, id);
 const ruledMark = (queueItemId: string, id?: string) =>
   entry('defeated', { queueItemIds: [queueItemId], hpRules: true }, id);
 const ruledUnmark = (queueItemId: string, id?: string) =>
@@ -135,12 +135,13 @@ describe('deriveCombatState', () => {
   it('sets and clears only the combatant flags the entry kind names', () => {
     const items = [{ id: 'a', startingMaxHp: 5 }];
 
-    expect(
-      derive(items, [entry('defeated', { queueItemIds: ['a'] })]).get('a'),
-    ).toMatchObject({ defeated: true, removed: false });
+    expect(derive(items, [mark('a')]).get('a')).toMatchObject({
+      defeated: true,
+      removed: false,
+    });
     expect(
       derive(items, [
-        entry('defeated', { queueItemIds: ['a'] }),
+        mark('a'),
         entry('undefeated', { queueItemIds: ['a'] }),
       ]).get('a'),
     ).toMatchObject({ defeated: false, removed: false });
@@ -271,17 +272,10 @@ describe('deriveCombatState', () => {
   it.each([
     ['max-hp', [maxHp('a', 5, 'target')], { maxHp: 10, currentHp: 10 }],
     ['temp-hp', [tempHp('a', 4, 'target')], { tempHp: 0 }],
-    [
-      'defeated',
-      [entry('defeated', { queueItemIds: ['a'] }, 'target')],
-      { defeated: false },
-    ],
+    ['defeated', [mark('a', 'target')], { defeated: false }],
     [
       'undefeated',
-      [
-        entry('defeated', { queueItemIds: ['a'] }),
-        entry('undefeated', { queueItemIds: ['a'] }, 'target'),
-      ],
+      [mark('a'), entry('undefeated', { queueItemIds: ['a'] }, 'target')],
       { defeated: true },
     ],
     [
