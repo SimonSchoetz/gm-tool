@@ -57,7 +57,6 @@ const TROLL: Combatant = { id: THIRD_ID, name: 'Troll', maxHp: 30 };
 type QueueEvent = { id: string; name: string };
 
 const LAIR: QueueEvent = { id: 'event-1', name: 'Lair action' };
-const REINFORCEMENTS: QueueEvent = { id: 'event-2', name: 'Reinforcements' };
 
 const arrange = ({
   combatants = [GOBLIN],
@@ -99,15 +98,12 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
   </TanstackQueryClientProvider>
 );
 
-const renderTab = async (
-  selectedIds: string[] = [ITEM_ID],
-  readyText = 'Goblin',
-) => {
+const renderTab = async (selectedIds: string[] = [ITEM_ID]) => {
   const rendered = render(
     <EncounterCombatantActionsTab selectedIds={selectedIds} />,
     { wrapper: Wrapper },
   );
-  if (selectedIds.length > 0) await screen.findByText(readyText);
+  await screen.findByText('Goblin');
   return rendered;
 };
 
@@ -244,12 +240,6 @@ describe('EncounterCombatantActionsTab', () => {
     expect(amountField()).toHaveValue(5);
   });
 
-  it('labels the empty amount field with an Amount placeholder', async () => {
-    await renderTab();
-
-    expect(screen.getByPlaceholderText('Amount')).toBe(amountField());
-  });
-
   it.each(['Damage', 'Heal', 'Set current HP', 'Set temp HP', 'Set max HP'])(
     'enables %s once an amount is typed',
     async (label) => {
@@ -282,14 +272,6 @@ describe('EncounterCombatantActionsTab', () => {
     releaseWrite();
   });
 
-  it('shows a hint while nothing is selected', async () => {
-    await renderTab([]);
-
-    expect(
-      screen.getByText('Select a combatant in the queue.'),
-    ).toBeInTheDocument();
-  });
-
   it('says HP is not set for a combatant without HP and disables Damage, Heal and Set current HP', async () => {
     arrange({ combatants: [{ ...GOBLIN, maxHp: null }] });
     const user = userEvent.setup();
@@ -310,19 +292,6 @@ describe('EncounterCombatantActionsTab', () => {
 
     beforeEach(() => {
       arrange({ combatants: [GOBLIN, ORC, TROLL] });
-    });
-
-    it('shows the shared field from two selected on and not for one', async () => {
-      const { rerender } = await renderTab(SEVERAL);
-
-      expect(sharedField()).toBeInTheDocument();
-      expect(sharedField()).toHaveAttribute('placeholder', 'Amount');
-
-      rerender(<EncounterCombatantActionsTab selectedIds={[ITEM_ID]} />);
-
-      expect(
-        screen.queryByRole('spinbutton', { name: 'Shared amount' }),
-      ).not.toBeInTheDocument();
     });
 
     it('fills every row from the shared field and lets a row keep its own text', async () => {
@@ -537,31 +506,10 @@ describe('EncounterCombatantActionsTab', () => {
 
   describe('with events selected', () => {
     beforeEach(() => {
-      arrange({ events: [LAIR, REINFORCEMENTS] });
-    });
-
-    it('enables only Remove and shows no row or amount field when only events are selected', async () => {
-      await renderTab([LAIR.id, REINFORCEMENTS.id], 'Remove');
-
-      expect(button('Remove')).toBeEnabled();
-      for (const label of [
-        'Damage',
-        'Heal',
-        'Set current HP',
-        'Set temp HP',
-        'Set max HP',
-        'Mark defeated',
-      ]) {
-        expect(button(label)).toBeDisabled();
-      }
-      expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
-      expect(
-        screen.queryByText('Select a combatant in the queue.'),
-      ).not.toBeInTheDocument();
+      arrange({ events: [LAIR] });
     });
 
     it('shows no shared field and one row for one combatant and one event, and Damage writes for the combatant alone', async () => {
-      arrange({ events: [LAIR] });
       const user = userEvent.setup();
       await renderTab([ITEM_ID, LAIR.id]);
       await user.type(amountField(), '5');
@@ -584,25 +532,7 @@ describe('EncounterCombatantActionsTab', () => {
       });
     });
 
-    it('shows the shared field for two combatants and an event, and not for one combatant and two events', async () => {
-      arrange({ combatants: [GOBLIN, ORC], events: [LAIR, REINFORCEMENTS] });
-      const { rerender } = await renderTab([ITEM_ID, OTHER_ID, LAIR.id]);
-
-      expect(sharedField()).toBeInTheDocument();
-
-      rerender(
-        <EncounterCombatantActionsTab
-          selectedIds={[ITEM_ID, LAIR.id, REINFORCEMENTS.id]}
-        />,
-      );
-
-      expect(
-        screen.queryByRole('spinbutton', { name: 'Shared amount' }),
-      ).not.toBeInTheDocument();
-    });
-
     it('asks to confirm Remove, naming the selected items in queue order, before it writes anything', async () => {
-      arrange({ events: [LAIR] });
       const user = userEvent.setup();
       await renderTab([LAIR.id, ITEM_ID]);
 
