@@ -10,7 +10,6 @@ import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEnt
 import { EncounterCombatantActionButton } from './components/EncounterCombatantActionButton/EncounterCombatantActionButton';
 import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
 import { buildPlanRows } from './helper/buildPlanRows';
-import { describeActionRowHp } from './helper/describeActionRowHp';
 import { pickDefeatedAction } from './helper/pickDefeatedAction';
 import { planGroupAction } from './helper/planGroupAction';
 import type { GroupActionPlan } from './helper/planGroupAction';
@@ -97,7 +96,8 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
             <EncounterCombatantActionRow
               key={entry.id}
               name={entry.name}
-              hpText={describeActionRowHp(hp)}
+              hp={hp}
+              defeated={entry.defeated}
               amountText={amountTextOf(entry.id)}
               onAmountChange={(text) => {
                 setRowText(entry.id, text);

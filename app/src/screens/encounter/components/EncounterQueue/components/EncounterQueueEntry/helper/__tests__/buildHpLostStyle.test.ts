@@ -4,7 +4,13 @@ import { buildHpLostStyle } from '../buildHpLostStyle';
 describe('buildHpLostStyle', () => {
   it('sets the lost HP share when the entry has HP', () => {
     expect(
-      buildHpLostStyle({ text: '4/10', state: 'hurt', lostShare: 0.6 }),
+      buildHpLostStyle({
+        text: '4/10',
+        state: 'hurt',
+        lostShare: 0.6,
+        tempHp: 0,
+        tempShare: 0,
+      }),
     ).toEqual({ '--rt-encounter-queue-entry-hp-lost': 0.6 });
   });
 

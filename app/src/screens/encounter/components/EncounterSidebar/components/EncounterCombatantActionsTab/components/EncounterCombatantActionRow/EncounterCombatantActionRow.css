@@ -12,6 +12,11 @@
 .encounter-combatant-action-row-hp {
   font-size: var(--font-size-md);
   color: var(--color-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+.encounter-combatant-action-row-temp {
+  color: var(--color-primary);
 }
 
 .encounter-combatant-action-row .encounter-combatant-action-row-amount {
