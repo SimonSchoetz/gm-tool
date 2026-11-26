@@ -2,9 +2,10 @@ import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// Tests of Node tooling (the dev data server, the ESLint rules, the repository-root scripts) load native modules and the bundler, whose globals differ from a VM context's (`instanceof Error` fails across them), so they stay on the default `forks` pool.
+// Tests of Node tooling (the dev data server, the ESLint rules, the repository-root scripts, the production build of the global stylesheets) load native modules and the bundler, whose globals differ from a VM context's (`instanceof Error` fails across them), so they stay on the default `forks` pool.
 const nodeToolingTests = [
   'dev-data-server/**/*.test.ts',
+  'src/styles/__tests__/*.test.ts',
   'eslint-rules/**/*.test.js',
   '../scripts/**/*.test.ts',
 ];
