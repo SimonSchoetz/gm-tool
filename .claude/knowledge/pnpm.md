@@ -53,3 +53,10 @@ A step that calls `npx` or `npm` after a global `pnpm runtime set` gets them fro
 
 **Verified at:** pnpm 12.4.2 — 2026-11-19
 **Citation:** [claude_1: ran `pnpm install` from `app/` with `'typed-rest-client>qs': ^6.16.1` under `overrides:` — observed `pnpm why qs` report only `qs@6.17.1` and the same entry under `overrides:` in `app/pnpm-lock.yaml`]
+
+## `pnpm install` after raising caret ranges in `package.json` locked releases above the new floors, and on a lockfile that already satisfied all ranges but one it changed only that package's entries
+
+**Verified at:** pnpm 12.4.2 — 2026-11-26
+**Citation:** [sub-feature-implementer_1: in a local clone, raised `typescript-eslint` to `^8.73.0`, `vitest` and `@vitest/coverage-v8` to `^5.1.1` and `baseline-browser-mapping` to `^2.11.38` among other specifiers and ran `pnpm install` from `app/` against the old lockfile — observed 8.74.0, 5.1.2, 5.1.2 and 2.11.39 installed; with a lockfile that already held 8.73.0, 5.1.1, 5.1.1 and 2.11.38 and only `@testing-library/jest-dom` below its range `^8.0.0` — observed a lockfile diff in `jest-dom` entries only]
+
+In the first run the raised caret floors alone did not fix which releases were locked.

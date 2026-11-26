@@ -83,3 +83,10 @@ The test reads the spy after `await act(() => vi.advanceTimersByTimeAsync(0))`. 
 **Citation:** [refine-claude_1: ran `npx vitest run` in `app/` on a scratch test rendering `<div class='probe-row'><button class='probe-btn'>Revert</button></div>` with an imported stylesheet `.probe-btn { visibility: hidden; } .probe-row:hover .probe-btn { visibility: visible; }` — observed `getComputedStyle(button).visibility` `hidden`, `queryByRole('button', { name: 'Revert' })` and `queryByRole('button', { name: 'Revert', hidden: true })` both `null`, `queryByText('Revert')` found; scratch deleted] [refine-claude_2: `app/node_modules/.pnpm/@testing-library+react@16.3.3_…/node_modules/@testing-library/dom/dist/role-helpers.js:67` — `isInaccessible` returns true when the computed `visibility` is `hidden`]
 
 jsdom applies the stylesheet because `app/vitest.config.ts` sets `css: true`, and no `:hover` state is ever matched, so a hover-revealed control stays hidden for the whole test; a role query for it returns `null` whether the control is rendered or not.
+
+## `@testing-library/jest-dom` 8.0.0 types its matchers on Vitest 5.1.1 through its `/vitest` import, whose declaration augments `Assertion<R, T>`, and supports no Vitest below 5
+
+**Verified at:** @testing-library/jest-dom 8.0.0, vitest 5.1.1 — 2026-11-26
+**Citation:** [sub-feature-implementer_2: `app/node_modules/@testing-library/jest-dom/types/vitest.d.ts:5` declares `interface Assertion<R, T> extends TestingLibraryMatchers<T, R>`, `types/index.d.ts` there augments the global `jest.Matchers`, and `package.json` there declares the peer `vitest: ">=5 <6"`] [sub-feature-implementer_3: with no augmentation of the project's own, ran `npx tsc --noEmit` from `app/` — observed 235 errors with the setup file importing `@testing-library/jest-dom`, and exit 0 with it importing `@testing-library/jest-dom/vitest`, under which `npx vitest run --project app` passed]
+
+With no augmentation of the project's own, `tsc` accepted the matchers under the `@testing-library/jest-dom/vitest` import.

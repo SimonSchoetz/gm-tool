@@ -269,3 +269,10 @@ The rule is part of `strictTypeChecked`. A target typed `Pick<Database, 'path' |
 **Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed `no-unnecessary-type-assertion` on `sd as unknown as Database` and on `x as unknown as Database & { calls: number }`, where `sd` and `x` are structurally assignable] [sub-feature-implementer_3: ran `npx eslint --concurrency=auto . ../scripts` from `app/` on a scratch copy of this repository with typescript-eslint 8.73.0 — observed neither rule on `{} as unknown as RenderTexture`]
 
 So for a stand-in that already fits `Database`'s shape, a double cast still leaves a lint error. On `{} as unknown as RenderTexture` neither rule reports.
+
+## `@typescript-eslint/typescript-estree` asks for `minimatch` `^10.2.2` at 8.70.0 and `^11.0.1` at 8.73.0
+
+**Verified at:** @typescript-eslint/typescript-estree 8.70.0 and 8.73.0 — 2026-11-26
+**Citation:** [sub-feature-implementer_4: read the `package.json` of both installed copies under `app/node_modules/.pnpm/` — observed those `minimatch` ranges]
+
+An override or advisory that turns on this range has to be checked against each installed copy, since two copies can be installed side by side with different ranges.
