@@ -11,6 +11,7 @@ import { getAriaCurrent } from './helper/getAriaCurrent';
 import { getImageAriaLabel } from './helper/getImageAriaLabel';
 import { QUEUE_ENTRY_IMAGE_SIZE } from './EncounterQueueEntry.constants';
 import { EncounterQueueEventTile } from './components/EncounterQueueEventTile/EncounterQueueEventTile';
+import { EncounterQueueEntryTempFrame } from './components/EncounterQueueEntryTempFrame';
 import './EncounterQueueEntry.css';
 
 type KindProps =
@@ -98,6 +99,9 @@ export const EncounterQueueEntry: FCProps<Props> = (props) => {
             className='encounter-queue-entry-tint'
             aria-label='Damage tint'
           />
+        )}
+        {hp !== null && hp.tempShare > 0 && (
+          <EncounterQueueEntryTempFrame share={hp.tempShare} />
         )}
       </div>
 

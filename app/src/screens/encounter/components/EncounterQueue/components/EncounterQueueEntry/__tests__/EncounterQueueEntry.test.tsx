@@ -11,12 +11,14 @@ type HpProps = { maxHp: number | null; currentHp: number | null };
 const renderEntry = ({
   maxHp = null,
   currentHp = null,
+  tempHp = 0,
   defeated = false,
   entity = null,
   selected = false,
   otherDraggedCount = 0,
   onSelect = vi.fn(),
 }: Partial<HpProps> & {
+  tempHp?: number;
   defeated?: boolean;
   entity?: { entityType: BaseEntityType } | null;
   selected?: boolean;
@@ -32,7 +34,7 @@ const renderEntry = ({
       entity={entity}
       maxHp={maxHp}
       currentHp={currentHp}
-      tempHp={0}
+      tempHp={tempHp}
       defeated={defeated}
       selected={selected}
       otherDraggedCount={otherDraggedCount}
@@ -166,6 +168,29 @@ describe('EncounterQueueEntry', () => {
     renderEntry();
     expect(screen.queryByLabelText('Damage tint')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Greyed-out image')).not.toBeInTheDocument();
+  });
+
+  it('shows the temp HP frame beside the damage tint when it is hurt and has temp HP', () => {
+    renderEntry({ maxHp: 10, currentHp: 4, tempHp: 3 });
+
+    expect(screen.getByLabelText('Temp HP frame')).toBeInTheDocument();
+    expect(screen.getByLabelText('Damage tint')).toBeInTheDocument();
+  });
+
+  it('shows the temp HP frame on a greyed-out image when it is defeated and has temp HP', () => {
+    renderEntry({ maxHp: 10, currentHp: 0, tempHp: 3, defeated: true });
+
+    expect(screen.getByLabelText('Temp HP frame')).toBeInTheDocument();
+    expect(screen.getByLabelText('Greyed-out image')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['has HP set and no temp HP', { maxHp: 10, currentHp: 10 }],
+    ['has temp HP and no HP set', { tempHp: 3 }],
+  ])('shows no temp HP frame when it %s', (_case, props) => {
+    renderEntry(props);
+
+    expect(screen.queryByLabelText('Temp HP frame')).not.toBeInTheDocument();
   });
 
   describe('an event entry', () => {
