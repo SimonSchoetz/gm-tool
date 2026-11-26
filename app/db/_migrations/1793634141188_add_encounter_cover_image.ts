@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 import { z } from 'zod';
 import { ensureColumn } from '../util/index.ts';
@@ -81,7 +81,7 @@ const prependImageColumn = (layout: Layout): Layout | null => {
   return { ...layout, columns: [COVER_COLUMN, ...layout.columns] };
 };
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await ensureColumn(db, 'encounters', 'image_id', ADD_IMAGE_ID_SQL);
 
   const configRows = await db.select<

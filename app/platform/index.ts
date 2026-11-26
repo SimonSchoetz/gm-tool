@@ -15,4 +15,4 @@ export const {
   openUrl,
   pickFile,
 } = platform;
-export type { IpcChannel } from './types';
+export type { IpcChannel, SqlDatabase } from './types';

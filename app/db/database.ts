@@ -1,11 +1,10 @@
-import type Database from '@tauri-apps/plugin-sql';
 import { DATABASE_FILE } from '@domain';
-import { loadDatabase } from '@platform';
+import { loadDatabase, type SqlDatabase } from '@platform';
 import { runMigrations } from './_migrations';
 import { backupDatabase } from './database-backup';
 
-let db: Database | null = null;
-let initializingPromise: Promise<Database> | null = null;
+let db: SqlDatabase | null = null;
+let initializingPromise: Promise<SqlDatabase> | null = null;
 
 export const initDatabase = async () => {
   if (db) return db;
@@ -46,6 +45,6 @@ export const getDatabase = async () => {
   return db;
 };
 
-const assertDb: (db: Database | null) => asserts db = (db) => {
+const assertDb: (db: SqlDatabase | null) => asserts db = (db) => {
   if (!db) throw new Error('Database not initialized');
 };

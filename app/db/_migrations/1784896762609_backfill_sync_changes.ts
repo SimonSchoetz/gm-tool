@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 
 // FK dependency order: parents before children. Frozen migration-local copy of db/_sync/registry.ts — see app/db/CLAUDE.md — Migrations for why.
@@ -16,7 +16,7 @@ const SYNCED_TABLE_NAMES = [
   'table_config',
 ];
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   for (const tableName of SYNCED_TABLE_NAMES) {
     // tableName is interpolated directly because SQL does not support parameterized table names. It must only ever receive values from SYNCED_TABLE_NAMES, which is a fixed local constant — never from user input (mirrors mention-search.ts).
     const rows = await db.select<{ id: string }[]>(

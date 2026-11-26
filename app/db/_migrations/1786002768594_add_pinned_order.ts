@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 import { ensureColumn } from '../util/index.ts';
 
@@ -12,7 +12,7 @@ const PINNED_ORDER_TABLES = [
   'sessions',
 ];
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   for (const table of PINNED_ORDER_TABLES) {
     await ensureColumn(
       db,

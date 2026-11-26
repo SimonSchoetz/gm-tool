@@ -253,3 +253,19 @@ A hook that builds a path list for ESLint must skip the run when the list is emp
 
 **Verified at:** typescript-eslint 8.73.0 — 2026-11-19
 **Citation:** [claude_2: ran `npx eslint --concurrency=auto . ../scripts` from `app/` after `pnpm update typescript-eslint` — observed 62 errors, all `no-unsafe-class-instance-assignment`]
+
+## `@typescript-eslint/no-unsafe-class-instance-assignment` reports a plain object type, a cast to plugin-sql's `Database` and an object literal used where `Database` is expected, and accepts a `Pick<Database, …>` parameter
+
+**Verified at:** typescript-eslint 8.73.0
+
+**Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed the rule on a `SqliteDatabase`-shaped value passed to a `Database` parameter, on `sd as Database` and on an object literal returned as `Database`; no report for a `Pick<Database, 'path' | 'execute' | 'select' | 'close'>` parameter given the same values] [sub-feature-implementer_4: `@typescript-eslint/eslint-plugin@8.73.0` `dist/configs/flat/strict-type-checked.js:71` — `'@typescript-eslint/no-unsafe-class-instance-assignment': 'error'`]
+
+The rule is part of `strictTypeChecked`. A target typed `Pick<Database, 'path' | 'execute' | 'select' | 'close'>` is not reported.
+
+## `@typescript-eslint/no-unnecessary-type-assertion` reports `x as unknown as Database` when `x` is structurally assignable to plugin-sql's `Database`
+
+**Verified at:** typescript-eslint 8.73.0
+
+**Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed `no-unnecessary-type-assertion` on `sd as unknown as Database` and on `x as unknown as Database & { calls: number }`, where `sd` and `x` are structurally assignable] [sub-feature-implementer_3: ran `npx eslint --concurrency=auto . ../scripts` from `app/` on a scratch copy of this repository with typescript-eslint 8.73.0 — observed neither rule on `{} as unknown as RenderTexture`]
+
+So for a stand-in that already fits `Database`'s shape, a double cast still leaves a lint error. On `{} as unknown as RenderTexture` neither rule reports.

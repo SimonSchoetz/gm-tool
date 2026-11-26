@@ -1,7 +1,7 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS _system (
       id TEXT PRIMARY KEY,

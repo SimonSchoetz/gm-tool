@@ -1,11 +1,11 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import { getDatabase } from '../database';
 import { SYNCED_TABLE_NAMES } from './registry';
 import { changeRecordId, getTombstoneDeletedAt } from './tombstone';
 import type { ApplyResult } from './types';
 
 const upsertTombstone = async (
-  db: Database,
+  db: SqlDatabase,
   tableName: string,
   rowId: string,
   deletedAt: string,

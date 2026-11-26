@@ -24,7 +24,7 @@ const makeBeam = (overrides: Partial<Beam> = {}): Beam => ({
 
 const makeArgs = (beams: Beam[], onIdle = vi.fn()) => ({
   beams,
-  beamRenderTexture: {} as RenderTexture,
+  beamRenderTexture: {} as unknown as RenderTexture,
   primaryColor: '#39c3bb',
   app: makeApp(),
   headGraphics: new Graphics(),

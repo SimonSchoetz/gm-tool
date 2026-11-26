@@ -1,5 +1,5 @@
-import { $createListNode } from '@lexical/list';
-import type { ListItemNode, ListNode } from '@lexical/list';
+import { $createListNode, $isListNode } from '@lexical/list';
+import type { ListItemNode } from '@lexical/list';
 import { $createParagraphNode } from 'lexical';
 import type { LexicalNode } from 'lexical';
 import type { DropPlacement } from './collectBlockRows';
@@ -12,8 +12,11 @@ export const convertListUnitToParagraph = (
   target: LexicalNode,
   placement: DropPlacement,
 ): void => {
-  // A list item's parent is always a list.
-  const style = (item.getParentOrThrow() as ListNode).getListType();
+  const list = item.getParentOrThrow();
+  if (!$isListNode(list)) {
+    throw new Error('A list item must have a list as its parent');
+  }
+  const style = list.getListType();
   const [own, ...subs] = rebuildListUnit(item);
   const paragraph = $createParagraphNode();
   paragraph.append(...own.item.getChildren());

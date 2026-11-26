@@ -29,7 +29,7 @@ describe('createGridTileTexture', () => {
   });
 
   it('calls generateTexture once with a Graphics target and exact frame', () => {
-    const mockTexture = {} as RenderTexture;
+    const mockTexture = {} as unknown as RenderTexture;
     const { app, generateTexture } = makeMockApp(mockTexture);
     createGridTileTexture(app, 120);
     expect(generateTexture).toHaveBeenCalledTimes(1);
@@ -40,7 +40,7 @@ describe('createGridTileTexture', () => {
   });
 
   it('returns the texture produced by generateTexture', () => {
-    const mockTexture = {} as RenderTexture;
+    const mockTexture = {} as unknown as RenderTexture;
     const { app } = makeMockApp(mockTexture);
     const result = createGridTileTexture(app, 120);
     expect(result).toBe(mockTexture);
@@ -53,7 +53,7 @@ describe('createGridTileTexture', () => {
     const drawTile = () => {
       const rect = vi.spyOn(Graphics.prototype, 'rect');
       const fill = vi.spyOn(Graphics.prototype, 'fill');
-      const { app } = makeMockApp({} as RenderTexture);
+      const { app } = makeMockApp({} as unknown as RenderTexture);
       createGridTileTexture(app, SQUARE);
       return { rect, fill };
     };

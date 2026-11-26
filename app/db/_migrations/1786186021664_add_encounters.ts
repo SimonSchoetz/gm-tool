@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 import { generateId, generateDbTimestamps } from '../util/index.ts';
 
@@ -32,7 +32,7 @@ const encountersConfig = {
   },
 };
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await db.execute(CREATE_ENCOUNTERS_SQL);
 
   // Frozen local copy of the sync-trigger shape buildTriggerSQL produces in 1784365870026_add_sync_infrastructure.ts — a migration must never depend on a shared helper, since a later edit to that helper would retroactively change this already-applied migration's behavior.

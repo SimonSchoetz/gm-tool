@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import { isEntityType } from '@domain/entities';
 import { getDatabase } from '../database';
 import { SYNCED_TABLES } from './registry';
@@ -28,7 +28,7 @@ const isLocalNewer = (
     : localUpdatedAt >= incomingUpdatedAt;
 
 const executeUpsert = async (
-  db: Database,
+  db: SqlDatabase,
   tableName: string,
   filtered: Record<string, unknown>,
 ): Promise<ApplyResult> => {
@@ -52,7 +52,7 @@ const executeUpsert = async (
 };
 
 const applyTableConfigUpsert = async (
-  db: Database,
+  db: SqlDatabase,
   filtered: Record<string, unknown>,
   incomingId: string,
   incomingUpdatedAt: string,

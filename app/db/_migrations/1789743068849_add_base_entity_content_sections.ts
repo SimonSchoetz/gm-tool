@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 import { z } from 'zod';
 
@@ -84,7 +84,7 @@ const frozenTableLayoutSchema = z.object({
 const CONFIG_SELECT_SQL =
   'SELECT id, layout FROM table_config WHERE table_name IN ($1, $2, $3, $4, $5, $6)';
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await db.execute(CREATE_BASE_ENTITY_CONTENT_SECTIONS_SQL);
 
   // The triggers are created before any row is inserted, so every copied section gets a _sync_changes record.

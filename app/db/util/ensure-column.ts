@@ -1,8 +1,8 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 
 // table is interpolated directly because SQL does not support parameterized identifiers (PRAGMA table_info takes a bare table name) — callers are migration files, which only ever pass a fixed literal, never user input (mirrors backfill_sync_changes.ts).
 export const ensureColumn = async (
-  db: Database,
+  db: SqlDatabase,
   table: string,
   column: string,
   alterSql: string,
