@@ -69,3 +69,10 @@ An item that fills the box only by stretching, such as a click area, shrinks to 
 **Citation:** [implement_1: ran the queue entry's name element in the browser pane — a flex item with `flex: 1`, `min-width: 0`, `overflow-wrap: anywhere`, 24px line height, 99px wide — observed `clientHeight` 48 for texts whose `scrollHeight` was 72, 168 and 192, an ellipsis at the end of the second line, and the scroll container's `scrollWidth` equal to its `clientWidth` (190) for a 60-character name with no break opportunity]
 
 With `overflow-wrap: anywhere`, a word with no break opportunity wraps at any character instead of overflowing the item, and the clamp then cuts it like any other text. How the Tauri app's webview relates to this Chromium build and to the system WebKit is in `tauri.md`.
+
+## In WebKit on macOS 27.2, a scroll-driven animation with `animation-duration: 0s` holds its last keyframe at every scroll position
+
+**Verified at:** system WebKit of macOS 27.2.1 (Safari 27.2), 2026-11-26
+**Citation:** [claude_4: ran a `WKWebView` on an element with `animation-name` of a `@keyframes` setting a registered `<length>` custom property `to { … : 32px }` from its initial `0px`, `animation-timing-function: linear`, `animation-fill-mode: both`, `animation-timeline: scroll(self)`, `animation-range: 0 32px`, plus `animation-duration: 0s`, and read the property at `scrollTop` 0, 5, 16, 32, 100 and the end — observed `32px` at every one; with `animation-duration` left at its default, the same reads followed the scroll from `0px`]
+
+The value no longer follows the scroll timeline, so an animation from a start value to an end value shows its end value even at the scroll start. How the Tauri app's webview relates to the system WebKit is in `tauri.md`.
