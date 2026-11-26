@@ -8,7 +8,7 @@ type Props = {
   label: string;
   plan: GroupActionPlan | null;
   onRun: (plan: GroupActionPlan) => void;
-} & Pick<React.ComponentProps<typeof Button>, 'buttonStyle'>;
+} & Pick<React.ComponentProps<typeof Button>, 'buttonStyle' | 'aria-label'>;
 
 export const EncounterCombatantActionButton: FCProps<Props> = ({
   label,

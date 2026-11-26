@@ -3,6 +3,7 @@ import type { LogEntryPayload } from '@domain';
 type GroupActionKind =
   | 'damage'
   | 'heal'
+  | 'current-hp'
   | 'temp-hp'
   | 'max-hp'
   | 'defeated'
@@ -48,14 +49,22 @@ export const planGroupAction = (
   // An event row takes no amount and no state: every kind but `removed` runs over the combatant rows.
   const rows = planRows.filter(isCombatantRow);
   switch (kind) {
-    case 'damage':
-    case 'heal': {
+    case 'damage': {
       const targets = amountsOf(rows.filter((row) => row.hasHp));
       return targets === null ? null : { kind, payload: { targets } };
     }
+    case 'heal': {
+      const targets = amountsOf(rows.filter((row) => row.hasHp));
+      return targets === null
+        ? null
+        : { kind, payload: { targets, hpRules: true } };
+    }
+    case 'current-hp':
     case 'temp-hp':
     case 'max-hp': {
-      const amounts = amountsOf(rows);
+      const amounts = amountsOf(
+        kind === 'current-hp' ? rows.filter((row) => row.hasHp) : rows,
+      );
       return amounts === null
         ? null
         : {
@@ -70,11 +79,15 @@ export const planGroupAction = (
     }
     case 'defeated': {
       const queueItemIds = idsOf(rows.filter((row) => !row.defeated));
-      return queueItemIds === null ? null : { kind, payload: { queueItemIds } };
+      return queueItemIds === null
+        ? null
+        : { kind, payload: { queueItemIds, hpRules: true } };
     }
     case 'undefeated': {
       const queueItemIds = idsOf(rows.filter((row) => row.defeated));
-      return queueItemIds === null ? null : { kind, payload: { queueItemIds } };
+      return queueItemIds === null
+        ? null
+        : { kind, payload: { queueItemIds, hpRules: true } };
     }
     case 'removed': {
       const queueItemIds = idsOf(planRows);

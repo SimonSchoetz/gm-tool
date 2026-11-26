@@ -19,9 +19,12 @@ const row = (
 const eventRow = (id: string) => ({ kind: 'event' as const, id });
 
 describe('planGroupAction', () => {
-  it.each(['damage', 'heal'] as const)(
-    '%s lists only the rows with HP set, each with its own amount, in row order',
-    (kind) => {
+  it.each([
+    { kind: 'damage', flags: {} },
+    { kind: 'heal', flags: { hpRules: true } },
+  ] as const)(
+    '$kind lists only the rows with HP set, each with its own amount, in row order',
+    ({ kind, flags }) => {
       const plan = planGroupAction(kind, [
         row('a', { amount: 3 }),
         row('b', { hasHp: false, amount: 8 }),
@@ -35,12 +38,31 @@ describe('planGroupAction', () => {
             { queueItemId: 'a', amount: 3 },
             { queueItemId: 'c', amount: 6 },
           ],
+          ...flags,
         },
       });
     },
   );
 
-  it.each(['damage', 'heal'] as const)(
+  it('current-hp lists only the rows with HP set, each with its own value, a 0 included', () => {
+    const plan = planGroupAction('current-hp', [
+      row('a', { amount: 0 }),
+      row('b', { hasHp: false, amount: 8 }),
+      row('c', { amount: 6 }),
+    ]);
+
+    expect(plan).toEqual({
+      kind: 'current-hp',
+      payload: {
+        targets: [
+          { queueItemId: 'a', value: 0 },
+          { queueItemId: 'c', value: 6 },
+        ],
+      },
+    });
+  });
+
+  it.each(['damage', 'heal', 'current-hp'] as const)(
     '%s is null when no row has HP set',
     (kind) => {
       expect(planGroupAction(kind, [row('a', { hasHp: false })])).toBeNull();
@@ -67,7 +89,7 @@ describe('planGroupAction', () => {
     },
   );
 
-  it.each(['damage', 'heal', 'temp-hp', 'max-hp'] as const)(
+  it.each(['damage', 'heal', 'current-hp', 'temp-hp', 'max-hp'] as const)(
     '%s is null when an applicable row has no valid amount',
     (kind) => {
       expect(
@@ -76,18 +98,25 @@ describe('planGroupAction', () => {
     },
   );
 
-  it.each(['damage', 'heal'] as const)(
-    '%s ignores the missing amount of a row it skips',
-    (kind) => {
+  it.each([
+    { kind: 'damage', payload: { targets: [{ queueItemId: 'a', amount: 5 }] } },
+    {
+      kind: 'heal',
+      payload: { targets: [{ queueItemId: 'a', amount: 5 }], hpRules: true },
+    },
+    {
+      kind: 'current-hp',
+      payload: { targets: [{ queueItemId: 'a', value: 5 }] },
+    },
+  ] as const)(
+    '$kind ignores the missing amount of a row it skips',
+    ({ kind, payload }) => {
       const plan = planGroupAction(kind, [
         row('a'),
         row('b', { hasHp: false, amount: null }),
       ]);
 
-      expect(plan).toEqual({
-        kind,
-        payload: { targets: [{ queueItemId: 'a', amount: 5 }] },
-      });
+      expect(plan).toEqual({ kind, payload });
     },
   );
 
@@ -98,7 +127,10 @@ describe('planGroupAction', () => {
         row('b', { defeated: true }),
         row('c'),
       ]),
-    ).toEqual({ kind: 'defeated', payload: { queueItemIds: ['a', 'c'] } });
+    ).toEqual({
+      kind: 'defeated',
+      payload: { queueItemIds: ['a', 'c'], hpRules: true },
+    });
     expect(
       planGroupAction('defeated', [row('a', { defeated: true })]),
     ).toBeNull();
@@ -107,7 +139,10 @@ describe('planGroupAction', () => {
   it('lists the defeated rows for Unmark defeated and is null when none is defeated', () => {
     expect(
       planGroupAction('undefeated', [row('a'), row('b', { defeated: true })]),
-    ).toEqual({ kind: 'undefeated', payload: { queueItemIds: ['b'] } });
+    ).toEqual({
+      kind: 'undefeated',
+      payload: { queueItemIds: ['b'], hpRules: true },
+    });
     expect(planGroupAction('undefeated', [row('a')])).toBeNull();
   });
 
@@ -121,7 +156,7 @@ describe('planGroupAction', () => {
     expect(planGroupAction('removed', [])).toBeNull();
   });
 
-  it.each(['damage', 'heal', 'temp-hp', 'max-hp'] as const)(
+  it.each(['damage', 'heal', 'current-hp', 'temp-hp', 'max-hp'] as const)(
     '%s leaves an event row out, so an event neither blocks the plan nor receives an amount',
     (kind) => {
       const plan = planGroupAction(kind, [
@@ -146,7 +181,10 @@ describe('planGroupAction', () => {
         row('a', { defeated: kind === 'undefeated' }),
       ]);
 
-      expect(plan).toEqual({ kind, payload: { queueItemIds: ['a'] } });
+      expect(plan).toEqual({
+        kind,
+        payload: { queueItemIds: ['a'], hpRules: true },
+      });
     },
   );
 
@@ -158,6 +196,7 @@ describe('planGroupAction', () => {
     for (const kind of [
       'damage',
       'heal',
+      'current-hp',
       'temp-hp',
       'max-hp',
       'defeated',

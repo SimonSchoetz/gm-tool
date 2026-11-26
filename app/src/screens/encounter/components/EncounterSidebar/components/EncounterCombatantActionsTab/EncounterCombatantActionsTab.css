@@ -19,13 +19,24 @@
   gap: var(--spacing-sm);
 }
 
-.encounter-combatant-actions-tab-pair {
+.encounter-combatant-actions-tab-pair,
+.encounter-combatant-actions-tab-set-row {
   display: flex;
   gap: var(--spacing-sm);
 }
 
-.encounter-combatant-actions-tab-pair > * {
+.encounter-combatant-actions-tab-pair > *,
+.encounter-combatant-actions-tab-set-row > * {
   flex: 1;
+  min-width: 0;
+}
+
+.encounter-combatant-actions-tab-set-row .button-label {
+  font-size: var(--font-size-md);
+}
+
+.encounter-combatant-actions-tab-section .horizontal-divider {
+  border-top-color: var(--color-border);
 }
 
 .encounter-combatant-actions-tab-rows {
