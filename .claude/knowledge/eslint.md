@@ -262,7 +262,7 @@ Only a `Pick`-typed parameter was run, not a `Pick`-typed cast, return or variab
 **Verified at:** @typescript-eslint/eslint-plugin 8.73.0 — 2026-11-26
 **Citation:** [sub-feature-implementer_4: `@typescript-eslint/eslint-plugin@8.73.0` `dist/configs/flat/strict-type-checked.js:71` — `'@typescript-eslint/no-unsafe-class-instance-assignment': 'error'`]
 
-The citation reads that one config file.
+The 8.73.0 package's `dist/configs/flat/strict-type-checked.js` lists the rule at `error`.
 
 ## `@typescript-eslint/no-unnecessary-type-assertion` reported `sd as unknown as Database` and `x as unknown as Database & { calls: number }`, where `sd` and `x` were structurally assignable to plugin-sql's `Database`
 

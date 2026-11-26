@@ -68,7 +68,7 @@ export const webPlatform: Platform = {
     );
     return result as T;
   },
-  // Takes no argument, though `Platform.loadDatabase` passes the file name: the dev data server serves the one database it was started on.
+  // Takes no argument, though db/database.ts passes the file name: the dev data server serves the one database it was started on.
   loadDatabase: async () => {
     if (!(await isDevDataServerReachable())) {
       throw new Error(UNREACHABLE_DEV_DATA_SERVER_MESSAGE);

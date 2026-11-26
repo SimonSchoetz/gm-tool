@@ -1,11 +1,9 @@
 // Node host — stands in for @tauri-apps/plugin-sql's Database over node:sqlite, so whatever imports it runs only under Node (Vite's config bundle, or a test under `// @vitest-environment node`). The folder has no index.ts; protocol.ts states why.
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
-import type { QueryResult } from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '../platform/index.ts';
 
-// It carries what `SqlDatabase` (`app/platform/types.ts`) requires, so callers pass a `SqliteDatabase` to `up(db)`, `runMigrations(db, …)` and `ensureColumn(db, …)` with no cast, plus `close`, which code holding a `SqliteDatabase` calls.
-export type SqliteDatabase = {
-  execute: (query: string, bindValues?: unknown[]) => Promise<QueryResult>;
-  select: <T>(query: string, bindValues?: unknown[]) => Promise<T>;
+// A `SqliteDatabase` carries what `SqlDatabase` requires, so callers pass it to `up(db)`, `runMigrations(db, …)` and `ensureColumn(db, …)` with no cast. It adds `close`, which its own readers call.
+export type SqliteDatabase = SqlDatabase & {
   close: () => Promise<boolean>;
 };
 
@@ -66,7 +64,7 @@ export const openSqliteDatabase = (path: string): SqliteDatabase => {
     select: <T>(query: string, bindValues?: unknown[]) =>
       settle(() => {
         const rows = prepare(query).all(...toSqlValues(bindValues));
-        // Rows are copied into plain objects, because node:sqlite returns them with a null prototype. plugin-sql's `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it (app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:161-167), and the adapter does the same.
+        // Rows are copied into plain objects, because node:sqlite returns them with a null prototype. plugin-sql's `select<T>` returns whatever the IPC call delivers as the caller-named `T` without checking it (app/node_modules/@tauri-apps/plugin-sql/dist-js/index.js:164-171), and the adapter does the same.
         return rows.map((row) => ({ ...row })) as T;
       }),
     close: () =>
