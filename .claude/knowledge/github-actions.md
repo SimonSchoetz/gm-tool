@@ -30,15 +30,15 @@ A job that runs `cargo clippy` or `cargo fmt` after this action passes `componen
 
 ## `pnpm/setup@v3` installs its `runtime` input by running `pnpm runtime set <name> <version> -g`
 
-**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
-**Citation:** [dependabot-triage_10: read pnpm/setup at `fa36a5e` — `src/index.ts` `runMain` calls `installRuntime(request, result.binDest)` at line 42, and `src/install-runtime/index.ts` line 70 runs `runPnpm(binDest, ['runtime', 'set', request.name, request.version, '-g'])`]
+**Verified at:** pnpm/setup `v3.2.0` at `731dfb6` — 2026-11-26
+**Citation:** [sub-feature-implementer_1: ran `gh api repos/pnpm/setup/contents/<path>?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` for `src/index.ts` and `src/install-runtime/index.ts` — observed `runMain` calling `installRuntime(request, result.binDest)` at line 42 of the first and line 70 of the second calling `runPnpm(binDest, ['runtime', 'set', request.name, request.version, '-g'])`]
 
 For `runtime: node@24` under pnpm 12.4.2 that links only `node`, no `npx` or `npm` (`.claude/knowledge/pnpm.md`), so `npx` in such a job comes from another Node installation on `PATH`, if there is one.
 
 ## `pnpm/setup@v3` caches the pnpm store only with `cache: true`, saving under a key unique to each run that starts with the runner OS, the CPU architecture, a hash of the runtimes and a hash of the files `cache-dependency-path` names
 
-**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
-**Citation:** [dependabot-triage_11: read `src/cache-restore/keys.ts`, `src/cache-restore/run.ts`, `src/cache-save/run.ts` and `src/index.ts` at `fa36a5e` — observed the prefix `pnpm-cache-<RUNNER_OS>-<arch>-<hash of the runtime requests>-` from `getCacheKeyPrefix`, the lockfile prefix `<prefix><hashFiles(cache-dependency-path)>-` tried first and the bare prefix second as restore keys, the save key `<lockfile prefix><hash of the installed runtimes>-<GITHUB_RUN_ID>-<run attempt>-<random UUID>` from `getSaveCacheKey`, a save skipped when the store is unchanged since the restore, and `restoreCache(inputs, requests)` at `src/index.ts:37` before the runtime installs and before `if (inputs.install)` at line 76] [dependabot-triage_15: https://github.com/pnpm/setup/releases/tag/v3.0.0 — "fix!: include runid in cache key, restore freshest lockfile match" (#43)]
+**Verified at:** pnpm/setup `v3.2.0` at `731dfb6` — 2026-11-26
+**Citation:** [dependabot-triage_11: read `src/cache-restore/keys.ts`, `src/cache-restore/run.ts`, `src/cache-save/run.ts` and `src/index.ts` at `fa36a5e` — observed the prefix `pnpm-cache-<RUNNER_OS>-<arch>-<hash of the runtime requests>-` from `getCacheKeyPrefix`, the lockfile prefix `<prefix><hashFiles(cache-dependency-path)>-` tried first and the bare prefix second as restore keys, the save key `<lockfile prefix><hash of the installed runtimes>-<GITHUB_RUN_ID>-<run attempt>-<random UUID>` from `getSaveCacheKey`, and a save skipped when the store is unchanged since the restore] [sub-feature-implementer_2: ran `gh api repos/pnpm/setup/compare/fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e...731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` and read `src/index.ts` at `731dfb6` — observed `src/cache-restore/keys.ts` and `src/cache-save/run.ts` not among the changed files, `src/cache-restore/run.ts` changed only in how it gets the pnpm executable's path, and `restoreCache(inputs, result.pnpmBin, requests)` at `src/index.ts:37` before the runtime installs and before `if (inputs.install)` at line 76] [sub-feature-implementer_8: ran `gh api repos/pnpm/setup/contents/<path>?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` for `src/cache-restore/run.ts` and `src/cache-save/index.ts` — observed `if (!inputs.cache) return` before the store restore at line 45 of the first, and line 7 of the second returning before the save when `!inputs.cache || !inputs.saveCache`] [dependabot-triage_15: https://github.com/pnpm/setup/releases/tag/v3.0.0 — "fix!: include runid in cache key, restore freshest lockfile match" (#43)]
 
 With `cache: true`, the action restores before, and independently of, its `install` input. Because every save key is new, each run whose store changed adds a cache entry rather than replacing one.
 
@@ -86,17 +86,24 @@ Only the source of the action was read; no job was run.
 
 ## `pnpm/setup@v3` marks its `package-json-file` input deprecated in favour of `working-directory`, and still honours it when it is set on its own
 
-**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
-**Citation:** [dependabot-triage_12: read `action.yml` at `fa36a5e`, lines 108–115 — observed `package-json-file` described as "Deprecated. Use `working-directory` instead... Still honoured when set on its own — the directory containing the file becomes the working directory", with a `deprecationMessage`]
+**Verified at:** pnpm/setup `v3.2.0` at `731dfb6` — 2026-11-26
+**Citation:** [sub-feature-implementer_3: ran `gh api repos/pnpm/setup/contents/action.yml?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1`, lines 111–118 — observed `package-json-file` described as "Deprecated. Use `working-directory` instead... Still honoured when set on its own — the directory containing the file becomes the working directory", with a `deprecationMessage`] [sub-feature-implementer_9: ran `gh api repos/pnpm/setup/contents/src/inputs/index.ts?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1`, lines 100–103 — observed a set `package-json-file` returning its directory as `workingDirectory`]
 
-Only the action's metadata file was read; no job was run.
+Only the action's metadata file and `src/inputs/index.ts` were read; no job was run.
 
 ## `pnpm/setup@v3` skips saving its store cache when `save-cache` is `false`
 
-**Verified at:** pnpm/setup `v3.1.2` at `fa36a5e` — 2026-11-19
-**Citation:** [dependabot-triage_13: read `action.yml` at `fa36a5e` — observed the input `save-cache`, default `'true'`, described as whether to save the pnpm store at the end of the job when `cache` is `true`, and `src/cache-save/index.ts` line 7 returning before the save when `!inputs.cache || !inputs.saveCache`] [dependabot-triage_14: https://github.com/pnpm/setup/releases/tag/v3.1.0 — "feat: add `save-cache` and skip saving an unchanged store"]
+**Verified at:** pnpm/setup `v3.2.0` at `731dfb6` — 2026-11-26
+**Citation:** [sub-feature-implementer_4: ran `gh api repos/pnpm/setup/contents/<path>?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` for `action.yml` and `src/cache-save/index.ts` — observed the input `save-cache`, default `'true'`, described as whether to save the pnpm store at the end of the job when `cache` is `true`, and line 7 of the second returning before the save when `!inputs.cache || !inputs.saveCache`] [dependabot-triage_14: https://github.com/pnpm/setup/releases/tag/v3.1.0 — "feat: add `save-cache` and skip saving an unchanged store"]
 
 Only the action's metadata and `src/cache-save/index.ts` were read; no job was run.
+
+## `pnpm/setup@v3` with `cache: true` and an exact pnpm version caches the pnpm executable too, whatever `save-cache` says
+
+**Verified at:** pnpm/setup `v3.2.0` at `731dfb6` — 2026-11-26
+**Citation:** [sub-feature-implementer_5: ran `gh api repos/pnpm/setup/contents/<path>?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` for `src/install-pnpm/run.ts` and `src/install-pnpm/binary-cache.ts` — observed line 30 of the first passing `{ cacheExecutable: inputs.cache }` and no `saveCache` input read there, and `binaryCacheKey` in the second returning `pnpm-binary-<platform>-<arch>-<version>` only for an exact version] [sub-feature-implementer_10: ran `gh api repos/pnpm/setup/contents/src/install-pnpm/download.ts?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` — observed line 77 taking the key from `options.cacheExecutable` alone and line 119 calling `saveBinary` after a download whenever there is a key, with no `saveCache` input read in the file] [sub-feature-implementer_6: https://github.com/pnpm/setup/blob/v3.2.0/README.md "pnpm executable cache" — "With `cache: true` and an exact pnpm version (an exact `version` input, `packageManager`, or a version locked in `pnpm-lock.yaml`), the action keeps the pnpm executable in the GitHub Actions cache"]
+
+An exact version is one given by the `version` input, by `packageManager`, or locked in `pnpm-lock.yaml`. Only these sources were read; no job was run.
 
 ## `tauri-apps/tauri-action@v1` treats a build that yields no artifacts as an error only when `releaseId` or `tagName` is set or workflow-artifact upload is enabled
 
@@ -254,10 +261,10 @@ The page says nothing about an action's `post` step after a cancellation.
 
 ## An action's `post` step runs under `post-if`, which defaults to `always()`, and `always()` is true even when the run was cancelled
 
-**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax>; <https://docs.github.com/en/actions/reference/workflows-and-actions/expressions>; pnpm/setup `v3.1.2` at `fa36a5e` and Swatinem/rust-cache `v2` at `d1527c8`, `action.yml` — 2026-11-19
-**Citation:** [macos-runner-budget_11: https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax — "If not set, then `post-if` defaults to `always()`."] [macos-runner-budget_14: ran `gh api repos/pnpm/setup/contents/action.yml?ref=fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e` — observed `runs:` with `post: dist/index.js` and no `post-if`; ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=d1527c8f67ef9af357290475d4af4b0fab8f12e0` — observed `post-if: "success() || env.CACHE_ON_FAILURE == 'true'"`] [macos-runner-budget_12: https://docs.github.com/en/actions/reference/workflows-and-actions/expressions — `always()`: "Causes the step to always execute, and returns `true`, even when canceled."; `cancelled()`: "Returns `true` if the workflow was canceled."]
+**Verified at:** <https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax>; <https://docs.github.com/en/actions/reference/workflows-and-actions/expressions>; Swatinem/rust-cache `v2` at `d1527c8`, `action.yml` — 2026-11-19; pnpm/setup `v3.2.0` at `731dfb6`, `action.yml` — 2026-11-26
+**Citation:** [macos-runner-budget_11: https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax — "If not set, then `post-if` defaults to `always()`."] [sub-feature-implementer_7: ran `gh api repos/pnpm/setup/contents/action.yml?ref=731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1` — observed `runs:` with `post: dist/index.js` and no `post-if`] [macos-runner-budget_14: ran `gh api repos/Swatinem/rust-cache/contents/action.yml?ref=d1527c8f67ef9af357290475d4af4b0fab8f12e0` — observed `post-if: "success() || env.CACHE_ON_FAILURE == 'true'"`] [macos-runner-budget_12: https://docs.github.com/en/actions/reference/workflows-and-actions/expressions — `always()`: "Causes the step to always execute, and returns `true`, even when canceled."; `cancelled()`: "Returns `true` if the workflow was canceled."]
 
-That a `post` step whose `post-if` is true runs in a cancelled job, within the 5-minute cancellation timeout, is inferred from these two pages; neither states it, and no cancelled run was observed. `pnpm/setup@v3` sets no `post-if` (its `action.yml` at `fa36a5e` has `post: dist/index.js` alone) and `Swatinem/rust-cache@v2` sets `success() || env.CACHE_ON_FAILURE == 'true'`.
+That a `post` step whose `post-if` is true runs in a cancelled job, within the 5-minute cancellation timeout, is inferred from these two pages; neither states it, and no cancelled run was observed. `pnpm/setup@v3` sets no `post-if` and `Swatinem/rust-cache@v2` sets `success() || env.CACHE_ON_FAILURE == 'true'`.
 
 ## `Swatinem/rust-cache@v2` skips its save when the restore found an entry under the exact current key
 

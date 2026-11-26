@@ -24,7 +24,7 @@ const makeBeam = (overrides: Partial<Beam> = {}): Beam => ({
 
 const makeArgs = (beams: Beam[], onIdle = vi.fn()) => ({
   beams,
-  beamRenderTexture: {} as RenderTexture,
+  beamRenderTexture: {} as unknown as RenderTexture,
   primaryColor: '#39c3bb',
   app: makeApp(),
   headGraphics: new Graphics(),
@@ -160,8 +160,8 @@ describe('tickBeams drawing', () => {
   });
 
   it.each([
-    ['at the previous position', 100, 0],
-    ['at the new position', 92, 0],
+    ['at the previous position', 100],
+    ['at the new position', 92],
   ])('does not pass a corner %s', (_where, headDistance) => {
     const args = makeArgs([LShape({ headDistance })]);
     const { lineTo } = spies(args);

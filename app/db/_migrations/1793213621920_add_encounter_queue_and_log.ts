@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 import { ensureColumn } from '../util/index.ts';
 
@@ -67,7 +67,7 @@ const buildTriggerSQL = (
   `;
 };
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await db.execute(CREATE_ENCOUNTER_QUEUE_ITEMS_SQL);
   await db.execute(CREATE_ENCOUNTER_LOG_ENTRIES_SQL);
 

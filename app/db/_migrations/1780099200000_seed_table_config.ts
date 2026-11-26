@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 import { generateId, generateDbTimestamps } from '../util/index.ts';
 
@@ -168,7 +168,7 @@ const configs = [
   },
 ];
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   for (const config of configs) {
     const id = generateId();
     const { created_at, updated_at } = generateDbTimestamps();

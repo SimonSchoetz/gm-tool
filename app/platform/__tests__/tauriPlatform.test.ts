@@ -62,7 +62,7 @@ describe('tauriPlatform.pickFile', () => {
 
 describe('tauriPlatform.loadDatabase', () => {
   it('loads the sqlite: URL of the given file', async () => {
-    const database = { path: 'sqlite:gm_tool.db' } as Database;
+    const database = {} as unknown as Database;
     load.mockResolvedValue(database);
 
     await expect(tauriPlatform.loadDatabase('gm_tool.db')).resolves.toBe(

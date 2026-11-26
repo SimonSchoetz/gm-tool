@@ -106,8 +106,9 @@ Needs no change — `app/platform/` is the host boundary every layer reaches Tau
 - Add a migration that inserts only the new type's `table_config` row — no table and no triggers, since `base_entities` and its sync triggers already exist. Follow the `WHERE NOT EXISTS` form in `db/_migrations/1780099200000_seed_table_config.ts`:
 
   ```ts
-  import type Database from '@tauri-apps/plugin-sql';
-  import { generateId, generateDbTimestamps } from '../util';
+  import type { SqlDatabase } from '@platform';
+  import type { Migration } from './index.ts';
+  import { generateId, generateDbTimestamps } from '../util/index.ts';
 
   const config = {
     table_name: '[plural]',
@@ -132,7 +133,7 @@ Needs no change — `app/platform/` is the host boundary every layer reaches Tau
     },
   };
 
-  const up = async (db: Database): Promise<void> => {
+  const up = async (db: SqlDatabase): Promise<void> => {
     const id = generateId();
     const { created_at, updated_at } = generateDbTimestamps();
     const layout = JSON.stringify(config.layout);
@@ -155,7 +156,7 @@ Needs no change — `app/platform/` is the host boundary every layer reaches Tau
     );
   };
 
-  export const add[Plural]TableConfigMigration = {
+  export const add[Plural]TableConfigMigration: Migration = {
     id: '[timestamp]',
     up,
   };

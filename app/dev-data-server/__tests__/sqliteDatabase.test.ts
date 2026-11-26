@@ -116,7 +116,6 @@ describe('openSqliteDatabase', () => {
 
       const reader = openSqliteDatabase(file);
 
-      expect(reader.path).toBe(file);
       expect(await reader.select('SELECT a FROM t')).toEqual([
         { a: 'persisted' },
       ]);

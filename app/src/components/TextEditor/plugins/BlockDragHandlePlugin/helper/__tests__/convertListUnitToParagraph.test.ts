@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { $getNodeByKey } from 'lexical';
-import { $isListItemNode } from '@lexical/list';
+import { $createParagraphNode, $getNodeByKey } from 'lexical';
+import { $createListItemNode, $isListItemNode } from '@lexical/list';
 import { convertListUnitToParagraph } from '../convertListUnitToParagraph';
 import {
   keyOf,
@@ -78,5 +78,21 @@ describe('convertListUnitToParagraph', () => {
     );
 
     expect(outlineOf(editor)).toEqual(['only', 'bullet(o1)']);
+  });
+
+  it('throws its invariant message for a list item whose parent is not a list, so a missing parent check cannot surface as a TypeError', () => {
+    const editor = makeEditor(() => [paragraph('t')]);
+
+    editor.update(
+      () => {
+        const item = $createListItemNode();
+        const parent = $createParagraphNode().append(item);
+
+        expect(() => {
+          convertListUnitToParagraph(item, parent, 'after');
+        }).toThrow(/^A list item must have a list as its parent$/);
+      },
+      { discrete: true },
+    );
   });
 });

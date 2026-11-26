@@ -1,6 +1,6 @@
 // Node host: the dev data server's HTTP surface — body reading, routing, status mapping and image serving in front of the command table and the adapter.
 import { existsSync, readFileSync } from 'node:fs';
-import type { ServerResponse } from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join } from 'node:path';
 import type { Connect } from 'vite';
 import { z } from 'zod';
@@ -78,7 +78,7 @@ const parseBody = <T>(schema: z.ZodType<T>, body: unknown): T => {
   return result.data;
 };
 
-const readPostBody = async (req: Connect.IncomingMessage): Promise<unknown> => {
+const readPostBody = async (req: IncomingMessage): Promise<unknown> => {
   if (!isJsonContentType(req.headers['content-type'])) {
     throw requestRejectionError(
       415,
@@ -129,7 +129,7 @@ const serveImage = (
 };
 
 const handle = async (
-  req: Connect.IncomingMessage,
+  req: IncomingMessage,
   res: ServerResponse,
   route: string,
   context: DevDataContext,
@@ -210,8 +210,12 @@ const handle = async (
 };
 
 export const createRequestHandler =
-  (context: DevDataContext): Connect.NextHandleFunction =>
-  (req, res, next) => {
+  (context: DevDataContext) =>
+  (
+    req: IncomingMessage,
+    res: ServerResponse,
+    next: Connect.NextFunction,
+  ): void => {
     // node:http sets `url` on every request it parses; the fallback is there only for the optional type.
     const url = req.url ?? '';
     if (!url.startsWith(DEV_DATA_SERVER_PREFIX)) {

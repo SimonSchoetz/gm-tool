@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import { initialSchemaMigration } from './1779321600000_initial_schema.ts';
 import { seedTableConfigMigration } from './1780099200000_seed_table_config.ts';
 import { initSystemMigration } from './1780575810242_init_system.ts';
@@ -17,7 +17,7 @@ import { addSessionStepCollapsedMigration } from './1794237574685_add_session_st
 
 export type Migration = {
   id: string;
-  up: (db: Database) => Promise<void>;
+  up: (db: SqlDatabase) => Promise<void>;
 };
 
 // eslint-disable-next-line local/no-unused-exports -- the db test support builds its in-memory database from this list
@@ -44,7 +44,7 @@ export const migrationHead: string = migrations[migrations.length - 1].id;
 
 // `beforeFirstPending` runs once, before the first pending migration, with the highest id in the ledger (`null` for an empty ledger); it is skipped when nothing is pending, and a rejection stops the run before any migration.
 export const runMigrations = async (
-  db: Database,
+  db: SqlDatabase,
   beforeFirstPending: (ledgerHead: string | null) => Promise<void>,
 ): Promise<void> => {
   await db.execute(`

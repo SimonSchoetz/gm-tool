@@ -503,3 +503,11 @@ A custom node that writes `version: 1` in its own object literal trips `@typescr
 **Citation:** [dependabot-triage_7: `app/node_modules/@lexical/react/dist/LexicalContentEditable.dev.js:121-122` — the role resolves to `textbox` only when the editor is editable or has an `aria-label`, `aria-labelledby` or `title`, unless a `role` prop is passed] [dependabot-triage_8: https://github.com/facebook/lexical/releases/tag/v0.53.0 — "A read-only `ContentEditable` no longer renders an unnamed `role="textbox"`" (#9270)]
 
 A test that found such an editor through the `textbox` role finds none at this version.
+
+## `LexicalNode.getParentOrThrow()` is declared as returning `ElementNode`, with no type parameter
+
+**Verified at:** lexical 0.53.0
+
+**Citation:** [sub-feature-implementer_2: `app/node_modules/lexical/dist/LexicalNode.d.ts:933` — `getParentOrThrow(): ElementNode;`]
+
+A caller that needs the parent as a subclass such as `ListNode` narrows it with a guard such as `$isListNode`.

@@ -4,7 +4,7 @@ description: Installs pnpm and the project's pinned Node runtime and restores th
 runs:
   using: composite
   steps:
-    - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+    - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
       with:
         # Deprecated in `pnpm/setup` but still honoured and kept: its `working-directory` replacement is documented to resolve `cache-dependency-path` relative to itself, while that input's own text says relative to the repository root.
         package-json-file: app/package.json

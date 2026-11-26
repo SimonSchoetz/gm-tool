@@ -1,10 +1,10 @@
 import { DATABASE_FILE } from '@domain';
 import { invoke } from '@platform';
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 
 // Copies the database file next to itself before pending migrations change it, named for the ledger head the copy holds. `VACUUM INTO` is the copy because the database runs in WAL mode: while plugin-sql's pool holds it open, committed rows can sit in the `-wal` file the main file lacks, and `VACUUM INTO` writes a consistent single-file snapshot of both. The backend owns the backup file names and keeps only the newest copies (`app/src-tauri/src/commands/database_backup/`), since the webview has no filesystem access.
 export const backupDatabase = async (
-  db: Database,
+  db: SqlDatabase,
   ledgerHead: string | null,
 ): Promise<void> => {
   // No migration has completed on a database with an empty ledger, so it holds no user data to protect.

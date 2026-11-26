@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 
 // A frozen copy of what db/base-entity/schema.ts's createTableSQL generates — a migration must never depend on a live schema module (see app/db/CLAUDE.md — Migrations).
@@ -29,7 +29,7 @@ const LEGACY_BASE_ENTITY_TABLES = [
   'items',
 ];
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await db.execute(CREATE_BASE_ENTITIES_SQL);
 
   // The sync triggers are created before any row is copied so every copied row (inserted below) gets a base_entities change record — the legacy tables' own change records are deleted by the per-table _sync_changes cleanup at the end of the loop below, and a row with no change record never reaches a paired device.

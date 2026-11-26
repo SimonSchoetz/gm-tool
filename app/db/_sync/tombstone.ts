@@ -1,11 +1,11 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 
 // Every `_sync_changes` row has this id. The sync triggers build the same id in SQL (`'<table>:' || NEW.id`, in 1784365870026_add_sync_infrastructure.ts), which cannot import this function.
 export const changeRecordId = (tableName: string, rowId: string): string =>
   `${tableName}:${rowId}`;
 
 export const getTombstoneDeletedAt = async (
-  db: Database,
+  db: SqlDatabase,
   tableName: string,
   rowId: string,
 ): Promise<string | null> => {

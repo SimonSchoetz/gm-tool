@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import type { Migration } from './index.ts';
 
 // FK dependency order: parents before children. Frozen migration-local copy of db/_sync/registry.ts — see app/db/CLAUDE.md — Migrations for why.
@@ -43,7 +43,7 @@ const buildTriggerSQL = (
   `;
 };
 
-const up = async (db: Database): Promise<void> => {
+const up = async (db: SqlDatabase): Promise<void> => {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS _sync_meta (
       id TEXT PRIMARY KEY,

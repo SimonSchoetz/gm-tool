@@ -1,4 +1,4 @@
-import type Database from '@tauri-apps/plugin-sql';
+import type { SqlDatabase } from '@platform';
 import { assertValidContentSectionContent } from '@domain';
 import type { BaseEntityContentSectionType } from '@domain';
 import { getDatabase } from '../database';
@@ -14,7 +14,7 @@ import type {
 } from './types';
 
 const readStoredType = async (
-  db: Database,
+  db: SqlDatabase,
   id: string,
 ): Promise<BaseEntityContentSectionType | null> => {
   const rows = await db.select<Pick<BaseEntityContentSection, 'type'>[]>(
