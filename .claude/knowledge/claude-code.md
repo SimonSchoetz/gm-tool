@@ -298,3 +298,10 @@ Unset, the documented default also moves to a free port, except that the server 
 
 **Verified at:** Claude desktop app with bundled Claude Code 2.1.321 — 2026-11-13
 **Citation:** [claude_3: ran `preview_start {name: "seeded-web"}` with `autoPort: true` and `runtimeExecutable` `bash` and `runtimeArgs` `["-c", ". \"$HOME/.nvm/nvm.sh\" && nvm use --silent && exec pnpm --dir app run web:seed --port 5174"]` while 5174 was taken — observed the server run `vite --mode web --port 5174` and exit with "Port 5174 is already in use"] [claude_2: the same start with `--port \"$PORT\"` in that string — observed the server listening on the assigned port 5176]
+
+## Called by a subagent whose primary working directory was the main checkout, `preview_start` with a `.claude/launch.json` configuration name started the server in the main checkout, not in the linked worktree the subagent edited
+
+**Verified at:** Claude Code 2.1.327, Claude desktop app — 2026-11-26
+**Citation:** [sub-feature-implementer_1: ran `preview_start {name: "seeded-web"}` from a subagent whose primary working directory was the main checkout and whose edits were in a linked worktree under `.claude/worktrees/`, then `lsof -a -p <listening pid> -d cwd` — observed the server's working directory as the main checkout's `app/`] [sub-feature-implementer_2: ran `pnpm --dir app run web:seed --port 5191` from the worktree root as a background Bash call, then `preview_start {url: "http://localhost:5191"}` — observed the pane showing the worktree's uncommitted UI change]
+
+A browser check started by configuration name in that setup shows the main checkout's code, so it says nothing about the worktree's changes. Starting the server from the worktree in a background Bash call and opening its URL with `preview_start` showed the worktree's code.

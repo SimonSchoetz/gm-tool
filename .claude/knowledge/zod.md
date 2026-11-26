@@ -9,10 +9,10 @@
 
 ## `ZodObject.partial()` validates only the keys present in the input, leaving absent keys legal
 
-**Verified at:** zod 4.6.5, read 2026-09-21
-**Citation:** [spec-writer_3: app/node_modules/zod/v4/classic/schemas.d.ts:510-512 — `partial(): ZodObject<{ -readonly [k in keyof Shape]: ZodOptional<Shape[k]> }, Config>`; schemas.d.ts:27 — `safeParse(data: unknown, params?): parse.ZodSafeParseResult<core.output<this>>` is declared on the shared `ZodType` base, so it is available on every schema including the result of `.partial()`]
+**Verified at:** zod 4.6.7, read and run 2026-11-26
+**Citation:** [sub-feature-implementer_1: `app/node_modules/zod/v4/classic/schemas.d.ts:510-512` — `partial(): ZodObject<{ -readonly [k in keyof Shape]: ZodOptional<Shape[k]> }, Config>`; `schemas.d.ts:27` — `safeParse(data: unknown, params?): parse.ZodSafeParseResult<core.output<this>>` is declared on the shared `ZodType` base, so it is available on every schema including the result of `.partial()`] [sub-feature-implementer_3: ran `node` on a script over `z.object({a: z.string(), b: z.number()}).partial()` — observed `safeParse({a: 'x'}).success` `true` and `safeParse({a: 1}).success` `false`]
 
-`.partial()` wraps every key in `ZodOptional` without weakening the per-key type check, so `schema.partial().safeParse(row)` accepts a row missing columns while still rejecting a present column whose value has the wrong type. The default `$strip` object config means unrecognized keys are dropped from the parse output rather than causing failure.
+`.partial()` wraps every key in `ZodOptional` without weakening the per-key type check, so `schema.partial().safeParse(row)` accepts a row missing columns while still rejecting a present column whose value has the wrong type.
 
 ## `ZodString.regex()` exists in Zod 4 and returns the same schema type
 
@@ -48,3 +48,17 @@ A `z.number()` schema fails on `NaN` (for example `Number('abc')`) and on `Infin
 **Citation:** [spec-writer_2: app/node_modules/zod/v4/classic/schemas.d.ts:346-349 — `int()` documented "Consider `z.int()` instead. This API is considered *legacy*"; `safe()` "@deprecated This is now identical to `.int()`. Only numbers in the safe integer range are accepted."; :373-377 — `interface ZodInt extends ZodNumberFormat<"safeint">`, `export declare function int(...): ZodInt`; app/node_modules/zod/v4/core/checks.js:93, 121 — the number-format check rejects `!Number.isInteger(input)`, then `!Number.isSafeInteger(input)`]
 
 `z.int()` (exported on the `z` namespace) rejects any non-integer such as `1.5` and any integer outside `Number.MIN_SAFE_INTEGER`…`Number.MAX_SAFE_INTEGER`, negatives inside that range included as valid. Its inferred type is `number`.
+
+## A `z.object` schema drops an unrecognized key from its parse output instead of failing
+
+**Verified at:** zod 4.6.7, run 2026-11-26
+**Citation:** [architect_1: ran `node -e` in `app/` — `z.object({targets: z.array(z.string())}).parse({targets: ['a'], hpRules: true})` returned `{"targets":["a"]}`] [sub-feature-implementer_2: `app/node_modules/zod/v4/classic/schemas.d.ts:530` — `object()` returns `ZodObject<..., core.$strip>`]
+
+This is the default `$strip` object config, so a reader whose schema lacks a newer field still accepts the payload and reads it without that field.
+
+## A `z.literal(true).optional()` field accepts a payload without the key and with `true`, and rejects `false`
+
+**Verified at:** zod 4.6.7, run 2026-11-26
+**Citation:** [architect_1: ran `node -e` in `app/` over `z.object({targets: z.array(...).min(1), hpRules: z.literal(true).optional()})` — `safeParse` succeeded for a payload with `hpRules: true` and for one without it, and returned `success: false` for `hpRules: false`]
+
+A schema that gains such a field still accepts payloads written before the field existed.

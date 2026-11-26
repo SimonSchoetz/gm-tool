@@ -5,6 +5,9 @@ const queueItemIds = z.object({ queueItemIds: z.array(z.string()).min(1) });
 const amountTargets = z.object({
   targets: z.array(z.object({ queueItemId: z.string(), amount: count })).min(1),
 });
+// Set on an entry whose Heal or defeated mark changes HP and mark together; a stored entry without it keeps the derivation that does not.
+const hpRules = z.literal(true).optional();
+const queueItemIdsWithHpRules = queueItemIds.extend({ hpRules });
 const valueTargets = z.object({
   targets: z.array(z.object({ queueItemId: z.string(), value: count })).min(1),
 });
@@ -12,11 +15,12 @@ const valueTargets = z.object({
 const LOG_ENTRY_PAYLOAD_SCHEMAS = {
   added: queueItemIds,
   damage: amountTargets,
-  heal: amountTargets,
+  heal: amountTargets.extend({ hpRules }),
   'temp-hp': valueTargets,
   'max-hp': valueTargets,
-  defeated: queueItemIds,
-  undefeated: queueItemIds,
+  'current-hp': valueTargets,
+  defeated: queueItemIdsWithHpRules,
+  undefeated: queueItemIdsWithHpRules,
   removed: queueItemIds,
   message: z.object({ editorState: z.string().min(1) }),
   revert: z.object({ entryId: z.string().min(1) }),
@@ -27,6 +31,7 @@ const REVERTIBLE_LOG_ENTRY_KINDS: ReadonlySet<string> = new Set([
   'heal',
   'temp-hp',
   'max-hp',
+  'current-hp',
   'defeated',
   'undefeated',
   'removed',

@@ -1,4 +1,5 @@
 import { useParams } from '@tanstack/react-router';
+import { HorizontalDivider } from '@/components/HorizontalDivider/HorizontalDivider';
 import { Input } from '@/components/Input/Input';
 import { useEncounterLogEntries } from '@/data-access-layer';
 import { useDeleteDialog } from '@/providers/DeleteDialogProvider';
@@ -7,9 +8,9 @@ import { describeQueueEntryHp } from '../../../../helper/describeQueueEntryHp';
 import { isCombatantEntry } from '../../../../helper/isCombatantEntry';
 import { useEncounterQueueEntries } from '../../../../hooks/useEncounterQueueEntries';
 import { EncounterCombatantActionButton } from './components/EncounterCombatantActionButton/EncounterCombatantActionButton';
-import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow/EncounterCombatantActionRow';
+import { EncounterCombatantActionRow } from './components/EncounterCombatantActionRow';
 import { buildPlanRows } from './helper/buildPlanRows';
-import { describeActionRowHp } from './helper/describeActionRowHp';
+import { pickDefeatedAction } from './helper/pickDefeatedAction';
 import { planGroupAction } from './helper/planGroupAction';
 import type { GroupActionPlan } from './helper/planGroupAction';
 import { useActionAmounts } from './hooks/useActionAmounts';
@@ -45,10 +46,11 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
   const planRows = buildPlanRows(selectedEntries, amountTextOf);
   const damagePlan = planGroupAction('damage', planRows);
   const healPlan = planGroupAction('heal', planRows);
+  const currentHpPlan = planGroupAction('current-hp', planRows);
   const tempHpPlan = planGroupAction('temp-hp', planRows);
   const maxHpPlan = planGroupAction('max-hp', planRows);
-  const defeatedPlan = planGroupAction('defeated', planRows);
-  const undefeatedPlan = planGroupAction('undefeated', planRows);
+  const defeatedAction = pickDefeatedAction(planRows);
+  const defeatedPlan = planGroupAction(defeatedAction.kind, planRows);
   const removePlan = planGroupAction('removed', planRows);
 
   const recordPlan = (plan: GroupActionPlan) => {
@@ -94,7 +96,8 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
             <EncounterCombatantActionRow
               key={entry.id}
               name={entry.name}
-              hpText={describeActionRowHp(hp)}
+              hp={hp}
+              defeated={entry.defeated}
               amountText={amountTextOf(entry.id)}
               onAmountChange={(text) => {
                 setRowText(entry.id, text);
@@ -116,30 +119,39 @@ export const EncounterCombatantActionsTab: FCProps<Props> = ({
             buttonStyle='success'
           />
         </div>
-        <EncounterCombatantActionButton
-          label='Set temp HP'
-          plan={tempHpPlan}
-          onRun={recordPlan}
-        />
-        <EncounterCombatantActionButton
-          label='Set max HP'
-          plan={maxHpPlan}
-          onRun={recordPlan}
-        />
+        <div className='label encounter-combatant-actions-tab-label'>
+          Set HP
+        </div>
+        <div className='encounter-combatant-actions-tab-set-row'>
+          <EncounterCombatantActionButton
+            label='Current'
+            aria-label='Set current HP'
+            plan={currentHpPlan}
+            onRun={recordPlan}
+          />
+          <EncounterCombatantActionButton
+            label='Temp'
+            aria-label='Set temp HP'
+            plan={tempHpPlan}
+            onRun={recordPlan}
+          />
+          <EncounterCombatantActionButton
+            label='Max'
+            aria-label='Set max HP'
+            plan={maxHpPlan}
+            onRun={recordPlan}
+          />
+        </div>
       </div>
 
       <div className='encounter-combatant-actions-tab-section'>
         <div className='label encounter-combatant-actions-tab-label'>State</div>
         <EncounterCombatantActionButton
-          label='Mark defeated'
+          label={defeatedAction.label}
           plan={defeatedPlan}
           onRun={recordPlan}
         />
-        <EncounterCombatantActionButton
-          label='Unmark defeated'
-          plan={undefeatedPlan}
-          onRun={recordPlan}
-        />
+        <HorizontalDivider />
         <EncounterCombatantActionButton
           label='Remove'
           plan={removePlan}

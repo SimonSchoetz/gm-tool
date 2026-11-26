@@ -1,0 +1,27 @@
+.encounter-combatant-action-row-hp-bar {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  height: 6px;
+  margin-top: 2px;
+  border-radius: var(--radius-xs);
+  background: rgb(var(--color-fg-rgb), 0.85);
+}
+
+.encounter-combatant-action-row-hp-bar-lost {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: calc(var(--rt-encounter-combatant-action-row-hp-bar-lost) * 100%);
+  background: var(--color-danger);
+}
+
+.encounter-combatant-action-row-hp-bar-temp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: calc(var(--rt-encounter-combatant-action-row-hp-bar-temp) * 100%);
+  background: var(--color-primary);
+}

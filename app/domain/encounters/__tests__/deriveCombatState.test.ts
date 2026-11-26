@@ -19,6 +19,16 @@ const tempHp = (queueItemId: string, value: number, id?: string) =>
   entry('temp-hp', { targets: [{ queueItemId, value }] }, id);
 const maxHp = (queueItemId: string, value: number, id?: string) =>
   entry('max-hp', { targets: [{ queueItemId, value }] }, id);
+const currentHp = (queueItemId: string, value: number, id?: string) =>
+  entry('current-hp', { targets: [{ queueItemId, value }] }, id);
+const ruledHeal = (queueItemId: string, amount: number, id?: string) =>
+  entry('heal', { targets: [{ queueItemId, amount }], hpRules: true }, id);
+const mark = (queueItemId: string, id?: string) =>
+  entry('defeated', { queueItemIds: [queueItemId] }, id);
+const ruledMark = (queueItemId: string, id?: string) =>
+  entry('defeated', { queueItemIds: [queueItemId], hpRules: true }, id);
+const ruledUnmark = (queueItemId: string, id?: string) =>
+  entry('undefeated', { queueItemIds: [queueItemId], hpRules: true }, id);
 const revert = (entryId: string, id?: string) =>
   entry('revert', { entryId }, id);
 
@@ -125,12 +135,13 @@ describe('deriveCombatState', () => {
   it('sets and clears only the combatant flags the entry kind names', () => {
     const items = [{ id: 'a', startingMaxHp: 5 }];
 
-    expect(
-      derive(items, [entry('defeated', { queueItemIds: ['a'] })]).get('a'),
-    ).toMatchObject({ defeated: true, removed: false });
+    expect(derive(items, [mark('a')]).get('a')).toMatchObject({
+      defeated: true,
+      removed: false,
+    });
     expect(
       derive(items, [
-        entry('defeated', { queueItemIds: ['a'] }),
+        mark('a'),
         entry('undefeated', { queueItemIds: ['a'] }),
       ]).get('a'),
     ).toMatchObject({ defeated: false, removed: false });
@@ -203,6 +214,16 @@ describe('deriveCombatState', () => {
       },
       { maxHp: 4 },
     ],
+    [
+      'current-hp',
+      {
+        targets: [
+          { queueItemId: 'gone', value: 4 },
+          { queueItemId: 'a', value: 4 },
+        ],
+      },
+      { currentHp: 4 },
+    ],
     ['defeated', { queueItemIds: ['gone', 'a'] }, { defeated: true }],
     ['removed', { queueItemIds: ['gone', 'a'] }, { removed: true }],
   ])(
@@ -251,17 +272,10 @@ describe('deriveCombatState', () => {
   it.each([
     ['max-hp', [maxHp('a', 5, 'target')], { maxHp: 10, currentHp: 10 }],
     ['temp-hp', [tempHp('a', 4, 'target')], { tempHp: 0 }],
-    [
-      'defeated',
-      [entry('defeated', { queueItemIds: ['a'] }, 'target')],
-      { defeated: false },
-    ],
+    ['defeated', [mark('a', 'target')], { defeated: false }],
     [
       'undefeated',
-      [
-        entry('defeated', { queueItemIds: ['a'] }),
-        entry('undefeated', { queueItemIds: ['a'] }, 'target'),
-      ],
+      [mark('a'), entry('undefeated', { queueItemIds: ['a'] }, 'target')],
       { defeated: true },
     ],
     [
@@ -331,4 +345,174 @@ describe('deriveCombatState', () => {
     expect(state.items.get('a')?.currentHp).toBe(10);
     expect(state.revertedEntryIds).toEqual(new Set(['hit']));
   });
+
+  it.each([
+    ['lowers', 0, 4, 4],
+    ['raises', 8, 6, 6],
+    ['raises from below 0', 15, 3, 3],
+    ['caps at max HP', 8, 20, 10],
+  ])(
+    '%s current HP with a current-hp entry and leaves max and temp HP',
+    (_label, damaged, value, expected) => {
+      expect(
+        derive(
+          [{ id: 'a', startingMaxHp: 10 }],
+          [damage('a', damaged), tempHp('a', 2), currentHp('a', value)],
+        ).get('a'),
+      ).toMatchObject({ maxHp: 10, currentHp: expected, tempHp: 2 });
+    },
+  );
+
+  it.each([
+    ['unmarks a defeated combatant above 0', [mark('a')], 1, false],
+    ['keeps the mark at 0', [mark('a')], 0, true],
+    ['never marks at 0', [], 0, false],
+  ])('a current-hp entry %s', (_label, before, value, defeated) => {
+    expect(
+      derive(
+        [{ id: 'a', startingMaxHp: 10 }],
+        [...before, currentHp('a', value)],
+      ).get('a')?.defeated,
+    ).toBe(defeated);
+  });
+
+  it('keeps the mark when max HP 0 caps the HP of a current-hp entry above 0 at 0', () => {
+    expect(
+      derive(
+        [{ id: 'a', startingMaxHp: 0 }],
+        [mark('a'), currentHp('a', 5)],
+      ).get('a'),
+    ).toMatchObject({ currentHp: 0, defeated: true });
+  });
+
+  it('leaves a combatant without HP and its mark alone for a current-hp or ruled heal entry', () => {
+    expect(
+      derive(
+        [{ id: 'a', startingMaxHp: null }],
+        [mark('a'), currentHp('a', 4), ruledHeal('a', 4)],
+      ).get('a'),
+    ).toMatchObject({ maxHp: null, currentHp: null, defeated: true });
+  });
+
+  it.each([
+    [12, 1, false],
+    [12, 0, true],
+    [15, 2, true],
+  ])(
+    'after %i damage and a mark, a ruled heal of %i unmarks only when HP ends above 0 (still marked: %s)',
+    (damaged, healed, defeated) => {
+      expect(
+        derive(
+          [{ id: 'a', startingMaxHp: 12 }],
+          [damage('a', damaged), mark('a'), ruledHeal('a', healed)],
+        ).get('a')?.defeated,
+      ).toBe(defeated);
+    },
+  );
+
+  it('changes no HP and unmarks nothing for heal, defeated and undefeated entries stored without hpRules', () => {
+    const items = [{ id: 'a', startingMaxHp: 10 }];
+
+    expect(
+      derive(items, [damage('a', 3), mark('a'), heal('a', 1)]).get('a'),
+    ).toMatchObject({ currentHp: 8, defeated: true });
+    expect(derive(items, [tempHp('a', 2), mark('a')]).get('a')).toMatchObject({
+      currentHp: 10,
+      tempHp: 2,
+      defeated: true,
+    });
+    expect(
+      derive(items, [
+        damage('a', 14),
+        mark('a'),
+        entry('undefeated', { queueItemIds: ['a'] }),
+      ]).get('a'),
+    ).toMatchObject({ currentHp: -4, defeated: false });
+  });
+
+  it.each([3, 14])(
+    'sets current HP and temp HP to 0 with a ruled defeated entry after temp HP 2 and %i damage taken before it',
+    (damaged) => {
+      expect(
+        derive(
+          [{ id: 'a', startingMaxHp: 10 }],
+          [damage('a', damaged), tempHp('a', 2), ruledMark('a')],
+        ).get('a'),
+      ).toMatchObject({ currentHp: 0, tempHp: 0, defeated: true });
+    },
+  );
+
+  it('only marks and unmarks a combatant without HP with ruled entries, keeping its temp HP', () => {
+    const items = [{ id: 'a', startingMaxHp: null }];
+    const unset = { maxHp: null, currentHp: null, tempHp: 4, removed: false };
+
+    expect(derive(items, [tempHp('a', 4), ruledMark('a')]).get('a')).toEqual({
+      ...unset,
+      defeated: true,
+    });
+    expect(
+      derive(items, [tempHp('a', 4), ruledMark('a'), ruledUnmark('a')]).get(
+        'a',
+      ),
+    ).toEqual({ ...unset, defeated: false });
+  });
+
+  it.each([
+    [14, 1],
+    [10, 1],
+    [9, 1],
+    [4, 6],
+  ])(
+    'after %i damage, a ruled undefeated entry unmarks and leaves current HP %i',
+    (damaged, expected) => {
+      expect(
+        derive(
+          [{ id: 'a', startingMaxHp: 10 }],
+          [damage('a', damaged), mark('a'), ruledUnmark('a')],
+        ).get('a'),
+      ).toMatchObject({ currentHp: expected, defeated: false });
+    },
+  );
+
+  it('gives temp HP to a defeated combatant and keeps it defeated', () => {
+    expect(
+      derive(
+        [{ id: 'a', startingMaxHp: 10 }],
+        [ruledMark('a'), tempHp('a', 3)],
+      ).get('a'),
+    ).toMatchObject({ currentHp: 0, tempHp: 3, defeated: true });
+  });
+
+  it.each([
+    [
+      'current-hp',
+      [ruledMark('a'), currentHp('a', 4, 'target')],
+      { currentHp: 0, tempHp: 0, defeated: true },
+    ],
+    [
+      'ruled heal',
+      [ruledMark('a'), ruledHeal('a', 4, 'target')],
+      { currentHp: 0, tempHp: 0, defeated: true },
+    ],
+    [
+      'ruled defeated',
+      [damage('a', 3), tempHp('a', 2), ruledMark('a', 'target')],
+      { currentHp: 7, tempHp: 2, defeated: false },
+    ],
+    [
+      'ruled undefeated',
+      [ruledMark('a'), ruledUnmark('a', 'target')],
+      { currentHp: 0, tempHp: 0, defeated: true },
+    ],
+  ])(
+    'restores HP and the mark when a %s entry is reverted',
+    (_label, entries, expected) => {
+      expect(
+        derive(
+          [{ id: 'a', startingMaxHp: 10 }],
+          [...entries, revert('target')],
+        ).get('a'),
+      ).toMatchObject(expected);
+    },
+  );
 });

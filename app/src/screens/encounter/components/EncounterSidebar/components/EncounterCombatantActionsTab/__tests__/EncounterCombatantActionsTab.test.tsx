@@ -154,7 +154,15 @@ describe('EncounterCombatantActionsTab', () => {
     {
       label: 'Heal',
       kind: 'heal',
-      payload: { targets: [{ queueItemId: ITEM_ID, amount: 5 }] },
+      payload: {
+        targets: [{ queueItemId: ITEM_ID, amount: 5 }],
+        hpRules: true,
+      },
+    },
+    {
+      label: 'Set current HP',
+      kind: 'current-hp',
+      payload: { targets: [{ queueItemId: ITEM_ID, value: 5 }] },
     },
     {
       label: 'Set temp HP',
@@ -169,7 +177,7 @@ describe('EncounterCombatantActionsTab', () => {
     {
       label: 'Mark defeated',
       kind: 'defeated',
-      payload: { queueItemIds: [ITEM_ID] },
+      payload: { queueItemIds: [ITEM_ID], hpRules: true },
     },
   ])(
     'records a $kind entry for the selected combatant when $label is clicked',
@@ -208,7 +216,7 @@ describe('EncounterCombatantActionsTab', () => {
       expect(recordLogEntry).toHaveBeenCalledWith(
         ROUTE_ENCOUNTER_ID,
         'undefeated',
-        { queueItemIds: [ITEM_ID] },
+        { queueItemIds: [ITEM_ID], hpRules: true },
       );
     });
   });
@@ -242,7 +250,7 @@ describe('EncounterCombatantActionsTab', () => {
     expect(screen.getByPlaceholderText('Amount')).toBe(amountField());
   });
 
-  it.each(['Damage', 'Heal', 'Set temp HP', 'Set max HP'])(
+  it.each(['Damage', 'Heal', 'Set current HP', 'Set temp HP', 'Set max HP'])(
     'enables %s once an amount is typed',
     async (label) => {
       const user = userEvent.setup();
@@ -282,7 +290,7 @@ describe('EncounterCombatantActionsTab', () => {
     ).toBeInTheDocument();
   });
 
-  it('says HP is not set for a combatant without HP and disables Damage and Heal', async () => {
+  it('says HP is not set for a combatant without HP and disables Damage, Heal and Set current HP', async () => {
     arrange({ combatants: [{ ...GOBLIN, maxHp: null }] });
     const user = userEvent.setup();
     await renderTab();
@@ -293,6 +301,7 @@ describe('EncounterCombatantActionsTab', () => {
     ).toBeInTheDocument();
     expect(button('Damage')).toBeDisabled();
     expect(button('Heal')).toBeDisabled();
+    expect(button('Set current HP')).toBeDisabled();
     expect(button('Set max HP')).toBeEnabled();
   });
 
@@ -394,6 +403,35 @@ describe('EncounterCombatantActionsTab', () => {
       expect(button('Damage')).toBeEnabled();
     });
 
+    it('applies Set current HP to the combatants with HP set and disables it while one of their amounts is invalid', async () => {
+      arrange({ combatants: [GOBLIN, { ...ORC, maxHp: null }, TROLL] });
+      const user = userEvent.setup();
+      await renderTab(SEVERAL);
+      await user.type(amountField('Goblin'), '4');
+      await user.type(amountField('Troll'), '1.5');
+
+      expect(button('Set current HP')).toBeDisabled();
+
+      await user.clear(amountField('Troll'));
+      await user.type(amountField('Troll'), '6');
+      await user.click(button('Set current HP'));
+
+      await waitFor(() => {
+        expect(recordLogEntry.mock.calls).toEqual([
+          [
+            ROUTE_ENCOUNTER_ID,
+            'current-hp',
+            {
+              targets: [
+                { queueItemId: ITEM_ID, value: 4 },
+                { queueItemId: THIRD_ID, value: 6 },
+              ],
+            },
+          ],
+        ]);
+      });
+    });
+
     it('writes one Remove entry listing every selected id once Remove is confirmed', async () => {
       const user = userEvent.setup();
       await renderTab(SEVERAL);
@@ -412,7 +450,7 @@ describe('EncounterCombatantActionsTab', () => {
       });
     });
 
-    it('marks defeated only the combatants that are not defeated and disables the button when all are', async () => {
+    it('reads Mark defeated while a selected combatant is not defeated and applies to those', async () => {
       arrange({
         combatants: [GOBLIN, ORC, TROLL],
         logEntries: [
@@ -421,69 +459,43 @@ describe('EncounterCombatantActionsTab', () => {
       });
       const user = userEvent.setup();
       await renderTab(SEVERAL);
-      await waitFor(() => {
-        expect(button('Unmark defeated')).toBeEnabled();
-      });
 
+      expect(
+        screen.queryByRole('button', { name: 'Unmark defeated' }),
+      ).not.toBeInTheDocument();
       await user.click(button('Mark defeated'));
 
       await waitFor(() => {
         expect(recordLogEntry).toHaveBeenCalledWith(
           ROUTE_ENCOUNTER_ID,
           'defeated',
-          { queueItemIds: [ITEM_ID, THIRD_ID] },
+          { queueItemIds: [ITEM_ID, THIRD_ID], hpRules: true },
         );
       });
     });
 
-    it('unmarks defeated only the defeated combatants and disables the button when none is', async () => {
+    it('reads Unmark defeated when every selected combatant is defeated and applies to all of them', async () => {
       arrange({
         combatants: [GOBLIN, ORC, TROLL],
         logEntries: [
-          buildEncounterLogEntry('defeated', { queueItemIds: [OTHER_ID] }),
+          buildEncounterLogEntry('defeated', { queueItemIds: SEVERAL }),
         ],
       });
       const user = userEvent.setup();
       await renderTab(SEVERAL);
-      await waitFor(() => {
-        expect(button('Unmark defeated')).toBeEnabled();
-      });
 
+      expect(
+        screen.queryByRole('button', { name: 'Mark defeated' }),
+      ).not.toBeInTheDocument();
       await user.click(button('Unmark defeated'));
 
       await waitFor(() => {
         expect(recordLogEntry).toHaveBeenCalledWith(
           ROUTE_ENCOUNTER_ID,
           'undefeated',
-          { queueItemIds: [OTHER_ID] },
+          { queueItemIds: SEVERAL, hpRules: true },
         );
       });
-    });
-
-    it('disables Mark defeated when every selected combatant is defeated', async () => {
-      arrange({
-        combatants: [GOBLIN, ORC, TROLL],
-        logEntries: SEVERAL.map((id, index) =>
-          buildEncounterLogEntry(
-            'defeated',
-            { queueItemIds: [id] },
-            { id: `log-${index}` },
-          ),
-        ),
-      });
-      await renderTab(SEVERAL);
-
-      await waitFor(() => {
-        expect(button('Mark defeated')).toBeDisabled();
-      });
-      expect(button('Unmark defeated')).toBeEnabled();
-    });
-
-    it('disables Unmark defeated when no selected combatant is defeated', async () => {
-      await renderTab(SEVERAL);
-
-      expect(button('Unmark defeated')).toBeDisabled();
-      expect(button('Mark defeated')).toBeEnabled();
     });
 
     it('keeps the rows and the shared field after an action and gives a joining combatant the shared text', async () => {
@@ -535,10 +547,10 @@ describe('EncounterCombatantActionsTab', () => {
       for (const label of [
         'Damage',
         'Heal',
+        'Set current HP',
         'Set temp HP',
         'Set max HP',
         'Mark defeated',
-        'Unmark defeated',
       ]) {
         expect(button(label)).toBeDisabled();
       }
@@ -573,14 +585,14 @@ describe('EncounterCombatantActionsTab', () => {
     });
 
     it('shows the shared field for two combatants and an event, and not for one combatant and two events', async () => {
-      arrange({ combatants: [GOBLIN, ORC], events: [LAIR] });
+      arrange({ combatants: [GOBLIN, ORC], events: [LAIR, REINFORCEMENTS] });
       const { rerender } = await renderTab([ITEM_ID, OTHER_ID, LAIR.id]);
 
       expect(sharedField()).toBeInTheDocument();
 
       rerender(
         <EncounterCombatantActionsTab
-          selectedIds={[ITEM_ID, LAIR.id, 'event-2']}
+          selectedIds={[ITEM_ID, LAIR.id, REINFORCEMENTS.id]}
         />,
       );
 

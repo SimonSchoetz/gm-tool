@@ -10,24 +10,34 @@ describe('describeQueueEntryHp', () => {
     expect(describeQueueEntryHp({ ...hp, tempHp: 0 })).toBeNull();
   });
 
-  it('writes current and max HP, and the temp HP only when it is above 0', () => {
-    expect(
-      describeQueueEntryHp({ maxHp: 7, currentHp: 4, tempHp: 2 })?.text,
-    ).toBe('4/7 +2');
-    expect(
-      describeQueueEntryHp({ maxHp: 7, currentHp: 4, tempHp: 0 })?.text,
-    ).toBe('4/7');
-  });
-
-  it('computes the lost share of a hurt entry from max and current HP and ignores temp HP', () => {
+  it('keeps temp HP out of the text and the lost share of a hurt entry and gives its share of max HP apart', () => {
     expect(describeQueueEntryHp({ maxHp: 8, currentHp: 6, tempHp: 5 })).toEqual(
       {
-        text: '6/8 +5',
+        text: '6/8',
         state: 'hurt',
         lostShare: 0.25,
+        tempHp: 5,
+        tempShare: 0.625,
       },
     );
   });
+
+  it.each([
+    { maxHp: 8, tempHp: 0, tempShare: 0 },
+    { maxHp: 0, tempHp: 0, tempShare: 0 },
+    { maxHp: 8, tempHp: 2, tempShare: 0.25 },
+    { maxHp: 8, tempHp: 8, tempShare: 1 },
+    { maxHp: 8, tempHp: 20, tempShare: 1 },
+    { maxHp: 0, tempHp: 3, tempShare: 1 },
+    { maxHp: -3, tempHp: 3, tempShare: 1 },
+  ])(
+    'gives a temp share of $tempShare for $tempHp temp HP on max HP $maxHp',
+    ({ maxHp, tempHp, tempShare }) => {
+      expect(
+        describeQueueEntryHp({ maxHp, currentHp: 4, tempHp })?.tempShare,
+      ).toBe(tempShare);
+    },
+  );
 
   it.each([
     { maxHp: 7, currentHp: 0 },
@@ -48,6 +58,8 @@ describe('describeQueueEntryHp', () => {
         text: '7/7',
         state: 'ok',
         lostShare: 0,
+        tempHp: 0,
+        tempShare: 0,
       },
     );
   });

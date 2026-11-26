@@ -47,6 +47,16 @@ describe('buildLogLines', () => {
       { targets: [{ queueItemId: 'b', value: 30 }] },
       'Max HP: Orc (30)',
     ],
+    [
+      'current-hp',
+      {
+        targets: [
+          { queueItemId: 'a', value: 3 },
+          { queueItemId: 'b', value: 20 },
+        ],
+      },
+      'Current HP: Goblin (3), Orc (20)',
+    ],
     ['defeated', { queueItemIds: ['a', 'b'] }, 'Defeated: Goblin, Orc'],
     ['undefeated', { queueItemIds: ['b', 'a'] }, 'Undefeated: Orc, Goblin'],
     ['removed', { queueItemIds: ['a'] }, 'Removed: Goblin'],
@@ -174,6 +184,7 @@ describe('buildLogLines', () => {
         log('e5', 'defeated', { queueItemIds: ['a'] }),
         log('e6', 'undefeated', { queueItemIds: ['a'] }),
         log('e7', 'removed', { queueItemIds: ['b'] }),
+        log('e8', 'current-hp', { targets: [{ queueItemId: 'a', value: 2 }] }),
       ],
       [],
     );
@@ -190,6 +201,7 @@ describe('buildLogLines', () => {
       ['e5', true],
       ['e6', true],
       ['e7', false],
+      ['e8', true],
     ]);
   });
 

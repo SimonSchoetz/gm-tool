@@ -19,7 +19,13 @@ describe('describeQueueEntryLook', () => {
         defeated: false,
       }),
     ).toEqual({
-      hp: { text: '4/10', state: 'hurt', lostShare: 0.6 },
+      hp: {
+        text: '4/10',
+        state: 'hurt',
+        lostShare: 0.6,
+        tempHp: 0,
+        tempShare: 0,
+      },
       imageLook: 'tint',
     });
     expect(

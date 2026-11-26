@@ -1,0 +1,21 @@
+.encounter-queue-entry-temp-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  pointer-events: none;
+  /* The whole outline is drawn; cutting it off from the top fills it upwards like a gauge. */
+  clip-path: inset(
+    calc((1 - var(--rt-encounter-queue-entry-temp-frame-reach)) * 100%) 0 0 0
+  );
+}
+
+.encounter-queue-entry-temp-frame-edge {
+  stroke: rgb(var(--color-bg-rgb), 0.85);
+}
+
+.encounter-queue-entry-temp-frame-stroke {
+  stroke: var(--color-primary);
+}
