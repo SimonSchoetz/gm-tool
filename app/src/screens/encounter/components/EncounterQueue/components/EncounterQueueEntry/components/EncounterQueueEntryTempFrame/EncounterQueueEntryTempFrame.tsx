@@ -1,10 +1,13 @@
+import type { CSSProperties } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { QUEUE_ENTRY_IMAGE_SIZE } from '../../EncounterQueueEntry.constants';
-import { buildTempFramePaths } from './helper/buildTempFramePaths';
+import { TEMP_FRAME_EDGE_WIDTH } from './EncounterQueueEntryTempFrame.constants';
+import { computeTempFrameReach } from './helper/computeTempFrameReach';
 import './EncounterQueueEntryTempFrame.css';
 
 const STROKE_WIDTH = 3;
-const EDGE_WIDTH = 5;
+// A copy of --radius-lg (0.75rem at the 16 px root font), the corner radius of .encounter-queue-entry-image: an SVG outline needs it as a number.
+const QUEUE_ENTRY_IMAGE_RADIUS = 12;
 
 type Props = {
   share: number;
@@ -12,52 +15,45 @@ type Props = {
 
 export const EncounterQueueEntryTempFrame: FCProps<Props> = ({ share }) => {
   // An inset of half the edge width keeps the whole edge inside the image, which clips what overflows it.
-  const paths = buildTempFramePaths(EDGE_WIDTH / 2);
+  const inset = TEMP_FRAME_EDGE_WIDTH / 2;
+  const outlineSize = QUEUE_ENTRY_IMAGE_SIZE - TEMP_FRAME_EDGE_WIDTH;
+  const outlineRadius = QUEUE_ENTRY_IMAGE_RADIUS - inset;
   const viewBox = `0 0 ${QUEUE_ENTRY_IMAGE_SIZE} ${QUEUE_ENTRY_IMAGE_SIZE}`;
-  const dashArray = `${share} 1`;
-  // Both edge halves come before both strokes, so no edge paints over a stroke where the halves meet.
+  const reach = computeTempFrameReach(share);
+  // The edge comes before the stroke, so it paints under it.
   const layers = [
     {
-      key: 'edge-left',
       className: 'encounter-queue-entry-temp-frame-edge',
-      width: EDGE_WIDTH,
-      d: paths.left,
+      width: TEMP_FRAME_EDGE_WIDTH,
     },
     {
-      key: 'edge-right',
-      className: 'encounter-queue-entry-temp-frame-edge',
-      width: EDGE_WIDTH,
-      d: paths.right,
-    },
-    {
-      key: 'stroke-left',
       className: 'encounter-queue-entry-temp-frame-stroke',
       width: STROKE_WIDTH,
-      d: paths.left,
-    },
-    {
-      key: 'stroke-right',
-      className: 'encounter-queue-entry-temp-frame-stroke',
-      width: STROKE_WIDTH,
-      d: paths.right,
     },
   ];
 
   return (
     <svg
       className='encounter-queue-entry-temp-frame'
+      style={
+        {
+          '--rt-encounter-queue-entry-temp-frame-reach': reach,
+        } as CSSProperties
+      }
       viewBox={viewBox}
       role='img'
       aria-label='Temp HP frame'
     >
       {layers.map((layer) => (
-        <path
-          key={layer.key}
+        <rect
+          key={layer.className}
           className={layer.className}
-          d={layer.d}
+          x={inset}
+          y={inset}
+          width={outlineSize}
+          height={outlineSize}
+          rx={outlineRadius}
           strokeWidth={layer.width}
-          pathLength={1}
-          strokeDasharray={dashArray}
         />
       ))}
     </svg>

@@ -40,7 +40,7 @@
 .encounter-queue-entry-image {
   position: relative;
   overflow: hidden;
-  /* QUEUE_ENTRY_IMAGE_RADIUS in EncounterQueueEntryTempFrame.constants.ts is a copy of this radius. */
+  /* QUEUE_ENTRY_IMAGE_RADIUS in EncounterQueueEntryTempFrame.tsx is a copy of this radius. */
   border-radius: var(--radius-lg);
   flex-shrink: 0;
   margin: var(--spacing-xs) 0;
