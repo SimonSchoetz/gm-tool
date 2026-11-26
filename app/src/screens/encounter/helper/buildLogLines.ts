@@ -36,6 +36,7 @@ const LABELS = {
   heal: 'Heal',
   'temp-hp': 'Temp HP',
   'max-hp': 'Max HP',
+  'current-hp': 'Current HP',
   defeated: 'Defeated',
   undefeated: 'Undefeated',
   removed: 'Removed',
@@ -92,6 +93,7 @@ const describeEntry = (
       );
     case 'temp-hp':
     case 'max-hp':
+    case 'current-hp':
       return withFigures(
         entry.payload.targets.map(({ queueItemId, value }) => ({
           queueItemId,

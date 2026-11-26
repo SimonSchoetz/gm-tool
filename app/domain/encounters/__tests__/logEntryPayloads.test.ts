@@ -45,6 +45,34 @@ describe('serializeLogEntryPayload', () => {
     ).toThrow();
   });
 
+  it.each([
+    [
+      'heal',
+      { targets: [{ queueItemId: 'a', amount: 3 }], hpRules: true },
+      '{"targets":[{"queueItemId":"a","amount":3}],"hpRules":true}',
+    ],
+    [
+      'defeated',
+      { queueItemIds: ['a'], hpRules: true },
+      '{"queueItemIds":["a"],"hpRules":true}',
+    ],
+    [
+      'undefeated',
+      { queueItemIds: ['a'], hpRules: true },
+      '{"queueItemIds":["a"],"hpRules":true}',
+    ],
+    [
+      'current-hp',
+      { targets: [{ queueItemId: 'a', value: 3 }] },
+      '{"targets":[{"queueItemId":"a","value":3}]}',
+    ],
+  ] as const)(
+    'keeps every field of a %s payload',
+    (kind, payload, expected) => {
+      expect(serializeLogEntryPayload(kind, payload as never)).toBe(expected);
+    },
+  );
+
   it('rejects an empty targets list', () => {
     expect(() => serializeLogEntryPayload('heal', { targets: [] })).toThrow();
   });
@@ -74,6 +102,7 @@ describe('isRevertibleLogEntryKind', () => {
     'heal',
     'temp-hp',
     'max-hp',
+    'current-hp',
     'defeated',
     'undefeated',
     'removed',
@@ -95,6 +124,7 @@ describe('readLogEntry', () => {
     ['heal', 'amount'],
     ['temp-hp', 'value'],
     ['max-hp', 'value'],
+    ['current-hp', 'value'],
   ])('accepts a %s payload with several targets', (kind, field) => {
     const payload = {
       targets: [
@@ -114,6 +144,10 @@ describe('readLogEntry', () => {
     ['heal', { targets: [{ queueItemId: 'a', amount: 3 }] }],
     ['temp-hp', { targets: [{ queueItemId: 'a', value: 3 }] }],
     ['max-hp', { targets: [{ queueItemId: 'a', value: 3 }] }],
+    ['current-hp', { targets: [{ queueItemId: 'a', value: 3 }] }],
+    ['heal', { targets: [{ queueItemId: 'a', amount: 3 }], hpRules: true }],
+    ['defeated', { queueItemIds: ['a'], hpRules: true }],
+    ['undefeated', { queueItemIds: ['a'], hpRules: true }],
     ['defeated', { queueItemIds: ['a'] }],
     ['undefeated', { queueItemIds: ['a'] }],
     ['removed', { queueItemIds: ['a'] }],
@@ -142,6 +176,36 @@ describe('readLogEntry', () => {
     ['an empty list', 'defeated', '{"queueItemIds":[]}'],
     ['an empty editor state', 'message', '{"editorState":""}'],
     ['an empty entry id', 'revert', '{"entryId":""}'],
+    [
+      'a false hpRules on heal',
+      'heal',
+      '{"targets":[{"queueItemId":"a","amount":3}],"hpRules":false}',
+    ],
+    [
+      'a false hpRules on defeated',
+      'defeated',
+      '{"queueItemIds":["a"],"hpRules":false}',
+    ],
+    [
+      'a false hpRules on undefeated',
+      'undefeated',
+      '{"queueItemIds":["a"],"hpRules":false}',
+    ],
+    [
+      'a negative current HP',
+      'current-hp',
+      '{"targets":[{"queueItemId":"a","value":-1}]}',
+    ],
+    [
+      'a fractional current HP',
+      'current-hp',
+      '{"targets":[{"queueItemId":"a","value":1.5}]}',
+    ],
+    [
+      'an amount on current-hp',
+      'current-hp',
+      '{"targets":[{"queueItemId":"a","amount":3}]}',
+    ],
     [
       'the field of another kind',
       'max-hp',
