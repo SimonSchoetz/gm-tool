@@ -249,26 +249,36 @@ A hook that passes staged paths to ESLint without an extension filter needs the 
 
 A hook that builds a path list for ESLint must skip the run when the list is empty, or ESLint checks the whole directory instead of nothing.
 
-## Under this project's `eslint.config.js`, typescript-eslint 8.73.0 reported 62 `@typescript-eslint/no-unsafe-class-instance-assignment` errors, where 8.72.2 reported none
+## `@typescript-eslint/no-unsafe-class-instance-assignment` reported a `SqliteDatabase`-shaped value passed to a `Database` parameter, a cast `sd as Database` of such a value and an object literal returned as `Database`, and accepted a four-member `Pick<Database, …>` parameter given the same values
 
-**Verified at:** typescript-eslint 8.73.0 — 2026-11-19
-**Citation:** [claude_2: ran `npx eslint --concurrency=auto . ../scripts` from `app/` after `pnpm update typescript-eslint` — observed 62 errors, all `no-unsafe-class-instance-assignment`]
+**Verified at:** typescript-eslint 8.73.0, `@tauri-apps/plugin-sql` 2.6.0
 
-## `@typescript-eslint/no-unsafe-class-instance-assignment` reports a plain object type, a cast to plugin-sql's `Database` and an object literal used where `Database` is expected, and accepts a `Pick<Database, …>` parameter
+**Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed the rule on a `SqliteDatabase`-shaped value passed to a `Database` parameter, on `sd as Database` and on an object literal returned as `Database`; no report for a `Pick<Database, 'path' | 'execute' | 'select' | 'close'>` parameter given the same values]
 
-**Verified at:** typescript-eslint 8.73.0
+Only a `Pick`-typed parameter was run, not a `Pick`-typed cast, return or variable.
 
-**Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed the rule on a `SqliteDatabase`-shaped value passed to a `Database` parameter, on `sd as Database` and on an object literal returned as `Database`; no report for a `Pick<Database, 'path' | 'execute' | 'select' | 'close'>` parameter given the same values] [sub-feature-implementer_4: `@typescript-eslint/eslint-plugin@8.73.0` `dist/configs/flat/strict-type-checked.js:71` — `'@typescript-eslint/no-unsafe-class-instance-assignment': 'error'`]
+## `@typescript-eslint/eslint-plugin` 8.73.0's `flat/strict-type-checked` config sets `@typescript-eslint/no-unsafe-class-instance-assignment` to `error`
 
-The rule is part of `strictTypeChecked`. A target typed `Pick<Database, 'path' | 'execute' | 'select' | 'close'>` is not reported.
+**Verified at:** @typescript-eslint/eslint-plugin 8.73.0 — 2026-11-26
+**Citation:** [sub-feature-implementer_4: `@typescript-eslint/eslint-plugin@8.73.0` `dist/configs/flat/strict-type-checked.js:71` — `'@typescript-eslint/no-unsafe-class-instance-assignment': 'error'`]
 
-## `@typescript-eslint/no-unnecessary-type-assertion` reports `x as unknown as Database` when `x` is structurally assignable to plugin-sql's `Database`
+The citation reads that one config file.
 
-**Verified at:** typescript-eslint 8.73.0
+## `@typescript-eslint/no-unnecessary-type-assertion` reported `sd as unknown as Database` and `x as unknown as Database & { calls: number }`, where `sd` and `x` were structurally assignable to plugin-sql's `Database`
 
-**Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed `no-unnecessary-type-assertion` on `sd as unknown as Database` and on `x as unknown as Database & { calls: number }`, where `sd` and `x` are structurally assignable] [sub-feature-implementer_3: ran `npx eslint --concurrency=auto . ../scripts` from `app/` on a scratch copy of this repository with typescript-eslint 8.73.0 — observed neither rule on `{} as unknown as RenderTexture`]
+**Verified at:** typescript-eslint 8.73.0, `@tauri-apps/plugin-sql` 2.6.0
 
-So for a stand-in that already fits `Database`'s shape, a double cast still leaves a lint error. On `{} as unknown as RenderTexture` neither rule reports.
+**Citation:** [architect_3: ran `npx eslint` on a scratch `b.ts` over `@tauri-apps/plugin-sql@2.6.0` with typescript-eslint 8.73.0 — observed `no-unnecessary-type-assertion` on `sd as unknown as Database` and on `x as unknown as Database & { calls: number }`, where `sd` and `x` are structurally assignable]
+
+So for these two values, a double cast did not leave lint silent.
+
+## Neither `no-unsafe-class-instance-assignment` nor `no-unnecessary-type-assertion` reported `{} as unknown as RenderTexture` for pixi.js's `RenderTexture`
+
+**Verified at:** typescript-eslint 8.73.0, pixi.js 8.23.0
+
+**Citation:** [sub-feature-implementer_3: ran `npx eslint --concurrency=auto . ../scripts` from `app/` on a scratch copy of this repository with typescript-eslint 8.73.0 — observed neither rule on `{} as unknown as RenderTexture`]
+
+The run observed this expression only; why neither rule reported it was not tested.
 
 ## `@typescript-eslint/typescript-estree` asks for `minimatch` `^10.2.2` at 8.70.0 and `^11.0.1` at 8.73.0
 

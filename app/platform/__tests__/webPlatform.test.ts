@@ -75,7 +75,6 @@ describe('webPlatform.loadDatabase', () => {
     ).resolves.toEqual([{ a: 'row' }]);
     await expect(db.select('SELECT 1 AS n')).resolves.toEqual([{ n: 1 }]);
 
-    expect(db.path).toBe('gm_tool.db');
     expect(fetchSpy).toHaveBeenNthCalledWith(
       2,
       url(DEV_DATA_SERVER_ROUTES.sqlExecute),
@@ -91,7 +90,6 @@ describe('webPlatform.loadDatabase', () => {
       url(DEV_DATA_SERVER_ROUTES.sqlSelect),
       jsonPost({ query: 'SELECT 1 AS n', bindValues: [] }),
     );
-    await expect(db.close()).resolves.toBe(true);
   });
 });
 

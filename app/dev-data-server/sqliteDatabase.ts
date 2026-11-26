@@ -2,9 +2,8 @@
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import type { QueryResult } from '@tauri-apps/plugin-sql';
 
-// The members are those `SqlDatabase` (`app/platform/types.ts`) requires, so callers pass a `SqliteDatabase` to `up(db)`, `runMigrations(db, …)` and `ensureColumn(db, …)` with no cast.
+// It carries what `SqlDatabase` (`app/platform/types.ts`) requires, so callers pass a `SqliteDatabase` to `up(db)`, `runMigrations(db, …)` and `ensureColumn(db, …)` with no cast, plus `close`, which code holding a `SqliteDatabase` calls.
 export type SqliteDatabase = {
-  path: string;
   execute: (query: string, bindValues?: unknown[]) => Promise<QueryResult>;
   select: <T>(query: string, bindValues?: unknown[]) => Promise<T>;
   close: () => Promise<boolean>;
@@ -38,7 +37,6 @@ export const openSqliteDatabase = (path: string): SqliteDatabase => {
   };
 
   return {
-    path,
     execute: (query, bindValues) =>
       settle(() => {
         const values = toSqlValues(bindValues);

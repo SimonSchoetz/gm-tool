@@ -68,12 +68,12 @@ export const webPlatform: Platform = {
     );
     return result as T;
   },
-  loadDatabase: async (databaseFile) => {
+  // Takes no argument, though `Platform.loadDatabase` passes the file name: the dev data server serves the one database it was started on.
+  loadDatabase: async () => {
     if (!(await isDevDataServerReachable())) {
       throw new Error(UNREACHABLE_DEV_DATA_SERVER_MESSAGE);
     }
     return {
-      path: databaseFile,
       execute: (query, bindValues) =>
         postJson<SqlExecuteResponse>(DEV_DATA_SERVER_ROUTES.sqlExecute, {
           query,
@@ -84,7 +84,6 @@ export const webPlatform: Platform = {
           query,
           bindValues: bindValues ?? [],
         } satisfies SqlRequest),
-      close: () => Promise.resolve(true),
     };
   },
   // Web mode has no Tauri events: nothing is ever delivered, so there is nothing to unlisten.

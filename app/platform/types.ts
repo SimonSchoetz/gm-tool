@@ -3,10 +3,7 @@ import type { EventCallback, UnlistenFn } from '@tauri-apps/api/event';
 
 export type IpcChannel<T> = { onmessage: (message: T) => void };
 
-export type SqlDatabase = Pick<
-  Database,
-  'path' | 'execute' | 'select' | 'close'
->;
+export type SqlDatabase = Pick<Database, 'execute' | 'select'>;
 
 export type Platform = {
   invoke: <T>(command: string, args?: Record<string, unknown>) => Promise<T>;

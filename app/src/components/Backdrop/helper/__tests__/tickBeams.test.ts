@@ -160,8 +160,8 @@ describe('tickBeams drawing', () => {
   });
 
   it.each([
-    ['at the previous position', 100, 0],
-    ['at the new position', 92, 0],
+    ['at the previous position', 100],
+    ['at the new position', 92],
   ])('does not pass a corner %s', (_where, headDistance) => {
     const args = makeArgs([LShape({ headDistance })]);
     const { lineTo } = spies(args);

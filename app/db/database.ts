@@ -1,5 +1,6 @@
 import { DATABASE_FILE } from '@domain';
-import { loadDatabase, type SqlDatabase } from '@platform';
+import { loadDatabase } from '@platform';
+import type { SqlDatabase } from '@platform';
 import { runMigrations } from './_migrations';
 import { backupDatabase } from './database-backup';
 

@@ -35,7 +35,7 @@ describe('createGridTileTexture', () => {
     expect(generateTexture).toHaveBeenCalledTimes(1);
     expect(generateTexture).toHaveBeenCalledWith({
       target: expect.any(Graphics) as unknown,
-      frame: expect.any(Rectangle) as unknown,
+      frame: new Rectangle(0, 0, 120, 120),
     });
   });
 

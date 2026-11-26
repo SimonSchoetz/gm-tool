@@ -107,7 +107,8 @@ Needs no change — `app/platform/` is the host boundary every layer reaches Tau
 
   ```ts
   import type { SqlDatabase } from '@platform';
-  import { generateId, generateDbTimestamps } from '../util';
+  import type { Migration } from './index.ts';
+  import { generateId, generateDbTimestamps } from '../util/index.ts';
 
   const config = {
     table_name: '[plural]',
@@ -155,7 +156,7 @@ Needs no change — `app/platform/` is the host boundary every layer reaches Tau
     );
   };
 
-  export const add[Plural]TableConfigMigration = {
+  export const add[Plural]TableConfigMigration: Migration = {
     id: '[timestamp]',
     up,
   };

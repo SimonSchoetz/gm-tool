@@ -84,9 +84,16 @@ The test reads the spy after `await act(() => vi.advanceTimersByTimeAsync(0))`. 
 
 jsdom applies the stylesheet because `app/vitest.config.ts` sets `css: true`, and no `:hover` state is ever matched, so a hover-revealed control stays hidden for the whole test; a role query for it returns `null` whether the control is rendered or not.
 
-## `@testing-library/jest-dom` 8.0.0 types its matchers on Vitest 5.1.1 through its `/vitest` import, whose declaration augments `Assertion<R, T>`, and supports no Vitest below 5
+## `@testing-library/jest-dom` 8.0.0 types its matchers on Vitest 5.1.1 through its `/vitest` import, whose declaration augments `Assertion<R, T>`
 
 **Verified at:** @testing-library/jest-dom 8.0.0, vitest 5.1.1 — 2026-11-26
-**Citation:** [sub-feature-implementer_2: `app/node_modules/@testing-library/jest-dom/types/vitest.d.ts:5` declares `interface Assertion<R, T> extends TestingLibraryMatchers<T, R>`, `types/index.d.ts` there augments the global `jest.Matchers`, and `package.json` there declares the peer `vitest: ">=5 <6"`] [sub-feature-implementer_3: with no augmentation of the project's own, ran `npx tsc --noEmit` from `app/` — observed 235 errors with the setup file importing `@testing-library/jest-dom`, and exit 0 with it importing `@testing-library/jest-dom/vitest`, under which `npx vitest run --project app` passed]
+**Citation:** [sub-feature-implementer_2: `app/node_modules/@testing-library/jest-dom/types/vitest.d.ts:5` declares `interface Assertion<R, T> extends TestingLibraryMatchers<T, R>`, and `types/index.d.ts` there augments the global `jest.Matchers`] [sub-feature-implementer_3: with no augmentation of the project's own, ran `npx tsc --noEmit` from `app/` — observed 235 errors with the setup file importing `@testing-library/jest-dom`, and exit 0 with it importing `@testing-library/jest-dom/vitest`, under which `npx vitest run --project app` passed]
 
 With no augmentation of the project's own, `tsc` accepted the matchers under the `@testing-library/jest-dom/vitest` import.
+
+## `@testing-library/jest-dom` 8.0.0 declares a Vitest peer range with no version below 5
+
+**Verified at:** @testing-library/jest-dom 8.0.0 — 2026-11-26
+**Citation:** [sub-feature-implementer_2: `app/node_modules/@testing-library/jest-dom/package.json` declares the peer `vitest: ">=5 <6"`]
+
+A project on Vitest 4 or older cannot take jest-dom 8.0.0 within its declared peers.
