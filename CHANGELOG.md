@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.20.0] - 2026-11-26
+
+### Added
+
+- Set HP in the encounter's Actions tab sets the selected combatants' current HP to the typed amount, capped at their max HP, beside Set temp HP and Set max HP; the Log records it as "Current HP" and it can be reverted
+- One button in the Actions tab marks or unmarks the selected combatants as defeated
+- Mark defeated sets a combatant's current HP and temp HP to 0, and a Heal or Set current HP that ends above 0 unmarks a defeated combatant; reverting either restores both the HP and the mark
+- Each selected combatant's row in the Actions tab shows its HP figures and an HP bar
+- A combatant with temp HP has a frame along its queue image that climbs up both sides with its temp HP's share of max HP, closing across the top once temp HP reaches max HP
+
+### Changed
+
+- Updated the app's dependencies, including the Tauri stack, TanStack Query, the icon set and the device sync library
+
+### Fixed
+
+- In the installed app, a scrolling area's top fade no longer stays at full strength when it is scrolled to the top
+
 ## [v0.19.0] - 2026-11-23
 
 ### Added
