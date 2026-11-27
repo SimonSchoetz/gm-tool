@@ -159,6 +159,8 @@ A test can therefore run a Node entry script as a child process against a tempor
 **Verified at:** vitest 5.0.2, installed in `app/`, run 2026-11-10
 **Citation:** [implement_2: ran `npx vitest related --run src/styles/global.css` from `app/` — observed `No test files found, exiting with code 0` and exit code 0; ran it again with `--passWithNoTests` — observed the same output and exit code 0]
 
+Exit code 0 from such a run therefore does not show that any test ran.
+
 ## Under `pool: 'vmThreads'`, Vitest 5.0.2 builds the jsdom environment once per worker and gives each test file a fresh VM context and `window`
 
 **Verified at:** vitest 5.0.2, <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/guide/improving-performance.md> fetched 2026-11-19, run 2026-11-19
@@ -186,3 +188,10 @@ A project's own `exclude` therefore need not repeat the root's entries.
 **Citation:** [lead_1: pool.md, "vmThreads" — "Your tests will leak memory - to battle that, workers are restarted when they exceed vmMemoryLimit"] [lead_2: vmmemorylimit.md — default `1 / maxWorkers`, "affects only vmForks and vmThreads pools", "a worker's memory usage grows with every test file it runs", and "By increasing maxWorkers, workers have less memory available, so they're recycled more often"]
 
 Raising `maxWorkers` lowers each worker's limit, so workers restart more often.
+
+## Vitest 5.1.1 printed long `$name` values in `it.each` test titles cut short with `…`, and the same names whole when a loop passed them to `it`
+
+**Verified at:** vitest 5.1.1 — 2026-11-27
+**Citation:** [implement_18: ran `npx vitest run --project node-tooling eslint-rules/__tests__/scoped-rules-canary.test.js --reporter=verbose` with its tables run as `it.each(scopes)('$name', …)` — observed titles ending in `…`, such as `reports a class without extends, an err…`] [implement_19: ran the same command with the same tables run by a loop calling `it(scope.name, …)` — observed those titles printed whole, one of them over 200 characters long]
+
+In these two runs of that file, only the loop's titles showed each table entry's whole name.

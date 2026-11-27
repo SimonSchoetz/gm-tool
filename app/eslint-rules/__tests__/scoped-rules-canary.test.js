@@ -9,20 +9,15 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const appDir = path.resolve(import.meta.dirname, '../..');
 const canaryDirName = `__scoped-rules-canary-${String(process.pid)}__`;
-const srcCanaryDir = path.join(appDir, 'src', canaryDirName);
-const servicesCanaryDir = path.join(appDir, 'services', canaryDirName);
-const platformCanaryDir = path.join(appDir, 'platform', canaryDirName);
+/** @param {string} root @param {string[]} segments */
+const canaryPath = (root, ...segments) =>
+  path.join(appDir, root, canaryDirName, ...segments);
+const srcCanaryDir = canaryPath('src');
+const platformCanaryDir = canaryPath('platform');
 
 const componentPath = path.join(srcCanaryDir, 'CanaryComponent.tsx');
 const readerHookPath = path.join(srcCanaryDir, 'useCanaryContext.ts');
 const hooksFolderPath = path.join(srcCanaryDir, 'hooks', 'readCanary.ts');
-const srcUndefinedPath = path.join(srcCanaryDir, 'writesUndefined.ts');
-const serviceUndefinedPath = path.join(servicesCanaryDir, 'writesUndefined.ts');
-const serviceTestPath = path.join(
-  servicesCanaryDir,
-  '__tests__',
-  'writesUndefined.test.ts',
-);
 const lookupPath = path.join(srcCanaryDir, 'lookups.ts');
 const addedLookupPath = path.join(srcCanaryDir, 'addedLookups.ts');
 const srcTauriImportPath = path.join(srcCanaryDir, 'importsTauri.ts');
@@ -35,35 +30,33 @@ const srcDevDataServerImportPath = path.join(
 const srcToThrowTestPath = path.join(
   srcCanaryDir,
   '__tests__',
-  'toThrowMatchers.test.ts',
+  'toThrowMatchers.ts',
 );
 const srcInlineHandlerPath = path.join(srcCanaryDir, 'InlineHandler.tsx');
 const srcInlineHandlerTestPath = path.join(
   srcCanaryDir,
   '__tests__',
-  'InlineHandler.test.tsx',
+  'InlineHandler.tsx',
 );
 
+const tauriValueImport = "import { invoke } from '@tauri-apps/api/core';";
 const useContextSource = `import { createContext, useContext } from 'react';\n\nconst CanaryContext = createContext<number | null>(null);\n\nexport const readCanary = (): number | null => useContext(CanaryContext);\n`;
-const writesUndefinedSource = `export const value = (flag: boolean): string | null =>\n  flag ? 'set' : null;\nexport const sentinel = undefined;\n`;
 const lookupSource = `type Finder = { find: (key: string) => string };\n\nexport const fromArray = (items: string[]): string | undefined =>\n  items.find((item) => item === 'a');\n\nexport const fromFinder = (finder: Finder): string => finder.find('a');\n`;
 const addedLookupSource = `type Getter = { get: (key: string) => string };\n\nexport const lastMatch = (items: string[]): string | undefined =>\n  items.findLast((item) => item === 'a');\nexport const firstItem = (items: string[]): string | undefined =>\n  items.shift();\nexport const fromMap = (map: Map<string, string>): string | undefined =>\n  map.get('a');\nexport const fromParams = (params: URLSearchParams): string | null =>\n  params.get('a');\nexport const fromGetter = (getter: Getter): string => getter.get('a');\n`;
-const tauriImportSource = `import { invoke } from '@tauri-apps/api/core';\n\nexport const callsTauri = (): Promise<unknown> => invoke('ping');\n`;
+const tauriImportSource = `${tauriValueImport}\n\nexport const callsTauri = (): Promise<unknown> => invoke('ping');\n`;
 const tauriTypeImportSource = `import type { InvokeArgs } from '@tauri-apps/api/core';\n\nexport const describesArgs = (args: InvokeArgs): InvokeArgs => args;\n`;
 const toThrowMatchersSource = `import { expect } from 'vitest';\n\nconst fail = (): never => {\n  throw new Error('boom: disk full');\n};\n\nexpect(fail).toThrow('boom');\nexpect(fail).toThrow(/^boom/);\nexpect(fail).toThrow(/^boom: disk full$/);\nexpect(fail).toThrow();\nexpect(fail).not.toThrow(TypeError);\nexport enum Canary {\n  A,\n}\n`;
 const inlineHandlerSource = `export const InlineHandler = ({ go }: { go: () => void }) => (\n  <button onClick={() => { go(); }}>x</button>\n);\n`;
 const devDataServerImportSource = `import { devDataServer } from '../../dev-data-server/vitePlugin';\nimport { DEV_DATA_SERVER_PREFIX } from '../../dev-data-server/protocol';\n\nexport const devDataServerCanary = [devDataServer, DEV_DATA_SERVER_PREFIX];\n`;
 
-/** @param {string} root @param {string[]} segments */
-const canaryPath = (root, ...segments) =>
-  path.join(appDir, root, canaryDirName, ...segments);
-
 const enumLine = 'export enum Canary { A }';
 const undefinedLine = 'export const sentinel = undefined;';
 const classLine = 'export class Plain {}';
 const extendingClassLine = 'export class Extending extends Base {}';
-const tryLine =
-  'export const attempt = (work: () => void): void => { try { work(); } finally { work(); } };';
+const tryCatchLine =
+  'export const attempt = (work: () => void): void => { try { work(); } catch { work(); } };';
+const tryFinallyLine =
+  'export const cleanUp = (work: () => void): void => { try { work(); } finally { work(); } };';
 const looseToThrowLine = "expect(fail).toThrow('boom');";
 const rawReactTypeLine = 'export type Raw = React.FC<{ label: string }>;';
 const rawHtmlPropsLine = 'export type Props = React.HTMLProps<HTMLDivElement>;';
@@ -71,7 +64,18 @@ const exportStarLine = "export * from './syntax';";
 const textInputLine = 'export const field = <input type="text" />;';
 
 const nonUiLayers = ['db', 'domain', 'services', 'util', 'platform'];
-const noTryLayers = ['src/data-access-layer', 'src/screens'];
+const noTryCatchLayers = ['src/data-access-layer', 'src/screens'];
+const srcGroupingBarrels = [
+  'src/data-access-layer/index.ts',
+  'src/screens/index.ts',
+].map((file) => path.join(appDir, file));
+/** Tests outside src/ and services/__tests__/: under a layer, under dev-data-server/, and named like the two db/ files that have bans of their own. */
+const otherTestFiles = [
+  ['domain', 'syntax.ts'],
+  ['dev-data-server', 'syntax.ts'],
+  ['db', 'index.ts'],
+  ['db', 'duplicate.ts'],
+];
 
 /**
  * One scope of a rule's config blocks: each line of `banned` must be reported exactly once in each of `paths`, and no line of `allowed` in any of `allowedPaths`. `asText` marks paths that already exist, so the lines are linted as text under them instead of being written there.
@@ -84,7 +88,7 @@ const noTryLayers = ['src/data-access-layer', 'src/screens'];
  * @property {boolean} [asText]
  */
 
-// A syntax canary under __tests__/ is named without `.test.`, so a Vitest run that collects test files while it exists does not pick it up.
+// A canary under __tests__/ is named without `.test.`, so a Vitest run that collects test files while it exists does not pick it up.
 /** @type {CanaryScope[]} */
 const syntaxScopes = [
   {
@@ -97,14 +101,23 @@ const syntaxScopes = [
   },
   {
     name: 'reports a string toThrow and an enum in a test outside src/ and services/__tests__/, and passes a class without extends and a written undefined there',
-    paths: [canaryPath('domain', '__tests__', 'syntax.ts')],
+    paths: otherTestFiles.map(([root, file]) =>
+      canaryPath(root, '__tests__', file),
+    ),
     banned: [looseToThrowLine, enumLine],
-    allowedPaths: [canaryPath('domain', '__tests__', 'allowedSyntax.ts')],
+    allowedPaths: [
+      canaryPath('domain', '__tests__', 'allowedSyntax.ts'),
+      canaryPath('dev-data-server', '__tests__', 'allowedSyntax.ts'),
+    ],
     allowed: [classLine, undefinedLine],
   },
   {
-    name: 'reports a class without extends, an error class, a written undefined and an enum in each non-UI layer, and passes an extending class and an error type alias',
-    paths: nonUiLayers.map((layer) => canaryPath(layer, 'syntax.ts')),
+    name: 'reports a class without extends, an error class, a written undefined and an enum in a .ts and a .tsx file of each non-UI layer, and passes an extending class and an error type alias',
+    // The .tsx canary has a base name of its own: ESLint's project service does not find a .tsx file that sits beside a .ts file of the same name.
+    paths: nonUiLayers.flatMap((layer) => [
+      canaryPath(layer, 'syntax.ts'),
+      canaryPath(layer, 'syntaxInTsx.tsx'),
+    ]),
     banned: [
       classLine,
       'export const Anonymous = class {};',
@@ -158,7 +171,7 @@ const syntaxScopes = [
     allowed: ["import { buildDuplicateQuery } from '../../util';"],
   },
   {
-    name: 'reports a class without extends, the raw React types, a type="text" input and an enum under src/, and passes the project aliases, other inputs and a try',
+    name: 'reports a class without extends, the raw React types, a type="text" input and an enum under src/, and passes the project aliases, other inputs, a try/catch and a written undefined',
     paths: [canaryPath('src', 'syntax.tsx')],
     banned: [
       classLine,
@@ -182,7 +195,8 @@ const syntaxScopes = [
       'export const checkbox = <input type="checkbox" />;',
       'export const bare = <input />;',
       'export const wrapped = <Input type="text" />;',
-      tryLine,
+      tryCatchLine,
+      undefinedLine,
     ],
   },
   {
@@ -193,39 +207,40 @@ const syntaxScopes = [
     allowed: [rawReactTypeLine, rawHtmlPropsLine],
   },
   {
-    name: 'reports a try beside the src/ bans in the data access layer and in screens, and passes a promise catch',
-    paths: noTryLayers.map((layer) => canaryPath(layer, 'syntax.tsx')),
-    banned: [tryLine, classLine, rawReactTypeLine, textInputLine, enumLine],
-    allowedPaths: noTryLayers.map((layer) =>
+    name: 'reports a try/catch beside the src/ bans in the data access layer and in screens, and passes a try with only a finally',
+    paths: noTryCatchLayers.map((layer) => canaryPath(layer, 'syntax.tsx')),
+    banned: [
+      tryCatchLine,
+      classLine,
+      rawReactTypeLine,
+      textInputLine,
+      enumLine,
+    ],
+    allowedPaths: noTryCatchLayers.map((layer) =>
       canaryPath(layer, 'allowedSyntax.tsx'),
     ),
-    allowed: [
-      extendingClassLine,
-      'export const recover = (work: () => Promise<void>): Promise<void> => work().catch(work);',
-    ],
+    allowed: [extendingClassLine, tryFinallyLine],
   },
   {
     name: 'reports export * in the two grouping barrels under src/ beside the bans of their layer, and passes a named re-export',
-    paths: noTryLayers.map((layer) => path.join(appDir, layer, 'index.ts')),
+    paths: srcGroupingBarrels,
     banned: [
       "export * from './canary';",
-      tryLine,
+      tryCatchLine,
       classLine,
       rawReactTypeLine,
       enumLine,
     ],
-    allowedPaths: noTryLayers.map((layer) =>
-      path.join(appDir, layer, 'index.ts'),
-    ),
+    allowedPaths: srcGroupingBarrels,
     allowed: ["export { canary } from './canary';"],
     asText: true,
   },
   {
-    name: 'reports a string toThrow, a raw React type, a type="text" input and an enum in a test under src/, and passes a class without extends and a try there',
+    name: 'reports a string toThrow, a raw React type, a type="text" input and an enum in a test under src/, and passes a class without extends and a try/catch there',
     paths: [canaryPath('src', '__tests__', 'syntax.tsx')],
     banned: [looseToThrowLine, rawReactTypeLine, textInputLine, enumLine],
     allowedPaths: [canaryPath('src', '__tests__', 'allowedSyntax.tsx')],
-    allowed: [classLine, tryLine],
+    allowed: [classLine, tryCatchLine],
   },
   {
     name: 'reports an untyped vi.fn(), a string toThrow and an enum under services/__tests__/, and passes a typed spy and a spy given an implementation',
@@ -252,13 +267,12 @@ const valueImportsOf = (...specifiers) =>
  */
 const layerScope = (name, layer, banned, allowed) => ({
   name,
-  paths: [canaryPath(layer, 'upwardImports.ts')],
+  paths: [canaryPath(layer, 'restrictedImports.ts')],
   banned,
   allowedPaths: [canaryPath(layer, 'allowedImports.ts')],
   allowed,
 });
 
-const tauriValueImport = "import { invoke } from '@tauri-apps/api/core';";
 const typeOnlyDbImport = "import type { Row } from '@db/session';";
 
 /** @type {CanaryScope[]} */
@@ -323,14 +337,14 @@ const layerImportScopes = [
     ],
   ),
   layerScope(
-    'reports a Tauri import, a value import from react and one from src/ in services/, by alias and by relative path, and passes a type-only import and one from an earlier layer',
+    'reports a Tauri import, any import from react, a type-only one included, and a value import from src/ in services/, by alias and by relative path, and passes a type-only import from src/ and one from an earlier layer',
     'services',
     [
       tauriValueImport,
+      "import type { ReactNode } from 'react';",
       ...valueImportsOf('react', '@/types/fcProps.type', '../../src/util'),
     ],
     [
-      "import type { ReactNode } from 'react';",
       "import type { FCProps } from '@/types/fcProps.type';",
       ...valueImportsOf('@db/session', '@domain', '@platform'),
     ],
@@ -389,20 +403,18 @@ const scopeCanaryFiles = [...syntaxScopes, ...layerImportScopes]
   ]);
 
 const canaryDirs = [
-  srcCanaryDir,
-  servicesCanaryDir,
-  platformCanaryDir,
-  ...[
-    'db',
-    'domain',
-    'util',
-    'dev-data-server',
-    'services/__tests__',
-    'src/data-access-layer',
-    'src/screens',
-    'src/types',
-  ].map((root) => canaryPath(root)),
-];
+  'src',
+  'services',
+  'platform',
+  'db',
+  'domain',
+  'util',
+  'dev-data-server',
+  'services/__tests__',
+  'src/data-access-layer',
+  'src/screens',
+  'src/types',
+].map((root) => canaryPath(root));
 
 const eslint = new ESLint({ cwd: appDir });
 
@@ -412,7 +424,6 @@ const messagesByPath = new Map();
 beforeAll(async () => {
   fs.mkdirSync(path.join(srcCanaryDir, 'hooks'), { recursive: true });
   fs.mkdirSync(path.join(srcCanaryDir, '__tests__'), { recursive: true });
-  fs.mkdirSync(path.join(servicesCanaryDir, '__tests__'), { recursive: true });
   fs.mkdirSync(platformCanaryDir, { recursive: true });
   for (const [filePath, source] of scopeCanaryFiles) {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -421,9 +432,6 @@ beforeAll(async () => {
   fs.writeFileSync(componentPath, useContextSource);
   fs.writeFileSync(readerHookPath, useContextSource);
   fs.writeFileSync(hooksFolderPath, useContextSource);
-  fs.writeFileSync(srcUndefinedPath, writesUndefinedSource);
-  fs.writeFileSync(serviceUndefinedPath, writesUndefinedSource);
-  fs.writeFileSync(serviceTestPath, writesUndefinedSource);
   fs.writeFileSync(lookupPath, lookupSource);
   fs.writeFileSync(addedLookupPath, addedLookupSource);
   fs.writeFileSync(srcTauriImportPath, tauriImportSource);
@@ -462,10 +470,10 @@ const linesReportedBy = (filePath, ruleId) =>
   linesIn(messagesByPath.get(filePath) ?? null, ruleId);
 
 /**
- * @param {string} ruleId
- * @returns {(scope: CanaryScope) => Promise<void>} checks that the rule reports every banned line of a scope and no allowed one
+ * Checks that the rule reports every banned line of a scope and no allowed one.
+ * @param {CanaryScope} scope @param {string} ruleId
  */
-const expectScopeReports = (ruleId) => async (scope) => {
+const expectScopeReports = async (scope, ruleId) => {
   /** @param {string} filePath @param {string[]} lines */
   const reportedLines = async (filePath, lines) => {
     if (!scope.asText) return linesReportedBy(filePath, ruleId);
@@ -483,20 +491,26 @@ const expectScopeReports = (ruleId) => async (scope) => {
   }
 };
 
+// A loop rather than it.each, whose `$name` cuts a test name short.
 describe('the syntax selectors of each scope under the project eslint.config.js', () => {
-  it.each(syntaxScopes)(
-    '$name',
-    expectScopeReports('no-restricted-syntax'),
-    120_000,
-  );
+  for (const scope of syntaxScopes) {
+    it(
+      scope.name,
+      () => expectScopeReports(scope, 'no-restricted-syntax'),
+      120_000,
+    );
+  }
 });
 
 describe('the layer order import restrictions under the project eslint.config.js', () => {
-  it.each(layerImportScopes)(
-    '$name',
-    expectScopeReports('@typescript-eslint/no-restricted-imports'),
-    120_000,
-  );
+  for (const scope of layerImportScopes) {
+    it(
+      scope.name,
+      () =>
+        expectScopeReports(scope, '@typescript-eslint/no-restricted-imports'),
+      120_000,
+    );
+  }
 });
 
 describe('the useContext restriction under the project eslint.config.js', () => {
@@ -508,20 +522,6 @@ describe('the useContext restriction under the project eslint.config.js', () => 
       [],
     );
     expect(linesReportedBy(hooksFolderPath, 'no-restricted-imports')).toEqual(
-      [],
-    );
-  });
-});
-
-describe('the written-undefined selectors under the project eslint.config.js', () => {
-  it('report a written undefined in services/ but not in src/ or in a services/ test', () => {
-    expect(
-      linesReportedBy(serviceUndefinedPath, 'no-restricted-syntax'),
-    ).toEqual([3]);
-    expect(linesReportedBy(srcUndefinedPath, 'no-restricted-syntax')).toEqual(
-      [],
-    );
-    expect(linesReportedBy(serviceTestPath, 'no-restricted-syntax')).toEqual(
       [],
     );
   });

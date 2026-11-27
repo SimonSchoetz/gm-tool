@@ -30,6 +30,13 @@ A local ESLint rule file registered via flat config's `plugins: { local: { rules
 
 A rule that scans every comment of a file reads them from `sourceCode.getAllComments()`, as `capitalized-comments` does in its `Program` handler.
 
+## `context.sourceCode.getTokenBefore(comment, { includeComments: true })` returned, for `//` comments, the comment or punctuator right before one, and `null` before a comment that opens the file
+
+**Verified at:** eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_15: ran `app/node_modules/.bin/eslint -f json probe.js` in a `mktemp -d` directory whose disposable config's rule calls `getTokenBefore(comment, { includeComments: true })` in a `Program:exit` handler on every comment `getAllComments()` returns, on a file holding the lines `// a`, `// b` and `const x = 1; // c` — observed `null` before comment `a`, the `Line` comment `a` before `b`, and the `;` punctuator before `c`]
+
+For the second of two `//` comments on adjacent lines it returned the first, so a rule can tell that no code token sits between them.
+
 ## Core `multiline-comment-style` rule does not detect manually-wrapped single-sentence comments — it only enforces block-vs-line comment style consistency, and is deprecated
 
 **Verified at:** eslint 10.6.0
@@ -328,3 +335,17 @@ Nothing in that run told the `feature/util/` folder apart from a layer root name
 **Citation:** [implement_13: `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.73.0_*/node_modules/@typescript-eslint/eslint-plugin/dist/rules/no-restricted-imports.js:138-148` — `meta.deprecated` holds `deprecatedSince: '8.64.0'` and a `replacedBy` entry naming `no-restricted-imports` at `https://eslint.org/docs/latest/rules/no-restricted-imports`]
 
 The deprecated rule's `replacedBy` entry links `https://eslint.org/docs/latest/rules/no-restricted-imports`.
+
+## The `no-restricted-syntax` selectors `TSQualifiedName[left.name='React']` and `TSTypeReference > Identifier.typeName`, each filtered by type name, did not report the type an `interface … extends` clause names directly
+
+**Verified at:** eslint 10.15.0, typescript-eslint 8.73.0 — 2026-11-27
+**Citation:** [implement_16: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json d.ts` from a `mktemp -d` directory, the disposable config under `tseslint.parser` setting the one selector `TSQualifiedName[left.name='React'][right.name=/^(FC|HTMLProps)$|HTMLAttributes$/], TSTypeReference > Identifier.typeName[name=/^(FC|HTMLProps)$|HTMLAttributes$/]`, on a file holding `type A = React.HTMLAttributes<El>;`, `type B = React.HTMLAttributes<El> & { a: string };`, `type C = HTMLAttributes<El>;`, `interface P extends React.HTMLAttributes<El> {}` and `interface Q extends HTMLAttributes<El> {}` — observed one report on each of the three type aliases and none on either interface]
+
+The same run reported all three type aliases, the unqualified `type C = HTMLAttributes<El>` among them.
+
+## typescript-eslint 8.73.0's project service did not find `syntax.tsx` beside a `syntax.ts` in a folder `tsconfig.json` includes, so ESLint failed to parse it
+
+**Verified at:** typescript-eslint 8.73.0, typescript 6.0.3, eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_17: ran `npx eslint -f json domain/__tsx_probe__` from `app/` on a disposable folder, under `tsconfig.json`'s `domain` include and this project's `eslint.config.js`, holding `syntax.ts`, `syntax.tsx` and `lone.tsx` — observed a fatal `Parsing error: … syntax.tsx was not found by the project service` for `syntax.tsx`, while `syntax.ts` and `lone.tsx` were linted]
+
+A disposable lint fixture therefore gives a `.tsx` file a base name no `.ts` file beside it has.

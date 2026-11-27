@@ -16,7 +16,7 @@ import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-re
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
 
-// `no-restricted-syntax` takes its whole selector list from the last config block that matches a file, so no block inherits a selector from an earlier one: the blocks below are the one place a scope's list is written, each in full through `syntaxRules`, which adds the enum selector itself.
+// `no-restricted-syntax` takes its whole selector list from the last config block that sets it for a file, so no block inherits a selector from an earlier one: the blocks below are the one place a scope's list is written, each in full through `syntaxRules`, which adds the enum selector itself.
 const asConstOverEnum = {
   selector: 'TSEnumDeclaration',
   message: 'Use "as const" objects instead of enums.',
@@ -59,7 +59,7 @@ const looseToThrowMatcher = [
   },
 ];
 
-const noClasses = [
+const restrictedClasses = [
   {
     selector:
       'ClassDeclaration:not([superClass]), ClassExpression:not([superClass])',
@@ -74,11 +74,11 @@ const noClasses = [
   },
 ];
 
-const noTry = [
+const noTryCatch = [
   {
-    selector: 'TryStatement',
+    selector: 'CatchClause',
     message:
-      'No `try` in a data-access-layer or screen file; an error is handled in the service layer or reaches the Error Boundary (.claude/rules/src-data-access-layer.md — Non-negotiable rules).',
+      'No try/catch in a data-access-layer or screen file; an error is handled in the service layer or reaches the Error Boundary (.claude/rules/src-data-access-layer.md — Non-negotiable rules).',
   },
 ];
 
@@ -133,8 +133,8 @@ const noDefaultInputType = [
   },
 ];
 
-const nonUiLayerGroups = [writtenUndefined, noClasses];
-const srcFileGroups = [noClasses, noRawReactTypes, noDefaultInputType];
+const nonUiLayerGroups = [writtenUndefined, restrictedClasses];
+const srcFileGroups = [restrictedClasses, noRawReactTypes, noDefaultInputType];
 
 /**
  * @param {{ selector: string, message: string }[][]} groups
@@ -149,16 +149,13 @@ const tauriImportPattern = {
     'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
 };
 
-// A relative path into a restricted directory is restricted as its alias is. The patterns match the import's text, so they also report a folder of that name inside the importing layer when it is reached through `../`.
+// A relative path into a restricted directory is restricted as its alias is; one pattern per directory also reports every path below it. The patterns match the import's text, so they also report a folder of that name inside the importing layer when it is reached through `../`.
 /** @param {string[]} directories */
 const relativeImportsInto = (...directories) =>
-  directories.flatMap((directory) => [
-    `../**/${directory}`,
-    `../**/${directory}/**`,
-  ]);
+  directories.map((directory) => `../**/${directory}`);
 
 /** @param {string[]} group */
-const upwardImports = (group) => ({
+const layerOrderPattern = (group) => ({
   group,
   allowTypeImports: true,
   message:
@@ -307,19 +304,19 @@ export default defineConfig(
     rules: { 'local/no-inline-jsx-values': 'error' },
   },
   {
-    // The non-UI layers and the platform module, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
+    // The non-UI layers and the platform module take the class bans and the written-`undefined` ban. `src/` takes the class bans through `srcFileGroups` but not the `undefined` ban, since it may write `undefined` where a third-party argument, a DOM attribute or a style object takes it by its own contract (app/CLAUDE.md — TypeScript Coding Style).
     files: [
-      'db/**/*.ts',
-      'domain/**/*.ts',
-      'services/**/*.ts',
-      'util/**/*.ts',
-      'platform/**/*.ts',
+      'db/**/*.{ts,tsx}',
+      'domain/**/*.{ts,tsx}',
+      'services/**/*.{ts,tsx}',
+      'util/**/*.{ts,tsx}',
+      'platform/**/*.{ts,tsx}',
     ],
     ignores: ['**/__tests__/**'],
     rules: { 'no-restricted-syntax': syntaxRules(...nonUiLayerGroups) },
   },
   {
-    // The dev data server is under the same `undefined` ban.
+    // The dev data server takes the written-`undefined` ban without the class bans.
     files: ['dev-data-server/**/*.ts'],
     ignores: ['**/__tests__/**'],
     rules: { 'no-restricted-syntax': syntaxRules(writtenUndefined) },
@@ -343,21 +340,23 @@ export default defineConfig(
   },
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['**/__tests__/**', 'src/types/**'],
     rules: { 'no-restricted-syntax': syntaxRules(...srcFileGroups) },
   },
   {
     // src/types/ declares the FCProps and HtmlProps aliases over the raw React types.
     files: ['src/types/**/*.{ts,tsx}'],
-    ignores: ['**/__tests__/**'],
     rules: {
-      'no-restricted-syntax': syntaxRules(noClasses, noDefaultInputType),
+      'no-restricted-syntax': syntaxRules(
+        restrictedClasses,
+        noDefaultInputType,
+      ),
     },
   },
   {
     files: ['src/data-access-layer/**/*.{ts,tsx}', 'src/screens/**/*.{ts,tsx}'],
-    ignores: ['**/__tests__/**'],
-    rules: { 'no-restricted-syntax': syntaxRules(...srcFileGroups, noTry) },
+    rules: {
+      'no-restricted-syntax': syntaxRules(...srcFileGroups, noTryCatch),
+    },
   },
   {
     // The grouping barrels under src/; domain/index.ts keeps its `export *` lines (app/domain/CLAUDE.md — Structure).
@@ -365,7 +364,7 @@ export default defineConfig(
     rules: {
       'no-restricted-syntax': syntaxRules(
         ...srcFileGroups,
-        noTry,
+        noTryCatch,
         noExportStarBarrel,
       ),
     },
@@ -398,7 +397,7 @@ export default defineConfig(
     },
   },
   {
-    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. A second `@typescript-eslint/no-restricted-imports` block would replace the Tauri block's options for every file both match, so the boundary uses import-x's path rule.
+    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. As a `@typescript-eslint/no-restricted-imports` pattern this boundary would have to be repeated in every block of that rule, since a later block replaces an earlier one's options for the files both match, so it uses import-x's path rule.
     files: ['**/*.{ts,tsx}'],
     ignores: [
       'dev-data-server/**',
@@ -432,7 +431,7 @@ export default defineConfig(
         {
           patterns: [
             tauriImportPattern,
-            upwardImports([
+            layerOrderPattern([
               '@platform',
               '@db/*',
               '@services/*',
@@ -451,9 +450,8 @@ export default defineConfig(
         'error',
         {
           patterns: [
-            upwardImports([
+            layerOrderPattern([
               '@domain',
-              '@domain/*',
               '@db/*',
               '@services/*',
               '@/*',
@@ -472,7 +470,7 @@ export default defineConfig(
         {
           patterns: [
             tauriImportPattern,
-            upwardImports([
+            layerOrderPattern([
               '@services/*',
               '@/*',
               ...relativeImportsInto('services', 'src'),
@@ -491,14 +489,13 @@ export default defineConfig(
           paths: [
             {
               name: 'react',
-              allowTypeImports: true,
               message:
-                'services/ takes no value import from react (app/services/CLAUDE.md — What Does NOT Belong Here).',
+                'services/ imports nothing from react, a type-only import included (app/services/CLAUDE.md — What Does NOT Belong Here).',
             },
           ],
           patterns: [
             tauriImportPattern,
-            upwardImports(['@/*', ...relativeImportsInto('src')]),
+            layerOrderPattern(['@/*', ...relativeImportsInto('src')]),
           ],
         },
       ],
@@ -512,11 +509,10 @@ export default defineConfig(
         {
           patterns: [
             tauriImportPattern,
-            upwardImports([
-              ...directoriesAboveDataAccess.flatMap((directory) => [
-                `@/${directory}`,
-                `@/${directory}/*`,
-              ]),
+            layerOrderPattern([
+              ...directoriesAboveDataAccess.map(
+                (directory) => `@/${directory}`,
+              ),
               ...relativeImportsInto(...directoriesAboveDataAccess),
             ]),
           ],
