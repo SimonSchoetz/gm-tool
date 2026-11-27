@@ -4,6 +4,7 @@
   height: 100%;
   justify-self: center;
   width: 100%;
+  /* This cap repeats child styles, so a change to one changes it: `--sidebar-inner-width` + `2 * --spacing-md` is the sidebar's width (`--screens-sidebar-base-width` plus its `padding-inline` in `ScreensSidebar.css`); `--custom-scrollbar-width` stands for the scrollbar of `.screens-text-editor-layout--body-scroll`, which scrolls through `scroll-edge-fade` (its width is set in `scrollbar.css`). */
   max-width: calc(
     var(--sidebar-inner-width) + var(--text-editor-max-width) +
       var(--spacing-lg) + 2 * var(--spacing-md) + var(--custom-scrollbar-width)
