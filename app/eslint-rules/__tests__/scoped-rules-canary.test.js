@@ -21,6 +21,14 @@ const platformCanaryDir = canaryPath('platform');
 const componentPath = path.join(srcCanaryDir, 'CanaryComponent.tsx');
 const readerHookPath = path.join(srcCanaryDir, 'useCanaryContext.ts');
 const hooksFolderPath = path.join(srcCanaryDir, 'hooks', 'readCanary.ts');
+const dataAccessComponentPath = canaryPath(
+  'src/data-access-layer',
+  'CanaryComponent.tsx',
+);
+const dataAccessReaderHookPath = canaryPath(
+  'src/data-access-layer',
+  'useCanaryContext.ts',
+);
 const lookupPath = path.join(srcCanaryDir, 'lookups.ts');
 const addedLookupPath = path.join(srcCanaryDir, 'addedLookups.ts');
 const srcTauriImportPath = path.join(srcCanaryDir, 'importsTauri.ts');
@@ -440,6 +448,8 @@ beforeAll(async () => {
   fs.writeFileSync(componentPath, useContextSource);
   fs.writeFileSync(readerHookPath, useContextSource);
   fs.writeFileSync(hooksFolderPath, useContextSource);
+  fs.writeFileSync(dataAccessComponentPath, useContextSource);
+  fs.writeFileSync(dataAccessReaderHookPath, useContextSource);
   fs.writeFileSync(lookupPath, lookupSource);
   fs.writeFileSync(addedLookupPath, addedLookupSource);
   fs.writeFileSync(srcTauriImportPath, tauriImportSource);
@@ -514,8 +524,7 @@ describe('the syntax selectors of each scope under the project eslint.config.js'
 describe('the layer order import restrictions under the project eslint.config.js', () => {
   it.each(titled(layerImportScopes))(
     '%s',
-    (_name, scope) =>
-      expectScopeReports(scope, '@typescript-eslint/no-restricted-imports'),
+    (_name, scope) => expectScopeReports(scope, 'no-restricted-imports'),
     120_000,
   );
 });
@@ -531,6 +540,15 @@ describe('the useContext restriction under the project eslint.config.js', () => 
     expect(linesReportedBy(hooksFolderPath, 'no-restricted-imports')).toEqual(
       [],
     );
+  });
+
+  it('reports the import in a data access layer file beside its layer order restriction but not in a use*.ts file there', () => {
+    expect(
+      linesReportedBy(dataAccessComponentPath, 'no-restricted-imports'),
+    ).toEqual([1]);
+    expect(
+      linesReportedBy(dataAccessReaderHookPath, 'no-restricted-imports'),
+    ).toEqual([]);
   });
 });
 
@@ -551,28 +569,19 @@ describe('local/no-unnormalized-lookup-result under the project eslint.config.js
 describe('the Tauri import restriction under the project eslint.config.js', () => {
   it('reports a runtime @tauri-apps import under src/ on its import line', () => {
     expect(
-      linesReportedBy(
-        srcTauriImportPath,
-        '@typescript-eslint/no-restricted-imports',
-      ),
+      linesReportedBy(srcTauriImportPath, 'no-restricted-imports'),
     ).toEqual([1]);
   });
 
   it('does not report the same runtime import under platform/', () => {
     expect(
-      linesReportedBy(
-        platformTauriImportPath,
-        '@typescript-eslint/no-restricted-imports',
-      ),
+      linesReportedBy(platformTauriImportPath, 'no-restricted-imports'),
     ).toEqual([]);
   });
 
   it('does not report a type-only @tauri-apps import under src/', () => {
     expect(
-      linesReportedBy(
-        srcTauriTypeImportPath,
-        '@typescript-eslint/no-restricted-imports',
-      ),
+      linesReportedBy(srcTauriTypeImportPath, 'no-restricted-imports'),
     ).toEqual([]);
   });
 });
