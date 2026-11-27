@@ -6,7 +6,7 @@ import { commitMessageRefusal } from '../commit-msg-check-validate.ts';
 import { unsetGitEnvironment } from './support/isolated-git.ts';
 import {
   createScratchFolder,
-  initRepositoryOnBranch,
+  initRepositoryOnFeatExample,
   writeMessageFile,
 } from './support/scratch-repository.ts';
 
@@ -21,7 +21,7 @@ describe('.githooks/prepare-commit-msg on a typed branch', () => {
   beforeEach(() => {
     unsetGitEnvironment();
     repository = createScratchFolder();
-    initRepositoryOnBranch(repository, 'feat/example');
+    initRepositoryOnFeatExample(repository);
   });
 
   afterEach(() => {
@@ -29,9 +29,9 @@ describe('.githooks/prepare-commit-msg on a typed branch', () => {
     rmSync(repository, { recursive: true, force: true });
   });
 
-  // `message` is the source git names for `git revert --no-edit` and for `git commit -m`.
   const prepare = (message: string) => {
     const file = writeMessageFile(repository, message);
+    // The second argument is the source git names for `git revert --no-edit` and for `git commit -m`.
     execFileSync(HOOK, [file, 'message'], { cwd: repository });
     return readFileSync(file, 'utf8');
   };

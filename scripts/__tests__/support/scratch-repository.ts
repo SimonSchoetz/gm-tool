@@ -9,8 +9,8 @@ export const createScratchFolder = () =>
   mkdtempSync(path.join(tmpdir(), 'scratch-repository-'));
 
 // The branch stays unborn: `git symbolic-ref` names it before any commit.
-export const initRepositoryOnBranch = (folder: string, branch: string) => {
-  execFileSync('git', ['init', '--quiet', `--initial-branch=${branch}`], {
+export const initRepositoryOnFeatExample = (folder: string) => {
+  execFileSync('git', ['init', '--quiet', '--initial-branch=feat/example'], {
     cwd: folder,
   });
 };

@@ -5,7 +5,7 @@
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
 **Citation:** [claude_5: ran `man -M "$(git --man-path)" -P cat git-config` — observed under `--local` "For reading options: read only from the repository .git/config rather than from all available files", and under `--worktree` "Similar to --local except that $GIT_DIR/config.worktree is read from or written to if extensions.worktreeConfig is enabled"] [claude_10: ran `git config --show-origin --get-all core.hooksPath` from the linked worktree `/Users/simonschoetz/dev/gm-tool/.claude/worktrees/clever-payne-354010` — observed one line whose origin is `file:/Users/simonschoetz/dev/gm-tool/.git/worktrees/clever-payne-354010/config.worktree`] [claude_11: ran `git config --local core.hooksPath` from the same worktree — observed no output and exit code 1] [claude_12: `/Users/simonschoetz/dev/gm-tool/.git/config:14-15` — `[extensions]` `worktreeConfig = true`] [claude_13: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
-A read of `core.hooksPath` with `--local` therefore misses a value set for one worktree this way.
+Run in that worktree, the `--local` read printed nothing and exited with code 1.
 
 ## `git -c core.hooksPath=<absolute dir>` made a `git commit` run that directory's `pre-commit` and a `git push` run its `pre-push`, in a linked worktree whose configured `core.hooksPath` names another directory
 
@@ -26,7 +26,7 @@ The command prints the directory and says nothing about which hook files it hold
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-10-19
 **Citation:** [claude_20: ran `git hook run pre-commit` in the linked worktree `/Users/simonschoetz/dev/gm-tool/.claude/worktrees/clever-payne-354010` while its `config.worktree` set `core.hooksPath` to `/Users/simonschoetz/dev/gm-tool/.husky`, a directory holding no `pre-commit` file — observed `error: cannot find a hook named pre-commit` and exit code 1; ran it there again after `git config --worktree --unset core.hooksPath`, when `git rev-parse --git-path hooks` printed `/Users/simonschoetz/dev/gm-tool/.git/hooks` and that directory held `pre-commit` — observed that script run its type-check, lint and format steps and exit 0] [claude_13: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
-That error was printed for a resolved directory without the hook.
+Both runs were made in one linked worktree, and the directory without the hook was one that worktree's `config.worktree` named in `core.hooksPath`.
 
 ## `git merge --no-ff` ran `.git/hooks/pre-merge-commit` and not `.git/hooks/pre-commit` for the merge commit it created
 
@@ -110,4 +110,11 @@ An edited message is cleaned with `strip`, which removes `#` lines, so there suc
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-11-27
 **Citation:** [implement_1: in a scratch repository whose `prepare-commit-msg` hook logged its second argument and the message file's first line, ran `git revert --no-edit HEAD` on the commit `feat(x): a` — observed the source `message` and the line `Revert "feat(x): a"`] [implement_2: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
-For this revert the hook received `message`, none of `merge`, `squash` and `commit`.
+The probe reverted the commit `feat(x): a`, and the first line the hook read in the message file was already git's revert subject, `Revert "feat(x): a"`.
+
+## git 2.54.0 passed `prepare-commit-msg` an absolute message file path under `.git/worktrees/<id>/` for a `git commit -m` in a linked worktree
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-11-27
+**Citation:** [code-reviewer_1: ran `git commit -q --allow-empty -m 'add x'` in a linked worktree of a scratch repository under a directory named `with space`, whose `.git/hooks/prepare-commit-msg` printed its first argument and then ran a script with `$1 $2` unquoted — observed an absolute first argument ending `/with space/main-checkout/.git/worktrees/linked/COMMIT_EDITMSG`, and the script reading a path cut at the space] [code-reviewer_2: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+In that run the hook's unquoted `$1 $2` split the path at its space.

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { execFileSync, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { readFileSync, rmSync } from 'fs';
 import path from 'path';
 import { unsetGitEnvironment } from './support/isolated-git.ts';
 import {
   createScratchFolder,
-  initRepositoryOnBranch,
+  initRepositoryOnFeatExample,
   writeMessageFile,
 } from './support/scratch-repository.ts';
 
@@ -20,7 +20,7 @@ describe('commit-msg-check', () => {
   beforeEach(() => {
     unsetGitEnvironment();
     repository = createScratchFolder();
-    initRepositoryOnBranch(repository, 'feat/example');
+    initRepositoryOnFeatExample(repository);
   });
 
   afterEach(() => {
@@ -55,32 +55,18 @@ describe('commit-msg-check', () => {
     });
   });
 
-  it('checks form and type but no scope on a detached HEAD, where git names no branch', () => {
-    execFileSync(
-      'git',
-      [
-        '-c',
-        'user.name=test',
-        '-c',
-        'user.email=test@example.com',
-        '-c',
-        'commit.gpgsign=false',
-        'commit',
-        '--quiet',
-        '--allow-empty',
-        '--message=base',
-      ],
-      { cwd: repository },
-    );
-    execFileSync('git', ['checkout', '--quiet', '--detach'], {
-      cwd: repository,
-    });
+  it('checks form and type but no scope where git names no branch, as on a detached HEAD', () => {
+    // Without the repository `git symbolic-ref` exits non-zero, as it does on a detached HEAD.
+    rmSync(path.join(repository, '.git'), { recursive: true });
 
     expect(check('feat(other): add x\n')).toMatchObject({
       status: 0,
       stderr: '',
     });
     expect(check('add x\n').status).toBe(1);
+    expect(check('feature(other): add x\n').stderr).toContain(
+      '"feature" is not an allowed type',
+    );
   });
 
   it('checks a leading # line when git signals that no editor opens', () => {

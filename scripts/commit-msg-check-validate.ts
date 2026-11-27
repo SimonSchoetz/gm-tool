@@ -24,7 +24,7 @@ const GIT_WRITTEN_SUBJECT_STARTS = [
   'Reapply "',
 ];
 
-const SUBJECT_FORM = /^(?<type>[^\s()]+)\((?<scope>[^()]+)\): .+$/;
+const SUBJECT_FORM = /^(?<type>[^\s()]+)\((?<scope>[^()]*[^\s()][^()]*)\): .+$/;
 
 const TYPED_BRANCH = new RegExp(`^(?:${TYPES.join('|')})/(?<scope>.+)$`);
 

@@ -4,7 +4,7 @@ import { readFileSync, rmSync } from 'fs';
 import { unsetGitEnvironment } from './support/isolated-git.ts';
 import {
   createScratchFolder,
-  initRepositoryOnBranch,
+  initRepositoryOnFeatExample,
   writeMessageFile,
 } from './support/scratch-repository.ts';
 
@@ -21,8 +21,8 @@ describe('scratch repository', () => {
     rmSync(folder, { recursive: true, force: true });
   });
 
-  it('puts HEAD on the branch asked for before any commit, so a test of a branch rule cannot run on another branch', () => {
-    initRepositoryOnBranch(folder, 'feat/example');
+  it('puts HEAD on feat/example before any commit, so a test of a branch rule cannot run on another branch', () => {
+    initRepositoryOnFeatExample(folder);
 
     const branch = execFileSync('git', ['symbolic-ref', '--short', 'HEAD'], {
       cwd: folder,

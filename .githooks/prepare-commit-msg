@@ -19,12 +19,12 @@ case "$MSG" in
   'Revert "'*|'Reapply "'*) exit 0 ;;
 esac
 
-# Exit if message already has conventional commit format: type(scope):
+# Exit if the message holds `(…):` anywhere, taken as a type and scope already there
 case "$MSG" in
   *\(*\):*) exit 0 ;;
 esac
 
-# Check if branch matches <type>/<scope> pattern
+# Prefix on any branch that begins with a letter and holds a slash, taking the text around the first slash
 case "$BRANCH" in
   [a-zA-Z]*/*)
     TYPE=${BRANCH%%/*}

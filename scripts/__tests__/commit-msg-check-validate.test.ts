@@ -77,6 +77,8 @@ describe('commitMessageRefusal', () => {
     'update backlog',
     'feat: add x',
     'feat(): add x',
+    'feat( ): add x',
+    'feat(\t): add x',
     'feat((example)): add x',
     'feat(example)!: add x',
     'feat(example):add x',
@@ -88,6 +90,10 @@ describe('commitMessageRefusal', () => {
     expect(refusalOf(message, 'feat/example')).toContain(
       'it does not have the expected form',
     );
+  });
+
+  it('accepts a scope with spaces among other characters, since only a blank one is no scope', () => {
+    expect(refusalOf('feat( dev server ): add x', 'main')).toBeNull();
   });
 
   it('states the refused subject and the form, and names no scope on a branch that requires none', () => {

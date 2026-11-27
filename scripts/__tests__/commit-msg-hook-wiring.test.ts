@@ -11,6 +11,7 @@ import path from 'path';
 import { unsetGitEnvironment } from './support/isolated-git.ts';
 import {
   createScratchFolder,
+  initRepositoryOnFeatExample,
   writeMessageFile,
 } from './support/scratch-repository.ts';
 
@@ -18,9 +19,11 @@ const REPOSITORY_ROOT = path.resolve(import.meta.dirname, '../..');
 
 const { 'simple-git-hooks': hooks } = JSON.parse(
   readFileSync(path.join(REPOSITORY_ROOT, 'package.json'), 'utf8'),
-) as { 'simple-git-hooks': { 'commit-msg': string } };
+) as {
+  'simple-git-hooks': { 'prepare-commit-msg': string; 'commit-msg': string };
+};
 
-describe('the commit-msg hook command of package.json', () => {
+describe('the commit message hook commands of package.json', () => {
   let checkout: string;
 
   beforeEach(() => {
@@ -47,24 +50,43 @@ describe('the commit-msg hook command of package.json', () => {
     writeFileSync(path.join(checkout, 'package.json'), '{"type":"module"}');
   };
 
-  // Git passes the path of the message file as the hook's first argument. The folder name holds a space, as a path to a git directory can.
-  const runHook = (message: string) => {
+  // Git passes each of these two hooks the path of the message file as its first argument. The folder name holds a space, as a path to a git directory can.
+  const runHook = (
+    hook: keyof typeof hooks,
+    message: string,
+    ...furtherArguments: string[]
+  ) => {
     const gitDirectory = path.join(checkout, 'git directory');
     mkdirSync(gitDirectory, { recursive: true });
-    return spawnSync(
+    const file = writeMessageFile(gitDirectory, message);
+    const result = spawnSync(
       'sh',
-      [
-        '-c',
-        hooks['commit-msg'],
-        'commit-msg',
-        writeMessageFile(gitDirectory, message),
-      ],
+      ['-c', hooks[hook], hook, file, ...furtherArguments],
       { cwd: checkout, encoding: 'utf8' },
     );
+    return { ...result, file };
   };
 
+  it('hands prepare-commit-msg a message path with a space whole, so the message is prefixed', () => {
+    initRepositoryOnFeatExample(checkout);
+    mkdirSync(path.join(checkout, '.githooks'));
+    copyFileSync(
+      path.join(REPOSITORY_ROOT, '.githooks', 'prepare-commit-msg'),
+      path.join(checkout, '.githooks', 'prepare-commit-msg'),
+    );
+
+    const { status, file } = runHook(
+      'prepare-commit-msg',
+      'add x\n',
+      'message',
+    );
+
+    expect(status).toBe(0);
+    expect(readFileSync(file, 'utf8')).toBe('feat(example): add x');
+  });
+
   it('lets any commit through in silence in a checkout without the check script, which shares the installed hook', () => {
-    expect(runHook('update backlog\n')).toMatchObject({
+    expect(runHook('commit-msg', 'update backlog\n')).toMatchObject({
       status: 0,
       stdout: '',
       stderr: '',
@@ -74,7 +96,7 @@ describe('the commit-msg hook command of package.json', () => {
   it('refuses a subject outside the form once the check script is in the checkout', () => {
     addCheckScript();
 
-    const { status, stderr } = runHook('update backlog\n');
+    const { status, stderr } = runHook('commit-msg', 'update backlog\n');
 
     expect(status).toBe(1);
     expect(stderr).toContain('refused "update backlog"');
@@ -83,7 +105,7 @@ describe('the commit-msg hook command of package.json', () => {
   it('lets a subject in the form through once the check script is in the checkout', () => {
     addCheckScript();
 
-    expect(runHook('chore(backlog): update it\n')).toMatchObject({
+    expect(runHook('commit-msg', 'chore(backlog): update it\n')).toMatchObject({
       status: 0,
       stderr: '',
     });
