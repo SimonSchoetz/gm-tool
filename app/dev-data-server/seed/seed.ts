@@ -128,10 +128,15 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
     name: 'Seed Adventure',
     imgFilePath: landscape,
   });
-  const imagelessAdventureId = await adventureService.createAdventure();
-  await adventureService.updateAdventure(imagelessAdventureId, {
-    name: 'Imageless Adventure',
-  });
+  // With Seed Adventure and the create card, these fill the adventure list past one row at its widest, so its row limit and its wrap can be checked.
+  for (const name of [
+    'Imageless Adventure',
+    'Third Adventure',
+    'Fourth Adventure',
+  ]) {
+    const emptyAdventureId = await adventureService.createAdventure();
+    await adventureService.updateAdventure(emptyAdventureId, { name });
+  }
 
   await createNamedBaseEntityWithImage(
     'npcs',

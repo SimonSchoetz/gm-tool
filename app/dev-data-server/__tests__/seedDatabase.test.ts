@@ -69,7 +69,12 @@ describe('seedDatabase', { timeout: 30_000 }, () => {
 
     expect(
       await db.select('SELECT name FROM adventures ORDER BY name'),
-    ).toEqual([{ name: 'Imageless Adventure' }, { name: 'Seed Adventure' }]);
+    ).toEqual([
+      { name: 'Fourth Adventure' },
+      { name: 'Imageless Adventure' },
+      { name: 'Seed Adventure' },
+      { name: 'Third Adventure' },
+    ]);
     expect(readdirSync(context.imagesDir)).toHaveLength(8);
     expect(
       await db.select(

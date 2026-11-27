@@ -36,6 +36,8 @@ The seeded data, by name — a spec or a check refers to these names, never to a
 | --- | --- |
 | Seed Adventure | The adventure every row below belongs to; its image is the landscape fixture |
 | Imageless Adventure | A second adventure with no image and no content, so the adventure list shows a placeholder |
+| Third Adventure | An adventure with no image and no content; with Fourth Adventure it makes the adventure list five cards, the create card included, so the list's four-card row and its wrap show |
+| Fourth Adventure | An adventure with no image and no content, there for the same check as Third Adventure |
 | Seed NPC | An NPC with no content section; its image is the portrait fixture |
 | (unnamed NPC) | An NPC whose name is empty: the NPC list shows a blank name, the encounter's Add tab lists it as Untitled Combatant |
 | Seed PC | A PC with no content section; its image is the portrait fixture |

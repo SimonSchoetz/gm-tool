@@ -211,7 +211,12 @@ describe('devDataServer configureServer and closeServer', () => {
       const [[context]] = createRequestHandler.mock.calls;
       expect(
         await context.db.select('SELECT name FROM adventures ORDER BY name'),
-      ).toEqual([{ name: 'Imageless Adventure' }, { name: 'Seed Adventure' }]);
+      ).toEqual([
+        { name: 'Fourth Adventure' },
+        { name: 'Imageless Adventure' },
+        { name: 'Seed Adventure' },
+        { name: 'Third Adventure' },
+      ]);
       expect(context.imagesDir.startsWith(tmpdir())).toBe(true);
       // The seed's images land in the folder the request handler serves from.
       const seededImages = await context.db.select<

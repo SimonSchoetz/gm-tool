@@ -27,8 +27,8 @@ export const AdventuresScreen = () => {
   }
 
   const adventurePreviewDimensions = {
-    '--adventure-preview-width': `${PREVIEW_WIDTH}px`,
-    '--adventure-preview-height': `${ADVENTURE_PREVIEW_HEIGHT}px`,
+    '--adventures-screen-preview-width': `${PREVIEW_WIDTH}px`,
+    '--adventures-screen-preview-height': `${ADVENTURE_PREVIEW_HEIGHT}px`,
   } as React.CSSProperties;
 
   const onCreateClick = () => {
@@ -36,13 +36,15 @@ export const AdventuresScreen = () => {
   };
 
   return (
-    <ul className='content-center adventure-list-container scroll-edge-fade scroll-edge-fade--no-top scroll-edge-fade--no-bottom scroll-edge-fade--shadow-gutter'>
+    <ul
+      className='content-center adventure-list-container scroll-edge-fade scroll-edge-fade--no-top scroll-edge-fade--no-bottom scroll-edge-fade--shadow-gutter'
+      style={adventurePreviewDimensions}
+    >
       <li key='new-adventure'>
         <NewItemBtn
           className='new-adventure-btn'
           label={'Create new adventure'}
           onClick={onCreateClick}
-          style={adventurePreviewDimensions}
         />
       </li>
 
