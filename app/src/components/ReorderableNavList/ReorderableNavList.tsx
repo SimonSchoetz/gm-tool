@@ -15,7 +15,7 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import type { Ref } from 'react';
 import { FCProps } from '@/types/fcProps.type';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
-import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
+import { NewItemBtn } from '../NewItemBtn';
 import { ReorderableNavListItem } from './components/ReorderableNavListItem/ReorderableNavListItem';
 import { reorderIds } from '@/util/reorderIds';
 import './ReorderableNavList.css';

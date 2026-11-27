@@ -6,12 +6,12 @@ import { cn } from '@/util/className';
 import { FCProps } from '@/types/fcProps.type';
 import { CSSProperties, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
+import { getActionDelay } from './helper/getActionDelay';
+import { ANIMATION_DURATION } from './NewItemBtn.constants';
 
 type Props = {
   suppressAnimation?: boolean;
 } & Omit<React.ComponentProps<typeof ActionContainer>, 'style' | 'children'>;
-
-const ANIMATION_DURATION = 500;
 
 export const NewItemBtn: FCProps<Props> = ({
   className,
@@ -25,7 +25,7 @@ export const NewItemBtn: FCProps<Props> = ({
     setHideBtn(true);
     setTimeout(
       () => onClick?.({} as React.MouseEvent<HTMLButtonElement>),
-      suppressAnimation ? 0 : ANIMATION_DURATION,
+      getActionDelay(suppressAnimation),
     );
   };
 

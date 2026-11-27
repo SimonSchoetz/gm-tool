@@ -1,7 +1,7 @@
 import { useAdventures } from '@/data-access-layer';
 import './AdventuresScreen.css';
 import { ToAdventureBtn } from './components/ToAdventureBtn/ToAdventureBtn';
-import { NewItemBtn } from '@/components/NewItemBtn/NewItemBtn';
+import { NewItemBtn } from '@/components/NewItemBtn';
 import { LoadingIcon } from '@/components/LoadingIcon/LoadingIcon';
 import { useRouter } from '@tanstack/react-router';
 import { buildEntityPath } from '@domain';
