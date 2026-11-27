@@ -142,6 +142,17 @@ const srcFileGroups = [restrictedClasses, noRawReactTypes, noDefaultInputType];
  */
 const syntaxRules = (...groups) => ['error', asConstOverEnum, ...groups.flat()];
 
+// `no-restricted-imports` takes its `paths` and `patterns` from the last config block that sets it for a file, as `no-restricted-syntax` does its selectors, so every block of it below lists in full each restriction that holds for its files.
+const useContextImportPath = {
+  name: 'react',
+  importNames: ['useContext'],
+  message:
+    'Call useContext only inside a named use* reader hook in its own file (e.g. src/providers/DeleteDialogProvider/useDeleteDialog.ts) and read the context through that hook here.',
+};
+
+// The files the useContext restriction leaves out: a named `use*` hook file and a hooks/ folder.
+const contextReaderFiles = ['src/**/use*.ts', 'src/**/hooks/**'];
+
 const tauriImportPattern = {
   group: ['@tauri-apps/*'],
   allowTypeImports: true,
@@ -172,6 +183,11 @@ const directoriesAboveDataAccess = [
   'util',
   'App',
 ];
+
+const dataAccessLayerOrderPattern = layerOrderPattern([
+  ...directoriesAboveDataAccess.map((directory) => `@/${directory}`),
+  ...relativeImportsInto(...directoriesAboveDataAccess),
+]);
 
 export default defineConfig(
   {
@@ -269,22 +285,20 @@ export default defineConfig(
     rules: { 'no-restricted-syntax': syntaxRules(looseToThrowMatcher) },
   },
   {
+    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/* — the platform/ block below replaces these options for its files, which leaves it free to; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [tauriImportPattern] }],
+    },
+  },
+  {
     // A context is read through its own named `use*` hook file, so a component never holds the context object; those hook files and files under a hooks/ folder are the only places `useContext` is called.
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/**/use*.ts', 'src/**/hooks/**'],
+    ignores: contextReaderFiles,
     rules: {
       'no-restricted-imports': [
         'error',
-        {
-          paths: [
-            {
-              name: 'react',
-              importNames: ['useContext'],
-              message:
-                'Call useContext only inside a named use* reader hook in its own file (e.g. src/providers/DeleteDialogProvider/useDeleteDialog.ts) and read the context through that hook here.',
-            },
-          ],
-        },
+        { paths: [useContextImportPath], patterns: [tauriImportPattern] },
       ],
       'no-restricted-properties': [
         'error',
@@ -387,17 +401,7 @@ export default defineConfig(
     },
   },
   {
-    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/* — the platform/ block below replaces these options for its files, which leaves it free to; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
-    files: ['**/*.{ts,tsx}'],
-    rules: {
-      '@typescript-eslint/no-restricted-imports': [
-        'error',
-        { patterns: [tauriImportPattern] },
-      ],
-    },
-  },
-  {
-    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. As a `@typescript-eslint/no-restricted-imports` pattern this boundary would have to be repeated in every block of that rule, since a later block replaces an earlier one's options for the files both match, so it uses import-x's path rule.
+    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. As a `no-restricted-imports` pattern this boundary would have to be repeated in every block of that rule, since a later block replaces an earlier one's options for the files both match, so it uses import-x's path rule.
     files: ['**/*.{ts,tsx}'],
     ignores: [
       'dev-data-server/**',
@@ -423,10 +427,10 @@ export default defineConfig(
     },
   },
   {
-    // The layer order, from the bottom, is domain/, platform/, db/, services/, the data access layer, then the rest of src/ (app/docs/CLAUDE.md — Plan Format Extension). In this block and the four that follow, the options replace the Tauri block's for every file both match, so each repeats its pattern, except platform/'s: app/platform/ is the one runtime importer of @tauri-apps/*.
+    // The layer order, from the bottom, is domain/, platform/, db/, services/, the data access layer, then the rest of src/ (app/docs/CLAUDE.md — Plan Format Extension). In this block and the five that follow, the options replace the Tauri and useContext blocks' for every file they match, so each repeats the Tauri pattern, except platform/'s: app/platform/ is the one runtime importer of @tauri-apps/*.
     files: ['domain/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': [
+      'no-restricted-imports': [
         'error',
         {
           patterns: [
@@ -446,7 +450,7 @@ export default defineConfig(
   {
     files: ['platform/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': [
+      'no-restricted-imports': [
         'error',
         {
           patterns: [
@@ -465,7 +469,7 @@ export default defineConfig(
   {
     files: ['db/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': [
+      'no-restricted-imports': [
         'error',
         {
           patterns: [
@@ -483,7 +487,7 @@ export default defineConfig(
   {
     files: ['services/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': [
+      'no-restricted-imports': [
         'error',
         {
           paths: [
@@ -504,18 +508,22 @@ export default defineConfig(
   {
     files: ['src/data-access-layer/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': [
+      'no-restricted-imports': [
+        'error',
+        { patterns: [tauriImportPattern, dataAccessLayerOrderPattern] },
+      ],
+    },
+  },
+  {
+    // The data access layer's files outside its reader hooks also keep the useContext restriction, which the block above replaces.
+    files: ['src/data-access-layer/**/*.{ts,tsx}'],
+    ignores: contextReaderFiles,
+    rules: {
+      'no-restricted-imports': [
         'error',
         {
-          patterns: [
-            tauriImportPattern,
-            layerOrderPattern([
-              ...directoriesAboveDataAccess.map(
-                (directory) => `@/${directory}`,
-              ),
-              ...relativeImportsInto(...directoriesAboveDataAccess),
-            ]),
-          ],
+          paths: [useContextImportPath],
+          patterns: [tauriImportPattern, dataAccessLayerOrderPattern],
         },
       ],
     },
