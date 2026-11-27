@@ -56,3 +56,10 @@ Such a file is outside the type-check unless the root config's `include` names i
 **Citation:** [fix_2: ran `node -e` in `app/` parsing `f({1.0:1,0x1:2,1_0:3,1e3:4,1n:5,1.50:7,0.1e1:8})` with `ts.createSourceFile` and printing each property name's kind and `text` — observed `1.0`, `0x1` and `0.1e1` read `"1"`, `1_0` reads `"10"`, `1e3` reads `"1000"`, `1.50` reads `"1.5"`, and `1n` is a `BigIntLiteral` reading `"1n"`]
 
 For an object literal property named by a number, `name.text` is already the string JavaScript keys the property by, so it compares directly with a string-literal or identifier name. A bigint name such as `1n` is a separate node kind whose `text` is not that key.
+
+## Under `"jsx": "react-jsx"`, JSX children written beside `{...props}` are emitted as a `children` key after the spread
+
+**Verified at:** typescript 6.0.3
+**Citation:** [implement_1: ran `node -e` calling `ts.transpileModule` with `jsx: ts.JsxEmit.ReactJSX` on `<A {...props}><B /></A>` from `app/` — observed `_jsx(A, { ...props, children: _jsx(B, {}) })`]
+
+The nested children therefore replace any `children` the spread object holds. A wrapper that spreads its props and also writes nested children drops a caller's `children`.

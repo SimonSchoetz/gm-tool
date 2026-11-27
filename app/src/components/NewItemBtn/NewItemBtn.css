@@ -3,8 +3,8 @@
   width: 100%;
   transition:
     box-shadow var(--transition-hover-off),
-    opacity var(--ni-btn-animation-duration),
-    transform var(--ni-btn-animation-duration);
+    opacity var(--new-item-btn-animation-duration),
+    transform var(--new-item-btn-animation-duration);
   transform: scale(1) translateZ(0);
   opacity: 1;
 }
@@ -19,8 +19,8 @@
 .ni-btn:hover {
   transition:
     box-shadow var(--transition-hover-on),
-    opacity var(--ni-btn-animation-duration),
-    transform var(--ni-btn-animation-duration);
+    opacity var(--new-item-btn-animation-duration),
+    transform var(--new-item-btn-animation-duration);
   box-shadow: var(--box-shadow-active);
 }
 

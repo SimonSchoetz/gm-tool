@@ -4,7 +4,7 @@ import { useListFilter } from '@/hooks/useListFilter';
 import { useTableConfig } from '@/data-access-layer';
 import { GlassPanel } from '../GlassPanel/GlassPanel';
 import { SearchInput } from '../SearchInput/SearchInput';
-import { NewItemBtn } from '../NewItemBtn/NewItemBtn';
+import { NewItemBtn } from '../NewItemBtn';
 import { HorizontalDivider } from '../HorizontalDivider/HorizontalDivider';
 import type { ImagePlaceholderEntityType } from '../EntityPlaceholderIcon';
 import './SortableList.css';

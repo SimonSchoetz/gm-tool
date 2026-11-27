@@ -8,7 +8,7 @@
 
 Happy path:
 
-1. `pnpm run web` (or `preview_start` with the `web` configuration, which runs that script on port 5173) starts Vite in mode `web`. Before Vite accepts requests, the dev data server plugin finds the Tauri dev app's data under `~/Library/Application Support/com.gm-tool.dev/` (the identifier from `tauri.dev.conf.json`), copies its database and images into a temporary folder (`gm-tool-web-mode` under the OS temp directory, emptied at every start), runs the checkout's pending migrations on the copy, and registers its routes under `/__dev-data` on Vite's own origin.
+1. `pnpm run web` (or `preview_start` with the `web` configuration, which runs that script on port 5173) starts Vite in mode `web`. Before Vite accepts requests, the dev data server plugin finds the Tauri dev app's data under `~/Library/Application Support/com.gm-tool.dev/` (the identifier from `tauri.dev.conf.json`), copies its database and images into a temporary folder (a new `gm-tool-web-mode-` folder under the OS temp directory at every start, removed when the server closes), runs the checkout's pending migrations on the copy, and registers its routes under `/__dev-data` on Vite's own origin.
 2. The browser loads the app. The platform module's web implementation confirms the server with a health request, then every database statement and every Tauri command the app makes is posted to the server, which answers from the copy. The first page shows the adventure list with the dev app's adventures and their images, without a reload.
 3. Every screen the sidebar and the lists reach renders from the copy. Creating, editing with auto-save, duplicating, pinning and deleting write to the copy; a page reload shows them still there; restarting the server starts again from the dev app's current data.
 4. The image upload and replace buttons take the next of three committed fixture images in file-name order — a landscape PNG, a portrait JPEG, a square WebP — instead of opening a dialog; the entity shows the image, served from the copy, and the framing dialog works on it.
@@ -34,8 +34,10 @@ The seeded data, by name — a spec or a check refers to these names, never to a
 
 | Name | What it is |
 | --- | --- |
-| Seed Adventure | The adventure every row below belongs to; its image is the landscape fixture |
-| Imageless Adventure | A second adventure with no image and no content, so the adventure list shows a placeholder |
+| Seed Adventure | The adventure every row below that is not an adventure belongs to; its image is the landscape fixture |
+| Imageless Adventure | An adventure with no image and no content, so the adventure list shows a placeholder |
+| Third Adventure | An adventure with no image and no content; with Fourth Adventure it makes the adventure list five cards, the create card included, so the list's four-card row and its wrap show |
+| Fourth Adventure | An adventure with no image and no content, there for the same check as Third Adventure |
 | Seed NPC | An NPC with no content section; its image is the portrait fixture |
 | (unnamed NPC) | An NPC whose name is empty: the NPC list shows a blank name, the encounter's Add tab lists it as Untitled Combatant |
 | Seed PC | A PC with no content section; its image is the portrait fixture |

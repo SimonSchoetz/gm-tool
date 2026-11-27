@@ -4,6 +4,7 @@
   height: 100%;
   justify-self: center;
   width: 100%;
+  /* This cap repeats child styles, so a change to one changes it: `--sidebar-inner-width` + `2 * --spacing-md` is the steps sidebar's width (`--screens-sidebar-base-width` in `ScreensSidebar.css` plus the `padding` of `.steps-sidebar` in `StepsNavSidebar.css`); `--custom-scrollbar-width` stands for the scrollbar of the prep and in-game views' scroll boxes (`PrepView.tsx`, `InGameView.tsx`), which scroll through `scroll-edge-fade` (its width is set in `scrollbar.css`). */
   max-width: calc(
     var(--sidebar-inner-width) + var(--text-editor-max-width) +
       var(--spacing-lg) + 2 * var(--spacing-md) + var(--custom-scrollbar-width)

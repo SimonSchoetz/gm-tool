@@ -1,14 +1,19 @@
 .adventure-list-container {
+  justify-self: center;
   gap: var(--spacing-lg);
   flex-wrap: wrap;
   list-style-type: none;
   width: 100%;
+  max-width: calc(
+    4 * var(--adventures-screen-preview-width) + 3 * var(--spacing-lg) +
+      var(--custom-scrollbar-width)
+  );
   height: 100%;
 }
 
 .adventure-list-container .new-adventure-btn {
-  width: var(--adventure-preview-width);
-  height: var(--adventure-preview-height);
+  width: var(--adventures-screen-preview-width);
+  height: var(--adventures-screen-preview-height);
 }
 
 .new-adventure-btn svg {

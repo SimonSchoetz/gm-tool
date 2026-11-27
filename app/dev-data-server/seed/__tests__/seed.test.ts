@@ -113,17 +113,18 @@ const imagesOf = async (
   );
 
 describe('runSeed', () => {
-  it('creates Seed Adventure, holding every seeded base entity, and an empty Imageless Adventure', async () => {
+  it('creates Seed Adventure, holding every seeded base entity, and three empty adventures', async () => {
     const adventures = await db.select<{ id: string; name: string }[]>(
       'SELECT id, name FROM adventures',
     );
     expect(adventures.map(({ name }) => name).sort()).toEqual([
+      'Fourth Adventure',
       'Imageless Adventure',
       'Seed Adventure',
+      'Third Adventure',
     ]);
-    const seedAdventureId = adventures.find(
-      ({ name }) => name === 'Seed Adventure',
-    )?.id;
+    const seedAdventureId =
+      adventures.find(({ name }) => name === 'Seed Adventure')?.id ?? null;
 
     const baseEntities = await db.select<
       { entity_type: string; name: string | null; adventure_id: string }[]
@@ -154,10 +155,12 @@ describe('runSeed', () => {
     );
   });
 
-  it('gives Seed Adventure the landscape fixture and Imageless Adventure no image', async () => {
+  it('gives Seed Adventure the landscape fixture and the other adventures no image', async () => {
     expect(await imagesOf('adventures')).toEqual([
+      { name: 'Fourth Adventure', original_filename: null },
       { name: 'Imageless Adventure', original_filename: null },
       { name: 'Seed Adventure', original_filename: 'landscape.png' },
+      { name: 'Third Adventure', original_filename: null },
     ]);
   });
 
