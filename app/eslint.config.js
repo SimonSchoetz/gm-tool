@@ -142,6 +142,40 @@ const srcFileGroups = [noClasses, noRawReactTypes, noDefaultInputType];
  */
 const syntaxRules = (...groups) => ['error', asConstOverEnum, ...groups.flat()];
 
+const tauriImportPattern = {
+  group: ['@tauri-apps/*'],
+  allowTypeImports: true,
+  message:
+    'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
+};
+
+// A relative path into a restricted directory is restricted as its alias is. The patterns match the import's text, so they also report a folder of that name inside the importing layer when it is reached through `../`.
+/** @param {string[]} directories */
+const relativeImportsInto = (...directories) =>
+  directories.flatMap((directory) => [
+    `../**/${directory}`,
+    `../**/${directory}/**`,
+  ]);
+
+/** @param {string[]} group */
+const upwardImports = (group) => ({
+  group,
+  allowTypeImports: true,
+  message:
+    'A value import never points up the layer order, and platform/ imports no other layer; a type-only import is allowed (app/docs/CLAUDE.md — Plan Format Extension, Layered breakdown).',
+});
+
+// The src/ directories whose code sits above the data access layer. src/types/ (framework types) and src/__tests__/ (test support) stay importable from that layer.
+const directoriesAboveDataAccess = [
+  'components',
+  'screens',
+  'hooks',
+  'providers',
+  'routes',
+  'util',
+  'App',
+];
+
 export default defineConfig(
   {
     ignores: [
@@ -359,16 +393,7 @@ export default defineConfig(
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        {
-          patterns: [
-            {
-              group: ['@tauri-apps/*'],
-              allowTypeImports: true,
-              message:
-                'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
-            },
-          ],
-        },
+        { patterns: [tauriImportPattern] },
       ],
     },
   },
@@ -393,6 +418,107 @@ export default defineConfig(
               message:
                 'app/dev-data-server/ runs in Node inside Vite; app and browser code import only its protocol.ts.',
             },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The layer order, from the bottom, is domain/, platform/, db/, services/, the data access layer, then the rest of src/ (app/docs/CLAUDE.md — Plan Format Extension). In this block and the four that follow, the options replace the Tauri block's for every file both match, so each repeats its pattern, except platform/'s, whose files the Tauri block ignores.
+    files: ['domain/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            tauriImportPattern,
+            upwardImports([
+              '@platform',
+              '@db/*',
+              '@services/*',
+              '@/*',
+              ...relativeImportsInto('platform', 'db', 'services', 'src'),
+            ]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['platform/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            upwardImports([
+              '@domain',
+              '@domain/*',
+              '@db/*',
+              '@services/*',
+              '@/*',
+              ...relativeImportsInto('domain', 'db', 'services', 'src'),
+            ]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['db/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            tauriImportPattern,
+            upwardImports([
+              '@services/*',
+              '@/*',
+              ...relativeImportsInto('services', 'src'),
+            ]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['services/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react',
+              allowTypeImports: true,
+              message:
+                'services/ takes no value import from react (app/services/CLAUDE.md — What Does NOT Belong Here).',
+            },
+          ],
+          patterns: [
+            tauriImportPattern,
+            upwardImports(['@/*', ...relativeImportsInto('src')]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/data-access-layer/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            tauriImportPattern,
+            upwardImports([
+              ...directoriesAboveDataAccess.flatMap((directory) => [
+                `@/${directory}`,
+                `@/${directory}/*`,
+              ]),
+              ...relativeImportsInto(...directoriesAboveDataAccess),
+            ]),
           ],
         },
       ],

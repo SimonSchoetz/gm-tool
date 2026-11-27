@@ -74,8 +74,8 @@ const nonUiLayers = ['db', 'domain', 'services', 'util', 'platform'];
 const noTryLayers = ['src/data-access-layer', 'src/screens'];
 
 /**
- * One scope of the `no-restricted-syntax` blocks: each line of `banned` must be reported exactly once in each of `paths`, and no line of `allowed` in any of `allowedPaths`. `asText` marks paths that already exist, so the lines are linted as text under them instead of being written there.
- * @typedef {object} SyntaxScope
+ * One scope of a rule's config blocks: each line of `banned` must be reported exactly once in each of `paths`, and no line of `allowed` in any of `allowedPaths`. `asText` marks paths that already exist, so the lines are linted as text under them instead of being written there.
+ * @typedef {object} CanaryScope
  * @property {string} name
  * @property {string[]} paths
  * @property {string[]} banned
@@ -85,7 +85,7 @@ const noTryLayers = ['src/data-access-layer', 'src/screens'];
  */
 
 // A syntax canary under __tests__/ is named without `.test.`, so a Vitest run that collects test files while it exists does not pick it up.
-/** @type {SyntaxScope[]} */
+/** @type {CanaryScope[]} */
 const syntaxScopes = [
   {
     name: 'keeps the enum ban in a file no later syntax block matches',
@@ -239,11 +239,143 @@ const syntaxScopes = [
   },
 ];
 
+/** @param {string[]} specifiers */
+const valueImportsOf = (...specifiers) =>
+  specifiers.map(
+    (specifier, index) =>
+      `import { value${String(index)} } from '${specifier}';`,
+  );
+
+/**
+ * @param {string} name @param {string} layer @param {string[]} banned @param {string[]} allowed
+ * @returns {CanaryScope}
+ */
+const layerScope = (name, layer, banned, allowed) => ({
+  name,
+  paths: [canaryPath(layer, 'upwardImports.ts')],
+  banned,
+  allowedPaths: [canaryPath(layer, 'allowedImports.ts')],
+  allowed,
+});
+
+const tauriValueImport = "import { invoke } from '@tauri-apps/api/core';";
+const typeOnlyDbImport = "import type { Row } from '@db/session';";
+
+/** @type {CanaryScope[]} */
+const layerImportScopes = [
+  layerScope(
+    'reports a Tauri import and a value import from any later layer in domain/, by alias and by relative path, and passes a type-only import and one from domain/ itself',
+    'domain',
+    [
+      tauriValueImport,
+      ...valueImportsOf(
+        '@platform',
+        '@db/session',
+        '@services/sessionService',
+        '@/types/fcProps.type',
+        '../../platform',
+        '../../db',
+        '../../services/sessionService',
+        '../../src/util',
+      ),
+    ],
+    [
+      typeOnlyDbImport,
+      "import { type Service } from '../../services/sessionService';",
+      ...valueImportsOf('@domain/adventures', '../adventures'),
+    ],
+  ),
+  layerScope(
+    'reports a value import from domain/ or any later layer in platform/, by alias and by relative path, and passes a type-only import and a Tauri import',
+    'platform',
+    valueImportsOf(
+      '@domain',
+      '@domain/adventures',
+      '@db/session',
+      '@services/sessionService',
+      '@/types/fcProps.type',
+      '../../domain',
+      '../../db/session',
+      '../../services/sessionService',
+      '../../src/util',
+    ),
+    [
+      typeOnlyDbImport,
+      "import type { AdventureError } from '../../domain/adventures';",
+      tauriValueImport,
+    ],
+  ),
+  layerScope(
+    'reports a Tauri import and a value import from services/ or src/ in db/, by alias and by relative path, and passes a type-only import and one from an earlier layer or db/util',
+    'db',
+    [
+      tauriValueImport,
+      ...valueImportsOf(
+        '@services/sessionService',
+        '@/types/fcProps.type',
+        '../../services/sessionService',
+        '../../src/util',
+      ),
+    ],
+    [
+      "import type { Service } from '@services/sessionService';",
+      ...valueImportsOf('@domain', '@platform', '../util'),
+    ],
+  ),
+  layerScope(
+    'reports a Tauri import, a value import from react and one from src/ in services/, by alias and by relative path, and passes a type-only import and one from an earlier layer',
+    'services',
+    [
+      tauriValueImport,
+      ...valueImportsOf('react', '@/types/fcProps.type', '../../src/util'),
+    ],
+    [
+      "import type { ReactNode } from 'react';",
+      "import type { FCProps } from '@/types/fcProps.type';",
+      ...valueImportsOf('@db/session', '@domain', '@platform'),
+    ],
+  ),
+  layerScope(
+    'reports a Tauri import and a value import from a src/ directory above it in the data access layer, by alias and by relative path, and passes src/types/, test support, a type-only import and one from an earlier layer',
+    'src/data-access-layer',
+    [
+      tauriValueImport,
+      ...valueImportsOf(
+        '@/components/GlassPanel/GlassPanel',
+        '@/screens',
+        '@/hooks/useListNavigation',
+        '@/providers/DeleteDialogProvider',
+        '@/routes/__root',
+        '@/util/cn',
+        '@/App',
+        '../../components/GlassPanel/GlassPanel',
+        '../../screens',
+        '../../hooks/useListNavigation',
+        '../../providers/DeleteDialogProvider',
+        '../../routes/__root',
+        '../../util/cn',
+        '../../App',
+      ),
+    ],
+    [
+      "import type { Props } from '@/components/GlassPanel/GlassPanel';",
+      ...valueImportsOf(
+        '@/types/fcProps.type',
+        '@/__tests__/support/buildBaseEntity',
+        '@services/sessionService',
+        '@db/session',
+        '@domain',
+        '../base-entities',
+      ),
+    ],
+  ),
+];
+
 /** @param {string[]} lines */
 const sourceOf = (lines) => `${lines.join('\n')}\n`;
 
 /** @type {[string, string][]} */
-const syntaxCanaryFiles = syntaxScopes
+const scopeCanaryFiles = [...syntaxScopes, ...layerImportScopes]
   .filter((scope) => !scope.asText)
   .flatMap((scope) => [
     ...scope.paths.map(
@@ -282,7 +414,7 @@ beforeAll(async () => {
   fs.mkdirSync(path.join(srcCanaryDir, '__tests__'), { recursive: true });
   fs.mkdirSync(path.join(servicesCanaryDir, '__tests__'), { recursive: true });
   fs.mkdirSync(platformCanaryDir, { recursive: true });
-  for (const [filePath, source] of syntaxCanaryFiles) {
+  for (const [filePath, source] of scopeCanaryFiles) {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, source);
   }
@@ -329,31 +461,40 @@ const linesIn = (messages, ruleId) => {
 const linesReportedBy = (filePath, ruleId) =>
   linesIn(messagesByPath.get(filePath) ?? null, ruleId);
 
-/** @param {SyntaxScope} scope @param {string} filePath @param {string[]} lines */
-const syntaxLinesReported = async (scope, filePath, lines) => {
-  if (!scope.asText) return linesReportedBy(filePath, 'no-restricted-syntax');
-  const [result] = await eslint.lintText(sourceOf(lines), { filePath });
-  return linesIn(result?.messages ?? null, 'no-restricted-syntax');
+/**
+ * @param {string} ruleId
+ * @returns {(scope: CanaryScope) => Promise<void>} checks that the rule reports every banned line of a scope and no allowed one
+ */
+const expectScopeReports = (ruleId) => async (scope) => {
+  /** @param {string} filePath @param {string[]} lines */
+  const reportedLines = async (filePath, lines) => {
+    if (!scope.asText) return linesReportedBy(filePath, ruleId);
+    const [result] = await eslint.lintText(sourceOf(lines), { filePath });
+    return linesIn(result?.messages ?? null, ruleId);
+  };
+  const everyBannedLine = scope.banned.map((_, index) => index + 1);
+  for (const filePath of scope.paths) {
+    expect(await reportedLines(filePath, scope.banned), filePath).toEqual(
+      everyBannedLine,
+    );
+  }
+  for (const filePath of scope.allowedPaths) {
+    expect(await reportedLines(filePath, scope.allowed), filePath).toEqual([]);
+  }
 };
 
 describe('the syntax selectors of each scope under the project eslint.config.js', () => {
   it.each(syntaxScopes)(
     '$name',
-    async (scope) => {
-      const everyBannedLine = scope.banned.map((_, index) => index + 1);
-      for (const filePath of scope.paths) {
-        expect(
-          await syntaxLinesReported(scope, filePath, scope.banned),
-          filePath,
-        ).toEqual(everyBannedLine);
-      }
-      for (const filePath of scope.allowedPaths) {
-        expect(
-          await syntaxLinesReported(scope, filePath, scope.allowed),
-          filePath,
-        ).toEqual([]);
-      }
-    },
+    expectScopeReports('no-restricted-syntax'),
+    120_000,
+  );
+});
+
+describe('the layer order import restrictions under the project eslint.config.js', () => {
+  it.each(layerImportScopes)(
+    '$name',
+    expectScopeReports('@typescript-eslint/no-restricted-imports'),
     120_000,
   );
 });

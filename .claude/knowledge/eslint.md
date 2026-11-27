@@ -192,12 +192,12 @@ The `CompatibleParser` type under which `typescript-eslint` declares the export 
 
 Under this project's config a `throw` of a value typed `string` is reported in any function, a `throw` of a value typed `unknown` is not, and `Promise.reject(value)` or `reject(value)` inside a `new Promise` executor is reported unless `value` is an `Error`, whatever its declared type.
 
-## typescript-eslint 8.71.0's `no-restricted-imports` accepts `allowTypeImports` on `paths` and `patterns` entries and visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration` and `TSImportEqualsDeclaration` but not `ImportExpression`; ESLint 10.11.0's core rule visits the first three
+## typescript-eslint 8.73.0's `no-restricted-imports` accepts `allowTypeImports` on `paths` and `patterns` entries and visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration` and `TSImportEqualsDeclaration` but not `ImportExpression`; ESLint 10.15.0's core rule visits the same four
 
-**Verified at:** typescript-eslint 8.71.0, eslint 10.11.0, read 2026-10-20
-**Citation:** [architect_9: `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.71.0_*/node_modules/@typescript-eslint/eslint-plugin/dist/rules/no-restricted-imports.js:23-24,169,181,208-237` — `allowTypeImports` on `paths` and `patterns`; visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration`, `TSImportEqualsDeclaration`, not `ImportExpression`] [architect_11: `app/node_modules/.pnpm/eslint@10.11.0*/node_modules/eslint/lib/rules/no-restricted-imports.js:858-864`]
+**Verified at:** typescript-eslint 8.73.0, eslint 10.15.0, read 2026-11-27
+**Citation:** [implement_8: `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.73.0_*/node_modules/@typescript-eslint/eslint-plugin/dist/rules/no-restricted-imports.js:23-24,40,66,217-233` — `allowTypeImports` on `paths` and `patterns`; visits `ImportDeclaration`, `ExportNamedDeclaration[source]`, `ExportAllDeclaration`, `TSImportEqualsDeclaration`, no `ImportExpression` in the file] [implement_9: `app/node_modules/eslint/lib/rules/no-restricted-imports.js:857-888` — visits `ImportDeclaration`, `ExportNamedDeclaration` with a source, `ExportAllDeclaration` and `TSImportEqualsDeclaration`, no `ImportExpression` in the file]
 
-A dynamic `import()` of a restricted module passes both rules, and a `vi.mock('<module>', …)` call is not an import declaration either; a type-only import of a restricted module passes the extension rule when its entry sets `allowTypeImports`.
+A dynamic `import()` of a restricted module passes both rules, and a `vi.mock('<module>', …)` call is not an import declaration either.
 
 ## `eslint-plugin-import-x` 4.17.1's `no-restricted-paths` resolves a zone's `except` entries against that zone's `from` path, each of which must stay inside `from`
 
@@ -300,3 +300,31 @@ An override or advisory that turns on this range has to be checked against each 
 **Citation:** [implement_3: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json c.tsx` from a `mktemp -d` directory twice, the disposable config under `tseslint.parser` with JSX enabled setting `no-restricted-syntax` to `JSXAttribute[value.value='text']` alone and then to `JSXAttribute > JSXExpressionContainer > Literal[value='text']` alone, on a file holding `<input type="text" />` on line 1 and `<input type={'text'} />` on line 2 — observed line 1 only in the first run and line 2 only in the second]
 
 A rule that bans both of these spellings lists both selectors.
+
+## typescript-eslint 8.73.0's `no-restricted-imports` with `allowTypeImports: true` reported value imports and value re-exports of restricted alias and relative specifiers, and passed an `import type`, an `import { type X }`, an `export type { X }` and an `export { type X }` of restricted specifiers
+
+**Verified at:** typescript-eslint 8.73.0, eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_10: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json b.ts` from a `mktemp -d` directory, the disposable config setting `@typescript-eslint/no-restricted-imports` to a `patterns` entry `{ group: ['@/components', '@/components/*', '@/util', '@/util/*', '@db/*', '@domain', '../**/db', '../**/db/**', '../**/src', '../**/src/**'], allowTypeImports: true }` and a `paths` entry `{ name: 'react', allowTypeImports: true }` — observed one report each on value imports of `@/components`, `@/components/Foo/Foo`, `@/util`, `@db/session`, `@domain`, `../../db/session`, `../../../src/components/Foo`, `../db` and `react`, on `export { m } from '@db/x'`, `export * from '../../db/y'`, `import equals = require('@db/equals')` and `import { type K, l } from '@db/mixed'`, and none on `import type` of `@/components/Foo` or `../../db/session`, `import { type X }` of `@/components/Foo`, `../db` or `react`, `export type { w } from '../../db/w'`, `export { type y } from '@db/y'`, imports of `@/types/fcProps.type`, `@/__tests__/support/x`, `./db/x`, `../util/x` or `lexical/src/foo`, or a dynamic `await import('@db/dynamic')`]
+
+An import that mixes a type specifier with a value specifier is reported as a value import.
+
+## Through typescript-eslint 8.73.0's `no-restricted-imports`, the `group` entry `../**/db` also reported `../../db/session`, and the entry `@/components` also reported `@/components/Foo/Foo`
+
+**Verified at:** typescript-eslint 8.73.0, eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_11: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json b.ts` from a `mktemp -d` directory four times, the disposable config setting `@typescript-eslint/no-restricted-imports` to one `patterns` entry whose `group` held one string per run, on a file importing `../../db/session`, `../db`, `@/components` and `@/components/Foo/Foo` — observed `../**/db` reporting both relative imports and `../**/db/**` only `../../db/session`; `@/components` reporting both alias imports and `@/components/*` only `@/components/Foo/Foo`]
+
+Run one entry at a time, `../**/db/**` reported only the deeper of the two relative imports, and `@/components/*` only the deeper of the two alias imports.
+
+## Through typescript-eslint 8.73.0's `no-restricted-imports`, the `group` entry `../**/util` reported an import of `../util/own` that resolves to a `util/` folder next to the importing file's own folder
+
+**Verified at:** typescript-eslint 8.73.0, eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_12: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json feature/inner/uses.ts` from a `mktemp -d` directory, the disposable config setting `@typescript-eslint/no-restricted-imports` to a `patterns` entry with `group: ['../**/util']`, where `uses.ts` imports `../util/own` and the target is `feature/util/own.ts` — observed a report on the import]
+
+Nothing in that run told the `feature/util/` folder apart from a layer root named `util/`.
+
+## typescript-eslint 8.73.0 marks `@typescript-eslint/no-restricted-imports` deprecated since 8.64.0 and names ESLint's core `no-restricted-imports` as its replacement
+
+**Verified at:** @typescript-eslint/eslint-plugin 8.73.0 — 2026-11-27
+**Citation:** [implement_13: `app/node_modules/.pnpm/@typescript-eslint+eslint-plugin@8.73.0_*/node_modules/@typescript-eslint/eslint-plugin/dist/rules/no-restricted-imports.js:138-148` — `meta.deprecated` holds `deprecatedSince: '8.64.0'` and a `replacedBy` entry naming `no-restricted-imports` at `https://eslint.org/docs/latest/rules/no-restricted-imports`]
+
+The deprecated rule's `replacedBy` entry links `https://eslint.org/docs/latest/rules/no-restricted-imports`.
