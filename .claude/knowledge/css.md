@@ -76,3 +76,10 @@ With `overflow-wrap: anywhere`, a word with no break opportunity wraps at any ch
 **Citation:** [claude_4: ran a `WKWebView` on an element with `animation-name` of a `@keyframes` setting a registered `<length>` custom property `to { … : 32px }` from its initial `0px`, `animation-timing-function: linear`, `animation-fill-mode: both`, `animation-timeline: scroll(self)`, `animation-range: 0 32px`, plus `animation-duration: 0s`, and read the property at `scrollTop` 0, 5, 16, 32, 100 and the end — observed `32px` at every one; with `animation-duration` left at its default, the same reads followed the scroll from `0px`]
 
 The value no longer follows the scroll timeline, so an animation from a start value to an end value shows its end value even at the scroll start. How the Tauri app's webview relates to the system WebKit is in `tauri.md`.
+
+## In WebKit on macOS 27.2 and Chromium, `align-content: safe center` packs and centres a wrapping flex box's lines and starts them at the top edge when they overflow
+
+**Verified at:** system WebKit of macOS 27.2.1 and the Claude desktop app's browser pane (Chromium), 2026-11-27
+**Citation:** [fix_1: ran a `WKWebView` on a wrapping flex list with `align-content: safe center`, a 24px gap and two lines of 100px items — observed line tops 288 and 412 at a box height of 800, and 0 and 124 with `scrollHeight` 224 at a box height of 150] [fix_2: ran the Adventures grid in the browser pane — observed lines 24px apart and centred in a tall viewport, and the first line inside the box at `scrollTop` 0 in a short one]
+
+With the default `align-content`, the lines of a wrapping flex box stretch over its whole height, so items aligned to their line's centre drift apart as the box grows.
