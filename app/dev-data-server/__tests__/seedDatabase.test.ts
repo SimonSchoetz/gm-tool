@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { resolveConfig, type ViteDevServer } from 'vite';
+import type { ViteDevServer } from 'vite';
 import { afterEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { runMigrations } from '../../db/_migrations';
 import {
@@ -12,6 +11,7 @@ import { readFixturePaths } from '../fixtureCycle';
 import { seedDatabase } from '../seedDatabase';
 import type { SqliteDatabase } from '../sqliteDatabase';
 import { createTempDirectory } from './support/tempDirectory';
+import { resolveWebServerConfig } from './support/webServerConfig';
 
 // A spy on the `close` of each seed server the unit creates, so a test can see that it was closed.
 const closeSpies = vi.hoisted((): MockInstance[] => []);
@@ -29,16 +29,6 @@ vi.mock('vite', async (importOriginal) => {
     },
   };
 });
-
-// The web server's config as `vite --mode web` resolves it, so the seed's server gets the project's real aliases; seed.test.ts pins what the seed writes.
-const webServerConfig = () =>
-  resolveConfig(
-    {
-      configFile: resolve(import.meta.dirname, '../../vite.config.ts'),
-      mode: 'web',
-    },
-    'serve',
-  );
 
 const imagesDirectories: ReturnType<typeof createTempDirectory>[] = [];
 
@@ -65,16 +55,12 @@ describe('seedDatabase', { timeout: 30_000 }, () => {
     await runMigrations(db, skipBackup);
     const context = seedContext(db);
 
-    await seedDatabase(context, await webServerConfig());
+    await seedDatabase(context, await resolveWebServerConfig());
 
-    expect(
-      await db.select('SELECT name FROM adventures ORDER BY name'),
-    ).toEqual([
-      { name: 'Fourth Adventure' },
-      { name: 'Imageless Adventure' },
-      { name: 'Seed Adventure' },
-      { name: 'Third Adventure' },
-    ]);
+    // Shows that the seed wrote to this database; seed.test.ts pins what the seed writes.
+    expect(await db.select('SELECT name FROM adventures')).toContainEqual({
+      name: 'Seed Adventure',
+    });
     expect(readdirSync(context.imagesDir)).toHaveLength(8);
     expect(
       await db.select(
@@ -88,7 +74,7 @@ describe('seedDatabase', { timeout: 30_000 }, () => {
   it('keeps the seed server out of the web server cache folder', async () => {
     const db = openTestDatabase();
     await runMigrations(db, skipBackup);
-    const config = await webServerConfig();
+    const config = await resolveWebServerConfig();
 
     await seedDatabase(seedContext(db), config);
 
@@ -101,7 +87,7 @@ describe('seedDatabase', { timeout: 30_000 }, () => {
     await db.close();
 
     await expect(
-      seedDatabase(seedContext(db), await webServerConfig()),
+      seedDatabase(seedContext(db), await resolveWebServerConfig()),
     ).rejects.toThrow(
       /^Failed to create adventure: Error: database is not open$/,
     );

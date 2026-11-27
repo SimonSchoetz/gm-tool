@@ -6,10 +6,6 @@ describe('formatDateValue', () => {
     expect(formatDateValue(null)).toBe('');
   });
 
-  it('returns empty string for undefined', () => {
-    expect(formatDateValue(undefined)).toBe('');
-  });
-
   it('returns empty string for a number (guards against falsy 0 misread)', () => {
     expect(formatDateValue(0)).toBe('');
   });

@@ -123,9 +123,8 @@ describe('runSeed', () => {
       'Seed Adventure',
       'Third Adventure',
     ]);
-    const seedAdventureId = adventures.find(
-      ({ name }) => name === 'Seed Adventure',
-    )?.id;
+    const seedAdventureId =
+      adventures.find(({ name }) => name === 'Seed Adventure')?.id ?? null;
 
     const baseEntities = await db.select<
       { entity_type: string; name: string | null; adventure_id: string }[]

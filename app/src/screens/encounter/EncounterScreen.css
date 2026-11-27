@@ -4,6 +4,7 @@
   height: 100%;
   justify-self: center;
   width: 100%;
+  /* `--spacing-sm`, two of the four `--border-thin` and `--custom-scrollbar-width` mirror the notes panels in `EncounterNotes.css` and `EncounterItemNotes.css` (right padding, borders, scroll boxes), so a change there changes this cap. */
   max-width: calc(
     var(--encounter-screen-queue-column-width) +
       var(--encounter-screen-side-column-width) + var(--text-editor-max-width) +

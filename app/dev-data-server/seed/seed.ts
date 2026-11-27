@@ -1,4 +1,4 @@
-// Node host — evaluated by the seed's own Vite server (seedDatabase.ts), never by Vite's config bundle: the services it calls import through the project's path aliases, which only a Vite server resolves. Every row is created through the app's own services, so a schema or service change breaks the seed at type-check time. The names and values below are the seeded dataset that app/docs/features/web-dev-mode.md lists for specs to refer to.
+// Node host — evaluated by the seed's own Vite server, never by Vite's config bundle: the services it calls import through the project's path aliases, which only a Vite server resolves. Every row is created through the app's own services, so a schema or service change breaks the seed at type-check time. The names and values below are the seeded dataset that app/docs/features/web-dev-mode.md lists for specs to refer to.
 import { basename } from 'node:path';
 import {
   patchBasicStatBlockContent,
@@ -128,7 +128,7 @@ export const runSeed = async (context: CommandContext): Promise<void> => {
     name: 'Seed Adventure',
     imgFilePath: landscape,
   });
-  // With Seed Adventure and the create card, these fill the adventure list past one row at its widest, so its row limit and its wrap can be checked.
+  // With Seed Adventure and the create card, these fill the adventure list past one row at its widest, so its row limit and its wrap can be checked. None of them gets an image, so the list also shows placeholders.
   for (const name of [
     'Imageless Adventure',
     'Third Adventure',

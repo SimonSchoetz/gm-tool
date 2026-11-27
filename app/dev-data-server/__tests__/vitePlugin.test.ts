@@ -3,7 +3,7 @@ import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { resolveConfig, type ResolvedConfig, type ViteDevServer } from 'vite';
+import type { ResolvedConfig, ViteDevServer } from 'vite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { DATABASE_FILE } from '../../domain/database';
@@ -13,10 +13,11 @@ import type { seedDatabase as seedDatabaseType } from '../seedDatabase';
 import { devDataServer } from '../vitePlugin';
 import { appDataDirectories } from './support/appDataDirectories';
 import { createTempDirectory } from './support/tempDirectory';
+import { resolveWebServerConfig } from './support/webServerConfig';
 
 // The context the plugin computes for the request handler is its outcome; the handler itself has its own tests.
 const createRequestHandler = vi.hoisted(() =>
-  vi.fn<typeof createRequestHandlerType>(() => () => undefined),
+  vi.fn<typeof createRequestHandlerType>(() => vi.fn()),
 );
 vi.mock('../requestHandler', () => ({ createRequestHandler }));
 
@@ -198,25 +199,14 @@ describe('devDataServer configureServer and closeServer', () => {
       // Without any app data, so a seeded start that read the dev or release directory would fail.
       rmSync(join(home.dir, 'Library'), { recursive: true });
       vi.stubEnv('GM_TOOL_WEB_DATA', 'seed');
-      const webServerConfig = await resolveConfig(
-        {
-          configFile: resolve(import.meta.dirname, '../../vite.config.ts'),
-          mode: 'web',
-        },
-        'serve',
-      );
+      const webServerConfig = await resolveWebServerConfig();
 
       const { close } = await startServer('web', webServerConfig);
 
       const [[context]] = createRequestHandler.mock.calls;
       expect(
-        await context.db.select('SELECT name FROM adventures ORDER BY name'),
-      ).toEqual([
-        { name: 'Fourth Adventure' },
-        { name: 'Imageless Adventure' },
-        { name: 'Seed Adventure' },
-        { name: 'Third Adventure' },
-      ]);
+        await context.db.select('SELECT name FROM adventures'),
+      ).toContainEqual({ name: 'Seed Adventure' });
       expect(context.imagesDir.startsWith(tmpdir())).toBe(true);
       // The seed's images land in the folder the request handler serves from.
       const seededImages = await context.db.select<
@@ -235,13 +225,7 @@ describe('devDataServer configureServer and closeServer', () => {
   it('in the seeded mode, hands the request handler an images folder that exists even when the seed saves no image', async () => {
     vi.stubEnv('GM_TOOL_WEB_DATA', 'seed');
     seedDatabase.mockImplementationOnce(() => Promise.resolve());
-    const webServerConfig = await resolveConfig(
-      {
-        configFile: resolve(import.meta.dirname, '../../vite.config.ts'),
-        mode: 'web',
-      },
-      'serve',
-    );
+    const webServerConfig = await resolveWebServerConfig();
 
     const { close } = await startServer('web', webServerConfig);
 
