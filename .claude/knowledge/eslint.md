@@ -18,17 +18,17 @@ A value with no synchronous source that must be read once and then kept current 
 
 ## Flat config local/inline plugin rules require ESM `export default`, not CommonJS `module.exports`, in a `"type": "module"` project
 
-**Verified at:** eslint 10.6.0
-**Citation:** [ran `npx eslint` against a rule file using `module.exports = {...}` in this repo (`app/package.json` has `"type": "module"`) — observed `SyntaxError: The requested module './eslint-rules/no-wrapped-line-comments.js' does not provide an export named 'default'` at config-load time, before the rule module ever executes]
+**Verified at:** eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_4: ran `app/node_modules/.bin/eslint probe.js` in a `mktemp -d` directory whose `package.json` declares `"type": "module"` and whose `eslint.config.js` imports a rule file using `module.exports = {...}` — observed `SyntaxError: The requested module './eslint-rules/cjs-rule.js' does not provide an export named 'default'`; with the rule file rewritten to `export default {...}` the same run exited 0]
 
-A local ESLint rule file registered via flat config's `plugins: { local: { rules: { 'rule-name': ruleModule } } }` must use `export default { meta, create }` when the file is loaded under `"type": "module"`. Node's ESM loader performs static export analysis on `.js` files at parse time when the nearest `package.json` declares `"type": "module"` — it does not sniff for CommonJS syntax. A file containing `module.exports = {...}` has zero `export` statements from the ESM parser's perspective, so the import fails with a missing-default-export SyntaxError without ever executing the module body (not a `ReferenceError: module is not defined`, which would only occur if the assignment executed).
+A local ESLint rule file registered via flat config's `plugins: { local: { rules: { 'rule-name': ruleModule } } }` must use `export default { meta, create }` when the file is loaded under `"type": "module"`. With `module.exports = {...}`, the config's default import of the file fails with a missing-default-export `SyntaxError`.
 
-## `context.sourceCode.getAllComments()` returns `ast.comments`; comment nodes have `.type` (`'Line'` \| `'Block'`), `.value`, `.loc`
+## `context.sourceCode.getAllComments()` returns `ast.comments`; comment nodes have `.type` (`'Line'` \| `'Block'`, or `'Shebang'` for a hashbang line), `.value`, `.loc`
 
-**Verified at:** eslint 10.6.0
-**Citation:** [source read: `node_modules/eslint/lib/languages/js/source-code/source-code.js` — `getAllComments() { return this.ast.comments; }`; `node_modules/eslint/lib/rules/capitalized-comments.js` — confirms modern rules access it via `context.sourceCode` (not the deprecated `context.getSourceCode()`), and use `sourceCode.getTokenBefore(comment, { includeComments: true })` to detect adjacency between a comment and the token/comment immediately preceding it]
+**Verified at:** eslint 10.15.0 — 2026-11-27
+**Citation:** [implement_5: `app/node_modules/eslint/lib/languages/js/source-code/source-code.js:412-418,503-505` — a file with a hashbang gets `ast.comments[0].type = "Shebang"`, and `getAllComments() { return this.ast.comments; }`; `app/node_modules/.pnpm/@types+estree@1.0.9/node_modules/@types/estree/index.d.ts:60-63` — `Comment.type: "Line" | "Block"` and `value: string`] [implement_6: `app/node_modules/eslint/lib/rules/capitalized-comments.js:170-183,216,282,318-322` — reads `comment.loc`, `comment.value` and `comment.type`, and its `Program` handler scans `sourceCode.getAllComments()`, filtering out `"Shebang"`]
 
-`Program:exit` is a reliable place to run a full-file comment scan, since comments aren't part of the primary AST traversal ESLint visits by default — they must be pulled via `sourceCode.getAllComments()`. `getTokenBefore(node, { includeComments: true })` is the mechanism for confirming no code statement or other comment sits between two comment nodes (needed to detect "consecutive" comment runs with no intervening code).
+A rule that scans every comment of a file reads them from `sourceCode.getAllComments()`, as `capitalized-comments` does in its `Program` handler.
 
 ## Core `multiline-comment-style` rule does not detect manually-wrapped single-sentence comments — it only enforces block-vs-line comment style consistency, and is deprecated
 
@@ -39,8 +39,8 @@ No ESLint core or already-installed plugin rule (`@eslint/js`, `typescript-eslin
 
 ## An inline arrow `component` in a TanStack `createFileRoute` options object passes this project's lint config, including `reactRefresh.configs.vite()`
 
-**Verified at:** eslint-plugin-react-refresh ^0.5.3, as configured in app/eslint.config.js
-**Citation:** [spec-writer_3: ran `npx eslint src/routes/zz-scratch-inline-component.tsx` from `app/` against a disposable route file exporting only `export const Route = createFileRoute('/adventure/$adventureId/npcs')({ component: () => <NpcsScreen /> })` — observed exit code 0, no diagnostics]
+**Verified at:** eslint-plugin-react-refresh 0.5.8, as configured in app/eslint.config.js — 2026-11-27
+**Citation:** [implement_7: ran `npx eslint 'src/routes/adventure.$adventureId.npcs.tsx'` from `app/`, a route file whose only export is `Route` and whose `component` is an inline arrow rendering a screen with a static prop — observed exit code 0, no diagnostics; ran `npx eslint --print-config` on the same file — observed `react-refresh/only-export-components` at severity 2]
 
 A route file whose only export is `Route` may declare its `component` as an unexported inline arrow that renders a screen with a static prop (e.g. `component: () => <Screen entityType='npcs' />`); `react-refresh/only-export-components` does not flag it, so a per-route static prop needs no separately exported wrapper component.
 
@@ -171,12 +171,12 @@ A configuration that includes `tseslint.configs.strictTypeChecked` and no later 
 
 The type inference keys on the JSX attribute name, not on the property name, so renaming the field does not help. Why the parent object's other properties are reported as well was not traced, so the observed rule is: pass a ref to a component as its own top-level prop, never as a field of an object prop.
 
-## `no-restricted-syntax` under ESLint 10.11.0 accepts esquery selectors with a complex selector list inside `:not()`, `.field` child selectors and `:function`, such as `Identifier[name='undefined']:not(BinaryExpression > Identifier, SwitchCase > Identifier.test)`, `VariableDeclarator > Identifier.id > TSTypeAnnotation > TSUnionType > TSUndefinedKeyword` and `:function > TSTypeAnnotation.returnType TSUndefinedKeyword`
+## `no-restricted-syntax` under ESLint 10.15.0 accepts esquery selectors with a complex selector list inside `:not()`, `.field` child selectors and `:function`, such as `Identifier[name='undefined']:not(BinaryExpression > Identifier, SwitchCase > Identifier.test)`, `VariableDeclarator > Identifier.id > TSTypeAnnotation > TSUnionType > TSUndefinedKeyword` and `:function > TSTypeAnnotation.returnType TSUndefinedKeyword`
 
-**Verified at:** eslint 10.11.0, typescript-eslint 8.71.0 — 2026-10-19
-**Citation:** [claude_1: ran `npx eslint -c zz-probe.eslint.config.js --no-config-lookup zz-probe-undefined.ts` from `app/`, with a disposable flat config setting exactly those three selectors under `tseslint.parser`, against a disposable file — observed one report each on `const a = undefined`, `let b: string | undefined`, an arrow function's `: string | undefined` return type, an async arrow function's `: Promise<string | undefined>` return type, a function declaration's `: string | undefined` return type, `x ?? undefined`, `[undefined]`, `{ k: undefined }`, `return undefined` and `fn(undefined, x)`, and none on `a !== undefined`, `case undefined:`, a parameter typed `string | undefined` or a type literal member `m?: string | undefined`]
+**Verified at:** eslint 10.15.0, typescript-eslint 8.73.0 — 2026-11-27
+**Citation:** [implement_1: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json b.ts` from a `mktemp -d` directory, with a disposable flat config setting exactly those three selectors under `tseslint.parser`, against a disposable file — observed one report each on `const a = undefined`, `let b: string | undefined`, an arrow function's `: string | undefined` return type, an async arrow function's `: Promise<string | undefined>` return type, a function declaration's and a function expression's `: string | undefined` return type, `x ?? undefined`, `[undefined]`, `{ k: undefined }`, `return undefined` and `fn(undefined, x)`, and none on `a !== undefined`, `case undefined:`, a parameter typed `string | undefined` or a type literal member `m?: string | undefined`]
 
-`:function` matched function declarations and arrow functions in that run; a function expression was not probed.
+`:function` matched function declarations, arrow functions and function expressions in that run.
 
 ## The `parser` that `typescript-eslint` exports takes its `parseForESLint` from `@typescript-eslint/parser`, which declares `parseForESLint(code, parserOptions?)` as returning `{ ast, scopeManager, services, visitorKeys }`
 
@@ -286,3 +286,17 @@ The run observed this expression only; why neither rule reported it was not test
 **Citation:** [sub-feature-implementer_4: read the `package.json` of both installed copies under `app/node_modules/.pnpm/` — observed those `minimatch` ranges]
 
 An override or advisory that turns on this range has to be checked against each installed copy, since two copies can be installed side by side with different ranges.
+
+## `no-restricted-syntax` under ESLint 10.15.0 accepts comma-separated selector lists, `:not([superClass])`, `:not([typeArguments])`, `[arguments.length=0]` and regex attribute values, matching class declarations and expressions without `extends`, an untyped zero-argument `vi.fn()` and the `React.`-qualified `FC`, `HTMLProps` and `HTMLAttributes` type names
+
+**Verified at:** eslint 10.15.0, typescript-eslint 8.73.0 — 2026-11-27
+**Citation:** [implement_2: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json a.tsx` from a `mktemp -d` directory, with a disposable flat config under `tseslint.parser` setting the selectors `ClassDeclaration:not([superClass]), ClassExpression:not([superClass])`, `ClassDeclaration[superClass.name='Error'], ClassExpression[superClass.name='Error'], ClassDeclaration[id.name=/Error$/], ClassExpression[id.name=/Error$/]`, `CallExpression[callee.object.name='vi'][callee.property.name='fn'][arguments.length=0]:not([typeArguments])` and `TSQualifiedName[left.name='React'][right.name=/^(FC|HTMLProps)$|HTMLAttributes$/], TSTypeReference > Identifier.typeName[name=/^(FC|HTMLProps)$|HTMLAttributes$/]` — observed one report on each of `class A {}`, `const B = class {}`, `class X extends Error {}`, `class FooError extends Base {}`, `const C = class extends Error {}`, `const E = class InnerError extends Base {}`, `vi.fn()` and the type references `React.FC`, `React.HTMLProps`, `React.DivHTMLAttributes`, `DivHTMLAttributes`, `FC` and `HTMLProps`, and none on `class Ok extends Base {}`, `const D = class Named extends Base {}`, `vi.fn<() => void>()`, `vi.fn(() => 1)`, `HtmlProps`, `FCProps`, `React.ComponentProps` or a type alias `SessionLoadError`]
+
+`CallExpression[callee.object.name='vi'][callee.property.name='fn'][arguments.length=0]:not([typeArguments])` reports `vi.fn()` and neither `vi.fn<() => void>()` nor `vi.fn(() => 1)`.
+
+## `no-restricted-syntax` under ESLint 10.15.0 reports `type="text"` through `JSXAttribute[value.value='text']` and `type={'text'}` through `JSXAttribute > JSXExpressionContainer > Literal[value='text']`, and neither selector reports the other spelling
+
+**Verified at:** eslint 10.15.0, typescript-eslint 8.73.0 — 2026-11-27
+**Citation:** [implement_3: ran `app/node_modules/.bin/eslint --no-config-lookup -c probe.config.mjs -f json c.tsx` from a `mktemp -d` directory twice, the disposable config under `tseslint.parser` with JSX enabled setting `no-restricted-syntax` to `JSXAttribute[value.value='text']` alone and then to `JSXAttribute > JSXExpressionContainer > Literal[value='text']` alone, on a file holding `<input type="text" />` on line 1 and `<input type={'text'} />` on line 2 — observed line 1 only in the first run and line 2 only in the second]
+
+A rule that bans both of these spellings lists both selectors.

@@ -16,7 +16,7 @@ import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-re
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
 
-// `no-restricted-syntax` takes its whole selector list from the last config block that sets it, so each block below that adds selectors for some files repeats this one instead of inheriting it.
+// `no-restricted-syntax` takes its whole selector list from the last config block that matches a file, so no block inherits a selector from an earlier one: the blocks below are the one place a scope's list is written, each in full through `syntaxRules`, which adds the enum selector itself.
 const asConstOverEnum = {
   selector: 'TSEnumDeclaration',
   message: 'Use "as const" objects instead of enums.',
@@ -58,6 +58,89 @@ const looseToThrowMatcher = [
       'toThrow with a RegExp not ending in $ matches any message continuing past it; anchor it with $ (and ^) for the exact message.',
   },
 ];
+
+const noClasses = [
+  {
+    selector:
+      'ClassDeclaration:not([superClass]), ClassExpression:not([superClass])',
+    message:
+      'A class is allowed only where a third-party framework API requires inheritance, such as a Lexical node or a MenuOption subclass (app/CLAUDE.md — TypeScript Coding Style).',
+  },
+  {
+    selector:
+      "ClassDeclaration[superClass.name='Error'], ClassExpression[superClass.name='Error'], ClassDeclaration[id.name=/Error$/], ClassExpression[id.name=/Error$/]",
+    message:
+      'An error type is built by a factory function, never a class (app/CLAUDE.md — TypeScript Coding Style).',
+  },
+];
+
+const noTry = [
+  {
+    selector: 'TryStatement',
+    message:
+      'No `try` in a data-access-layer or screen file; an error is handled in the service layer or reaches the Error Boundary (.claude/rules/src-data-access-layer.md — Non-negotiable rules).',
+  },
+];
+
+const noExportStarDb = [
+  {
+    selector: 'ExportAllDeclaration',
+    message:
+      'A barrel under db/ names each export; `export *` is banned (app/db/CLAUDE.md — Conventions).',
+  },
+];
+
+const noExportStarBarrel = [
+  {
+    selector: 'ExportAllDeclaration',
+    message:
+      'A grouping barrel names each export; `export *` is banned (app/CLAUDE.md — Directory Structure (all TypeScript layers)).',
+  },
+];
+
+const noBuildCreateQuery = [
+  {
+    selector: "ImportSpecifier[imported.name='buildCreateQuery']",
+    message:
+      'A duplicate builds its INSERT with buildDuplicateQuery, never buildCreateQuery (app/db/CLAUDE.md — Duplication).',
+  },
+];
+
+const typedViFn = [
+  {
+    selector:
+      "CallExpression[callee.object.name='vi'][callee.property.name='fn'][arguments.length=0]:not([typeArguments])",
+    message:
+      'Type the spy against the real export, as in vi.fn<typeof sessionDb.create>() (.claude/rules/services-unit-tests.md — Wiring the mock).',
+  },
+];
+
+const noRawReactTypes = [
+  {
+    selector:
+      "TSQualifiedName[left.name='React'][right.name=/^(FC|HTMLProps)$|HTMLAttributes$/], TSTypeReference > Identifier.typeName[name=/^(FC|HTMLProps)$|HTMLAttributes$/]",
+    message:
+      'Use the FCProps and HtmlProps aliases from src/types/, never the raw React types (.claude/rules/src-components.md — Component Internals).',
+  },
+];
+
+const noDefaultInputType = [
+  {
+    selector:
+      "JSXOpeningElement[name.name='input'] > JSXAttribute[name.name='type'][value.value='text'], JSXOpeningElement[name.name='input'] > JSXAttribute[name.name='type'] > JSXExpressionContainer > Literal[value='text']",
+    message:
+      '`text` is the default type of an input; omit the attribute (.claude/rules/src-components.md — Component Internals).',
+  },
+];
+
+const nonUiLayerGroups = [writtenUndefined, noClasses];
+const srcFileGroups = [noClasses, noRawReactTypes, noDefaultInputType];
+
+/**
+ * @param {{ selector: string, message: string }[][]} groups
+ * @returns {import('eslint').Linter.RuleEntry}
+ */
+const syntaxRules = (...groups) => ['error', asConstOverEnum, ...groups.flat()];
 
 export default defineConfig(
   {
@@ -119,7 +202,7 @@ export default defineConfig(
         'error',
         { allowNumber: true },
       ],
-      'no-restricted-syntax': ['error', asConstOverEnum],
+      'no-restricted-syntax': syntaxRules(),
       'local/no-wrapped-line-comments': 'warn',
       'local/no-import-past-index': [
         'error',
@@ -152,13 +235,7 @@ export default defineConfig(
   },
   {
     files: ['**/__tests__/**'],
-    rules: {
-      'no-restricted-syntax': [
-        'error',
-        asConstOverEnum,
-        ...looseToThrowMatcher,
-      ],
-    },
+    rules: { 'no-restricted-syntax': syntaxRules(looseToThrowMatcher) },
   },
   {
     // A context is read through its own named `use*` hook file, so a component never holds the context object; those hook files and files under a hooks/ folder are the only places `useContext` is called.
@@ -196,18 +273,83 @@ export default defineConfig(
     rules: { 'local/no-inline-jsx-values': 'error' },
   },
   {
-    // The non-UI layers, the platform module and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
+    // The non-UI layers and the platform module, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
     files: [
       'db/**/*.ts',
       'domain/**/*.ts',
       'services/**/*.ts',
       'util/**/*.ts',
       'platform/**/*.ts',
-      'dev-data-server/**/*.ts',
     ],
     ignores: ['**/__tests__/**'],
+    rules: { 'no-restricted-syntax': syntaxRules(...nonUiLayerGroups) },
+  },
+  {
+    // The dev data server is under the same `undefined` ban.
+    files: ['dev-data-server/**/*.ts'],
+    ignores: ['**/__tests__/**'],
+    rules: { 'no-restricted-syntax': syntaxRules(writtenUndefined) },
+  },
+  {
+    files: ['db/**/index.ts'],
+    ignores: ['**/__tests__/**'],
     rules: {
-      'no-restricted-syntax': ['error', asConstOverEnum, ...writtenUndefined],
+      'no-restricted-syntax': syntaxRules(...nonUiLayerGroups, noExportStarDb),
+    },
+  },
+  {
+    files: ['db/**/duplicate.ts'],
+    ignores: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        ...nonUiLayerGroups,
+        noBuildCreateQuery,
+      ),
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['**/__tests__/**', 'src/types/**'],
+    rules: { 'no-restricted-syntax': syntaxRules(...srcFileGroups) },
+  },
+  {
+    // src/types/ declares the FCProps and HtmlProps aliases over the raw React types.
+    files: ['src/types/**/*.{ts,tsx}'],
+    ignores: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(noClasses, noDefaultInputType),
+    },
+  },
+  {
+    files: ['src/data-access-layer/**/*.{ts,tsx}', 'src/screens/**/*.{ts,tsx}'],
+    ignores: ['**/__tests__/**'],
+    rules: { 'no-restricted-syntax': syntaxRules(...srcFileGroups, noTry) },
+  },
+  {
+    // The grouping barrels under src/; domain/index.ts keeps its `export *` lines (app/domain/CLAUDE.md — Structure).
+    files: ['src/data-access-layer/index.ts', 'src/screens/index.ts'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        ...srcFileGroups,
+        noTry,
+        noExportStarBarrel,
+      ),
+    },
+  },
+  {
+    files: ['src/**/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        looseToThrowMatcher,
+        noRawReactTypes,
+        noDefaultInputType,
+      ),
+    },
+  },
+  {
+    files: ['services/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(looseToThrowMatcher, typedViFn),
     },
   },
   {
