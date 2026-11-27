@@ -2,7 +2,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  justify-self: center;
   width: 100%;
+  max-width: calc(
+    var(--encounter-screen-queue-column-width) +
+      var(--encounter-screen-side-column-width) + var(--text-editor-max-width) +
+      var(--spacing-sm) + var(--custom-scrollbar-width) + 4 *
+      var(--spacing-md) + 4 * var(--border-thin)
+  );
   min-height: 0;
 }
 
