@@ -22,9 +22,9 @@ describe('formatDateValue', () => {
     expect(formatDateValue({})).toBe('');
   });
 
-  it('returns the en-US long date and 12-hour time for a valid date string', () => {
+  it('returns the en-US short-month date and 12-hour time for a valid date string', () => {
     expect(formatDateValue('2024-03-15T10:30:00')).toBe(
-      'March 15, 2024 10:30 AM',
+      'Mar 15, 2024 10:30 AM',
     );
   });
 
