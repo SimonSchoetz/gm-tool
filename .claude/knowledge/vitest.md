@@ -159,6 +159,8 @@ A test can therefore run a Node entry script as a child process against a tempor
 **Verified at:** vitest 5.0.2, installed in `app/`, run 2026-11-10
 **Citation:** [implement_2: ran `npx vitest related --run src/styles/global.css` from `app/` — observed `No test files found, exiting with code 0` and exit code 0; ran it again with `--passWithNoTests` — observed the same output and exit code 0]
 
+Exit code 0 from such a run therefore does not show that any test ran.
+
 ## Under `pool: 'vmThreads'`, Vitest 5.0.2 builds the jsdom environment once per worker and gives each test file a fresh VM context and `window`
 
 **Verified at:** vitest 5.0.2, <https://raw.githubusercontent.com/vitest-dev/vitest/v5.0.2/docs/guide/improving-performance.md> fetched 2026-11-19, run 2026-11-19
@@ -186,3 +188,10 @@ A project's own `exclude` therefore need not repeat the root's entries.
 **Citation:** [lead_1: pool.md, "vmThreads" — "Your tests will leak memory - to battle that, workers are restarted when they exceed vmMemoryLimit"] [lead_2: vmmemorylimit.md — default `1 / maxWorkers`, "affects only vmForks and vmThreads pools", "a worker's memory usage grows with every test file it runs", and "By increasing maxWorkers, workers have less memory available, so they're recycled more often"]
 
 Raising `maxWorkers` lowers each worker's limit, so workers restart more often.
+
+## Vitest 5.1.1 cuts a string that a `$name` placeholder puts into an `it.each` title to `taskTitleValueFormatTruncate` characters, 40 by default, and puts a `%s` string argument in whole
+
+**Verified at:** vitest 5.1.1 — 2026-11-27
+**Citation:** [implement_18: `app/node_modules/.pnpm/vitest@5.1.1_*/node_modules/vitest/dist/chunks/run.zBhXlcZQ.js:3078,3087` — `formatTitle` shortens a `$key` string with `truncateString` to `runner.config.taskTitleValueFormatTruncate`; `dist/chunks/display.Cj2h2zsY.js:80-88` of the same package — `%s` returns `String(value)` for a string; `dist/chunks/defaults.B1FCaFfh.js:85` — `taskTitleValueFormatTruncate: 40`] [implement_19: ran `npx vitest run --project node-tooling eslint-rules/__tests__/scoped-rules-canary.test.js --reporter=verbose` from `app/` with its tables as `it.each(scopes)('$name', …)`, and again as `it.each(…)('%s', …)` over `[name, scope]` tuples — observed titles cut with `…` in the first run and printed whole in the second]
+
+A table whose test titles carry long names therefore puts each name first in a tuple and titles it with `%s`.

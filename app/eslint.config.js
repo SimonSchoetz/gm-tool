@@ -16,7 +16,7 @@ import noUnnormalizedLookupResult from './eslint-rules/no-unnormalized-lookup-re
 import noUnusedExports from './eslint-rules/no-unused-exports.js';
 import noWrappedLineComments from './eslint-rules/no-wrapped-line-comments.js';
 
-// `no-restricted-syntax` takes its whole selector list from the last config block that sets it, so each block below that adds selectors for some files repeats this one instead of inheriting it.
+// `no-restricted-syntax` takes its whole selector list from the last config block that sets it for a file, so no block inherits a selector from an earlier one: the blocks below are the one place a scope's list is written, each in full through `syntaxRules`, which adds the enum selector itself.
 const asConstOverEnum = {
   selector: 'TSEnumDeclaration',
   message: 'Use "as const" objects instead of enums.',
@@ -57,6 +57,120 @@ const looseToThrowMatcher = [
     message:
       'toThrow with a RegExp not ending in $ matches any message continuing past it; anchor it with $ (and ^) for the exact message.',
   },
+];
+
+const restrictedClasses = [
+  {
+    selector:
+      'ClassDeclaration:not([superClass]), ClassExpression:not([superClass])',
+    message:
+      'A class is allowed only where a third-party framework API requires inheritance, such as a Lexical node or a MenuOption subclass (app/CLAUDE.md — TypeScript Coding Style).',
+  },
+  {
+    selector:
+      "ClassDeclaration[superClass.name='Error'], ClassExpression[superClass.name='Error'], ClassDeclaration[id.name=/Error$/], ClassExpression[id.name=/Error$/]",
+    message:
+      'An error type is built by a factory function, never a class (app/CLAUDE.md — TypeScript Coding Style).',
+  },
+];
+
+const noTryCatch = [
+  {
+    selector: 'CatchClause',
+    message:
+      'No try/catch in a data-access-layer or screen file; an error is handled in the service layer or reaches the Error Boundary (.claude/rules/src-data-access-layer.md — Non-negotiable rules).',
+  },
+];
+
+const noExportStarDb = [
+  {
+    selector: 'ExportAllDeclaration',
+    message:
+      'A barrel under db/ names each export; `export *` is banned (app/db/CLAUDE.md — Conventions).',
+  },
+];
+
+const noExportStarBarrel = [
+  {
+    selector: 'ExportAllDeclaration',
+    message:
+      'A grouping barrel names each export; `export *` is banned (app/CLAUDE.md — Directory Structure (all TypeScript layers)).',
+  },
+];
+
+const noBuildCreateQuery = [
+  {
+    selector: "ImportSpecifier[imported.name='buildCreateQuery']",
+    message:
+      'A duplicate builds its INSERT with buildDuplicateQuery, never buildCreateQuery (app/db/CLAUDE.md — Duplication).',
+  },
+];
+
+const typedViFn = [
+  {
+    selector:
+      "CallExpression[callee.object.name='vi'][callee.property.name='fn'][arguments.length=0]:not([typeArguments])",
+    message:
+      'Type the spy against the real export, as in vi.fn<typeof sessionDb.create>() (.claude/rules/services-unit-tests.md — Wiring the mock).',
+  },
+];
+
+const noRawReactTypes = [
+  {
+    selector:
+      "TSQualifiedName[left.name='React'][right.name=/^(FC|HTMLProps)$|HTMLAttributes$/], TSTypeReference > Identifier.typeName[name=/^(FC|HTMLProps)$|HTMLAttributes$/]",
+    message:
+      'Use the FCProps and HtmlProps aliases from src/types/, never the raw React types (.claude/rules/src-components.md — Component Internals).',
+  },
+];
+
+const noDefaultInputType = [
+  {
+    selector:
+      "JSXOpeningElement[name.name='input'] > JSXAttribute[name.name='type'][value.value='text'], JSXOpeningElement[name.name='input'] > JSXAttribute[name.name='type'] > JSXExpressionContainer > Literal[value='text']",
+    message:
+      '`text` is the default type of an input; omit the attribute (.claude/rules/src-components.md — Component Internals).',
+  },
+];
+
+const nonUiLayerGroups = [writtenUndefined, restrictedClasses];
+const srcFileGroups = [restrictedClasses, noRawReactTypes, noDefaultInputType];
+
+/**
+ * @param {{ selector: string, message: string }[][]} groups
+ * @returns {import('eslint').Linter.RuleEntry}
+ */
+const syntaxRules = (...groups) => ['error', asConstOverEnum, ...groups.flat()];
+
+const tauriImportPattern = {
+  group: ['@tauri-apps/*'],
+  allowTypeImports: true,
+  message:
+    'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
+};
+
+// A relative path into a restricted directory is restricted as its alias is; one pattern per directory also reports every path below it. The patterns match the import's text, so they also report another folder of that name reached through `../`: one inside the importing layer, or, from the data access layer, the app-root util/.
+/** @param {string[]} directories */
+const relativeImportsInto = (...directories) =>
+  directories.map((directory) => `../**/${directory}`);
+
+/** @param {string[]} group */
+const layerOrderPattern = (group) => ({
+  group,
+  allowTypeImports: true,
+  message:
+    'A value import never points up the layer order, and platform/ imports no other layer; a type-only import is allowed (app/docs/CLAUDE.md — Plan Format Extension, Layered breakdown).',
+});
+
+// The src/ directories whose code sits above the data access layer. src/types/ (framework types) and src/__tests__/ (test support) stay importable from that layer.
+const directoriesAboveDataAccess = [
+  'components',
+  'screens',
+  'hooks',
+  'providers',
+  'routes',
+  'util',
+  'App',
 ];
 
 export default defineConfig(
@@ -119,7 +233,7 @@ export default defineConfig(
         'error',
         { allowNumber: true },
       ],
-      'no-restricted-syntax': ['error', asConstOverEnum],
+      'no-restricted-syntax': syntaxRules(),
       'local/no-wrapped-line-comments': 'warn',
       'local/no-import-past-index': [
         'error',
@@ -152,13 +266,7 @@ export default defineConfig(
   },
   {
     files: ['**/__tests__/**'],
-    rules: {
-      'no-restricted-syntax': [
-        'error',
-        asConstOverEnum,
-        ...looseToThrowMatcher,
-      ],
-    },
+    rules: { 'no-restricted-syntax': syntaxRules(looseToThrowMatcher) },
   },
   {
     // A context is read through its own named `use*` hook file, so a component never holds the context object; those hook files and files under a hooks/ folder are the only places `useContext` is called.
@@ -196,42 +304,100 @@ export default defineConfig(
     rules: { 'local/no-inline-jsx-values': 'error' },
   },
   {
-    // The non-UI layers, the platform module and the dev data server, where app/CLAUDE.md's `undefined` ban has no exemptions; `src/` keeps optional props under exactOptionalPropertyTypes, third-party arguments, DOM attributes and style objects that take `undefined` by their own contracts.
+    // The non-UI layers and the platform module take the class bans and the written-`undefined` ban. `src/` takes the class bans through `srcFileGroups` but not the `undefined` ban, since it may write `undefined` where a third-party argument, a DOM attribute or a style object takes it by its own contract (app/CLAUDE.md — TypeScript Coding Style).
     files: [
-      'db/**/*.ts',
-      'domain/**/*.ts',
-      'services/**/*.ts',
-      'util/**/*.ts',
-      'platform/**/*.ts',
-      'dev-data-server/**/*.ts',
+      'db/**/*.{ts,tsx}',
+      'domain/**/*.{ts,tsx}',
+      'services/**/*.{ts,tsx}',
+      'util/**/*.{ts,tsx}',
+      'platform/**/*.{ts,tsx}',
     ],
     ignores: ['**/__tests__/**'],
+    rules: { 'no-restricted-syntax': syntaxRules(...nonUiLayerGroups) },
+  },
+  {
+    // The dev data server takes the written-`undefined` ban without the class bans.
+    files: ['dev-data-server/**/*.ts'],
+    ignores: ['**/__tests__/**'],
+    rules: { 'no-restricted-syntax': syntaxRules(writtenUndefined) },
+  },
+  {
+    files: ['db/**/index.ts'],
+    ignores: ['**/__tests__/**'],
     rules: {
-      'no-restricted-syntax': ['error', asConstOverEnum, ...writtenUndefined],
+      'no-restricted-syntax': syntaxRules(...nonUiLayerGroups, noExportStarDb),
     },
   },
   {
-    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/*; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
+    files: ['db/**/duplicate.ts'],
+    ignores: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        ...nonUiLayerGroups,
+        noBuildCreateQuery,
+      ),
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-syntax': syntaxRules(...srcFileGroups) },
+  },
+  {
+    // src/types/ declares the FCProps and HtmlProps aliases over the raw React types.
+    files: ['src/types/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        restrictedClasses,
+        noDefaultInputType,
+      ),
+    },
+  },
+  {
+    files: ['src/data-access-layer/**/*.{ts,tsx}', 'src/screens/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(...srcFileGroups, noTryCatch),
+    },
+  },
+  {
+    // The grouping barrels under src/; domain/index.ts keeps its `export *` lines (app/domain/CLAUDE.md — Structure).
+    files: ['src/data-access-layer/index.ts', 'src/screens/index.ts'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        ...srcFileGroups,
+        noTryCatch,
+        noExportStarBarrel,
+      ),
+    },
+  },
+  {
+    // Stays after every src/ block above: those match test files too, and the last block that sets the rule wins.
+    files: ['src/**/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(
+        looseToThrowMatcher,
+        noRawReactTypes,
+        noDefaultInputType,
+      ),
+    },
+  },
+  {
+    files: ['services/__tests__/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRules(looseToThrowMatcher, typedViFn),
+    },
+  },
+  {
+    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/* — the platform/ block below replaces these options for its files, which leaves it free to; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
     files: ['**/*.{ts,tsx}'],
-    ignores: ['platform/**'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        {
-          patterns: [
-            {
-              group: ['@tauri-apps/*'],
-              allowTypeImports: true,
-              message:
-                'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
-            },
-          ],
-        },
+        { patterns: [tauriImportPattern] },
       ],
     },
   },
   {
-    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. A second `@typescript-eslint/no-restricted-imports` block would replace the Tauri block's options for every file both match, so the boundary uses import-x's path rule.
+    // app/dev-data-server/ is Node code that Vite's config loader bundles; protocol.ts is the one file of it the browser bundle and app code import, and the db test support, which runs under Node, is the one other importer of its adapter. As a `@typescript-eslint/no-restricted-imports` pattern this boundary would have to be repeated in every block of that rule, since a later block replaces an earlier one's options for the files both match, so it uses import-x's path rule.
     files: ['**/*.{ts,tsx}'],
     ignores: [
       'dev-data-server/**',
@@ -251,6 +417,104 @@ export default defineConfig(
               message:
                 'app/dev-data-server/ runs in Node inside Vite; app and browser code import only its protocol.ts.',
             },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The layer order, from the bottom, is domain/, platform/, db/, services/, the data access layer, then the rest of src/ (app/docs/CLAUDE.md — Plan Format Extension). In this block and the four that follow, the options replace the Tauri block's for every file both match, so each repeats its pattern, except platform/'s: app/platform/ is the one runtime importer of @tauri-apps/*.
+    files: ['domain/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            tauriImportPattern,
+            layerOrderPattern([
+              '@platform',
+              '@db/*',
+              '@services/*',
+              '@/*',
+              ...relativeImportsInto('platform', 'db', 'services', 'src'),
+            ]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['platform/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            layerOrderPattern([
+              '@domain',
+              '@db/*',
+              '@services/*',
+              '@/*',
+              ...relativeImportsInto('domain', 'db', 'services', 'src'),
+            ]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['db/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            tauriImportPattern,
+            layerOrderPattern([
+              '@services/*',
+              '@/*',
+              ...relativeImportsInto('services', 'src'),
+            ]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['services/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react',
+              message:
+                'services/ imports nothing from react, a type-only import included (app/services/CLAUDE.md — What Does NOT Belong Here).',
+            },
+          ],
+          patterns: [
+            tauriImportPattern,
+            layerOrderPattern(['@/*', ...relativeImportsInto('src')]),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/data-access-layer/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            tauriImportPattern,
+            layerOrderPattern([
+              ...directoriesAboveDataAccess.map(
+                (directory) => `@/${directory}`,
+              ),
+              ...relativeImportsInto(...directoriesAboveDataAccess),
+            ]),
           ],
         },
       ],

@@ -16,7 +16,7 @@ This directory contains feature pages, product documents and planning documents.
 6. Data Access Layer
 7. Frontend
 
-The Rust backend depends on neither Domain nor Database — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller. Platform imports none of these layers and Database, Services, the Data Access Layer and the Frontend import it, so it is specified before them; `app/dev-data-server/` is development tooling outside this order.
+The Rust backend depends on neither Domain nor Database — it is ordered here because Services invokes its Tauri commands, so a command is specified before its caller. Platform imports none of these layers and Database, Services, the Data Access Layer and the Frontend import it, so it is specified before them; `app/dev-data-server/` is development tooling outside this order. In the TypeScript layers an import at runtime never points to a later layer in this order. The `lint` row reports a static value import or re-export that does, and leaves a type-only import (allowed) and a dynamic `import()` (not reported) to the author, the dynamic one banned like the static one.
 
 **Modified-file scan items.** For every file listed under `Modified:` in any Files affected subsection, check explicitly for: (1) inline sub-components; (2) `return null`/`return undefined` in void contexts.
 
