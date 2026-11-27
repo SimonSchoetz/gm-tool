@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [v0.20.1] - 2026-11-27
+
+### Added
+
+- Dates show a three-letter month, e.g. "Nov 27, 2026", in an adventure's start date, the date columns of the lists and the default names of newly created adventures, encounters and entities
+- On a wide window the encounter screen stops widening at the width its columns and notes editors use, and sits centered
+- On a wide window the Sessions, Encounters and entity lists stop widening at 1200px, and sit centered
+- The Adventures screen shows at most 4 cards per row, centered, and its rows stay together on a tall window
+
 ## [v0.20.0] - 2026-11-26
 
 ### Added
