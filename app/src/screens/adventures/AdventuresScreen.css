@@ -2,6 +2,8 @@
   justify-self: center;
   gap: var(--spacing-lg);
   flex-wrap: wrap;
+  /* Keeps the wrapped rows packed and vertically centred; `safe` keeps the first row reachable when the rows overflow and the box scrolls. */
+  align-content: safe center;
   list-style-type: none;
   width: 100%;
   max-width: calc(

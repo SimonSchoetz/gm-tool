@@ -29,6 +29,8 @@ UI/UX decisions that hold across the app: what the project's UI conventions leav
 | The Sessions list, the Encounters list and every base entity list stop growing when the list panel is 1200 px wide | — | Simon Schötz, 2026-11-27; hand test |
 | The card grid of the Adventures screen stops growing at the width that holds 4 cards in a row, the "Create new adventure" card counting as one, also while the grid shows a scrollbar | — | Simon Schötz, 2026-11-27; hand test |
 | On a window narrower than its cap, each of these screens fills the available width: on the encounter screen the middle column shrinks, and in the Adventures grid the cards wrap | — | Simon Schötz, 2026-11-27; hand test |
+| However tall the window is, the rows of the Adventures grid stay together as one compact block, one card gap apart | "The rows should stay compact and centered horizontally" | Simon Schötz, 2026-11-27; hand test |
+| That block of rows is centred vertically on the screen; when the rows don't fit, the grid scrolls and starts at the first row | The same vertical placement as a grid with a single row | Claude's call, 2026-11-27; hand test |
 | On a window wider than a screen's cap, the encounter screen, these lists and the Adventures grid sit centred horizontally | The same placement as on the base entity and session screens | proposed by Claude, accepted by Simon Schötz, 2026-11-27; hand test |
 
 ## Dates
