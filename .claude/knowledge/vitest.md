@@ -189,9 +189,9 @@ A project's own `exclude` therefore need not repeat the root's entries.
 
 Raising `maxWorkers` lowers each worker's limit, so workers restart more often.
 
-## Vitest 5.1.1 printed long `$name` values in `it.each` test titles cut short with `…`, and the same names whole when a loop passed them to `it`
+## Vitest 5.1.1 cuts a string that a `$name` placeholder puts into an `it.each` title to `taskTitleValueFormatTruncate` characters, 40 by default, and puts a `%s` string argument in whole
 
 **Verified at:** vitest 5.1.1 — 2026-11-27
-**Citation:** [implement_18: ran `npx vitest run --project node-tooling eslint-rules/__tests__/scoped-rules-canary.test.js --reporter=verbose` with its tables run as `it.each(scopes)('$name', …)` — observed titles ending in `…`, such as `reports a class without extends, an err…`] [implement_19: ran the same command with the same tables run by a loop calling `it(scope.name, …)` — observed those titles printed whole, one of them over 200 characters long]
+**Citation:** [implement_18: `app/node_modules/.pnpm/vitest@5.1.1_*/node_modules/vitest/dist/chunks/run.zBhXlcZQ.js:3078,3087` — `formatTitle` shortens a `$key` string with `truncateString` to `runner.config.taskTitleValueFormatTruncate`; `dist/chunks/display.Cj2h2zsY.js:80-88` of the same package — `%s` returns `String(value)` for a string; `dist/chunks/defaults.B1FCaFfh.js:85` — `taskTitleValueFormatTruncate: 40`] [implement_19: ran `npx vitest run --project node-tooling eslint-rules/__tests__/scoped-rules-canary.test.js --reporter=verbose` from `app/` with its tables as `it.each(scopes)('$name', …)`, and again as `it.each(…)('%s', …)` over `[name, scope]` tuples — observed titles cut with `…` in the first run and printed whole in the second]
 
-In these two runs of that file, only the loop's titles showed each table entry's whole name.
+A table whose test titles carry long names therefore puts each name first in a tuple and titles it with `%s`.

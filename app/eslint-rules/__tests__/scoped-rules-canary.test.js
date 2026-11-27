@@ -1,6 +1,9 @@
 // @vitest-environment node
 
 // @ts-check
+
+// A canary under __tests__/ is named without `.test.`, so a Vitest run that collects test files while it exists does not pick it up.
+
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
@@ -45,7 +48,7 @@ const lookupSource = `type Finder = { find: (key: string) => string };\n\nexport
 const addedLookupSource = `type Getter = { get: (key: string) => string };\n\nexport const lastMatch = (items: string[]): string | undefined =>\n  items.findLast((item) => item === 'a');\nexport const firstItem = (items: string[]): string | undefined =>\n  items.shift();\nexport const fromMap = (map: Map<string, string>): string | undefined =>\n  map.get('a');\nexport const fromParams = (params: URLSearchParams): string | null =>\n  params.get('a');\nexport const fromGetter = (getter: Getter): string => getter.get('a');\n`;
 const tauriImportSource = `${tauriValueImport}\n\nexport const callsTauri = (): Promise<unknown> => invoke('ping');\n`;
 const tauriTypeImportSource = `import type { InvokeArgs } from '@tauri-apps/api/core';\n\nexport const describesArgs = (args: InvokeArgs): InvokeArgs => args;\n`;
-const toThrowMatchersSource = `import { expect } from 'vitest';\n\nconst fail = (): never => {\n  throw new Error('boom: disk full');\n};\n\nexpect(fail).toThrow('boom');\nexpect(fail).toThrow(/^boom/);\nexpect(fail).toThrow(/^boom: disk full$/);\nexpect(fail).toThrow();\nexpect(fail).not.toThrow(TypeError);\nexport enum Canary {\n  A,\n}\n`;
+const toThrowMatchersSource = `import { expect } from 'vitest';\n\nconst fail = (): never => {\n  throw new Error('boom: disk full');\n};\n\nexpect(fail).toThrow(/^boom/);\nexpect(fail).toThrow(/^boom: disk full$/);\nexpect(fail).toThrow();\nexpect(fail).not.toThrow(TypeError);\n`;
 const inlineHandlerSource = `export const InlineHandler = ({ go }: { go: () => void }) => (\n  <button onClick={() => { go(); }}>x</button>\n);\n`;
 const devDataServerImportSource = `import { devDataServer } from '../../dev-data-server/vitePlugin';\nimport { DEV_DATA_SERVER_PREFIX } from '../../dev-data-server/protocol';\n\nexport const devDataServerCanary = [devDataServer, DEV_DATA_SERVER_PREFIX];\n`;
 
@@ -65,6 +68,8 @@ const textInputLine = 'export const field = <input type="text" />;';
 
 const nonUiLayers = ['db', 'domain', 'services', 'util', 'platform'];
 const noTryCatchLayers = ['src/data-access-layer', 'src/screens'];
+// src/ itself and each directory below it that has a syntax block of its own.
+const srcTestRoots = ['src', 'src/types', ...noTryCatchLayers];
 const srcGroupingBarrels = [
   'src/data-access-layer/index.ts',
   'src/screens/index.ts',
@@ -88,7 +93,6 @@ const otherTestFiles = [
  * @property {boolean} [asText]
  */
 
-// A canary under __tests__/ is named without `.test.`, so a Vitest run that collects test files while it exists does not pick it up.
 /** @type {CanaryScope[]} */
 const syntaxScopes = [
   {
@@ -113,7 +117,7 @@ const syntaxScopes = [
   },
   {
     name: 'reports a class without extends, an error class, a written undefined and an enum in a .ts and a .tsx file of each non-UI layer, and passes an extending class and an error type alias',
-    // The .tsx canary has a base name of its own: ESLint's project service does not find a .tsx file that sits beside a .ts file of the same name.
+    // The .tsx canary has a base name of its own: typescript-eslint's project service does not find a .tsx file that sits beside a .ts file of the same name.
     paths: nonUiLayers.flatMap((layer) => [
       canaryPath(layer, 'syntax.ts'),
       canaryPath(layer, 'syntaxInTsx.tsx'),
@@ -236,10 +240,14 @@ const syntaxScopes = [
     asText: true,
   },
   {
-    name: 'reports a string toThrow, a raw React type, a type="text" input and an enum in a test under src/, and passes a class without extends and a try/catch there',
-    paths: [canaryPath('src', '__tests__', 'syntax.tsx')],
+    name: 'reports a string toThrow, a raw React type, a type="text" input and an enum in a test under src/, under types/, the data access layer and screens too, and passes a class without extends and a try/catch there',
+    paths: srcTestRoots.map((root) =>
+      canaryPath(root, '__tests__', 'syntax.tsx'),
+    ),
     banned: [looseToThrowLine, rawReactTypeLine, textInputLine, enumLine],
-    allowedPaths: [canaryPath('src', '__tests__', 'allowedSyntax.tsx')],
+    allowedPaths: srcTestRoots.map((root) =>
+      canaryPath(root, '__tests__', 'allowedSyntax.tsx'),
+    ),
     allowed: [classLine, tryCatchLine],
   },
   {
@@ -491,26 +499,25 @@ const expectScopeReports = async (scope, ruleId) => {
   }
 };
 
-// A loop rather than it.each, whose `$name` cuts a test name short.
+/** @param {CanaryScope[]} scopes */
+const titled = (scopes) =>
+  scopes.map((scope) => /** @type {const} */ ([scope.name, scope]));
+
 describe('the syntax selectors of each scope under the project eslint.config.js', () => {
-  for (const scope of syntaxScopes) {
-    it(
-      scope.name,
-      () => expectScopeReports(scope, 'no-restricted-syntax'),
-      120_000,
-    );
-  }
+  it.each(titled(syntaxScopes))(
+    '%s',
+    (_name, scope) => expectScopeReports(scope, 'no-restricted-syntax'),
+    120_000,
+  );
 });
 
 describe('the layer order import restrictions under the project eslint.config.js', () => {
-  for (const scope of layerImportScopes) {
-    it(
-      scope.name,
-      () =>
-        expectScopeReports(scope, '@typescript-eslint/no-restricted-imports'),
-      120_000,
-    );
-  }
+  it.each(titled(layerImportScopes))(
+    '%s',
+    (_name, scope) =>
+      expectScopeReports(scope, '@typescript-eslint/no-restricted-imports'),
+    120_000,
+  );
 });
 
 describe('the useContext restriction under the project eslint.config.js', () => {
@@ -582,9 +589,9 @@ describe('the dev data server boundary under the project eslint.config.js', () =
 });
 
 describe('the loose toThrow matcher selectors under the project eslint.config.js', () => {
-  it('report a string and a RegExp not ending in $ in a test file, pass an anchored RegExp, no argument and an error class, and keep the enum ban', () => {
+  it('report a RegExp not ending in $ in a test file and pass an anchored RegExp, no argument and an error class', () => {
     expect(linesReportedBy(srcToThrowTestPath, 'no-restricted-syntax')).toEqual(
-      [7, 8, 12],
+      [7],
     );
   });
 });

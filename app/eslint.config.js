@@ -149,7 +149,7 @@ const tauriImportPattern = {
     'Import Tauri through @platform; only app/platform/ imports @tauri-apps/* at runtime (type-only imports stay allowed).',
 };
 
-// A relative path into a restricted directory is restricted as its alias is; one pattern per directory also reports every path below it. The patterns match the import's text, so they also report a folder of that name inside the importing layer when it is reached through `../`.
+// A relative path into a restricted directory is restricted as its alias is; one pattern per directory also reports every path below it. The patterns match the import's text, so they also report another folder of that name reached through `../`: one inside the importing layer, or, from the data access layer, the app-root util/.
 /** @param {string[]} directories */
 const relativeImportsInto = (...directories) =>
   directories.map((directory) => `../**/${directory}`);
@@ -370,6 +370,7 @@ export default defineConfig(
     },
   },
   {
+    // Stays after every src/ block above: those match test files too, and the last block that sets the rule wins.
     files: ['src/**/__tests__/**'],
     rules: {
       'no-restricted-syntax': syntaxRules(
@@ -386,9 +387,8 @@ export default defineConfig(
     },
   },
   {
-    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/*; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
+    // Every Tauri call goes through @platform (app/platform/index.ts), whose Tauri implementation is the only runtime importer of @tauri-apps/* — the platform/ block below replaces these options for its files, which leaves it free to; a type-only import stays allowed everywhere, and a vi.mock('@tauri-apps/…') specifier is not an import declaration.
     files: ['**/*.{ts,tsx}'],
-    ignores: ['platform/**'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
@@ -423,7 +423,7 @@ export default defineConfig(
     },
   },
   {
-    // The layer order, from the bottom, is domain/, platform/, db/, services/, the data access layer, then the rest of src/ (app/docs/CLAUDE.md — Plan Format Extension). In this block and the four that follow, the options replace the Tauri block's for every file both match, so each repeats its pattern, except platform/'s, whose files the Tauri block ignores.
+    // The layer order, from the bottom, is domain/, platform/, db/, services/, the data access layer, then the rest of src/ (app/docs/CLAUDE.md — Plan Format Extension). In this block and the four that follow, the options replace the Tauri block's for every file both match, so each repeats its pattern, except platform/'s: app/platform/ is the one runtime importer of @tauri-apps/*.
     files: ['domain/**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
