@@ -104,3 +104,10 @@ A commit written through `core.editor`, with `GIT_EDITOR` unset in the calling s
 **Citation:** [implement_8: ran `man -M "$(git --man-path)" -P cat git-commit` — observed under `--cleanup` that `default` is "Same as strip if the message is to be edited. Otherwise whitespace." and that `whitespace` is "Same as strip except #commentary is not removed."] [implement_9: in a scratch repository, ran `git commit -m "#12 broken subject" -m "feat(hash): body line"` — observed the recorded subject `#12 broken subject`] [implement_10: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
 An edited message is cleaned with `strip`, which removes `#` lines, so there such a line is a comment and not the subject.
+
+## `git revert --no-edit` ran the `prepare-commit-msg` hook with the source `message`
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-11-27
+**Citation:** [implement_1: in a scratch repository whose `prepare-commit-msg` hook logged its second argument and the message file's first line, ran `git revert --no-edit HEAD` on the commit `feat(x): a` — observed the source `message` and the line `Revert "feat(x): a"`] [implement_2: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+For this revert the hook received `message`, none of `merge`, `squash` and `commit`.

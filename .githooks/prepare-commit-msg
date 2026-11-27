@@ -14,6 +14,11 @@ esac
 
 MSG=$(cat "$1")
 
+# Exit for git's default revert subjects, so a revert keeps them unprefixed
+case "$MSG" in
+  'Revert "'*|'Reapply "'*) exit 0 ;;
+esac
+
 # Exit if message already has conventional commit format: type(scope):
 case "$MSG" in
   *\(*\):*) exit 0 ;;
