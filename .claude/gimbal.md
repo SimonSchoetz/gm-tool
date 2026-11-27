@@ -36,6 +36,7 @@ This file is this project's declaration for the `gimbal` Claude Code plugin — 
 | Rust backend | `app/src-tauri/` | `app/src-tauri/CLAUDE.md` | backend |
 | Platform | `app/platform/` | `app/CLAUDE.md` | platform |
 | Dev data server | `app/dev-data-server/` | `app/dev-data-server/CLAUDE.md` | dev-tooling |
+| Repository scripts | `scripts/` | `app/CLAUDE.md` | dev-tooling |
 
 Conventions for `app/src/` are additionally carried by path-scoped rules under `.claude/rules/`, indexed in `app/src/CLAUDE.md` — Structure. Each loads when Claude works with a matching file (reads, writes or edits it).
 

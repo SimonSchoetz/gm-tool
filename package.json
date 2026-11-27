@@ -36,7 +36,8 @@
   "simple-git-hooks": {
     "pre-commit": "./.githooks/staged-checks",
     "pre-merge-commit": "./.githooks/staged-checks",
-    "prepare-commit-msg": "./.githooks/prepare-commit-msg $1 $2",
+    "prepare-commit-msg": "./.githooks/prepare-commit-msg \"$1\" \"$2\"",
+    "commit-msg": "[ ! -f scripts/commit-msg-check.ts ] || node scripts/commit-msg-check.ts \"$1\"",
     "pre-push": "cd app && npx eslint --concurrency=auto . ../scripts && npx prettier --check . ../scripts && npx vitest run && cd src-tauri && cargo test"
   }
 }

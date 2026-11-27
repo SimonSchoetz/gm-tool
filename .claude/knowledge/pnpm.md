@@ -35,12 +35,26 @@ The written entries name exact versions and carry no expiry, so they stay in the
 
 The unsatisfiable range is the control: a field being read at all would have failed on it.
 
-## pnpm 12.4.2 ran the project's own `prepare` script under `pnpm install --frozen-lockfile` into a missing `node_modules`, and did not run it under `pnpm install --frozen-lockfile` or `pnpm install` when `node_modules` was already up to date
+## pnpm 12.4.2 ran the project's own `prepare` script under `pnpm install --frozen-lockfile` into a missing `node_modules`, and did not run it under `pnpm install --frozen-lockfile` or `pnpm install` when `node_modules` was already up to date and no dependency specifier had changed
 
-**Verified at:** pnpm 12.4.2 on Node v24.21.0 — 2026-10-19
-**Citation:** [harness-follow-ups_12: https://pnpm.io/cli/install — `--ignore-scripts` "Do not execute any scripts defined in the project `package.json` and its dependencies"] [harness-follow-ups_13: ran `pnpm install --frozen-lockfile` in `app/` of a fresh `git clone` whose manifest held `"prepare": "tsr generate"` and which had no `node_modules` — observed `Done in 1.5s using pnpm v12.4.2` and `src/routeTree.gen.ts` written, a file nothing else in that clone produces; in a checkout whose `node_modules` was current, deleted that file and ran `pnpm install --frozen-lockfile` and then `pnpm install` — observed "Lockfile is up to date, resolution step is skipped" and "Already up to date", and the file not written; ran `node --version` — observed `v24.21.0`]
+**Verified at:** pnpm 12.4.2 on Node v24.21.0 — 2026-11-27
+**Citation:** [harness-follow-ups_13: ran `pnpm install --frozen-lockfile` in `app/` of a fresh `git clone` whose manifest held `"prepare": "tsr generate"` and which had no `node_modules` — observed `Done in 1.5s using pnpm v12.4.2` and `src/routeTree.gen.ts` written, a file nothing else in that clone produces; in a checkout whose `node_modules` was current, deleted that file and ran `pnpm install --frozen-lockfile` and then `pnpm install` — observed "Lockfile is up to date, resolution step is skipped" and "Already up to date", and the file not written; ran `node --version` — observed `v24.21.0`] [implement_1: in a fresh local clone of this repository after `pnpm install --frozen-lockfile` at its root, added only a `commit-msg` entry to the `simple-git-hooks` block of `package.json`, then ran `pnpm install` and `pnpm install --frozen-lockfile` — observed "Already up to date" from the first, "Lockfile is up to date, resolution step is skipped" from the second, no `prepare` run and no new hook file] [implement_3: ran `pnpm --version` and `node --version` — observed `12.4.2` and `v24.21.0`]
 
-Whether `preinstall`, `postinstall` or dependency build scripts follow the same pattern was not probed.
+A plain `pnpm install` also left it out after a change to the `simple-git-hooks` block of `package.json` alone. Whether `preinstall`, `postinstall` or dependency build scripts follow the same pattern was not probed.
+
+## pnpm 12.4.2 ran the project's own `prepare` script under `pnpm install --force` when `node_modules` was already up to date
+
+**Verified at:** pnpm 12.4.2 on Node v24.21.0 — 2026-11-27
+**Citation:** [implement_2: in a local clone of this repository whose `node_modules` was up to date and whose `package.json` listed a `commit-msg` hook with no such file in the hooks directory, ran `pnpm install --force` — observed `. prepare$ simple-git-hooks` and the hook file written] [implement_3: ran `pnpm --version` and `node --version` — observed `12.4.2` and `v24.21.0`]
+
+This was observed once.
+
+## pnpm 12.4.2 ran `prepare` under a plain `pnpm install`, although it printed `Already up to date`, after one change that set the `simple-git-hooks` specifier from `latest` to `2.14.0` in `package.json` and `pnpm-lock.yaml` and added a hook entry
+
+**Verified at:** pnpm 12.4.2 on Node v24.21.0 — 2026-11-27
+**Citation:** [implement_4: in a local clone of this repository after `pnpm install --frozen-lockfile` at its root, whose lockfile resolved `simple-git-hooks` to `2.14.0`, replaced `package.json` and `pnpm-lock.yaml` with copies that set that `devDependencies` specifier from `latest` to `2.14.0` and added a `commit-msg` entry to the `simple-git-hooks` block (they otherwise differed only in the JSON escaping of one string), then ran `pnpm install` — observed "Already up to date", `. prepare$ simple-git-hooks` and the new hook file written] [implement_3: ran `pnpm --version` and `node --version` — observed `12.4.2` and `v24.21.0`]
+
+This was observed once.
 
 ## pnpm 12.4.2's `pnpm runtime set node 24 -g` links only `node` into the global bin directory, not `npm` or `npx`
 
@@ -53,6 +67,8 @@ A step that calls `npx` or `npm` after a global `pnpm runtime set` gets them fro
 
 **Verified at:** pnpm 12.4.2 — 2026-11-19
 **Citation:** [claude_1: ran `pnpm install` from `app/` with `'typed-rest-client>qs': ^6.16.1` under `overrides:` — observed `pnpm why qs` report only `qs@6.17.1` and the same entry under `overrides:` in `app/pnpm-lock.yaml`]
+
+This was observed in one `pnpm install` run.
 
 ## `pnpm install` can install a release above a raised caret floor
 

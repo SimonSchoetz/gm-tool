@@ -14,12 +14,17 @@ esac
 
 MSG=$(cat "$1")
 
-# Exit if message already has conventional commit format: type(scope):
+# Exit for git's default revert subjects, so a revert keeps them unprefixed
+case "$MSG" in
+  'Revert "'*|'Reapply "'*) exit 0 ;;
+esac
+
+# Exit if the message holds `(…):` anywhere, taken as a type and scope already there
 case "$MSG" in
   *\(*\):*) exit 0 ;;
 esac
 
-# Check if branch matches <type>/<scope> pattern
+# Prefix on any branch that begins with a letter and holds a slash, taking the text around the first slash
 case "$BRANCH" in
   [a-zA-Z]*/*)
     TYPE=${BRANCH%%/*}
