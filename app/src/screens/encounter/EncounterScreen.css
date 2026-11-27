@@ -4,7 +4,7 @@
   height: 100%;
   justify-self: center;
   width: 100%;
-  /* `--spacing-sm`, two of the four `--border-thin` and `--custom-scrollbar-width` mirror the notes panels in `EncounterNotes.css` and `EncounterItemNotes.css` (right padding, borders, scroll boxes), so a change there changes this cap. */
+  /* This cap repeats child styles, so a change to one changes it: `--spacing-sm` is the right padding in `EncounterNotes.css` and `EncounterItemNotes.css`; two of the four `--border-thin` are the notes panels' `.glass-fx` borders (`GlassPanel.css`) and two are this panel's own; `--custom-scrollbar-width` stands for the scrollbar of the notes scroll boxes (`.encounter-notes-scroll` and `.encounter-shown-item`, which scroll through `scroll-edge-fade`; its width is set in `scrollbar.css`). */
   max-width: calc(
     var(--encounter-screen-queue-column-width) +
       var(--encounter-screen-side-column-width) + var(--text-editor-max-width) +

@@ -9,7 +9,7 @@ import { PlusIcon } from 'lucide-react';
 
 type Props = {
   suppressAnimation?: boolean;
-} & Omit<React.ComponentProps<typeof ActionContainer>, 'style'>;
+} & Omit<React.ComponentProps<typeof ActionContainer>, 'style' | 'children'>;
 
 const ANIMATION_DURATION = 500;
 
@@ -23,13 +23,10 @@ export const NewItemBtn: FCProps<Props> = ({
 
   const letAnimationPlayBeforeAction = () => {
     setHideBtn(true);
-    const timeoutId = setTimeout(
+    setTimeout(
       () => onClick?.({} as React.MouseEvent<HTMLButtonElement>),
       suppressAnimation ? 0 : ANIMATION_DURATION,
     );
-    return () => {
-      clearTimeout(timeoutId);
-    };
   };
 
   return (
@@ -42,7 +39,7 @@ export const NewItemBtn: FCProps<Props> = ({
       )}
       style={
         {
-          '--ni-btn-animation-duration': `${ANIMATION_DURATION}ms`,
+          '--new-item-btn-animation-duration': `${ANIMATION_DURATION}ms`,
         } as CSSProperties
       }
       {...props}

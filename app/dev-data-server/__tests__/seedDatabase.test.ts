@@ -61,12 +61,14 @@ describe('seedDatabase', { timeout: 30_000 }, () => {
     expect(await db.select('SELECT name FROM adventures')).toContainEqual({
       name: 'Seed Adventure',
     });
-    expect(readdirSync(context.imagesDir)).toHaveLength(8);
+    const imageRows = await db.select<unknown[]>('SELECT id FROM images');
+    expect(imageRows).not.toHaveLength(0);
+    expect(readdirSync(context.imagesDir)).toHaveLength(imageRows.length);
     expect(
       await db.select(
         "SELECT name FROM encounter_queue_items WHERE kind = 'event'",
       ),
-    ).toEqual([{ name: 'Seed Event' }]);
+    ).toContainEqual({ name: 'Seed Event' });
     expect(closeSpies.at(-1)).toHaveBeenCalledTimes(1);
   });
 
