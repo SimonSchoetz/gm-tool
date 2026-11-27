@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { spawnSync } from 'child_process';
-import { readFileSync, rmSync } from 'fs';
+import { readFileSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 import { unsetGitEnvironment } from './support/isolated-git.ts';
 import {
@@ -55,9 +55,9 @@ describe('commit-msg-check', () => {
     });
   });
 
-  it('checks form and type but no scope where git names no branch, as on a detached HEAD', () => {
-    // Without the repository `git symbolic-ref` exits non-zero, as it does on a detached HEAD.
-    rmSync(path.join(repository, '.git'), { recursive: true });
+  it('checks form and type but no scope on a detached HEAD, where git names no branch', () => {
+    // A commit id in `HEAD` detaches it, and `git symbolic-ref` reports it as detached although no object has that id, so no commit is needed.
+    writeFileSync(path.join(repository, '.git', 'HEAD'), `${'1'.repeat(40)}\n`);
 
     expect(check('feat(other): add x\n')).toMatchObject({
       status: 0,

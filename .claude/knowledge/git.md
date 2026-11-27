@@ -117,4 +117,18 @@ The probe reverted the commit `feat(x): a`, and the first line the hook read in 
 **Verified at:** git 2.54.0 (Apple Git-157) — 2026-11-27
 **Citation:** [code-reviewer_1: ran `git commit -q --allow-empty -m 'add x'` in a linked worktree of a scratch repository under a directory named `with space`, whose `.git/hooks/prepare-commit-msg` printed its first argument and then ran a script with `$1 $2` unquoted — observed an absolute first argument ending `/with space/main-checkout/.git/worktrees/linked/COMMIT_EDITMSG`, and the script reading a path cut at the space] [code-reviewer_2: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
 
-In that run the hook's unquoted `$1 $2` split the path at its space.
+The probe's own hook passed `$1 $2` unquoted to the script it ran, and the space in the scratch repository's path split the argument there.
+
+## git 2.54.0 `git symbolic-ref --short HEAD` exits 128 both on a detached HEAD and outside a repository
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-11-27
+**Citation:** [code-reviewer_3: ran `git symbolic-ref --short HEAD` in a detached scratch repository and in a `mktemp -d` folder — observed exit 128 for both, with `fatal: ref HEAD is not a symbolic ref` and `fatal: not a git repository (or any of the parent directories): .git`] [code-reviewer_5: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+The detached case printed `fatal: ref HEAD is not a symbolic ref`, and outside a repository it printed `fatal: not a git repository (or any of the parent directories): .git`.
+
+## `git symbolic-ref --short HEAD` reads a `.git/HEAD` that holds a commit id naming no object as a detached HEAD
+
+**Verified at:** git 2.54.0 (Apple Git-157) — 2026-11-27
+**Citation:** [implement_1: in a scratch repository made with `git init`, wrote 39 zeros followed by `1` into `.git/HEAD` — observed `git symbolic-ref --short HEAD` exit 128 with `fatal: ref HEAD is not a symbolic ref`, `git rev-parse HEAD` print that id, and `git status` fail with `fatal: bad object HEAD`] [implement_2: ran `git --version` — observed `git version 2.54.0 (Apple Git-157)`]
+
+A test can therefore detach a scratch repository's `HEAD` for `git symbolic-ref --short HEAD` without making a commit, though `git status` fails there.

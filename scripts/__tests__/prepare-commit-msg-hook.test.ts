@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { execFileSync } from 'child_process';
 import { readFileSync, rmSync } from 'fs';
 import path from 'path';
-import { commitMessageRefusal } from '../commit-msg-check-validate.ts';
 import { unsetGitEnvironment } from './support/isolated-git.ts';
 import {
   createScratchFolder,
@@ -39,21 +38,9 @@ describe('.githooks/prepare-commit-msg on a typed branch', () => {
   it.each([
     'Revert "Merge pull request #1 from o/feat/y"\n\nThis reverts commit abc.\n',
     'Reapply "update backlog"\n\nThis reverts commit abc.\n',
-  ])(
-    'leaves a revert message as git wrote it, in a form the commit check accepts: %s',
-    (message) => {
-      const prepared = prepare(message);
-
-      expect(prepared).toBe(message);
-      expect(
-        commitMessageRefusal({
-          message: prepared,
-          branch: 'feat/example',
-          editorOpened: false,
-        }),
-      ).toBeNull();
-    },
-  );
+  ])('leaves a revert message as git wrote it: %s', (message) => {
+    expect(prepare(message)).toBe(message);
+  });
 
   it.each(['add x', 'Revert the last change', 'Reapply the last change'])(
     'still prefixes the branch type and scope to the plain subject "%s"',

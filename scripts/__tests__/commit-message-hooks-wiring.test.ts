@@ -67,13 +67,17 @@ describe('the commit message hook commands of package.json', () => {
     return { ...result, file };
   };
 
-  it('hands prepare-commit-msg a message path with a space whole, so the message is prefixed', () => {
+  const addPrefixHook = () => {
     initRepositoryOnFeatExample(checkout);
     mkdirSync(path.join(checkout, '.githooks'));
     copyFileSync(
       path.join(REPOSITORY_ROOT, '.githooks', 'prepare-commit-msg'),
       path.join(checkout, '.githooks', 'prepare-commit-msg'),
     );
+  };
+
+  it('hands prepare-commit-msg a message path with a space whole, so the message is prefixed', () => {
+    addPrefixHook();
 
     const { status, file } = runHook(
       'prepare-commit-msg',
@@ -83,6 +87,15 @@ describe('the commit message hook commands of package.json', () => {
 
     expect(status).toBe(0);
     expect(readFileSync(file, 'utf8')).toBe('feat(example): add x');
+  });
+
+  it('hands prepare-commit-msg the source git names, so a merge message is not prefixed', () => {
+    addPrefixHook();
+
+    const { status, file } = runHook('prepare-commit-msg', 'add x\n', 'merge');
+
+    expect(status).toBe(0);
+    expect(readFileSync(file, 'utf8')).toBe('add x\n');
   });
 
   it('lets any commit through in silence in a checkout without the check script, which shares the installed hook', () => {
