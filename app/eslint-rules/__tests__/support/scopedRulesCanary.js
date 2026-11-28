@@ -19,6 +19,14 @@ const platformCanaryDir = canaryPath('platform');
 const componentPath = path.join(srcCanaryDir, 'CanaryComponent.tsx');
 const readerHookPath = path.join(srcCanaryDir, 'useCanaryContext.ts');
 const hooksFolderPath = path.join(srcCanaryDir, 'hooks', 'readCanary.ts');
+const dataAccessComponentPath = canaryPath(
+  'src/data-access-layer',
+  'CanaryComponent.tsx',
+);
+const dataAccessReaderHookPath = canaryPath(
+  'src/data-access-layer',
+  'useCanaryContext.ts',
+);
 const lookupPath = path.join(srcCanaryDir, 'lookups.ts');
 const addedLookupPath = path.join(srcCanaryDir, 'addedLookups.ts');
 const srcTauriImportPath = path.join(srcCanaryDir, 'importsTauri.ts');
@@ -434,6 +442,8 @@ export const writeCanaries = () => {
   fs.writeFileSync(componentPath, useContextSource);
   fs.writeFileSync(readerHookPath, useContextSource);
   fs.writeFileSync(hooksFolderPath, useContextSource);
+  fs.writeFileSync(dataAccessComponentPath, useContextSource);
+  fs.writeFileSync(dataAccessReaderHookPath, useContextSource);
   fs.writeFileSync(lookupPath, lookupSource);
   fs.writeFileSync(addedLookupPath, addedLookupSource);
   fs.writeFileSync(srcTauriImportPath, tauriImportSource);
@@ -578,7 +588,7 @@ const reportedLinesCase = (group, name, ruleId, expectedLinesByPath) => ({
     ),
 });
 
-const restrictedImports = '@typescript-eslint/no-restricted-imports';
+const restrictedImports = 'no-restricted-imports';
 
 /** @type {CanaryCase[]} */
 export const canaryCases = [
@@ -595,11 +605,20 @@ export const canaryCases = [
   reportedLinesCase(
     'the useContext restriction under the project eslint.config.js',
     'reports the import in a component file but not in a use*.ts file or under a hooks/ folder',
-    'no-restricted-imports',
+    restrictedImports,
     [
       [componentPath, [1]],
       [readerHookPath, []],
       [hooksFolderPath, []],
+    ],
+  ),
+  reportedLinesCase(
+    'the useContext restriction under the project eslint.config.js',
+    'reports the import in a data access layer file beside its layer order restriction but not in a use*.ts file there',
+    restrictedImports,
+    [
+      [dataAccessComponentPath, [1]],
+      [dataAccessReaderHookPath, []],
     ],
   ),
   reportedLinesCase(

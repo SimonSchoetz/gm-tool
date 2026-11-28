@@ -308,6 +308,13 @@ An override or advisory that turns on this range has to be checked against each 
 
 A rule that bans both of these spellings lists both selectors.
 
+## ESLint 10.15.0's core `no-restricted-imports` accepts `allowTypeImports` on `paths` and `patterns` entries, and with it reported value imports and passed `import type` and `import { type X }` of restricted alias and relative specifiers
+
+**Verified at:** eslint 10.15.0 — 2026-11-28
+**Citation:** [core-restricted-imports_1: `app/node_modules/eslint/lib/rules/no-restricted-imports.js:68-72,137-141,372-402` — `allowTypeImports` in the `paths` and `patterns` item schemas; type-only checks read `importKind` and `exportKind` on declarations and specifiers] [core-restricted-imports_2: ran `npx vitest run --project node-tooling eslint-rules/__tests__/scoped-rules-canary.test.js` from `app/` at the commit that moved `app/eslint.config.js`'s import restrictions to the core rule — observed one report on each value import of a restricted `@platform`, `@db/*`, `@services/*`, `@/…` or `../../<layer>` specifier and of `@tauri-apps/api/core` in the layer files, and none on `import type { Row } from '@db/session'`, `import { type Service } from '../../services/sessionService'` or `import type { InvokeArgs } from '@tauri-apps/api/core'`]
+
+That run covered only import declarations: value re-exports, an import mixing type and value specifiers and `import x = require()` were not observed under the core rule.
+
 ## typescript-eslint 8.73.0's `no-restricted-imports` with `allowTypeImports: true` reported value imports and value re-exports of restricted alias and relative specifiers, and passed an `import type`, an `import { type X }`, an `export type { X }` and an `export { type X }` of restricted specifiers
 
 **Verified at:** typescript-eslint 8.73.0, eslint 10.15.0 — 2026-11-27
