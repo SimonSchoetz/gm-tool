@@ -30,6 +30,11 @@ const dataAccessReaderHookPath = canaryPath(
 const lookupPath = path.join(srcCanaryDir, 'lookups.ts');
 const addedLookupPath = path.join(srcCanaryDir, 'addedLookups.ts');
 const srcTauriImportPath = path.join(srcCanaryDir, 'importsTauri.ts');
+const srcHookTauriImportPath = path.join(
+  srcCanaryDir,
+  'hooks',
+  'importsTauri.ts',
+);
 const platformTauriImportPath = path.join(platformCanaryDir, 'importsTauri.ts');
 const srcTauriTypeImportPath = path.join(srcCanaryDir, 'importsTauriType.ts');
 const srcDevDataServerImportPath = path.join(
@@ -397,6 +402,16 @@ const layerImportScopes = [
       ),
     ],
   ),
+  {
+    name: 'reports a Tauri import and a value import from a src/ directory above it in a use*.ts reader hook of the data access layer, which the useContext block leaves out',
+    paths: [canaryPath('src/data-access-layer', 'useRestrictedImports.ts')],
+    banned: [
+      tauriValueImport,
+      ...valueImportsOf('@/screens', '../../hooks/useListNavigation'),
+    ],
+    allowedPaths: [],
+    allowed: [],
+  },
 ];
 
 /** @param {string[]} lines */
@@ -447,6 +462,7 @@ export const writeCanaries = () => {
   fs.writeFileSync(lookupPath, lookupSource);
   fs.writeFileSync(addedLookupPath, addedLookupSource);
   fs.writeFileSync(srcTauriImportPath, tauriImportSource);
+  fs.writeFileSync(srcHookTauriImportPath, tauriImportSource);
   fs.writeFileSync(platformTauriImportPath, tauriImportSource);
   fs.writeFileSync(srcTauriTypeImportPath, tauriTypeImportSource);
   fs.writeFileSync(srcDevDataServerImportPath, devDataServerImportSource);
@@ -635,9 +651,12 @@ export const canaryCases = [
   ),
   reportedLinesCase(
     'the Tauri import restriction under the project eslint.config.js',
-    'reports a runtime @tauri-apps import under src/ on its import line',
+    'reports a runtime @tauri-apps import under src/ on its import line, in a hooks/ folder the useContext block leaves out too',
     restrictedImports,
-    [[srcTauriImportPath, [1]]],
+    [
+      [srcTauriImportPath, [1]],
+      [srcHookTauriImportPath, [1]],
+    ],
   ),
   reportedLinesCase(
     'the Tauri import restriction under the project eslint.config.js',
