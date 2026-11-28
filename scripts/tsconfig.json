@@ -1,10 +1,14 @@
 {
   "extends": "../app/tsconfig.json",
   "compilerOptions": {
+    /* lint-config-mutations-check.ts imports the canary cases of app/eslint-rules/__tests__/support/scopedRulesCanary.js; its JSDoc types, checked through its `@ts-check`, type the import. */
+    "allowJs": true,
     /* vitest is installed only under app/, which no file here has as an ancestor directory. */
     "paths": {
       "vitest": ["../app/node_modules/vitest"]
     }
   },
-  "include": ["."]
+  "include": ["."],
+  /* It only re-exports app/eslint.config.js, whose local rules under app/eslint-rules/ are not written to pass a type check. */
+  "exclude": ["eslint.config.js"]
 }
